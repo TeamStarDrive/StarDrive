@@ -5,3 +5,8 @@ C:\Users\danny\Documents\AzureSD\obj\x86\Debug\StarDrive.exe
 C:\Users\danny\Documents\AzureSD\obj\x86\Debug\StarDrive.pdb
 D:\Program Files\steam\steamapps\common\StarDrive\StarDrive.pdb
 D:\Program Files\steam\steamapps\common\StarDrive\StarDrive.exe.config
+C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\StarDrive.exe
+C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\StarDrive.pdb
+C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\StarDrive.csprojResolveAssemblyReference.cache
+C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\Properties.Resources.resources
+C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\StarDrive.csproj.GenerateResource.Cache
