@@ -3464,7 +3464,13 @@ namespace Ship_Game
                     foreach (SlotStruct slotStruct in this.Slots)
                     {
                         if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2 && slotStruct.ShowValid)
-                            ++num;
+                        {
+                            if (slotStruct.module == null && slotStruct.parent == null)
+                            {   //make sure they are actually empty!
+                                ++num;
+                            }
+                        }
+                            
                     }
                 }
             }
@@ -3573,7 +3579,9 @@ namespace Ship_Game
 
         private void InstallModuleNoStack(SlotStruct slot)
         {
-            int num = 0;    //check for sufficient space
+            System.Diagnostics.Debug.Assert(false);
+            //looks like this function is not actually used, see if anyone manages to trigger this
+            int num = 0;    //check for sufficient slots
             for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
             {
                 for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
@@ -3581,7 +3589,11 @@ namespace Ship_Game
                     foreach (SlotStruct slotStruct in this.Slots)
                     {   //checks if this slot is within xsize and ysize
                         if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2)
-                            ++num;
+                        {
+                            if(slotStruct.module == null && slotStruct.parent == null){   //make sure they are actually empty!
+                                ++num;
+                            }
+                        }                            
                     }
                 }
             }
