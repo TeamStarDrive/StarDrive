@@ -240,11 +240,11 @@ namespace Ship_Game
 				this.SavesSL.AddItem(FI);
 			}
 			this.EnternamePos = this.TitlePosition;
-			this.EnterNameArea = new UITextEntry()
-			{
-				Text = this.f.Name,
-				ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing)
-			};
+			this.EnterNameArea = new UITextEntry();
+			
+				this.EnterNameArea.Text = this.f.Name;
+                this.EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+			
 			this.Save = new UIButton()
 			{
 				Rect = new Rectangle(sub.X + sub.Width - 88, this.EnterNameArea.ClickableArea.Y - 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height),
