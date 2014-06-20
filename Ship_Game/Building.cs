@@ -112,6 +112,8 @@ namespace Ship_Game
 
 		public float PlusFlatProductionAmount;
 
+        public float SensorRange;
+
 		public Building()
 		{
 		}
