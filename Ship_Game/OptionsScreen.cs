@@ -676,6 +676,7 @@ namespace Ship_Game
 			int effectsVolume = (int)((float)(GlobalStats.Config.EffectsVolume * 100f));
 			amt = effectsVolume.ToString("00");
 			config.AppSettings.Settings["EffectsVolume"].Value = amt;
+            //config.AppSettings.Settings["AutoSaveInterval"].Value = GlobalStats.Config.AutoSaveInterval.ToString();
 			config.AppSettings.Settings["XRES"].Value = Game1.Instance.graphics.PreferredBackBufferWidth.ToString();
 			config.AppSettings.Settings["YRES"].Value = Game1.Instance.graphics.PreferredBackBufferHeight.ToString();
 			config.AppSettings.Settings["WindowMode"].Value = GlobalStats.Config.WindowMode.ToString();
