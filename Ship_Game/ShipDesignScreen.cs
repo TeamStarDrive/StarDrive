@@ -2941,7 +2941,7 @@ namespace Ship_Game
 		public override void HandleInput(InputState input)
 		{
 			string str;
-			if (this.ActiveModule != null && (this.ActiveModule.ModuleType == ShipModuleType.MainGun || this.ActiveModule.ModuleType == ShipModuleType.MissileLauncher))
+			if (this.ActiveModule != null && (this.ActiveModule.ModuleType == ShipModuleType.MainGun || this.ActiveModule.ModuleType == ShipModuleType.MissileLauncher || this.ActiveModule.CanRotate))
 			{
 				if (input.Left)
 				{

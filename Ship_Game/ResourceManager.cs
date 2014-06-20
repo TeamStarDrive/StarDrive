@@ -879,7 +879,8 @@ namespace Ship_Game
 				PlusFlatPopulation = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusFlatPopulation,
 				Weapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Weapon,
 				isWeapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].isWeapon,
-				PlusTerraformPoints = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusTerraformPoints
+				PlusTerraformPoints = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusTerraformPoints,
+                SensorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].SensorRange
 			};
 			if (newB.isWeapon)
 			{
@@ -987,6 +988,7 @@ namespace Ship_Game
 				BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
 				HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
 				BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
+                CanRotate = Ship_Game.ResourceManager.ShipModulesDict[uid].CanRotate,
 				Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
 				Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
 				DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
@@ -1188,6 +1190,7 @@ namespace Ship_Game
 				AnimationPath = Ship_Game.ResourceManager.WeaponsDict[uid].AnimationPath,
 				BeamPowerCostPerSecond = Ship_Game.ResourceManager.WeaponsDict[uid].BeamPowerCostPerSecond,
 				BeamThickness = Ship_Game.ResourceManager.WeaponsDict[uid].BeamThickness,
+                BeamDuration = Ship_Game.ResourceManager.WeaponsDict[uid].BeamDuration,
 				BombPopulationKillPerHit = Ship_Game.ResourceManager.WeaponsDict[uid].BombPopulationKillPerHit,
 				BombTroopDamage_Max = Ship_Game.ResourceManager.WeaponsDict[uid].BombTroopDamage_Max,
 				BombTroopDamage_Min = Ship_Game.ResourceManager.WeaponsDict[uid].BombTroopDamage_Min,
