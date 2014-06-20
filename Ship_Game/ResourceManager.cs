@@ -864,6 +864,8 @@ namespace Ship_Game
 				CombatStrength = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CombatStrength,
 				PlusProdPerRichness = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusProdPerRichness,
 				Name = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Name,
+                IsSensor = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].IsSensor,
+                IsProjector = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].IsProjector,
 				PlusResearchPerColonist = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusResearchPerColonist,
 				StorageAdded = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].StorageAdded,
 				Unique = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Unique,
@@ -880,7 +882,8 @@ namespace Ship_Game
 				Weapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Weapon,
 				isWeapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].isWeapon,
 				PlusTerraformPoints = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusTerraformPoints,
-                SensorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].SensorRange
+                SensorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].SensorRange,
+                ProjectorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ProjectorRange
 			};
 			if (newB.isWeapon)
 			{

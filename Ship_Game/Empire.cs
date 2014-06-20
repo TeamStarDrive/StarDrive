@@ -87,6 +87,7 @@ namespace Ship_Game
         public float MilitaryScore;
         public float IndustrialScore;
         public float SensorRange;
+        public bool IsSensor;
         //private float desiredForceStrength;
 
         static Empire()
@@ -1200,16 +1201,16 @@ namespace Ship_Game
                         Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
                         influenceNode1.KeyedObject = (object)planet;
                         influenceNode1.Position = planet.Position;
-                        influenceNode1.Radius = 8000f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
+                        influenceNode1.Radius = 1f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
                         // influenceNode1.Radius = this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
                         lock (GlobalStats.SensorNodeLocker)
                             this.SensorNodes.Add(influenceNode1);
                         Empire.InfluenceNode influenceNode2 = new Empire.InfluenceNode();
                         influenceNode2.Position = planet.Position;
-                        influenceNode2.Radius = this.isFaction ? 8000f : (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * empire.data.SensorModifier : 600000f * empire.data.SensorModifier);
+                        influenceNode2.Radius = this.isFaction ? 1f : (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * empire.data.SensorModifier : 600000f * empire.data.SensorModifier);
                         foreach (Building building in planet.BuildingList)
                         {
-                            if (building.Name == "Tracking Station")
+                            if (building.IsSensor)
                                 influenceNode2.Radius = building.SensorRange * this.data.SensorModifier;
                         }
                         lock (GlobalStats.SensorNodeLocker)
@@ -1247,22 +1248,27 @@ namespace Ship_Game
                 Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
                 influenceNode1.KeyedObject = (object)planet.system;
                 influenceNode1.Position = planet.system.Position;
-                influenceNode1.Radius = this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
+                influenceNode1.Radius = this.isFaction ? 1f : 1f;
+                for (int index = 0; index < planet.BuildingList.Count; ++index)
+                {
+                    if (planet.BuildingList[index].IsProjector)
+                        influenceNode1.Radius = planet.BuildingList[index].ProjectorRange;
+                }
                 lock (GlobalStats.BorderNodeLocker)
                     this.BorderNodes.Add(influenceNode1);
                 Empire.InfluenceNode influenceNode2 = new Empire.InfluenceNode();
                 influenceNode2.KeyedObject = (object)planet;
                 influenceNode2.Position = planet.Position;
-                influenceNode2.Radius = 8000f; //this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
+                influenceNode2.Radius = 1f; //this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
                 lock (GlobalStats.SensorNodeLocker)
                     this.SensorNodes.Add(influenceNode2);
                 Empire.InfluenceNode influenceNode3 = new Empire.InfluenceNode();
                 influenceNode3.KeyedObject = (object)planet;
                 influenceNode3.Position = planet.Position;
-                influenceNode3.Radius = this.isFaction ? 8000f : 8000f * this.data.SensorModifier;
+                influenceNode3.Radius = this.isFaction ? 1f : 1f * this.data.SensorModifier;
                 for (int index = 0; index < planet.BuildingList.Count; ++index)
                 {
-                    if (planet.BuildingList[index].Name == "Tracking Station")
+                    if (planet.BuildingList[index].IsSensor)
                         influenceNode3.Radius = planet.BuildingList[index].SensorRange * this.data.SensorModifier;
                 }
                 lock (GlobalStats.SensorNodeLocker)

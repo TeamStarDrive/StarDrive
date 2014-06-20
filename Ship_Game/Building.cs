@@ -8,6 +8,8 @@ namespace Ship_Game
 	{
 		public string Name;
 
+        public bool IsSensor;
+
 		public bool NoRandomSpawn;
 
 		public bool AllowShipBuilding;
@@ -113,6 +115,10 @@ namespace Ship_Game
 		public float PlusFlatProductionAmount;
 
         public float SensorRange;
+
+        public bool IsProjector;
+
+        public float ProjectorRange;
 
 		public Building()
 		{
