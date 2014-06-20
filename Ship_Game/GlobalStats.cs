@@ -1,0 +1,168 @@
+using Ship_Game.Gameplay;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+
+namespace Ship_Game
+{
+	public class GlobalStats
+	{
+		public static int ComparisonCounter;
+
+		public static int Comparisons;
+
+		public static bool HardcoreRuleset;
+
+		public static bool TakingInput;
+
+		public static bool WarpInSystem;
+
+		public static float FTLInSystemModifier;
+
+		public static object ShieldLocker;
+
+		public static object ClickableSystemsLock;
+
+		public static object SensorNodeLocker;
+
+		public static object BorderNodeLocker;
+
+		public static object BombLock;
+
+		public static object ObjectManagerLocker;
+
+		public static object ExplosionLocker;
+
+		public static object KnownShipsLock;
+
+		public static object AddShipLocker;
+
+		public static object BucketLock;
+
+		public static object OwnedPlanetsLock;
+
+		public static object DeepSpaceLock;
+
+		public static object WayPointLock;
+
+		public static object ClickableItemLocker;
+
+		public static object NotificationLocker;
+
+		public static object TaskLocker;
+
+		public static object FleetButtonLocker;
+
+		public static object BeamEffectLocker;
+
+		public static Ship_Game.Config Config;
+
+		public static System.Configuration.Configuration Configuration;
+
+		public static bool ShowAllDesigns;
+
+		public static int ModulesMoved;
+
+		public static int DSCombatScans;
+
+		public static int BeamTests;
+
+		public static int ModuleUpdates;
+
+		public static int WeaponArcChecks;
+
+		public static int CombatScans;
+
+		public static int DistanceCheckTotal;
+
+		public static bool LimitSpeed;
+
+		public static float GravityWellRange;
+
+		public static bool PlanetaryGravityWells;
+
+		public static bool AutoCombat;
+
+		public static int TimesPlayed;
+
+		public static ModEntry ActiveMod;
+
+		public static string ResearchRootUIDToDisplay;
+
+		public static bool ForceFullSim;
+
+		public static int RemnantKills;
+
+		public static bool RemnantArmageddon;
+
+		public static int CordrazinePlanetsCaptured;
+
+		static GlobalStats()
+		{
+			GlobalStats.ComparisonCounter = 1;
+			GlobalStats.Comparisons = 0;
+			GlobalStats.HardcoreRuleset = false;
+			GlobalStats.TakingInput = false;
+			GlobalStats.WarpInSystem = true;
+			GlobalStats.FTLInSystemModifier = 1f;
+			GlobalStats.ShieldLocker = new object();
+			GlobalStats.ClickableSystemsLock = new object();
+			GlobalStats.SensorNodeLocker = new object();
+			GlobalStats.BorderNodeLocker = new object();
+			GlobalStats.BombLock = new object();
+			GlobalStats.ObjectManagerLocker = new object();
+			GlobalStats.ExplosionLocker = new object();
+			GlobalStats.KnownShipsLock = new object();
+			GlobalStats.AddShipLocker = new object();
+			GlobalStats.BucketLock = new object();
+			GlobalStats.OwnedPlanetsLock = new object();
+			GlobalStats.DeepSpaceLock = new object();
+			GlobalStats.WayPointLock = new object();
+			GlobalStats.ClickableItemLocker = new object();
+			GlobalStats.NotificationLocker = new object();
+			GlobalStats.TaskLocker = new object();
+			GlobalStats.FleetButtonLocker = new object();
+			GlobalStats.BeamEffectLocker = new object();
+			GlobalStats.ShowAllDesigns = true;
+			GlobalStats.ModulesMoved = 0;
+			GlobalStats.DSCombatScans = 0;
+			GlobalStats.BeamTests = 0;
+			GlobalStats.ModuleUpdates = 0;
+			GlobalStats.WeaponArcChecks = 0;
+			GlobalStats.CombatScans = 0;
+			GlobalStats.DistanceCheckTotal = 0;
+			GlobalStats.LimitSpeed = true;
+			GlobalStats.GravityWellRange = 8000f;
+			GlobalStats.PlanetaryGravityWells = true;
+			GlobalStats.AutoCombat = true;
+			GlobalStats.TimesPlayed = 0;
+			GlobalStats.ResearchRootUIDToDisplay = "Colonization";
+			GlobalStats.ForceFullSim = true;
+			GlobalStats.RemnantKills = 0;
+			GlobalStats.RemnantArmageddon = false;
+			GlobalStats.CordrazinePlanetsCaptured = 0;
+		}
+
+		public GlobalStats()
+		{
+		}
+
+		public static void IncrementCordrazineCapture()
+		{
+			GlobalStats.CordrazinePlanetsCaptured = GlobalStats.CordrazinePlanetsCaptured + 1;
+			if (GlobalStats.CordrazinePlanetsCaptured == 1)
+			{
+				Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["OwlwokFreedom"]);
+			}
+		}
+
+		public static void IncrementRemnantKills()
+		{
+			GlobalStats.RemnantKills = GlobalStats.RemnantKills + 1;
+			if (GlobalStats.RemnantKills == 5)
+			{
+				Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
+			}
+		}
+	}
+}
