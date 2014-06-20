@@ -493,45 +493,50 @@ namespace Ship_Game
 			}
 		}
 
-        private void ClearParentSlot(SlotStruct parent)
-        {
-            SlotStruct slotStruct1 = new SlotStruct();
-            slotStruct1.pq = parent.pq;
-            slotStruct1.Restrictions = parent.Restrictions;
-            slotStruct1.facing = parent.facing;
-            slotStruct1.ModuleUID = parent.ModuleUID;
-            slotStruct1.module = parent.module;
-            slotStruct1.state = parent.state;
-            slotStruct1.slotReference = parent.slotReference;
-            if (this.DesignStack.Count > 0)
-                this.DesignStack.Peek().AlteredSlots.Add(slotStruct1);
-            for (int index1 = 0; index1 < (int)parent.module.YSIZE; ++index1)
-            {
-                for (int index2 = 0; index2 < (int)parent.module.XSIZE; ++index2)
-                {
-                    if (!(index2 == 0 & index1 == 0))
-                    {
-                        foreach (SlotStruct slotStruct2 in this.Slots)
-                        {
-                            if (slotStruct2.pq.Y == parent.pq.Y + 16 * index1 && slotStruct2.pq.X == parent.pq.X + 16 * index2)
-                            {
-                                slotStruct2.ModuleUID = (string)null;
-                                slotStruct2.isDummy = false;
-                                slotStruct2.tex = (Texture2D)null;
-                                slotStruct2.module = (ShipModule)null;
-                                slotStruct2.parent = (SlotStruct)null;
-                                slotStruct2.state = ShipDesignScreen.ActiveModuleState.Normal;
-                            }
-                        }
-                    }
-                }
-            }
-            parent.ModuleUID = (string)null;
-            parent.isDummy = false;
-            parent.tex = (Texture2D)null;
-            parent.module = (ShipModule)null;
-            parent.state = ShipDesignScreen.ActiveModuleState.Normal;
-        }
+		private void ClearParentSlot(SlotStruct parent)
+		{
+			SlotStruct copy = new SlotStruct()
+			{
+				pq = parent.pq,
+				Restrictions = parent.Restrictions,
+				facing = parent.facing,
+				ModuleUID = parent.ModuleUID,
+				module = parent.module,
+				state = parent.state,
+				slotReference = parent.slotReference
+			};
+			if (this.DesignStack.Count > 0)
+			{
+				this.DesignStack.Peek().AlteredSlots.Add(copy);
+			}
+			for (int y = 0; y < parent.module.YSIZE; y++)
+			{
+				for (int x = 0; x < parent.module.XSIZE; x++)
+				{
+					if (x == 0 & y == 0)
+					{
+						foreach (SlotStruct dummyslot in this.Slots)
+						{
+							if (dummyslot.pq.Y != parent.pq.Y + 16 * y || dummyslot.pq.X != parent.pq.X + 16 * x)
+							{
+								continue;
+							}
+							dummyslot.ModuleUID = null;
+							dummyslot.isDummy = false;
+							dummyslot.tex = null;
+							dummyslot.module = null;
+							dummyslot.parent = null;
+							dummyslot.state = ShipDesignScreen.ActiveModuleState.Normal;
+						}
+					}
+				}
+			}
+			parent.ModuleUID = null;
+			parent.isDummy = false;
+			parent.tex = null;
+			parent.module = null;
+			parent.state = ShipDesignScreen.ActiveModuleState.Normal;
+		}
 
 		private void ClearParentSlotNoStack(SlotStruct parent)
 		{
@@ -2933,592 +2938,804 @@ namespace Ship_Game
 			this.ChangeHull(this.AvailableHulls[this.HullIndex]);
 		}
 
-        public override void HandleInput(InputState input)
-        {
-            if (this.ActiveModule != null && (this.ActiveModule.ModuleType == ShipModuleType.MainGun || this.ActiveModule.ModuleType == ShipModuleType.MissileLauncher))
-            {
-                if (input.Left)
-                    this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Left);
-                if (input.Right)
-                    this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Right);
-                if (input.Down)
-                    this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Rear);
-                if (input.Up)
-                    this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Normal);
-            }
-            if (this.close.HandleInput(input))
-                this.ExitScreen();
-            else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && input.LastKeyboardState.IsKeyUp(Keys.Z) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
-            {
-                if (this.DesignStack.Count <= 0)
-                    return;
-                ShipModule shipModule = this.ActiveModule;
-                DesignAction designAction = this.DesignStack.Pop();
-                SlotStruct slot1 = new SlotStruct();
-                foreach (SlotStruct slot2 in this.Slots)
-                {
-                    if (slot2.pq == designAction.clickedSS.pq)
-                    {
-                        this.ClearSlotNoStack(slot2);
-                        slot1 = slot2;
-                        slot1.facing = designAction.clickedSS.facing;
-                    }
-                    foreach (SlotStruct slotStruct in designAction.AlteredSlots)
-                    {
-                        if (slot2.pq == slotStruct.pq)
-                        {
-                            this.ClearSlotNoStack(slot2);
-                            break;
-                        }
-                    }
-                }
-                if (designAction.clickedSS.ModuleUID != null)
-                {
-                    this.ActiveModule = ResourceManager.GetModule(designAction.clickedSS.ModuleUID);
-                    this.ResetModuleState();
-                    this.InstallModuleNoStack(slot1);
-                }
-                foreach (SlotStruct slotStruct in designAction.AlteredSlots)
-                {
-                    foreach (SlotStruct slot2 in this.Slots)
-                    {
-                        if (slot2.pq == slotStruct.pq && slotStruct.ModuleUID != null)
-                        {
-                            this.ActiveModule = ResourceManager.GetModule(slotStruct.ModuleUID);
-                            this.ResetModuleState();
-                            this.InstallModuleNoStack(slot2);
-                            slot2.facing = slotStruct.facing;
-                            slot2.ModuleUID = slotStruct.ModuleUID;
-                        }
-                    }
-                }
-                this.ActiveModule = shipModule;
-                this.ResetModuleState();
-            }
-            else
-            {
-                if (!HelperFunctions.CheckIntersection(this.ModuleSelectionMenu.Menu, input.CursorPosition) && !HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition) && !HelperFunctions.CheckIntersection(this.ChooseFighterSub.Menu, input.CursorPosition))
-                {
-                    if (input.ScrollOut)
-                    {
-                        this.TransitionZoom -= 0.1f;
-                        if ((double)this.TransitionZoom < 0.300000011920929)
-                            this.TransitionZoom = 0.3f;
-                        if ((double)this.TransitionZoom > 2.65000009536743)
-                            this.TransitionZoom = 2.65f;
-                    }
-                    if (input.ScrollIn)
-                    {
-                        this.TransitionZoom += 0.1f;
-                        if ((double)this.TransitionZoom < 0.300000011920929)
-                            this.TransitionZoom = 0.3f;
-                        if ((double)this.TransitionZoom > 2.65000009536743)
-                            this.TransitionZoom = 2.65f;
-                    }
-                }
-                if (input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde))
-                    input.LastKeyboardState.IsKeyUp(Keys.OemTilde);
-                if (this.Debug)
-                {
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.Enter) && input.LastKeyboardState.IsKeyUp(Keys.Enter))
-                    {
-                        foreach (ModuleSlotData moduleSlotData in this.ActiveHull.ModuleSlotList)
-                            moduleSlotData.InstalledModuleUID = (string)null;
-                        new XmlSerializer(typeof(ShipData)).Serialize((TextWriter)new StreamWriter("Content/Hulls/" + this.ActiveHull.ShipStyle + "/" + this.ActiveHull.Name + ".xml"), (object)this.ActiveHull);
-                    }
-                    if (input.Right)
-                        ++this.operation;
-                    if (this.operation > (ShipDesignScreen.SlotModOperation)6)
-                        this.operation = ShipDesignScreen.SlotModOperation.Delete;
-                }
-                this.HoveredModule = (ShipModule)null;
-                this.mouseStateCurrent = Mouse.GetState();
-                Vector2 vector2 = new Vector2((float)this.mouseStateCurrent.X, (float)this.mouseStateCurrent.Y);
-                this.selector = (Selector)null;
-                this.EmpireUI.HandleInput(input, (GameScreen)this);
-                if (this.Fleets.HandleInput(input))
-                {
-                    if (!this.ShipSaved && !this.CheckDesign())
-                    {
-                        MessageBoxScreen messageBoxScreen = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
-                        messageBoxScreen.Cancelled += new EventHandler<EventArgs>(this.DoExitToFleetsList);
-                        messageBoxScreen.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenExitToFleets);
-                        this.ScreenManager.AddScreen((GameScreen)messageBoxScreen);
-                    }
-                    else
-                    {
-                        this.ScreenManager.AddScreen((GameScreen)new FleetDesignScreen(this.EmpireUI));
-                        this.ReallyExit();
-                    }
-                }
-                if (this.ShipList.HandleInput(input))
-                {
-                    if (!this.ShipSaved && !this.CheckDesign())
-                    {
-                        MessageBoxScreen messageBoxScreen = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
-                        messageBoxScreen.Cancelled += new EventHandler<EventArgs>(this.DoExitToShipsList);
-                        messageBoxScreen.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenExitToShipsList);
-                        this.ScreenManager.AddScreen((GameScreen)messageBoxScreen);
-                    }
-                    else
-                    {
-                        this.ScreenManager.AddScreen((GameScreen)new ShipListScreen(this.ScreenManager, this.EmpireUI));
-                        this.ReallyExit();
-                    }
-                }
-                this.activeModSubMenu.HandleInputNoReset((object)this);
-                this.hullSL.HandleInput(input);
-                for (int index = this.hullSL.indexAtTop; index < this.hullSL.Copied.Count && index < this.hullSL.indexAtTop + this.hullSL.entriesToDisplay; ++index)
-                {
-                    ScrollList.Entry e = this.hullSL.Copied[index];
-                    if (e.item is ModuleHeader)
-                    {
-                        if ((e.item as ModuleHeader).HandleInput(input, e))
-                            return;
-                    }
-                    else if (HelperFunctions.CheckIntersection(e.clickRect, vector2))
-                    {
-                        this.selector = new Selector(this.ScreenManager, e.clickRect);
-                        e.clickRectHover = 1;
-                        this.selector = new Selector(this.ScreenManager, e.clickRect);
-                        if (input.InGameSelect)
-                        {
-                            AudioManager.PlayCue("sd_ui_accept_alt3");
-                            if (!this.ShipSaved && !this.CheckDesign())
-                            {
-                                MessageBoxScreen messageBoxScreen = new MessageBoxScreen(Localizer.Token(2121), "Save", "No");
-                                messageBoxScreen.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenChangeHull);
-                                messageBoxScreen.Cancelled += new EventHandler<EventArgs>(this.JustChangeHull);
-                                this.changeto = e.item as ShipData;
-                                this.ScreenManager.AddScreen((GameScreen)messageBoxScreen);
-                                return;
-                            }
-                            else
-                            {
-                                this.ChangeHull(e.item as ShipData);
-                                return;
-                            }
-                        }
-                    }
-                    else
-                        e.clickRectHover = 0;
-                }
-                this.modSel.HandleInput((object)this);
-                if (this.ActiveModule != null)
-                {
-                    if (this.ActiveModule.ModuleType == ShipModuleType.Hangar && !this.ActiveModule.IsTroopBay && !this.ActiveModule.IsSupplyBay)
-                    {
-                        this.ChooseFighterSL.HandleInput(input);
-                        for (int index = this.ChooseFighterSL.indexAtTop; index < this.ChooseFighterSL.Copied.Count && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
-                        {
-                            ScrollList.Entry entry = this.ChooseFighterSL.Copied[index];
-                            if (HelperFunctions.CheckIntersection(entry.clickRect, vector2))
-                            {
-                                this.selector = new Selector(this.ScreenManager, entry.clickRect);
-                                entry.clickRectHover = 1;
-                                this.selector = new Selector(this.ScreenManager, entry.clickRect);
-                                if (input.InGameSelect)
-                                {
-                                    this.ActiveModule.hangarShipUID = (entry.item as Ship).Name;
-                                    AudioManager.PlayCue("sd_ui_accept_alt3");
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (this.HighlightedModule != null && this.HighlightedModule.ModuleType == ShipModuleType.Hangar && (!this.HighlightedModule.IsTroopBay && !this.HighlightedModule.IsSupplyBay))
-                {
-                    this.ChooseFighterSL.HandleInput(input);
-                    for (int index = this.ChooseFighterSL.indexAtTop; index < this.ChooseFighterSL.Copied.Count && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
-                    {
-                        ScrollList.Entry entry = this.ChooseFighterSL.Copied[index];
-                        if (HelperFunctions.CheckIntersection(entry.clickRect, vector2))
-                        {
-                            this.selector = new Selector(this.ScreenManager, entry.clickRect);
-                            entry.clickRectHover = 1;
-                            this.selector = new Selector(this.ScreenManager, entry.clickRect);
-                            if (input.InGameSelect)
-                            {
-                                this.HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
-                                AudioManager.PlayCue("sd_ui_accept_alt3");
-                                return;
-                            }
-                        }
-                    }
-                }
-                for (int index = this.weaponSL.indexAtTop; index < this.weaponSL.Copied.Count && index < this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay; ++index)
-                {
-                    ScrollList.Entry e = this.weaponSL.Copied[index];
-                    if (e.item is ModuleHeader)
-                    {
-                        if ((e.item as ModuleHeader).HandleInput(input, e))
-                            return;
-                    }
-                    else if (HelperFunctions.CheckIntersection(e.clickRect, vector2))
-                    {
-                        this.selector = new Selector(this.ScreenManager, e.clickRect);
-                        e.clickRectHover = 1;
-                        this.selector = new Selector(this.ScreenManager, e.clickRect);
-                        if (input.InGameSelect)
-                        {
-                            this.SetActiveModule(ResourceManager.GetModule((e.item as ShipModule).UID));
-                            this.ResetModuleState();
-                            return;
-                        }
-                    }
-                    else
-                        e.clickRectHover = 0;
-                }
-                this.weaponSL.HandleInput(input);
-                if (HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed || HelperFunctions.CheckIntersection(this.modSel.Menu, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed || HelperFunctions.CheckIntersection(this.activeModSubMenu.Menu, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
-                    return;
-                if (HelperFunctions.CheckIntersection(this.modSel.Menu, vector2))
-                {
-                    if (this.mouseStateCurrent.ScrollWheelValue > this.mouseStatePrevious.ScrollWheelValue && this.weaponSL.indexAtTop > 0)
-                        --this.weaponSL.indexAtTop;
-                    if (this.mouseStateCurrent.ScrollWheelValue < this.mouseStatePrevious.ScrollWheelValue && this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay < this.weaponSL.Entries.Count)
-                        ++this.weaponSL.indexAtTop;
-                }
-                if (HelperFunctions.CheckIntersection(this.ArcsButton.R, input.CursorPosition))
-                    ToolTip.CreateTooltip(134, this.ScreenManager);
-                if (this.ArcsButton.HandleInput(input))
-                {
-                    this.ArcsButton.ToggleOn = !this.ArcsButton.ToggleOn;
-                    this.ShowAllArcs = this.ArcsButton.ToggleOn;
-                }
-                if (input.Tab)
-                {
-                    this.ShowAllArcs = !this.ShowAllArcs;
-                    this.ArcsButton.ToggleOn = this.ShowAllArcs;
-                }
-                if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
-                {
-                    this.StartDragPos = input.CursorPosition;
-                    this.cameraVelocity.X = 0.0f;
-                    this.cameraVelocity.Y = 0.0f;
-                }
-                if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Pressed)
-                {
-                    float num1 = input.CursorPosition.X - this.StartDragPos.X;
-                    float num2 = input.CursorPosition.Y - this.StartDragPos.Y;
-                    this.camera._pos += new Vector2(-num1, -num2);
-                    this.StartDragPos = input.CursorPosition;
-                    this.cameraPosition.X += -num1;
-                    this.cameraPosition.Y += -num2;
-                }
-                else
-                {
-                    this.cameraVelocity.X = 0.0f;
-                    this.cameraVelocity.Y = 0.0f;
-                }
-                this.cameraVelocity.X = MathHelper.Clamp(this.cameraVelocity.X, -10f, 10f);
-                this.cameraVelocity.Y = MathHelper.Clamp(this.cameraVelocity.Y, -10f, 10f);
-                if (input.Escaped)
-                    this.ExitScreen();
-                if (this.ToggleOverlay)
-                {
-                    foreach (SlotStruct slotStruct in this.Slots)
-                    {
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slotStruct.pq.enclosingRect.X, (float)slotStruct.pq.enclosingRect.Y));
-                        if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
-                        {
-                            if (slotStruct.isDummy && slotStruct.parent.module != null)
-                                this.HoveredModule = slotStruct.parent.module;
-                            else if (slotStruct.module != null)
-                                this.HoveredModule = slotStruct.module;
-                            if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
-                            {
-                                AudioManager.GetCue("simple_beep").Play();
-                                if (this.Debug)
-                                {
-                                    this.DebugAlterSlot(slotStruct.slotReference.Position, this.operation);
-                                    return;
-                                }
-                                else if (slotStruct.isDummy && slotStruct.parent.module != null)
-                                    this.HighlightedModule = slotStruct.parent.module;
-                                else if (slotStruct.module != null)
-                                    this.HighlightedModule = slotStruct.module;
-                            }
-                        }
-                    }
-                }
-                if (HelperFunctions.CheckIntersection(this.upArrow, vector2) && this.mouseStateCurrent.LeftButton == ButtonState.Released && (this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.scrollPosition > 0))
-                {
-                    --this.scrollPosition;
-                    AudioManager.GetCue("blip_click").Play();
-                    foreach (ModuleButton moduleButton in this.ModuleButtons)
-                        moduleButton.moduleRect.Y += 128;
-                }
-                if (HelperFunctions.CheckIntersection(this.downArrow, vector2) && this.mouseStateCurrent.LeftButton == ButtonState.Released && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
-                {
-                    ++this.scrollPosition;
-                    AudioManager.GetCue("blip_click").Play();
-                    foreach (ModuleButton moduleButton in this.ModuleButtons)
-                        moduleButton.moduleRect.Y -= 128;
-                }
-                if (HelperFunctions.CheckIntersection(this.ModuleSelectionArea, vector2))
-                {
-                    if (input.ScrollIn && this.scrollPosition > 0)
-                    {
-                        --this.scrollPosition;
-                        AudioManager.GetCue("blip_click").Play();
-                        foreach (ModuleButton moduleButton in this.ModuleButtons)
-                            moduleButton.moduleRect.Y += 128;
-                    }
-                    if (input.ScrollOut)
-                    {
-                        ++this.scrollPosition;
-                        AudioManager.GetCue("blip_click").Play();
-                        foreach (ModuleButton moduleButton in this.ModuleButtons)
-                            moduleButton.moduleRect.Y -= 128;
-                    }
-                }
-                if (this.mouseStateCurrent.RightButton == ButtonState.Released && this.mouseStatePrevious.RightButton == ButtonState.Pressed)
-                {
-                    this.ActiveModule = (ShipModule)null;
-                    foreach (SlotStruct parent in this.Slots)
-                    {
-                        parent.ShowInvalid = false;
-                        parent.ShowValid = false;
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)parent.pq.enclosingRect.X, (float)parent.pq.enclosingRect.Y));
-                        Rectangle rect = new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom));
-                        if ((parent.module != null || parent.isDummy) && HelperFunctions.CheckIntersection(rect, vector2))
-                        {
-                            DesignAction designAction = new DesignAction();
-                            designAction.clickedSS = new SlotStruct();
-                            designAction.clickedSS.pq = parent.isDummy ? parent.parent.pq : parent.pq;
-                            designAction.clickedSS.Restrictions = parent.Restrictions;
-                            designAction.clickedSS.facing = parent.module != null ? parent.module.facing : 0.0f;
-                            designAction.clickedSS.ModuleUID = parent.isDummy ? parent.parent.ModuleUID : parent.ModuleUID;
-                            designAction.clickedSS.module = parent.module;
-                            designAction.clickedSS.slotReference = parent.isDummy ? parent.parent.slotReference : parent.slotReference;
-                            this.DesignStack.Push(designAction);
-                            AudioManager.GetCue("sub_bass_whoosh").Play();
-                            if (parent.isDummy)
-                                this.ClearParentSlot(parent.parent);
-                            else
-                                this.ClearParentSlot(parent);
-                            this.RecalculatePower();
-                        }
-                    }
-                }
-                foreach (ModuleButton moduleButton in this.ModuleButtons)
-                {
-                    if (HelperFunctions.CheckIntersection(this.ModuleSelectionArea, new Vector2((float)(moduleButton.moduleRect.X + 30), (float)(moduleButton.moduleRect.Y + 30))))
-                    {
-                        if (HelperFunctions.CheckIntersection(moduleButton.moduleRect, vector2))
-                        {
-                            if (input.InGameSelect)
-                                this.SetActiveModule(ResourceManager.GetModule(moduleButton.ModuleUID));
-                            moduleButton.isHighlighted = true;
-                        }
-                        else
-                            moduleButton.isHighlighted = false;
-                    }
-                }
-                if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && this.ActiveModule != null)
-                {
-                    foreach (SlotStruct slot in this.Slots)
-                    {
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.pq.enclosingRect.X, (float)slot.pq.enclosingRect.Y));
-                        if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
-                        {
-                            AudioManager.GetCue("sub_bass_mouseover").Play();
-                            this.InstallModule(slot);
-                        }
-                    }
-                }
-                foreach (SlotStruct slotStruct in this.Slots)
-                {
-                    if (slotStruct.ModuleUID != null && this.HighlightedModule != null && (slotStruct.module == this.HighlightedModule && (double)slotStruct.module.FieldOfFire != 0.0) && slotStruct.module.ModuleType == ShipModuleType.Turret)
-                    {
-                        float num1 = slotStruct.module.FieldOfFire / 2f;
-                        Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)(slotStruct.pq.enclosingRect.X + 16 * (int)slotStruct.module.XSIZE / 2), (float)(slotStruct.pq.enclosingRect.Y + 16 * (int)slotStruct.module.YSIZE / 2)));
-                        float num2 = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
-                        float num3 = this.HighlightedModule.facing;
-                        float num4 = Math.Abs(num2 - num3);
-                        if ((double)num4 > (double)num1)
-                        {
-                            if ((double)num2 > 180.0)
-                                num2 = (float)(-1.0 * (360.0 - (double)num2));
-                            if ((double)num3 > 180.0)
-                                num3 = (float)(-1.0 * (360.0 - (double)num3));
-                            num4 = Math.Abs(num2 - num3);
-                        }
-                        if ((double)num4 < (double)num1 && (double)Vector2.Distance(spaceFromWorldSpace, vector2) < 300.0 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed))
-                            this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
-                    }
-                }
-                foreach (UIButton uiButton in this.Buttons)
-                {
-                    if (HelperFunctions.CheckIntersection(uiButton.Rect, vector2))
-                    {
-                        uiButton.State = UIButton.PressState.Hover;
-                        if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
-                            uiButton.State = UIButton.PressState.Pressed;
-                        if (this.mouseStateCurrent.LeftButton == ButtonState.Released && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
-                        {
-                            switch (uiButton.Launches)
-                            {
-                                case "Toggle Overlay":
-                                    AudioManager.PlayCue("blip_click");
-                                    this.ToggleOverlay = !this.ToggleOverlay;
-                                    continue;
-                                case "Save As...":
-                                    if (this.CheckDesign())
-                                    {
-                                        this.ScreenManager.AddScreen((GameScreen)new DesignManager(this, this.ActiveHull.Name));
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        AudioManager.PlayCue("UI_Misc20");
-                                        this.ScreenManager.AddScreen((GameScreen)new MessageBoxScreen(Localizer.Token(2049)));
-                                        continue;
-                                    }
-                                case "Load":
-                                    this.ScreenManager.AddScreen((GameScreen)new LoadDesigns(this));
-                                    continue;
-                                default:
-                                    continue;
-                            }
-                        }
-                    }
-                    else
-                        uiButton.State = UIButton.PressState.Normal;
-                }
-                if (this.ActiveHull != null)
-                {
-                    foreach (ToggleButton toggleButton in this.CombatStatusButtons)
-                    {
-                        if (HelperFunctions.CheckIntersection(toggleButton.r, input.CursorPosition))
-                        {
-                            if (toggleButton.HasToolTip)
-                                ToolTip.CreateTooltip(toggleButton.WhichToolTip, this.ScreenManager);
-                            if (input.InGameSelect)
-                            {
-                                AudioManager.PlayCue("sd_ui_accept_alt3");
-                                switch (toggleButton.Action)
-                                {
-                                    case "attack":
-                                        this.CombatState = CombatState.AttackRuns;
-                                        break;
-                                    case "arty":
-                                        this.CombatState = CombatState.Artillery;
-                                        break;
-                                    case "hold":
-                                        this.CombatState = CombatState.HoldPosition;
-                                        break;
-                                    case "orbit_left":
-                                        this.CombatState = CombatState.OrbitLeft;
-                                        break;
-                                    case "orbit_right":
-                                        this.CombatState = CombatState.OrbitRight;
-                                        break;
-                                    case "evade":
-                                        this.CombatState = CombatState.Evade;
-                                        break;
-                                }
-                            }
-                        }
-                        else
-                            toggleButton.Hover = false;
-                        switch (toggleButton.Action)
-                        {
-                            case "attack":
-                                toggleButton.Active = this.CombatState == CombatState.AttackRuns;
-                                continue;
-                            case "arty":
-                                toggleButton.Active = this.CombatState == CombatState.Artillery;
-                                continue;
-                            case "hold":
-                                toggleButton.Active = this.CombatState == CombatState.HoldPosition;
-                                continue;
-                            case "orbit_left":
-                                toggleButton.Active = this.CombatState == CombatState.OrbitLeft;
-                                continue;
-                            case "orbit_right":
-                                toggleButton.Active = this.CombatState == CombatState.OrbitRight;
-                                continue;
-                            case "evade":
-                                toggleButton.Active = this.CombatState == CombatState.Evade;
-                                continue;
-                            default:
-                                continue;
-                        }
-                    }
-                }
-                this.mouseStatePrevious = this.mouseStateCurrent;
-                base.HandleInput(input);
-            }
-        }
+		public override void HandleInput(InputState input)
+		{
+			string str;
+			if (this.ActiveModule != null && (this.ActiveModule.ModuleType == ShipModuleType.MainGun || this.ActiveModule.ModuleType == ShipModuleType.MissileLauncher || this.ActiveModule.CanRotate))
+			{
+				if (input.Left)
+				{
+					this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Left);
+				}
+				if (input.Right)
+				{
+					this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Right);
+				}
+				if (input.Down)
+				{
+					this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Rear);
+				}
+				if (input.Up)
+				{
+					this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Normal);
+				}
+			}
+			if (this.close.HandleInput(input))
+			{
+				this.ExitScreen();
+				return;
+			}
+			if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && input.LastKeyboardState.IsKeyUp(Keys.Z) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+			{
+				if (this.DesignStack.Count > 0)
+				{
+					ShipModule AM = this.ActiveModule;
+					DesignAction da = this.DesignStack.Pop();
+					SlotStruct theslot = new SlotStruct();
+					foreach (SlotStruct ss in this.Slots)
+					{
+						if (ss.pq == da.clickedSS.pq)
+						{
+							this.ClearSlotNoStack(ss);
+							theslot = ss;
+							theslot.facing = da.clickedSS.facing;
+						}
+						foreach (SlotStruct other in da.AlteredSlots)
+						{
+							if (ss.pq != other.pq)
+							{
+								continue;
+							}
+							this.ClearSlotNoStack(ss);
+							break;
+						}
+					}
+					if (da.clickedSS.ModuleUID != null)
+					{
+						this.ActiveModule = Ship_Game.ResourceManager.GetModule(da.clickedSS.ModuleUID);
+						this.ResetModuleState();
+						this.InstallModuleNoStack(theslot);
+					}
+					foreach (SlotStruct other in da.AlteredSlots)
+					{
+						foreach (SlotStruct ss in this.Slots)
+						{
+							if (ss.pq != other.pq || other.ModuleUID == null)
+							{
+								continue;
+							}
+							this.ActiveModule = Ship_Game.ResourceManager.GetModule(other.ModuleUID);
+							this.ResetModuleState();
+							this.InstallModuleNoStack(ss);
+							ss.facing = other.facing;
+							ss.ModuleUID = other.ModuleUID;
+						}
+					}
+					this.ActiveModule = AM;
+					this.ResetModuleState();
+				}
+				return;
+			}
+			if (!HelperFunctions.CheckIntersection(this.ModuleSelectionMenu.Menu, input.CursorPosition) && !HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition) && !HelperFunctions.CheckIntersection(this.ChooseFighterSub.Menu, input.CursorPosition))
+			{
+				if (input.ScrollOut)
+				{
+					ShipDesignScreen transitionZoom = this;
+					transitionZoom.TransitionZoom = transitionZoom.TransitionZoom - 0.1f;
+					if (this.TransitionZoom < 0.3f)
+					{
+						this.TransitionZoom = 0.3f;
+					}
+					if (this.TransitionZoom > 2.65f)
+					{
+						this.TransitionZoom = 2.65f;
+					}
+				}
+				if (input.ScrollIn)
+				{
+					ShipDesignScreen shipDesignScreen = this;
+					shipDesignScreen.TransitionZoom = shipDesignScreen.TransitionZoom + 0.1f;
+					if (this.TransitionZoom < 0.3f)
+					{
+						this.TransitionZoom = 0.3f;
+					}
+					if (this.TransitionZoom > 2.65f)
+					{
+						this.TransitionZoom = 2.65f;
+					}
+				}
+			}
+			if (input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde))
+			{
+				input.LastKeyboardState.IsKeyUp(Keys.OemTilde);
+			}
+			if (this.Debug)
+			{
+				if (input.CurrentKeyboardState.IsKeyDown(Keys.Enter) && input.LastKeyboardState.IsKeyUp(Keys.Enter))
+				{
+					foreach (ModuleSlotData slot in this.ActiveHull.ModuleSlotList)
+					{
+						slot.InstalledModuleUID = null;
+					}
+					XmlSerializer Serializer = new XmlSerializer(typeof(ShipData));
+					string[] shipStyle = new string[] { "Content/Hulls/", this.ActiveHull.ShipStyle, "/", this.ActiveHull.Name, ".xml" };
+					TextWriter WriteFileStream = new StreamWriter(string.Concat(shipStyle));
+					Serializer.Serialize(WriteFileStream, this.ActiveHull);
+				}
+				if (input.Right)
+				{
+					ShipDesignScreen shipDesignScreen1 = this;
+					shipDesignScreen1.operation = (ShipDesignScreen.SlotModOperation)((int)shipDesignScreen1.operation + (int)ShipDesignScreen.SlotModOperation.I);
+				}
+				if (this.operation > (ShipDesignScreen.SlotModOperation.IO | ShipDesignScreen.SlotModOperation.Add))
+				{
+					this.operation = ShipDesignScreen.SlotModOperation.Delete;
+				}
+			}
+			this.HoveredModule = null;
+			this.mouseStateCurrent = Mouse.GetState();
+			Vector2 MousePos = new Vector2((float)this.mouseStateCurrent.X, (float)this.mouseStateCurrent.Y);
+			this.selector = null;
+			this.EmpireUI.HandleInput(input, this);
+			if (this.Fleets.HandleInput(input))
+			{
+				if (this.ShipSaved || this.CheckDesign())
+				{
+					base.ScreenManager.AddScreen(new FleetDesignScreen(this.EmpireUI));
+					this.ReallyExit();
+				}
+				else
+				{
+					MessageBoxScreen message = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
+					message.Cancelled += new EventHandler<EventArgs>(this.DoExitToFleetsList);
+					message.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenExitToFleets);
+					base.ScreenManager.AddScreen(message);
+				}
+			}
+			if (this.ShipList.HandleInput(input))
+			{
+				if (this.ShipSaved || this.CheckDesign())
+				{
+					base.ScreenManager.AddScreen(new ShipListScreen(base.ScreenManager, this.EmpireUI));
+					this.ReallyExit();
+				}
+				else
+				{
+					MessageBoxScreen message = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
+					message.Cancelled += new EventHandler<EventArgs>(this.DoExitToShipsList);
+					message.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenExitToShipsList);
+					base.ScreenManager.AddScreen(message);
+				}
+			}
+			this.activeModSubMenu.HandleInputNoReset(this);
+			this.hullSL.HandleInput(input);
+			for (int i = this.hullSL.indexAtTop; i < this.hullSL.Copied.Count && i < this.hullSL.indexAtTop + this.hullSL.entriesToDisplay; i++)
+			{
+				ScrollList.Entry e = this.hullSL.Copied[i];
+				if (e.item is ModuleHeader)
+				{
+					if ((e.item as ModuleHeader).HandleInput(input, e))
+					{
+						return;
+					}
+				}
+				else if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+				{
+					e.clickRectHover = 0;
+				}
+				else
+				{
+					this.selector = new Selector(base.ScreenManager, e.clickRect);
+					e.clickRectHover = 1;
+					this.selector = new Selector(base.ScreenManager, e.clickRect);
+					if (input.InGameSelect)
+					{
+						AudioManager.PlayCue("sd_ui_accept_alt3");
+						if (this.ShipSaved || this.CheckDesign())
+						{
+							this.ChangeHull(e.item as ShipData);
+							return;
+						}
+						MessageBoxScreen message = new MessageBoxScreen(Localizer.Token(2121), "Save", "No");
+						message.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenChangeHull);
+						message.Cancelled += new EventHandler<EventArgs>(this.JustChangeHull);
+						this.changeto = e.item as ShipData;
+						base.ScreenManager.AddScreen(message);
+						return;
+					}
+				}
+			}
+			this.modSel.HandleInput(this);
+			if (this.ActiveModule != null)
+			{
+				if (this.ActiveModule.ModuleType == ShipModuleType.Hangar && !this.ActiveModule.IsTroopBay && !this.ActiveModule.IsSupplyBay)
+				{
+					this.ChooseFighterSL.HandleInput(input);
+					int i = this.ChooseFighterSL.indexAtTop;
+					while (i < this.ChooseFighterSL.Copied.Count)
+					{
+						if (i < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay)
+						{
+							ScrollList.Entry e = this.ChooseFighterSL.Copied[i];
+							if (HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+							{
+								this.selector = new Selector(base.ScreenManager, e.clickRect);
+								e.clickRectHover = 1;
+								this.selector = new Selector(base.ScreenManager, e.clickRect);
+								if (input.InGameSelect)
+								{
+									this.ActiveModule.hangarShipUID = (e.item as Ship).Name;
+									AudioManager.PlayCue("sd_ui_accept_alt3");
+									return;
+								}
+							}
+							i++;
+						}
+						else
+						{
+							break;
+						}
+					}
+				}
+			}
+			else if (this.HighlightedModule != null && this.HighlightedModule.ModuleType == ShipModuleType.Hangar && !this.HighlightedModule.IsTroopBay && !this.HighlightedModule.IsSupplyBay)
+			{
+				this.ChooseFighterSL.HandleInput(input);
+				for (int i = this.ChooseFighterSL.indexAtTop; i < this.ChooseFighterSL.Copied.Count && i < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; i++)
+				{
+					ScrollList.Entry e = this.ChooseFighterSL.Copied[i];
+					if (HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+					{
+						this.selector = new Selector(base.ScreenManager, e.clickRect);
+						e.clickRectHover = 1;
+						this.selector = new Selector(base.ScreenManager, e.clickRect);
+						if (input.InGameSelect)
+						{
+							this.HighlightedModule.hangarShipUID = (e.item as Ship).Name;
+							AudioManager.PlayCue("sd_ui_accept_alt3");
+							return;
+						}
+					}
+				}
+			}
+			for (int i = this.weaponSL.indexAtTop; i < this.weaponSL.Copied.Count && i < this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay; i++)
+			{
+				ScrollList.Entry e = this.weaponSL.Copied[i];
+				if (e.item is ModuleHeader)
+				{
+					if ((e.item as ModuleHeader).HandleInput(input, e))
+					{
+						return;
+					}
+				}
+				else if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+				{
+					e.clickRectHover = 0;
+				}
+				else
+				{
+					this.selector = new Selector(base.ScreenManager, e.clickRect);
+					e.clickRectHover = 1;
+					this.selector = new Selector(base.ScreenManager, e.clickRect);
+					if (input.InGameSelect)
+					{
+						this.SetActiveModule(Ship_Game.ResourceManager.GetModule((e.item as ShipModule).UID));
+						this.ResetModuleState();
+						return;
+					}
+				}
+			}
+			this.weaponSL.HandleInput(input);
+			if (HelperFunctions.CheckIntersection(this.HullSelectionRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+			{
+				return;
+			}
+			if (HelperFunctions.CheckIntersection(this.modSel.Menu, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+			{
+				return;
+			}
+			if (HelperFunctions.CheckIntersection(this.activeModSubMenu.Menu, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed)
+			{
+				return;
+			}
+			if (HelperFunctions.CheckIntersection(this.modSel.Menu, MousePos))
+			{
+				if (this.mouseStateCurrent.ScrollWheelValue > this.mouseStatePrevious.ScrollWheelValue && this.weaponSL.indexAtTop > 0)
+				{
+					ScrollList scrollList = this.weaponSL;
+					scrollList.indexAtTop = scrollList.indexAtTop - 1;
+				}
+				if (this.mouseStateCurrent.ScrollWheelValue < this.mouseStatePrevious.ScrollWheelValue && this.weaponSL.indexAtTop + this.weaponSL.entriesToDisplay < this.weaponSL.Entries.Count)
+				{
+					ScrollList scrollList1 = this.weaponSL;
+					scrollList1.indexAtTop = scrollList1.indexAtTop + 1;
+				}
+			}
+			if (HelperFunctions.CheckIntersection(this.ArcsButton.R, input.CursorPosition))
+			{
+				ToolTip.CreateTooltip(134, base.ScreenManager);
+			}
+			if (this.ArcsButton.HandleInput(input))
+			{
+				this.ArcsButton.ToggleOn = !this.ArcsButton.ToggleOn;
+				if (!this.ArcsButton.ToggleOn)
+				{
+					this.ShowAllArcs = false;
+				}
+				else
+				{
+					this.ShowAllArcs = true;
+				}
+			}
+			if (input.Tab)
+			{
+				this.ShowAllArcs = !this.ShowAllArcs;
+				if (!this.ShowAllArcs)
+				{
+					this.ArcsButton.ToggleOn = false;
+				}
+				else
+				{
+					this.ArcsButton.ToggleOn = true;
+				}
+			}
+			if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+			{
+				this.StartDragPos = input.CursorPosition;
+				this.cameraVelocity.X = 0f;
+				this.cameraVelocity.Y = 0f;
+			}
+			if (input.CurrentMouseState.RightButton != ButtonState.Pressed || input.LastMouseState.RightButton != ButtonState.Pressed)
+			{
+				this.cameraVelocity.X = 0f;
+				this.cameraVelocity.Y = 0f;
+			}
+			else
+			{
+				float xDiff = input.CursorPosition.X - this.StartDragPos.X;
+				float yDiff = input.CursorPosition.Y - this.StartDragPos.Y;
+				Camera2d vector2 = this.camera;
+				vector2._pos = vector2._pos + new Vector2(-xDiff, -yDiff);
+				this.StartDragPos = input.CursorPosition;
+				this.cameraPosition.X = this.cameraPosition.X + -xDiff;
+				this.cameraPosition.Y = this.cameraPosition.Y + -yDiff;
+			}
+			this.cameraVelocity.X = MathHelper.Clamp(this.cameraVelocity.X, -10f, 10f);
+			this.cameraVelocity.Y = MathHelper.Clamp(this.cameraVelocity.Y, -10f, 10f);
+			if (input.Escaped)
+			{
+				this.ExitScreen();
+			}
+			if (this.ToggleOverlay)
+			{
+				foreach (SlotStruct ss in this.Slots)
+				{
+					Vector2 ScreenSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)ss.pq.enclosingRect.X, (float)ss.pq.enclosingRect.Y));
+					Rectangle screenRect = new Rectangle((int)ScreenSpace.X, (int)ScreenSpace.Y, (int)(16f * this.camera.Zoom), (int)(16f * this.camera.Zoom));
+					if (!HelperFunctions.CheckIntersection(screenRect, MousePos))
+					{
+						continue;
+					}
+					if (ss.isDummy && ss.parent.module != null)
+					{
+						this.HoveredModule = ss.parent.module;
+					}
+					else if (ss.module != null)
+					{
+						this.HoveredModule = ss.module;
+					}
+					if (input.CurrentMouseState.LeftButton != ButtonState.Pressed || input.LastMouseState.LeftButton != ButtonState.Released)
+					{
+						continue;
+					}
+					AudioManager.GetCue("simple_beep").Play();
+					if (this.Debug)
+					{
+						this.DebugAlterSlot(ss.slotReference.Position, this.operation);
+						return;
+					}
+					else if (!ss.isDummy || ss.parent.module == null)
+					{
+						if (ss.module == null)
+						{
+							continue;
+						}
+						this.HighlightedModule = ss.module;
+					}
+					else
+					{
+						this.HighlightedModule = ss.parent.module;
+					}
+				}
+			}
+			if (HelperFunctions.CheckIntersection(this.upArrow, MousePos) && this.mouseStateCurrent.LeftButton == ButtonState.Released && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.scrollPosition > 0)
+			{
+				ShipDesignScreen shipDesignScreen2 = this;
+				shipDesignScreen2.scrollPosition = shipDesignScreen2.scrollPosition - 1;
+				AudioManager.GetCue("blip_click").Play();
+				foreach (ModuleButton mb in this.ModuleButtons)
+				{
+					mb.moduleRect.Y = mb.moduleRect.Y + 128;
+				}
+			}
+			if (HelperFunctions.CheckIntersection(this.downArrow, MousePos) && this.mouseStateCurrent.LeftButton == ButtonState.Released && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+			{
+				ShipDesignScreen shipDesignScreen3 = this;
+				shipDesignScreen3.scrollPosition = shipDesignScreen3.scrollPosition + 1;
+				AudioManager.GetCue("blip_click").Play();
+				foreach (ModuleButton mb in this.ModuleButtons)
+				{
+					mb.moduleRect.Y = mb.moduleRect.Y - 128;
+				}
+			}
+			if (HelperFunctions.CheckIntersection(this.ModuleSelectionArea, MousePos))
+			{
+				if (input.ScrollIn && this.scrollPosition > 0)
+				{
+					ShipDesignScreen shipDesignScreen4 = this;
+					shipDesignScreen4.scrollPosition = shipDesignScreen4.scrollPosition - 1;
+					AudioManager.GetCue("blip_click").Play();
+					foreach (ModuleButton mb in this.ModuleButtons)
+					{
+						mb.moduleRect.Y = mb.moduleRect.Y + 128;
+					}
+				}
+				if (input.ScrollOut)
+				{
+					ShipDesignScreen shipDesignScreen5 = this;
+					shipDesignScreen5.scrollPosition = shipDesignScreen5.scrollPosition + 1;
+					AudioManager.GetCue("blip_click").Play();
+					foreach (ModuleButton mb in this.ModuleButtons)
+					{
+						mb.moduleRect.Y = mb.moduleRect.Y - 128;
+					}
+				}
+			}
+			if (this.mouseStateCurrent.RightButton == ButtonState.Released && this.mouseStatePrevious.RightButton == ButtonState.Pressed)
+			{
+				this.ActiveModule = null;
+				foreach (SlotStruct slot in this.Slots)
+				{
+					slot.ShowInvalid = false;
+					slot.ShowValid = false;
+					Vector2 ScreenSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.pq.enclosingRect.X, (float)slot.pq.enclosingRect.Y));
+					Rectangle screenRect = new Rectangle((int)ScreenSpace.X, (int)ScreenSpace.Y, (int)(16f * this.camera.Zoom), (int)(16f * this.camera.Zoom));
+					if (slot.module == null && !slot.isDummy || !HelperFunctions.CheckIntersection(screenRect, MousePos))
+					{
+						continue;
+					}
+					DesignAction da = new DesignAction()
+					{
+						clickedSS = new SlotStruct()
+					};
+					da.clickedSS.pq = (slot.isDummy ? slot.parent.pq : slot.pq);
+					da.clickedSS.Restrictions = slot.Restrictions;
+					da.clickedSS.facing = (slot.module != null ? slot.module.facing : 0f);
+					da.clickedSS.ModuleUID = (slot.isDummy ? slot.parent.ModuleUID : slot.ModuleUID);
+					da.clickedSS.module = slot.module;
+					da.clickedSS.slotReference = (slot.isDummy ? slot.parent.slotReference : slot.slotReference);
+					this.DesignStack.Push(da);
+					AudioManager.GetCue("sub_bass_whoosh").Play();
+					if (!slot.isDummy)
+					{
+						this.ClearParentSlot(slot);
+					}
+					else
+					{
+						this.ClearParentSlot(slot.parent);
+					}
+					this.RecalculatePower();
+				}
+			}
+			foreach (ModuleButton mb in this.ModuleButtons)
+			{
+				if (!HelperFunctions.CheckIntersection(this.ModuleSelectionArea, new Vector2((float)(mb.moduleRect.X + 30), (float)(mb.moduleRect.Y + 30))))
+				{
+					continue;
+				}
+				if (!HelperFunctions.CheckIntersection(mb.moduleRect, MousePos))
+				{
+					mb.isHighlighted = false;
+				}
+				else
+				{
+					if (input.InGameSelect)
+					{
+						this.SetActiveModule(Ship_Game.ResourceManager.GetModule(mb.ModuleUID));
+					}
+					mb.isHighlighted = true;
+				}
+			}
+			if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && this.ActiveModule != null)
+			{
+				foreach (SlotStruct slot in this.Slots)
+				{
+					Vector2 ScreenSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)slot.pq.enclosingRect.X, (float)slot.pq.enclosingRect.Y));
+					Rectangle screenRect = new Rectangle((int)ScreenSpace.X, (int)ScreenSpace.Y, (int)(16f * this.camera.Zoom), (int)(16f * this.camera.Zoom));
+					if (!HelperFunctions.CheckIntersection(screenRect, MousePos))
+					{
+						continue;
+					}
+					AudioManager.GetCue("sub_bass_mouseover").Play();
+					this.InstallModule(slot);
+				}
+			}
+			foreach (SlotStruct slot in this.Slots)
+			{
+				if (slot.ModuleUID == null || this.HighlightedModule == null || slot.module != this.HighlightedModule || slot.module.FieldOfFire == 0f || slot.module.ModuleType != ShipModuleType.Turret)
+				{
+					continue;
+				}
+				float halfArc = slot.module.FieldOfFire / 2f;
+				Vector2 Center = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2)));
+				float angleToMouse = Math.Abs(this.findAngleToTarget(Center, MousePos));
+				float facing = this.HighlightedModule.facing;
+				float difference = 0f;
+				difference = Math.Abs(angleToMouse - facing);
+				if (difference > halfArc)
+				{
+					if (angleToMouse > 180f)
+					{
+						angleToMouse = -1f * (360f - angleToMouse);
+					}
+					if (facing > 180f)
+					{
+						facing = -1f * (360f - facing);
+					}
+					difference = Math.Abs(angleToMouse - facing);
+				}
+				if (difference >= halfArc || Vector2.Distance(Center, MousePos) >= 300f || this.mouseStateCurrent.LeftButton != ButtonState.Pressed || this.mouseStatePrevious.LeftButton != ButtonState.Pressed)
+				{
+					continue;
+				}
+				this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(Center, MousePos));
+			}
+			foreach (UIButton b in this.Buttons)
+			{
+				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+				{
+					b.State = UIButton.PressState.Normal;
+				}
+				else
+				{
+					b.State = UIButton.PressState.Hover;
+					if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+					{
+						b.State = UIButton.PressState.Pressed;
+					}
+					if (this.mouseStateCurrent.LeftButton != ButtonState.Released || this.mouseStatePrevious.LeftButton != ButtonState.Pressed)
+					{
+						continue;
+					}
+					string launches = b.Launches;
+					str = launches;
+					if (launches == null)
+					{
+						continue;
+					}
+					if (str == "Toggle Overlay")
+					{
+						AudioManager.PlayCue("blip_click");
+						this.ToggleOverlay = !this.ToggleOverlay;
+					}
+					else if (str != "Save As...")
+					{
+						if (str == "Load")
+						{
+							base.ScreenManager.AddScreen(new LoadDesigns(this));
+						}
+					}
+					else if (!this.CheckDesign())
+					{
+						AudioManager.PlayCue("UI_Misc20");
+						MessageBoxScreen messageBox = new MessageBoxScreen(Localizer.Token(2049));
+						base.ScreenManager.AddScreen(messageBox);
+					}
+					else
+					{
+						base.ScreenManager.AddScreen(new DesignManager(this, this.ActiveHull.Name));
+					}
+				}
+			}
+			if (this.ActiveHull != null)
+			{
+				foreach (ToggleButton button in this.CombatStatusButtons)
+				{
+					if (!HelperFunctions.CheckIntersection(button.r, input.CursorPosition))
+					{
+						button.Hover = false;
+					}
+					else
+					{
+						if (button.HasToolTip)
+						{
+							ToolTip.CreateTooltip(button.WhichToolTip, base.ScreenManager);
+						}
+						if (input.InGameSelect)
+						{
+							AudioManager.PlayCue("sd_ui_accept_alt3");
+							string action = button.Action;
+							str = action;
+							if (action != null)
+							{
+								if (str == "attack")
+								{
+									this.CombatState = Ship_Game.Gameplay.CombatState.AttackRuns;
+								}
+								else if (str == "arty")
+								{
+									this.CombatState = Ship_Game.Gameplay.CombatState.Artillery;
+								}
+								else if (str == "hold")
+								{
+									this.CombatState = Ship_Game.Gameplay.CombatState.HoldPosition;
+								}
+								else if (str == "orbit_left")
+								{
+									this.CombatState = Ship_Game.Gameplay.CombatState.OrbitLeft;
+								}
+								else if (str == "orbit_right")
+								{
+									this.CombatState = Ship_Game.Gameplay.CombatState.OrbitRight;
+								}
+								else if (str == "evade")
+								{
+									this.CombatState = Ship_Game.Gameplay.CombatState.Evade;
+								}
+							}
+						}
+					}
+					string action1 = button.Action;
+					str = action1;
+					if (action1 == null)
+					{
+						continue;
+					}
+					if (str == "attack")
+					{
+						if (this.CombatState != Ship_Game.Gameplay.CombatState.AttackRuns)
+						{
+							button.Active = false;
+						}
+						else
+						{
+							button.Active = true;
+						}
+					}
+					else if (str == "arty")
+					{
+						if (this.CombatState != Ship_Game.Gameplay.CombatState.Artillery)
+						{
+							button.Active = false;
+						}
+						else
+						{
+							button.Active = true;
+						}
+					}
+					else if (str == "hold")
+					{
+						if (this.CombatState != Ship_Game.Gameplay.CombatState.HoldPosition)
+						{
+							button.Active = false;
+						}
+						else
+						{
+							button.Active = true;
+						}
+					}
+					else if (str == "orbit_left")
+					{
+						if (this.CombatState != Ship_Game.Gameplay.CombatState.OrbitLeft)
+						{
+							button.Active = false;
+						}
+						else
+						{
+							button.Active = true;
+						}
+					}
+					else if (str != "orbit_right")
+					{
+						if (str == "evade")
+						{
+							if (this.CombatState != Ship_Game.Gameplay.CombatState.Evade)
+							{
+								button.Active = false;
+							}
+							else
+							{
+								button.Active = true;
+							}
+						}
+					}
+					else if (this.CombatState != Ship_Game.Gameplay.CombatState.OrbitRight)
+					{
+						button.Active = false;
+					}
+					else
+					{
+						button.Active = true;
+					}
+				}
+			}
+			this.mouseStatePrevious = this.mouseStateCurrent;
+			base.HandleInput(input);
+		}
 
-        private void InstallModule(SlotStruct slot)
-        {
-            int num = 0;
-            for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
-            {
-                for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
-                {
-                    foreach (SlotStruct slotStruct in this.Slots)
-                    {
-                        if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2 && slotStruct.ShowValid)
-                            ++num;
-                    }
-                }
-            }
-            if (num == (int)this.ActiveModule.XSIZE * (int)this.ActiveModule.YSIZE)
-            {
-                DesignAction designAction = new DesignAction();
-                designAction.clickedSS = new SlotStruct();
-                designAction.clickedSS.pq = slot.pq;
-                designAction.clickedSS.Restrictions = slot.Restrictions;
-                designAction.clickedSS.facing = slot.module != null ? slot.module.facing : 0.0f;
-                designAction.clickedSS.ModuleUID = slot.ModuleUID;
-                designAction.clickedSS.module = slot.module;
-                designAction.clickedSS.tex = slot.tex;
-                designAction.clickedSS.slotReference = slot.slotReference;
-                designAction.clickedSS.state = slot.state;
-                this.DesignStack.Push(designAction);
-                this.ClearSlot(slot);
-                this.ClearDestinationSlots(slot);
-                slot.ModuleUID = this.ActiveModule.UID;
-                slot.module = this.ActiveModule;
-                slot.module.SetAttributesNoParent();
-                slot.state = this.ActiveModState;
-                slot.module.facing = this.ActiveModule.facing;
-                slot.tex = ResourceManager.TextureDict[ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
-                for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
-                {
-                    for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
-                    {
-                        if (!(index2 == 0 & index1 == 0))
-                        {
-                            foreach (SlotStruct slotStruct in this.Slots)
-                            {
-                                if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2)
-                                {
-                                    slot.facing = 0.0f;
-                                    slotStruct.facing = 0.0f;
-                                    slotStruct.ModuleUID = (string)null;
-                                    slotStruct.isDummy = true;
-                                    slotStruct.tex = (Texture2D)null;
-                                    slotStruct.module = (ShipModule)null;
-                                    slotStruct.parent = slot;
-                                }
-                            }
-                        }
-                    }
-                }
-                this.RecalculatePower();
-                this.ShipSaved = false;
-                this.ActiveModule = ResourceManager.GetModule(this.ActiveModule.UID);
-                this.ChangeModuleState(this.ActiveModState);
-            }
-            else
-                this.PlayNegativeSound();
-        }
+		private void InstallModule(SlotStruct slot)
+		{
+			int slotsAvailable = 0;
+			for (int y = 0; y < this.ActiveModule.YSIZE; y++)
+			{
+				for (int x = 0; x < this.ActiveModule.XSIZE; x++)
+				{
+					foreach (SlotStruct dummyslot in this.Slots)
+					{
+						if (dummyslot.pq.Y != slot.pq.Y + 16 * y || dummyslot.pq.X != slot.pq.X + 16 * x || !dummyslot.ShowValid)
+						{
+							continue;
+						}
+						slotsAvailable++;
+					}
+				}
+			}
+			if (slotsAvailable != this.ActiveModule.XSIZE * this.ActiveModule.YSIZE)
+			{
+				this.PlayNegativeSound();
+				return;
+			}
+			DesignAction da = new DesignAction()
+			{
+				clickedSS = new SlotStruct()
+				{
+					pq = slot.pq,
+					Restrictions = slot.Restrictions
+				}
+			};
+			da.clickedSS.facing = (slot.module != null ? slot.module.facing : 0f);
+			da.clickedSS.ModuleUID = slot.ModuleUID;
+			da.clickedSS.module = slot.module;
+			da.clickedSS.tex = slot.tex;
+			da.clickedSS.slotReference = slot.slotReference;
+			da.clickedSS.state = slot.state;
+			this.DesignStack.Push(da);
+			this.ClearSlot(slot);
+			this.ClearDestinationSlots(slot);
+			slot.ModuleUID = this.ActiveModule.UID;
+			slot.module = this.ActiveModule;
+			slot.module.SetAttributesNoParent();
+			slot.state = this.ActiveModState;
+			slot.module.facing = this.ActiveModule.facing;
+			slot.tex = Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
+			for (int y = 0; y < this.ActiveModule.YSIZE; y++)
+			{
+				for (int x = 0; x < this.ActiveModule.XSIZE; x++)
+				{
+					if (x == 0 & y == 0)
+					{
+						foreach (SlotStruct dummyslot in this.Slots)
+						{
+							if (dummyslot.pq.Y != slot.pq.Y + 16 * y || dummyslot.pq.X != slot.pq.X + 16 * x)
+							{
+								continue;
+							}
+							slot.facing = 0f;
+							dummyslot.facing = 0f;
+							dummyslot.ModuleUID = null;
+							dummyslot.isDummy = true;
+							dummyslot.tex = null;
+							dummyslot.module = null;
+							dummyslot.parent = slot;
+						}
+					}
+				}
+			}
+			this.RecalculatePower();
+			this.ShipSaved = false;
+			this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+			this.ChangeModuleState(this.ActiveModState);
+		}
 
 		private void InstallModuleFromLoad(SlotStruct slot)
 		{
@@ -3575,63 +3792,64 @@ namespace Ship_Game
 			this.RecalculatePower();
 		}
 
-        private void InstallModuleNoStack(SlotStruct slot)
-        {
-            int num = 0;    //check for sufficient space
-            for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
-            {
-                for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
-                {
-                    foreach (SlotStruct slotStruct in this.Slots)
-                    {   //checks if this slot is within xsize and ysize
-                        if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2)
-                            ++num;
-                    }
-                }
-            }
-            if (num == (int)this.ActiveModule.XSIZE * (int)this.ActiveModule.YSIZE)
-            {   //set module to this slot
-                this.ClearSlotNoStack(slot);
-                this.ClearDestinationSlotsNoStack(slot);
-                slot.ModuleUID = this.ActiveModule.UID;
-                slot.module = this.ActiveModule;
-                slot.module.SetAttributesNoParent();
-                slot.state = this.ActiveModState;
-                slot.module.facing = this.ActiveModule.facing;
-                slot.tex = ResourceManager.TextureDict[ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
-                //set other slots occupied by the module to use this slot as parent
-                for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
-                {
-                    for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
-                    {
-                        if (!(index2 == 0 && index1 == 0))  //if not the parent slot
-                        {
-                            foreach (SlotStruct slotStruct in this.Slots)
-                            {
-                                if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2)
-                                {
-                                    slot.facing = 0.0f;
-                                    slotStruct.facing = 0.0f;
-                                    slotStruct.ModuleUID = (string)null;
-                                    slotStruct.isDummy = true;
-                                    slotStruct.tex = (Texture2D)null;
-                                    slotStruct.module = (ShipModule)null;
-                                    slotStruct.parent = slot;
-                                }
-                            }
-                        }
-                    }
-                }
-                this.RecalculatePower();
-                this.ShipSaved = false;
-                this.ActiveModule = ResourceManager.GetModule(this.ActiveModule.UID);
-                //grabs a fresh copy of the same module type to cursor 
-                this.ChangeModuleState(this.ActiveModState);
-                //set rotation for new module at cursor
-            }
-            else
-                this.PlayNegativeSound();
-        }
+		private void InstallModuleNoStack(SlotStruct slot)
+		{
+			int slotsAvailable = 0;
+			for (int y = 0; y < this.ActiveModule.YSIZE; y++)
+			{
+				for (int x = 0; x < this.ActiveModule.XSIZE; x++)
+				{
+					foreach (SlotStruct dummyslot in this.Slots)
+					{
+						if (dummyslot.pq.Y != slot.pq.Y + 16 * y || dummyslot.pq.X != slot.pq.X + 16 * x)
+						{
+							continue;
+						}
+						slotsAvailable++;
+					}
+				}
+			}
+			if (slotsAvailable != this.ActiveModule.XSIZE * this.ActiveModule.YSIZE)
+			{
+				this.PlayNegativeSound();
+				return;
+			}
+			this.ClearSlotNoStack(slot);
+			this.ClearDestinationSlotsNoStack(slot);
+			slot.ModuleUID = this.ActiveModule.UID;
+			slot.module = this.ActiveModule;
+			slot.module.SetAttributesNoParent();
+			slot.state = this.ActiveModState;
+			slot.module.facing = this.ActiveModule.facing;
+			slot.tex = Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
+			for (int y = 0; y < this.ActiveModule.YSIZE; y++)
+			{
+				for (int x = 0; x < this.ActiveModule.XSIZE; x++)
+				{
+					if (x == 0 & y == 0)
+					{
+						foreach (SlotStruct dummyslot in this.Slots)
+						{
+							if (dummyslot.pq.Y != slot.pq.Y + 16 * y || dummyslot.pq.X != slot.pq.X + 16 * x)
+							{
+								continue;
+							}
+							slot.facing = 0f;
+							dummyslot.facing = 0f;
+							dummyslot.ModuleUID = null;
+							dummyslot.isDummy = true;
+							dummyslot.tex = null;
+							dummyslot.module = null;
+							dummyslot.parent = slot;
+						}
+					}
+				}
+			}
+			this.RecalculatePower();
+			this.ShipSaved = false;
+			this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+			this.ChangeModuleState(this.ActiveModState);
+		}
 
 		private void JustChangeHull(object sender, EventArgs e)
 		{
@@ -4033,88 +4251,107 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-        private void RecalculatePower()
-        {
-            foreach (SlotStruct slotStruct in this.Slots)
-            {
-                slotStruct.Powered = false;
-                slotStruct.CheckedConduits = false;
-                if (slotStruct.module != null)
-                    slotStruct.module.Powered = false;
-            }
-            foreach (SlotStruct slotStruct in this.Slots)
-            {
-                //System.Diagnostics.Debug.Assert(slotStruct.parent != null, "parent is null");                   
-                if (slotStruct.module != null && slotStruct.module.ModuleType == ShipModuleType.PowerPlant)
-                {
-                    foreach (SlotStruct slot in this.Slots)
-                    {
-                        if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && (Math.Abs(slot.pq.X - slotStruct.pq.X) / 16 + Math.Abs(slot.pq.Y - slotStruct.pq.Y) / 16 == 1 && slot.module != null))
-                            this.CheckAndPowerConduit(slot);
-                    }
-                }                
-                else if (slotStruct.parent != null)               
-                {
-                    //System.Diagnostics.Debug.Assert(slotStruct.parent.module != null, "parent is fine, module is null");
-                    if (slotStruct.parent.module != null)
-                    {
-                        //System.Diagnostics.Debug.Assert(slotStruct.parent.module.ModuleType != null, "parent is fine, module is fine, moduletype is null");
-                        if (slotStruct.parent.module.ModuleType == ShipModuleType.PowerPlant)
-                        {
-                            foreach (SlotStruct slot in this.Slots)
-                            {
-                                if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && (Math.Abs(slot.pq.X - slotStruct.pq.X) / 16 + Math.Abs(slot.pq.Y - slotStruct.pq.Y) / 16 == 1 && slot.module != null))
-                                    this.CheckAndPowerConduit(slot);
-                            }
-                        }
-                    }
-                }
-            }
-            foreach (SlotStruct slotStruct1 in this.Slots)
-            {
-                if (!slotStruct1.isDummy && slotStruct1.module != null && (int)slotStruct1.module.PowerRadius > 0 && (slotStruct1.module.ModuleType != ShipModuleType.PowerConduit || slotStruct1.module.Powered))
-                {
-                    foreach (SlotStruct slotStruct2 in this.Slots)
-                    {
-                        if (Math.Abs(slotStruct1.pq.X - slotStruct2.pq.X) / 16 + Math.Abs(slotStruct1.pq.Y - slotStruct2.pq.Y) / 16 <= (int)slotStruct1.module.PowerRadius)
-                            slotStruct2.Powered = true;
-                    }
-                    if ((int)slotStruct1.module.XSIZE > 1 || (int)slotStruct1.module.YSIZE > 1)
-                    {
-                        for (int index1 = 0; index1 < (int)slotStruct1.module.YSIZE; ++index1)
-                        {
-                            for (int index2 = 0; index2 < (int)slotStruct1.module.XSIZE; ++index2)
-                            {
-                                if (!(index2 == 0 & index1 == 0))
-                                {
-                                    foreach (SlotStruct slotStruct2 in this.Slots)
-                                    {
-                                        if (slotStruct2.pq.Y == slotStruct1.pq.Y + 16 * index1 && slotStruct2.pq.X == slotStruct1.pq.X + 16 * index2)
-                                        {
-                                            foreach (SlotStruct slotStruct3 in this.Slots)
-                                            {
-                                                if (Math.Abs(slotStruct2.pq.X - slotStruct3.pq.X) / 16 + Math.Abs(slotStruct2.pq.Y - slotStruct3.pq.Y) / 16 <= (int)slotStruct1.module.PowerRadius)
-                                                    slotStruct3.Powered = true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            foreach (SlotStruct slotStruct in this.Slots)
-            {
-                if (slotStruct.Powered)
-                {
-                    if (slotStruct.module != null && slotStruct.module.ModuleType != ShipModuleType.PowerConduit)
-                        slotStruct.module.Powered = true;
-                    if (slotStruct.parent != null && slotStruct.parent.module != null)
-                        slotStruct.parent.module.Powered = true;
-                }
-            }
-        }
+		private void RecalculatePower()
+		{
+			foreach (SlotStruct slot in this.Slots)
+			{
+				slot.Powered = false;
+				slot.CheckedConduits = false;
+				if (slot.module == null)
+				{
+					continue;
+				}
+				slot.module.Powered = false;
+			}
+			foreach (SlotStruct powerplant in this.Slots)
+			{
+				if (powerplant.module == null || powerplant.module.ModuleType != ShipModuleType.PowerPlant)
+				{
+					if (powerplant.parent == null || powerplant.parent.module.ModuleType != ShipModuleType.PowerPlant)
+					{
+						continue;
+					}
+					foreach (SlotStruct slot in this.Slots)
+					{
+						if (slot.module == null || slot.module.ModuleType != ShipModuleType.PowerConduit || Math.Abs(slot.pq.X - powerplant.pq.X) / 16 + Math.Abs(slot.pq.Y - powerplant.pq.Y) / 16 != 1 || slot.module == null)
+						{
+							continue;
+						}
+						this.CheckAndPowerConduit(slot);
+					}
+				}
+				else
+				{
+					foreach (SlotStruct slot in this.Slots)
+					{
+						if (slot.module == null || slot.module.ModuleType != ShipModuleType.PowerConduit || Math.Abs(slot.pq.X - powerplant.pq.X) / 16 + Math.Abs(slot.pq.Y - powerplant.pq.Y) / 16 != 1 || slot.module == null)
+						{
+							continue;
+						}
+						this.CheckAndPowerConduit(slot);
+					}
+				}
+			}
+			foreach (SlotStruct slot in this.Slots)
+			{
+				if (slot.isDummy || slot.module == null || slot.module.PowerRadius <= 0 || slot.module.ModuleType == ShipModuleType.PowerConduit && !slot.module.Powered)
+				{
+					continue;
+				}
+				foreach (SlotStruct ss in this.Slots)
+				{
+					if (Math.Abs(slot.pq.X - ss.pq.X) / 16 + Math.Abs(slot.pq.Y - ss.pq.Y) / 16 > slot.module.PowerRadius)
+					{
+						continue;
+					}
+					ss.Powered = true;
+				}
+				if (slot.module.XSIZE <= 1 && slot.module.YSIZE <= 1)
+				{
+					continue;
+				}
+				for (int y = 0; y < slot.module.YSIZE; y++)
+				{
+					for (int x = 0; x < slot.module.XSIZE; x++)
+					{
+						if (x == 0 & y == 0)
+						{
+							foreach (SlotStruct dummyslot in this.Slots)
+							{
+								if (dummyslot.pq.Y != slot.pq.Y + 16 * y || dummyslot.pq.X != slot.pq.X + 16 * x)
+								{
+									continue;
+								}
+								foreach (SlotStruct ss in this.Slots)
+								{
+									if (Math.Abs(dummyslot.pq.X - ss.pq.X) / 16 + Math.Abs(dummyslot.pq.Y - ss.pq.Y) / 16 > slot.module.PowerRadius)
+									{
+										continue;
+									}
+									ss.Powered = true;
+								}
+							}
+						}
+					}
+				}
+			}
+			foreach (SlotStruct slot in this.Slots)
+			{
+				if (!slot.Powered)
+				{
+					continue;
+				}
+				if (slot.module != null && slot.module.ModuleType != ShipModuleType.PowerConduit)
+				{
+					slot.module.Powered = true;
+				}
+				if (slot.parent == null || slot.parent.module == null)
+				{
+					continue;
+				}
+				slot.parent.module.Powered = true;
+			}
+		}
 
 		public void ResetLists()
 		{
