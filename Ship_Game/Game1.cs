@@ -35,19 +35,18 @@ namespace Ship_Game
 
 		public Game1()
 		{
-			/*if (SteamManager.SteamInitialize())
+#if !DEBUG
+            if (SteamManager.SteamInitialize())
 			{
 				SteamManager.RequestCurrentStats();
 				if (SteamManager.SetAchievement("Thanks"))
 				{
 					SteamManager.SaveAllStatAndAchievementChanges();
 				}
-			}*/
+			}
 
-            //if (System.Diagnostics.Debugger.IsAttached)
-            //{
 
-            //}
+#endif
 #if UNSAFE
 
 
