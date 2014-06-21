@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -154,13 +155,14 @@ namespace Ship_Game
 				this.screensToDraw.Add(screen);
 			}
 			for (int i = 0; i < this.screensToDraw.Count; i++)
-			{
-				GameScreen screen = this.screensToDraw[i];
-				if (screen.ScreenState != ScreenState.Hidden)
-				{
-					screen.Draw(gameTime);
-				}
-			}
+            //Parallel.For(0, this.screensToDraw.Count, i =>
+            {
+                GameScreen screen = this.screensToDraw[i];
+                if (screen.ScreenState != ScreenState.Hidden)
+                {
+                    screen.Draw(gameTime);
+                }
+            }//);
 		}
 
 		public void DrawRectangle(Rectangle rectangle, Color color)
