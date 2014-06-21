@@ -2069,7 +2069,7 @@ namespace Ship_Game.Gameplay
                     }
                     this.emitter.Position = new Vector3(this.Center, 0.0f);
                 }
-                if ((double)elapsedTime > 0.0)
+                if (elapsedTime > 0.0f)
                 {
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
                     {
