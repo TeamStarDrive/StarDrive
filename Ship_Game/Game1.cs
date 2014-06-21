@@ -1,3 +1,6 @@
+#if DEBUG
+#define UNSAFE
+#endif
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -40,11 +43,20 @@ namespace Ship_Game
 					SteamManager.SaveAllStatAndAchievementChanges();
 				}
 			}*/
+
+            //if (System.Diagnostics.Debugger.IsAttached)
+            //{
+
+            //}
+#if UNSAFE
+
+
             MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("Update2"), typeof(SplashScreen).GetMethod("Update"));
             foreach (var method in from type in Assembly.GetAssembly(typeof(SplashScreen)).GetTypes() where type.Name == "a" select type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic) into methods from method in methods where method.Name == "k" select method)
             {
                 MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("k2", BindingFlags.Static | BindingFlags.Public), method);
             }
+#endif
 			this.graphics = new GraphicsDeviceManager(this)
 			{
 				MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
@@ -182,13 +194,9 @@ namespace Ship_Game
 			{
 
 				return;
-			}
-            MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("Update2"), typeof(SplashScreen).GetMethod("Update"));
-            foreach (var method in from type in Assembly.GetAssembly(typeof(SplashScreen)).GetTypes() where type.Name == "a" select type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic) into methods from method in methods where method.Name == "k" select method)
-            {
-                MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("k2", BindingFlags.Static | BindingFlags.Public), method);
             }
-			this.screenManager.LoadContent();
+
+            this.screenManager.LoadContent();
 			Fonts.LoadContent(base.Content);
 			this.screenManager.AddScreen(new GameLoadingScreen());
 			this.IsLoaded = true;

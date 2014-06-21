@@ -21,3 +21,4 @@ E:\code\merkrepo\obj\x86\Debug\StarDrive.pdb
 E:\code\StarDrive\StarDrive.exe.config
 E:\code\StarDrive\StarDrive.exe
 E:\code\StarDrive\StarDrive.pdb
+D:\Program Files\steam\steamapps\common\StarDrive\StarDrive.exe
