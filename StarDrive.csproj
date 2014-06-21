@@ -38,7 +38,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
@@ -47,6 +47,7 @@
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -62,10 +63,6 @@
   <ItemGroup>
     <Reference Include="Fasterflect">
       <HintPath>..\stardrive-devekmod3\Stardrive-DevekMod\Fasterflect.dll</HintPath>
-    </Reference>
-    <Reference Include="StarDrive, Version=1.0.9.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\Program Files\steam\steamapps\common\StarDrive\StarDrive.exe</HintPath>
     </Reference>
     <Reference Include="SynapseGaming-SunBurn-Pro">
       <HintPath>D:\Program Files\steam\steamapps\common\StarDrive\SynapseGaming-SunBurn-Pro.dll</HintPath>
