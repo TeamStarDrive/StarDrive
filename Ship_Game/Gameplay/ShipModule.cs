@@ -50,6 +50,28 @@ namespace Ship_Game.Gameplay
 
 		public bool FightersOnly;
 
+        public bool DroneModule;
+
+        public bool FighterModule;
+
+        public bool CorvetteModule;
+
+        public bool FrigateModule;
+
+        public bool DestroyerModule;
+
+        public bool CruiserModule;
+
+        public bool CarrierModule;
+
+        public bool CapitalModule;
+
+        public bool FreighterModule;
+
+        public bool PlatformModule;
+
+        public bool StationModule;
+
 		public bool explodes;
 
 		public float SensorRange;

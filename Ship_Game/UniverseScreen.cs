@@ -42,7 +42,7 @@ namespace Ship_Game
         public float StarDate = 1000f;
         public string StarDateFmt = "0000.0";
         public float StarDateTimer = 5f;
-        public float AutoSaveTimer = 600f;
+        public float AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
         public bool MultiThread = true;
         public List<UniverseScreen.ClickablePlanets> ClickPlanetList = new List<UniverseScreen.ClickablePlanets>();
         public BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction>();
@@ -1175,9 +1175,9 @@ namespace Ship_Game
                     this.PieMenuTimer += (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
                     this.NotificationManager.Update((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                     this.AutoSaveTimer -= 0.01666667f;
-                    if ((double)this.AutoSaveTimer <= 0.0)
+                    if (this.AutoSaveTimer <= 0.0f)
                     {
-                        this.AutoSaveTimer = 600f;
+                        this.AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
                         this.DoAutoSave();
                     }
                     if (this.IsActive)
