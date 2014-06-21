@@ -1443,7 +1443,9 @@ namespace Ship_Game.Gameplay
 			{
 				this.SystemToDefend = this.Owner.GetSystem();
 			}
-			this.AwaitOrders(elapsedTime);
+			//added by gremlin Prevent constant switching to await orders while defending.
+            if(this.Target ==null || (!this.Owner.InCombat && this.Target!=null && !this.Owner.inborders))
+                this.AwaitOrders(elapsedTime);
 		}
 
 		private void DoTroopToShip(float elapsedTime)
@@ -2012,7 +2014,7 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		private void FireOnTargetNonVisible(Weapon w, GameplayObject fireTarget)
+		private void FireOnTargetNonVisibleorig(Weapon w, GameplayObject fireTarget)
 		{
 			if (this.Owner.Ordinance < w.OrdinanceRequiredToFire || this.Owner.PowerCurrent < w.PowerRequiredToFire)
 			{
@@ -4535,7 +4537,7 @@ namespace Ship_Game.Gameplay
 		}
 
         //added by gremlin Deveksmod Scan for combat targets.
-        public GameplayObject ScanForCombatTargets2(Vector2 Position, float Radius)
+        public GameplayObject ScanForCombatTargets(Vector2 Position, float Radius)
         {
             RandomThreadMath randomThreadMath;
             this.BadGuysNear = false;
@@ -5050,20 +5052,20 @@ namespace Ship_Game.Gameplay
             {
                 if (!this.hasPriorityTarget)
                 {
-                    this.Target = this.ScanForCombatTargets2(senseCenter, radius);
+                    this.Target = this.ScanForCombatTargets(senseCenter, radius);
                 }
                 else
                 {
-                    this.ScanForCombatTargets2(senseCenter, radius);
+                    this.ScanForCombatTargets(senseCenter, radius);
                 }
             }
             else if (!this.hasPriorityTarget)
             {
-                this.Target = this.ScanForCombatTargets2(senseCenter, radius);
+                this.Target = this.ScanForCombatTargets(senseCenter, radius);
             }
             else
             {
-                this.ScanForCombatTargets2(senseCenter, radius);
+                this.ScanForCombatTargets(senseCenter, radius);
             }
             if (this.State == AIState.Resupply)
             {
@@ -5143,7 +5145,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private void FireOnTargetNonVisible2(Weapon w, GameplayObject fireTarget)
+        private void FireOnTargetNonVisible(Weapon w, GameplayObject fireTarget)
         {
             if (this.Owner.Ordinance < w.OrdinanceRequiredToFire || this.Owner.PowerCurrent < w.PowerRequiredToFire)
             {
@@ -5268,7 +5270,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-		private GameplayObject ScanForCombatTargets(Vector2 Position, float Radius)
+		private GameplayObject ScanForCombatTargetsOrig(Vector2 Position, float Radius)
 		{
 			this.BadGuysNear = false;
 			this.FriendliesNearby.Clear();
@@ -5652,7 +5654,7 @@ namespace Ship_Game.Gameplay
 			this.Owner.QueueTotalRemoval();
 		}
 
-		private void SetCombatStatus2(float elapsedTime)
+		private void SetCombatStatusorig(float elapsedTime)
 		{
 			if (this.Owner.fleet != null)
 			{
@@ -6639,7 +6641,7 @@ namespace Ship_Game.Gameplay
             if (this.State == AIState.Resupply)
             {
                 this.HasPriorityOrder = true;
-                if (this.Owner.Ordinance == this.Owner.OrdinanceMax)
+                if (this.Owner.Ordinance >= this.Owner.OrdinanceMax)
                 {
                     this.HasPriorityOrder = false;
                 }
