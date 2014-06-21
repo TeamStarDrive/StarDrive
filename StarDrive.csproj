@@ -40,7 +40,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\Release\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>pdbonly</DebugType>
