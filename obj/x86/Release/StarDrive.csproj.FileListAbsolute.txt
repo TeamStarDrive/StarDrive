@@ -11,3 +11,17 @@ C:\Users\Chris\Documents\SDTurbo\obj\x86\Release\StarDrive.pdb
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Release\StarDrive.csprojResolveAssemblyReference.cache
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Release\Properties.Resources.resources
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Release\StarDrive.csproj.GenerateResource.Cache
+C:\Users\danny\Documents\SD-IDK\bin\Release\StarDrive.exe.config
+C:\Users\danny\Documents\SD-IDK\bin\Release\StarDrive.exe
+C:\Users\danny\Documents\SD-IDK\bin\Release\StarDrive.pdb
+C:\Users\danny\Documents\SD-IDK\bin\Release\Fasterflect.dll
+C:\Users\danny\Documents\SD-IDK\bin\Release\Fasterflect.xml
+C:\Users\danny\Documents\SD-IDK\obj\x86\Release\Properties.Resources.resources
+C:\Users\danny\Documents\SD-IDK\obj\x86\Release\StarDrive.csproj.GenerateResource.Cache
+C:\Users\danny\Documents\SD-IDK\obj\x86\Release\StarDrive.exe
+C:\Users\danny\Documents\SD-IDK\obj\x86\Release\StarDrive.pdb
+C:\Users\danny\Documents\SD-IDK\bin\Release\Microsoft.Xna.Framework.dll
+C:\Users\danny\Documents\SD-IDK\bin\Release\Microsoft.Xna.Framework.Game.dll
+C:\Users\danny\Documents\stardrive mod\upload\StarDrive.exe.config
+C:\Users\danny\Documents\stardrive mod\upload\StarDrive.exe
+C:\Users\danny\Documents\stardrive mod\upload\StarDrive.pdb
