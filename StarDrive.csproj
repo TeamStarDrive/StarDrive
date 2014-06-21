@@ -7,7 +7,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <AssemblyName>StarDrive</AssemblyName>
     <OutputType>WinExe</OutputType>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
@@ -64,17 +64,19 @@
     <Reference Include="Fasterflect">
       <HintPath>..\stardrive-devekmod3\Stardrive-DevekMod\Fasterflect.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Windows\assembly\GAC_32\Microsoft.Xna.Framework\3.1.0.0__6d5c3888ef60e27d\Microsoft.Xna.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Windows\assembly\GAC_32\Microsoft.Xna.Framework.Game\3.1.0.0__6d5c3888ef60e27d\Microsoft.Xna.Framework.Game.dll</HintPath>
+    </Reference>
     <Reference Include="SynapseGaming-SunBurn-Pro">
       <HintPath>D:\Program Files\steam\steamapps\common\StarDrive\SynapseGaming-SunBurn-Pro.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Game">
-      <HintPath>.\StarDriveReferences\Microsoft.Xna.Framework.Game.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.Xna.Framework">
-      <HintPath>.\StarDriveReferences\Microsoft.Xna.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="XNAnimation">
@@ -1437,7 +1439,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
