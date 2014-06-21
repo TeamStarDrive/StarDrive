@@ -18,6 +18,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -1316,6 +1317,11 @@ namespace Ship_Game
             {
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
+                //Parallel.For(0, EmpireManager.EmpireList.Count, index =>
+                //    {
+                //        EmpireManager.EmpireList[index].Update(elapsedTime);
+                //    });
+
                 this.MasterShipList.ApplyPendingRemovals();
                 lock (GlobalStats.AddShipLocker)
                 {
