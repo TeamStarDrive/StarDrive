@@ -5,12 +5,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
 	public class ArtificialIntelligence
 	{
-		public bool ClearOrdersNext;
+        public bool UseSensorsForTargets =true;
+        public bool ClearOrdersNext;
 
 		private Vector2 aiNewDir;
 
@@ -4444,6 +4446,740 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
+        //added by gremlin Deveksmod Scan for combat targets.
+        public GameplayObject ScanForCombatTargets2(Vector2 Position, float Radius)
+        {
+            RandomThreadMath randomThreadMath;
+            this.BadGuysNear = false;
+            this.FriendliesNearby.Clear();
+            this.PotentialTargets.Clear();
+            this.NearbyShips.Clear();
+
+            if (this.hasPriorityTarget && this.Target == null)
+            {
+                this.hasPriorityTarget = false;
+                if (this.TargetQueue.Count > 0)
+                {
+                    this.hasPriorityTarget = true;
+                    this.Target = this.TargetQueue.First<Ship>();
+                }
+            }
+            if (this.Target != null)
+            {
+                if ((this.Target as Ship).loyalty == this.Owner.loyalty)
+                {
+                    this.Target = null;
+                    this.hasPriorityTarget = false;
+                }
+                else if ((Vector2.Distance(Position, this.Target.Center) > Radius && !this.Intercepting) || (this.Target is Ship && !(this.Target as Ship).inSensorRange))
+                {
+                    this.Target = null;
+                    this.Owner.InCombat = false;
+                    this.Owner.InCombatTimer = 0f;
+                    if (!this.HasPriorityOrder && Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+                    {
+                        this.State = AIState.AwaitingOrders;
+                    }
+                    return null;
+                }
+            }
+            //List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
+            this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.66f;
+            if (this.EscortTarget == null || !this.EscortTarget.Active)
+            {
+                //changing the ship to parrallel query for MOAR perf.AsParallel().
+                foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item => item.Active && !item.dying && Vector2.Distance(this.Owner.Center, item.Center) <= Radius))
+                //for (int i = 0; i < nearby.Count(); i++)
+                {
+                    Ship item = nearby as Ship;
+
+
+                    if (item != null && item.Active && !item.dying)
+                    {
+                        if (item.loyalty == this.Owner.loyalty)//&&  Vector2.Distance(this.Owner.Center, item.Center) < 30000f)
+                        {
+                            this.FriendliesNearby.Add(item);
+                        }
+                        else if ((item.loyalty != this.Owner.loyalty && this.Owner.loyalty.GetRelations()[item.loyalty].AtWar || this.Owner.loyalty.isFaction || item.loyalty.isFaction) && Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
+                        {
+                            ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
+                            sw.ship = item;
+                            sw.weight = 1f;
+                            this.NearbyShips.Add(sw);
+                            this.PotentialTargets.Add(item);
+                            this.BadGuysNear = true;
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                if (this.EscortTarget.GetAI().Target != null)
+                {
+                    ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
+                    sw.ship = this.EscortTarget.GetAI().Target as Ship;
+                    sw.weight = 1f;
+                    this.NearbyShips.Add(sw);
+                }
+                List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(Owner);
+                for (int i = 0; i < nearby.Count; i++)
+                {
+                    Ship item1 = nearby[i] as Ship;
+                    if (item1 != null && item1.Active && !item1.dying)
+                    {
+                        if (item1.loyalty == Owner.loyalty)
+                        {
+                            this.FriendliesNearby.Add(item1);
+                        }
+                        else if (item1.loyalty != this.Owner.loyalty && item1.GetAI().Target != null && item1.GetAI().Target == this.EscortTarget)
+                        {
+                            ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
+                            sw.ship = item1;
+                            sw.weight = 1f;
+                            this.NearbyShips.Add(sw);
+                            this.BadGuysNear = true;
+                            this.PotentialTargets.Add(item1);
+                        }
+                    }
+                }
+            }
+            if (this.Target != null && !this.Target.Active)
+            {
+                this.Target = null;
+                this.hasPriorityTarget = false;
+            }
+            else if (this.Target != null && this.Target.Active && this.hasPriorityTarget)
+            {
+                if (this.Owner.loyalty.GetRelations()[(this.Target as Ship).loyalty].AtWar || this.Owner.loyalty.isFaction || (this.Target as Ship).loyalty.isFaction)
+                {
+                    this.PotentialTargets.Add(this.Target as Ship);
+                    this.BadGuysNear = true;
+                }
+                return this.Target;
+            }
+
+
+
+
+
+
+
+
+
+            if (this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay).Count() > 0 && this.Owner.engineState != Ship.MoveState.Warp && !this.Owner.isSpooling)
+            {
+
+
+
+                //IOrderedEnumerable<Ship> sortedList = null;
+                IOrderedEnumerable<Ship> sortedList = null;
+                if (this.Owner.Role == "station" || this.Owner.Role == "platform")
+                {
+                    sortedList = this.Owner.loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) < 10 * this.Owner.SensorRange && ship != this.Owner && ship.engineState != Ship.MoveState.Warp && ship.Mothership == null && ship.OrdinanceMax > 0 && ship.Ordinance / ship.OrdinanceMax < .5 && !ship.IsTethered()).OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 9999)) / 10000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
+                }
+
+
+
+                else
+                {
+                    sortedList = FriendliesNearby.Where(ship => ship != this.Owner && ship.engineState != Ship.MoveState.Warp && ship.Mothership == null && ship.OrdinanceMax > 0 && ship.Ordinance / ship.OrdinanceMax < .5 && !ship.IsTethered()).OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
+                }
+                if (sortedList.Count() > 0)
+                {
+
+                    int skip = 0;
+                    float inboundOrdinance = 0f;
+                    foreach (ShipModule hangar in this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay))
+                    {
+
+                        if (hangar.GetHangarShip() != null)
+                        {
+
+
+                            if (hangar.GetHangarShip().GetAI().State != AIState.Ferrying)
+                            {
+                                if (sortedList.Skip(skip).Count() > 0)
+                                {
+                                    ArtificialIntelligence.ShipGoal g1 = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.SupplyShip, Vector2.Zero, 0f);
+                                    hangar.GetHangarShip().GetAI().EscortTarget = sortedList.Skip(skip).First();//.Where(ship => !ship.IsTethered()).FirstOrDefault();//sortedList.ElementAt<Ship>(y);
+
+                                    hangar.GetHangarShip().GetAI().IgnoreCombat = true;
+                                    hangar.GetHangarShip().GetAI().OrderQueue.Clear();
+                                    hangar.GetHangarShip().GetAI().OrderQueue.AddLast(g1);
+                                    hangar.GetHangarShip().GetAI().State = AIState.Ferrying;
+                                    continue;
+                                }
+                                else
+                                {
+                                    hangar.GetHangarShip().QueueTotalRemoval();
+                                    continue;
+                                }
+
+
+                            }
+
+                            else if (sortedList.Skip(skip).Count() > 0 && hangar.GetHangarShip().GetAI().EscortTarget == sortedList.Skip(skip).First())
+                            {
+                                inboundOrdinance = inboundOrdinance + 50f;
+                                if (inboundOrdinance + sortedList.Skip(skip).First().Ordinance / sortedList.First().OrdinanceMax > .5f)
+                                {
+                                    skip++;
+                                    inboundOrdinance = 0;
+                                    continue;
+                                }
+                            }
+                            continue;
+                        }
+                        if (!hangar.Active || hangar.hangarTimer > 0f || this.Owner.Ordinance < 50f || sortedList.Skip(skip).Count() <= 0)
+                        {
+                            continue;
+                        }
+
+                        inboundOrdinance = inboundOrdinance + 50f;
+                        Ship shuttle = ResourceManager.CreateShipFromHangar(this.Owner.loyalty.data.StartingScout, this.Owner.loyalty, this.Owner.Center, this.Owner);
+                        shuttle.VanityName = "Resupply Shuttle";
+                        shuttle.Role = "supply";
+                        shuttle.GetAI().IgnoreCombat = true;
+                        shuttle.GetAI().DefaultAIState = AIState.Flee;
+
+
+                        Ship ship1 = shuttle;
+                        randomThreadMath = (this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG);
+                        ship1.Velocity = (randomThreadMath.RandomDirection() * shuttle.speed) + this.Owner.Velocity;
+                        if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
+                        {
+                            shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.speed;
+                        }
+                        float ord_amt = 50f;
+                        Ship owner = this.Owner;
+                        owner.Ordinance = owner.Ordinance - 50f;
+                        hangar.SetHangarShip(shuttle);
+                        ArtificialIntelligence.ShipGoal g = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.SupplyShip, Vector2.Zero, 0f);
+                        shuttle.GetAI().EscortTarget = sortedList.Skip(skip).First();
+                        g.VariableNumber = ord_amt;
+                        shuttle.GetAI().IgnoreCombat = true;
+                        shuttle.GetAI().OrderQueue.Clear();
+                        shuttle.GetAI().OrderQueue.AddLast(g);
+                        shuttle.GetAI().State = AIState.Ferrying;
+
+
+                        break;
+
+
+                    }
+
+
+                }
+
+            }
+            if (this.Owner.VanityName == "Resupply Shuttle" && this.Owner.Mothership == null)
+            {
+
+
+                {
+                    this.Owner.QueueTotalRemoval();
+                }
+            }
+
+
+            //if (this.Owner.Role == "troop")
+            //{
+            //    //if (this.Owner.Role == "troop" && this.State == AIState.Rebase)
+            //    //{
+            //    //    this.State = AIState.AwaitingOrders;
+            //    //}
+
+
+            //    if (this.EscortTarget != null && this.EscortTarget.engineState == Ship.MoveState.Warp)
+            //    {
+            //        this.IgnoreCombat = true;
+            //        this.OrderQueue.Clear();
+            //        this.State = AIState.AwaitingOrders;
+            //    }
+
+            //    if (this.OrbitTarget != null && this.Owner.loyalty != this.OrbitTarget.Owner)
+            //    {
+
+            //        if (OrbitTarget.Owner == null)
+            //        {
+            //            this.OrderLandAllTroops(this.OrbitTarget);
+            //        }
+            //        else if (this.Owner.loyalty.GetRelations()[this.OrbitTarget.Owner].AtWar)
+            //        {
+            //            this.State = AIState.AssaultPlanet;
+            //            this.OrderLandAllTroops(this.OrbitTarget);
+            //        }
+            //        //this.OrderAssaultPlanet(this.OrbitTarget);
+
+            //        //this.State = AIState.AssaultPlanet;
+
+            //        //ArtificialIntelligence.ShipGoal g = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.LandTroop, Vector2.Zero, 0f);
+            //        //g.TargetPlanet = this.OrbitTarget;
+            //        //this.IgnoreCombat = true;
+            //        //this.OrderQueue.Clear();
+            //        //this.OrderQueue.AddLast(g);
+
+            //    }
+
+
+            //this.State == AIState.AwaitingOrders
+            if (true)
+            {
+                //if (this.Owner.Role == "troop" && !Owner.EnginesKnockedOut && this.OrderQueue.Count() == 0)
+                //{
+                //    //var nearby = GetNearby(Owner); //FriendliesNearby;
+
+                //    foreach (var item1 in this.FriendliesNearby.Select(t => t).AsParallel().Where(item1 => item1 != null && item1.Active && !item1.dying && item1.loyalty == Owner.loyalty && item1.TroopCapacity > item1.TroopList.Count && Vector2.Distance(item1.Center, Owner.Center) < 15000).OrderBy(item1 => Vector2.Distance(item1.Center, Owner.Center)))
+                //    {
+                //        int X = 0;
+                //        foreach (var FriendlyTroops in this.FriendliesNearby.Select(t => t).AsParallel().Where(FriendlyTroops => FriendlyTroops.Role == "troop" && FriendlyTroops.GetAI().EscortTarget == item1))
+                //        {
+                //            X++;
+                //        }
+
+                //        if (item1.TroopCapacity > X + item1.TroopList.Count) //&& Vector2.Distance(item1.Center, Owner.Center) < 15000
+                //        {
+                //            //this.Target = item1;
+                //            //this.State = AIState.ReturnToHangar;
+                //            this.OrderTroopToShip(item1);
+                //            //this.EscortTarget = item1;
+                //            //ArtificialIntelligence.ShipGoal g = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.TroopToShip, Vector2.Zero, 0f);
+                //            //this.OrderQueue.Clear();
+                //            //this.OrderQueue.AddLast(g);
+                //            if (Vector2.Distance(item1.Center, Owner.Center) < 1500 && item1.GetAI().State == AIState.AwaitingOrders)
+                //            { item1.speed = 0; }
+                //            break;
+
+                //        }
+                //    } 
+                //}
+                //(this.State == AIState.AwaitingOrders || this.State == AIState.Combat)
+                //&& (this.State == AIState.AwaitingOrders || this.State != AIState.Boarding || this.State != AIState.AssaultPlanet)
+                //if (this.State == AIState.AwaitingOrders || this.State == AIState.Combat)
+                //{
+                //    //int y = 0;
+                //    this.hasPriorityTarget = false;
+                //    this.OrderQueue.Clear();
+                //    this.Target = null;
+                //    Ship BoardingTarget = this.PotentialTargets.AsParallel().Where(target => target.Role !="fighter").OrderBy(item1=> Vector2.Distance(item1.Center, Owner.Center)).ThenByDescending(shipToBoard => shipToBoard.MechanicalBoardingDefense + shipToBoard.TroopBoardingDefense).FirstOrDefault();
+
+                //        if(BoardingTarget !=null) this.OrderTroopToBoardShip(BoardingTarget);
+
+                //}
+
+
+                //Where(shipToBoard => shipToBoard.Mothership ==null).
+                //foreach (Ship shipToBoard in this.PotentialTargets.AsParallel().OrderByDescending(shipToBoard => shipToBoard.MechanicalBoardingDefense + shipToBoard.TroopBoardingDefense))
+                //{
+                //    //foreach (var FriendlyTroops in this.FriendliesNearby.Where(FriendlyTroops => FriendlyTroops.Role == "troop" && FriendlyTroops.GetAI().EscortTarget == shipToBoard))
+                //    //{
+                //    //    y++;
+                //    //}
+                //    ////this.IgnoreCombat = true;
+                //    //if (y > shipToBoard.MechanicalBoardingDefense + shipToBoard.TroopBoardingDefense) continue;
+                //    //this.hasPriorityTarget = true;
+                //    //this.State = AIState.Boarding;
+                //    //this.EscortTarget = shipToBoard;
+                //    //ArtificialIntelligence.ShipGoal g = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.BoardShip, Vector2.Zero, 0f);
+                //    //this.OrderQueue.Clear();
+                //    //this.OrderQueue.AddLast(g);
+                //    this.OrderTroopToBoardShip(shipToBoard);
+                //    break;
+                //}
+                //}
+            }
+
+
+
+
+            //}
+            foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips)
+            //Parallel.ForEach(this.NearbyShips, nearbyShip =>
+            {
+                if (nearbyShip.ship.loyalty != this.Owner.loyalty)
+                {
+                    if (nearbyShip.ship.Health / nearbyShip.ship.HealthMax < 0.5f)
+                    {
+                        ArtificialIntelligence.ShipWeight vultureWeight = nearbyShip;
+                        vultureWeight.weight = vultureWeight.weight + this.CombatAI.VultureWeight;
+                    }
+                    if (nearbyShip.ship.Size < 30)
+                    {
+                        ArtificialIntelligence.ShipWeight smallAttackWeight = nearbyShip;
+                        smallAttackWeight.weight = smallAttackWeight.weight + this.CombatAI.SmallAttackWeight;
+                    }
+                    if (nearbyShip.ship.Size > 30 && nearbyShip.ship.Size < 100)
+                    {
+                        ArtificialIntelligence.ShipWeight mediumAttackWeight = nearbyShip;
+                        mediumAttackWeight.weight = mediumAttackWeight.weight + this.CombatAI.MediumAttackWeight;
+                    }
+                    if (nearbyShip.ship.Size > 100)
+                    {
+                        ArtificialIntelligence.ShipWeight largeAttackWeight = nearbyShip;
+                        largeAttackWeight.weight = largeAttackWeight.weight + this.CombatAI.LargeAttackWeight;
+                    }
+                    if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) <= this.CombatAI.PreferredEngagementDistance + 500f && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) > this.CombatAI.PreferredEngagementDistance - 500f)
+                    {
+                        ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
+                        shipWeight.weight = shipWeight.weight + 2.5f;
+                    }
+                    else if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) > 5000f)
+                    {
+                        ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
+                        shipWeight1.weight = shipWeight1.weight - 2.5f;
+                    }
+                    foreach (ArtificialIntelligence.ShipWeight otherShip in this.NearbyShips)
+                    {
+                        if (otherShip.ship.loyalty != this.Owner.loyalty)
+                        {
+                            if (otherShip.ship.GetAI().Target != this.Owner)
+                            {
+                                continue;
+                            }
+                            ArtificialIntelligence.ShipWeight selfDefenseWeight = nearbyShip;
+                            selfDefenseWeight.weight = selfDefenseWeight.weight + 0.2f * this.CombatAI.SelfDefenseWeight;
+                        }
+                        else if (otherShip.ship.GetAI().Target != nearbyShip.ship)
+                        {
+                            continue;
+                        }
+                    }
+
+                }
+                else
+                //foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips.AsParallel().Where(loyalty => loyalty.ship.loyalty == this.Owner.loyalty))
+                //Parallel.ForEach(this.NearbyShips.Where(loyalty => loyalty.ship.loyalty == this.Owner.loyalty), nearbyShip =>
+                {
+                    this.NearbyShips.QueuePendingRemoval(nearbyShip);
+                }
+
+            }
+            //this.FriendliesNearby.Clear();
+            //this.FriendliesNearby.Add(this.Owner);
+
+            if (this.Owner.Role == "platform")
+            {
+                this.NearbyShips.ApplyPendingRemovals();
+                //AsParallel(). OrderedParallelQuery
+                IEnumerable<ArtificialIntelligence.ShipWeight> sortedList =
+                                                                                  from potentialTarget in this.NearbyShips
+                                                                                  orderby Vector2.Distance(this.Owner.Center, potentialTarget.ship.Center)
+                                                                                  select potentialTarget;
+                if (sortedList.Count<ArtificialIntelligence.ShipWeight>() > 0)
+                {
+                    this.Target = sortedList.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
+                }
+                return this.Target;
+            }
+            this.NearbyShips.ApplyPendingRemovals();
+            IEnumerable<ArtificialIntelligence.ShipWeight> sortedList2 =
+                                                                               from potentialTarget in this.NearbyShips
+                                                                               orderby potentialTarget.weight descending
+                                                                               select potentialTarget;
+            if (sortedList2.Count<ArtificialIntelligence.ShipWeight>() > 0)
+            {
+                if (this.Owner.Role == "supply" && this.Owner.VanityName != "Resupply Shuttle")
+                {
+                    this.Target = sortedList2.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
+                }
+                this.Target = sortedList2.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
+            }
+            return this.Target;
+        }
+
+  
+
+
+        private void SetCombatStatus(float elapsedTime)
+        {
+
+
+            #region NOWarpinUncontrolledSystems
+            //deprecated no warp in system code.
+            //if (WarpRestriction && !universeScreen.Debug && !this.Owner.inborders && !this.Owner.loyalty.isFaction)
+            //{
+            //    SolarSystem currentSystem = this.Owner.GetSystem();
+
+            //    if (currentSystem != null)
+            //    {
+            //        int systemOwnerCount = currentSystem.OwnerList.Count();
+            //        if (systemOwnerCount == 0 && GremlinAI.WarpRestrictionInNuetral)
+            //        {
+            //            this.Owner.Inhibited = true;
+            //            this.Owner.InhibitedTimer = 10f;
+            //        }
+            //        else
+            //        {
+            //            Empire happySystems = currentSystem.OwnerList.Where(empire => empire.GetRelations()[this.Owner.loyalty].Treaty_OpenBorders).FirstOrDefault();
+            //            if (happySystems == null && systemOwnerCount > 0)
+            //            {
+            //                this.Owner.Inhibited = true;
+            //                this.Owner.InhibitedTimer = 10f;
+            //            }
+            //        }
+            //    }
+
+
+            //} 
+            #endregion
+
+
+            float radius = 30000f;
+            Vector2 senseCenter = this.Owner.Center;
+            if (UseSensorsForTargets)
+            {
+                if (this.Owner.Mothership != null)
+                {
+                    //radius = 30000f - Vector2.Distance(this.Owner.Center, this.Owner.Mothership.Center);
+                    senseCenter = this.Owner.Mothership.Center;
+                    radius = this.Owner.Mothership.SensorRange;
+                }
+                else //if (this.Owner.Mothership == null)
+                {
+                    radius = this.Owner.SensorRange;
+                    if (this.Owner.inborders) radius += 10000;
+                    //float scoutsensor=0f;
+                    //if (FriendliesNearby.Count() > 0)
+                    //{
+                    //    //scoutsensor = this.FriendliesNearby.Max(scout => (scout.SensorRange) - Vector2.Distance(this.Owner.Center, scout.Center));
+
+                    //    //if (scoutsensor > this.Owner.SensorRange) radius = scoutsensor;
+
+                    //    Ship scoutShip = this.FriendliesNearby.AsParallel().Where(scout => Vector2.Distance(this.Owner.Center, scout.Center)  < scout.SensorRange).OrderByDescending(scout => Vector2.Distance(this.Owner.Center, scout.Center) + this.Owner.SensorRange).FirstOrDefault();
+                    //    if (scoutShip != null)
+                    //    {
+                    //        senseCenter = scoutShip.Center;
+                    //        radius = scoutShip.SensorRange;
+                    //    }
+                    //}
+
+
+                }
+            }
+
+            if (this.Owner.fleet != null)
+            {
+                if (!this.hasPriorityTarget)
+                {
+                    this.Target = this.ScanForCombatTargets2(senseCenter, radius);
+                }
+                else
+                {
+                    this.ScanForCombatTargets2(senseCenter, radius);
+                }
+            }
+            else if (!this.hasPriorityTarget)
+            {
+                this.Target = this.ScanForCombatTargets2(senseCenter, radius);
+            }
+            else
+            {
+                this.ScanForCombatTargets2(senseCenter, radius);
+            }
+            if (this.State == AIState.Resupply)
+            {
+                this.Owner.InCombatTimer = 0f;
+                this.Owner.InCombat = false;
+                return;
+            }
+            if (((this.Owner.Role == "freighter" && this.Owner.CargoSpace_Max > 0) || this.Owner.Role == "scout" || this.Owner.Role == "construction" || this.Owner.Role == "troop" || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar || this.State == AIState.Colonize) || this.Owner.VanityName == "Resupply Shuttle")
+            {
+                //if (this.Owner.engineState == Ship.MoveState.Sublight && this.NearbyShips.Count > 0)
+                //{
+                //    this.Owner.ShieldsUp = true;
+                //}
+
+                this.Owner.InCombatTimer = 0f;
+                this.Owner.InCombat = false;
+                return;
+            }
+            if (this.Owner.fleet != null && this.State == AIState.FormationWarp)
+            {
+                bool doreturn = true;
+                if (this.Owner.fleet != null && this.State == AIState.FormationWarp && Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset) < 15000f)
+                {
+                    doreturn = false;
+                }
+                if (doreturn)
+                {
+                    //if (this.Owner.engineState == Ship.MoveState.Sublight && this.NearbyShips.Count > 0)
+                    //{
+                    //    this.Owner.ShieldsUp = true;
+                    //}
+                    return;
+                }
+            }
+            if (this.Owner.fleet != null)
+            {
+                foreach (FleetDataNode datanode in this.Owner.fleet.DataNodes)
+                {
+                    if (datanode.GetShip() != this.Owner)
+                    {
+                        continue;
+                    }
+                    this.node = datanode;
+                    break;
+                }
+            }
+            if (this.Target != null && !this.Owner.InCombat)
+            {
+                //this.Owner.ShieldsUp = true;
+                this.Owner.InCombat = true;
+                this.Owner.InCombatTimer = 15f;
+                if (!this.HasPriorityOrder && this.OrderQueue.Count > 0 && this.OrderQueue.ElementAt<ArtificialIntelligence.ShipGoal>(0).Plan != ArtificialIntelligence.Plan.DoCombat)
+                {
+                    ArtificialIntelligence.ShipGoal combat = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f);
+                    this.State = AIState.Combat;
+                    this.OrderQueue.AddFirst(combat);
+                    return;
+                }
+                if (!this.HasPriorityOrder)
+                {
+                    ArtificialIntelligence.ShipGoal combat = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f);
+                    this.State = AIState.Combat;
+                    this.OrderQueue.AddFirst(combat);
+                    return;
+                }
+                if (this.HasPriorityOrder && this.CombatState != CombatState.HoldPosition && this.OrderQueue.Count == 0)
+                {
+                    ArtificialIntelligence.ShipGoal combat = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f);
+                    this.State = AIState.Combat;
+                    this.OrderQueue.AddFirst(combat);
+                    return;
+                }
+            }
+            else if (this.Target == null)
+            {
+                this.Owner.InCombat = false;
+            }
+        }
+
+        private void FireOnTargetNonVisible2(Weapon w, GameplayObject fireTarget)
+        {
+            if (this.Owner.Ordinance < w.OrdinanceRequiredToFire || this.Owner.PowerCurrent < w.PowerRequiredToFire)
+            {
+                return;
+            }
+            w.timeToNextFire = w.fireDelay;
+            if (w.IsRepairDrone)
+            {
+                return;
+            }
+            Ship owner = this.Owner;
+            owner.Ordinance = owner.Ordinance - w.OrdinanceRequiredToFire;
+            Ship powerCurrent = this.Owner;
+            powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - w.PowerRequiredToFire;
+            if (fireTarget is Projectile)
+            {
+                fireTarget.Damage(w.GetOwner(), w.DamageAmount);
+                return;
+            }
+            if (!(fireTarget is Ship))
+            {
+                if (fireTarget is ShipModule)
+                {
+                    w.timeToNextFire = w.fireDelay;
+                    IOrderedEnumerable<ModuleSlot> sortedList =
+                        from slot in (fireTarget as ShipModule).GetParent().ExternalSlots
+                        orderby Vector2.Distance(slot.module.Center, this.Owner.Center)
+                        select slot;
+                    float damage = w.DamageAmount;
+                    if (w.isBeam)
+                    {
+                        damage = damage * 90f;
+                    }
+                    if (w.SalvoCount > 0)
+                    {
+                        damage = damage * (float)w.SalvoCount;
+                    }
+                    if (w.explodes)
+                    {
+                        damage = damage / 2f;
+                    }
+                    sortedList.First<ModuleSlot>().module.Damage(this.Owner, damage);
+                }
+                return;
+            }
+            w.timeToNextFire = w.fireDelay;
+            if ((fireTarget as Ship).ExternalSlots.Count == 0)
+            {
+                (fireTarget as Ship).Die(null, true);
+                return;
+            }
+            if ((fireTarget as Ship).shield_power > 0f)
+            {
+                for (int i = 0; i < (fireTarget as Ship).GetShields().Count; i++)
+                {
+                    if ((fireTarget as Ship).GetShields()[i].Active && (fireTarget as Ship).GetShields()[i].shield_power > 0f)
+                    {
+                        float damage = w.DamageAmount;
+                        if (w.isBeam)
+                        {
+                            damage = damage * 90f;
+                        }
+                        if (w.SalvoCount > 0)
+                        {
+                            damage = damage * (float)w.SalvoCount;
+                        }
+                        if (w.explodes)
+                        {
+                            damage = damage / 2f;
+                        }
+                        (fireTarget as Ship).GetShields()[i].Damage(this.Owner, damage);
+                        return;
+                    }
+                }
+                return;
+            }
+            if (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) <= 50f || (fireTarget as Ship).ExternalSlots[0].module.shield_power > 0f)
+            {
+                for (int i = 0; i < (fireTarget as Ship).ExternalSlots.Count; i++)
+                {
+                    if ((fireTarget as Ship).ExternalSlots[i].module.Active && (fireTarget as Ship).ExternalSlots[i].module.shield_power <= 0f)
+                    {
+                        float damage = w.DamageAmount;
+                        if (w.isBeam)
+                        {
+                            damage = damage * 90f;
+                        }
+                        if (w.SalvoCount > 0)
+                        {
+                            damage = damage * (float)w.SalvoCount;
+                        }
+                        if (w.explodes)
+                        {
+                            damage = damage / 2f;
+                        }
+                        (fireTarget as Ship).ExternalSlots[i].module.Damage(this.Owner, damage);
+                        return;
+                    }
+                }
+                return;
+            }
+            for (int i = (fireTarget as Ship).ExternalSlots.Count - 1; i > 0; i--)
+            {
+                if ((fireTarget as Ship).ExternalSlots[i].module.Active && (fireTarget as Ship).ExternalSlots[i].module.shield_power <= 0f)
+                {
+                    float damage = w.DamageAmount;
+                    if (w.isBeam)
+                    {
+                        damage = damage * 90f;
+                    }
+                    if (w.SalvoCount > 0)
+                    {
+                        damage = damage * (float)w.SalvoCount;
+                    }
+                    if (w.explodes)
+                    {
+                        damage = damage / 2f;
+                    }
+                    (fireTarget as Ship).ExternalSlots[i].module.Damage(this.Owner, damage);
+                    return;
+                }
+            }
+        }
+
 		private GameplayObject ScanForCombatTargets(Vector2 Position, float Radius)
 		{
 			this.BadGuysNear = false;
@@ -4828,7 +5564,7 @@ namespace Ship_Game.Gameplay
 			this.Owner.QueueTotalRemoval();
 		}
 
-		private void SetCombatStatus(float elapsedTime)
+		private void SetCombatStatus2(float elapsedTime)
 		{
 			if (this.Owner.fleet != null)
 			{
@@ -5188,7 +5924,7 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-        public void Update(float elapsedTime)
+        public void UpdateOrig(float elapsedTime)
         {
             if (this.State == AIState.AwaitingOrders && this.DefaultAIState == AIState.Exterminate)
                 this.State = AIState.Exterminate;
@@ -5769,6 +6505,755 @@ namespace Ship_Game.Gameplay
                         return;
                     this.DeRotate();
                 }
+            }
+        }
+
+        //added by gremlin Devekmod AuUpdate(fixed)
+        public void Update(float elapsedTime)
+        {
+            ArtificialIntelligence.ShipGoal toEvaluate;
+            if (this.State == AIState.AwaitingOrders && this.DefaultAIState == AIState.Exterminate)
+            {
+                this.State = AIState.Exterminate;
+            }
+            if (this.Owner.Name == "Subspace Projector")
+            {
+                this.BadGuysNear = true;
+                return;
+            }
+            if (this.ClearOrdersNext)
+            {
+                this.OrderQueue.Clear();
+                this.ClearOrdersNext = false;
+                this.State = AIState.AwaitingOrders;
+            }
+            List<Ship> ToRemove = new List<Ship>();
+            foreach (Ship target in this.TargetQueue)
+            {
+                if (target.Active)
+                {
+                    continue;
+                }
+                ToRemove.Add(target);
+            }
+            foreach (Ship ship in ToRemove)
+            {
+                this.TargetQueue.Remove(ship);
+            }
+            if (!this.hasPriorityTarget)
+            {
+                this.TargetQueue.Clear();
+            }
+            if (this.Owner.loyalty == ArtificialIntelligence.universeScreen.player && (this.State == AIState.MoveTo && Vector2.Distance(this.Owner.Center, this.MovePosition) > 100f || this.State == AIState.Orbit || this.State == AIState.Bombard || this.State == AIState.Rebase || this.State == AIState.Scrap || this.State == AIState.Resupply || this.State == AIState.Refit || this.State == AIState.FormationWarp))
+            {
+                this.HasPriorityOrder = true;
+            }
+            if (this.State == AIState.Resupply)
+            {
+                this.HasPriorityOrder = true;
+                if (this.Owner.Ordinance == this.Owner.OrdinanceMax)
+                {
+                    this.HasPriorityOrder = false;
+                }
+            }
+            ArtificialIntelligence scanForThreatTimer = this;
+
+            scanForThreatTimer.ScanForThreatTimer = this.ScanForThreatTimer - elapsedTime;
+            if (scanForThreatTimer.ScanForThreatTimer < 0f)
+            {
+                if (this.inOrbit == true && this.State != AIState.Orbit)
+                {
+                    this.inOrbit = false;
+                }
+                this.SetCombatStatus(elapsedTime);
+                scanForThreatTimer.ScanForThreatTimer = 2f;
+                if (this.Owner.loyalty.data.Traits.Pack)
+                {
+                    this.Owner.DamageModifier = -0.25f;
+                    Ship owner = this.Owner;
+                    owner.DamageModifier = owner.DamageModifier + 0.05f * (float)this.FriendliesNearby.Count;
+                    if (this.Owner.DamageModifier > 0.5f)
+                    {
+                        this.Owner.DamageModifier = 0.5f;
+                    }
+                }
+            }
+            if (this.State == AIState.ManualControl)
+            {
+                return;
+            }
+            this.ReadyToWarp = true;
+            this.Owner.isThrusting = false;
+            this.Owner.isTurning = false;
+            if (this.State == AIState.SystemTrader && this.start != null && this.end != null && (this.start.Owner != this.Owner.loyalty || this.end.Owner != this.Owner.loyalty))
+            {
+                this.start = null;
+                this.end = null;
+                this.OrderTrade();
+                return;
+            }
+            if (this.State == AIState.PassengerTransport && this.start != null && this.end != null && (this.start.Owner != this.Owner.loyalty || this.end.Owner != this.Owner.loyalty))
+            {
+                this.start = null;
+                this.end = null;
+                this.OrderTransportPassengers();
+                return;
+            }
+            try
+            {
+                if (this.OrderQueue.Count == 0)
+                {
+                    if (this.Owner.fleet == null)
+                    {
+                        lock (GlobalStats.WayPointLock)
+                        {
+                            this.ActiveWayPoints.Clear();
+                        }
+                        AIState state = this.State;
+                        if (state <= AIState.MoveTo)
+                        {
+                            if (state <= AIState.SystemTrader)
+                            {
+                                if (state == AIState.DoNothing)
+                                {
+                                    this.AwaitOrders(elapsedTime);
+                                }
+                                else
+                                {
+                                    switch (state)
+                                    {
+                                        case AIState.AwaitingOrders:
+                                            {
+                                                if (this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+                                                {
+                                                    this.AwaitOrders(elapsedTime);
+                                                }
+                                                else
+                                                {
+                                                    this.AwaitOrdersPlayer(elapsedTime);
+                                                }
+                                                if (this.Owner.OrdinanceMax == 0 || this.Owner.OrdinanceMax > 0 && this.Owner.Ordinance / this.Owner.OrdinanceMax >= 0.2f)
+                                                {
+
+                                                    break;
+
+
+                                                }
+                                                if (FriendliesNearby.Where(supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() > 0)
+                                                {
+                                                    break;
+                                                }
+                                                List<Planet> shipyards = new List<Planet>();
+                                                for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count; i++)
+                                                {
+                                                    Planet item = this.Owner.loyalty.GetPlanets()[i];
+                                                    if (item.HasShipyard)
+                                                    {
+                                                        shipyards.Add(item);
+                                                    }
+                                                }
+                                                IOrderedEnumerable<Planet> sortedList =
+                                                    from p in shipyards
+                                                    orderby Vector2.Distance(this.Owner.Center, p.Position)
+                                                    select p;
+                                                if (sortedList.Count<Planet>() <= 0)
+                                                {
+                                                    break;
+                                                }
+                                                this.OrderResupply(sortedList.First<Planet>(), true);
+                                                break;
+                                            }
+                                        case AIState.Escort:
+                                            {
+                                                if (this.EscortTarget != this.Owner.Mothership || this.Owner.Mothership == null || !this.Owner.Mothership.InCombat)
+                                                {
+                                                    if (this.EscortTarget == null || !this.EscortTarget.Active)
+                                                    {
+                                                        break;
+                                                    }
+                                                    this.OrbitShip(this.EscortTarget, elapsedTime);
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    this.Target = this.Owner.Mothership.GetAI().Target;
+                                                    this.DoCombat(elapsedTime);
+                                                    break;
+                                                }
+                                            }
+                                        case AIState.SystemTrader:
+                                            {
+                                                this.OrderTrade();
+                                                if (this.end != null && this.start != null)
+                                                {
+                                                    break;
+                                                }
+                                                this.AwaitOrders(elapsedTime);
+                                                break;
+                                            }
+                                    }
+                                }
+                            }
+                            else if (state == AIState.PassengerTransport)
+                            {
+                                this.OrderTransportPassengers();
+                                if (this.end == null || this.start == null)
+                                {
+                                    this.AwaitOrders(elapsedTime);
+                                }
+                            }
+                            else if (state != AIState.MoveTo)
+                            {
+                            }
+                        }
+                        else if (state <= AIState.ReturnToHangar)
+                        {
+                            switch (state)
+                            {
+                                case AIState.SystemDefender:
+                                    {
+                                        this.AwaitOrders(elapsedTime);
+                                        break;
+                                    }
+                                case AIState.AwaitingOffenseOrders:
+                                    {
+                                        break;
+                                    }
+                                case AIState.Resupply:
+                                    {
+                                        if (this.Owner.Ordinance != this.Owner.OrdinanceMax)
+                                        {
+                                            break;
+                                        }
+                                        this.State = AIState.AwaitingOrders;
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        if (state == AIState.ReturnToHangar)
+                                        {
+                                            this.DoReturnToHangar(elapsedTime);
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                            }
+                        }
+                        else if (state != AIState.Intercept)
+                        {
+                            if (state == AIState.Exterminate)
+                            {
+                                this.OrderFindExterminationTarget(true);
+                            }
+                        }
+                        else if (this.Target != null)
+                        {
+                            this.OrbitShip(this.Target as Ship, elapsedTime);
+                        }
+                    }
+                    else
+                    {
+                        float DistanceToFleetOffset = Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset);
+                        Vector2 toAdd = (this.Owner.Velocity != Vector2.Zero ? Vector2.Normalize(this.Owner.Velocity) : Vector2.Zero) * 100f;
+                        Vector2.Distance(this.Owner.Center, (this.Owner.fleet.Position + this.Owner.FleetOffset) + toAdd);
+                        Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Owner.fleet.Position + this.Owner.FleetOffset, this.Owner.fleet.facing, 1f);
+                        Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
+                        if (DistanceToFleetOffset <= 75f || this.HasPriorityOrder)
+                        {
+                            this.Owner.Velocity = Vector2.Zero;
+                            vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, this.Owner.fleet.facing, 1f);
+                            fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
+                            Vector2 wantedForward = Vector2.Normalize(fvec);
+                            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                            Vector2 right = new Vector2(-forward.Y, forward.X);
+                            float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                            float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
+                            if (angleDiff > 0.02f)
+                            {
+                                this.RotateToFacing(elapsedTime, angleDiff, facing);
+                            }
+                            this.State = AIState.AwaitingOrders;
+                        }
+                        else
+                        {
+                            this.ThrustTowardsPosition(this.Owner.fleet.Position + this.Owner.FleetOffset, elapsedTime, this.Owner.fleet.speed);
+                            lock (GlobalStats.WayPointLock)
+                            {
+                                this.ActiveWayPoints.Clear();
+                                this.ActiveWayPoints.Enqueue(this.Owner.fleet.Position + this.Owner.FleetOffset);
+                                if (this.Owner.fleet.GetStack().Count > 0)
+                                {
+                                    this.ActiveWayPoints.Enqueue(this.Owner.fleet.GetStack().Peek().MovePosition + this.Owner.FleetOffset);
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (this.OrderQueue.Count > 0)
+                {
+                    try
+                    {
+                        toEvaluate = this.OrderQueue.First<ArtificialIntelligence.ShipGoal>();
+                    }
+                    catch
+                    {
+                        return;
+                    }
+                    switch (toEvaluate.Plan)
+                    {
+                        case ArtificialIntelligence.Plan.Stop:
+                            {
+                                this.Stop(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.Scrap:
+                            {
+                                this.ScrapShip(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.Bombard:
+                            {
+                                if (this.Owner.Ordinance < 0.05f * this.Owner.OrdinanceMax)
+                                {
+                                    this.OrderQueue.Clear();
+                                    this.State = AIState.AwaitingOrders;
+                                    this.HasPriorityOrder = false;
+                                }
+                                this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                                if (toEvaluate.TargetPlanet.Owner != this.Owner.loyalty)
+                                {
+                                    if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) >= 2500f)
+                                    {
+                                        break;
+                                    }
+                                    List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator();
+                                    try
+                                    {
+                                        while (enumerator.MoveNext())
+                                        {
+                                            ShipModule mod = enumerator.Current;
+                                            if (mod.BombTimer > 0f)
+                                            {
+                                                continue;
+                                            }
+                                            Bomb b = new Bomb(new Vector3(this.Owner.Center, 0f), this.Owner.loyalty)
+                                            {
+                                                WeaponName = mod.BombType
+                                            };
+                                            if (this.Owner.Ordinance <= ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire)
+                                            {
+                                                continue;
+                                            }
+                                            Ship ordinance = this.Owner;
+                                            ordinance.Ordinance = ordinance.Ordinance - ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire;
+                                            b.SetTarget(toEvaluate.TargetPlanet);
+                                            lock (GlobalStats.BombLock)
+                                            {
+                                                ArtificialIntelligence.universeScreen.BombList.Add(b);
+                                            }
+                                            mod.BombTimer = ResourceManager.WeaponsDict[mod.BombType].fireDelay;
+                                        }
+                                        break;
+                                    }
+                                    finally
+                                    {
+                                        ((IDisposable)enumerator).Dispose();
+                                    }
+                                }
+                                else
+                                {
+                                    this.OrderQueue.Clear();
+                                    return;
+                                }
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.Exterminate:
+                            {
+                                this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                                if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty || toEvaluate.TargetPlanet.Owner == null)
+                                {
+                                    this.OrderQueue.Clear();
+                                    this.OrderFindExterminationTarget(true);
+                                    return;
+                                }
+                                else
+                                {
+                                    if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) >= 2500f)
+                                    {
+                                        break;
+                                    }
+                                    List<ShipModule>.Enumerator enumerator1 = this.Owner.BombBays.GetEnumerator();
+                                    try
+                                    {
+                                        while (enumerator1.MoveNext())
+                                        {
+                                            ShipModule mod = enumerator1.Current;
+                                            if (mod.BombTimer > 0f)
+                                            {
+                                                continue;
+                                            }
+                                            Bomb b = new Bomb(new Vector3(this.Owner.Center, 0f), this.Owner.loyalty)
+                                            {
+                                                WeaponName = mod.BombType
+                                            };
+                                            if (this.Owner.Ordinance <= ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire)
+                                            {
+                                                continue;
+                                            }
+                                            Ship owner1 = this.Owner;
+                                            owner1.Ordinance = owner1.Ordinance - ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire;
+                                            b.SetTarget(toEvaluate.TargetPlanet);
+                                            lock (GlobalStats.BombLock)
+                                            {
+                                                ArtificialIntelligence.universeScreen.BombList.Add(b);
+                                            }
+                                            mod.BombTimer = ResourceManager.WeaponsDict[mod.BombType].fireDelay;
+                                        }
+                                        break;
+                                    }
+                                    finally
+                                    {
+                                        ((IDisposable)enumerator1).Dispose();
+                                    }
+                                }
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.RotateToFaceMovePosition:
+                            {
+                                this.RotateToFaceMovePosition(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.RotateToDesiredFacing:
+                            {
+                                this.RotateToDesiredFacing(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.MoveToWithin1000:
+                            {
+                                this.MoveToWithin1000(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.MakeFinalApproachFleet:
+                            {
+                                if (this.Owner.fleet != null)
+                                {
+                                    this.MakeFinalApproachFleet(elapsedTime, toEvaluate);
+                                    break;
+                                }
+                                else
+                                {
+                                    this.State = AIState.AwaitingOrders;
+                                    break;
+                                }
+                            }
+                        case ArtificialIntelligence.Plan.MoveToWithin1000Fleet:
+                            {
+                                if (this.Owner.fleet != null)
+                                {
+                                    this.MoveToWithin1000Fleet(elapsedTime, toEvaluate);
+                                    break;
+                                }
+                                else
+                                {
+                                    this.State = AIState.AwaitingOrders;
+                                    break;
+                                }
+                            }
+                        case ArtificialIntelligence.Plan.MakeFinalApproach:
+                            {
+                                this.MakeFinalApproach(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.RotateInlineWithVelocity:
+                            {
+                                this.RotateInLineWithVelocity(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.StopWithBackThrust:
+                            {
+                                this.StopWithBackwardsThrust(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.Orbit:
+                            {
+                                this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.Colonize:
+                            {
+                                this.Colonize(toEvaluate.TargetPlanet);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.Explore:
+                            {
+                                this.DoExplore(elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.Rebase:
+                            {
+                                this.DoRebase(toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.DoCombat:
+                            {
+                                this.DoCombat(elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.MoveTowards:
+                            {
+                                this.MoveTowardsPosition(this.MovePosition, elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.DefendSystem:
+                            {
+                                this.DoSystemDefense(elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.DropOre:
+                            {
+                                this.DoOreDrop(elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.PickupPassengers:
+                            {
+                                this.PickupPassengers();
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.DropoffPassengers:
+                            {
+                                this.DropoffPassengers();
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.DeployStructure:
+                            {
+                                this.DoDeploy(toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.PickupGoods:
+                            {
+                                this.PickupGoods();
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.DropOffGoods:
+                            {
+                                this.DropoffGoods();
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.ReturnToHangar:
+                            {
+                                this.DoReturnToHangar(elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.MineAsteroid:
+                            {
+                                this.DoMineAsteroids(elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.TroopToShip:
+                            {
+                                this.DoTroopToShip(elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.BoardShip:
+                            {
+                                this.DoBoardShip(elapsedTime);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.SupplyShip:
+                            {
+                                this.DoSupplyShip(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.Refit:
+                            {
+                                this.DoRefit(elapsedTime, toEvaluate);
+                                break;
+                            }
+                        case ArtificialIntelligence.Plan.LandTroop:
+                            {
+                                this.DoLandTroop(elapsedTime, toEvaluate);
+                                break;
+                            }
+                    }
+                }
+                goto Label0;
+            }
+            catch
+            {
+            }
+            return;
+        Label0:
+            AIState aIState = this.State;
+            if (aIState == AIState.SystemTrader)
+            {
+                foreach (ArtificialIntelligence.ShipGoal goal in this.OrderQueue)
+                {
+                    if (goal.Plan == ArtificialIntelligence.Plan.TransportPassengers && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
+                    {
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupPassengers && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
+                    {
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupGoods && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
+                    {
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                    else if (goal.Plan != ArtificialIntelligence.Plan.DropoffPassengers || goal.TargetPlanet == null || goal.TargetPlanet.Owner == this.Owner.loyalty)
+                    {
+                        if (goal.Plan != ArtificialIntelligence.Plan.DropOffGoods || goal.TargetPlanet == null || goal.TargetPlanet.Owner == this.Owner.loyalty)
+                        {
+                            continue;
+                        }
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                    else
+                    {
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                }
+            }
+            else if (aIState == AIState.PassengerTransport)
+            {
+                foreach (ArtificialIntelligence.ShipGoal goal in this.OrderQueue)
+                {
+                    if (goal.Plan == ArtificialIntelligence.Plan.TransportPassengers && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
+                    {
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupPassengers && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
+                    {
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupGoods && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
+                    {
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                    else if (goal.Plan != ArtificialIntelligence.Plan.DropoffPassengers || goal.TargetPlanet == null || goal.TargetPlanet.Owner == this.Owner.loyalty)
+                    {
+                        if (goal.Plan != ArtificialIntelligence.Plan.DropOffGoods || goal.TargetPlanet == null || goal.TargetPlanet.Owner == this.Owner.loyalty)
+                        {
+                            continue;
+                        }
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                    else
+                    {
+                        this.OrderQueue.Clear();
+                        this.State = AIState.AwaitingOrders;
+                        break;
+                    }
+                }
+            }
+            else if (aIState == AIState.Rebase)
+            {
+                foreach (ArtificialIntelligence.ShipGoal goal in this.OrderQueue)
+                //Parallel.ForEach(this.OrderQueue, (goal, state) =>
+                {
+                    if (goal.Plan != ArtificialIntelligence.Plan.Rebase || goal.TargetPlanet == null || goal.TargetPlanet.Owner == this.Owner.loyalty)
+                    {
+                        continue;
+                    }
+                    this.OrderQueue.Clear();
+                    this.State = AIState.AwaitingOrders;
+                    break;
+                }
+            }
+            if (this.Owner.InCombat || this.Owner.LastHitTimer > 0f)
+            {
+                try
+                {
+                    if (!this.HasPriorityOrder && (this.OrderQueue.Count == 0 || this.OrderQueue.Count > 0 && this.OrderQueue.First<ArtificialIntelligence.ShipGoal>().Plan != ArtificialIntelligence.Plan.DoCombat))
+                    {
+                        this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
+                    }
+                    this.FireOnTarget(elapsedTime);
+                }
+                catch
+                {
+                }
+            }
+            else
+            {
+                if (this.Owner.HasRepairModule)
+                {
+                    //foreach (Weapon weapon in this.Owner.Weapons)
+                    Parallel.ForEach(this.Owner.Weapons, weapon =>
+                    {
+                        Weapon weapon1 = weapon;
+                        weapon1.timeToNextFire = weapon1.timeToNextFire - elapsedTime;
+                        if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || !weapon.IsRepairDrone || this.Owner.Ordinance < weapon.OrdinanceRequiredToFire || this.Owner.PowerCurrent < weapon.PowerRequiredToFire)
+                        {
+                            return;
+                        }
+                        try
+                        {
+                            this.DoRepairDroneLogic(weapon, elapsedTime);
+                        }
+                        catch
+                        {
+                        }
+                    });
+                }
+                if (this.Owner.GetHangars().Count > 0 && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+                {
+                    foreach (ShipModule hangar in this.Owner.GetHangars())
+                    //Parallel.ForEach(this.Owner.GetHangars(), hangar =>
+                    {
+                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null)
+                        {
+                            continue;
+                        }
+                        hangar.GetHangarShip().GetAI().OrderReturnToHangar();
+                    }
+                }
+                else if (this.Owner.GetHangars().Count > 0)
+                {
+                    foreach (ShipModule hangar in this.Owner.GetHangars())
+                    //Parallel.ForEach(this.Owner.GetHangars(), hangar =>
+                    {
+                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar || hangar.GetHangarShip().GetAI().hasPriorityTarget || hangar.GetHangarShip().GetAI().HasPriorityOrder)
+                        {
+                            continue;
+                        }
+                        hangar.GetHangarShip().DoEscort(this.Owner);
+                    }
+                }
+            }
+            if (this.State == AIState.Resupply && !this.HasPriorityOrder)
+            {
+                this.HasPriorityOrder = true;
+            }
+            if (!this.Owner.isTurning)
+            {
+                this.DeRotate();
+                return;
+            }
+            else
+            {
+                return;
             }
         }
 
