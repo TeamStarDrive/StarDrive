@@ -10,4 +10,4 @@ C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\StarDrive.pdb
 D:\Program Files\steam\steamapps\common\StarDrive\StarDrive.exe
 C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\StarDrive.csprojResolveAssemblyReference.cache
 C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\StarDrive.csproj.GenerateResource.Cache
-C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\Ship_Game.Properties.Resources.resources
+C:\Users\danny\Documents\SD-IDK\obj\x86\Debug\Properties.Resources.resources
