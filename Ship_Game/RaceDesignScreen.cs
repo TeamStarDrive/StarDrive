@@ -914,7 +914,7 @@ namespace Ship_Game
 			}
 			this.DescriptionSL.Entries.Clear();
 			this.DescriptionSL.Copied.Clear();
-			HelperFunctions.parseTextToSL(this.rd, (float)(this.Description.Menu.Width - 50), Fonts.Arial12Bold, ref this.DescriptionSL);
+			HelperFunctions.parseTextToSL(this.rd, (float)(this.Description.Menu.Width - 50), Fonts.Arial12, ref this.DescriptionSL);
 			this.RaceSummary.RaceDescription = this.rd;
 		}
 
@@ -972,58 +972,58 @@ namespace Ship_Game
 			this.Name.Draw();
 			Color c = new Color(255, 239, 208);
 			this.NameSub.Draw();
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12Bold : Fonts.Arial20Bold), string.Concat(Localizer.Token(31), ": "), this.RaceNamePos, Color.Orange);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), this.RaceNamePos, Color.Orange);
 			Vector2 rpos = this.RaceNamePos;
 			rpos.X = rpos.X + 205f;
 			if (!this.RaceName.HandlingInput)
 			{
-				this.RaceName.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.RaceName.Hover ? Color.White : c));
+				this.RaceName.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.RaceName.Hover ? Color.White : c));
 			}
 			else
 			{
-				this.RaceName.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
+				this.RaceName.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
 			}
-			this.RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial20Bold.MeasureString(this.RaceName.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+			this.RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
-			rpos.Y = rpos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12Bold : Fonts.Arial20Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.Orange);
+			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.Orange);
 			rpos.X = rpos.X + 205f;
 			if (!this.SingEntry.HandlingInput)
 			{
-				this.SingEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.SingEntry.Hover ? Color.White : c));
+				this.SingEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.SingEntry.Hover ? Color.White : c));
 			}
 			else
 			{
-				this.SingEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
+				this.SingEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
 			}
-			this.SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial20Bold.MeasureString(this.SingEntry.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+			this.SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
-			rpos.Y = rpos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12Bold : Fonts.Arial20Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.Orange);
+			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.Orange);
 			rpos.X = rpos.X + 205f;
 			if (!this.PlurEntry.HandlingInput)
 			{
-				this.PlurEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.PlurEntry.Hover ? Color.White : c));
+				this.PlurEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.PlurEntry.Hover ? Color.White : c));
 			}
 			else
 			{
-				this.PlurEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
+				this.PlurEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
 			}
-			this.PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial20Bold.MeasureString(this.PlurEntry.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+			this.PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
-			rpos.Y = rpos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12Bold : Fonts.Arial20Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.Orange);
+			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.Orange);
 			rpos.X = rpos.X + 205f;
 			if (!this.HomeSystemEntry.HandlingInput)
 			{
-				this.HomeSystemEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.HomeSystemEntry.Hover ? Color.White : c));
+				this.HomeSystemEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.HomeSystemEntry.Hover ? Color.White : c));
 			}
 			else
 			{
-				this.HomeSystemEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
+				this.HomeSystemEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
 			}
-			this.HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial20Bold.MeasureString(this.HomeSystemEntry.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(29), this.FlagPos, Color.Orange);
+			this.HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), this.FlagPos, Color.Orange);
 			this.FlagRect = new Rectangle((int)this.FlagPos.X + 16, (int)this.FlagPos.Y + 15, 80, 80);
 			SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
 			KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[this.FlagIndex];
@@ -1048,14 +1048,14 @@ namespace Ship_Game
 				ScrollList.Entry e = this.DescriptionSL.Entries[i];
 				if (e.clickRectHover == 0)
 				{
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, e.item as string, drawCurs, Color.White);
-					drawCurs.Y = drawCurs.Y + (float)Fonts.Arial12Bold.LineSpacing;
+					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, e.item as string, drawCurs, Color.White);
+					drawCurs.Y = drawCurs.Y + (float)Fonts.Arial12.LineSpacing;
 				}
 			}
 			rpos = drawCurs;
-			rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12Bold.LineSpacing);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(30), ": ", this.TotalPointsUsed), rpos, Color.White);
-			rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12.LineSpacing);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(30), ": ", this.TotalPointsUsed), rpos, Color.White);
+			rpos.Y = rpos.Y + (float)(Fonts.Arial12.LineSpacing + 2);
 			int numTraits = 0;
 			foreach (TraitEntry t in this.PhysicalTraits)
 			{
@@ -1063,15 +1063,15 @@ namespace Ship_Game
 				{
 					rpos = drawCurs;
 					rpos.X = rpos.X + 145f;
-					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12Bold.LineSpacing);
-					rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12.LineSpacing);
+					rpos.Y = rpos.Y + (float)(Fonts.Arial12.LineSpacing + 2);
 				}
 				if (!t.Selected)
 				{
 					continue;
 				}
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? Color.LightGreen : Color.LightPink));
-				rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? Color.LightGreen : Color.LightPink));
+				rpos.Y = rpos.Y + (float)(Fonts.Arial12.LineSpacing + 2);
 				numTraits++;
 			}
 			foreach (TraitEntry t in this.IndustryTraits)
@@ -1080,15 +1080,15 @@ namespace Ship_Game
 				{
 					rpos = drawCurs;
 					rpos.X = rpos.X + 145f;
-					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12Bold.LineSpacing);
-					rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12.LineSpacing);
+					rpos.Y = rpos.Y + (float)(Fonts.Arial12.LineSpacing + 2);
 				}
 				if (!t.Selected)
 				{
 					continue;
 				}
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? Color.LightGreen : Color.LightPink));
-				rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? Color.LightGreen : Color.LightPink));
+				rpos.Y = rpos.Y + (float)(Fonts.Arial12.LineSpacing + 2);
 				numTraits++;
 			}
 			foreach (TraitEntry t in this.SpecialTraits)
@@ -1097,15 +1097,15 @@ namespace Ship_Game
 				{
 					rpos = drawCurs;
 					rpos.X = rpos.X + 145f;
-					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12Bold.LineSpacing);
-					rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12.LineSpacing);
+					rpos.Y = rpos.Y + (float)(Fonts.Arial12.LineSpacing + 2);
 				}
 				if (!t.Selected)
 				{
 					continue;
 				}
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? Color.LightGreen : Color.LightPink));
-				rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? Color.LightGreen : Color.LightPink));
+				rpos.Y = rpos.Y + (float)(Fonts.Arial12.LineSpacing + 2);
 				numTraits++;
 			}
 			this.TitleBar.Draw();
@@ -1125,7 +1125,7 @@ namespace Ship_Game
 						Vector2 tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
 						string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
 						Color drawColor = new Color(128, 128, 128, 128);
-						while (Fonts.Arial20Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
+						while (Fonts.Arial14Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
 						{
 							name = string.Concat(name, " .");
 						}
@@ -1141,12 +1141,12 @@ namespace Ship_Game
 						{
 							drawColor = Color.Gray;
 						}
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, name, tCursor, drawColor);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
 						Vector2 curs = bCursor;
-						curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial20Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
-						tCursor.Y = tCursor.Y + (float)Fonts.Arial20Bold.LineSpacing;
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, Color.Orange);
+						curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
+						tCursor.Y = tCursor.Y + (float)Fonts.Arial14Bold.LineSpacing;
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.parseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, Color.Orange);
 						if (e.Plus != 0)
 						{
 							if (e.PlusHover != 0)
@@ -1165,7 +1165,7 @@ namespace Ship_Game
 						Vector2 tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
 						string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
 						Color drawColor = new Color(128, 128, 128, 128);
-						while (Fonts.Arial20Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
+						while (Fonts.Arial14Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
 						{
 							name = string.Concat(name, " .");
 						}
@@ -1181,12 +1181,12 @@ namespace Ship_Game
 						{
 							drawColor = Color.Gray;
 						}
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, name, tCursor, drawColor);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
 						Vector2 curs = bCursor;
-						curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial20Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
-						tCursor.Y = tCursor.Y + (float)Fonts.Arial20Bold.LineSpacing;
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, Color.Orange);
+						curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
+						tCursor.Y = tCursor.Y + (float)Fonts.Arial14Bold.LineSpacing;
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.parseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, Color.Orange);
 						if (e.Plus != 0)
 						{
 							if (e.PlusHover != 0)
@@ -1205,24 +1205,24 @@ namespace Ship_Game
 					}
 				}
 			}
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(24), ": "), new Vector2((float)this.GalaxySizeRect.X, (float)this.GalaxySizeRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Galaxysize.ToString(), new Vector2((float)(this.GalaxySizeRect.X + 190) - Fonts.Arial12Bold.MeasureString(this.Galaxysize.ToString()).X, (float)this.GalaxySizeRect.Y), Color.Orange);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(25), " : "), new Vector2((float)this.NumberStarsRect.X, (float)this.NumberStarsRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.StarEnum.ToString(), new Vector2((float)(this.NumberStarsRect.X + 190) - Fonts.Arial12Bold.MeasureString(this.StarEnum.ToString()).X, (float)this.NumberStarsRect.Y), Color.Orange);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2102), " : "), new Vector2((float)this.NumOpponentsRect.X, (float)this.NumOpponentsRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.numOpponents.ToString(), new Vector2((float)(this.NumOpponentsRect.X + 190) - Fonts.Arial12Bold.MeasureString(this.numOpponents.ToString()).X, (float)this.NumOpponentsRect.Y), Color.Orange);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2105), " : "), new Vector2((float)this.GameModeRect.X, (float)this.GameModeRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2133), " : "), new Vector2((float)this.PacingRect.X, (float)this.PacingRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.Pacing.ToString(), "%"), new Vector2((float)(this.PacingRect.X + 190) - Fonts.Arial12Bold.MeasureString(string.Concat(this.Pacing.ToString(), "%")).X, (float)this.PacingRect.Y), Color.Orange);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2139), " : "), new Vector2((float)this.DifficultyRect.X, (float)this.DifficultyRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.difficulty.ToString(), new Vector2((float)(this.DifficultyRect.X + 190) - Fonts.Arial12Bold.MeasureString(this.difficulty.ToString()).X, (float)this.DifficultyRect.Y), Color.Orange);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2((float)this.GalaxySizeRect.X, (float)this.GalaxySizeRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.Galaxysize.ToString(), new Vector2((float)(this.GalaxySizeRect.X + 190) - Fonts.Arial12.MeasureString(this.Galaxysize.ToString()).X, (float)this.GalaxySizeRect.Y), Color.Orange);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(25), " : "), new Vector2((float)this.NumberStarsRect.X, (float)this.NumberStarsRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.StarEnum.ToString(), new Vector2((float)(this.NumberStarsRect.X + 190) - Fonts.Arial12.MeasureString(this.StarEnum.ToString()).X, (float)this.NumberStarsRect.Y), Color.Orange);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2102), " : "), new Vector2((float)this.NumOpponentsRect.X, (float)this.NumOpponentsRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.numOpponents.ToString(), new Vector2((float)(this.NumOpponentsRect.X + 190) - Fonts.Arial12.MeasureString(this.numOpponents.ToString()).X, (float)this.NumOpponentsRect.Y), Color.Orange);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2105), " : "), new Vector2((float)this.GameModeRect.X, (float)this.GameModeRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2133), " : "), new Vector2((float)this.PacingRect.X, (float)this.PacingRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(this.Pacing.ToString(), "%"), new Vector2((float)(this.PacingRect.X + 190) - Fonts.Arial12.MeasureString(string.Concat(this.Pacing.ToString(), "%")).X, (float)this.PacingRect.Y), Color.Orange);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2139), " : "), new Vector2((float)this.DifficultyRect.X, (float)this.DifficultyRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.difficulty.ToString(), new Vector2((float)(this.DifficultyRect.X + 190) - Fonts.Arial12.MeasureString(this.difficulty.ToString()).X, (float)this.DifficultyRect.Y), Color.Orange);
 			string txt = "";
 			int tip = 0;
 			if (this.mode == RaceDesignScreen.GameMode.PreWarp)
 			{
 				txt = "Pre-Warp";
 				tip = 111;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12Bold.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.Orange);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.Orange);
 				if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 				{
 					ToolTip.CreateTooltip("Play with a new, hardcore ruleset that makes radical changes to the StarDrive FTL systems", base.ScreenManager);
@@ -1232,7 +1232,7 @@ namespace Ship_Game
 			{
 				txt = Localizer.Token(2103);
 				tip = 112;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12Bold.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.Orange);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.Orange);
 				if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 				{
 					ToolTip.CreateTooltip(tip, base.ScreenManager);
@@ -1841,17 +1841,17 @@ namespace Ship_Game
 			this.PlurEntry.Text = this.SelectedData.Traits.Plural;
 			this.HomeSystemEntry.Text = this.SelectedData.Traits.HomeSystemName;
 			this.HomeWorldName = this.SelectedData.Traits.HomeworldName;
-			this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y + 5, (int)Fonts.Arial12Bold.MeasureString("Galaxy Size                                   ").X, Fonts.Arial12Bold.LineSpacing);
-			this.NumberStarsRect = new Rectangle(this.GalaxySizeRect.X, this.GalaxySizeRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.GalaxySizeRect.Width, this.GalaxySizeRect.Height);
-			this.NumOpponentsRect = new Rectangle(this.NumberStarsRect.X, this.NumberStarsRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.NumberStarsRect.Width, this.NumberStarsRect.Height);
-			this.GameModeRect = new Rectangle(this.NumOpponentsRect.X, this.NumOpponentsRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.NumberStarsRect.Width, this.NumOpponentsRect.Height);
-			this.PacingRect = new Rectangle(this.GameModeRect.X, this.GameModeRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.GameModeRect.Width, this.GameModeRect.Height);
-			this.DifficultyRect = new Rectangle(this.PacingRect.X, this.PacingRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.PacingRect.Width, this.PacingRect.Height);
+			this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y + 5, (int)Fonts.Arial12.MeasureString("Galaxy Size                                   ").X, Fonts.Arial12.LineSpacing);
+			this.NumberStarsRect = new Rectangle(this.GalaxySizeRect.X, this.GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GalaxySizeRect.Width, this.GalaxySizeRect.Height);
+			this.NumOpponentsRect = new Rectangle(this.NumberStarsRect.X, this.NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumberStarsRect.Height);
+			this.GameModeRect = new Rectangle(this.NumOpponentsRect.X, this.NumOpponentsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumOpponentsRect.Height);
+			this.PacingRect = new Rectangle(this.GameModeRect.X, this.GameModeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GameModeRect.Width, this.GameModeRect.Height);
+			this.DifficultyRect = new Rectangle(this.PacingRect.X, this.PacingRect.Y + Fonts.Arial12.LineSpacing + 10, this.PacingRect.Width, this.PacingRect.Height);
 			Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
 			this.Description = new Menu1(base.ScreenManager, dRect, true);
 			this.dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
 			Submenu dsub = new Submenu(base.ScreenManager, this.dslrect);
-			this.DescriptionSL = new ScrollList(dsub, Fonts.Arial12Bold.LineSpacing);
+			this.DescriptionSL = new ScrollList(dsub, Fonts.Arial12.LineSpacing);
 			Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
 			this.Traits = new Submenu(base.ScreenManager, psubRect);
 			this.Traits.AddTab(Localizer.Token(19));
@@ -1988,7 +1988,7 @@ namespace Ship_Game
 			for (int i = 0; i < (int)strArrays.Length; i++)
 			{
 				string word = strArrays[i];
-				if (Fonts.Arial20Bold.MeasureString(string.Concat(line, word)).Length() > Width)
+				if (Fonts.Arial14Bold.MeasureString(string.Concat(line, word)).Length() > Width)
 				{
 					returnString = string.Concat(returnString, line, '\n');
 					line = string.Empty;
