@@ -864,6 +864,8 @@ namespace Ship_Game
 				CombatStrength = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CombatStrength,
 				PlusProdPerRichness = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusProdPerRichness,
 				Name = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Name,
+                IsSensor = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].IsSensor,
+                IsProjector = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].IsProjector,
 				PlusResearchPerColonist = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusResearchPerColonist,
 				StorageAdded = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].StorageAdded,
 				Unique = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Unique,
@@ -879,7 +881,9 @@ namespace Ship_Game
 				PlusFlatPopulation = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusFlatPopulation,
 				Weapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Weapon,
 				isWeapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].isWeapon,
-				PlusTerraformPoints = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusTerraformPoints
+				PlusTerraformPoints = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusTerraformPoints,
+                SensorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].SensorRange,
+                ProjectorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ProjectorRange
 			};
 			if (newB.isWeapon)
 			{
@@ -987,6 +991,7 @@ namespace Ship_Game
 				BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
 				HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
 				BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
+                CanRotate = Ship_Game.ResourceManager.ShipModulesDict[uid].CanRotate,
 				Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
 				Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
 				DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
@@ -1031,6 +1036,17 @@ namespace Ship_Game
 				YSIZE = Ship_Game.ResourceManager.ShipModulesDict[uid].YSIZE,
 				InhibitionRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].InhibitionRadius,
 				FightersOnly = Ship_Game.ResourceManager.ShipModulesDict[uid].FightersOnly,
+                DroneModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneModule,
+                FighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FighterModule,
+                CorvetteModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CorvetteModule,
+                FrigateModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FrigateModule,
+                DestroyerModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DestroyerModule,
+                CruiserModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CruiserModule,
+                CarrierModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CarrierModule,
+                CapitalModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CapitalModule,
+                FreighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FreighterModule,
+                PlatformModule = Ship_Game.ResourceManager.ShipModulesDict[uid].PlatformModule,
+                StationModule = Ship_Game.ResourceManager.ShipModulesDict[uid].StationModule,
 				TurnThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].TurnThrust,
 				DeployBuildingOnColonize = Ship_Game.ResourceManager.ShipModulesDict[uid].DeployBuildingOnColonize,
 				PermittedHangarRoles = Ship_Game.ResourceManager.ShipModulesDict[uid].PermittedHangarRoles,
@@ -1188,6 +1204,7 @@ namespace Ship_Game
 				AnimationPath = Ship_Game.ResourceManager.WeaponsDict[uid].AnimationPath,
 				BeamPowerCostPerSecond = Ship_Game.ResourceManager.WeaponsDict[uid].BeamPowerCostPerSecond,
 				BeamThickness = Ship_Game.ResourceManager.WeaponsDict[uid].BeamThickness,
+                BeamDuration = Ship_Game.ResourceManager.WeaponsDict[uid].BeamDuration,
 				BombPopulationKillPerHit = Ship_Game.ResourceManager.WeaponsDict[uid].BombPopulationKillPerHit,
 				BombTroopDamage_Max = Ship_Game.ResourceManager.WeaponsDict[uid].BombTroopDamage_Max,
 				BombTroopDamage_Min = Ship_Game.ResourceManager.WeaponsDict[uid].BombTroopDamage_Min,
