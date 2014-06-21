@@ -1792,86 +1792,15 @@ namespace Ship_Game
 						module.Value.ModuleType.ToString();
 						ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
 						tmp.SetAttributesNoParent();
-                        if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
+                        bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
+                            || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
+                        if (restricted)
                         {
-                            continue;
-                        }
-						if (this.ActiveHull.Role == "fighter" || this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
-						{
-							continue;
-						}
-                        if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
-                        {
-                            continue;
-                        }
-						if (tmp.isWeapon)
-						{
-							if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
-							{
-								WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
-								ModuleHeader type = new ModuleHeader(tmp.InstalledWeapon.WeaponType, 240f);
-								this.weaponSL.AddItem(type);
-							}
-						}
-						else if (tmp.ModuleType == ShipModuleType.Bomb && !WeaponCategories.Contains("Bomb"))
-						{
-							WeaponCategories.Add("Bomb");
-							ModuleHeader type = new ModuleHeader("Bomb", 240f);
-							this.weaponSL.AddItem(type);
-						}
-						tmp = null;
-					}
-					foreach (ScrollList.Entry e in this.weaponSL.Entries)
-					{
-						foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
-						{
-							if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
-							{
-								continue;
-							}
-							ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
-							tmp.SetAttributesNoParent();
                             if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
                             {
                                 continue;
                             }
-                            if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
+                            if (this.ActiveHull.Role == "fighter" || this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
                             {
                                 continue;
                             }
@@ -1910,6 +1839,87 @@ namespace Ship_Game
                             if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
                             {
                                 continue;
+                            }
+                        }
+						if (tmp.isWeapon)
+						{
+							if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
+							{
+								WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
+								ModuleHeader type = new ModuleHeader(tmp.InstalledWeapon.WeaponType, 240f);
+								this.weaponSL.AddItem(type);
+							}
+						}
+						else if (tmp.ModuleType == ShipModuleType.Bomb && !WeaponCategories.Contains("Bomb"))
+						{
+							WeaponCategories.Add("Bomb");
+							ModuleHeader type = new ModuleHeader("Bomb", 240f);
+							this.weaponSL.AddItem(type);
+						}
+						tmp = null;
+					}
+					foreach (ScrollList.Entry e in this.weaponSL.Entries)
+					{
+						foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
+						{
+							if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
+							{
+								continue;
+							}
+							ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
+							tmp.SetAttributesNoParent();                            
+                            bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
+                            || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
+                            if (restricted)
+                            {
+                                if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
+                                {
+                                    continue;
+                                }
                             }
 							if (tmp.isWeapon)
 							{
@@ -1943,213 +1953,11 @@ namespace Ship_Game
 						}
 						module.Value.ModuleType.ToString();
 						ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
-						tmp.SetAttributesNoParent();
-                        if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
+						tmp.SetAttributesNoParent();                        
+                        bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
+                            || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
+                        if (restricted)
                         {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
-                        {
-                            continue;
-                        }
-						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
-						{
-							ModuleCategories.Add(tmp.ModuleType.ToString());
-							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-							this.weaponSL.AddItem(type);
-						}
-						tmp = null;
-					}
-					foreach (ScrollList.Entry e in this.weaponSL.Entries)
-					{
-						foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
-						{
-							if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
-							{
-								continue;
-							}
-							ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
-							tmp.SetAttributesNoParent();
-if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
-                            {
-                                continue;
-                            }
-                            if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
-                            {
-                                continue;
-                            }
-							if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
-							{
-								e.AddItem(module.Value);
-							}
-							tmp = null;
-						}
-					}
-					this.Reset = false;
-				}
-				this.DrawList();
-			}
-			if (this.modSel.Tabs[1].Selected)
-			{
-				if (this.Reset)
-				{
-					this.weaponSL.Entries.Clear();
-					List<string> ModuleCategories = new List<string>();
-					foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
-					{
-						if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
-						{
-							continue;
-						}
-						module.Value.ModuleType.ToString();
-						ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
-						tmp.SetAttributesNoParent();
-                        if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
-                        {
-                            continue;
-                        }
-						if ((tmp.ModuleType == ShipModuleType.Engine || tmp.ModuleType == ShipModuleType.FuelCell || tmp.ModuleType == ShipModuleType.PowerPlant || tmp.ModuleType == ShipModuleType.PowerConduit) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
-						{
-							ModuleCategories.Add(tmp.ModuleType.ToString());
-							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-							this.weaponSL.AddItem(type);
-						}
-						tmp = null;
-					}
-					foreach (ScrollList.Entry e in this.weaponSL.Entries)
-					{
-						foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
-						{
-							if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
-							{
-								continue;
-							}
-							ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
-							tmp.SetAttributesNoParent();
                             if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
                             {
                                 continue;
@@ -2197,6 +2005,229 @@ if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
                             if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
                             {
                                 continue;
+                            }
+                        }
+						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
+						{
+							ModuleCategories.Add(tmp.ModuleType.ToString());
+							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
+							this.weaponSL.AddItem(type);
+						}
+						tmp = null;
+					}
+					foreach (ScrollList.Entry e in this.weaponSL.Entries)
+					{
+						foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
+						{
+							if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
+							{
+								continue;
+							}
+							ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
+							tmp.SetAttributesNoParent();
+
+                            bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
+                            || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
+                            if (restricted)
+                            {
+                                if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
+                                {
+                                    continue;
+                                }
+                            }
+							if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
+							{
+								e.AddItem(module.Value);
+							}
+							tmp = null;
+						}
+					}
+					this.Reset = false;
+				}
+				this.DrawList();
+			}
+			if (this.modSel.Tabs[1].Selected)
+			{
+				if (this.Reset)
+				{
+					this.weaponSL.Entries.Clear();
+					List<string> ModuleCategories = new List<string>();
+					foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
+					{
+						if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
+						{
+							continue;
+						}
+						module.Value.ModuleType.ToString();
+						ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
+						tmp.SetAttributesNoParent();                        
+                        bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
+                            || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
+                        if (restricted)
+                        {
+                            if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
+                            {
+                                continue;
+                            }
+                            if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
+                            {
+                                continue;
+                            }
+                        }
+						if ((tmp.ModuleType == ShipModuleType.Engine || tmp.ModuleType == ShipModuleType.FuelCell || tmp.ModuleType == ShipModuleType.PowerPlant || tmp.ModuleType == ShipModuleType.PowerConduit) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
+						{
+							ModuleCategories.Add(tmp.ModuleType.ToString());
+							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
+							this.weaponSL.AddItem(type);
+						}
+						tmp = null;
+					}
+					foreach (ScrollList.Entry e in this.weaponSL.Entries)
+					{
+						foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
+						{
+							if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
+							{
+								continue;
+							}
+							ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
+							tmp.SetAttributesNoParent();
+                            bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
+                            || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
+                            if (restricted)
+                            {
+                                if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
+                                {
+                                    continue;
+                                }
                             }
 							if ((tmp.ModuleType == ShipModuleType.Engine || tmp.ModuleType == ShipModuleType.FuelCell || tmp.ModuleType == ShipModuleType.PowerPlant || tmp.ModuleType == ShipModuleType.PowerConduit) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
 							{
@@ -2224,72 +2255,10 @@ if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
 						module.Value.ModuleType.ToString();
 						ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
 						tmp.SetAttributesNoParent();
-                        if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
+                        bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
+                            || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
+                        if (restricted)
                         {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
-                        {
-                            continue;
-                        }
-                        if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
-                        {
-                            continue;
-                        }
-						if ((tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
-						{
-							ModuleCategories.Add(tmp.ModuleType.ToString());
-							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-							this.weaponSL.AddItem(type);
-						}
-						tmp = null;
-					}
-					foreach (ScrollList.Entry e in this.weaponSL.Entries)
-					{
-						foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
-						{
-							if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
-							{
-								continue;
-							}
-							ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
-							tmp.SetAttributesNoParent();
                             if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
                             {
                                 continue;
@@ -2337,6 +2306,78 @@ if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
                             if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
                             {
                                 continue;
+                            }
+                        }
+						if ((tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
+						{
+							ModuleCategories.Add(tmp.ModuleType.ToString());
+							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
+							this.weaponSL.AddItem(type);
+						}
+						tmp = null;
+					}
+					foreach (ScrollList.Entry e in this.weaponSL.Entries)
+					{
+						foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
+						{
+							if (!EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetMDict()[module.Key] || module.Value.UID == "Dummy")
+							{
+								continue;
+							}
+							ShipModule tmp = Ship_Game.ResourceManager.GetModule(module.Key);
+							tmp.SetAttributesNoParent();
+                            bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
+                            || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
+                            if (restricted)
+                            {
+                                if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "fighter" && tmp.FighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "corvette" && tmp.CorvetteModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "frigate" && tmp.FrigateModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "destroyer" && tmp.DestroyerModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "cruiser" && tmp.CruiserModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "carrier" && tmp.CarrierModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "capital" && tmp.CapitalModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "freighter" && tmp.FreighterModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "platform" && tmp.PlatformModule == false)
+                                {
+                                    continue;
+                                }
+                                if (this.ActiveHull.Role == "station" && tmp.StationModule == false)
+                                {
+                                    continue;
+                                }
                             }
 							if ((tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
 							{
