@@ -40,14 +40,13 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\Release\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>pdbonly</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -62,33 +61,33 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fasterflect">
-      <HintPath>..\stardrive-devekmod3\Stardrive-DevekMod\Fasterflect.dll</HintPath>
+      <HintPath>.\Fasterflect.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+    <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Windows\assembly\GAC_32\Microsoft.Xna.Framework\3.1.0.0__6d5c3888ef60e27d\Microsoft.Xna.Framework.dll</HintPath>
+      <HintPath>..\StarDrive\StarDriveReferences\Microsoft.Xna.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+    <Reference Include="Microsoft.Xna.Framework.Game, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Windows\assembly\GAC_32\Microsoft.Xna.Framework.Game\3.1.0.0__6d5c3888ef60e27d\Microsoft.Xna.Framework.Game.dll</HintPath>
+      <HintPath>..\StarDrive\StarDriveReferences\Microsoft.Xna.Framework.Game.dll</HintPath>
     </Reference>
     <Reference Include="SynapseGaming-SunBurn-Pro">
-      <HintPath>D:\Program Files\steam\steamapps\common\StarDrive\SynapseGaming-SunBurn-Pro.dll</HintPath>
+      <HintPath>..\StarDrive\StarDriveReferences\SynapseGaming-SunBurn-Pro.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="XNAnimation">
-      <HintPath>D:\Program Files\steam\steamapps\common\StarDrive\XNAnimation.dll</HintPath>
+      <HintPath>..\StarDrive\StarDriveReferences\XNAnimation.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ParticleSettings">
-      <HintPath>D:\Program Files\steam\steamapps\common\StarDrive\ParticleSettings.dll</HintPath>
+      <HintPath>..\StarDrive\StarDriveReferences\ParticleSettings.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NAudio">
-      <HintPath>D:\Program Files\steam\steamapps\common\StarDrive\NAudio.dll</HintPath>
+      <HintPath>..\StarDrive\StarDriveReferences\NAudio.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Configuration" />
@@ -1439,9 +1438,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
