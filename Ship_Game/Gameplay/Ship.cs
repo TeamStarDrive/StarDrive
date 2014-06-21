@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
+
 
 namespace Ship_Game.Gameplay
 {
@@ -2142,7 +2144,9 @@ namespace Ship_Game.Gameplay
                 if (moduleSlot.module != null)
                     moduleSlot.module.Powered = false;
             }
-            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+            //added by Gremlin Parallel recalculate power.
+            Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
+            //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 if (moduleSlot.module != null && moduleSlot.module.ModuleType == ShipModuleType.PowerPlant && moduleSlot.module.Active)
                 {
@@ -2160,8 +2164,10 @@ namespace Ship_Game.Gameplay
                             this.CheckAndPowerConduit(slot);
                     }
                 }
-            }
-            foreach (ModuleSlot moduleSlot1 in this.ModuleSlotList)
+            });
+            
+            //foreach (ModuleSlot moduleSlot1 in this.ModuleSlotList)
+            Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot1 =>
             {
                 if (!moduleSlot1.isDummy && moduleSlot1.module != null && ((int)moduleSlot1.module.PowerRadius > 0 && moduleSlot1.module.Active) && (moduleSlot1.module.ModuleType != ShipModuleType.PowerConduit || moduleSlot1.module.Powered))
                 {
@@ -2194,7 +2200,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-            }
+            });
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 if (moduleSlot.Powered)
@@ -2418,6 +2424,10 @@ namespace Ship_Game.Gameplay
             {
                 foreach (Weapon weapon in this.Weapons)
                     weapon.Update(elapsedTime);
+                //Parallel.ForEach(this.Weapons, weapon =>
+                //    {
+                //        weapon.Update(elapsedTime);
+                //    });
             }
             this.TroopBoardingDefense = 0.0f;
             foreach (Troop troop in this.TroopList)
