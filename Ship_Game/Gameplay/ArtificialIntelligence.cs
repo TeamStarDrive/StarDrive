@@ -1045,8 +1045,96 @@ namespace Ship_Game.Gameplay
 			}
 			this.MoveInDirectionAtSpeed(this.direction, elapsedTime, this.Owner.speed / 2f);
 		}
+        //added by gremlin devksmod doorbit
+        private void DoOrbit(Planet OrbitTarget, float elapsedTime)
+        {
 
-		private void DoOrbit(Planet OrbitTarget, float elapsedTime)
+            if (this.findNewPosTimer > 0f)
+            {
+                //GremlinAI artificialIntelligence = this;
+                this.findNewPosTimer = this.findNewPosTimer - elapsedTime;
+
+            }
+            else
+            {
+
+                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+
+                if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 250f)
+                {
+                    ArtificialIntelligence orbitalAngle = this;
+                    orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle + 15f;
+                    if (this.OrbitalAngle >= 360f)
+                    {
+                        ArtificialIntelligence orbitalAngle1 = this;
+                        orbitalAngle1.OrbitalAngle = orbitalAngle1.OrbitalAngle - 360f;
+                    }
+                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+                }
+                this.findNewPosTimer = 1.5f;
+            }
+            float od = Vector2.Distance(this.Owner.Center, this.OrbitPos);
+            if (od < 7500f)
+            {
+                this.Owner.HyperspaceReturn();
+                if (this.State != AIState.Bombard)
+                {
+                    this.HasPriorityOrder = false;
+                    if (this.Owner.speed > 100) this.Owner.speed = 100;
+                }
+                if (this.Owner.Role == "troop")
+                {
+
+                    if (this.OrbitTarget != null && this.Owner.loyalty != this.OrbitTarget.Owner)
+                    {
+
+                        if (OrbitTarget.Owner == null)
+                        {
+                            this.OrderLandAllTroops(this.OrbitTarget);
+                        }
+                        else if (this.Owner.loyalty.GetRelations()[this.OrbitTarget.Owner].AtWar)
+                        {
+                            this.State = AIState.AssaultPlanet;
+                            this.OrderLandAllTroops(this.OrbitTarget);
+                        }
+                    }
+                }
+            }
+            if (od <= 15000f)
+            {
+
+                if (od <= 1000)
+                {
+
+                    if (this.Owner.engineState != Ship.MoveState.Warp)
+                    {
+                        this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed < 50 ? this.Owner.speed : 50f); //this.Owner.speed / 2f);
+                    }
+                    return;
+                }
+                if (this.Owner.speed > 1200 && this.Owner.engineState != Ship.MoveState.Warp)
+                {
+                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 3.5f);//400f);///
+
+                }
+                else
+                {
+                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
+                }
+
+                return;
+
+
+            }
+
+            Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
+            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+            Vector2 right = new Vector2(-forward.Y, forward.X);
+            Math.Acos((double)Vector2.Dot(wantedForward, forward));
+            Vector2.Dot(wantedForward, right);
+            this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
+        }
+		private void DoOrbitorig(Planet OrbitTarget, float elapsedTime)
 		{
 			if (this.findNewPosTimer > 0f)
 			{
