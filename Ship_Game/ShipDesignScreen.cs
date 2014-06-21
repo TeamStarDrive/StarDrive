@@ -3812,7 +3812,13 @@ if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
                     foreach (SlotStruct slotStruct in this.Slots)
                     {
                         if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2 && slotStruct.ShowValid)
-                            ++num;
+                        {
+                            if (slotStruct.module == null && slotStruct.parent == null)
+                            {   //make sure they are actually empty!
+                                ++num;
+                            }
+                        }
+                            
                     }
                 }
             }
@@ -3868,64 +3874,62 @@ if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
                 this.PlayNegativeSound();
         }
 
-		private void InstallModuleFromLoad(SlotStruct slot)
-		{
-			int slotsAvailable = 0;
-			for (int y = 0; y < this.ActiveModule.YSIZE; y++)
-			{
-				for (int x = 0; x < this.ActiveModule.XSIZE; x++)
-				{
-					foreach (SlotStruct dummyslot in this.Slots)
-					{
-						if (dummyslot.pq.Y != slot.pq.Y + 16 * y || dummyslot.pq.X != slot.pq.X + 16 * x)
-						{
-							continue;
-						}
-						slotsAvailable++;
-					}
-				}
-			}
-			if (slotsAvailable != this.ActiveModule.XSIZE * this.ActiveModule.YSIZE)
-			{
-				this.PlayNegativeSound();
-				return;
-			}
-			ShipDesignScreen.ActiveModuleState savestate = slot.state;
-			this.ClearSlot(slot);
-			this.ClearDestinationSlotsNoStack(slot);
-			slot.ModuleUID = this.ActiveModule.UID;
-			slot.module = this.ActiveModule;
-			slot.module.SetAttributesNoParent();
-			slot.state = savestate;
-			slot.module.facing = slot.facing;
-			slot.tex = Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
-			for (int y = 0; y < this.ActiveModule.YSIZE; y++)
-			{
-				for (int x = 0; x < this.ActiveModule.XSIZE; x++)
-				{
-					if (x == 0 & y == 0)
-					{
-						foreach (SlotStruct dummyslot in this.Slots)
-						{
-							if (dummyslot.pq.Y != slot.pq.Y + 16 * y || dummyslot.pq.X != slot.pq.X + 16 * x)
-							{
-								continue;
-							}
-							dummyslot.ModuleUID = null;
-							dummyslot.isDummy = true;
-							dummyslot.tex = null;
-							dummyslot.module = null;
-							dummyslot.parent = slot;
-						}
-					}
-				}
-			}
-			this.RecalculatePower();
-		}
+        private void InstallModuleFromLoad(SlotStruct slot)
+        {
+            int num = 0;
+            for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
+            {
+                for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
+                {
+                    foreach (SlotStruct slotStruct in this.Slots)
+                    {
+                        if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2)
+                            ++num;
+                    }
+                }
+            }
+            if (num == (int)this.ActiveModule.XSIZE * (int)this.ActiveModule.YSIZE)
+            {
+                ShipDesignScreen.ActiveModuleState activeModuleState = slot.state;
+                this.ClearSlot(slot);
+                this.ClearDestinationSlotsNoStack(slot);
+                slot.ModuleUID = this.ActiveModule.UID;
+                slot.module = this.ActiveModule;
+                slot.module.SetAttributesNoParent();
+                slot.state = activeModuleState;
+                slot.module.facing = slot.facing;
+                slot.tex = ResourceManager.TextureDict[ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
+                for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
+                {
+                    for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
+                    {
+                        if (!(index2 == 0 & index1 == 0))
+                        {
+                            foreach (SlotStruct slotStruct in this.Slots)
+                            {
+                                if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2)
+                                {
+                                    slotStruct.ModuleUID = (string)null;
+                                    slotStruct.isDummy = true;
+                                    slotStruct.tex = (Texture2D)null;
+                                    slotStruct.module = (ShipModule)null;
+                                    slotStruct.parent = slot;
+                                }
+                            }
+                        }
+                    }
+                }
+                this.RecalculatePower();
+            }
+            else
+                this.PlayNegativeSound();
+        }
 
         private void InstallModuleNoStack(SlotStruct slot)
         {
-            int num = 0;    //check for sufficient space
+            System.Diagnostics.Debug.Assert(false);
+            //looks like this function is not actually used, see if anyone manages to trigger this
+            int num = 0;    //check for sufficient slots
             for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
             {
                 for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
@@ -3933,7 +3937,11 @@ if (this.ActiveHull.Role == "drone" && tmp.DroneModule == false)
                     foreach (SlotStruct slotStruct in this.Slots)
                     {   //checks if this slot is within xsize and ysize
                         if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2)
-                            ++num;
+                        {
+                            if(slotStruct.module == null && slotStruct.parent == null){   //make sure they are actually empty!
+                                ++num;
+                            }
+                        }                            
                     }
                 }
             }
