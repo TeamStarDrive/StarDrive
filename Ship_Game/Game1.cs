@@ -59,6 +59,12 @@ namespace Ship_Game
 			Directory.CreateDirectory(string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/Headers"));
 			Directory.CreateDirectory(string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/Fog Maps"));
 			GlobalStats.Config = new Config();
+            string asi = ConfigurationSettings.AppSettings["AutoSaveInterval"];
+            int autosaveinterval;
+            if (int.TryParse(asi, out autosaveinterval))
+            {
+                GlobalStats.Config.AutoSaveInterval = (float)autosaveinterval;
+            }
 			string vol = ConfigurationSettings.AppSettings["MusicVolume"];
 			int musicVol = 100;
 			if (int.TryParse(vol, out musicVol))
