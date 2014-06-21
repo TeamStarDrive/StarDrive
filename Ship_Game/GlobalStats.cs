@@ -7,7 +7,7 @@ namespace Ship_Game
 {
 	public class GlobalStats
 	{
-		public static int ComparisonCounter;
+        public static int ComparisonCounter;
 
 		public static int Comparisons;
 
@@ -98,7 +98,7 @@ namespace Ship_Game
 		public static int CordrazinePlanetsCaptured;
 
 		static GlobalStats()
-		{
+		{       
 			GlobalStats.ComparisonCounter = 1;
 			GlobalStats.Comparisons = 0;
 			GlobalStats.HardcoreRuleset = false;
