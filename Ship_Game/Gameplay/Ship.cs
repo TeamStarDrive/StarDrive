@@ -744,7 +744,7 @@ namespace Ship_Game.Gameplay
             this.lastKBState = this.currentKeyBoardState;
         }
 
-        public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos)
+        public bool CheckIfInsideFireArcORIG(Weapon w, Vector3 PickedPos)
         {
             Vector2 vector2_1 = new Vector2(PickedPos.X, PickedPos.Y);
             float num1 = w.moduleAttachedTo.FieldOfFire / 2f;
@@ -764,8 +764,47 @@ namespace Ship_Game.Gameplay
             }
             return (double)num4 < (double)num1 && (double)Vector2.Distance(this.Position, vector2_1) < (double)w.Range + 50.0;
         }
+        //Added by McShooterz
+        public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos)
+        {
+            Vector2 pos = new Vector2(PickedPos.X, PickedPos.Y);
+            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            Vector2 toTarget = pos - w.Center;
+            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
+            float facing = w.moduleAttachedTo.facing + MathHelper.ToDegrees(base.Rotation);
+            if (facing > 360f)
+            {
+                facing = facing - 360f;
+            }
+            float difference = 0f;
+            difference = Math.Abs(angleToMouse - facing);
+            if (difference > halfArc)
+            {
+                if (angleToMouse > 180f)
+                {
+                    angleToMouse = -1f * (360f - angleToMouse);
+                }
+                if (facing > 180f)
+                {
+                    facing = -1f * (360f - facing);
+                }
+                difference = Math.Abs(angleToMouse - facing);
+            }
+            //added by gremlin attackrun compensator
+            float modifyRangeAR = 50f;
+            if (this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoCount > 0)
+            {
+                modifyRangeAR = this.speed;
+            }
+            if (difference < halfArc && Vector2.Distance(base.Position, pos) < modifyRange(w) + modifyRangeAR)
+            {
+                return true;
+            }
+            return false;
+        }
 
-        public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos)
+        public bool CheckIfInsideFireArcORIG(Weapon w, Vector2 PickedPos)
         {
             ++GlobalStats.WeaponArcChecks;
             float num1 = w.moduleAttachedTo.FieldOfFire / 2f;
@@ -785,8 +824,47 @@ namespace Ship_Game.Gameplay
             }
             return (double)num4 < (double)num1 && (double)Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < (double)w.Range;
         }
+        //Added by McShooterz
+        public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos)
+        {
+            GlobalStats.WeaponArcChecks = GlobalStats.WeaponArcChecks + 1;
+            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            Vector2 toTarget = PickedPos - w.Center;
+            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
+            float facing = w.moduleAttachedTo.facing + MathHelper.ToDegrees(base.Rotation);
+            if (facing > 360f)
+            {
+                facing = facing - 360f;
+            }
+            float difference = 0f;
+            difference = Math.Abs(angleToMouse - facing);
+            if (difference > halfArc)
+            {
+                if (angleToMouse > 180f)
+                {
+                    angleToMouse = -1f * (360f - angleToMouse);
+                }
+                if (facing > 180f)
+                {
+                    facing = -1f * (360f - facing);
+                }
+                difference = Math.Abs(angleToMouse - facing);
+            }
+            float modifyRangeAR = 50f;
+            if (this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
+            {
 
-        public static bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos, float Rotation)
+                modifyRangeAR = this.speed * w.SalvoTimer;
+            }
+            if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < modifyRange(w) + modifyRangeAR)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool CheckIfInsideFireArcORIG(Weapon w, Vector2 PickedPos, float Rotation)
         {
             float num1 = w.moduleAttachedTo.FieldOfFire / 2f;
             Vector2 vector2 = PickedPos - w.Center;
@@ -805,7 +883,111 @@ namespace Ship_Game.Gameplay
             }
             return (double)num4 < (double)num1 && (double)Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < (double)w.Range;
         }
+        //Added by McShooterz
+        public static bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos, float Rotation)
+        {
+            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            Vector2 toTarget = PickedPos - w.Center;
+            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
+            float facing = w.moduleAttachedTo.facing + MathHelper.ToDegrees(Rotation);
+            if (facing > 360f)
+            {
+                facing = facing - 360f;
+            }
+            float difference = 0f;
+            difference = Math.Abs(angleToMouse - facing);
+            if (difference > halfArc)
+            {
+                if (angleToMouse > 180f)
+                {
+                    angleToMouse = -1f * (360f - angleToMouse);
+                }
+                if (facing > 180f)
+                {
+                    facing = -1f * (360f - facing);
+                }
+                difference = Math.Abs(angleToMouse - facing);
+            }
 
+
+            if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < modifyRange(w) + 50f)
+            {
+                return true;
+            }
+            return false;
+        }
+        //Added by McShooterz
+        public static float modifyRange(Weapon w)
+        {
+            float modifiedRange = w.Range;
+
+            if (w.Tag_Beam)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Beam"].Range;
+            }
+            if (w.Tag_Energy)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Energy"].Range;
+            }
+            if (w.Tag_Explosive)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Explosive"].Range;
+            }
+            if (w.Tag_Guided)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Guided"].Range;
+            }
+            if (w.Tag_Hybrid)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Hybrid"].Range;
+            }
+            if (w.Tag_Intercept)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Intercept"].Range;
+            }
+            if (w.Tag_Kinetic)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Kinetic"].Range;
+            }
+            if (w.Tag_Missile)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Missile"].Range;
+            }
+            if (w.Tag_Railgun)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Railgun"].Range;
+            }
+            if (w.Tag_Cannon)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Cannon"].Range;
+            }
+            if (w.Tag_PD)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["PD"].Range;
+            }
+            if (w.Tag_SpaceBomb)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Spacebomb"].Range;
+            }
+            if (w.Tag_BioWeapon)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["BioWeapon"].Range;
+            }
+            if (w.Tag_Drone)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Drone"].Range;
+            }
+            if (w.Tag_Subspace)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Subspace"].Range;
+            }
+            if (w.Tag_Warp)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Warp"].Range;
+            }
+            return modifiedRange;
+        }
         public List<Thruster> GetTList()
         {
             return this.ThrusterList;
@@ -1071,11 +1253,7 @@ namespace Ship_Game.Gameplay
                     maintModReduction *= damRepair;
 
                 }
-                //if (!this.inborders && this.Weapons.Count == 0)
-                //{
-                //    maintModReduction *= .25f;
-                //}
-                //maint *= (float)Properties.Settings.Default.OptionIncreaseShipMaintenance;
+
                 if (maintModReduction < 1) maintModReduction = 1;
                 maint *= maintModReduction;
             }
@@ -1963,7 +2141,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void ScrambleAssaultShips()
+        public void ScrambleAssaultShipsORIG()
         {
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
@@ -1972,6 +2150,20 @@ namespace Ship_Game.Gameplay
                     moduleSlot.module.LaunchBoardingParty(this.TroopList[0]);
                     this.TroopList.RemoveAt(0);
                 }
+            }
+        }
+        //added by gremlin deveksmod scramble assault ships
+        public void ScrambleAssaultShips()
+        {
+            foreach (ModuleSlot slot in this.ModuleSlotList.AsParallel().Where(slot => slot.module != null && slot.module.ModuleType == ShipModuleType.Hangar && slot.module.IsTroopBay && this.TroopList.Count > 0 && slot.module.GetHangarShip() == null && slot.module.hangarTimer <= 0f))
+            {
+                //if (slot.module == null || slot.module.ModuleType != ShipModuleType.Hangar || !slot.module.IsTroopBay || this.TroopList.Count <= 0 || slot.module.GetHangarShip() != null || slot.module.hangarTimer > 0f)
+                //{
+                //    continue;
+                //}
+
+                slot.module.LaunchBoardingParty(this.TroopList[0]);
+                this.TroopList.RemoveAt(0);
             }
         }
 

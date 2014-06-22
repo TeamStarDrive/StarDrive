@@ -35,7 +35,7 @@ namespace Ship_Game
 
 		public Game1()
 		{
-#if !NOSTEAM
+#if STEAM
             if (SteamManager.SteamInitialize())
 			{
                 //SteamManager.RequestCurrentStats();
