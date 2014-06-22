@@ -1225,12 +1225,12 @@ namespace Ship_Game
                     {
                         if (ship.Name == "Subspace Projector")
                         {
-                            Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
+                            /*Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
                             influenceNode.Position = ship.Center;
                             influenceNode.Radius = Empire.ProjectorRadius;  //projectors currently use their projection radius as sensors
                             lock (GlobalStats.SensorNodeLocker)
                                 this.SensorNodes.Add(influenceNode);
-                            influenceNode.KeyedObject = (object)ship;
+                            influenceNode.KeyedObject = (object)ship; */ //disabled until we figure out something better for projectors
                         }
                         else
                         {
@@ -1297,7 +1297,7 @@ namespace Ship_Game
                         influenceNode.Position = ship.Center;
                         influenceNode.Radius = Empire.ProjectorRadius;  //projectors used as sensors again
                         influenceNode.KeyedObject = (object)ship;
-                        this.SensorNodes.Add(influenceNode);
+                        //this.SensorNodes.Add(influenceNode);
                         lock (GlobalStats.BorderNodeLocker)
                             this.BorderNodes.Add(influenceNode);
                     }
