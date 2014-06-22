@@ -23,3 +23,4 @@ C:\Users\danny\Documents\SD-IDK\obj\x86\Release\StarDrive.pdb
 C:\Users\danny\Documents\stardrive mod\upload\StarDrive.exe.config
 C:\Users\danny\Documents\stardrive mod\upload\StarDrive.exe
 C:\Users\danny\Documents\stardrive mod\upload\StarDrive.pdb
+C:\Users\danny\Documents\SD-IDK\obj\x86\Release\StarDrive.csprojResolveAssemblyReference.cache
