@@ -494,7 +494,7 @@ namespace Ship_Game
 		}
 
         private void ClearParentSlot(SlotStruct parent)
-        {
+        {   //actually supposed to clear ALL slots of a module, not just the parent
             SlotStruct slotStruct1 = new SlotStruct();
             slotStruct1.pq = parent.pq;
             slotStruct1.Restrictions = parent.Restrictions;
@@ -505,6 +505,7 @@ namespace Ship_Game
             slotStruct1.slotReference = parent.slotReference;
             if (this.DesignStack.Count > 0)
                 this.DesignStack.Peek().AlteredSlots.Add(slotStruct1);
+            //clear up child slots
             for (int index1 = 0; index1 < (int)parent.module.YSIZE; ++index1)
             {
                 for (int index2 = 0; index2 < (int)parent.module.XSIZE; ++index2)
@@ -526,6 +527,38 @@ namespace Ship_Game
                     }
                 }
             }
+            //clear parent slot
+            parent.ModuleUID = (string)null;
+            parent.isDummy = false;
+            parent.tex = (Texture2D)null;
+            parent.module = (ShipModule)null;
+            parent.parent = null;
+            parent.state = ShipDesignScreen.ActiveModuleState.Normal;
+        }
+
+        private void ClearParentSlotNoStack(SlotStruct parent)
+        {
+            for (int index1 = 0; index1 < (int)parent.module.YSIZE; ++index1)
+            {
+                for (int index2 = 0; index2 < (int)parent.module.XSIZE; ++index2)
+                {
+                    if (!(index2 == 0 & index1 == 0))
+                    {
+                        foreach (SlotStruct slotStruct in this.Slots)
+                        {
+                            if (slotStruct.pq.Y == parent.pq.Y + 16 * index1 && slotStruct.pq.X == parent.pq.X + 16 * index2)
+                            {
+                                slotStruct.ModuleUID = (string)null;
+                                slotStruct.isDummy = false;
+                                slotStruct.tex = (Texture2D)null;
+                                slotStruct.module = (ShipModule)null;
+                                slotStruct.parent = (SlotStruct)null;
+                                slotStruct.state = ShipDesignScreen.ActiveModuleState.Normal;
+                            }
+                        }
+                    }
+                }
+            }
             parent.ModuleUID = (string)null;
             parent.isDummy = false;
             parent.tex = (Texture2D)null;
@@ -533,82 +566,58 @@ namespace Ship_Game
             parent.state = ShipDesignScreen.ActiveModuleState.Normal;
         }
 
-		private void ClearParentSlotNoStack(SlotStruct parent)
-		{
-			for (int y = 0; y < parent.module.YSIZE; y++)
-			{
-				for (int x = 0; x < parent.module.XSIZE; x++)
-				{
-					if (x == 0 & y == 0)
-					{
-						foreach (SlotStruct dummyslot in this.Slots)
-						{
-							if (dummyslot.pq.Y != parent.pq.Y + 16 * y || dummyslot.pq.X != parent.pq.X + 16 * x)
-							{
-								continue;
-							}
-							dummyslot.ModuleUID = null;
-							dummyslot.isDummy = false;
-							dummyslot.tex = null;
-							dummyslot.module = null;
-							dummyslot.parent = null;
-							dummyslot.state = ShipDesignScreen.ActiveModuleState.Normal;
-						}
-					}
-				}
-			}
-			parent.ModuleUID = null;
-			parent.isDummy = false;
-			parent.tex = null;
-			parent.module = null;
-			parent.state = ShipDesignScreen.ActiveModuleState.Normal;
-		}
+        private void ClearSlot(SlotStruct slot)
+        {   //this is the clearslot function actually used atm
+            //only called from installmodule atm, not from manual module removal
+            if (slot.isDummy)
+            {
+                System.Diagnostics.Debug.Assert(slot.module == null);
+                if (slot.parent.module != null)
+                {
+                    this.ClearParentSlot(slot.parent);
+                }
+            }
+            else if (slot.module != null)
+            {
+                this.ClearParentSlot(slot);
+            }
+            else
+            {   //this requires not being a child slot and not containing a module
+                //only empty parent slots can trigger this
+                //why would we want to clear an empty slot?
+                //might be used on initial load instead of a proper slot constructor
+                slot.ModuleUID = (string)null;
+                slot.isDummy = false;
+                slot.tex = (Texture2D)null;
+                slot.parent = (SlotStruct)null;
+                slot.module = (ShipModule)null;
+                slot.state = ShipDesignScreen.ActiveModuleState.Normal;
+            }
+        }
 
-		private void ClearSlot(SlotStruct slot)
-		{
-			if (!slot.isDummy)
-			{
-				if (slot.module != null)
-				{
-					this.ClearParentSlot(slot);
-					return;
-				}
-				slot.ModuleUID = null;
-				slot.isDummy = false;
-				slot.tex = null;
-				slot.parent = null;
-				slot.module = null;
-				slot.state = ShipDesignScreen.ActiveModuleState.Normal;
-			}
-			else if (slot.parent.module != null)
-			{
-				this.ClearParentSlot(slot.parent);
-				return;
-			}
-		}
-
-		private void ClearSlotNoStack(SlotStruct slot)
-		{
-			if (!slot.isDummy)
-			{
-				if (slot.module != null)
-				{
-					this.ClearParentSlotNoStack(slot);
-					return;
-				}
-				slot.ModuleUID = null;
-				slot.isDummy = false;
-				slot.tex = null;
-				slot.parent = null;
-				slot.module = null;
-				slot.state = ShipDesignScreen.ActiveModuleState.Normal;
-			}
-			else if (slot.parent.module != null)
-			{
-				this.ClearParentSlotNoStack(slot.parent);
-				return;
-			}
-		}
+        private void ClearSlotNoStack(SlotStruct slot)
+        {   //this function might never be called, see if anyone triggers this
+            System.Diagnostics.Debug.Assert(false); 
+            if (slot.isDummy)
+            {
+                if (slot.parent.module == null)
+                    return;
+                this.ClearParentSlotNoStack(slot.parent);
+            }
+            else if (slot.module != null)
+            {
+                this.ClearParentSlotNoStack(slot);
+            }
+            else
+            {
+                slot.ModuleUID = (string)null;
+                slot.isDummy = false;
+                slot.tex = (Texture2D)null;
+                slot.parent = (SlotStruct)null;
+                slot.module = (ShipModule)null;
+                slot.state = ShipDesignScreen.ActiveModuleState.Normal;
+            }
+        }
 
 		public void CreateShipModuleSelectionWindow()
 		{
@@ -3665,6 +3674,7 @@ namespace Ship_Game
                 }
                 if (this.mouseStateCurrent.RightButton == ButtonState.Released && this.mouseStatePrevious.RightButton == ButtonState.Pressed)
                 {
+                    //this should actually clear slots
                     this.ActiveModule = (ShipModule)null;
                     foreach (SlotStruct parent in this.Slots)
                     {
@@ -3672,7 +3682,7 @@ namespace Ship_Game
                         parent.ShowValid = false;
                         Vector2 spaceFromWorldSpace = this.camera.GetScreenSpaceFromWorldSpace(new Vector2((float)parent.pq.enclosingRect.X, (float)parent.pq.enclosingRect.Y));
                         Rectangle rect = new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom));
-                        if ((parent.module != null || parent.isDummy) && HelperFunctions.CheckIntersection(rect, vector2))
+                        if ((parent.module != null || parent.isDummy) && HelperFunctions.CheckIntersection(rect, vector2)) //if clicked at this slot
                         {
                             DesignAction designAction = new DesignAction();
                             designAction.clickedSS = new SlotStruct();
