@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Configuration;
 
 
 namespace Ship_Game.Gameplay
@@ -849,7 +850,7 @@ namespace Ship_Game.Gameplay
             this.AI.OrderReturnToHangar();
         }
 
-        public float GetMaintCost()
+        public float GetMaintCostORIG()
         {
             float num;
             switch (this.Role)
@@ -886,6 +887,201 @@ namespace Ship_Game.Gameplay
                     break;
             }
             return num;
+        }
+        public float GetMaintCost()
+        {
+            float maint = 0f;
+            string role = this.Role;
+            string str = role;
+            bool nonCombat = false;
+            //added by gremlin: Maintenance changes
+            float maintModReduction = 1;
+            if (role != null && this.GetShipData().ShipStyle != "Remnant" && (this.loyalty != null && this.loyalty.data != null && this.loyalty.data.PrototypeShip != this.Name))
+            {
+
+                if (this.Name == "Subspace Projector")
+                {
+                    if (this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
+                    {
+                        maint = 0.1f;
+                    }
+                    else
+                    {
+                        maint = 0.2f;
+                    }
+                    return maint;
+                }
+                switch (str)
+                {
+                    case "freighter":
+                        {
+
+
+                            switch ((int)this.Size / 50)
+                            {
+                                case 0:
+                                    {
+                                        maint = 0.2f;
+                                        break;
+                                    }
+
+                                case 1:
+                                    {
+                                        maint = 0.3f;
+                                        break;
+                                    }
+
+                                case 2:
+                                case 3:
+                                case 4:
+                                    {
+                                        maint = 0.4f;
+                                        break;
+                                    }
+
+                                default:
+                                    {
+                                        maint = (int)this.Size / 50;
+                                        break;
+                                    }
+                            }
+                            if (this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization && this.Weapons.Count() < this.Size * .10f)
+                            {
+
+                                maint *= 0.5f;
+                            }
+
+                            break;
+                        }
+
+                    case "platform":
+                        {
+                            if (this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
+                            {
+                                maint = 0.1f;
+                            }
+                            else
+                            {
+                                maint = 0.2f;
+                            }
+                            break;
+                        }
+                    case "fighter":
+                        {
+                            if (this.Mothership != null)
+                            {
+                                return 0;
+                            }
+                            maint = 0.2f;
+                            break;
+                        }
+                    case "corvette":
+                        {
+                            if (this.Mothership != null)
+                            {
+                                return 0;
+                            }
+                            maint = 0.35f;
+                            break;
+                        }
+                    case "scout":
+                        {
+                            if (this.Mothership != null)
+                            {
+                                return 0;
+                            }
+                            maint = 0.1f;
+                            break;
+                        }
+                    case "frigate":
+                        {
+                            if (this.Mothership != null)
+                            {
+                                return 0;
+                            }
+                            maint = 1f;
+                            break;
+                        }
+                    case "cruiser":
+                        {
+                            maint = 2.5f;
+                            break;
+                        }
+                    case "carrier":
+                        {
+                            maint = 4f;
+                            break;
+                        }
+                    case "capital":
+                        {
+                            maint = 6f;
+                            break;
+                        }
+                    case "station":
+                        {
+                            maint = 6f;
+                            //added by gremlin shipyard exploit fix
+                            if (this.Name == "Shipyard" && this.IsTethered())
+                                if (this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() > 3)
+                                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() - 3;
+                            break;
+                        }
+                    default:
+                        {
+                            maint = 0f;
+                            return maint;
+                        }
+                }
+            }
+            else
+            {
+                maint = 0f;
+                return maint;
+            }
+            //Maintenance fluctuator
+            //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
+            float OptionIncreaseShipMaintenance = float.Parse( ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
+            if (OptionIncreaseShipMaintenance > 1)
+            {
+                maintModReduction = OptionIncreaseShipMaintenance;
+
+                if (this.isCloaked || this.inborders)// && Properties.Settings.Default.OptionIncreaseShipMaintenance >1)
+                {
+                    maintModReduction *= .25f;
+                    if (this.inborders) maintModReduction *= .75f;
+                    if (this.GetAI().inOrbit)
+                    {
+                        maintModReduction *= .25f;
+                    }
+                }
+                if (this.isCloaking && !this.isCloaked && !this.inborders)
+                {
+                    maintModReduction *= .5f;
+                }
+
+                if (this.isDecloaking)
+                {
+                    maintModReduction *= 2f;
+                }
+                if (this.number_Alive_Internal_modules < this.number_Internal_modules)
+                {
+                    float damRepair = 2 - this.number_Internal_modules / this.number_Alive_Internal_modules;
+                    if (damRepair > 1.5f) damRepair = 1.5f;
+                    if (damRepair < 1) damRepair = 1;
+                    maintModReduction *= damRepair;
+
+                }
+                //if (!this.inborders && this.Weapons.Count == 0)
+                //{
+                //    maintModReduction *= .25f;
+                //}
+                //maint *= (float)Properties.Settings.Default.OptionIncreaseShipMaintenance;
+                if (maintModReduction < 1) maintModReduction = 1;
+                maint *= maintModReduction;
+            }
+
+
+            return maint;
         }
 
         public int GetTechScore()
@@ -1220,7 +1416,7 @@ namespace Ship_Game.Gameplay
             this.JumpTimer = 3f;
         }
 
-        public void EngageStarDrive()
+        public void EngageStarDriveORIG()
         {
             if (this.isSpooling)
                 return;
@@ -1248,6 +1444,133 @@ namespace Ship_Game.Gameplay
             }
             this.isSpooling = true;
             this.ResetJumpTimer();
+        }
+
+        //added by gremlin: Fighter recall and stuff
+        public void EngageStarDrive()
+        {
+
+            #region No warp in uncontrolled systems
+            if (ArtificialIntelligence.WarpRestriction == true && !this.Inhibited && !universeScreen.Debug)
+            {
+                SolarSystem currentSystem = this.GetSystem();
+                if (!this.inborders && currentSystem != null)
+                {
+                    int systemOwnerCount = currentSystem.OwnerList.Count();
+                    {
+                        if (systemOwnerCount == 0 && ArtificialIntelligence.WarpRestrictionInNuetral)
+                        {
+                            this.Inhibited = true;
+                            this.InhibitedTimer = 10f;
+                            return;
+                        }
+                    }
+
+                    Empire happySystems = currentSystem.OwnerList.Where(empire => empire.GetRelations()[this.loyalty].Treaty_OpenBorders).FirstOrDefault();
+                    if (happySystems == null && systemOwnerCount > 0)
+                    {
+                        this.Inhibited = true;
+                        this.InhibitedTimer = 10f;
+                        return;
+                    }
+
+                }
+            }
+            #endregion
+            if (this.isSpooling)
+            {
+                return;
+            }
+            #region carrier figter interaction recall
+            //added by gremlin : fighter recal
+            if (this.RecallFightersBeforeFTL && this.GetHangars().Count > 0)
+            {
+                bool RecallFigters = false;
+                float JumpDistance = Vector2.Distance(this.Center, this.GetAI().MovePosition);
+                float slowfighter = this.speed * 2;
+                if (JumpDistance > 7500f)
+                {
+
+                    RecallFigters = true;
+
+
+                    foreach (ShipModule Hanger in this.GetHangars().Select(t => t as ShipModule))
+                    {
+                        if (Hanger.IsSupplyBay || Hanger.GetHangarShip() == null) { RecallFigters = false; continue; }
+                        Ship hangerShip = Hanger.GetHangarShip();
+                        //min jump distance 7500f
+                        //this.MovePosition
+                        if (hangerShip.speed < slowfighter) slowfighter = hangerShip.speed;
+
+
+
+                        float rangeTocarrier = Vector2.Distance(hangerShip.Center, this.Center);
+
+
+                        if (rangeTocarrier > this.SensorRange)
+                        { RecallFigters = false; continue; }
+                        if (hangerShip.disabled || hangerShip.dying || hangerShip.EnginesKnockedOut)
+                        {
+                            RecallFigters = false;
+                            if (Hanger.GetHangarShip().ScuttleTimer == 0) Hanger.GetHangarShip().ScuttleTimer = 10f;
+                            continue;
+                        }
+
+
+                        RecallFigters = true; break;
+                    }
+                }
+
+                if (RecallFigters == true)
+                {
+                    this.RecoverAssaultShips();
+                    this.RecoverFighters();
+                    if (!this.DoneRecovering())
+                    {
+
+
+                        if (this.speed * 2 > slowfighter) { this.speed = slowfighter * .25f; }
+
+
+
+                        return;
+
+                    }
+                }
+
+            }
+            #endregion
+            if (!this.IsWarpCapable)
+            {
+                if (this.engineState == Ship.MoveState.Afterburner)
+                {
+                    return;
+                }
+                if (this.GetAfterBurnerSpeed() <= this.GetSTLSpeed())
+                {
+                    return;
+                }
+            }
+            else if (this.engineState == Ship.MoveState.Warp)
+            {
+                return;
+            }
+            if ((this.engineState == Ship.MoveState.Sublight || this.engineState == Ship.MoveState.Afterburner) && !this.isSpooling && this.PowerCurrent / (this.PowerStoreMax + 0.01f) > 0.1f)
+            {
+                if (!AudioManager.GetCue("sd_warp_start_large").IsPlaying && !AudioManager.GetCue("sd_warp_start_small").IsPlaying && !AudioManager.GetCue("sd_warp_start_02").IsPlaying && Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000f && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
+                {
+
+                    this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
+                    this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
+
+
+                    {
+                        this.Jump.Play();
+                    }
+                }
+                this.isSpooling = true;
+                this.ResetJumpTimer();
+            }
         }
 
         private string GetStartWarpCue()
@@ -1301,7 +1624,7 @@ namespace Ship_Game.Gameplay
             return this.PlayerShip;
         }
 
-        public void InitializeStatus()
+        public void InitializeStatusORIG()
         {
             this.Mass = 0.0f;
             Ship ship1 = this;
@@ -1390,6 +1713,191 @@ namespace Ship_Game.Gameplay
             if ((double)this.MechanicalBoardingDefense < 1.0)
                 this.MechanicalBoardingDefense = 1f;
             this.HealthMax = this.Health;
+            this.velocityMaximum = this.Thrust / this.mass;
+            this.speed = this.velocityMaximum;
+            this.rotationRadiansPerSecond = this.speed / (float)this.Size;
+            this.ShipMass = this.mass;
+            this.shield_power = this.shield_max;
+        }
+        //added by gremlin Initialize status from deveks mod. 
+        public void InitializeStatus()
+        {
+            #region Variables
+            base.Mass = 0f;
+            Ship mass = this;
+            mass.Mass = mass.Mass + (float)this.Size;
+            this.Thrust = 0f;
+            this.PowerStoreMax = 0f;
+            this.PowerFlowMax = 0f;
+            this.PowerDraw = 0f;
+            this.shield_max = 0f;
+            this.shield_power = 0f;
+            this.armor_max = 0f;
+            this.CrewRequired = 0;
+            this.CrewSupplied = 0;
+            this.WarpMassCapacity = 0f;
+            this.Size = 0;
+            this.number_alive_modules = 0;
+            this.velocityMaximum = 0f;
+            this.speed = 0f;
+            this.SensorRange = 0f;
+            this.OrdinanceMax = 0f;
+            this.OrdAddedPerSecond = 0f;
+            this.rotationRadiansPerSecond = 0f;
+            base.Health = 0f;
+            this.TroopCapacity = 0;
+            this.MechanicalBoardingDefense = 0f;
+            this.TroopBoardingDefense = 0f;
+
+            string troopType = "Wyvern";
+            string tankType = "Wyvern";
+            string redshirtType = "Wyvern";
+            #endregion
+            #region TroopListFix
+            if (this.loyalty != null && this.loyalty.GetTrDict().Where(value => value.Value == true).Count() > 0)
+            {
+
+                troopType = ResourceManager.TroopsDict.Where(troop => this.loyalty.GetTrDict()[troop.Key] == true).OrderByDescending(strength => strength.Value.SoftAttack).First().Key;
+                tankType = ResourceManager.TroopsDict.Where(troop => this.loyalty.GetTrDict()[troop.Key] == true).OrderByDescending(strength => strength.Value.HardAttack).First().Key;
+                redshirtType = ResourceManager.TroopsDict.Where(troop => this.loyalty.GetTrDict()[troop.Key] == true).OrderBy(strength => strength.Value.SoftAttack).First().Key;
+
+                troopType = troopType == redshirtType ? troopType = tankType : troopType;
+
+
+
+            }
+            #endregion
+            #region ModuleCheck
+            foreach (ModuleSlot moduleSlotList in this.ModuleSlotList)
+            {
+                if (moduleSlotList.Restrictions == Restrictions.I)
+                {
+                    Ship numberInternalModules = this;
+                    numberInternalModules.number_Internal_modules = numberInternalModules.number_Internal_modules + 1f;
+                    Ship numberAliveInternalModules = this;
+                    numberAliveInternalModules.number_Alive_Internal_modules = numberAliveInternalModules.number_Alive_Internal_modules + 1f;
+                }
+                if (moduleSlotList.module.ModuleType == ShipModuleType.Colony)
+                {
+                    this.isColonyShip = true;
+                }
+                if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
+                {
+                    Dictionary<string, float> maxGoodStorageDict = this.MaxGoodStorageDict;
+                    Dictionary<string, float> strs = maxGoodStorageDict;
+                    string resourceStored = moduleSlotList.module.ResourceStored;
+                    string str = resourceStored;
+                    maxGoodStorageDict[resourceStored] = strs[str] + moduleSlotList.module.ResourceStorageAmount;
+                }
+
+                #region Troopload
+                for (int i = 0; i < moduleSlotList.module.TroopsSupplied; i++)
+                {
+                    int hangars = this.ModuleSlotList.Where(hangarbay => hangarbay.module.IsTroopBay).Count();
+
+                    if (hangars < this.TroopList.Count())
+                    {
+                        if (this.TroopList.Where(trooptype => trooptype.Name == tankType).Count() <= hangars / 2)
+                        {
+                            this.TroopList.Add(ResourceManager.CreateTroop(ResourceManager.TroopsDict[tankType], this.loyalty)); //"Space Marine"
+
+                        }
+                        else
+                        {
+                            this.TroopList.Add(ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopType], this.loyalty)); //"Space Marine
+                        }
+                    }
+                    else
+                    {
+                        this.TroopList.Add(ResourceManager.CreateTroop(ResourceManager.TroopsDict[redshirtType], this.loyalty)); //"Space Marine"
+                    }
+                #endregion
+                }
+                if (moduleSlotList.module.SensorRange > this.SensorRange)
+                {
+                    this.SensorRange = moduleSlotList.module.SensorRange;
+                }
+
+                Ship troopCapacity = this;
+                troopCapacity.TroopCapacity = troopCapacity.TroopCapacity + moduleSlotList.module.TroopCapacity;
+                Ship mechanicalBoardingDefense = this;
+                mechanicalBoardingDefense.MechanicalBoardingDefense = mechanicalBoardingDefense.MechanicalBoardingDefense + moduleSlotList.module.MechanicalBoardingDefense;
+                if (this.MechanicalBoardingDefense < 1f)
+                {
+                    this.MechanicalBoardingDefense = 1f;
+                }
+                if (moduleSlotList.module.ModuleType == ShipModuleType.Hangar)
+                {
+                    moduleSlotList.module.hangarShipUID = moduleSlotList.SlotOptions;
+                    if (moduleSlotList.module.IsTroopBay)
+                    {
+                        this.HasTroopBay = true;
+                    }
+                }
+                Ship ship = this;
+                ship.mass = ship.mass + moduleSlotList.module.Mass;
+                Ship warpMassCapacity = this;
+                warpMassCapacity.WarpMassCapacity = warpMassCapacity.WarpMassCapacity + moduleSlotList.module.WarpMassCapacity;
+                Ship thrust = this;
+                thrust.Thrust = thrust.Thrust + moduleSlotList.module.thrust;
+                Ship powerStoreMax = this;
+                powerStoreMax.PowerStoreMax = powerStoreMax.PowerStoreMax + moduleSlotList.module.PowerStoreMax;
+                if (this.loyalty != null && moduleSlotList.module.ModuleType == ShipModuleType.FuelCell)
+                {
+                    Ship powerStoreMax1 = this;
+                    powerStoreMax1.PowerStoreMax = powerStoreMax1.PowerStoreMax + this.loyalty.data.FuelCellModifier * moduleSlotList.module.PowerStoreMax;
+                }
+                Ship powerCurrent = this;
+                powerCurrent.PowerCurrent = powerCurrent.PowerCurrent + moduleSlotList.module.PowerStoreMax;
+                Ship powerFlowMax = this;
+                powerFlowMax.PowerFlowMax = powerFlowMax.PowerFlowMax + moduleSlotList.module.PowerFlowMax;
+                Ship shieldMax = this;
+                shieldMax.shield_max = shieldMax.shield_max + moduleSlotList.module.shield_power_max;
+                Ship shieldPower = this;
+                shieldPower.shield_power = shieldPower.shield_power + moduleSlotList.module.shield_power_max;
+                if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
+                {
+                    Ship armorMax = this;
+                    armorMax.armor_max = armorMax.armor_max + moduleSlotList.module.HealthMax;
+                }
+                Ship size = this;
+                size.Size = size.Size + 1;
+                Ship numberAliveModules = this;
+                numberAliveModules.number_alive_modules = numberAliveModules.number_alive_modules + 1;
+                Ship cargoSpaceMax = this;
+                cargoSpaceMax.CargoSpace_Max = cargoSpaceMax.CargoSpace_Max + moduleSlotList.module.Cargo_Capacity;
+                Ship ordinanceMax = this;
+                ordinanceMax.OrdinanceMax = ordinanceMax.OrdinanceMax + (float)moduleSlotList.module.OrdinanceCapacity;
+                Ship ordinance = this;
+                ordinance.Ordinance = ordinance.Ordinance + (float)moduleSlotList.module.OrdinanceCapacity;
+                Ship powerDraw = this;
+                powerDraw.PowerDraw = powerDraw.PowerDraw + moduleSlotList.module.PowerDraw;
+                Ship health = this;
+                health.Health = health.Health + moduleSlotList.module.HealthMax;
+
+            }
+
+            #endregion
+            #region BoardingDefense
+            foreach (Troop troopList in this.TroopList)
+            {
+                troopList.SetOwner(this.loyalty);
+                troopList.SetShip(this);
+                Ship troopBoardingDefense = this;
+                troopBoardingDefense.TroopBoardingDefense = troopBoardingDefense.TroopBoardingDefense + (float)troopList.Strength;
+            }
+            {
+                Ship mechanicalBoardingDefense1 = this;
+
+                //mechanicalBoardingDefense1.MechanicalBoardingDefense = mechanicalBoardingDefense1.MechanicalBoardingDefense / (this.number_Internal_modules);
+                mechanicalBoardingDefense1.MechanicalBoardingDefense = mechanicalBoardingDefense1.MechanicalBoardingDefense * (1 + this.TroopList.Count() / 10);
+                if (this.MechanicalBoardingDefense < 1f)
+                {
+                    this.MechanicalBoardingDefense = 1f;
+                }
+            }
+            #endregion
+            this.HealthMax = base.Health;
             this.velocityMaximum = this.Thrust / this.mass;
             this.speed = this.velocityMaximum;
             this.rotationRadiansPerSecond = this.speed / (float)this.Size;
