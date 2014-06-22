@@ -465,7 +465,7 @@ namespace Ship_Game.Gameplay
             return (float)((double)this.AfterThrust / (double)this.Mass + (double)this.AfterThrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier);
         }
 
-        public float GetFTLSpeed()
+        public float GetFTLSpeedORIG()
         {
             if (!GlobalStats.HardcoreRuleset)
                 return (float)((double)this.WarpThrust / (double)this.Mass + (double)this.WarpThrust / (double)this.Mass * (double)this.loyalty.data.FTLModifier);
@@ -473,6 +473,27 @@ namespace Ship_Game.Gameplay
                 return 0.0f;
             float num = this.FTLSpeed / (float)this.FTLCount;
             return num + num * this.loyalty.data.FTLBonus;
+        }
+        public float GetFTLSpeed()
+        {
+            float v1 = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier;
+            float v2;
+            if (this.FTLCount <= 0 || base.Mass > this.WarpMassCapacity)
+            {
+                v2 = 0f;
+            }
+            else
+            {
+                v2 = (float)(this.FTLSpeed * (1.0 + this.loyalty.data.FTLBonus) / this.FTLCount);
+            }
+            if (v1 >= v2)
+            {
+                return v1;
+            }
+            else
+            {
+                return v2;
+            }
         }
 
         public float GetSTLSpeed()
