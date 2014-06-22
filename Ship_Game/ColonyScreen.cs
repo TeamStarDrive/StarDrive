@@ -1360,8 +1360,17 @@ namespace Ship_Game
 					}
                     if (pgs.building.IsSensor && pgs.building.SensorRange != 0f)
                     {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_sensors"].Width, ResourceManager.TextureDict["NewUI/icon_sensors"].Height);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_sensors"], fIcon, Color.White);
+                        Rectangle fIcon;
+                        if (ResourceManager.TextureDict.ContainsKey("NewUI/icon_sensors"))
+                        {
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_sensors"].Width, ResourceManager.TextureDict["NewUI/icon_sensors"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_sensors"], fIcon, Color.White);
+                        }
+                        else
+                        {
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["Textures/transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/transparent"], fIcon, Color.White);
+                        } 
                         Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
                         SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
                         SpriteFont spriteFont = Fonts.Arial12Bold;
@@ -1371,8 +1380,17 @@ namespace Ship_Game
                     }
                     if (pgs.building.IsProjector && pgs.building.ProjectorRange != 0f)
                     {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_projection"].Width, ResourceManager.TextureDict["NewUI/icon_projection"].Height);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_projection"], fIcon, Color.White);
+                        Rectangle fIcon;
+                        if (ResourceManager.TextureDict.ContainsKey("NewUI/icon_projection"))
+                        {
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_projection"].Width, ResourceManager.TextureDict["NewUI/icon_projection"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_projection"], fIcon, Color.White);
+                        }
+                        else
+                        {
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["Textures/transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/transparent"], fIcon, Color.White);
+                        } 
                         Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
                         SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
                         SpriteFont spriteFont = Fonts.Arial12Bold;
