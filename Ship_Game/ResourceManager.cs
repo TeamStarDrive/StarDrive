@@ -885,6 +885,17 @@ namespace Ship_Game
                 SensorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].SensorRange,
                 ProjectorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ProjectorRange
 			};
+            //comp fix to ensure functionality of vanialla buildings
+            if ((newB.Name == "Outpost" || newB.Name =="Capital City") && newB.IsProjector==false && newB.ProjectorRange==0.0f)
+            {
+                newB.ProjectorRange = Empire.ProjectorRadius;
+                newB.IsProjector = true;
+            }
+            if ((newB.Name == "Outpost" || newB.Name == "Capital City") && newB.IsSensor == false && newB.SensorRange == 0.0f)
+            {
+                newB.SensorRange = 20000.0f;
+                newB.IsSensor = true;
+            }
 			if (newB.isWeapon)
 			{
 				newB.theWeapon = Ship_Game.ResourceManager.GetWeapon(newB.Weapon);

@@ -311,8 +311,8 @@ namespace Ship_Game
                         {
                             if (this.TroopsHere[index].GetOwner() == EmpireManager.GetEmpireByName("Cordrazine Collective") && this.TroopsHere[index].TargetType == "Soft")
                             {
-                                if (SteamManager.SetAchievement("Owlwoks_Freed"))
-                                    SteamManager.SaveAllStatAndAchievementChanges();
+                                /*if (SteamManager.SetAchievement("Owlwoks_Freed"))
+                                    SteamManager.SaveAllStatAndAchievementChanges();*/
                                 this.TroopsHere[index].SetOwner(bomb.owner);
                                 this.TroopsHere[index].Name = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopNameIndex);
                                 this.TroopsHere[index].Description = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopDescriptionIndex);
