@@ -474,6 +474,7 @@ namespace Ship_Game.Gameplay
             float num = this.FTLSpeed / (float)this.FTLCount;
             return num + num * this.loyalty.data.FTLBonus;
         }
+        //added by gremlin The Generals GetFTL speed
         public float GetFTLSpeed()
         {
             float v1 = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier;
