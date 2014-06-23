@@ -11,3 +11,8 @@ C:\Users\Chris\Documents\SDTurbo\obj\x86\Release\StarDrive.pdb
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Release\StarDrive.csprojResolveAssemblyReference.cache
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Release\Properties.Resources.resources
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Release\StarDrive.csproj.GenerateResource.Cache
+C:\Users\Chris\Documents\SDTurbo\StarDrive.exe.config
+C:\Users\Chris\Documents\SDTurbo\StarDrive.exe
+C:\Users\Chris\Documents\SDTurbo\StarDrive.pdb
+C:\Users\Chris\Documents\SDTurbo\Fasterflect.dll
+C:\Users\Chris\Documents\SDTurbo\Fasterflect.xml
