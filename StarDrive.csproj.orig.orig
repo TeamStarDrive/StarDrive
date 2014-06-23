@@ -7,7 +7,19 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <AssemblyName>StarDrive</AssemblyName>
     <OutputType>WinExe</OutputType>
+<<<<<<< local
+<<<<<<< local
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+=======
+=======
+>>>>>>> other
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+<<<<<<< local
+=======
+=======
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+>>>>>>> other
+>>>>>>> other
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
@@ -26,7 +38,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>..\StarDrive\</OutputPath>
+    <OutputPath>D:\Program Files\steam\steamapps\common\StarDrive\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Optimize>true</Optimize>
@@ -40,7 +52,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>pdbonly</DebugType>
@@ -1433,7 +1446,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
