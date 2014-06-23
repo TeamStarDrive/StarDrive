@@ -382,33 +382,48 @@ namespace Ship_Game
                 TechEntry techEntry = new TechEntry();
                 techEntry.Progress = 0.0f;
                 techEntry.UID = keyValuePair.Key;
-                techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
+
+                //Racial Tech check
+                if (keyValuePair.Value.RaceRestrictions.Count != 0)
+                {
+                    techEntry.Discovered = false;
+                    foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceRestrictions)
+                    {
+                        if (raceTech.ShipType == this.data.Traits.ShipType)
+                        {
+                            techEntry.Discovered = true;
+                            techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
+                            break;
+                        }
+                    }
+                }
+                else //not racial tech
+                {
+                    techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
+                }
+
                 if (this.isFaction || this.data.Traits.Prewarp == 1)
+                {
                     techEntry.Unlocked = false;
-                if (techEntry.Unlocked)
-                    techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
-                this.TechnologyDict.Add(keyValuePair.Key, techEntry);
+                }
                 if (this.data.Traits.Militaristic == 1)
                 {
                     if (techEntry.UID == "HeavyFighterHull")
                     {
                         techEntry.Unlocked = true;
-                        if (techEntry.Unlocked)
-                            techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
                     }
                     if (techEntry.UID == "Military")
                     {
                         techEntry.Unlocked = true;
-                        if (techEntry.Unlocked)
-                            techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
                     }
                     if (techEntry.UID == "ArmorTheory")
                     {
                         techEntry.Unlocked = true;
-                        if (techEntry.Unlocked)
-                            techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
                     }
                 }
+                if (techEntry.Unlocked)
+                    techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
+                this.TechnologyDict.Add(keyValuePair.Key, techEntry);
             }
             foreach (KeyValuePair<string, ShipData> keyValuePair in ResourceManager.HullsDict)
                 this.UnlockedHullsDict.Add(keyValuePair.Value.Hull, false);
