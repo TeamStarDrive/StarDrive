@@ -483,7 +483,13 @@ namespace Ship_Game
             if (ResourceManager.TechTree[techID].RootNode == 0)
             {
                 foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[techID].LeadsTo)
-                    this.TechnologyDict[leadsToTech.UID].Discovered = true;
+                {
+                    //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
+                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0)
+                    {
+                        this.TechnologyDict[leadsToTech.UID].Discovered = true;
+                    }
+                }
             }
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
                 this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
@@ -619,6 +625,17 @@ namespace Ship_Game
                     this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
                 if (str == "Subspace Inhibition")
                     this.data.Inhibitors = true;
+                //added by McShooterz: New Bonuses
+                if (str == "Production Bonus")
+                    this.data.Traits.ProductionMod += unlockedBonus.Bonus;
+                if (str == "Construction Bonus")
+                    this.data.Traits.ShipCostMod -= unlockedBonus.Bonus;
+                if (str == "Consumption Bonus")
+                    this.data.Traits.ConsumptionModifier -= unlockedBonus.Bonus;
+                if (str == "Tax Bonus")
+                    this.data.Traits.TaxMod += unlockedBonus.Bonus;
+                if(str == "Repair Bonus")
+                    this.data.Traits.RepairRateMod += unlockedBonus.Bonus;
             }
             this.UpdateShipsWeCanBuild();
             if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
