@@ -8,9 +8,17 @@
     <AssemblyName>StarDrive</AssemblyName>
     <OutputType>WinExe</OutputType>
 <<<<<<< local
+<<<<<<< local
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
 =======
+=======
+>>>>>>> other
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+<<<<<<< local
+=======
+=======
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+>>>>>>> other
 >>>>>>> other
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
