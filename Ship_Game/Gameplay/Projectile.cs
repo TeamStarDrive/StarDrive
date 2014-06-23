@@ -758,7 +758,7 @@ namespace Ship_Game.Gameplay
 					{
 						this.DieNextFrame = true;
 						return true;
-					}
+					}                 
 					if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
 					{
 						if (!this.ArmorsPierced.Contains(target as ShipModule) && this.ArmorsPierced.Count < this.ArmorPiercing)

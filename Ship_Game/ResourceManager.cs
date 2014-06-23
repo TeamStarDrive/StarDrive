@@ -1006,6 +1006,7 @@ namespace Ship_Game
 				Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
 				Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
 				DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
+                ECM = Ship_Game.ResourceManager.ShipModulesDict[uid].ECM,
 				EMP_Protection = Ship_Game.ResourceManager.ShipModulesDict[uid].EMP_Protection,
 				explodes = Ship_Game.ResourceManager.ShipModulesDict[uid].explodes,
 				FieldOfFire = Ship_Game.ResourceManager.ShipModulesDict[uid].FieldOfFire,
