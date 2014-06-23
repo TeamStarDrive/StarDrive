@@ -150,7 +150,7 @@ namespace Ship_Game
                 this.AddGood(keyValuePair.Key, 0);
         }
 
-        public void DropBomb(Bomb bomb)
+        public void DropBombORIG(Bomb bomb)
         {
             if (bomb.owner == this.Owner)
                 return;
@@ -319,6 +319,240 @@ namespace Ship_Game
                             }
                         }
                         break;
+                }
+            }
+        }
+        //added by gremlin deveks drop bomb
+        public void DropBomb(Bomb bomb)
+        {
+            if (bomb.owner == this.Owner)
+            {
+                return;
+            }
+            if (this.Owner != null && !this.Owner.GetRelations()[bomb.owner].AtWar && this.TurnsSinceTurnover > 10 && EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) == bomb.owner)
+            {
+                this.Owner.GetGSAI().DeclareWarOn(bomb.owner, WarType.DefensiveWar);
+            }
+            this.CombatTimer = 10f;
+            if (this.ShieldStrengthCurrent <= 0f)
+            {
+                float ran = RandomMath.RandomBetween(0f, 100f);
+                bool hit = true;
+                if (ran < 75f)
+                {
+                    hit = false;
+                }
+                Planet population = this;
+                population.Population = population.Population - 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
+                AudioEmitter e = new AudioEmitter();
+                e.Position = bomb.Position;
+                if (Planet.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
+                {
+                    Cue Explode = AudioManager.GetCue("sd_bomb_impact_01");
+                    Explode.Apply3D(Planet.universeScreen.listener, e);
+                    Explode.Play();
+                    ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
+                    Planet.universeScreen.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
+                    for (int i = 0; i < 50; i++)
+                    {
+                        Planet.universeScreen.explosionParticles.AddParticleThreadB(bomb.Position, Vector3.Zero);
+                    }
+                }
+                Planet.OrbitalDrop od = new Planet.OrbitalDrop();
+                List<PlanetGridSquare> PotentialHits = new List<PlanetGridSquare>();
+                if (hit)
+                {
+                    foreach (PlanetGridSquare pgs in this.TilesList)
+                    {
+                        if (pgs.building == null && pgs.TroopsHere.Count <= 0)
+                        {
+                            continue;
+                        }
+                        PotentialHits.Add(pgs);
+                    }
+                    if (PotentialHits.Count <= 0)
+                    {
+                        hit = false;
+                    }
+                    else
+                    {
+                        int ranhit = (int)RandomMath.RandomBetween(0f, (float)PotentialHits.Count + 1f);
+                        if (ranhit > PotentialHits.Count - 1)
+                        {
+                            ranhit = PotentialHits.Count - 1;
+                        }
+                        od.Target = PotentialHits[ranhit];
+                    }
+                }
+                if (!hit)
+                {
+                    int row = (int)RandomMath.RandomBetween(0f, 5f);
+                    int column = (int)RandomMath.RandomBetween(0f, 7f);
+                    if (row > 4)
+                    {
+                        row = 4;
+                    }
+                    if (column > 6)
+                    {
+                        column = 6;
+                    }
+                    foreach (PlanetGridSquare pgs in this.TilesList)
+                    {
+                        if (pgs.x != column || pgs.y != row)
+                        {
+                            continue;
+                        }
+                        od.Target = pgs;
+                        break;
+                    }
+                }
+                if (od.Target.TroopsHere.Count > 0)
+                {
+                    Troop item = od.Target.TroopsHere[0];
+                    item.Strength = item.Strength - (int)RandomMath.RandomBetween((float)ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Min, (float)ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max);
+                    if (od.Target.TroopsHere[0].Strength <= 0)
+                    {
+                        this.TroopsHere.Remove(od.Target.TroopsHere[0]);
+                        od.Target.TroopsHere.Clear();
+                    }
+                }
+                else if (od.Target.building != null)
+                {
+                    Building target = od.Target.building;
+                    target.Strength = target.Strength - (int)RandomMath.RandomBetween((float)ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMin, (float)ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax);
+                    if (od.Target.building.CombatStrength > 0)
+                    {
+                        od.Target.building.CombatStrength = od.Target.building.Strength;
+                    }
+                    if (od.Target.building.Strength <= 0)
+                    {
+                        this.BuildingList.Remove(od.Target.building);
+                        od.Target.building = null;
+
+
+                        //Added Code here
+                        od.Target.Habitable = false;
+                        od.Target.highlighted = false;
+                        od.Target.Biosphere = false;
+                        //Building Wasteland = new Building;
+                        //Wasteland.Name="Fissionables";
+                        //od.Target.building=Wasteland;
+
+
+
+
+
+
+                    }
+                }
+                if (Planet.universeScreen.workersPanel is CombatScreen && Planet.universeScreen.LookingAtPlanet && (Planet.universeScreen.workersPanel as CombatScreen).p == this)
+                {
+                    AudioManager.PlayCue("Explo1");
+                    CombatScreen.SmallExplosion exp1 = new CombatScreen.SmallExplosion(4);
+                    exp1.grid = od.Target.ClickRect;
+                    lock (GlobalStats.ExplosionLocker)
+                    {
+                        (Planet.universeScreen.workersPanel as CombatScreen).Explosions.Add(exp1);
+                    }
+                }
+                if (this.Population <= 0f)
+                {
+                    this.Population = 0f;
+                    if (this.Owner != null)
+                    {
+                        this.Owner.GetPlanets().Remove(this);
+                        if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
+                        {
+                            Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty));
+                            bool removeowner = true;
+                            if (this.Owner != null)
+                            {
+                                foreach (Planet other in this.system.PlanetList)
+                                {
+                                    if (other.Owner != this.Owner || other == this)
+                                    {
+                                        continue;
+                                    }
+                                    removeowner = false;
+                                }
+                                if (removeowner)
+                                {
+                                    this.system.OwnerList.Remove(this.Owner);
+                                }
+                            }
+                            this.ConstructionQueue.Clear();
+                            this.Owner = null;
+                            return;
+                        }
+                    }
+                }
+                if (ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction != null)
+                {
+                    string hardCodedAction = ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction;
+                    string str = hardCodedAction;
+                    if (hardCodedAction != null)
+                    {
+                        if (str != "Free Owlwoks")
+                        {
+                            return;
+                        }
+                        if (this.Owner != null && this.Owner == EmpireManager.GetEmpireByName("Cordrazine Collective"))
+                        {
+                            for (int i = 0; i < this.TroopsHere.Count; i++)
+                            {
+                                if (this.TroopsHere[i].GetOwner() == EmpireManager.GetEmpireByName("Cordrazine Collective") && this.TroopsHere[i].TargetType == "Soft")
+                                {
+                                    if (SteamManager.SetAchievement("Owlwoks_Freed"))
+                                    {
+                                        SteamManager.SaveAllStatAndAchievementChanges();
+                                    }
+                                    this.TroopsHere[i].SetOwner(bomb.owner);
+                                    this.TroopsHere[i].Name = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopNameIndex);
+                                    this.TroopsHere[i].Description = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopDescriptionIndex);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                AudioEmitter emitter = new AudioEmitter();
+                emitter.Position = this.shield.Center;
+                if (Planet.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                {
+                    Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
+                    shieldcue.Apply3D(Planet.universeScreen.listener, emitter);
+                    shieldcue.Play();
+                }
+                this.shield.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Position, new Vector2(bomb.Position.X, bomb.Position.Y)));
+                this.shield.displacement = 0f;
+                this.shield.texscale = 2.8f;
+                this.shield.Radius = this.SO.WorldBoundingSphere.Radius + 100f;
+                this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
+                this.shield.texscale = 2.8f;
+                this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
+                this.shield.Center = new Vector3(this.Position.X, this.Position.Y, 2500f);
+                this.shield.pointLight.World = bomb.GetWorld();
+                this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
+                this.shield.pointLight.Radius = 50f;
+                this.shield.pointLight.Intensity = 8f;
+                this.shield.pointLight.Enabled = true;
+                Vector3 vel = Vector3.Normalize(bomb.Position - this.shield.Center);
+                if (Planet.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                {
+                    Planet.universeScreen.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
+                    for (int i = 0; i < 200; i++)
+                    {
+                        Planet.universeScreen.sparks.AddParticleThreadB(bomb.Position, vel * new Vector3(RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f)));
+                    }
+                }
+                Planet shieldStrengthCurrent = this;
+                shieldStrengthCurrent.ShieldStrengthCurrent = shieldStrengthCurrent.ShieldStrengthCurrent - (float)ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max;
+                if (this.ShieldStrengthCurrent < 0f)
+                {
+                    this.ShieldStrengthCurrent = 0f;
+                    return;
                 }
             }
         }
