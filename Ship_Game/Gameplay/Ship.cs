@@ -215,6 +215,8 @@ namespace Ship_Game.Gameplay
         private bool reallyDie;
         private GameplayObject destroyedby;
         public static UniverseScreen universeScreen;
+        public float FTLSpoolTime;
+        public bool instantFTL;
 
         public bool IsWarpCapable
         {
@@ -1613,7 +1615,17 @@ namespace Ship_Game.Gameplay
 
         public void ResetJumpTimer()
         {
-            this.JumpTimer = 3f;
+            this.JumpTimer = 0; // to ensure that the game will always prefer any module data that *is* there
+            foreach (ModuleSlot moduleSlot in this.ModuleSlotList) // Spool-time can be defined by ANY module type - e.g. internal warp cores as well as engines
+            {
+                if (moduleSlot.module.FTLSpoolTime != 0) // Ignore 0 values (as 0 is assumed as default value if the XML contains no <FTLSpoolTime> data
+                {
+                    if (this.JumpTimer < moduleSlot.module.FTLSpoolTime) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
+                        this.JumpTimer = moduleSlot.module.FTLSpoolTime;
+                }
+            }
+            if (JumpTimer == 0)
+                this.JumpTimer = 3.0f;
         }
 
         public void EngageStarDriveORIG()

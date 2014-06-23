@@ -230,6 +230,8 @@ namespace Ship_Game.Gameplay
 
 		public float InhibitionRadius;
 
+        public float FTLSpoolTime;
+
 		public bool IsWeapon
 		{
 			get
