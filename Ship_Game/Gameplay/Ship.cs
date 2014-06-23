@@ -88,6 +88,7 @@ namespace Ship_Game.Gameplay
         public float RotationalVelocity;
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
+        public float ECMValue;
         public float OrbitalDefenseTimer;
         public ShipData shipData;
         public int kills;
@@ -1943,6 +1944,7 @@ namespace Ship_Game.Gameplay
             this.TroopCapacity = 0;
             this.MechanicalBoardingDefense = 0f;
             this.TroopBoardingDefense = 0f;
+            this.ECMValue = 0f;
 
             string troopType = "Wyvern";
             string tankType = "Wyvern";
@@ -2013,6 +2015,10 @@ namespace Ship_Game.Gameplay
                     this.SensorRange = moduleSlotList.module.SensorRange;
                 }
 
+                if (moduleSlotList.module.ECM > this.ECMValue)
+                {
+                    this.ECMValue = moduleSlotList.module.ECM;
+                }
                 Ship troopCapacity = this;
                 troopCapacity.TroopCapacity = troopCapacity.TroopCapacity + moduleSlotList.module.TroopCapacity;
                 Ship mechanicalBoardingDefense = this;
