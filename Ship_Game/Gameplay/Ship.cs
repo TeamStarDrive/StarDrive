@@ -2018,6 +2018,10 @@ namespace Ship_Game.Gameplay
                 if (moduleSlotList.module.ECM > this.ECMValue)
                 {
                     this.ECMValue = moduleSlotList.module.ECM;
+                    if (this.ECMValue > 1.0f)
+                        this.ECMValue = 1.0f;
+                    if (this.ECMValue < 0f)
+                        this.ECMValue = 0f;
                 }
                 Ship troopCapacity = this;
                 troopCapacity.TroopCapacity = troopCapacity.TroopCapacity + moduleSlotList.module.TroopCapacity;
