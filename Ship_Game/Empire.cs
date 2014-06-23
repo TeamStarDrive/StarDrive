@@ -1292,7 +1292,7 @@ namespace Ship_Game
                 lock (GlobalStats.SensorNodeLocker)
                     this.SensorNodes.Add(influenceNode3);
             }
-            foreach (Mole mole in (List<Mole>)this.data.MoleList)   //no idea what a mole is, but this loops over yours
+            foreach (Mole mole in (List<Mole>)this.data.MoleList)   // Moles are spies who have successfuly been planted during 'Infiltrate' type missions, I believe - Doctor
                 this.SensorNodes.Add(new Empire.InfluenceNode()
                 {
                     Position = Empire.universeScreen.PlanetsDict[mole.PlanetGuid].Position,
