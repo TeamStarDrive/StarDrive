@@ -589,6 +589,7 @@ namespace Ship_Game
             empireData.Privatization = data.Privatization;
             empireData.SensorModifier = data.SensorModifier;
             empireData.SpyModifier = data.SpyModifier;
+            empireData.SpoolTimeModifier = data.SpoolTimeModifier;
             empireData.StartingScout = data.StartingScout;
             empireData.StartingShip = data.StartingShip;
             empireData.SubLightModifier = data.SubLightModifier;

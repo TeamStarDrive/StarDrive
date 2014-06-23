@@ -114,6 +114,8 @@ namespace Ship_Game
 
 		public int ArmorPiercingBonus;
 
+        public float SpoolTimeModifier = 1.0f;
+
 		public float ExplosiveRadiusReduction;
 
 		public float ShieldPenBonusChance;
