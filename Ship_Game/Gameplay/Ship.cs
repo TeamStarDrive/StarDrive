@@ -2751,7 +2751,7 @@ namespace Ship_Game.Gameplay
                     {
                         this.JumpTimer -= elapsedTime;
 
-                        if ((double)this.JumpTimer <= 3.0) // let's see if we can sync audio to behaviour with new timers
+                        if ((double)this.JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
                         {
                             if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
                             {
