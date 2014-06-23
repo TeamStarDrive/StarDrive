@@ -758,8 +758,16 @@ namespace Ship_Game.Gameplay
 					{
 						this.DieNextFrame = true;
 						return true;
-					}                 
-					if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
+					}
+                    if (this.weapon.Tag_Guided)
+                    {
+                        float ECMResist = this.weapon.ECMResist; // check any in-built ECM resistance on the guided weapon itself
+                        Ship targetShip = (target as ShipModule).GetParent(); // identify the ship to which the module belongs
+                        float rnum = RandomMath.RandomBetween(0.0f, 1.0f); // Random roll 0.0-1.0, i.e. roll 0 to 100
+                        if (rnum + ECMResist < targetShip.ECMValue) // Can she hit?
+                            this.Miss = true;
+                    }
+                    if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
 					{
 						if (!this.ArmorsPierced.Contains(target as ShipModule) && this.ArmorsPierced.Count < this.ArmorPiercing)
 						{
