@@ -544,6 +544,8 @@ namespace Ship_Game
                     this.data.Traits.ResearchMod += unlockedBonus.Bonus;
                 if (str == "Afterburner Bonus")
                     this.data.AfterBurnerSpeedModifier += unlockedBonus.Bonus;
+                if (str == "FTL Spool Bonus")
+                    this.data.SpoolTimeModifier *= 1.0f - unlockedBonus.Bonus; // i.e. if there is a 0.2 (20%) bonus unlocked, the spool modifier is 1-0.2 = 0.8* existing spool modifier...
                 if (str == "Top Guns" || str == "Bonus Fighter Levels")
                 {
                     this.data.BonusFighterLevels += (int)unlockedBonus.Bonus;
