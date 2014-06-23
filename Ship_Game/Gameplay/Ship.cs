@@ -1648,12 +1648,6 @@ namespace Ship_Game.Gameplay
                 return;
             if (this.engineState != Ship.MoveState.Sublight && this.engineState != Ship.MoveState.Afterburner || (this.isSpooling || (double)this.PowerCurrent / ((double)this.PowerStoreMax + 0.00999999977648258) <= 0.100000001490116))
                 return;
-            if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
-            {
-                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
-                this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
-                this.Jump.Play();
-            }
             this.isSpooling = true;
             this.ResetJumpTimer();
         }
@@ -1769,17 +1763,6 @@ namespace Ship_Game.Gameplay
             }
             if ((this.engineState == Ship.MoveState.Sublight || this.engineState == Ship.MoveState.Afterburner) && !this.isSpooling && this.PowerCurrent / (this.PowerStoreMax + 0.01f) > 0.1f)
             {
-                if (!AudioManager.GetCue("sd_warp_start_large").IsPlaying && !AudioManager.GetCue("sd_warp_start_small").IsPlaying && !AudioManager.GetCue("sd_warp_start_02").IsPlaying && Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000f && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
-                {
-
-                    this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
-                    this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
-
-
-                    {
-                        this.Jump.Play();
-                    }
-                }
                 this.isSpooling = true;
                 this.ResetJumpTimer();
             }
@@ -2767,6 +2750,16 @@ namespace Ship_Game.Gameplay
                     if (this.isSpooling)
                     {
                         this.JumpTimer -= elapsedTime;
+
+                        if ((double)this.JumpTimer <= 3.0) // let's see if we can sync audio to behaviour with new timers
+                        {
+                            if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
+                            {
+                                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
+                                this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
+                                this.Jump.Play();
+                            }
+                        }
                         if ((double)this.JumpTimer <= 0.1)
                         {
                             if ((this.engineState == Ship.MoveState.Sublight || this.engineState == Ship.MoveState.Afterburner) && (this.IsWarpCapable && (double)this.GetFTLSpeed() > (double)this.GetSTLSpeed()) && (double)this.GetFTLSpeed() > (double)this.GetAfterBurnerSpeed())
