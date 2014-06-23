@@ -232,6 +232,8 @@ namespace Ship_Game.Gameplay
 
         public float FTLSpoolTime;
 
+        public float ECM;
+
 		public bool IsWeapon
 		{
 			get
