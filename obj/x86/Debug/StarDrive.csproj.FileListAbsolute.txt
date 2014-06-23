@@ -21,3 +21,11 @@ E:\code\merkrepo\obj\x86\Debug\StarDrive.pdb
 E:\code\StarDrive\StarDrive.exe.config
 E:\code\StarDrive\StarDrive.exe
 E:\code\StarDrive\StarDrive.pdb
+C:\Users\Chris\Documents\StarDrive\StarDrive.exe.config
+C:\Users\Chris\Documents\StarDrive\StarDrive.exe
+C:\Users\Chris\Documents\StarDrive\StarDrive.pdb
+C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.csprojResolveAssemblyReference.cache
+C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\Properties.Resources.resources
+C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.csproj.GenerateResource.Cache
+C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.exe
+C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.pdb
