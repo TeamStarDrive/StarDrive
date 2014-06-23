@@ -19,7 +19,7 @@ namespace Ship_Game.Gameplay
 
 		private float thinkTimer = 0.15f;
 
-		//private bool TargetSet;
+		private bool TargetSet;
 
 		public MissileAI(Projectile owner)
 		{
@@ -41,7 +41,7 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		public void ChooseTarget()
+		public void ChooseTargetORIG()
 		{
 			this.Target = null;
 			IOrderedEnumerable<Ship> sortedList = 
@@ -53,7 +53,30 @@ namespace Ship_Game.Gameplay
 				this.Target = sortedList.First<Ship>();
 			}
 		}
+        //added by gremlin deveks ChooseTarget
+        public void ChooseTarget()
+        {
+            if (this.Owner.owner != null)
+            {
+                bool valid = false;
 
+                GameplayObject sourceTarget = this.Owner.owner.GetAI().Target;
+                if (sourceTarget is Ship && sourceTarget != null)
+                {
+                    Ship shipTarget = sourceTarget as Ship;
+                    valid = shipTarget.loyalty != this.Owner.loyalty;
+
+                    if (sourceTarget.Active && valid)
+                    {
+                        this.SetTarget(sourceTarget); //use SetTarget function
+                        return;
+                    }
+                }
+            }
+            this.Target = null;
+            this.SetTarget(this.TargetList.AsParallel().OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>()); //use SetTarget function
+
+        }
 		public void ClearTargets()
 		{
 			this.Target = null;
@@ -117,7 +140,7 @@ namespace Ship_Game.Gameplay
 			this.Target = target;
 		}
 
-		public void Think(float elapsedTime)
+		public void ThinkORIG(float elapsedTime)
 		{
 			MissileAI missileAI = this;
 			missileAI.thinkTimer = missileAI.thinkTimer - elapsedTime;
@@ -133,5 +156,33 @@ namespace Ship_Game.Gameplay
 			}
 			this.MoveStraight(elapsedTime);
 		}
+        //added by gremlin Deveksmod Missilethink.
+        public void Think(float elapsedTime)
+        {
+            MissileAI missileAI = this;
+            missileAI.thinkTimer = missileAI.thinkTimer - elapsedTime;
+            if (this.thinkTimer <= 0f) //check time interval
+            {
+                this.thinkTimer = 5 * elapsedTime;
+                if (this.Target is Ship) //check if target is dying
+                {
+                    Ship ship = this.Target as Ship;
+                    if (ship.dying)
+                    {
+                        TargetSet = false;
+                    }
+                }
+                if (this.Target == null || !TargetSet || !this.Target.Active) //Check if new target is needed
+                {
+                    this.ChooseTarget();
+                }
+            }
+            if (TargetSet)  //if SetTarget() was used then TargetSet=true
+            {
+                this.MoveTowardsTarget(elapsedTime);
+                return;
+            }
+            this.MoveStraight(elapsedTime);
+        }
 	}
 }
