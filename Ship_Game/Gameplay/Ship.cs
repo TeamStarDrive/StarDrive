@@ -786,8 +786,7 @@ namespace Ship_Game.Gameplay
                     num3 = (float)(-1.0 * (360.0 - (double)num3));
                 num4 = Math.Abs(num2 - num3);
             }
-            //added by McShooterz: applied range modifier for weapon
-            return (double)num4 < (double)num1 && (double)Vector2.Distance(this.Position, vector2_1) < (double)modifyRange(w) + 50.0;
+            return (double)num4 < (double)num1 && (double)Vector2.Distance(this.Position, vector2_1) < (double)w.Range + 50.0;
         }
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos)
@@ -847,8 +846,7 @@ namespace Ship_Game.Gameplay
                     num3 = (float)(-1.0 * (360.0 - (double)num3));
                 num4 = Math.Abs(num2 - num3);
             }
-            //added by McShooterz: applied range modifier for weapon
-            return (double)num4 < (double)num1 && (double)Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < (double)modifyRange(w);
+            return (double)num4 < (double)num1 && (double)Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < (double)w.Range;
         }
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos)
@@ -907,8 +905,7 @@ namespace Ship_Game.Gameplay
                     num3 = (float)(-1.0 * (360.0 - (double)num3));
                 num4 = Math.Abs(num2 - num3);
             }
-            //added by McShooterz: applied range modifier for weapon
-            return (double)num4 < (double)num1 && (double)Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < (double)modifyRange(w);
+            return (double)num4 < (double)num1 && (double)Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < (double)w.Range;
         }
         //Added by McShooterz
         public static bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos, float Rotation)
@@ -1624,11 +1621,11 @@ namespace Ship_Game.Gameplay
                 if (moduleSlot.module.FTLSpoolTime != 0) // Ignore 0 values (as 0 is assumed as default value if the XML contains no <FTLSpoolTime> data
                 {
                     if (this.JumpTimer < moduleSlot.module.FTLSpoolTime) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
-                        this.JumpTimer = moduleSlot.module.FTLSpoolTime;
+                        this.JumpTimer = moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier; // New addition: Added capability to modify the spool time via research/racial bonus and apply this on top
                 }
             }
             if (JumpTimer == 0)
-                this.JumpTimer = 3.0f;
+                this.JumpTimer = 3.0f * this.loyalty.data.SpoolTimeModifier; // Spooling bonus from any research is also applied to the default value if a modder is using research boni but not necessarily module XML control
         }
 
         public void EngageStarDriveORIG()
@@ -1651,12 +1648,6 @@ namespace Ship_Game.Gameplay
                 return;
             if (this.engineState != Ship.MoveState.Sublight && this.engineState != Ship.MoveState.Afterburner || (this.isSpooling || (double)this.PowerCurrent / ((double)this.PowerStoreMax + 0.00999999977648258) <= 0.100000001490116))
                 return;
-            if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
-            {
-                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
-                this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
-                this.Jump.Play();
-            }
             this.isSpooling = true;
             this.ResetJumpTimer();
         }
@@ -1772,17 +1763,6 @@ namespace Ship_Game.Gameplay
             }
             if ((this.engineState == Ship.MoveState.Sublight || this.engineState == Ship.MoveState.Afterburner) && !this.isSpooling && this.PowerCurrent / (this.PowerStoreMax + 0.01f) > 0.1f)
             {
-                if (!AudioManager.GetCue("sd_warp_start_large").IsPlaying && !AudioManager.GetCue("sd_warp_start_small").IsPlaying && !AudioManager.GetCue("sd_warp_start_02").IsPlaying && Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000f && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
-                {
-
-                    this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
-                    this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
-
-
-                    {
-                        this.Jump.Play();
-                    }
-                }
                 this.isSpooling = true;
                 this.ResetJumpTimer();
             }
@@ -2680,134 +2660,144 @@ namespace Ship_Game.Gameplay
                 this.ClickTimer -= elapsedTime;
                 if ((double)this.ClickTimer < 0.0)
                     //this.numberOfClicks = 0;
-                    if (this.Active)
+                if (this.Active)
+                {
+                    this.UnderAttackTimer -= elapsedTime;
+                    this.InCombatTimer -= elapsedTime;
+                    if ((double)this.InCombatTimer > 0.0)
                     {
-                        this.UnderAttackTimer -= elapsedTime;
-                        this.InCombatTimer -= elapsedTime;
-                        if ((double)this.InCombatTimer > 0.0)
+                        this.InCombat = true;
+                    }
+                    else
+                    {
+                        if (this.InCombat)
+                            this.InCombat = false;
+                        try
                         {
-                            this.InCombat = true;
-                        }
-                        else
-                        {
-                            if (this.InCombat)
-                                this.InCombat = false;
-                            try
+                            if (this.AI.State == AIState.Combat)
                             {
-                                if (this.AI.State == AIState.Combat)
-                                {
-                                    if (this.loyalty != Ship.universeScreen.player)
-                                        this.AI.State = AIState.AwaitingOrders;
-                                }
-                            }
-                            catch
-                            {
+                                if (this.loyalty != Ship.universeScreen.player)
+                                    this.AI.State = AIState.AwaitingOrders;
                             }
                         }
-                        this.Velocity.Length();
-                        Ship ship2 = this;
-                        Vector2 vector2_1 = ship2.Position + this.Velocity * elapsedTime;
-                        ship2.Position = vector2_1;
-                        Ship ship3 = this;
-                        Vector2 vector2_2 = ship3.Center + this.Velocity * elapsedTime;
-                        ship3.Center = vector2_2;
-                        this.UpdateShipStatus(elapsedTime);
-                        if (!this.Active)
+                        catch
+                        {
+                        }
+                    }
+                    this.Velocity.Length();
+                    Ship ship2 = this;
+                    Vector2 vector2_1 = ship2.Position + this.Velocity * elapsedTime;
+                    ship2.Position = vector2_1;
+                    Ship ship3 = this;
+                    Vector2 vector2_2 = ship3.Center + this.Velocity * elapsedTime;
+                    ship3.Center = vector2_2;
+                    this.UpdateShipStatus(elapsedTime);
+                    if (!this.Active)
+                        return;
+                    if (!this.disabled && !Ship.universeScreen.Paused)
+                        this.AI.Update(elapsedTime);
+                    if (this.InFrustum)
+                    {
+                        if (this.ShipSO == null)
                             return;
-                        if (!this.disabled && !Ship.universeScreen.Paused)
-                            this.AI.Update(elapsedTime);
-                        if (this.InFrustum)
+                        this.ShipSO.World = Matrix.Identity * Matrix.CreateRotationY(this.yRotation) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(new Vector3(this.Center, 0.0f));
+                        if (this.GetShipData().Animated)
                         {
-                            if (this.ShipSO == null)
-                                return;
-                            this.ShipSO.World = Matrix.Identity * Matrix.CreateRotationY(this.yRotation) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(new Vector3(this.Center, 0.0f));
-                            if (this.GetShipData().Animated)
+                            this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
+                            this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                        }
+                        else if (this.GetShipData() != null && this.GetShipData().Animated)
+                        {
+                            this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
+                            this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                        }
+                        foreach (Thruster thruster in this.ThrusterList)
+                        {
+                            thruster.SetPosition();
+                            Vector2 vector2_3 = new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation));
+                            vector2_3 = Vector2.Normalize(vector2_3);
+                            float num2 = this.Velocity.Length() / this.velocityMaximum;
+                            if (this.isThrusting)
                             {
-                                this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
-                                this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
-                            }
-                            else if (this.GetShipData() != null && this.GetShipData().Animated)
-                            {
-                                this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
-                                this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
-                            }
-                            foreach (Thruster thruster in this.ThrusterList)
-                            {
-                                thruster.SetPosition();
-                                Vector2 vector2_3 = new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation));
-                                vector2_3 = Vector2.Normalize(vector2_3);
-                                float num2 = this.Velocity.Length() / this.velocityMaximum;
-                                if (this.isThrusting)
+                                if (this.engineState == Ship.MoveState.Warp || this.engineState == Ship.MoveState.Afterburner)
                                 {
-                                    if (this.engineState == Ship.MoveState.Warp || this.engineState == Ship.MoveState.Afterburner)
-                                    {
-                                        if ((double)thruster.heat < (double)num2)
-                                            thruster.heat += 0.06f;
-                                        this.pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
-                                        this.scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
-                                        thruster.update(thruster.WorldPos, this.pointat, this.scalefactors, thruster.heat, 0.004f, Color.OrangeRed, Color.LightBlue, Ship.universeScreen.camPos);
-                                    }
-                                    else
-                                    {
-                                        if ((double)thruster.heat < (double)num2)
-                                            thruster.heat += 0.06f;
-                                        if ((double)thruster.heat > 0.600000023841858)
-                                            thruster.heat = 0.6f;
-                                        this.pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
-                                        this.scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
-                                        thruster.update(thruster.WorldPos, this.pointat, this.scalefactors, thruster.heat, 1.0f / 500.0f, Color.OrangeRed, Color.LightBlue, Ship.universeScreen.camPos);
-                                    }
-                                }
-                                else
-                                {
+                                    if ((double)thruster.heat < (double)num2)
+                                        thruster.heat += 0.06f;
                                     this.pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
                                     this.scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
-                                    thruster.heat = 0.01f;
-                                    thruster.update(thruster.WorldPos, this.pointat, this.scalefactors, 0.1f, 1.0f / 500.0f, Color.OrangeRed, Color.LightBlue, Ship.universeScreen.camPos);
-                                }
-                            }
-                        }
-                        if (this.isSpooling)
-                        {
-                            this.JumpTimer -= elapsedTime;
-                            if ((double)this.JumpTimer <= 0.1)
-                            {
-                                if ((this.engineState == Ship.MoveState.Sublight || this.engineState == Ship.MoveState.Afterburner) && (this.IsWarpCapable && (double)this.GetFTLSpeed() > (double)this.GetSTLSpeed()) && (double)this.GetFTLSpeed() > (double)this.GetAfterBurnerSpeed())
-                                {
-                                    FTL ftl = new FTL();
-                                    ftl.Center = new Vector2(this.Center.X, this.Center.Y);
-                                    lock (FTLManager.FTLLock)
-                                        FTLManager.FTLList.Add(ftl);
-                                    this.engineState = Ship.MoveState.Warp;
+                                    thruster.update(thruster.WorldPos, this.pointat, this.scalefactors, thruster.heat, 0.004f, Color.OrangeRed, Color.LightBlue, Ship.universeScreen.camPos);
                                 }
                                 else
-                                    this.engineState = (double)this.GetAfterBurnerSpeed() <= (double)this.GetSTLSpeed() ? Ship.MoveState.Sublight : Ship.MoveState.Afterburner;
-                                this.isSpooling = false;
-                                this.ResetJumpTimer();
+                                {
+                                    if ((double)thruster.heat < (double)num2)
+                                        thruster.heat += 0.06f;
+                                    if ((double)thruster.heat > 0.600000023841858)
+                                        thruster.heat = 0.6f;
+                                    this.pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
+                                    this.scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
+                                    thruster.update(thruster.WorldPos, this.pointat, this.scalefactors, thruster.heat, 1.0f / 500.0f, Color.OrangeRed, Color.LightBlue, Ship.universeScreen.camPos);
+                                }
+                            }
+                            else
+                            {
+                                this.pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
+                                this.scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
+                                thruster.heat = 0.01f;
+                                thruster.update(thruster.WorldPos, this.pointat, this.scalefactors, 0.1f, 1.0f / 500.0f, Color.OrangeRed, Color.LightBlue, Ship.universeScreen.camPos);
                             }
                         }
-                        if (this.isPlayerShip())
-                        {
-                            if ((!this.isSpooling || !this.Active) && this.Afterburner != null)
-                            {
-                                if (this.Afterburner.IsPlaying)
-                                    this.Afterburner.Stop(AudioStopOptions.Immediate);
-                                this.Afterburner = (Cue)null;
-                            }
-                            if (this.isThrusting && this.drone == null && this.AI.State == AIState.ManualControl)
-                            {
-                                this.drone = AudioManager.GetCue("starcruiser_drone01");
-                                this.drone.Play();
-                            }
-                            else if ((!this.isThrusting || !this.Active) && this.drone != null)
-                            {
-                                if (this.drone.IsPlaying)
-                                    this.drone.Stop(AudioStopOptions.Immediate);
-                                this.drone = (Cue)null;
-                            }
-                        }
-                        this.emitter.Position = new Vector3(this.Center, 0.0f);
                     }
+                    if (this.isSpooling)
+                    {
+                        this.JumpTimer -= elapsedTime;
+
+                        if ((double)this.JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
+                        {
+                            if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
+                            {
+                                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
+                                this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
+                                this.Jump.Play();
+                            }
+                        }
+                        if ((double)this.JumpTimer <= 0.1)
+                        {
+                            if ((this.engineState == Ship.MoveState.Sublight || this.engineState == Ship.MoveState.Afterburner) && (this.IsWarpCapable && (double)this.GetFTLSpeed() > (double)this.GetSTLSpeed()) && (double)this.GetFTLSpeed() > (double)this.GetAfterBurnerSpeed())
+                            {
+                                FTL ftl = new FTL();
+                                ftl.Center = new Vector2(this.Center.X, this.Center.Y);
+                                lock (FTLManager.FTLLock)
+                                    FTLManager.FTLList.Add(ftl);
+                                this.engineState = Ship.MoveState.Warp;
+                            }
+                            else
+                                this.engineState = (double)this.GetAfterBurnerSpeed() <= (double)this.GetSTLSpeed() ? Ship.MoveState.Sublight : Ship.MoveState.Afterburner;
+                            this.isSpooling = false;
+                            this.ResetJumpTimer();
+                        }
+                    }
+                    if (this.isPlayerShip())
+                    {
+                        if ((!this.isSpooling || !this.Active) && this.Afterburner != null)
+                        {
+                            if (this.Afterburner.IsPlaying)
+                                this.Afterburner.Stop(AudioStopOptions.Immediate);
+                            this.Afterburner = (Cue)null;
+                        }
+                        if (this.isThrusting && this.drone == null && this.AI.State == AIState.ManualControl)
+                        {
+                            this.drone = AudioManager.GetCue("starcruiser_drone01");
+                            this.drone.Play();
+                        }
+                        else if ((!this.isThrusting || !this.Active) && this.drone != null)
+                        {
+                            if (this.drone.IsPlaying)
+                                this.drone.Stop(AudioStopOptions.Immediate);
+                            this.drone = (Cue)null;
+                        }
+                    }
+                    this.emitter.Position = new Vector3(this.Center, 0.0f);
+                }
                 if (elapsedTime > 0.0f)
                 {
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
@@ -2902,7 +2892,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             });
-
+            
             //foreach (ModuleSlot moduleSlot1 in this.ModuleSlotList)
             Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot1 =>
             {
@@ -3183,8 +3173,7 @@ namespace Ship_Game.Gameplay
                     {
                         if ((double)weapon.DamageAmount > 0.0 && !flag)
                         {
-                            //added by McShooterz: Applies range modifiers for weapon, so modified range is used by Ship AI
-                            this.maxWeaponsRange = modifyRange(weapon);
+                            this.maxWeaponsRange = weapon.Range;
                             flag = true;
                         }
                         weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
@@ -3206,25 +3195,6 @@ namespace Ship_Game.Gameplay
                             weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Missile"].Rate;
                         if (weapon.Tag_Railgun)
                             weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Railgun"].Rate;
-                        //added by McShooterz: Added missing weapon tags
-                        if (weapon.Tag_Bomb)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Bomb"].Rate;
-                        if (weapon.Tag_SpaceBomb)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Spacebomb"].Rate;
-                        if (weapon.Tag_BioWeapon)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["BioWeapon"].Rate;
-                        if (weapon.Tag_Drone)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Drone"].Rate;
-                        if (weapon.Tag_Warp)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Warp"].Rate;
-                        if (weapon.Tag_Torpedo)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Torpedo"].Rate;
-                        if (weapon.Tag_Cannon)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Cannon"].Rate;
-                        if (weapon.Tag_Subspace)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Subspace"].Rate;
-                        if (weapon.Tag_PD)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["PD"].Rate;
                     }
                 }
                 foreach (Empire index1 in EmpireManager.EmpireList)
@@ -3335,9 +3305,6 @@ namespace Ship_Game.Gameplay
                         this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                     }
                     this.RepairRate += (float)((double)this.RepairRate * (double)this.Level * 0.0500000007450581);
-                    //added by McShooterz: Apply Racial Repair Bonus
-                    if (this.loyalty.data.Traits.RepairRateMod > 0.0)
-                        this.RepairRate += (float)((double)this.RepairRate * this.loyalty.data.Traits.RepairRateMod);
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     {
                         if (moduleSlot.Restrictions == Restrictions.I)
@@ -4107,48 +4074,6 @@ namespace Ship_Game.Gameplay
             Sublight,
             Afterburner,
             Warp,
-        }
-
-        //added by McShooterz: method for apply weapon range modifier
-        public static float modifyRange(Weapon w)
-        {
-            float modifiedRange = w.Range;
-
-            if (w.Tag_Beam)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Beam"].Range;
-            if (w.Tag_Energy)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Energy"].Range;
-            if (w.Tag_Explosive)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Explosive"].Range;
-            if (w.Tag_Guided)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Guided"].Range;
-            if (w.Tag_Hybrid)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Hybrid"].Range;
-            if (w.Tag_Intercept)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Intercept"].Range;
-            if (w.Tag_Kinetic)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Kinetic"].Range;
-            if (w.Tag_Missile)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Missile"].Range;
-            if (w.Tag_Railgun)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Railgun"].Range;
-            if (w.Tag_Cannon)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Cannon"].Range;
-            if (w.Tag_PD)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["PD"].Range;
-            if (w.Tag_SpaceBomb)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Spacebomb"].Range;
-            if (w.Tag_BioWeapon)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["BioWeapon"].Range;
-            if (w.Tag_Drone)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Drone"].Range;
-            if (w.Tag_Subspace)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Subspace"].Range;
-            if (w.Tag_Warp)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Warp"].Range;
-            if (w.Tag_Bomb)
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Bomb"].Range;
-            return modifiedRange;
         }
     }
 }

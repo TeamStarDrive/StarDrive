@@ -21,6 +21,8 @@ namespace Ship_Game
 
 		private CloseButton close;
 
+        private FloatSlider GravityWellSize;
+
 		public Ship itemToBuild;
 
 		public RuleOptionsScreen()
@@ -58,6 +60,7 @@ namespace Ship_Game
 			text = HelperFunctions.parseText(Fonts.Arial12, text, (float)(this.MainMenu.Menu.Width - 80));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, TitlePos, Color.White);
 			this.FTLPenaltySlider.DrawDecimal(base.ScreenManager);
+            this.GravityWellSize.DrawGW(base.ScreenManager);
 			this.close.Draw(base.ScreenManager);
 			foreach (Checkbox cb in this.Checkboxes)
 			{
@@ -98,6 +101,12 @@ namespace Ship_Game
 			{
 				cb.HandleInput(input);
 			}
+            if (HelperFunctions.CheckIntersection(this.GravityWellSize.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(Localizer.Token(6003), base.ScreenManager);
+            }
+            this.GravityWellSize.HandleInputGW(input);
+            GlobalStats.GravityWellRange = this.GravityWellSize.amount;
 		}
 
 		public override void LoadContent()
@@ -119,9 +128,13 @@ namespace Ship_Game
 			this.FTLPenaltySlider.SetAmount(GlobalStats.FTLInSystemModifier);
 			this.FTLPenaltySlider.amount = GlobalStats.FTLInSystemModifier;
 			Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.PlanetaryGravityWells, (bool x) => GlobalStats.PlanetaryGravityWells = x);
-			Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 65)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
+			Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 85)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2288;
+            Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
+            this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002));
+            this.GravityWellSize.SetAmountGW(GlobalStats.GravityWellRange);
+            this.GravityWellSize.amount = GlobalStats.GravityWellRange;
 			this.MainMenu = new Menu2(base.ScreenManager, leftRect);
 		}
 	}
