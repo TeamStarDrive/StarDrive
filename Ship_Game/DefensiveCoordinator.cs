@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Ship_Game
 {
@@ -21,7 +23,7 @@ namespace Ship_Game
 			this.us = e;
 		}
 
-		public float GetForcePoolStrength()
+		public float GetForcePoolStrengthORIG()
 		{
 			float str = 0f;
 			foreach (Ship ship in this.DefensiveForcePool)
@@ -34,6 +36,22 @@ namespace Ship_Game
 			}
 			return str;
 		}
+        //added by gremlin parallel forcepool
+        public float GetForcePoolStrength()
+        {
+
+
+            int strength = 0;
+            Parallel.ForEach(this.DefensiveForcePool, ship =>
+            {
+                int shipStr = (int)ship.GetStrength();
+                Interlocked.Add(ref strength, shipStr);
+
+                //safeadd  //SafeAddFloat(ref Strength, shipStr);       ßInterlocked
+            });
+            return (float)strength;
+
+        }
 
 		public float GetPctOfForces(SolarSystem system)
 		{
@@ -350,7 +368,8 @@ namespace Ship_Game
 			}
 			foreach (Ship ship4 in TroopShips)
 			{
-				if (ship4.TroopList.Count == 0)
+                //added by gremlin troop defense fix?
+				if (ship4.TroopList.Count == 0 || ship4.GetAI().State !=AIState.AwaitingOrders)
 				{
 					continue;
 				}
