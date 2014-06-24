@@ -5059,7 +5059,7 @@ namespace Ship_Game.Gameplay
             bool canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
 
             //Added by McShooterz: Used to find alternate techs that allow roles to be used by AI.
-            if (GlobalStats.ActiveMod.mi.useAlternateTech)
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useAlternateTech)
             {
                 foreach (KeyValuePair<string, TechEntry> techEntry in this.empire.GetTDict())
                 {
