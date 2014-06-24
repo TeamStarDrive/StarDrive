@@ -88,6 +88,7 @@ namespace Ship_Game.Gameplay
         public float RotationalVelocity;
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
+        public float ECMValue;
         public float OrbitalDefenseTimer;
         public ShipData shipData;
         public int kills;
@@ -1621,11 +1622,11 @@ namespace Ship_Game.Gameplay
                 if (moduleSlot.module.FTLSpoolTime != 0) // Ignore 0 values (as 0 is assumed as default value if the XML contains no <FTLSpoolTime> data
                 {
                     if (this.JumpTimer < moduleSlot.module.FTLSpoolTime) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
-                        this.JumpTimer = moduleSlot.module.FTLSpoolTime;
+                        this.JumpTimer = moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier; // New addition: Added capability to modify the spool time via research/racial bonus and apply this on top
                 }
             }
             if (JumpTimer == 0)
-                this.JumpTimer = 3.0f;
+                this.JumpTimer = 3.0f * this.loyalty.data.SpoolTimeModifier; // Spooling bonus from any research is also applied to the default value if a modder is using research boni but not necessarily module XML control
         }
 
         public void EngageStarDriveORIG()
@@ -1648,12 +1649,6 @@ namespace Ship_Game.Gameplay
                 return;
             if (this.engineState != Ship.MoveState.Sublight && this.engineState != Ship.MoveState.Afterburner || (this.isSpooling || (double)this.PowerCurrent / ((double)this.PowerStoreMax + 0.00999999977648258) <= 0.100000001490116))
                 return;
-            if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
-            {
-                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
-                this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
-                this.Jump.Play();
-            }
             this.isSpooling = true;
             this.ResetJumpTimer();
         }
@@ -1769,17 +1764,6 @@ namespace Ship_Game.Gameplay
             }
             if ((this.engineState == Ship.MoveState.Sublight || this.engineState == Ship.MoveState.Afterburner) && !this.isSpooling && this.PowerCurrent / (this.PowerStoreMax + 0.01f) > 0.1f)
             {
-                if (!AudioManager.GetCue("sd_warp_start_large").IsPlaying && !AudioManager.GetCue("sd_warp_start_small").IsPlaying && !AudioManager.GetCue("sd_warp_start_02").IsPlaying && Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000f && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
-                {
-
-                    this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
-                    this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
-
-
-                    {
-                        this.Jump.Play();
-                    }
-                }
                 this.isSpooling = true;
                 this.ResetJumpTimer();
             }
@@ -1960,6 +1944,7 @@ namespace Ship_Game.Gameplay
             this.TroopCapacity = 0;
             this.MechanicalBoardingDefense = 0f;
             this.TroopBoardingDefense = 0f;
+            this.ECMValue = 0f;
 
             string troopType = "Wyvern";
             string tankType = "Wyvern";
@@ -2030,6 +2015,14 @@ namespace Ship_Game.Gameplay
                     this.SensorRange = moduleSlotList.module.SensorRange;
                 }
 
+                if (moduleSlotList.module.ECM > this.ECMValue)
+                {
+                    this.ECMValue = moduleSlotList.module.ECM;
+                    if (this.ECMValue > 1.0f)
+                        this.ECMValue = 1.0f;
+                    if (this.ECMValue < 0f)
+                        this.ECMValue = 0f;
+                }
                 Ship troopCapacity = this;
                 troopCapacity.TroopCapacity = troopCapacity.TroopCapacity + moduleSlotList.module.TroopCapacity;
                 Ship mechanicalBoardingDefense = this;
@@ -2767,6 +2760,16 @@ namespace Ship_Game.Gameplay
                     if (this.isSpooling)
                     {
                         this.JumpTimer -= elapsedTime;
+
+                        if ((double)this.JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
+                        {
+                            if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
+                            {
+                                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
+                                this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
+                                this.Jump.Play();
+                            }
+                        }
                         if ((double)this.JumpTimer <= 0.1)
                         {
                             if ((this.engineState == Ship.MoveState.Sublight || this.engineState == Ship.MoveState.Afterburner) && (this.IsWarpCapable && (double)this.GetFTLSpeed() > (double)this.GetSTLSpeed()) && (double)this.GetFTLSpeed() > (double)this.GetAfterBurnerSpeed())
