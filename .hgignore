@@ -4,3 +4,4 @@ obj/
 *.vsp
 Ship_Game\Gameplay\GremlinAI.cs
 bin/
+StarDrive.csproj.orig
