@@ -384,7 +384,7 @@ namespace Ship_Game
                 techEntry.UID = keyValuePair.Key;
 
                 //Racial Tech check
-                if (GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
+                if (GlobalStats.ActiveMod != null &&GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
                 {
                     techEntry.Discovered = false;
                     foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceRestrictions)
