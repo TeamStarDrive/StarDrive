@@ -2669,7 +2669,7 @@ namespace Ship_Game.Gameplay
                     this.Afterburner.Stop(AudioStopOptions.Immediate);
                 this.ClickTimer -= elapsedTime;
                 if ((double)this.ClickTimer < 0.0)
-                    //this.numberOfClicks = 0;
+                    this.ClickTimer = 10f;
                 if (this.Active)
                 {
                     this.UnderAttackTimer -= elapsedTime;
