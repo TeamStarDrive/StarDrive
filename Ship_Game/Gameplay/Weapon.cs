@@ -197,6 +197,8 @@ namespace Ship_Game.Gameplay
 
 		public float particleDelay;
 
+        public float ECMResist;
+
 		public static AudioListener audioListener
 		{
 			get;
