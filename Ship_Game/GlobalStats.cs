@@ -97,6 +97,8 @@ namespace Ship_Game
 
 		public static int CordrazinePlanetsCaptured;
 
+        public static bool ExtraNotiofications;
+
 		static GlobalStats()
 		{       
 			GlobalStats.ComparisonCounter = 1;
@@ -141,6 +143,7 @@ namespace Ship_Game
 			GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
+            GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
 		}
 
 		public GlobalStats()
