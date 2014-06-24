@@ -3,3 +3,4 @@ obj/
 *.psess
 *.vsp
 Ship_Game\Gameplay\GremlinAI.cs
+bin/

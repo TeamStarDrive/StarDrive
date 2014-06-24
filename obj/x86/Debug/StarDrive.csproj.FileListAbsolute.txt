@@ -29,3 +29,4 @@ C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\Properties.Resources.resources
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.csproj.GenerateResource.Cache
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.exe
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.pdb
+C:\Users\danny\Documents\StarDrive\StarDrive.exe.config
