@@ -1006,6 +1006,7 @@ namespace Ship_Game
 				Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
 				Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
 				DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
+                ECM = Ship_Game.ResourceManager.ShipModulesDict[uid].ECM,
 				EMP_Protection = Ship_Game.ResourceManager.ShipModulesDict[uid].EMP_Protection,
 				explodes = Ship_Game.ResourceManager.ShipModulesDict[uid].explodes,
 				FieldOfFire = Ship_Game.ResourceManager.ShipModulesDict[uid].FieldOfFire,
@@ -1288,7 +1289,8 @@ namespace Ship_Game
 				Tag_Bomb = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Bomb,
 				Tag_Drone = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Drone,
 				Tag_BioWeapon = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_BioWeapon,
-				Tag_PD = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_PD
+				Tag_PD = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_PD,
+                ECMResist = Ship_Game.ResourceManager.WeaponsDict[uid].ECMResist
 			};
 			return w;
 		}
