@@ -29,3 +29,11 @@ C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\Properties.Resources.resources
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.csproj.GenerateResource.Cache
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.exe
 C:\Users\Chris\Documents\SDTurbo\obj\x86\Debug\StarDrive.pdb
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\StarDrive.exe.config
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\StarDrive.exe
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\StarDrive.pdb
+C:\Users\McShooterz\Documents\Visual Studio 2012\projects\sd-idk\obj\x86\Debug\Properties.Resources.resources
+C:\Users\McShooterz\Documents\Visual Studio 2012\projects\sd-idk\obj\x86\Debug\StarDrive.csproj.GenerateResource.Cache
+C:\Users\McShooterz\Documents\Visual Studio 2012\projects\sd-idk\obj\x86\Debug\StarDrive.exe
+C:\Users\McShooterz\Documents\Visual Studio 2012\projects\sd-idk\obj\x86\Debug\StarDrive.pdb
+C:\Users\McShooterz\Documents\Visual Studio 2012\projects\sd-idk\obj\x86\Debug\StarDrive.csprojResolveAssemblyReference.cache
