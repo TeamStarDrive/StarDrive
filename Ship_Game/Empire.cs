@@ -384,7 +384,7 @@ namespace Ship_Game
                 techEntry.UID = keyValuePair.Key;
 
                 //Racial Tech check
-                if (keyValuePair.Value.RaceRestrictions.Count != 0)
+                if (GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
                 {
                     techEntry.Discovered = false;
                     foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceRestrictions)
@@ -408,6 +408,10 @@ namespace Ship_Game
                 }
                 if (this.data.Traits.Militaristic == 1)
                 {
+                    //added by McShooterz: alternate way to unlock militaristic techs
+                    if(techEntry.GetTech().Militaristic)
+                        techEntry.Unlocked = true;
+
                     if (techEntry.UID == "HeavyFighterHull")
                     {
                         techEntry.Unlocked = true;
@@ -483,7 +487,13 @@ namespace Ship_Game
             if (ResourceManager.TechTree[techID].RootNode == 0)
             {
                 foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[techID].LeadsTo)
-                    this.TechnologyDict[leadsToTech.UID].Discovered = true;
+                {
+                    //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
+                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0)
+                    {
+                        this.TechnologyDict[leadsToTech.UID].Discovered = true;
+                    }
+                }
             }
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
                 this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
@@ -544,6 +554,13 @@ namespace Ship_Game
                     this.data.Traits.ResearchMod += unlockedBonus.Bonus;
                 if (str == "Afterburner Bonus")
                     this.data.AfterBurnerSpeedModifier += unlockedBonus.Bonus;
+                if (str == "FTL Spool Bonus")
+                {
+                    if (unlockedBonus.Bonus < 1)
+                        this.data.SpoolTimeModifier *= 1.0f - unlockedBonus.Bonus; // i.e. if there is a 0.2 (20%) bonus unlocked, the spool modifier is 1-0.2 = 0.8* existing spool modifier...
+                    else if (unlockedBonus.Bonus >= 1)
+                        this.data.SpoolTimeModifier = 0f; // insta-warp by modifier
+                }
                 if (str == "Top Guns" || str == "Bonus Fighter Levels")
                 {
                     this.data.BonusFighterLevels += (int)unlockedBonus.Bonus;
@@ -619,6 +636,17 @@ namespace Ship_Game
                     this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
                 if (str == "Subspace Inhibition")
                     this.data.Inhibitors = true;
+                //added by McShooterz: New Bonuses
+                if (str == "Production Bonus")
+                    this.data.Traits.ProductionMod += unlockedBonus.Bonus;
+                if (str == "Construction Bonus")
+                    this.data.Traits.ShipCostMod -= unlockedBonus.Bonus;
+                if (str == "Consumption Bonus")
+                    this.data.Traits.ConsumptionModifier -= unlockedBonus.Bonus;
+                if (str == "Tax Bonus")
+                    this.data.Traits.TaxMod += unlockedBonus.Bonus;
+                if(str == "Repair Bonus")
+                    this.data.Traits.RepairRateMod += unlockedBonus.Bonus;
             }
             this.UpdateShipsWeCanBuild();
             if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))

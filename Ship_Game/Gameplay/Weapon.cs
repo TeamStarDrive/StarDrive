@@ -197,6 +197,8 @@ namespace Ship_Game.Gameplay
 
 		public float particleDelay;
 
+        public float ECMResist;
+
 		public static AudioListener audioListener
 		{
 			get;
@@ -213,31 +215,28 @@ namespace Ship_Game.Gameplay
 		{
 		}
 
-		private void AddModifiers(string Tag, Projectile p)
-		{
-			Projectile speed = p;
-			speed.speed = speed.speed + this.owner.loyalty.data.WeaponTags[Tag].Speed * this.ProjectileSpeed;
-			Projectile damage = p;
-			damage.damageAmount = damage.damageAmount + this.owner.loyalty.data.WeaponTags[Tag].Damage * this.DamageAmount;
-			Projectile explosionRadius = p;
-			explosionRadius.damageRadius = explosionRadius.damageRadius + this.owner.loyalty.data.WeaponTags[Tag].ExplosionRadius * this.DamageRadius;
-			Projectile rotationRadsPerSecond = p;
-			rotationRadsPerSecond.RotationRadsPerSecond = rotationRadsPerSecond.RotationRadsPerSecond + this.owner.loyalty.data.WeaponTags[Tag].Turn * this.RotationRadsPerSecond;
-			Projectile range = p;
-			range.range = range.range + this.owner.loyalty.data.WeaponTags[Tag].Range * this.Range;
-			Projectile shieldDamageBonus = p;
-			shieldDamageBonus.ShieldDamageBonus = shieldDamageBonus.ShieldDamageBonus + this.owner.loyalty.data.WeaponTags[Tag].ShieldDamage;
-			Projectile armorDamageBonus = p;
-			armorDamageBonus.ArmorDamageBonus = armorDamageBonus.ArmorDamageBonus + this.owner.loyalty.data.WeaponTags[Tag].ArmorDamage;
-			float actualShieldPenChance = this.moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
-			actualShieldPenChance = actualShieldPenChance + this.owner.loyalty.data.WeaponTags[Tag].ShieldPenetration;
-			if (actualShieldPenChance > 0f && (float)((int)RandomMath2.RandomBetween(0f, 100f)) < actualShieldPenChance)
-			{
-				p.IgnoresShields = true;
-			}
-			Projectile health = p;
-			health.Health = health.Health + this.HitPoints * this.owner.loyalty.data.WeaponTags[Tag].HitPoints;
-		}
+        private void AddModifiers(string Tag, Projectile projectile)
+        {
+            Projectile p = projectile;
+
+            p.damageAmount += this.owner.loyalty.data.WeaponTags[Tag].Damage * projectile.damageAmount;
+            p.ShieldDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ShieldDamage;
+            p.ArmorDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ArmorDamage;
+            float actualShieldPenChance = this.moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
+            actualShieldPenChance += this.owner.loyalty.data.WeaponTags[Tag].ShieldPenetration;
+            if (actualShieldPenChance > 0f && (float)((int)RandomMath2.RandomBetween(0f, 100f)) < actualShieldPenChance)
+            {
+                p.IgnoresShields = true;
+            }
+            //Added by McShooterz: Beams cannot use these
+            if (Tag != "Beam")
+            {
+                p.Health += this.HitPoints * this.owner.loyalty.data.WeaponTags[Tag].HitPoints;
+                p.RotationRadsPerSecond += this.owner.loyalty.data.WeaponTags[Tag].Turn * this.RotationRadsPerSecond;
+                p.speed += this.owner.loyalty.data.WeaponTags[Tag].Speed * this.ProjectileSpeed;
+                p.damageRadius += this.owner.loyalty.data.WeaponTags[Tag].ExplosionRadius * this.DamageRadius;
+            }
+        }
 
 		protected virtual void CreateBeam(Vector2 destination)
 		{
@@ -1420,6 +1419,75 @@ namespace Ship_Game.Gameplay
 			{
 				this.AddModifiers("Missile", projectile);
 			}
+            //added by McShooterz: add all weapon tags for modifying
+            if (this.Tag_Energy)
+            {
+                this.AddModifiers("Energy", projectile);
+            }
+            if (this.Tag_Torpedo)
+            {
+                this.AddModifiers("Torpedo", projectile);
+            }
+            if (this.Tag_Kinetic)
+            {
+                this.AddModifiers("Kinetic", projectile);
+            }
+            if (this.Tag_Hybrid)
+            {
+                this.AddModifiers("Hybrid", projectile);
+            }
+            if (this.Tag_Railgun)
+            {
+                this.AddModifiers("Railgun", projectile);
+            }
+            if (this.Tag_Explosive)
+            {
+                this.AddModifiers("Explosive", projectile);
+            }
+            if (this.Tag_Guided)
+            {
+                this.AddModifiers("Guided", projectile);
+            }
+            if (this.Tag_Intercept)
+            {
+                this.AddModifiers("Intercept", projectile);
+            }
+            if (this.Tag_PD)
+            {
+                this.AddModifiers("PD", projectile);
+            }
+            if (this.Tag_SpaceBomb)
+            {
+                this.AddModifiers("Spacebomb", projectile);
+            }
+            if (this.Tag_BioWeapon)
+            {
+                this.AddModifiers("BioWeapon", projectile);
+            }
+            if (this.Tag_Drone)
+            {
+                this.AddModifiers("Drone", projectile);
+            }
+            if (this.Tag_Subspace)
+            {
+                this.AddModifiers("Subspace", projectile);
+            }
+            if (this.Tag_Warp)
+            {
+                this.AddModifiers("Warp", projectile);
+            }
+            if (this.Tag_Cannon)
+            {
+                this.AddModifiers("Cannon", projectile);
+            }
+            if (this.Tag_Beam)
+            {
+                this.AddModifiers("Beam", projectile);
+            }
+            if (this.Tag_Bomb)
+            {
+                this.AddModifiers("Bomb", projectile);
+            }
 			if (this.owner.loyalty.data.Traits.Pack)
 			{
 				Projectile projectile1 = projectile;

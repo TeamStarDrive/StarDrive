@@ -37,12 +37,18 @@ namespace Ship_Game
 
 		public List<Technology.UnlockedHull> HullsUnlocked = new List<Technology.UnlockedHull>();
 
-        //Racial Tech variables
+        //added by McShooterz: Racial Tech variables
         public List<Technology.RequiredRace> RaceRestrictions = new List<Technology.RequiredRace>();
         public struct RequiredRace
         {
             public string ShipType;
         }
+
+        //added by McShooterz
+        public bool Militaristic;
+        public bool unlockFrigates;
+        public bool unlockCruisers;
+        public bool unlockBattleships;
 
 		public Technology()
 		{
