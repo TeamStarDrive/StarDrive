@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
+
 namespace Ship_Game
 {
     public class Planet
@@ -143,6 +144,8 @@ namespace Ship_Game
         public float FoodHere;
         public int developmentLevel;
         public bool CorsairPresence;
+        public bool queueEmptySent ;
+        
 
         public Planet()
         {
@@ -2679,7 +2682,7 @@ namespace Ship_Game
             this.UpdatePosition(elapsedTime);
         }
 
-        private void AffectNearbyShips()
+        private void AffectNearbyShipsORIG()
         {
             for (int index = 0; index < this.system.ShipList.Count; ++index)
             {
@@ -2744,6 +2747,97 @@ namespace Ship_Game
                         }
                     }
                 }
+            }
+        }
+        //added by gremlin affectnearbyships
+        private void AffectNearbyShips()
+        {
+            for (int i = 0; i < this.system.ShipList.Count; i++)
+            {
+                Ship item = this.system.ShipList[i];
+                if (item != null && item.loyalty == this.Owner && this.HasShipyard && Vector2.Distance(this.Position, item.Position) <= 5000f)
+                {
+                    item.PowerCurrent = item.PowerStoreMax;
+                    item.Ordinance = item.OrdinanceMax;
+                    if (GlobalStats.HardcoreRuleset)
+                    {
+                        foreach (KeyValuePair<string, float> maxGood in item.GetMaxGoods())
+                        {
+                            if (item.GetCargo()[maxGood.Key] >= maxGood.Value)
+                            {
+                                continue;
+                            }
+                            while (this.ResourcesDict[maxGood.Key] > 0f && item.GetCargo()[maxGood.Key] < maxGood.Value)
+                            {
+                                if (maxGood.Value - item.GetCargo()[maxGood.Key] < 1f)
+                                {
+                                    Dictionary<string, float> resourcesDict = this.ResourcesDict;
+                                    Dictionary<string, float> strs = resourcesDict;
+                                    string key = maxGood.Key;
+                                    string str = key;
+                                    resourcesDict[key] = strs[str] - (maxGood.Value - item.GetCargo()[maxGood.Key]);
+                                    Dictionary<string, float> cargo = item.GetCargo();
+                                    Dictionary<string, float> strs1 = cargo;
+                                    string key1 = maxGood.Key;
+                                    string str1 = key1;
+                                    cargo[key1] = strs1[str1] + (maxGood.Value - item.GetCargo()[maxGood.Key]);
+                                }
+                                else
+                                {
+                                    Dictionary<string, float> resourcesDict1 = this.ResourcesDict;
+                                    Dictionary<string, float> strs2 = resourcesDict1;
+                                    string key2 = maxGood.Key;
+                                    resourcesDict1[key2] = strs2[key2] - 1f;
+                                    Dictionary<string, float> cargo1 = item.GetCargo();
+                                    Dictionary<string, float> strs3 = cargo1;
+                                    string str2 = maxGood.Key;
+                                    cargo1[str2] = strs3[str2] + 1f;
+                                }
+                            }
+                        }
+                    }
+
+                    if (item.Health < item.HealthMax && item.LastHitTimer <= 0f)
+                    {
+                        foreach (ModuleSlot moduleSlotList in item.ModuleSlotList.OrderByDescending(slot => slot.module.BonusRepairRate).ThenByDescending(slot => slot.module.PowerRadius > 0))
+                        //Parallel.ForEach(item.ModuleSlotList.OrderByDescending(slot => slot.module.BonusRepairRate).ThenByDescending(slot => slot.module.PowerRadius > 0), moduleSlotList =>
+                        {
+                            if (moduleSlotList.module.Health / moduleSlotList.module.HealthMax >= 1f)
+                            {
+                                continue;
+                            }
+                            ShipModule health = moduleSlotList.module;
+                            health.Health = health.Health + 10f;
+                            if (moduleSlotList.module.Health / moduleSlotList.module.HealthMax <= 1f)
+                            {
+                                continue;
+                            }
+                            moduleSlotList.module.Health = moduleSlotList.module.HealthMax;
+                        }//);
+                    }
+                    if ((this.ParentSystem.combatTimer <= 0 || item.InCombatTimer <= 0) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
+                    {
+
+                        foreach (var pgs in this.TilesList)
+                        {
+                            if (item.TroopList.Count >= item.TroopCapacity) break;
+                            if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
+                            {
+                                Troop troop = pgs.TroopsHere[0];
+
+                                item.TroopList.Add(troop);
+                                pgs.TroopsHere.Clear();
+                                this.TroopsHere.Remove(troop);
+
+                            }
+
+
+
+                        }
+
+                    }
+                }
+
             }
         }
 
@@ -2867,14 +2961,57 @@ namespace Ship_Game
             if (this.GovernorOn)
                 this.DoGoverning();
             this.UpdateIncomes();
-            if ((double)this.ShieldStrengthCurrent < (double)this.ShieldStrengthMax)
+            // ADDED BY SHAHMATT (notification about empty queue)
+            if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
             {
-                ++this.ShieldStrengthCurrent;
-                if ((double)this.ShieldStrengthCurrent > (double)this.ShieldStrengthMax)
-                    this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+                if (this.colonyType == Planet.ColonyType.Colony || this.colonyType == Planet.ColonyType.Core || this.colonyType == Planet.ColonyType.Industrial || !this.GovernorOn)
+                {
+                    this.queueEmptySent = true;
+                    Notification cNote = new Notification()
+                    {
+                        RelevantEmpire = this.Owner,
+                        Message = string.Concat(this.Name, " is not producing anything."),
+                        ReferencedItem1 = this, //this.system,
+                        IconPath = string.Concat("Planets/", this.planetType),//"UI/icon_warning_money",
+                        Action = "SnapToPlanet", //"SnapToSystem",
+                        ClickRect = new Rectangle(Planet.universeScreen.NotificationManager.NotificationArea.X, Planet.universeScreen.NotificationManager.NotificationArea.Y, 64, 64),
+                        DestinationRect = new Rectangle(Planet.universeScreen.NotificationManager.NotificationArea.X, Planet.universeScreen.NotificationManager.NotificationArea.Y + Planet.universeScreen.NotificationManager.NotificationArea.Height - (Planet.universeScreen.NotificationManager.NotificationList.Count + 1) * 70, 64, 64)
+                    };
+                    AudioManager.PlayCue("sd_ui_notification_warning");
+                    lock (GlobalStats.NotificationLocker)
+                    {
+                        Planet.universeScreen.NotificationManager.NotificationList.Add(cNote);
+                    }
+                }
             }
-            if ((double)this.ShieldStrengthCurrent > (double)this.ShieldStrengthMax)
-                this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+            else if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.ConstructionQueue.Count > 0)
+            {
+                this.queueEmptySent = false;
+            }
+            // END OF ADDED BY SHAHMATT
+            //if ((double)this.ShieldStrengthCurrent < (double)this.ShieldStrengthMax)
+            //{
+            //    ++this.ShieldStrengthCurrent;
+            //    if ((double)this.ShieldStrengthCurrent > (double)this.ShieldStrengthMax)
+            //        this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+            //}
+            //if ((double)this.ShieldStrengthCurrent > (double)this.ShieldStrengthMax)
+            //    this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+            //added by gremlin Planetary Shield Change
+            if (this.ShieldStrengthCurrent < this.ShieldStrengthMax)
+            {
+                Planet shieldStrengthCurrent = this;
+                shieldStrengthCurrent.ShieldStrengthCurrent = shieldStrengthCurrent.ShieldStrengthCurrent + 1f;
+                if (this.ShieldStrengthCurrent > this.ShieldStrengthMax)
+                {
+                    this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+                }
+                if (this.ShieldStrengthCurrent > this.ShieldStrengthMax / 10 && !this.RecentCombat)
+                {
+                    shieldStrengthCurrent.ShieldStrengthCurrent += shieldStrengthCurrent.ShieldStrengthMax / 10;
+                }
+            }
+
             //this.UpdateTimer = 10f;
             this.HarvestResources();
             this.ApplyProductionTowardsConstruction();
@@ -3062,7 +3199,26 @@ namespace Ship_Game
 
         private float AdjustResearchForProfit()
         {
-            return 0.0f;
+            //return 0.0f;
+            //added by gremlin pre15b code + custom to prevent low tax issues.
+            if (this.Owner.data.TaxRate <= .15f) //this.Owner.Money > this.Owner.GetPlanets().Count * 200 ||
+            {
+                return 0f;
+            }
+            float single = this.EstimateNetWithWorkerPct(this.Owner.data.TaxRate, this.WorkerPercentage, this.ResearcherPercentage);
+            float taxMod = single + this.Owner.data.Traits.TaxMod * single - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
+            float researcherPercentage = this.ResearcherPercentage / 10f;
+            for (int i = 0; i < 10 && taxMod <= 0f; i++)
+            {
+                Planet workerPercentage = this;
+                workerPercentage.WorkerPercentage = workerPercentage.WorkerPercentage + researcherPercentage;
+                Planet planet = this;
+                planet.ResearcherPercentage = planet.ResearcherPercentage - researcherPercentage;
+                single = this.EstimateNetWithWorkerPct(this.Owner.data.TaxRate, this.WorkerPercentage, this.ResearcherPercentage);
+                taxMod = single + this.Owner.data.Traits.TaxMod * single - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
+            }
+            this.EstimateTaxes(this.Owner.data.TaxRate);
+            return taxMod;
         }
 
         public void DoGoverning()
@@ -4135,13 +4291,26 @@ namespace Ship_Game
                 }
                 else if (queueItem.isTroop && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
+                    //added by gremlim fix to prevent AI stuck building troops.
+                    //Troop troop = ResourceManager.CreateTroop(queueItem.troop, this.Owner);
+                    //if (this.AssignTroopToTile(troop))
+                    //{
+                    //    this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                    //    troop.SetOwner(this.Owner);
+                    //    if (queueItem.Goal != null)
+                    //        ++queueItem.Goal.Step;
+                    //}
                     Troop troop = ResourceManager.CreateTroop(queueItem.troop, this.Owner);
                     if (this.AssignTroopToTile(troop))
                     {
-                        this.ConstructionQueue.QueuePendingRemoval(queueItem);
+
                         troop.SetOwner(this.Owner);
                         if (queueItem.Goal != null)
-                            ++queueItem.Goal.Step;
+                        {
+                            Goal step = queueItem.Goal;
+                            step.Step = step.Step + 1;
+                        }
+                        this.ConstructionQueue.QueuePendingRemoval(queueItem);
                     }
                 }
             }

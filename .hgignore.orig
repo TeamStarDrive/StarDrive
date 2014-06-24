@@ -3,5 +3,7 @@ obj/
 *.psess
 *.vsp
 Ship_Game\Gameplay\GremlinAI.cs
+<<<<<<< local
+bin/=======
 bin/
-StarDrive.csproj.orig
+StarDrive.csproj.orig>>>>>>> other

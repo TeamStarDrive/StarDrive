@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -104,6 +105,12 @@ namespace Ship_Game
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Build Maint: ", e.GetTotalBuildingMaintenance()), Cursor, e.EmpireColor);
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Spy Count: ", e.data.AgentList.Count()), Cursor, e.EmpireColor);
+                Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Spy Defenders: ", e.data.AgentList.Where(defenders => defenders.Mission == AgentMission.Defending).Count()), Cursor, e.EmpireColor);
+                Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Planet Count: ", e.GetPlanets().Count()), Cursor, e.EmpireColor);
+                Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				if (e.ResearchTopic != "")
 				{
 					SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
