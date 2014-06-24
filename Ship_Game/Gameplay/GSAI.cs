@@ -5059,7 +5059,7 @@ namespace Ship_Game.Gameplay
             bool canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
 
             //Added by McShooterz: Used to find alternate techs that allow roles to be used by AI.
-            if (modSupport)
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useAlternateTech)
             {
                 foreach (KeyValuePair<string, TechEntry> techEntry in this.empire.GetTDict())
                 {
@@ -5069,18 +5069,18 @@ namespace Ship_Game.Gameplay
                     }
                     if (techEntry.Value.Unlocked)
                     {
-                        if (!canBuildCapitals && techEntry.Value.GetTech().Name == "BattleshipConstruction")
+                        if (!canBuildCapitals && techEntry.Value.GetTech().unlockBattleships)
                         {
                             canBuildCapitals = true;
                             this.empire.GetTDict()["Battleships"].Unlocked = true;
 
                         }
-                        else if (!canBuildCruisers && techEntry.Value.GetTech().Name == "CruiserConstruction")
+                        else if (!canBuildCruisers && techEntry.Value.GetTech().unlockCruisers)
                         {
                             canBuildCruisers = true;
                             this.empire.GetTDict()["Cruisers"].Unlocked = true;
                         }
-                        else if (!canBuildFrigates && techEntry.Value.GetTech().Name == "FrigateConstruction")
+                        else if (!canBuildFrigates && techEntry.Value.GetTech().unlockFrigates)
                         {
                             canBuildFrigates = true;
                             this.empire.GetTDict()["FrigateConstruction"].Unlocked = true;

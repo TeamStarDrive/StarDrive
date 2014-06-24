@@ -136,7 +136,7 @@ namespace Ship_Game.Gameplay
 
 		public void SetTarget(GameplayObject target)
 		{
-			//this.TargetSet = true;
+			this.TargetSet = true;
 			this.Target = target;
 		}
 
