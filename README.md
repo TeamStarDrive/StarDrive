@@ -11,7 +11,7 @@ Ill try to describe as best I can how to compile and contribute to this project.
 ### How do I get set up? ###
 
 * Setup
-1. Install Source tree
+* 1. Install Source tree
 2. Use bitbucket to download the source on the overview page.
 3. Configure Visual Studio for your environment.
 * Check the references. Make sure all references are setup. ALl the files are in assemblies or in the stardrive folder.
