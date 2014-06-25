@@ -10,9 +10,10 @@ Ill try to describe as best I can how to compile and contribute to this project.
 
 ### How do I get set up? ###
 
-* 1. Install Source tree
-* 2. Use bitbucket to download the source on the overview page.
-* 3. Configure Visual Studio for your environment.
+* Setup
+1. Install Source tree
+2. Use bitbucket to download the source on the overview page.
+3. Configure Visual Studio for your environment.
 * Check the references. Make sure all references are setup. ALl the files are in assemblies or in the stardrive folder.
 * You'll need .net4 to compile this version.
 * Once you get the game compiled and run load up some saved games and let it run for while in debug mode.
