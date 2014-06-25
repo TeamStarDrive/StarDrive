@@ -2536,7 +2536,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				ex.Excluded = false;
+				ex.Excluded = true;
 			}
 			foreach (TraitEntry ex in this.IndustryTraits)
 			{
@@ -2544,7 +2544,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				ex.Excluded = false;
+				ex.Excluded = true;
 			}
 			foreach (TraitEntry ex in this.SpecialTraits)
 			{
@@ -2552,7 +2552,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				ex.Excluded = false;
+				ex.Excluded = true;
 			}
 		}
 
