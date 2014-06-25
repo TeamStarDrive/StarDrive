@@ -245,7 +245,7 @@ namespace Ship_Game.Gameplay
 				moduleAttachedTo = this.moduleAttachedTo,
 				range = this.Range,
 				thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration,
+                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
 				PowerCost = (float)this.BeamPowerCostPerSecond,
 				damageAmount = this.DamageAmount,
 				weapon = this,
@@ -352,7 +352,7 @@ namespace Ship_Game.Gameplay
 			beam.PowerCost = (float)this.BeamPowerCostPerSecond;
 			beam.range = this.Range;
 			beam.thickness = this.BeamThickness;
-            beam.Duration = (float)this.BeamDuration;
+            beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
 			beam.damageAmount = this.DamageAmount;
 			beam.weapon = this;
 			source.Beams.Add(beam);
@@ -516,7 +516,7 @@ namespace Ship_Game.Gameplay
 				range = this.Range,
 				followMouse = true,
 				thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration,
+                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
 				PowerCost = (float)this.BeamPowerCostPerSecond,
 				damageAmount = this.DamageAmount,
 				weapon = this
@@ -751,7 +751,7 @@ namespace Ship_Game.Gameplay
 				PowerCost = (float)this.BeamPowerCostPerSecond,
 				range = this.Range,
 				thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration,
+                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
 				damageAmount = this.DamageAmount,
 				weapon = this
 			};
