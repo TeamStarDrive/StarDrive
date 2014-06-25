@@ -1021,7 +1021,7 @@ namespace Ship_Game
 						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
 						Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, Center, slot.module.shield_radius, 50, Color.LightGreen);
 					}
-					if (slot.module.FieldOfFire != 90f)
+					if (slot.module.FieldOfFire != 90f && slot.module.FieldOfFire != 180f && slot.module.FieldOfFire != 360f)
 					{
 						if (slot.module.FieldOfFire == 0f)
 						{
@@ -1036,6 +1036,72 @@ namespace Ship_Game
 						Color arc = new Color(255, 165, 0, 100);
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
+					}
+                    else if (slot.module.FieldOfFire == 360f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"] != null)
+                    {
+                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Origin = new Vector2(250f, 250f);
+                        if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+                        {
+                            Color drawcolor = new Color(255, 255, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable4 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable5 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable6 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else
+                        {
+                            Color drawcolor = new Color(0, 0, 255, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable7 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                    }
+                    else if (slot.module.FieldOfFire == 180f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"] != null)
+					{
+						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+						Vector2 Origin = new Vector2(250f, 250f);
+						if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+						{
+							Color drawcolor = new Color(255, 255, 0, 255);
+							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+							Rectangle? nullable4 = null;
+							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+						}
+						else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+						{
+							Color drawcolor = new Color(255, 0, 0, 255);
+							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+							Rectangle? nullable5 = null;
+							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+						}
+						else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+						{
+							Color drawcolor = new Color(255, 0, 0, 255);
+							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+							Rectangle? nullable6 = null;
+							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+						}
+						else
+						{
+							Color drawcolor = new Color(0, 0, 255, 255);
+							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+							Rectangle? nullable7 = null;
+							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+						}
 					}
 					else
 					{
