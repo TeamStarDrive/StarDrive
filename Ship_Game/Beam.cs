@@ -46,7 +46,8 @@ namespace Ship_Game
 
 		public bool followMouse;
 
-		public float Duration;
+        //added by McShooterz: changed back to default
+		public float Duration = 2f;
 
 		public float BeamOffsetAngle;
 
