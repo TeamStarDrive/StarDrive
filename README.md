@@ -3,12 +3,16 @@
 ###I just want to play the mod Crunchy!###
 
 * Great!
+* If you are running an in game mod then unload that before doing the below. Go into the games mod manager and unload any loaded mod. You can load them up after you switch to this.
 * go to the download section and download the latest release version. Or latest test version depending on your level of patience.
 * backup you original stardrive.exe and stardrive.exe.config. You dont have to do this as you can just go to the steam and reverify steam content for the games.
 * extract the zip into the the game directory usually located in Program Files (x86)\Steam\SteamApps\common\StarDrive
 * Overwrite files when asked.
 * do the same for stardocs required files to unlock some of the mod features for vanilla play.
 * remember this mod should be content mod compatible with extra mod power to mods that support this project.
+* This mod should be compatible with normal content mods. 
+* It is compatible with Deveks Code mods but... Dont do that. just run this.
+
 
 ### Yeah thats great but i want to add my own features or change some issue that bugs me###
 * even better!!!
