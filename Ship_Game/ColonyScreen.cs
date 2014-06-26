@@ -1234,7 +1234,8 @@ namespace Ship_Game
 				tCursor.Y = bCursor.Y;
 				desc = string.Concat(Localizer.Token(2219), ": ");
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.HardAttack.ToString(), tCursor, new Color(255, 239, 208));
+                //added by McShooterz: bug fix where hard attack value was used in place of soft attack value
+				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.SoftAttack.ToString(), tCursor, new Color(255, 239, 208));
 				bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 			}
 			if (this.detailInfo is string)
