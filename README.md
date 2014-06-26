@@ -1,5 +1,13 @@
 # How to use this repository #
 
+###I just want to play the mod Crunchy!###
+*Great!
+*go to the download section and download the latest release version. Or latest test version depending on your level of patience.
+* backup you original stardrive.exe and stardrive.exe.config. You dont have to do this as you can just go to the steam and reverify steam content for the games.
+*extract the zip into the the game directory usually located in Program Files (x86)\Steam\SteamApps\common\StarDrive
+*do the same for stardocs required files to unlock some of the mod features for vanilla play.
+*remember this mod should be content mod compatible with extra mod power to mods that support this project.
+
 Ill try to describe as best I can how to compile and contribute to this project.
 
 ### This is for modifying the StarDrive game for fun and learning###
