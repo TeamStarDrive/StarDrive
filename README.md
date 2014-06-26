@@ -9,7 +9,10 @@
 * do the same for stardocs required files to unlock some of the mod features for vanilla play.
 * remember this mod should be content mod compatible with extra mod power to mods that support this project.
 
-Ill try to describe as best I can how to compile and contribute to this project.
+### Yeah thats great but i want to add my own features or change some issue that bugs me###
+* even better!!!
+* Ill try to describe as best I can how to compile and contribute to this project.
+* friend me on steam and request access to the steam SDCodemod forum.
 
 ### This is for modifying the StarDrive game for fun and learning###
 
