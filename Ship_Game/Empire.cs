@@ -1430,8 +1430,8 @@ namespace Ship_Game
             foreach (Planet planet in this.OwnedPlanets)
             {   //loop over OWN planets
                 Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
-                influenceNode1.KeyedObject = (object)planet.system;
-                influenceNode1.Position = planet.system.Position;
+                influenceNode1.KeyedObject = (object)planet;
+                influenceNode1.Position = planet.Position;
                 influenceNode1.Radius = this.isFaction ? 1f : 1f;
                 for (int index = 0; index < planet.BuildingList.Count; ++index)
                 {
