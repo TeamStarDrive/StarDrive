@@ -3415,8 +3415,9 @@ namespace Ship_Game.Gameplay
                             this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                         }
                     }
-                    if (!this.inborders && this.engineState == Ship.MoveState.Warp && !GlobalStats.HardcoreRuleset)
-                        this.PowerDraw = this.loyalty.data.FTLPowerDrainModifier * this.PowerDraw;
+                    //added by McShooterz: apply warp draw to power draw
+                    if (!this.inborders && this.engineState == Ship.MoveState.Warp)
+                        this.PowerDraw = (this.loyalty.data.FTLPowerDrainModifier * this.PowerDraw) + (this.WarpDraw * this.loyalty.data.FTLPowerDrainModifier / 2);
                     Ship ship4 = this;
                     double num4 = (double)ship4.Mass * (double)this.loyalty.data.MassModifier;
                     ship4.Mass = (float)num4;

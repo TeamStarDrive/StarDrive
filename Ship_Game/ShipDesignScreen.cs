@@ -1381,27 +1381,29 @@ namespace Ship_Game
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						if (GlobalStats.HardcoreRuleset)
-						{
-							this.DrawStat(ref modTitlePos, "(Afterburner)", (float)(-mod.PowerDrawWithAfterburner), "Power draw persecond of engine when afterburner engaged");
-						}
+                        //added by McShooterz: afterburner power draw display
+                        if (mod.PowerDrawWithAfterburner != 0)
+                            this.DrawStat(ref modTitlePos, "Afterburner Power", (float)(-mod.PowerDrawWithAfterburner), "Power draw persecond of engine when afterburner engaged");
 						modTitlePos.X = modTitlePos.X + 152f;
 						modTitlePos.Y = starty;
 						this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.DrawStat(ref modTitlePos, Localizer.Token(131), (float)mod.thrust, 91);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						if (!GlobalStats.HardcoreRuleset)
-						{
-							this.DrawStat(ref modTitlePos, Localizer.Token(2064), (float)mod.WarpThrust, 92);
-						}
-						else
-						{
-							this.DrawStat(ref modTitlePos, "Afterburner", (float)mod.AfterburnerThrust, "Indicates the thrust of this module when the afterburner is engaged");
-						}
+                        //added by McShooterz: allow after burner to show up for modules
+						this.DrawStat(ref modTitlePos, Localizer.Token(2064), (float)mod.WarpThrust, 92);
+                        if(mod.AfterburnerThrust != 0)
+						    this.DrawStat(ref modTitlePos, "Afterburner", (float)mod.AfterburnerThrust, "Indicates the thrust of this module when the afterburner is engaged");
+
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.DrawStat(ref modTitlePos, Localizer.Token(2260), (float)mod.TurnThrust, 148);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
+                        if (mod.PowerDrawAtWarp != 0f)
+                        {
+                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
 						return;
 					}
 					if (mod.ModuleType == ShipModuleType.Shield)
@@ -1422,6 +1424,12 @@ namespace Ship_Game
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.DrawStat(ref modTitlePos, Localizer.Token(134), (float)mod.shield_recharge_rate, 95);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
+                        if (mod.PowerDrawAtWarp != 0f)
+                        {
+                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
 						return;
 					}
 					if (mod.ModuleType == ShipModuleType.Sensors)
@@ -1438,6 +1446,12 @@ namespace Ship_Game
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
+                        if (mod.PowerDrawAtWarp != 0f)
+                        {
+                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
 						return;
 					}
 					if (mod.ModuleType == ShipModuleType.Command)
@@ -1458,6 +1472,12 @@ namespace Ship_Game
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.DrawStat(ref modTitlePos, Localizer.Token(135), (float)mod.BonusRepairRate, 97);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
+                        if (mod.PowerDrawAtWarp != 0f)
+                        {
+                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
 						return;
 					}
 					if (mod.ModuleType != ShipModuleType.Hangar)
@@ -1477,11 +1497,6 @@ namespace Ship_Game
 						}
 						this.DrawStat(ref modTitlePos, str, powerDraw, 81);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						if (GlobalStats.HardcoreRuleset && mod.PowerDrawAtWarp != 0f)
-						{
-							this.DrawStat(ref modTitlePos, "(Warp)", (float)(-mod.PowerDrawAtWarp), "Power draw persecond of engine when Warp engaged");
-							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						}
 						if (mod.BonusRepairRate > 0f)
 						{
 							this.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), (float)mod.BonusRepairRate, 97);
@@ -1506,6 +1521,12 @@ namespace Ship_Game
 							this.DrawStat(ref modTitlePos, Localizer.Token(2235), (float)mod.PowerStoreMax, 145);
 							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						}
+                        //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
+                        if (mod.PowerDrawAtWarp != 0f)
+                        {
+                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
 					}
 					else
 					{
@@ -2462,7 +2483,7 @@ namespace Ship_Game
 				if (slot.module.Powered)
 				{
 					WarpableMass = WarpableMass + slot.module.WarpMassCapacity;
-					PowerDraw = PowerDraw + slot.module.PowerDraw;
+                    PowerDraw = PowerDraw + slot.module.PowerDraw;
 					BurnerDrain = BurnerDrain + slot.module.PowerDrawWithAfterburner;
 					WarpDraw = WarpDraw + slot.module.PowerDrawAtWarp;
 					if (slot.module.FTLSpeed > 0f)
@@ -2506,18 +2527,15 @@ namespace Ship_Game
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(111), ":"), (int)(PowerFlow - PowerDraw), 101);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			if (!GlobalStats.HardcoreRuleset)
-			{
-				this.DrawStat(ref Cursor, string.Concat(Localizer.Token(112), ":"), (int)(PowerFlow - PowerDraw * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier), 102);
-				Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			}
-			else
-			{
-				this.DrawStat(ref Cursor, string.Concat(Localizer.Token(112), ":"), (int)(-WarpDraw), 102);
-				Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-				this.DrawStat(ref Cursor, "w/ Afterburner:", (int)(-BurnerDrain), "Power draw of the ship when the afterburner is engaged");
-				Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			}
+	        //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
+            if(WarpDraw != 0)
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(112), ":"), (int)(PowerFlow - (WarpDraw / 2 * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier + (PowerDraw * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier))), 102);
+            else
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(112), ":"), (int)(PowerFlow - PowerDraw * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier), 102);
+			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            this.DrawStat(ref Cursor, "w/ Afterburner:", (int)(PowerFlow - PowerDraw - BurnerDrain), "Power draw of the ship when the afterburner is engaged");
+			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(113), ":"), (int)HitPoints, 103);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(114), ":"), (int)ShieldPower, 104);
