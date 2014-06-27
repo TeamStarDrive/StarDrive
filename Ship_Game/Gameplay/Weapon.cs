@@ -199,6 +199,14 @@ namespace Ship_Game.Gameplay
 
         public float ECMResist;
 
+        public bool Excludes_Fighters;
+
+        public bool Excludes_Corvettes;
+
+        public bool Excludes_Capitals;
+
+        public bool Excludes_Stations;
+
 		public static AudioListener audioListener
 		{
 			get;
