@@ -3624,33 +3624,13 @@ namespace Ship_Game.Gameplay
                 this.Die((GameplayObject)null, false);
             if ((double)this.Mass < (double)(this.Size / 2))
                 this.Mass = (float)(this.Size / 2);
-            if (GlobalStats.HardcoreRuleset)
-            {
-                if (this.engineState == Ship.MoveState.Warp)
-                {
-                    this.PowerCurrent -= this.WarpDraw * elapsedTime;
-                    if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
-                        this.PowerCurrent += this.PowerFlowMax * elapsedTime;
-                }
-                else if (this.engineState == Ship.MoveState.Afterburner)
-                {
-                    this.PowerCurrent -= this.AfterDraw * elapsedTime;
-                    if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
-                        this.PowerCurrent += this.PowerFlowMax * elapsedTime;
-                }
-                else
-                {
-                    this.PowerCurrent -= this.PowerDraw * elapsedTime;
-                    if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
-                        this.PowerCurrent += this.PowerFlowMax * elapsedTime;
-                }
-            }
-            else
-            {
-                this.PowerCurrent -= this.PowerDraw * elapsedTime;
-                if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
-                    this.PowerCurrent += this.PowerFlowMax * elapsedTime;
-            }
+            //added by McShooterz: apply afterburn power draw
+            if (this.engineState == Ship.MoveState.Afterburner)
+                this.PowerCurrent -= this.AfterDraw * elapsedTime;
+            this.PowerCurrent -= this.PowerDraw * elapsedTime;
+            if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
+                this.PowerCurrent += this.PowerFlowMax * elapsedTime;
+
             foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
             {
                 Dictionary<string, float> dictionary;
