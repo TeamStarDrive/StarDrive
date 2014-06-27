@@ -2643,6 +2643,7 @@ namespace Ship_Game.Gameplay
                                             this.loyalty.GetGSAI().TaskList.Add(militaryTask);
                                     }
                                 }
+                                //added by gremlin put shahmatts exploration notifications here
                             }
                         }
                     }
@@ -2760,7 +2761,7 @@ namespace Ship_Game.Gameplay
                     if (this.isSpooling)
                     {
                         this.JumpTimer -= elapsedTime;
-
+                        //task gremlin move fighter recall here.
                         if ((double)this.JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
                         {
                             if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
@@ -2810,6 +2811,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
+                    //task gremlin look at parallel here for weapons
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
                     {
                         if (projectile.Active)
@@ -3232,14 +3234,17 @@ namespace Ship_Game.Gameplay
                 {
                     List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this);
                     for (int index = 0; index < nearby.Count; ++index)
+                    //Parallel.For(0, nearby.Count, (index,status) =>
                     {
                         Ship ship = nearby[index] as Ship;
                         if (ship != null && ship.loyalty == Ship.universeScreen.player && ((double)Vector2.Distance(ship.Position, this.Center) <= (double)ship.SensorRange || Ship.universeScreen.Debug))
                         {
                             this.inSensorRange = true;
                             break;
+                            //status.Stop();
+                            //return;
                         }
-                    }
+                    }//);
                 }
                 if (this.shipStatusChanged)
                 {

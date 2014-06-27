@@ -501,7 +501,7 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		private void DoAttackRunorig(float elapsedTime)
+		private void DoAttackRunOrig(float elapsedTime)
 		{
 			float distanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
 			if (distanceToTarget > this.Owner.Radius * 3f + this.Target.Radius && distanceToTarget > this.Owner.maxWeaponsRange / 2f)
@@ -5209,12 +5209,14 @@ namespace Ship_Game.Gameplay
             }
 
 
+
+
            
-
-
+            
 
 
             //}
+            
             foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips)
             //Parallel.ForEach(this.NearbyShips, nearbyShip =>
             {
@@ -5306,7 +5308,10 @@ namespace Ship_Game.Gameplay
                 }
                 this.Target = sortedList2.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
             }
+            if (this.Owner.Weapons.Count() > 0 || this.Owner.GetHangars().Count > 0)
             return this.Target;
+            
+            return null;
         }
 
   
@@ -5406,10 +5411,6 @@ namespace Ship_Game.Gameplay
             }
             if (((this.Owner.Role == "freighter" && this.Owner.CargoSpace_Max > 0) || this.Owner.Role == "scout" || this.Owner.Role == "construction" || this.Owner.Role == "troop" || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar || this.State == AIState.Colonize) || this.Owner.VanityName == "Resupply Shuttle")
             {
-                //if (this.Owner.engineState == Ship.MoveState.Sublight && this.NearbyShips.Count > 0)
-                //{
-                //    this.Owner.ShieldsUp = true;
-                //}
 
                 this.Owner.InCombatTimer = 0f;
                 this.Owner.InCombat = false;
