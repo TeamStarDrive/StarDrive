@@ -93,7 +93,7 @@ namespace Ship_Game.Gameplay
 
 		public int BeamThickness;
 
-        public float BeamDuration;
+        public float BeamDuration=2f;
 
 		public int BeamPowerCostPerSecond;
 
