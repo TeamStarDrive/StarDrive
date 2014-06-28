@@ -1372,26 +1372,111 @@ namespace Ship_Game
                 string shipRest = "";
                 bool specialString = false;
 
-                if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                if (GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
                 {
-                    shipRest = "All Hulls";
-                    specialString = true;
+                    if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                    else if (mod.FighterModule && !mod.DroneModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Fighters Only";
+                        specialString = true;
+                    }
+                    else if (mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Drones Only";
+                        specialString = true;
+                    }
+                    else if (mod.FightersOnly && !specialString)
+                    {
+                        shipRest = "Fighters/Corvettes Only";
+                        specialString = true;
+                    }
+                    else if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+
                 }
-                if (mod.FighterModule && !mod.DroneModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                if (!GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
                 {
-                    shipRest = "Fighters Only";
-                    specialString = true;
+                    if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                    else if (mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Fighters Only";
+                        specialString = true;
+                    }
+                    else if (mod.FightersOnly && !specialString)
+                    {
+                        shipRest = "Fighters/Corvettes Only";
+                        specialString = true;
+                    }
+                    else if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+
                 }
-                else if (mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                if (GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers)
                 {
-                    shipRest = "Drones Only";
-                    specialString = true;
+                    if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                    else if (mod.FighterModule && !mod.DroneModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Fighters Only";
+                        specialString = true;
+                    }
+                    else if (mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Drones Only";
+                        specialString = true;
+                    }
+                    else if (mod.FightersOnly && !specialString)
+                    {
+                        shipRest = "Fighters/Corvettes Only";
+                        specialString = true;
+                    }
+                    else if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
                 }
-                else if (mod.FightersOnly && !specialString)
+                if (GlobalStats.ActiveMod == null || (!GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers))
                 {
-                    shipRest = "Fighters/Corvettes Only";
-                    specialString = true;
+                    if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                    else if (mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Fighters Only";
+                        specialString = true;
+                    }
+                    else if (mod.FightersOnly && !specialString)
+                    {
+                        shipRest = "Fighters/Corvettes Only";
+                        specialString = true;
+                    }
+                    else if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
                 }
+
                 else if (!specialString && !mod.DroneModule || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || !mod.DestroyerModule || !mod.CruiserModule || !mod.CruiserModule || !mod.CarrierModule || !mod.CapitalModule || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
                 {
                     if (mod.DroneModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
