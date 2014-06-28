@@ -1135,7 +1135,83 @@ namespace Ship_Game.Gameplay
 			}
 			else if (this.DoExploreSystem(elapsedTime))
 			{
-				this.ExplorationTarget = null;
+                if (this.Owner.loyalty == ArtificialIntelligence.universeScreen.player)
+                {
+                    //added by gremlin  add shamatts notification here
+                    string planetsInfo = "";
+                    Dictionary<string, int> planetsTypesNumber = new Dictionary<string, int>();
+                    SolarSystem system = this.ExplorationTarget;
+                    if (system.PlanetList.Count > 0)
+                    {
+                        foreach (Planet planet in system.PlanetList)
+                        {
+                            // some planets don't have Type set and it is null
+                            if (planet.Type == null)
+                            {
+                                planet.Type = "Other";
+                            }
+
+                            if (!planetsTypesNumber.ContainsKey(planet.Type))
+                            {
+                                planetsTypesNumber.Add(planet.Type, 1);
+                            }
+                            else
+                            {
+                                planetsTypesNumber[planet.Type] += 1;
+                            }
+                        }
+
+                        foreach (KeyValuePair<string, int> pair in planetsTypesNumber)
+                        {
+                            planetsInfo = planetsInfo + "\n" + pair.Value + " " + pair.Key;
+                        }
+                    }
+
+                    Notification cNote = new Notification()
+                    {
+                        RelevantEmpire = this.Owner.loyalty,
+                        Message = string.Concat(system.Name, " system explored."),
+                        ReferencedItem1 = system,
+                        IconPath = "NewUI/icon_planet_terran_01_mid",
+                        Action = "SnapToSystem",
+                        ClickRect = new Rectangle(Planet.universeScreen.NotificationManager.NotificationArea.X, Planet.universeScreen.NotificationManager.NotificationArea.Y, 64, 64),
+                        DestinationRect = new Rectangle(Planet.universeScreen.NotificationManager.NotificationArea.X, Planet.universeScreen.NotificationManager.NotificationArea.Y + Planet.universeScreen.NotificationManager.NotificationArea.Height - (Planet.universeScreen.NotificationManager.NotificationList.Count + 1) * 70, 64, 64)
+
+                    };
+                    cNote.Message = cNote.Message + planetsInfo;
+                    if (system.combatTimer > 0)
+                    {
+                        cNote.Message += "\nCombat in system!!!";
+                    }
+                    if (system.OwnerList.Count > 0 && !system.OwnerList.Contains(this.Owner.loyalty))
+                    {
+                        cNote.Message += "\nContested system!!!";
+                    }
+
+                    foreach (Planet stuff in system.PlanetList)
+                    {
+
+                        foreach (Building tile in stuff.BuildingList)
+                        {
+                            if (tile.IsCommodity)
+                            {
+
+                                cNote.Message += "\n" + tile.Name + " on " + stuff.Name;
+                                break;
+                            }
+
+                        }
+
+                    }
+
+                    AudioManager.PlayCue("sd_ui_notification_warning");
+                    lock (GlobalStats.NotificationLocker)
+                    {
+                        Planet.universeScreen.NotificationManager.NotificationList.Add(cNote);
+                    }
+                }
+                this.ExplorationTarget = null;
+                            
 			}
 		}
 
@@ -1151,6 +1227,9 @@ namespace Ship_Game.Gameplay
 				if (this.SystemToPatrol.PlanetList.Count == 0)
 				{
 					return this.ExploreEmptySystem(elapsedTime, this.SystemToPatrol);
+                    
+                        
+
 				}
 			}
 			else
@@ -1164,6 +1243,7 @@ namespace Ship_Game.Gameplay
 					{
 						this.stopNumber = 0;
 						this.PatrolRoute.Clear();
+                       
 						return true;
 					}
 				}
