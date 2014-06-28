@@ -98,6 +98,8 @@ namespace Ship_Game
 		public static int CordrazinePlanetsCaptured;
 
         public static bool ExtraNotiofications;
+        //PauseOnNotification
+        public static bool PauseOnNotification;
 
 		static GlobalStats()
 		{       
@@ -144,6 +146,7 @@ namespace Ship_Game
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
             GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
+            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
 		}
 
 		public GlobalStats()
