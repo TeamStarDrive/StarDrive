@@ -1094,7 +1094,7 @@ namespace Ship_Game
 						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
 						Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, Center, slot.module.shield_radius, 50, Color.LightGreen);
 					}
-                    if (slot.module.FieldOfFire != 90f && (slot.module.FieldOfFire != 180f && Ship_Game.ResourceManager.TextureDict["Arcs/Arcs180"] != null) && (slot.module.FieldOfFire != 360f && Ship_Game.ResourceManager.TextureDict["Arcs/Arcs360"] != null))
+                    if (slot.module.FieldOfFire != 90f && (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.extraFireArcs))
 					{
 						if (slot.module.FieldOfFire == 0f)
 						{
@@ -1110,7 +1110,23 @@ namespace Ship_Game
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
 					}
-                    else if (slot.module.FieldOfFire == 360f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"] != null)
+                    else if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs && (slot.module.FieldOfFire != 90f && slot.module.FieldOfFire != 180f && slot.module.FieldOfFire != 360f))
+                    {
+                        if (slot.module.FieldOfFire == 0f)
+                        {
+                            continue;
+                        }
+                        float halfArc = slot.module.FieldOfFire / 2f;
+                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
+                        Vector2 rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
+                        leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
+                        rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
+                        Color arc = new Color(255, 165, 0, 100);
+                        Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
+                        Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
+                    }
+                    else if (slot.module.FieldOfFire == 360f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
                     {
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
@@ -1143,7 +1159,7 @@ namespace Ship_Game
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
                         }
                     }
-                    else if (slot.module.FieldOfFire == 180f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"] != null)
+                    else if (slot.module.FieldOfFire == 180f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
 					{
 						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
 						Vector2 Origin = new Vector2(250f, 250f);
@@ -1477,7 +1493,7 @@ namespace Ship_Game
                     }
                 }
 
-                else if (!specialString && !mod.DroneModule || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || !mod.DestroyerModule || !mod.CruiserModule || !mod.CruiserModule || !mod.CarrierModule || !mod.CapitalModule || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
+                else if (!specialString && (!mod.DroneModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones) || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || (!mod.DestroyerModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDestroyers) || !mod.CruiserModule || !mod.CruiserModule || !mod.CarrierModule || !mod.CapitalModule || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
                 {
                     if (mod.DroneModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
                         shipRest += "Dr ";
@@ -1996,6 +2012,11 @@ namespace Ship_Game
 
                         if (mod.InstalledWeapon.Excludes_Fighters)
                         {
+                            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
+                            {
+                                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Drones", modTitlePos, Color.LightCoral);
+                                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                            }
                             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Fighters", modTitlePos, Color.LightCoral);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
@@ -4570,12 +4591,12 @@ namespace Ship_Game
 			this.modSel.AddTab("Spc");
 			this.weaponSL = new ScrollList(this.modSel);
 			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 175), 80f);
-			Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 250);
+			Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
 			this.activeModWindow = new Menu1(base.ScreenManager, active);
-			Rectangle acsub = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 270);
+			Rectangle acsub = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
 			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 760)
 			{
-				acsub.Height = acsub.Height + 70;
+				acsub.Height = acsub.Height + 120;
 			}
 			this.activeModSubMenu = new Submenu(base.ScreenManager, acsub);
 			this.activeModSubMenu.AddTab("Active Module");
