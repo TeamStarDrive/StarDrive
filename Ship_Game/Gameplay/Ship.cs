@@ -1621,7 +1621,7 @@ namespace Ship_Game.Gameplay
             {
                 if (moduleSlot.module.FTLSpoolTime != 0) // Ignore 0 values (as 0 is assumed as default value if the XML contains no <FTLSpoolTime> data
                 {
-                    if (this.JumpTimer < moduleSlot.module.FTLSpoolTime) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
+                    if (this.JumpTimer < moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
                         this.JumpTimer = moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier; // New addition: Added capability to modify the spool time via research/racial bonus and apply this on top
                 }
             }

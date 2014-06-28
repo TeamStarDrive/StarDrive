@@ -1094,7 +1094,7 @@ namespace Ship_Game
 						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
 						Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, Center, slot.module.shield_radius, 50, Color.LightGreen);
 					}
-					if (slot.module.FieldOfFire != 90f && slot.module.FieldOfFire != 180f && slot.module.FieldOfFire != 360f)
+                    if (slot.module.FieldOfFire != 90f && (slot.module.FieldOfFire != 180f && Ship_Game.ResourceManager.TextureDict["Arcs/Arcs180"] != null) && (slot.module.FieldOfFire != 360f && Ship_Game.ResourceManager.TextureDict["Arcs/Arcs360"] != null))
 					{
 						if (slot.module.FieldOfFire == 0f)
 						{
@@ -1893,7 +1893,15 @@ namespace Ship_Game
 
                     }
 
-                    if (mod.InstalledWeapon.Excludes_Fighters || mod.InstalledWeapon.Excludes_Corvettes || mod.InstalledWeapon.Excludes_Capitals || mod.InstalledWeapon.Excludes_Stations)
+                    if (mod.InstalledWeapon.TruePD)
+                    {
+                        string fireRest = "Cannot Target Ships";
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        modTitlePos.X = modTitlePos.X - 152f;
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(fireRest), modTitlePos, Color.LightCoral);
+                        return;
+                    }
+                    else if (!mod.InstalledWeapon.TruePD && mod.InstalledWeapon.Excludes_Fighters || mod.InstalledWeapon.Excludes_Corvettes || mod.InstalledWeapon.Excludes_Capitals || mod.InstalledWeapon.Excludes_Stations)
                     {
                         string fireRest = "Cannot Target:";
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
