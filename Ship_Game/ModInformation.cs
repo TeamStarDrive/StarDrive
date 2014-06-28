@@ -22,6 +22,7 @@ namespace Ship_Game
         public bool useDestroyers;
         public bool useDrones;
         public bool enableECM;
+        public bool extraFireArcs;
 
 
 		public ModInformation()

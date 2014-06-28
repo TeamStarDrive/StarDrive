@@ -2190,7 +2190,7 @@ namespace Ship_Game.Gameplay
 							this.fireTarget = null;
 
                             // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                            if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout") && this.Target != null)
+                            if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone") && this.Target != null)
                                 continue;
                             if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette") && this.Target != null)
                                 continue;
@@ -2236,7 +2236,7 @@ namespace Ship_Game.Gameplay
 										}
 
                                         // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                                        if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "ccout") && this.Target != null)
+                                        if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone") && this.Target != null)
                                             continue;
                                         if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette") && this.Target != null)
                                             continue;

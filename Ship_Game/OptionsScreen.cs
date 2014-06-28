@@ -426,18 +426,15 @@ namespace Ship_Game
 						AudioManager.PlayCue("sd_ui_mouseover");
 					}
 					this.FullScreen.highlighted = true;
-					if (input.InGameSelect)
-					{
-						AudioManager.PlayCue("blip_click");
-						OptionsScreen modeToSet = this;
-						modeToSet.ModeToSet = (Game1.WindowMode)((int)modeToSet.ModeToSet + (int)Game1.WindowMode.Windowed);
-						if (this.ModeToSet > Game1.WindowMode.Borderless)
-						{
-							this.ModeToSet = Game1.WindowMode.Fullscreen;
-						}
-						this.FullScreen.Value = this.ModeToSet.ToString();
-					}
-				}
+                    if (input.InGameSelect)
+                    {
+                        AudioManager.PlayCue("blip_click");
+                        ++this.ModeToSet;
+                        if (this.ModeToSet > Game1.WindowMode.Borderless)
+                            this.ModeToSet = Game1.WindowMode.Fullscreen;
+                        this.FullScreen.Value = (object)((object)this.ModeToSet).ToString();
+                    }
+                }
 			}
 			if (input.Escaped || input.RightMouseClick)
 			{
