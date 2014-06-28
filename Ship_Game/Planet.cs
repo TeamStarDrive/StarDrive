@@ -4192,6 +4192,38 @@ namespace Ship_Game
             for (int index1 = 0; index1 < this.ConstructionQueue.Count; ++index1)
             {
                 QueueItem queueItem = this.ConstructionQueue[index1];
+
+               //Added by gremlin remove exess troops from queue 
+                if (queueItem.isTroop)
+                {
+
+                    int space = 0;
+                    foreach (PlanetGridSquare tilesList in this.TilesList)
+                    {
+                        if (tilesList.TroopsHere.Count >= tilesList.number_allowed_troops || tilesList.building != null && (tilesList.building == null || tilesList.building.CombatStrength != 0))
+                        {
+                            continue;
+                        }
+                        space++;
+                    }
+
+                    if (space < 1)
+                    {
+                        if (queueItem.productionTowards == 0)
+                        {
+                            this.ConstructionQueue.Remove(queueItem);
+                        }
+                        else
+                        {
+                            ProductionHere += queueItem.productionTowards;
+                            if (ProductionHere > MAX_STORAGE)
+                                ProductionHere = MAX_STORAGE;
+                            if (queueItem.pgs != null)
+                                queueItem.pgs.QItem = null;
+                            ConstructionQueue.Remove(queueItem);
+                        }
+                    }
+                }
                 if (queueItem.isBuilding && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
                     Building building = ResourceManager.GetBuilding(queueItem.Building.Name);
