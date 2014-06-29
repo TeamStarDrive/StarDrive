@@ -2606,8 +2606,11 @@ namespace Ship_Game.Gameplay
                         }
                     }
                     this.emitter.Position = new Vector3(this.Center, 0.0f);
-                    foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                    //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                    Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
+                    {
                         moduleSlot.module.UpdateWhileDying(elapsedTime);
+                    });
                 }
             }
             else if (!this.dying)
@@ -2813,13 +2816,15 @@ namespace Ship_Game.Gameplay
                 {
                     //task gremlin look at parallel here for weapons
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
-                    {
-                        if (projectile.Active)
-                            projectile.Update(elapsedTime);
-                        else
-                            this.Projectiles.QueuePendingRemoval(projectile);
-                    }
-                    foreach (Beam beam in (List<Beam>)this.beams)
+                    //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
+                {
+                    if (projectile.Active)
+                        projectile.Update(elapsedTime);
+                    else
+                        this.Projectiles.QueuePendingRemoval(projectile);
+                }//);
+                    //foreach (Beam beam in (List<Beam>)this.beams)
+                    Parallel.ForEach<Beam>(this.beams, beam =>
                     {
                         Vector2 origin = new Vector2();
                         if (beam.moduleAttachedTo != null)
@@ -2839,7 +2844,7 @@ namespace Ship_Game.Gameplay
                         beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                         if ((double)beam.duration < 0.0 && !beam.infinite)
                             this.beams.QueuePendingRemoval(beam);
-                    }
+                    });
                     this.beams.ApplyPendingRemovals();
                 }
             }
