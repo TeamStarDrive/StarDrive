@@ -10,6 +10,7 @@
 * Overwrite files when asked.
 * **Skip the below if the ZIP already has a content folder in it.**
 * do the same for stardocs required files to unlock some of the mod features for vanilla play.
+
 * remember this mod should be content mod compatible with extra mod power to mods that support this project.
 * This mod should be compatible with normal content mods. 
 * It is compatible with Deveks Code mods but... Dont do that. just run this.
