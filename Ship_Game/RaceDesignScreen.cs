@@ -1996,7 +1996,7 @@ namespace Ship_Game
                     AudioManager.GetCue("blip_click").Play();
                     RaceDesignScreen galaxysize = this;
                     galaxysize.Galaxysize = (RaceDesignScreen.GalSize)((int)galaxysize.Galaxysize + (int)RaceDesignScreen.GalSize.Small);
-                    if (this.Galaxysize > RaceDesignScreen.GalSize.TrulyEpic)
+                    if (this.Galaxysize > RaceDesignScreen.GalSize.Epic)
                     {
                         this.Galaxysize = RaceDesignScreen.GalSize.Tiny;
                     }
@@ -3321,8 +3321,8 @@ namespace Ship_Game
             Medium,
             Large,
             Huge,
-            Epic,
-            TrulyEpic
+            Epic
+            //TrulyEpic
         }
 
         public enum GameMode
