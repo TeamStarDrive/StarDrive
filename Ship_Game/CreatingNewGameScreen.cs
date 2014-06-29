@@ -146,7 +146,15 @@ namespace Ship_Game
         public override void LoadContent()
         {
             this.textList = HelperFunctions.GetFilesFromDirectory("Content/LoadingScreen");
-            this.AdviceList = (List<string>)new XmlSerializer(typeof(List<string>)).Deserialize((Stream)new FileInfo("Content/Advice/" + GlobalStats.Config.Language + "/Advice.xml").OpenRead());
+            //Added by McShooterz: mod folder support of Advice folder
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/", GlobalStats.Config.Language, "/Advice.xml")))
+            {
+                this.AdviceList = (List<string>)new XmlSerializer(typeof(List<string>)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/", GlobalStats.Config.Language, "/Advice.xml")).OpenRead());
+            }
+            else
+            {
+                this.AdviceList = (List<string>)new XmlSerializer(typeof(List<string>)).Deserialize((Stream)new FileInfo("Content/Advice/" + GlobalStats.Config.Language + "/Advice.xml").OpenRead());
+            }
             this.ScreenManager.inter.ObjectManager.Clear();
             this.ScreenManager.inter.LightManager.Clear();
             for (int index = 1; index < this.textList.Length; ++index)
