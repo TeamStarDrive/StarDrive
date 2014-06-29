@@ -14,7 +14,8 @@ You don't have to do this as you can just go to the steam and reverify steam con
 * do the same for stardocs required files to unlock some of the mod features for vanilla play.
 
 ##### Compatibility ####
-* this mod should be content mod compatible with SD. With extra mod power to mods that support this project.
+* this mod may not content mod compatible with SD. Its something we are trying to do but it is difficult sometimes.
+Any required files will be in the download.
 * This mod should be compatible with normal content mods. 
 * It is compatible with Deveks Code mods but... Dont do that. just run this.
 * THE SAVE GAMES FROM THIS MOD MAY NOT LOAD IN VANILLA SD.
