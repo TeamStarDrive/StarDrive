@@ -1,0 +1,56 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <UID>NuclearBombBay2x2</UID>
+  <Cost>4</Cost>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>Bomb</ModuleType>
+  <Name>Tactical Nuclear Bomb Bay</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/bombbay_2x2</IconTexturePath>
+
+
+  <NameIndex>1000</NameIndex>
+  <DescriptionIndex>1001</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>12</Mass>
+  <Health>400</Health>
+  <HealthMax>400</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Bombs -->
+  <OrdinanceCapacity>20</OrdinanceCapacity>
+  <BombType>NuclearBomb</BombType>
+
+
+
+  <!-- Description -->
+  <Description>A bomb bay that allows a ship to strike a planet with low-yield tactical nuclear bombs.</Description>
+  
+
+</ShipModule>
