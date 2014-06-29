@@ -2643,6 +2643,7 @@ namespace Ship_Game.Gameplay
                                             this.loyalty.GetGSAI().TaskList.Add(militaryTask);
                                     }
                                 }
+                                //added by gremlin put shahmatts exploration notifications here
                             }
                         }
                     }
@@ -2760,7 +2761,7 @@ namespace Ship_Game.Gameplay
                     if (this.isSpooling)
                     {
                         this.JumpTimer -= elapsedTime;
-
+                        //task gremlin move fighter recall here.
                         if ((double)this.JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
                         {
                             if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
@@ -2810,6 +2811,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
+                    //task gremlin look at parallel here for weapons
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
                     {
                         if (projectile.Active)
@@ -3116,6 +3118,8 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
+
+
         public virtual void UpdateShipStatus(float elapsedTime)
         {
             if ((double)elapsedTime == 0.0)
@@ -3159,12 +3163,14 @@ namespace Ship_Game.Gameplay
             }
             if (this.InCombat && !this.disabled || this.PlayerShip)
             {
-                foreach (Weapon weapon in this.Weapons)
-                    weapon.Update(elapsedTime);
-                //Parallel.ForEach(this.Weapons, weapon =>
-                //    {
-                //        weapon.Update(elapsedTime);
-                //    });
+                //foreach (Weapon weapon in this.Weapons)
+                //    weapon.Update(elapsedTime);
+                //added by gremlin More cores for guns?
+                
+                Parallel.ForEach(this.Weapons, weapon =>
+                    {
+                        weapon.Update(elapsedTime);
+                    });
             }
             this.TroopBoardingDefense = 0.0f;
             foreach (Troop troop in this.TroopList)
@@ -3232,14 +3238,17 @@ namespace Ship_Game.Gameplay
                 {
                     List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this);
                     for (int index = 0; index < nearby.Count; ++index)
+                    //Parallel.For(0, nearby.Count, (index,status) =>
                     {
                         Ship ship = nearby[index] as Ship;
                         if (ship != null && ship.loyalty == Ship.universeScreen.player && ((double)Vector2.Distance(ship.Position, this.Center) <= (double)ship.SensorRange || Ship.universeScreen.Debug))
                         {
                             this.inSensorRange = true;
                             break;
+                            //status.Stop();
+                            //return;
                         }
-                    }
+                    }//);
                 }
                 if (this.shipStatusChanged)
                 {
@@ -3281,6 +3290,7 @@ namespace Ship_Game.Gameplay
                         this.MaxGoodStorageDict[index] = 0.0f;
                     foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
                         this.ResourceDrawDict[index] = 0.0f;
+                    //Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     {
                         if (moduleSlot.module.Active && (double)moduleSlot.module.ResourceStorageAmount > 0.0 && (Ship_Game.ResourceManager.GoodsDict.ContainsKey(moduleSlot.module.ResourceStored) && !Ship_Game.ResourceManager.GoodsDict[moduleSlot.module.ResourceStored].IsCargo))
@@ -3313,7 +3323,7 @@ namespace Ship_Game.Gameplay
                         if ((double)moduleSlot.module.BonusRepairRate > 0.0 && (double)moduleSlot.module.PowerDraw != 0.0 && moduleSlot.module.Powered)
                             this.RepairRate += moduleSlot.module.BonusRepairRate;
                         this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
-                    }
+                    }//);
                     this.RepairRate += (float)((double)this.RepairRate * (double)this.Level * 0.0500000007450581);
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     {
@@ -3728,7 +3738,7 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        public float GetStrength()
+        public float GetStrengthORIG()
         {
             float num1 = 0.0f;
             foreach (Weapon weapon in this.Weapons)
@@ -3747,6 +3757,79 @@ namespace Ship_Game.Gameplay
                 num2 /= 5f;
             return num2;
         }
+        //added by Gremlin : active ship strength calculator
+        public float GetStrength()
+        {
+            float Str = 0f;
+            float def = 0f;
+
+            int slotCount = this.ModuleSlotList.Count;
+
+            bool fighters = false;
+            bool weapons = false;
+
+            //Parallel.ForEach(this.ModuleSlotList, slot =>  //
+            foreach (ModuleSlot slot in this.ModuleSlotList)
+            {
+
+
+                if (!slot.module.isDummy && slot.module.Powered && slot.module.Active)
+                {
+                    ShipModule module = slot.module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
+
+                    if (module.InstalledWeapon != null)
+                    {
+                        weapons = true;
+                        float offRate = 0;
+                        Weapon w = module.InstalledWeapon;
+                        if (!w.explodes)
+                        {
+                            offRate += (!w.isBeam ? w.DamageAmount * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                        }
+                        else
+                        {
+                            offRate += w.DamageAmount * (1f / w.fireDelay) * 0.75f;
+
+                        }
+                        if (offRate > 0 && w.TruePD || w.Range < 1000)
+                        {
+                            float range = 0f;
+                            if (w.Range < 1000)
+                            {
+                                range = (1000f - w.Range) * .01f;
+                            }
+                            offRate /= (2 + range);
+                        }
+                        if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
+                        Str += offRate;
+                    }
+
+
+                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
+                    {
+
+                        fighters = true;
+                        Ship hangarship = new Ship();
+                        ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
+
+                        if (hangarship != null)
+                        {
+                            Str += hangarship.BaseStrength;
+                        }
+                        else Str += 300;
+                    }
+                    def += (module.shield_power) * ((module.shield_radius * .05f) / slotCount);
+                    def += module.Health * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
+                    /// (slotCount / (module.ModuleType == ShipModuleType.Armor ? module.XSIZE * module.YSIZE : 1));// (slotCount / (module.XSIZE * module.YSIZE));//module.ModuleType ==ShipModuleType.Armor?module.XSIZE*module.YSIZE:1
+                    //ship.BaseStrength += module.HealthMax / (entry.Value.ModuleSlotList.Count / (module.XSIZE * module.YSIZE));
+                    //ship.BaseStrength += (module.shield_powe) * ((module.shield_radius * .10f) / entry.Value.ModuleSlotList.Count);
+                }
+            }//);
+            if (!fighters && !weapons) Str = 0;
+            if (def > Str) def = Str;
+            return Str + def;
+        }
+
 
         public float GetDPS()
         {

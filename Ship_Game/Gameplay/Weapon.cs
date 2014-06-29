@@ -4,6 +4,8 @@ using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
@@ -93,7 +95,7 @@ namespace Ship_Game.Gameplay
 
 		public int BeamThickness;
 
-        public float BeamDuration;
+        public float BeamDuration=2f;
 
 		public int BeamPowerCostPerSecond;
 
