@@ -1,1 +1,1 @@
-﻿Leaf,Crimson,Garlic,Satsuma,Blackberry,Peach,Hemlock,Nightshade,Snakeroot,Gripper,Grasper,Strangler,Arrow,Wort,Flytrap,Angel,Thorn,Root,Herb,Cherry,Bane,Jimson,Hellebore,Black,Heart,Bracken,Briar,Bramble,Datura,Cane
+﻿Azure, Leaf,Crimson,Garlic,Satsuma,Blackberry,Peach,Hemlock,Nightshade,Snakeroot,Gripper,Grasper,Strangler,Arrow,Wort,Flytrap,Angel,Thorn,Root,Herb,Cherry,Bane,Jimson,Hellebore,Black,Heart,Bracken,Briar,Bramble,Datura,Cane
