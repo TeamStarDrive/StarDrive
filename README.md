@@ -8,6 +8,7 @@
 * backup you original stardrive.exe and stardrive.exe.config. You dont have to do this as you can just go to the steam and reverify steam content for the games.
 * extract the zip into the the game directory usually located in Program Files (x86)\Steam\SteamApps\common\StarDrive
 * Overwrite files when asked.
+* **Skip the below if the ZIP already has a content folder in it.**
 * do the same for stardocs required files to unlock some of the mod features for vanilla play.
 * remember this mod should be content mod compatible with extra mod power to mods that support this project.
 * This mod should be compatible with normal content mods. 
