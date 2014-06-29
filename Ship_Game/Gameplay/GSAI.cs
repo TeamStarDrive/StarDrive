@@ -4992,6 +4992,8 @@ namespace Ship_Game.Gameplay
 			}
 			return null;
 		}
+        
+        //added by Gremlin Deveks Get a shio
         private string GetAShip(float Capacity)
         {
             string name;
