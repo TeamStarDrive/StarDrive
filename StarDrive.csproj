@@ -1457,6 +1457,15 @@
     <Content Include="Content\Localization\English\GameText_EN.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\NameGenerators\names.txt" />
+    <Content Include="Content\NameGenerators\spynames_Cordrazine.txt" />
+    <Content Include="Content\NameGenerators\spynames_Draylok.txt" />
+    <Content Include="Content\NameGenerators\spynames_Humans.txt" />
+    <Content Include="Content\NameGenerators\spynames_Kulrathi.txt" />
+    <Content Include="Content\NameGenerators\spynames_Opteris.txt" />
+    <Content Include="Content\NameGenerators\spynames_Pollops.txt" />
+    <Content Include="Content\NameGenerators\spynames_Ralyeh.txt" />
+    <Content Include="Content\NameGenerators\spynames_Vulfen.txt" />
     <Content Include="Content\ShipModules\AncientReactorMed.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
