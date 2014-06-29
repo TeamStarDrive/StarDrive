@@ -1140,7 +1140,8 @@ namespace Ship_Game
 
 		public static RacialTraits GetRaceTraits()
 		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/RacialTraits");
+            //Added by McShooterz: mod folder support for RacialTraits folder
+            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RacialTraits")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RacialTraits") : "Content/RacialTraits");
 			XmlSerializer serializer1 = new XmlSerializer(typeof(RacialTraits));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)

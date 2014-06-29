@@ -425,7 +425,15 @@ namespace Ship_Game
 			this.ScreenCenter = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
 			this.textList = HelperFunctions.GetFilesFromDirectory("Content/LoadingScreen");
 			XmlSerializer serializer2 = new XmlSerializer(typeof(List<string>));
-			this.AdviceList = (List<string>)serializer2.Deserialize((new FileInfo(string.Concat("Content/Advice/", GlobalStats.Config.Language, "/Advice.xml"))).OpenRead());
+            //Added by McShooterz: mod folder support of Advice folder
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/", GlobalStats.Config.Language, "/Advice.xml")))
+            {
+                this.AdviceList = (List<string>)serializer2.Deserialize((new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/", GlobalStats.Config.Language, "/Advice.xml"))).OpenRead());
+            }
+            else
+            {
+                this.AdviceList = (List<string>)serializer2.Deserialize((new FileInfo(string.Concat("Content/Advice/", GlobalStats.Config.Language, "/Advice.xml"))).OpenRead());
+            }
 			for (int i = 1; i < (int)this.textList.Length; i++)
 			{
 				Texture2D what = base.ScreenManager.Content.Load<Texture2D>(string.Concat("LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[i].Name)));
