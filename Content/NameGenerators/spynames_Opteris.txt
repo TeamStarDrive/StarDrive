@@ -1,0 +1,1 @@
+﻿Zero,One,Two,Three,Four,Five,Six,Seven,Eight,Nine,True,False,XOR,AND,NAND,OR,Flip,Crash,The Liberated,Trojan,Copy,Duplicate,Eraser,The Viral,Beta,Alpha
