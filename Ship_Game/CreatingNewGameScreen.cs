@@ -68,56 +68,182 @@ namespace Ship_Game
 
         public CreatingNewGameScreen(Empire empire, string size, float StarNumModifier, string EmpireToRemoveName, int numOpponents, RaceDesignScreen.GameMode gamemode, int GameScale, UniverseData.GameDifficulty difficulty, MainMenuScreen mmscreen)
         {
-            GlobalStats.RemnantArmageddon = false;
-            GlobalStats.RemnantKills = 0;
-            this.mmscreen = mmscreen;
-            foreach (KeyValuePair<string, Artifact> keyValuePair in ResourceManager.ArtifactsDict)
-                keyValuePair.Value.Discovered = false;
-            RandomEventManager.ActiveEvent = (RandomEvent)null;
-            this.difficulty = difficulty;
-            this.scale = (float)GameScale;
-            this.mode = gamemode;
-            this.numOpponents = numOpponents;
-            this.EmpireToRemoveName = EmpireToRemoveName;
-            EmpireManager.EmpireList.Clear();
-            this.dtraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo("Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
-            ResourceManager.LoadEncounters();
-            this.playerEmpire = empire;
-            empire.Initialize();
-            empire.data.CurrentAutoColony = empire.data.DefaultColonyShip;
-            empire.data.CurrentAutoFreighter = empire.data.DefaultSmallTransport;
-            empire.data.CurrentAutoScout = empire.data.StartingScout;
-            this.data = new UniverseData();
-            this.data.FTLSpeedModifier = GlobalStats.FTLInSystemModifier;
-            this.data.GravityWells = GlobalStats.PlanetaryGravityWells;
-            switch (size)
+            //GlobalStats.RemnantArmageddon = false;
+            //GlobalStats.RemnantKills = 0;
+            //this.mmscreen = mmscreen;
+            //foreach (KeyValuePair<string, Artifact> keyValuePair in ResourceManager.ArtifactsDict)
+            //    keyValuePair.Value.Discovered = false;
+            //RandomEventManager.ActiveEvent = (RandomEvent)null;
+            //this.difficulty = difficulty;
+            //this.scale = (float)GameScale;
+            //this.mode = gamemode;
+            //this.numOpponents = numOpponents;
+            //this.EmpireToRemoveName = EmpireToRemoveName;
+            //EmpireManager.EmpireList.Clear();
+            //this.dtraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo("Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
+            //ResourceManager.LoadEncounters();
+            //this.playerEmpire = empire;
+            //empire.Initialize();
+            //empire.data.CurrentAutoColony = empire.data.DefaultColonyShip;
+            //empire.data.CurrentAutoFreighter = empire.data.DefaultSmallTransport;
+            //empire.data.CurrentAutoScout = empire.data.StartingScout;
+            //this.data = new UniverseData();
+            //this.data.FTLSpeedModifier = GlobalStats.FTLInSystemModifier;
+            //this.data.GravityWells = GlobalStats.PlanetaryGravityWells;
+            //switch (size)
+            //{
+            //    case "Tiny":
+            //        this.numSystems = (int)(16.0 * (double)StarNumModifier);
+            //        this.data.Size = new Vector2(3500000f, 3500000f);
+            //        break;
+            //    case "Small":
+            //        this.numSystems = (int)(30.0 * (double)StarNumModifier);
+            //        this.data.Size = new Vector2(7300000f, 7300000f);
+            //        break;
+            //    case "Medium":
+            //        this.numSystems = (int)(50.0 * (double)StarNumModifier);
+            //        this.data.Size = new Vector2(9350000f, 9350000f);
+            //        break;
+            //    case "Large":
+            //        this.numSystems = (int)(75.0 * (double)StarNumModifier);
+            //        this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
+            //        break;
+            //    case "Epic":
+            //        this.numSystems = (int)(100.0 * (double)StarNumModifier);
+            //        this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
+            //        break;
+            //}
+            //this.data.Size *= this.scale;
+            //this.data.EmpireList.Add(empire);
+            //EmpireManager.EmpireList.Add(empire);
+            //this.GalacticCenter = new Vector2(this.data.Size.X / 2f, this.data.Size.Y / 2f);
+            //StatTracker.SnapshotsDict.Clear();
             {
-                case "Tiny":
-                    this.numSystems = (int)(16.0 * (double)StarNumModifier);
-                    this.data.Size = new Vector2(3500000f, 3500000f);
-                    break;
-                case "Small":
-                    this.numSystems = (int)(30.0 * (double)StarNumModifier);
-                    this.data.Size = new Vector2(7300000f, 7300000f);
-                    break;
-                case "Medium":
-                    this.numSystems = (int)(50.0 * (double)StarNumModifier);
-                    this.data.Size = new Vector2(9350000f, 9350000f);
-                    break;
-                case "Large":
-                    this.numSystems = (int)(75.0 * (double)StarNumModifier);
-                    this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
-                    break;
-                case "Epic":
-                    this.numSystems = (int)(100.0 * (double)StarNumModifier);
-                    this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
-                    break;
+                GlobalStats.RemnantArmageddon = false;
+                GlobalStats.RemnantKills = 0;
+                this.mmscreen = mmscreen;
+                foreach (KeyValuePair<string, Ship_Game.Artifact> Artifact in Ship_Game.ResourceManager.ArtifactsDict)
+                {
+                    Artifact.Value.Discovered = false;
+                }
+                RandomEventManager.ActiveEvent = null;
+                this.difficulty = difficulty;
+                this.scale = (float)GameScale;
+                if (this.scale == 5) this.scale = 8;
+                if (this.scale == 6) this.scale = 16;
+                this.mode = gamemode;
+                this.numOpponents = numOpponents;
+                this.EmpireToRemoveName = EmpireToRemoveName;
+                EmpireManager.EmpireList.Clear();
+                XmlSerializer serializer2 = new XmlSerializer(typeof(DiplomaticTraits));
+                this.dtraits = (DiplomaticTraits)serializer2.Deserialize((new FileInfo("Content/Diplomacy/DiplomaticTraits.xml")).OpenRead());
+                Ship_Game.ResourceManager.LoadEncounters();
+                this.playerEmpire = empire;
+                empire.Initialize();
+                empire.data.CurrentAutoColony = empire.data.DefaultColonyShip;
+                empire.data.CurrentAutoFreighter = empire.data.DefaultSmallTransport;
+                empire.data.CurrentAutoScout = empire.data.StartingScout;
+                this.data = new UniverseData()
+                {
+                    FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
+                    GravityWells = GlobalStats.PlanetaryGravityWells
+                };
+                string str = size;
+                string str1 = str;
+                if (str != null)
+                {
+                    if (str1 == "Tiny")
+                    {
+                        if (mode == RaceDesignScreen.GameMode.Warlords)
+                        {
+                            this.numSystems = (int)(12 * StarNumModifier);
+                        }
+                        else
+                            this.numSystems = (int)(16f * StarNumModifier);
+                        this.data.Size = new Vector2(3500000f, 3500000f);
+                    }
+                    else if (str1 == "Small")
+                    {
+                        if (mode == RaceDesignScreen.GameMode.Warlords)
+                        {
+                            this.numSystems = (int)(12 * StarNumModifier);
+                        }
+                        else
+                            this.numSystems = (int)(30f * StarNumModifier);
+                        this.data.Size = new Vector2(7300000f, 7300000f);
+                    }
+                    else if (str1 == "Medium")
+                    {
+                        if (mode == RaceDesignScreen.GameMode.Warlords)
+                        {
+                            this.numSystems = (int)(12 * StarNumModifier);
+                        }
+                        else
+                            this.numSystems = (int)(50f * StarNumModifier);
+                        this.data.Size = new Vector2(9350000f, 9350000f);
+                    }
+                    else if (str1 == "Large")
+                    {
+                        if (mode == RaceDesignScreen.GameMode.Warlords)
+                        {
+                            this.numSystems = (int)(12 * StarNumModifier);
+                        }
+                        else
+                            this.numSystems = (int)(75f * StarNumModifier);
+                        this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
+                    }
+                    else if (str1 == "Huge")
+                    {
+                        if (mode == RaceDesignScreen.GameMode.Warlords)
+                        {
+                            this.numSystems = (int)(12 * StarNumModifier);
+                        }
+                        else
+                            this.numSystems = (int)(100f * StarNumModifier);
+                        this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
+                    }
+                    else if (str1 == "Epic")
+                    {
+                        if (mode == RaceDesignScreen.GameMode.Warlords)
+                        {
+                            this.numSystems = (int)(12 * StarNumModifier);
+                        }
+                        else
+                            this.numSystems = (int)(100f * StarNumModifier);
+                        this.data.Size = new Vector2(1.8E+07f * 2, 1.8E+07f * 2);
+                        //this.scale = 2;
+
+                        //this.numSystems = (int)(125f * StarNumModifier);
+                        //this.data.Size = new Vector2(3.6E+07f, 3.6E+07f);
+
+                    }
+                    else if (str1 == "TrulyEpic")
+                    {
+                        if (mode == RaceDesignScreen.GameMode.Warlords)
+                        {
+                            this.numSystems = (int)(12 * StarNumModifier);
+                        }
+                        else
+                            this.numSystems = (int)(150f * StarNumModifier);
+                        //this.numSystems = (int)(100f * StarNumModifier);
+                        this.data.Size = new Vector2(1.8E+07f * 3f, 1.8E+07f * 3f);
+                        //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
+                        //this.scale = 4;
+
+
+                    }
+                    //if (this.numSystems <= this.numOpponents+2)
+                    //{
+                    //    this.numSystems = this.numOpponents + 2;
+                    //}
+                }
+                UniverseData universeDatum = this.data;
+                universeDatum.Size = universeDatum.Size * this.scale;
+                this.data.EmpireList.Add(empire);
+                EmpireManager.EmpireList.Add(empire);
+                this.GalacticCenter = new Vector2(this.data.Size.X / 2f, this.data.Size.Y / 2f);
+                StatTracker.SnapshotsDict.Clear();
             }
-            this.data.Size *= this.scale;
-            this.data.EmpireList.Add(empire);
-            EmpireManager.EmpireList.Add(empire);
-            this.GalacticCenter = new Vector2(this.data.Size.X / 2f, this.data.Size.Y / 2f);
-            StatTracker.SnapshotsDict.Clear();
         }
 
         ~CreatingNewGameScreen()
