@@ -124,7 +124,7 @@ namespace Ship_Game
 
 		static MainMenuScreen()
 		{
-			MainMenuScreen.Version = "SE 0.1";
+			MainMenuScreen.Version = "15B SE 0.1";
 		}
 
 		public MainMenuScreen()
