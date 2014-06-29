@@ -533,6 +533,9 @@ namespace Ship_Game
 							this.NotificationList.QueuePendingRemoval(n);
 							Recalculate = true;
 							retValue = true;
+                            // ADDED BY SHAHMATT (to unpause game on right clicking notification icon)
+                            if (GlobalStats.PauseOnNotification )
+                                this.screen.Paused = false;
 						}
 						n.ShowMessage = true;
 					}
@@ -612,6 +615,10 @@ namespace Ship_Game
 					notification.transitionElapsedTime = notification.transitionElapsedTime + elapsedTime;
 					float amount = (float)Math.Pow((double)(n.transitionElapsedTime / n.transDuration), 2);
 					n.ClickRect.Y = (int)MathHelper.SmoothStep((float)n.ClickRect.Y, (float)n.DestinationRect.Y, amount);
+                    // ADDED BY SHAHMATT (pause game when there are any notifications)
+                    if (GlobalStats.PauseOnNotification && this.screen.viewState > UniverseScreen.UnivScreenState.SystemView && n.ClickRect.Y >= n.DestinationRect.Y)
+                        this.screen.Paused = true;                   
+                    // END OF ADDED BY SHAHMATT
 				}
 			}
 		}
