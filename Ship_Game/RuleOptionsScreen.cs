@@ -23,6 +23,8 @@ namespace Ship_Game
 
         private FloatSlider GravityWellSize;
 
+        private FloatSlider extraPlanets;
+
 		public Ship itemToBuild;
 
 		public RuleOptionsScreen()
@@ -61,6 +63,7 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, TitlePos, Color.White);
 			this.FTLPenaltySlider.DrawDecimal(base.ScreenManager);
             this.GravityWellSize.DrawGW(base.ScreenManager);
+            this.extraPlanets.Draw(base.ScreenManager);
 			this.close.Draw(base.ScreenManager);
 			foreach (Checkbox cb in this.Checkboxes)
 			{
@@ -107,6 +110,12 @@ namespace Ship_Game
             }
             this.GravityWellSize.HandleInputGW(input);
             GlobalStats.GravityWellRange = this.GravityWellSize.amount;
+            if (HelperFunctions.CheckIntersection(this.extraPlanets.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("Add up to 6 random planets to each system", base.ScreenManager);
+            }
+            this.extraPlanets.HandleInput10(input);
+            GlobalStats.ExtraPlanets = (int)this.extraPlanets.amount;
 		}
 
 		public override void LoadContent()
@@ -132,9 +141,17 @@ namespace Ship_Game
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2288;
             Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
+
             this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002));
             this.GravityWellSize.SetAmountGW(GlobalStats.GravityWellRange);
             this.GravityWellSize.amount = GlobalStats.GravityWellRange;
+
+            Rectangle epRect = new Rectangle(leftRect.X + 60, leftRect.Y + 340, 270, 50);
+            this.extraPlanets = new FloatSlider(epRect, "Extra Planets");
+            this.extraPlanets.SetAmount10((float)GlobalStats.ExtraPlanets);
+            this.extraPlanets.amount = GlobalStats.ExtraPlanets;
+
+
 			this.MainMenu = new Menu2(base.ScreenManager, leftRect);
 		}
 	}
