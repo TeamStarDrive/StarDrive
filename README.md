@@ -5,15 +5,21 @@
 * Great!
 * If you are running an in game mod then unload that before doing the below. Go into the games mod manager and unload any loaded mod. You can load them up after you switch to this.
 * go to the download section and download the latest release version. Or latest test version depending on your level of patience.
-* backup you original stardrive.exe and stardrive.exe.config. You dont have to do this as you can just go to the steam and reverify steam content for the games.
+* backup you original stardrive.exe and stardrive.exe.config. 
+open the zip and look at the files inside and back up any folders and files you want to be able to restore. 
+You don't have to do this as you can just go to the steam and reverify steam content for the game.
 * extract the zip into the the game directory usually located in Program Files (x86)\Steam\SteamApps\common\StarDrive
 * Overwrite files when asked.
 * **Skip the below if the ZIP already has a content folder in it.**
 * do the same for stardocs required files to unlock some of the mod features for vanilla play.
 
-* remember this mod should be content mod compatible with extra mod power to mods that support this project.
+##### Compatibility ####
+* this mod may not content mod compatible with SD. Its something we are trying to do but it is difficult sometimes.
+Any required files will be in the download.
 * This mod should be compatible with normal content mods. 
 * It is compatible with Deveks Code mods but... Dont do that. just run this.
+* THE SAVE GAMES FROM THIS MOD MAY NOT LOAD IN VANILLA SD.
+* Vanilla SD saves will load in this mod but saving again may break compatibility with SD vanilla.
 
 
 ### Yeah thats great but i want to add my own features or change some issue that bugs me###
@@ -21,11 +27,11 @@
 * Ill try to describe as best I can how to compile and contribute to this project.
 * friend me on steam and request access to the steam SDCodemod forum.
 
-### This is for modifying the StarDrive game for fun and learning###
+### This is for modifying the StarDrive game 15B for fun and learning###
 
 * Stardrive can be opened up in a variety of .net decompilers which all get the code wrong in different ways. It has to be cleaned up and corrected to work correctly and that is what this repository is.
 * Ver. SE 0.1
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+
 
 ### How do I get set up? ###
 

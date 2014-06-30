@@ -166,6 +166,9 @@ namespace Ship_Game.Gameplay
         //added by gremlin devek mod warp restriction Change this to use app config
         public static bool WarpRestriction = false;
         public static bool WarpRestrictionInNuetral = false;
+        public float OrbitTimer=0;
+
+
 		public ArtificialIntelligence()
 		{
 		}
@@ -1340,10 +1343,11 @@ namespace Ship_Game.Gameplay
 			this.DoOrbit(goal.TargetPlanet, elapsedTime);
 
             //added by gremlin. &&this.findNewPosTimer <.25f && this.OrbitalAngle <30 delay landing of orbiting troops
-			if (this.Owner.Role == "troop" && this.Owner.TroopList.Count > 0  && this.OrbitalAngle <90)
+
+			if (this.Owner.Role == "troop" && this.Owner.TroopList.Count > 0 )
 			{
-				if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f && goal.TargetPlanet.AssignTroopToTile(this.Owner.TroopList[0]))
-				{
+                if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f  && goal.TargetPlanet.AssignTroopToTile(this.Owner.TroopList[0]))
+				{//Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f
 					this.Owner.QueueTotalRemoval();
 					return;
 				}
@@ -1355,12 +1359,13 @@ namespace Ship_Game.Gameplay
 					this.HadPO = true;
 				}
 				this.HasPriorityOrder = false;
+                this.State = this.DefaultAIState;
 				this.OrderQueue.Clear();
 			}
 			else
 			{
 				List<Troop> ToRemove = new List<Troop>();
-                if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f  && this.OrbitalAngle < 90)
+                if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f  )
 				{
 					for (int i = 0; i < this.Owner.TroopList.Count; i++)
 					{
@@ -1485,18 +1490,17 @@ namespace Ship_Game.Gameplay
         private void DoOrbit(Planet OrbitTarget, float elapsedTime)
         {
 
+            
             if (this.findNewPosTimer > 0f)
             {
-                //GremlinAI artificialIntelligence = this;
-                this.findNewPosTimer = this.findNewPosTimer - elapsedTime;
+                ArtificialIntelligence artificialIntelligence = this;
+                artificialIntelligence.findNewPosTimer = artificialIntelligence.findNewPosTimer - elapsedTime;
 
             }
             else
             {
-
                 this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
-
-                if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 250f)
+                if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500f)
                 {
                     ArtificialIntelligence orbitalAngle = this;
                     orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle + 15f;
@@ -1506,68 +1510,64 @@ namespace Ship_Game.Gameplay
                         orbitalAngle1.OrbitalAngle = orbitalAngle1.OrbitalAngle - 360f;
                     }
                     this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+                    if (this.inOrbit == false) this.inOrbit = true;
+                    this.OrbitTimer++;
                 }
+                //else
+                //{
+                //    this.inOrbit = false;
+                //}
                 this.findNewPosTimer = 1.5f;
+
             }
-            float od = Vector2.Distance(this.Owner.Center, this.OrbitPos);
-            if (od < 7500f)
+            if (!this.inOrbit)
+                this.OrbitTimer = 0;
+            float single = Vector2.Distance(this.Owner.Center, this.OrbitPos);
+            if (single < 7500f)
             {
                 this.Owner.HyperspaceReturn();
                 if (this.State != AIState.Bombard)
                 {
                     this.HasPriorityOrder = false;
-                    if (this.Owner.speed > 100) this.Owner.speed = 100;
                 }
-                if (this.Owner.Role == "troop")
-                {
 
-                    if (this.OrbitTarget != null && this.Owner.loyalty != this.OrbitTarget.Owner)
-                    {
-
-                        if (OrbitTarget.Owner == null)
-                        {
-                            this.OrderLandAllTroops(this.OrbitTarget);
-                        }
-                        else if (this.Owner.loyalty.GetRelations()[this.OrbitTarget.Owner].AtWar)
-                        {
-                            this.State = AIState.AssaultPlanet;
-                            this.OrderLandAllTroops(this.OrbitTarget);
-                        }
-                    }
-                }
             }
-            if (od <= 15000f)
+            if (single <= 15000f)
             {
-
-                if (od <= 1000)
+                if (this.Owner.speed > 150f && this.Owner.engineState != Ship.MoveState.Warp)
                 {
-
-                    if (this.Owner.engineState != Ship.MoveState.Warp)
-                    {
-                        this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed < 250 ? this.Owner.speed : 250f); //this.Owner.speed / 2f);
-                    }
+                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, 150f);//this.Owner.speed / 3.5f);
                     return;
                 }
-                if (this.Owner.speed > 1200 && this.Owner.engineState != Ship.MoveState.Warp)
+                if (this.Owner.engineState != Ship.MoveState.Warp)
                 {
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 3.5f);//400f);///
-
+                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
                 }
-                else
-                {
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
-                }
-
                 return;
-
-
             }
+            if (this.State != AIState.AssaultPlanet && this.Owner.Role == "troop" && this.Owner.loyalty == universeScreen.player)
+            {
 
-            Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
-            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-            Vector2 right = new Vector2(-forward.Y, forward.X);
-            Math.Acos((double)Vector2.Dot(wantedForward, forward));
-            Vector2.Dot(wantedForward, right);
+                if (this.OrbitTarget != null && this.Owner.loyalty != this.OrbitTarget.Owner)
+                {
+
+                    if (OrbitTarget.Owner == null)
+                    {
+                        this.State = AIState.AssaultPlanet;
+                        this.OrderLandAllTroops(this.OrbitTarget);
+                    }
+                    else if (this.Owner.loyalty.GetRelations()[this.OrbitTarget.Owner].AtWar)
+                    {
+                        this.State = AIState.AssaultPlanet;
+                        this.OrderLandAllTroops(this.OrbitTarget);
+                    }
+                }
+            }
+            Vector2 vector2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
+            Vector2 vector21 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+            Vector2 vector22 = new Vector2(-vector21.Y, vector21.X);
+            Math.Acos((double)Vector2.Dot(vector2, vector21));
+            Vector2.Dot(vector2, vector22);
             this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
         }
 		private void DoOrbitorig(Planet OrbitTarget, float elapsedTime)
@@ -6653,7 +6653,7 @@ namespace Ship_Game.Gameplay
 			owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
 		}
 
-		private void StopWithBackwardsThrust(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
+		private void StopWithBackwardsThrustORIG(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
 		{
 			if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
 			{
@@ -6714,7 +6714,65 @@ namespace Ship_Game.Gameplay
 				}
 			}
 		}
-
+        private void StopWithBackwardsThrust(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
+        {
+            if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+            {
+                this.HadPO = true;
+            }
+            this.HasPriorityOrder = false;
+            float Distance = Vector2.Distance(this.Owner.Center, Goal.MovePosition);
+            if (Distance < 200)// && Distance > 25f)
+            {
+                this.OrderQueue.RemoveFirst();
+                lock (GlobalStats.WayPointLock)
+                {
+                    this.ActiveWayPoints.Clear();
+                }
+                this.Owner.Velocity = Vector2.Zero;
+                if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+                {
+                    this.HadPO = true;
+                }
+                this.HasPriorityOrder = false;
+            }
+            this.Owner.HyperspaceReturn();
+            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+            if (this.Owner.Velocity == Vector2.Zero || Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), Goal.MovePosition) > Vector2.Distance(this.Owner.Center, Goal.MovePosition))
+            {
+                this.Owner.Velocity = Vector2.Zero;
+                this.OrderQueue.RemoveFirst();
+                if (this.ActiveWayPoints.Count > 0)
+                {
+                    lock (GlobalStats.WayPointLock)
+                    {
+                        this.ActiveWayPoints.Dequeue();
+                    }
+                }
+                return;
+            }
+            Vector2 velocity = this.Owner.Velocity;
+            float timetostop = velocity.Length() / Goal.SpeedLimit;
+            if (Vector2.Distance(this.Owner.Center, Goal.MovePosition) / Goal.SpeedLimit <= timetostop + .005) //(this.Owner.Velocity.Length() + 1)
+            {
+                Ship owner = this.Owner;
+                owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * Goal.SpeedLimit));
+                if (this.Owner.Velocity.Length() > Goal.SpeedLimit)
+                {
+                    this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * Goal.SpeedLimit;
+                }
+            }
+            else
+            {
+                Ship ship = this.Owner;
+                ship.Velocity = ship.Velocity + (Vector2.Normalize(forward) * (elapsedTime * Goal.SpeedLimit));
+                if (this.Owner.Velocity.Length() > Goal.SpeedLimit)
+                {
+                    this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * Goal.SpeedLimit;
+                    return;
+                }
+            }
+        }
 		private void ThrustTowardsPositionORIG(Vector2 Position, float elapsedTime, float speedLimit)
 		{
 			if (speedLimit == 0f)
