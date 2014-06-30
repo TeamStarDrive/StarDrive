@@ -914,7 +914,7 @@ namespace Ship_Game
 			}
 			this.DescriptionSL.Entries.Clear();
 			this.DescriptionSL.Copied.Clear();
-			HelperFunctions.parseTextToSL(this.rd, (float)(this.Description.Menu.Width - 50), Fonts.Arial12Bold, ref this.DescriptionSL);
+			HelperFunctions.parseTextToSL(this.rd, (float)(this.Description.Menu.Width - 50), Fonts.Arial12, ref this.DescriptionSL);
 			this.RaceSummary.RaceDescription = this.rd;
 		}
 
@@ -953,7 +953,7 @@ namespace Ship_Game
 						base.ScreenManager.SpriteBatch.Draw(this.TextureDict[data], Portrait, new Rectangle?(Source), Color.White);
 						if (this.SelectedData == data)
 						{
-							Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, Portrait, Color.Orange);
+							Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, Portrait, Color.BurlyWood);
 						}
 					}
 					else
@@ -964,7 +964,7 @@ namespace Ship_Game
 						base.ScreenManager.SpriteBatch.Draw(this.TextureDict[data], Portrait, Color.White);
 						if (this.SelectedData == data)
 						{
-							Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, Portrait, Color.Orange);
+							Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, Portrait, Color.BurlyWood);
 						}
 					}
 				}
@@ -972,66 +972,66 @@ namespace Ship_Game
 			this.Name.Draw();
 			Color c = new Color(255, 239, 208);
 			this.NameSub.Draw();
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12Bold : Fonts.Arial20Bold), string.Concat(Localizer.Token(31), ": "), this.RaceNamePos, Color.Orange);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), this.RaceNamePos, Color.BurlyWood);
 			Vector2 rpos = this.RaceNamePos;
 			rpos.X = rpos.X + 205f;
 			if (!this.RaceName.HandlingInput)
 			{
-				this.RaceName.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.RaceName.Hover ? Color.White : c));
+				this.RaceName.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.RaceName.Hover ? Color.White : c));
 			}
 			else
 			{
-				this.RaceName.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
+				this.RaceName.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
 			}
-			this.RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial20Bold.MeasureString(this.RaceName.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+			this.RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
-			rpos.Y = rpos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12Bold : Fonts.Arial20Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.Orange);
+			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
 			rpos.X = rpos.X + 205f;
 			if (!this.SingEntry.HandlingInput)
 			{
-				this.SingEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.SingEntry.Hover ? Color.White : c));
+				this.SingEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.SingEntry.Hover ? Color.White : c));
 			}
 			else
 			{
-				this.SingEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
+				this.SingEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
 			}
-			this.SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial20Bold.MeasureString(this.SingEntry.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+			this.SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
-			rpos.Y = rpos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12Bold : Fonts.Arial20Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.Orange);
+			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
 			rpos.X = rpos.X + 205f;
 			if (!this.PlurEntry.HandlingInput)
 			{
-				this.PlurEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.PlurEntry.Hover ? Color.White : c));
+				this.PlurEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.PlurEntry.Hover ? Color.White : c));
 			}
 			else
 			{
-				this.PlurEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
+				this.PlurEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
 			}
-			this.PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial20Bold.MeasureString(this.PlurEntry.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+			this.PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
-			rpos.Y = rpos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12Bold : Fonts.Arial20Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.Orange);
+			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
 			rpos.X = rpos.X + 205f;
 			if (!this.HomeSystemEntry.HandlingInput)
 			{
-				this.HomeSystemEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.HomeSystemEntry.Hover ? Color.White : c));
+				this.HomeSystemEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.HomeSystemEntry.Hover ? Color.White : c));
 			}
 			else
 			{
-				this.HomeSystemEntry.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.Orange);
+				this.HomeSystemEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
 			}
-			this.HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial20Bold.MeasureString(this.HomeSystemEntry.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(29), this.FlagPos, Color.Orange);
+			this.HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), this.FlagPos, Color.BurlyWood);
 			this.FlagRect = new Rectangle((int)this.FlagPos.X + 16, (int)this.FlagPos.Y + 15, 80, 80);
 			SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
 			KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[this.FlagIndex];
 			spriteBatch.Draw(item.Value, this.FlagRect, this.currentObjectColor);
 			this.FlagLeft = new Rectangle(this.FlagRect.X - 20, this.FlagRect.Y + 40 - 10, 20, 20);
 			this.FlagRight = new Rectangle(this.FlagRect.X + this.FlagRect.Width, this.FlagRect.Y + 40 - 10, 20, 20);
-			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/leftArrow"], this.FlagLeft, Color.Orange);
-			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/rightArrow"], this.FlagRight, Color.Orange);
+			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/leftArrow"], this.FlagLeft, Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/rightArrow"], this.FlagRight, Color.BurlyWood);
 			r = this.Description.Menu;
 			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
 			{
@@ -1048,14 +1048,14 @@ namespace Ship_Game
 				ScrollList.Entry e = this.DescriptionSL.Entries[i];
 				if (e.clickRectHover == 0)
 				{
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, e.item as string, drawCurs, Color.White);
-					drawCurs.Y = drawCurs.Y + (float)Fonts.Arial12Bold.LineSpacing;
+					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, e.item as string, drawCurs, Color.White);
+					drawCurs.Y = drawCurs.Y + (float)Fonts.Arial12.LineSpacing;
 				}
 			}
 			rpos = drawCurs;
-			rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12Bold.LineSpacing);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(30), ": ", this.TotalPointsUsed), rpos, Color.White);
-			rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", this.TotalPointsUsed), rpos, Color.White);
+            rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 8);
 			int numTraits = 0;
 			foreach (TraitEntry t in this.PhysicalTraits)
 			{
@@ -1063,15 +1063,15 @@ namespace Ship_Game
 				{
 					rpos = drawCurs;
 					rpos.X = rpos.X + 145f;
-					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12Bold.LineSpacing);
-					rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
+                    rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
 				}
 				if (!t.Selected)
 				{
 					continue;
 				}
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? Color.LightGreen : Color.LightPink));
-				rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+				rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
 				numTraits++;
 			}
 			foreach (TraitEntry t in this.IndustryTraits)
@@ -1080,15 +1080,15 @@ namespace Ship_Game
 				{
 					rpos = drawCurs;
 					rpos.X = rpos.X + 145f;
-					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12Bold.LineSpacing);
-					rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
+                    rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
 				}
 				if (!t.Selected)
 				{
 					continue;
 				}
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? Color.LightGreen : Color.LightPink));
-				rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
 				numTraits++;
 			}
 			foreach (TraitEntry t in this.SpecialTraits)
@@ -1097,15 +1097,15 @@ namespace Ship_Game
 				{
 					rpos = drawCurs;
 					rpos.X = rpos.X + 145f;
-					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial12Bold.LineSpacing);
-					rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
+                    rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
 				}
 				if (!t.Selected)
 				{
 					continue;
 				}
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? Color.LightGreen : Color.LightPink));
-				rpos.Y = rpos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
 				numTraits++;
 			}
 			this.TitleBar.Draw();
@@ -1124,29 +1124,33 @@ namespace Ship_Game
 						bCursor.Y = (float)(e.clickRect.Y - 5);
 						Vector2 tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
 						string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
-						Color drawColor = new Color(128, 128, 128, 128);
-						while (Fonts.Arial20Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
+                        Color drawColor = new Color(95, 95, 95, 95);
+						while (Fonts.Arial14Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
 						{
 							name = string.Concat(name, " .");
 						}
+                        if (!(e.item as TraitEntry).Selected)
+                        {
+                            drawColor = new Color(95, 95, 95, 95);
+                        }
 						if ((e.item as TraitEntry).Selected)
 						{
-							drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.LightGreen : Color.LightPink);
+							drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.ForestGreen : Color.Crimson);
 						}
 						else if ((e.item as TraitEntry).Excluded)
 						{
-							drawColor = new Color(128, 128, 128, 128);
+                            drawColor = drawColor = new Color(95, 95, 95, 95);
 						}
 						else if (this.TotalPointsUsed >= 0 && this.TotalPointsUsed - (e.item as TraitEntry).trait.Cost >= 0 || (e.item as TraitEntry).trait.Cost < 0)
 						{
-							drawColor = Color.Gray;
+                            drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.MediumSeaGreen : Color.LightCoral);
 						}
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, name, tCursor, drawColor);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
 						Vector2 curs = bCursor;
-						curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial20Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
-						tCursor.Y = tCursor.Y + (float)Fonts.Arial20Bold.LineSpacing;
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, Color.Orange);
+						curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
+						tCursor.Y = tCursor.Y + (float)Fonts.Arial14Bold.LineSpacing;
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.parseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, drawColor);
 						if (e.Plus != 0)
 						{
 							if (e.PlusHover != 0)
@@ -1164,29 +1168,33 @@ namespace Ship_Game
 						bCursor.Y = (float)(e.clickRect.Y - 5);
 						Vector2 tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
 						string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
-						Color drawColor = new Color(128, 128, 128, 128);
-						while (Fonts.Arial20Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
+                        Color drawColor = new Color(95, 95, 95, 95);
+						while (Fonts.Arial14Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
 						{
 							name = string.Concat(name, " .");
 						}
+                        if (!(e.item as TraitEntry).Selected)
+                        {
+                            drawColor = new Color(95, 95, 95, 95);
+                        }
 						if ((e.item as TraitEntry).Selected)
 						{
-							drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.LightGreen : Color.LightPink);
+							drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.ForestGreen : Color.Crimson);
 						}
 						else if ((e.item as TraitEntry).Excluded)
 						{
-							drawColor = new Color(128, 128, 128, 128);
+							drawColor = new Color(95, 95, 95, 95);
 						}
 						else if (this.TotalPointsUsed >= 0 && this.TotalPointsUsed - (e.item as TraitEntry).trait.Cost >= 0 || (e.item as TraitEntry).trait.Cost < 0)
 						{
-							drawColor = Color.Gray;
+                            drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.MediumSeaGreen : Color.LightCoral);
 						}
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, name, tCursor, drawColor);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
 						Vector2 curs = bCursor;
-						curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial20Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
-						tCursor.Y = tCursor.Y + (float)Fonts.Arial20Bold.LineSpacing;
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, Color.Orange);
+						curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
+						tCursor.Y = tCursor.Y + (float)Fonts.Arial14Bold.LineSpacing;
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.parseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, drawColor);
 						if (e.Plus != 0)
 						{
 							if (e.PlusHover != 0)
@@ -1205,24 +1213,24 @@ namespace Ship_Game
 					}
 				}
 			}
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(24), ": "), new Vector2((float)this.GalaxySizeRect.X, (float)this.GalaxySizeRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Galaxysize.ToString(), new Vector2((float)(this.GalaxySizeRect.X + 190) - Fonts.Arial12Bold.MeasureString(this.Galaxysize.ToString()).X, (float)this.GalaxySizeRect.Y), Color.Orange);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(25), " : "), new Vector2((float)this.NumberStarsRect.X, (float)this.NumberStarsRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.StarEnum.ToString(), new Vector2((float)(this.NumberStarsRect.X + 190) - Fonts.Arial12Bold.MeasureString(this.StarEnum.ToString()).X, (float)this.NumberStarsRect.Y), Color.Orange);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2102), " : "), new Vector2((float)this.NumOpponentsRect.X, (float)this.NumOpponentsRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.numOpponents.ToString(), new Vector2((float)(this.NumOpponentsRect.X + 190) - Fonts.Arial12Bold.MeasureString(this.numOpponents.ToString()).X, (float)this.NumOpponentsRect.Y), Color.Orange);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2105), " : "), new Vector2((float)this.GameModeRect.X, (float)this.GameModeRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2133), " : "), new Vector2((float)this.PacingRect.X, (float)this.PacingRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.Pacing.ToString(), "%"), new Vector2((float)(this.PacingRect.X + 190) - Fonts.Arial12Bold.MeasureString(string.Concat(this.Pacing.ToString(), "%")).X, (float)this.PacingRect.Y), Color.Orange);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2139), " : "), new Vector2((float)this.DifficultyRect.X, (float)this.DifficultyRect.Y), Color.White);
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.difficulty.ToString(), new Vector2((float)(this.DifficultyRect.X + 190) - Fonts.Arial12Bold.MeasureString(this.difficulty.ToString()).X, (float)this.DifficultyRect.Y), Color.Orange);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2((float)this.GalaxySizeRect.X, (float)this.GalaxySizeRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.Galaxysize.ToString(), new Vector2((float)(this.GalaxySizeRect.X + 190) - Fonts.Arial12.MeasureString(this.Galaxysize.ToString()).X, (float)this.GalaxySizeRect.Y), Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(25), " : "), new Vector2((float)this.NumberStarsRect.X, (float)this.NumberStarsRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.StarEnum.ToString(), new Vector2((float)(this.NumberStarsRect.X + 190) - Fonts.Arial12.MeasureString(this.StarEnum.ToString()).X, (float)this.NumberStarsRect.Y), Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2102), " : "), new Vector2((float)this.NumOpponentsRect.X, (float)this.NumOpponentsRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.numOpponents.ToString(), new Vector2((float)(this.NumOpponentsRect.X + 190) - Fonts.Arial12.MeasureString(this.numOpponents.ToString()).X, (float)this.NumOpponentsRect.Y), Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2105), " : "), new Vector2((float)this.GameModeRect.X, (float)this.GameModeRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2133), " : "), new Vector2((float)this.PacingRect.X, (float)this.PacingRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(this.Pacing.ToString(), "%"), new Vector2((float)(this.PacingRect.X + 190) - Fonts.Arial12.MeasureString(string.Concat(this.Pacing.ToString(), "%")).X, (float)this.PacingRect.Y), Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2139), " : "), new Vector2((float)this.DifficultyRect.X, (float)this.DifficultyRect.Y), Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.difficulty.ToString(), new Vector2((float)(this.DifficultyRect.X + 190) - Fonts.Arial12.MeasureString(this.difficulty.ToString()).X, (float)this.DifficultyRect.Y), Color.BurlyWood);
 			string txt = "";
 			int tip = 0;
 			if (this.mode == RaceDesignScreen.GameMode.PreWarp)
 			{
 				txt = "Pre-Warp";
 				tip = 111;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12Bold.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.Orange);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
 				if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 				{
 					ToolTip.CreateTooltip("Play with a new, hardcore ruleset that makes radical changes to the StarDrive FTL systems", base.ScreenManager);
@@ -1232,7 +1240,7 @@ namespace Ship_Game
 			{
 				txt = Localizer.Token(2103);
 				tip = 112;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12Bold.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.Orange);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
 				if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 				{
 					ToolTip.CreateTooltip(tip, base.ScreenManager);
@@ -1312,427 +1320,861 @@ namespace Ship_Game
             //should implicitly do the same thing as the original bad finalize
         }
 
-		public override void HandleInput(InputState input)
-		{
-			this.currentMouse = Mouse.GetState();
-			Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-			foreach (UIButton b in this.Buttons)
-			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
-				{
-					b.State = UIButton.PressState.Normal;
-				}
-				else
-				{
-					if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
-					{
-						AudioManager.PlayCue("mouse_over4");
-					}
-					b.State = UIButton.PressState.Hover;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
-					{
-						b.State = UIButton.PressState.Pressed;
-					}
-					if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-					{
-						continue;
-					}
-					string launches = b.Launches;
-					string str = launches;
-					if (launches == null)
-					{
-						continue;
-					}
-					if (str == "Engage")
-					{
-						AudioManager.PlayCue("echo_affirm");
-						this.OnEngage();
-					}
-					else if (str == "Rule Options")
-					{
-						base.ScreenManager.AddScreen(new RuleOptionsScreen());
-						AudioManager.PlayCue("echo_affirm");
-					}
-					else if (str == "Abort")
-					{
-						AudioManager.PlayCue("echo_affirm");
-						this.ExitScreen();
-					}
-				}
-			}
-			this.DescriptionSL.HandleInput(input);
-			if (!this.DrawingColorSelector)
-			{
-				this.selector = null;
-				foreach (ScrollList.Entry e in this.RaceArchetypeSL.Entries)
-				{
-					if (!HelperFunctions.CheckIntersection(e.clickRect, mousePos) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-					{
-						continue;
-					}
-					this.SelectedData = e.item as EmpireData;
-					AudioManager.PlayCue("echo_affirm");
-					this.SetEmpireData(this.SelectedData);
-				}
-				this.RaceArchetypeSL.HandleInput(input);
-				this.Traits.HandleInput(this);
-				if (!HelperFunctions.CheckIntersection(this.RaceName.ClickableArea, mousePos))
-				{
-					this.RaceName.Hover = false;
-				}
-				else
-				{
-					this.RaceName.Hover = true;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.SingEntry.HandlingInput && !this.PlurEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
-					{
-						this.RaceName.HandlingInput = true;
-					}
-				}
-				if (!HelperFunctions.CheckIntersection(this.SingEntry.ClickableArea, mousePos))
-				{
-					this.SingEntry.Hover = false;
-				}
-				else
-				{
-					this.SingEntry.Hover = true;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.PlurEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
-					{
-						this.SingEntry.HandlingInput = true;
-					}
-				}
-				if (!HelperFunctions.CheckIntersection(this.PlurEntry.ClickableArea, mousePos))
-				{
-					this.PlurEntry.Hover = false;
-				}
-				else
-				{
-					this.PlurEntry.Hover = true;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.SingEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
-					{
-						this.PlurEntry.HandlingInput = true;
-					}
-				}
-				if (!HelperFunctions.CheckIntersection(this.HomeSystemEntry.ClickableArea, mousePos))
-				{
-					this.HomeSystemEntry.Hover = false;
-				}
-				else
-				{
-					this.HomeSystemEntry.Hover = true;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.SingEntry.HandlingInput && !this.PlurEntry.HandlingInput)
-					{
-						this.HomeSystemEntry.HandlingInput = true;
-					}
-				}
-				if (this.RaceName.HandlingInput)
-				{
-					this.RaceName.HandleTextInput(ref this.RaceName.Text);
-				}
-				if (this.SingEntry.HandlingInput)
-				{
-					this.SingEntry.HandleTextInput(ref this.SingEntry.Text);
-				}
-				if (this.PlurEntry.HandlingInput)
-				{
-					this.PlurEntry.HandleTextInput(ref this.PlurEntry.Text);
-				}
-				if (this.HomeSystemEntry.HandlingInput)
-				{
-					this.HomeSystemEntry.HandleTextInput(ref this.HomeSystemEntry.Text);
-				}
-				this.traitsSL.HandleInput(input);
-				for (int i = this.traitsSL.indexAtTop; i < this.traitsSL.Entries.Count && i < this.traitsSL.indexAtTop + this.traitsSL.entriesToDisplay; i++)
-				{
-					ScrollList.Entry f = this.traitsSL.Entries[i];
-					if (!HelperFunctions.CheckIntersection(f.clickRect, mousePos))
-					{
-						f.clickRectHover = 0;
-					}
-					else
-					{
-						if (f.clickRectHover == 0)
-						{
-							AudioManager.PlayCue("sd_ui_mouseover");
-						}
-						this.selector = new Selector(base.ScreenManager, f.clickRect);
-						f.clickRectHover = 1;
-						TraitEntry t = f.item as TraitEntry;
-						if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-						{
-							if (t.Selected && this.TotalPointsUsed + t.trait.Cost >= 0)
-							{
-								t.Selected = !t.Selected;
-								RaceDesignScreen totalPointsUsed = this;
-								totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
-								AudioManager.GetCue("blip_click").Play();
-								int excludes = t.trait.Excludes;
-								foreach (TraitEntry ex in this.PhysicalTraits)
-								{
-									if (t.trait.Excludes != ex.trait.TraitName)
-									{
-										continue;
-									}
-									ex.Excluded = false;
-								}
-								foreach (TraitEntry ex in this.IndustryTraits)
-								{
-									if (t.trait.Excludes != ex.trait.TraitName)
-									{
-										continue;
-									}
-									ex.Excluded = false;
-								}
-								foreach (TraitEntry ex in this.SpecialTraits)
-								{
-									if (t.trait.Excludes != ex.trait.TraitName)
-									{
-										continue;
-									}
-									ex.Excluded = false;
-								}
-							}
-							else if (this.TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
-							{
-								AudioManager.PlayCue("UI_Misc20");
-							}
-							else
-							{
-								bool OK = true;
-								int num = t.trait.Excludes;
-								foreach (TraitEntry ex in this.PhysicalTraits)
-								{
-									if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
-									{
-										continue;
-									}
-									OK = false;
-								}
-								foreach (TraitEntry ex in this.SpecialTraits)
-								{
-									if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
-									{
-										continue;
-									}
-									OK = false;
-								}
-								foreach (TraitEntry ex in this.IndustryTraits)
-								{
-									if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
-									{
-										continue;
-									}
-									OK = false;
-								}
-								if (OK)
-								{
-									t.Selected = true;
-									RaceDesignScreen raceDesignScreen = this;
-									raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
-									AudioManager.GetCue("blip_click").Play();
-									int excludes1 = t.trait.Excludes;
-									foreach (TraitEntry ex in this.PhysicalTraits)
-									{
-										if (t.trait.Excludes != ex.trait.TraitName)
-										{
-											continue;
-										}
-										ex.Excluded = true;
-									}
-									foreach (TraitEntry ex in this.SpecialTraits)
-									{
-										if (t.trait.Excludes != ex.trait.TraitName)
-										{
-											continue;
-										}
-										ex.Excluded = true;
-									}
-									foreach (TraitEntry ex in this.IndustryTraits)
-									{
-										if (t.trait.Excludes != ex.trait.TraitName)
-										{
-											continue;
-										}
-										ex.Excluded = true;
-									}
-								}
-							}
-							this.DoRaceDescription();
-						}
-					}
-				}
-				if (HelperFunctions.CheckIntersection(this.GalaxySizeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-				{
-					AudioManager.GetCue("blip_click").Play();
-					RaceDesignScreen galaxysize = this;
-					galaxysize.Galaxysize = (RaceDesignScreen.GalSize)((int)galaxysize.Galaxysize + (int)RaceDesignScreen.GalSize.Small);
-					if (this.Galaxysize > RaceDesignScreen.GalSize.Epic)
-					{
-						this.Galaxysize = RaceDesignScreen.GalSize.Tiny;
-					}
-				}
-				if (HelperFunctions.CheckIntersection(this.NumberStarsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-				{
-					AudioManager.GetCue("blip_click").Play();
-					RaceDesignScreen starEnum = this;
-					starEnum.StarEnum = (RaceDesignScreen.StarNum)((int)starEnum.StarEnum + (int)RaceDesignScreen.StarNum.Uncommon);
-					if (this.StarEnum > RaceDesignScreen.StarNum.Crowded)
-					{
-						this.StarEnum = RaceDesignScreen.StarNum.Rare;
-					}
-				}
-				if (HelperFunctions.CheckIntersection(this.NumOpponentsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-				{
-					AudioManager.GetCue("blip_click").Play();
-					RaceDesignScreen raceDesignScreen1 = this;
-					raceDesignScreen1.numOpponents = raceDesignScreen1.numOpponents + 1;
-					if (this.numOpponents > 7)
-					{
-						this.numOpponents = 1;
-					}
-				}
-				HelperFunctions.CheckIntersection(this.GameModeRect, mousePos);
-				if (HelperFunctions.CheckIntersection(this.ScaleRect, mousePos))
-				{
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-					{
-						AudioManager.GetCue("blip_click").Play();
-						RaceDesignScreen gameScale = this;
-						gameScale.GameScale = gameScale.GameScale + 1;
-						if (this.GameScale > 4)
-						{
-							this.GameScale = 1;
-						}
-					}
-					if (input.RightMouseClick)
-					{
-						AudioManager.GetCue("blip_click").Play();
-						RaceDesignScreen gameScale1 = this;
-						gameScale1.GameScale = gameScale1.GameScale - 1;
-						if (this.GameScale < 1)
-						{
-							this.GameScale = 4;
-						}
-					}
-				}
-				if (HelperFunctions.CheckIntersection(this.PacingRect, mousePos))
-				{
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-					{
-						AudioManager.GetCue("blip_click").Play();
-						RaceDesignScreen pacing = this;
-						pacing.Pacing = pacing.Pacing + 25;
-						if (this.Pacing > 400)
-						{
-							this.Pacing = 100;
-						}
-					}
-					if (input.RightMouseClick)
-					{
-						AudioManager.GetCue("blip_click").Play();
-						RaceDesignScreen pacing1 = this;
-						pacing1.Pacing = pacing1.Pacing - 25;
-						if (this.Pacing < 100)
-						{
-							this.Pacing = 400;
-						}
-					}
-				}
-				if (HelperFunctions.CheckIntersection(this.DifficultyRect, mousePos))
-				{
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-					{
-						AudioManager.GetCue("blip_click").Play();
-						RaceDesignScreen raceDesignScreen2 = this;
-						raceDesignScreen2.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen2.difficulty + (int)UniverseData.GameDifficulty.Normal);
-						if (this.difficulty > UniverseData.GameDifficulty.Brutal)
-						{
-							this.difficulty = UniverseData.GameDifficulty.Easy;
-						}
-					}
-					if (input.RightMouseClick)
-					{
-						AudioManager.GetCue("blip_click").Play();
-						RaceDesignScreen raceDesignScreen3 = this;
-						raceDesignScreen3.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen3.difficulty - (int)UniverseData.GameDifficulty.Normal);
-						if (this.difficulty < UniverseData.GameDifficulty.Easy)
-						{
-							this.difficulty = UniverseData.GameDifficulty.Brutal;
-						}
-					}
-				}
-				if (HelperFunctions.CheckIntersection(this.FlagRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-				{
-					this.DrawingColorSelector = !this.DrawingColorSelector;
-				}
-				if (HelperFunctions.CheckIntersection(this.FlagRight, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-				{
-					if (ResourceManager.FlagTextures.Count - 1 <= this.FlagIndex)
-					{
-						this.FlagIndex = 0;
-					}
-					else
-					{
-						RaceDesignScreen flagIndex = this;
-						flagIndex.FlagIndex = flagIndex.FlagIndex + 1;
-					}
-					AudioManager.GetCue("blip_click").Play();
-				}
-				if (HelperFunctions.CheckIntersection(this.FlagLeft, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-				{
-					if (this.FlagIndex <= 0)
-					{
-						this.FlagIndex = ResourceManager.FlagTextures.Count - 1;
-					}
-					else
-					{
-						RaceDesignScreen flagIndex1 = this;
-						flagIndex1.FlagIndex = flagIndex1.FlagIndex - 1;
-					}
-					AudioManager.GetCue("blip_click").Play();
-				}
-			}
-			else if (!HelperFunctions.CheckIntersection(this.ColorSelector, input.CursorPosition))
-			{
-				if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-				{
-					this.DrawingColorSelector = false;
-				}
-			}
-			else if (this.currentMouse.LeftButton == ButtonState.Pressed)
-			{
-				int yPosition = this.ColorSelector.Y + 10;
-				int xPositionStart = this.ColorSelector.X + 10;
-				for (int i = 0; i <= 255; i++)
-				{
-					for (int j = 0; j <= 255; j++)
-					{
-						Color thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), this.currentObjectColor.B);
-						Rectangle ColorRect = new Rectangle(2 * j + xPositionStart - 4, yPosition - 4, 8, 8);
-						if (HelperFunctions.CheckIntersection(ColorRect, input.CursorPosition))
-						{
-							this.currentObjectColor = thisColor;
-						}
-					}
-					yPosition = yPosition + 2;
-				}
-				yPosition = this.ColorSelector.Y + 10;
-				for (int i = 0; i <= 255; i++)
-				{
-					Color thisColor = new Color(this.currentObjectColor.R, this.currentObjectColor.G, Convert.ToByte(i));
-					Rectangle ColorRect = new Rectangle(this.ColorSelector.X + 10 + 575, yPosition, 20, 2);
-					if (HelperFunctions.CheckIntersection(ColorRect, input.CursorPosition))
-					{
-						this.currentObjectColor = thisColor;
-					}
-					yPosition = yPosition + 2;
-				}
-			}
-			this.previousMouse = this.currentMouse;
-			if (input.Escaped)
-			{
-				this.ExitScreen();
-			}
-		}
+        #region Original handle input
+        public void HandleInputorig(InputState input)
+        {
+            this.currentMouse = Mouse.GetState();
+            Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
+            foreach (UIButton b in this.Buttons)
+            {
+                if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
+                {
+                    b.State = UIButton.PressState.Normal;
+                }
+                else
+                {
+                    if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
+                    {
+                        AudioManager.PlayCue("mouse_over4");
+                    }
+                    b.State = UIButton.PressState.Hover;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+                    {
+                        b.State = UIButton.PressState.Pressed;
+                    }
+                    if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    {
+                        continue;
+                    }
+                    string launches = b.Launches;
+                    string str = launches;
+                    if (launches == null)
+                    {
+                        continue;
+                    }
+                    if (str == "Engage")
+                    {
+                        AudioManager.PlayCue("echo_affirm");
+                        this.OnEngage();
+                    }
+                    else if (str == "Rule Options")
+                    {
+                        base.ScreenManager.AddScreen(new RuleOptionsScreen());
+                        AudioManager.PlayCue("echo_affirm");
+                    }
+                    else if (str == "Abort")
+                    {
+                        AudioManager.PlayCue("echo_affirm");
+                        this.ExitScreen();
+                    }
+                }
+            }
+            this.DescriptionSL.HandleInput(input);
+            if (!this.DrawingColorSelector)
+            {
+                this.selector = null;
+                foreach (ScrollList.Entry e in this.RaceArchetypeSL.Entries)
+                {
+                    if (!HelperFunctions.CheckIntersection(e.clickRect, mousePos) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    {
+                        continue;
+                    }
+                    this.SelectedData = e.item as EmpireData;
+                    AudioManager.PlayCue("echo_affirm");
+                    this.SetEmpireData(this.SelectedData);
+                }
+                this.RaceArchetypeSL.HandleInput(input);
+                this.Traits.HandleInput(this);
+                if (!HelperFunctions.CheckIntersection(this.RaceName.ClickableArea, mousePos))
+                {
+                    this.RaceName.Hover = false;
+                }
+                else
+                {
+                    this.RaceName.Hover = true;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.SingEntry.HandlingInput && !this.PlurEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
+                    {
+                        this.RaceName.HandlingInput = true;
+                    }
+                }
+                if (!HelperFunctions.CheckIntersection(this.SingEntry.ClickableArea, mousePos))
+                {
+                    this.SingEntry.Hover = false;
+                }
+                else
+                {
+                    this.SingEntry.Hover = true;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.PlurEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
+                    {
+                        this.SingEntry.HandlingInput = true;
+                    }
+                }
+                if (!HelperFunctions.CheckIntersection(this.PlurEntry.ClickableArea, mousePos))
+                {
+                    this.PlurEntry.Hover = false;
+                }
+                else
+                {
+                    this.PlurEntry.Hover = true;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.SingEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
+                    {
+                        this.PlurEntry.HandlingInput = true;
+                    }
+                }
+                if (!HelperFunctions.CheckIntersection(this.HomeSystemEntry.ClickableArea, mousePos))
+                {
+                    this.HomeSystemEntry.Hover = false;
+                }
+                else
+                {
+                    this.HomeSystemEntry.Hover = true;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.SingEntry.HandlingInput && !this.PlurEntry.HandlingInput)
+                    {
+                        this.HomeSystemEntry.HandlingInput = true;
+                    }
+                }
+                if (this.RaceName.HandlingInput)
+                {
+                    this.RaceName.HandleTextInput(ref this.RaceName.Text);
+                }
+                if (this.SingEntry.HandlingInput)
+                {
+                    this.SingEntry.HandleTextInput(ref this.SingEntry.Text);
+                }
+                if (this.PlurEntry.HandlingInput)
+                {
+                    this.PlurEntry.HandleTextInput(ref this.PlurEntry.Text);
+                }
+                if (this.HomeSystemEntry.HandlingInput)
+                {
+                    this.HomeSystemEntry.HandleTextInput(ref this.HomeSystemEntry.Text);
+                }
+                this.traitsSL.HandleInput(input);
+                for (int i = this.traitsSL.indexAtTop; i < this.traitsSL.Entries.Count && i < this.traitsSL.indexAtTop + this.traitsSL.entriesToDisplay; i++)
+                {
+                    ScrollList.Entry f = this.traitsSL.Entries[i];
+                    if (!HelperFunctions.CheckIntersection(f.clickRect, mousePos))
+                    {
+                        f.clickRectHover = 0;
+                    }
+                    else
+                    {
+                        if (f.clickRectHover == 0)
+                        {
+                            AudioManager.PlayCue("sd_ui_mouseover");
+                        }
+                        this.selector = new Selector(base.ScreenManager, f.clickRect);
+                        f.clickRectHover = 1;
+                        TraitEntry t = f.item as TraitEntry;
+                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                        {
+                            if (t.Selected && this.TotalPointsUsed + t.trait.Cost >= 0)
+                            {
+                                t.Selected = !t.Selected;
+                                RaceDesignScreen totalPointsUsed = this;
+                                totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
+                                AudioManager.GetCue("blip_click").Play();
+                                int excludes = t.trait.Excludes;
+                                foreach (TraitEntry ex in this.PhysicalTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                                foreach (TraitEntry ex in this.IndustryTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                                foreach (TraitEntry ex in this.SpecialTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                            }
+                            else if (this.TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
+                            {
+                                AudioManager.PlayCue("UI_Misc20");
+                            }
+                            else
+                            {
+                                bool OK = true;
+                                int num = t.trait.Excludes;
+                                foreach (TraitEntry ex in this.PhysicalTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                foreach (TraitEntry ex in this.SpecialTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                foreach (TraitEntry ex in this.IndustryTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                if (OK)
+                                {
+                                    t.Selected = true;
+                                    RaceDesignScreen raceDesignScreen = this;
+                                    raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
+                                    AudioManager.GetCue("blip_click").Play();
+                                    int excludes1 = t.trait.Excludes;
+                                    foreach (TraitEntry ex in this.PhysicalTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                    foreach (TraitEntry ex in this.SpecialTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                    foreach (TraitEntry ex in this.IndustryTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                }
+                            }
+                            this.DoRaceDescription();
+                        }
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.GalaxySizeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    AudioManager.GetCue("blip_click").Play();
+                    RaceDesignScreen galaxysize = this;
+                    galaxysize.Galaxysize = (RaceDesignScreen.GalSize)((int)galaxysize.Galaxysize + (int)RaceDesignScreen.GalSize.Small);
+                    if (this.Galaxysize > RaceDesignScreen.GalSize.Epic)
+                    {
+                        this.Galaxysize = RaceDesignScreen.GalSize.Tiny;
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.NumberStarsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    AudioManager.GetCue("blip_click").Play();
+                    RaceDesignScreen starEnum = this;
+                    starEnum.StarEnum = (RaceDesignScreen.StarNum)((int)starEnum.StarEnum + (int)RaceDesignScreen.StarNum.Uncommon);
+                    if (this.StarEnum > RaceDesignScreen.StarNum.Crowded)
+                    {
+                        this.StarEnum = RaceDesignScreen.StarNum.Rare;
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.NumOpponentsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    AudioManager.GetCue("blip_click").Play();
+                    RaceDesignScreen raceDesignScreen1 = this;
+                    raceDesignScreen1.numOpponents = raceDesignScreen1.numOpponents + 1;
+                    if (this.numOpponents > 7)
+                    {
+                        this.numOpponents = 1;
+                    }
+                }
+                HelperFunctions.CheckIntersection(this.GameModeRect, mousePos);
+                if (HelperFunctions.CheckIntersection(this.ScaleRect, mousePos))
+                {
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen gameScale = this;
+                        gameScale.GameScale = gameScale.GameScale + 1;
+                        if (this.GameScale > 4)
+                        {
+                            this.GameScale = 1;
+                        }
+                    }
+                    if (input.RightMouseClick)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen gameScale1 = this;
+                        gameScale1.GameScale = gameScale1.GameScale - 1;
+                        if (this.GameScale < 1)
+                        {
+                            this.GameScale = 4;
+                        }
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.PacingRect, mousePos))
+                {
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen pacing = this;
+                        pacing.Pacing = pacing.Pacing + 25;
+                        if (this.Pacing > 400)
+                        {
+                            this.Pacing = 100;
+                        }
+                    }
+                    if (input.RightMouseClick)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen pacing1 = this;
+                        pacing1.Pacing = pacing1.Pacing - 25;
+                        if (this.Pacing < 100)
+                        {
+                            this.Pacing = 400;
+                        }
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.DifficultyRect, mousePos))
+                {
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen raceDesignScreen2 = this;
+                        raceDesignScreen2.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen2.difficulty + (int)UniverseData.GameDifficulty.Normal);
+                        if (this.difficulty > UniverseData.GameDifficulty.Brutal)
+                        {
+                            this.difficulty = UniverseData.GameDifficulty.Easy;
+                        }
+                    }
+                    if (input.RightMouseClick)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen raceDesignScreen3 = this;
+                        raceDesignScreen3.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen3.difficulty - (int)UniverseData.GameDifficulty.Normal);
+                        if (this.difficulty < UniverseData.GameDifficulty.Easy)
+                        {
+                            this.difficulty = UniverseData.GameDifficulty.Brutal;
+                        }
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.FlagRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    this.DrawingColorSelector = !this.DrawingColorSelector;
+                }
+                if (HelperFunctions.CheckIntersection(this.FlagRight, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    if (ResourceManager.FlagTextures.Count - 1 <= this.FlagIndex)
+                    {
+                        this.FlagIndex = 0;
+                    }
+                    else
+                    {
+                        RaceDesignScreen flagIndex = this;
+                        flagIndex.FlagIndex = flagIndex.FlagIndex + 1;
+                    }
+                    AudioManager.GetCue("blip_click").Play();
+                }
+                if (HelperFunctions.CheckIntersection(this.FlagLeft, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    if (this.FlagIndex <= 0)
+                    {
+                        this.FlagIndex = ResourceManager.FlagTextures.Count - 1;
+                    }
+                    else
+                    {
+                        RaceDesignScreen flagIndex1 = this;
+                        flagIndex1.FlagIndex = flagIndex1.FlagIndex - 1;
+                    }
+                    AudioManager.GetCue("blip_click").Play();
+                }
+            }
+            else if (!HelperFunctions.CheckIntersection(this.ColorSelector, input.CursorPosition))
+            {
+                if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    this.DrawingColorSelector = false;
+                }
+            }
+            else if (this.currentMouse.LeftButton == ButtonState.Pressed)
+            {
+                int yPosition = this.ColorSelector.Y + 10;
+                int xPositionStart = this.ColorSelector.X + 10;
+                for (int i = 0; i <= 255; i++)
+                {
+                    for (int j = 0; j <= 255; j++)
+                    {
+                        Color thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), this.currentObjectColor.B);
+                        Rectangle ColorRect = new Rectangle(2 * j + xPositionStart - 4, yPosition - 4, 8, 8);
+                        if (HelperFunctions.CheckIntersection(ColorRect, input.CursorPosition))
+                        {
+                            this.currentObjectColor = thisColor;
+                        }
+                    }
+                    yPosition = yPosition + 2;
+                }
+                yPosition = this.ColorSelector.Y + 10;
+                for (int i = 0; i <= 255; i++)
+                {
+                    Color thisColor = new Color(this.currentObjectColor.R, this.currentObjectColor.G, Convert.ToByte(i));
+                    Rectangle ColorRect = new Rectangle(this.ColorSelector.X + 10 + 575, yPosition, 20, 2);
+                    if (HelperFunctions.CheckIntersection(ColorRect, input.CursorPosition))
+                    {
+                        this.currentObjectColor = thisColor;
+                    }
+                    yPosition = yPosition + 2;
+                }
+            }
+            this.previousMouse = this.currentMouse;
+            if (input.Escaped)
+            {
+                this.ExitScreen();
+            }
+        } 
+        #endregion
+        public override void HandleInput(InputState input)
+        {
+            this.currentMouse = Mouse.GetState();
+            Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
+            foreach (UIButton b in this.Buttons)
+            {
+                if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
+                {
+                    b.State = UIButton.PressState.Normal;
+                }
+                else
+                {
+                    if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
+                    {
+                        AudioManager.PlayCue("mouse_over4");
+                    }
+                    b.State = UIButton.PressState.Hover;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+                    {
+                        b.State = UIButton.PressState.Pressed;
+                    }
+                    if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    {
+                        continue;
+                    }
+                    string launches = b.Launches;
+                    string str = launches;
+                    if (launches == null)
+                    {
+                        continue;
+                    }
+                    if (str == "Engage")
+                    {
+                        AudioManager.PlayCue("echo_affirm");
+                        this.OnEngage();
+                    }
+                    else if (str == "Rule Options")
+                    {
+                        base.ScreenManager.AddScreen(new RuleOptionsScreen());
+                        AudioManager.PlayCue("echo_affirm");
+                    }
+                    else if (str == "Abort")
+                    {
+                        AudioManager.PlayCue("echo_affirm");
+                        this.ExitScreen();
+                    }
+                }
+            }
+            this.DescriptionSL.HandleInput(input);
+            if (!this.DrawingColorSelector)
+            {
+                this.selector = null;
+                foreach (ScrollList.Entry e in this.RaceArchetypeSL.Entries)
+                {
+                    if (!HelperFunctions.CheckIntersection(e.clickRect, mousePos) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    {
+                        continue;
+                    }
+                    this.SelectedData = e.item as EmpireData;
+                    AudioManager.PlayCue("echo_affirm");
+                    this.SetEmpireData(this.SelectedData);
+                }
+                this.RaceArchetypeSL.HandleInput(input);
+                this.Traits.HandleInput(this);
+                if (!HelperFunctions.CheckIntersection(this.RaceName.ClickableArea, mousePos))
+                {
+                    this.RaceName.Hover = false;
+                }
+                else
+                {
+                    this.RaceName.Hover = true;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.SingEntry.HandlingInput && !this.PlurEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
+                    {
+                        this.RaceName.HandlingInput = true;
+                    }
+                }
+                if (!HelperFunctions.CheckIntersection(this.SingEntry.ClickableArea, mousePos))
+                {
+                    this.SingEntry.Hover = false;
+                }
+                else
+                {
+                    this.SingEntry.Hover = true;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.PlurEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
+                    {
+                        this.SingEntry.HandlingInput = true;
+                    }
+                }
+                if (!HelperFunctions.CheckIntersection(this.PlurEntry.ClickableArea, mousePos))
+                {
+                    this.PlurEntry.Hover = false;
+                }
+                else
+                {
+                    this.PlurEntry.Hover = true;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.SingEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
+                    {
+                        this.PlurEntry.HandlingInput = true;
+                    }
+                }
+                if (!HelperFunctions.CheckIntersection(this.HomeSystemEntry.ClickableArea, mousePos))
+                {
+                    this.HomeSystemEntry.Hover = false;
+                }
+                else
+                {
+                    this.HomeSystemEntry.Hover = true;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.SingEntry.HandlingInput && !this.PlurEntry.HandlingInput)
+                    {
+                        this.HomeSystemEntry.HandlingInput = true;
+                    }
+                }
+                if (this.RaceName.HandlingInput)
+                {
+                    this.RaceName.HandleTextInput(ref this.RaceName.Text);
+                }
+                if (this.SingEntry.HandlingInput)
+                {
+                    this.SingEntry.HandleTextInput(ref this.SingEntry.Text);
+                }
+                if (this.PlurEntry.HandlingInput)
+                {
+                    this.PlurEntry.HandleTextInput(ref this.PlurEntry.Text);
+                }
+                if (this.HomeSystemEntry.HandlingInput)
+                {
+                    this.HomeSystemEntry.HandleTextInput(ref this.HomeSystemEntry.Text);
+                }
+                this.traitsSL.HandleInput(input);
+                for (int i = this.traitsSL.indexAtTop; i < this.traitsSL.Entries.Count && i < this.traitsSL.indexAtTop + this.traitsSL.entriesToDisplay; i++)
+                {
+                    ScrollList.Entry f = this.traitsSL.Entries[i];
+                    if (!HelperFunctions.CheckIntersection(f.clickRect, mousePos))
+                    {
+                        f.clickRectHover = 0;
+                    }
+                    else
+                    {
+                        if (f.clickRectHover == 0)
+                        {
+                            AudioManager.PlayCue("sd_ui_mouseover");
+                        }
+                        this.selector = new Selector(base.ScreenManager, f.clickRect);
+                        f.clickRectHover = 1;
+                        TraitEntry t = f.item as TraitEntry;
+                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                        {
+                            if (t.Selected && this.TotalPointsUsed + t.trait.Cost >= 0)
+                            {
+                                t.Selected = !t.Selected;
+                                RaceDesignScreen totalPointsUsed = this;
+                                totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
+                                AudioManager.GetCue("blip_click").Play();
+                                int excludes = t.trait.Excludes;
+                                foreach (TraitEntry ex in this.PhysicalTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                                foreach (TraitEntry ex in this.IndustryTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                                foreach (TraitEntry ex in this.SpecialTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                            }
+                            else if (this.TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
+                            {
+                                AudioManager.PlayCue("UI_Misc20");
+                            }
+                            else
+                            {
+                                bool OK = true;
+                                int num = t.trait.Excludes;
+                                foreach (TraitEntry ex in this.PhysicalTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                foreach (TraitEntry ex in this.SpecialTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                foreach (TraitEntry ex in this.IndustryTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                if (OK)
+                                {
+                                    t.Selected = true;
+                                    RaceDesignScreen raceDesignScreen = this;
+                                    raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
+                                    AudioManager.GetCue("blip_click").Play();
+                                    int excludes1 = t.trait.Excludes;
+                                    foreach (TraitEntry ex in this.PhysicalTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                    foreach (TraitEntry ex in this.SpecialTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                    foreach (TraitEntry ex in this.IndustryTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                }
+                            }
+                            this.DoRaceDescription();
+                        }
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.GalaxySizeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    AudioManager.GetCue("blip_click").Play();
+                    RaceDesignScreen galaxysize = this;
+                    galaxysize.Galaxysize = (RaceDesignScreen.GalSize)((int)galaxysize.Galaxysize + (int)RaceDesignScreen.GalSize.Small);
+                    if (this.Galaxysize > RaceDesignScreen.GalSize.Epic)
+                    {
+                        this.Galaxysize = RaceDesignScreen.GalSize.Tiny;
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.GameModeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    AudioManager.GetCue("blip_click").Play();
+                    RaceDesignScreen gamemode = this;
+                    gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Warlords);
+                    if (this.mode > RaceDesignScreen.GameMode.PreWarp)
+                    {
+                        this.mode = RaceDesignScreen.GameMode.Sandbox;
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.NumberStarsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    AudioManager.GetCue("blip_click").Play();
+                    RaceDesignScreen starEnum = this;
+                    starEnum.StarEnum = (RaceDesignScreen.StarNum)((int)starEnum.StarEnum + (int)RaceDesignScreen.StarNum.Rare);
+                    if (this.StarEnum > RaceDesignScreen.StarNum.SuperPacked)
+                    {
+                        this.StarEnum = RaceDesignScreen.StarNum.VeryRare;
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.NumOpponentsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    AudioManager.GetCue("blip_click").Play();
+                    RaceDesignScreen raceDesignScreen1 = this;
+                    raceDesignScreen1.numOpponents = raceDesignScreen1.numOpponents + 1;
+                    if (this.numOpponents > 7)
+                    {
+                        this.numOpponents = 1;
+                    }
+                }
+                HelperFunctions.CheckIntersection(this.GameModeRect, mousePos);
+                if (HelperFunctions.CheckIntersection(this.ScaleRect, mousePos))
+                {
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen gameScale = this;
+                        gameScale.GameScale = gameScale.GameScale + 1;
+                        if (this.GameScale > 6)
+                        {
+                            this.GameScale = 1;
+                        }
+                    }
+                    if (input.RightMouseClick)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen gameScale1 = this;
+                        gameScale1.GameScale = gameScale1.GameScale - 1;
+                        if (this.GameScale < 1)
+                        {
+                            this.GameScale = 6;
+                        }
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.PacingRect, mousePos))
+                {
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen pacing = this;
+                        pacing.Pacing = pacing.Pacing + 25;
+                        if (this.Pacing > 400)
+                        {
+                            this.Pacing = 100;
+                        }
+                    }
+                    if (input.RightMouseClick)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen pacing1 = this;
+                        pacing1.Pacing = pacing1.Pacing - 25;
+                        if (this.Pacing < 100)
+                        {
+                            this.Pacing = 400;
+                        }
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.DifficultyRect, mousePos))
+                {
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen raceDesignScreen2 = this;
+                        raceDesignScreen2.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen2.difficulty + (int)UniverseData.GameDifficulty.Normal);
+                        if (this.difficulty > UniverseData.GameDifficulty.Brutal)
+                        {
+                            this.difficulty = UniverseData.GameDifficulty.Easy;
+                        }
+                    }
+                    if (input.RightMouseClick)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        RaceDesignScreen raceDesignScreen3 = this;
+                        raceDesignScreen3.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen3.difficulty - (int)UniverseData.GameDifficulty.Normal);
+                        if (this.difficulty < UniverseData.GameDifficulty.Easy)
+                        {
+                            this.difficulty = UniverseData.GameDifficulty.Brutal;
+                        }
+                    }
+                }
+                if (HelperFunctions.CheckIntersection(this.FlagRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    this.DrawingColorSelector = !this.DrawingColorSelector;
+                }
+                if (HelperFunctions.CheckIntersection(this.FlagRight, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    if (ResourceManager.FlagTextures.Count - 1 <= this.FlagIndex)
+                    {
+                        this.FlagIndex = 0;
+                    }
+                    else
+                    {
+                        RaceDesignScreen flagIndex = this;
+                        flagIndex.FlagIndex = flagIndex.FlagIndex + 1;
+                    }
+                    AudioManager.GetCue("blip_click").Play();
+                }
+                if (HelperFunctions.CheckIntersection(this.FlagLeft, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    if (this.FlagIndex <= 0)
+                    {
+                        this.FlagIndex = ResourceManager.FlagTextures.Count - 1;
+                    }
+                    else
+                    {
+                        RaceDesignScreen flagIndex1 = this;
+                        flagIndex1.FlagIndex = flagIndex1.FlagIndex - 1;
+                    }
+                    AudioManager.GetCue("blip_click").Play();
+                }
+            }
+            else if (!HelperFunctions.CheckIntersection(this.ColorSelector, input.CursorPosition))
+            {
+                if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                {
+                    this.DrawingColorSelector = false;
+                }
+            }
+            else if (this.currentMouse.LeftButton == ButtonState.Pressed)
+            {
+                int yPosition = this.ColorSelector.Y + 10;
+                int xPositionStart = this.ColorSelector.X + 10;
+                for (int i = 0; i <= 255; i++)
+                {
+                    for (int j = 0; j <= 255; j++)
+                    {
+                        Color thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), this.currentObjectColor.B);
+                        Rectangle ColorRect = new Rectangle(2 * j + xPositionStart - 4, yPosition - 4, 8, 8);
+                        if (HelperFunctions.CheckIntersection(ColorRect, input.CursorPosition))
+                        {
+                            this.currentObjectColor = thisColor;
+                        }
+                    }
+                    yPosition = yPosition + 2;
+                }
+                yPosition = this.ColorSelector.Y + 10;
+                for (int i = 0; i <= 255; i++)
+                {
+                    Color thisColor = new Color(this.currentObjectColor.R, this.currentObjectColor.G, Convert.ToByte(i));
+                    Rectangle ColorRect = new Rectangle(this.ColorSelector.X + 10 + 575, yPosition, 20, 2);
+                    if (HelperFunctions.CheckIntersection(ColorRect, input.CursorPosition))
+                    {
+                        this.currentObjectColor = thisColor;
+                    }
+                    yPosition = yPosition + 2;
+                }
+            }
+            this.previousMouse = this.currentMouse;
+            if (input.Escaped)
+            {
+                this.ExitScreen();
+            }
+        }
+
 
 		private void HandleTextInput(ref string text)
 		{
@@ -1841,17 +2283,17 @@ namespace Ship_Game
 			this.PlurEntry.Text = this.SelectedData.Traits.Plural;
 			this.HomeSystemEntry.Text = this.SelectedData.Traits.HomeSystemName;
 			this.HomeWorldName = this.SelectedData.Traits.HomeworldName;
-			this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y + 5, (int)Fonts.Arial12Bold.MeasureString("Galaxy Size                                   ").X, Fonts.Arial12Bold.LineSpacing);
-			this.NumberStarsRect = new Rectangle(this.GalaxySizeRect.X, this.GalaxySizeRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.GalaxySizeRect.Width, this.GalaxySizeRect.Height);
-			this.NumOpponentsRect = new Rectangle(this.NumberStarsRect.X, this.NumberStarsRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.NumberStarsRect.Width, this.NumberStarsRect.Height);
-			this.GameModeRect = new Rectangle(this.NumOpponentsRect.X, this.NumOpponentsRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.NumberStarsRect.Width, this.NumOpponentsRect.Height);
-			this.PacingRect = new Rectangle(this.GameModeRect.X, this.GameModeRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.GameModeRect.Width, this.GameModeRect.Height);
-			this.DifficultyRect = new Rectangle(this.PacingRect.X, this.PacingRect.Y + Fonts.Arial12Bold.LineSpacing + 10, this.PacingRect.Width, this.PacingRect.Height);
+			this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y + 5, (int)Fonts.Arial12.MeasureString("Galaxy Size                                   ").X, Fonts.Arial12.LineSpacing);
+			this.NumberStarsRect = new Rectangle(this.GalaxySizeRect.X, this.GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GalaxySizeRect.Width, this.GalaxySizeRect.Height);
+			this.NumOpponentsRect = new Rectangle(this.NumberStarsRect.X, this.NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumberStarsRect.Height);
+			this.GameModeRect = new Rectangle(this.NumOpponentsRect.X, this.NumOpponentsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumOpponentsRect.Height);
+			this.PacingRect = new Rectangle(this.GameModeRect.X, this.GameModeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GameModeRect.Width, this.GameModeRect.Height);
+			this.DifficultyRect = new Rectangle(this.PacingRect.X, this.PacingRect.Y + Fonts.Arial12.LineSpacing + 10, this.PacingRect.Width, this.PacingRect.Height);
 			Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
 			this.Description = new Menu1(base.ScreenManager, dRect, true);
 			this.dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
 			Submenu dsub = new Submenu(base.ScreenManager, this.dslrect);
-			this.DescriptionSL = new ScrollList(dsub, Fonts.Arial12Bold.LineSpacing);
+			this.DescriptionSL = new ScrollList(dsub, Fonts.Arial12.LineSpacing);
 			Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
 			this.Traits = new Submenu(base.ScreenManager, psubRect);
 			this.Traits.AddTab(Localizer.Token(19));
@@ -1929,55 +2371,86 @@ namespace Ship_Game
 			playerEmpire.data.Traits = this.RaceSummary;
 			playerEmpire.EmpireColor = this.currentObjectColor;
 			float modifier = 1f;
-			switch (this.StarEnum)
-			{
-				case RaceDesignScreen.StarNum.Rare:
-				{
-					modifier = 0.5f;
-					this.ExitScreen();
-					base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-					UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-					return;
-				}
-				case RaceDesignScreen.StarNum.Uncommon:
-				{
-					modifier = 0.75f;
-					this.ExitScreen();
-					base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-					UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-					return;
-				}
-				case RaceDesignScreen.StarNum.Normal:
-				{
-					this.ExitScreen();
-					base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-					UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-					return;
-				}
-				case RaceDesignScreen.StarNum.Abundant:
-				{
-					modifier = 1.25f;
-					this.ExitScreen();
-					base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-					UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-					return;
-				}
-				case RaceDesignScreen.StarNum.Crowded:
-				{
-					modifier = 1.5f;
-					this.ExitScreen();
-					base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-					UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-					return;
-				}
-				default:
-				{
-					this.ExitScreen();
-					base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-					UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-					return;
-				}
-			}
+
+            switch (this.StarEnum)
+            {
+
+
+
+                case RaceDesignScreen.StarNum.VeryRare:
+                    {
+                        modifier = 0.25f;
+                        this.ExitScreen();
+                        //base.ScreenManager.AddScreen(new CreatingNewGameScreen(empire, this.Galaxysize.ToString(), single, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
+                        return;
+                    }
+
+                case RaceDesignScreen.StarNum.Rare:
+                    {
+                        modifier = 0.5f;
+                        this.ExitScreen();
+                        //base.ScreenManager.AddScreen(new CreatingNewGameScreen(empire, this.Galaxysize.ToString(), single, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
+                        return;
+                    }
+                case RaceDesignScreen.StarNum.Uncommon:
+                    {
+                        modifier = 0.75f;
+                        this.ExitScreen();
+                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
+                        return;
+                    }
+                case RaceDesignScreen.StarNum.Normal:
+                    {
+                        this.ExitScreen();
+                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
+                        return;
+                    }
+                case RaceDesignScreen.StarNum.Abundant:
+                    {
+                        modifier = 1.25f;
+                        this.ExitScreen();
+                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
+                        return;
+                    }
+                case RaceDesignScreen.StarNum.Crowded:
+                    {
+                        modifier = 1.5f;
+                        this.ExitScreen();
+                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
+                        return;
+                    }
+                case RaceDesignScreen.StarNum.Packed:
+                    {
+                        modifier = 1.75f;
+                        this.ExitScreen();
+                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
+                        return;
+                    }
+                case RaceDesignScreen.StarNum.SuperPacked:
+                    {
+                        modifier = 2f;
+                        this.ExitScreen();
+                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
+                        return;
+                    }
+                default:
+                    {
+                        this.ExitScreen();
+                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
+                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
+                        return;
+                    }
+            }
 		}
 
 		private string parseText(string text, float Width)
@@ -1988,7 +2461,7 @@ namespace Ship_Game
 			for (int i = 0; i < (int)strArrays.Length; i++)
 			{
 				string word = strArrays[i];
-				if (Fonts.Arial20Bold.MeasureString(string.Concat(line, word)).Length() > Width)
+				if (Fonts.Arial14Bold.MeasureString(string.Concat(line, word)).Length() > Width)
 				{
 					returnString = string.Concat(returnString, line, '\n');
 					line = string.Empty;
@@ -2800,36 +3273,76 @@ namespace Ship_Game
 			}
 		}
 
-		public enum Difficulty
-		{
-			Easy,
-			Normal,
-			Hard,
-			Brutal
-		}
+        //public enum Difficulty
+        //{
+        //    Easy,
+        //    Normal,
+        //    Hard,
+        //    Brutal
+        //}
 
-		public enum GalSize
-		{
-			Tiny,
-			Small,
-			Medium,
-			Large,
-			Epic
-		}
+        //public enum GalSize
+        //{
+        //    Tiny,
+        //    Small,
+        //    Medium,
+        //    Large,
+        //    Epic
+        //}
 
-		public enum GameMode
-		{
-			Sandbox,
-			PreWarp
-		}
+        //public enum GameMode
+        //{
+        //    Sandbox,
+        //    PreWarp
+        //}
 
-		public enum StarNum
-		{
-			Rare,
-			Uncommon,
-			Normal,
-			Abundant,
-			Crowded
-		}
+        //public enum StarNum
+        //{
+        //    Rare,
+        //    Uncommon,
+        //    Normal,
+        //    Abundant,
+        //    Crowded
+        //}
+        
+        //added by gremlin new game modes and such
+        public enum Difficulty
+        {
+            Easy,
+            Normal,
+            Hard,
+            Brutal
+        }
+
+        public enum GalSize
+        {
+            Tiny,
+            Small,
+            Medium,
+            Large,
+            Huge,
+            Epic
+            //TrulyEpic
+        }
+
+        public enum GameMode
+        {
+            Sandbox,
+            Warlords,
+            PreWarp
+        }
+
+        public enum StarNum
+        {
+
+            VeryRare,
+            Rare,
+            Uncommon,
+            Normal,
+            Abundant,
+            Crowded,
+            Packed,
+            SuperPacked
+        }
 	}
 }

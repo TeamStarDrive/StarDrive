@@ -1,0 +1,9 @@
+syntax: glob
+obj/
+*.psess
+*.vsp
+Ship_Game\Gameplay\GremlinAI.cs
+bin/
+StarDrive.csproj.orig
+*.orig
+StarDrive.sln

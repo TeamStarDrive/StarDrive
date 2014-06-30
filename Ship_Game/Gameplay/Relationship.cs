@@ -1,6 +1,7 @@
 using Ship_Game;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
@@ -674,25 +675,60 @@ namespace Ship_Game.Gameplay
 				Relationship fearUsed = this;
 				fearUsed.FearUsed = fearUsed.FearUsed + te.FearCost;
 			}
-			foreach (Ship ship in us.GetShipsInOurBorders())
-			{
-				if (ship.loyalty != them || them.GetRelations()[us].Treaty_OpenBorders || this.Treaty_Alliance)
-				{
-					continue;
-				}
-				if (!this.Treaty_NAPact)
-				{
-					Relationship angerFromShipsInOurBorders1 = this;
-					angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.Size / 150f;
-				}
-				else
-				{
-					Relationship angerFromShipsInOurBorders2 = this;
-					angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.Size / 300f;
-				}
-			}
-			float OurMilScore = 3500f + us.MilitaryScore;
-			float TheirMilScore = 3500f + them.MilitaryScore;
+            //foreach (Ship ship in us.GetShipsInOurBorders())
+            //{
+            //    if (ship.loyalty != them || them.GetRelations()[us].Treaty_OpenBorders || this.Treaty_Alliance)
+            //    {
+            //        continue;
+            //    }
+            //    if (!this.Treaty_NAPact)
+            //    {
+            //        Relationship angerFromShipsInOurBorders1 = this;
+            //        angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.Size / 150f;
+            //    }
+            //    else
+            //    {
+            //        Relationship angerFromShipsInOurBorders2 = this;
+            //        angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)ship.Size / 300f;
+            //    }
+            //}
+
+            foreach (Ship shipsInOurBorder in us.GetShipsInOurBorders().Where(ship => ship.loyalty != null && ship.loyalty != us && !ship.loyalty.isFaction))
+            {
+                //shipsInOurBorder.WeaponCentered = false;
+                //added by gremlin: maintenance in enemy space
+                if (shipsInOurBorder.loyalty != them || them.GetRelations()[us].Treaty_OpenBorders || this.Treaty_Alliance)
+                {
+                    if (shipsInOurBorder.loyalty == them && (them.GetRelations()[us].Treaty_OpenBorders))
+                    {
+                        shipsInOurBorder.isCloaking = true;
+                        if (this.Treaty_Alliance)
+                        {
+                            shipsInOurBorder.isCloaked = true;
+                        }
+
+                    }
+                    continue;
+
+                }
+
+                if (!this.Treaty_NAPact)
+                {
+
+                    Relationship angerFromShipsInOurBorders1 = this;
+                    angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 150f;
+                    shipsInOurBorder.isDecloaking = true;
+                }
+                else
+                {
+                    Relationship angerFromShipsInOurBorders2 = this;
+                    angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 300f;
+
+                }
+            }
+
+			float OurMilScore = 230f + us.MilitaryScore;
+			float TheirMilScore = 230f + them.MilitaryScore;
 			this.Threat = (1f - OurMilScore / TheirMilScore) * 100f;
 			if (this.Threat > 100f)
 			{

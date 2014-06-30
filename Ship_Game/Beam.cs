@@ -46,7 +46,7 @@ namespace Ship_Game
 
 		public bool followMouse;
 
-		public float Duration = 2f;
+		public float Duration;
 
 		public float BeamOffsetAngle;
 
@@ -326,7 +326,7 @@ namespace Ship_Game
 					{
 					}
 				}
-				if (!this.InFrustumWhenFired)
+				if (!this.InFrustumWhenFired && !GlobalStats.ForceFullSim)
 				{
 					target.Damage(this, this.damageAmount * 90f);
 					this.Die(null, true);

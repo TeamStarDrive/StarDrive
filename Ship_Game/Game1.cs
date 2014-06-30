@@ -1,3 +1,6 @@
+#if DEBUG
+#define UNSAFE
+#endif
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -32,19 +35,29 @@ namespace Ship_Game
 
 		public Game1()
 		{
-			/*if (SteamManager.SteamInitialize())
+#if STEAM
+            if (SteamManager.SteamInitialize())
 			{
-				SteamManager.RequestCurrentStats();
-				if (SteamManager.SetAchievement("Thanks"))
-				{
-					SteamManager.SaveAllStatAndAchievementChanges();
-				}
-			}*/
+                SteamManager.RequestCurrentStats();
+                if (SteamManager.SetAchievement("Thanks"))
+                {
+                    SteamManager.SaveAllStatAndAchievementChanges();
+                }
+			}
+            
+
+
+#endif
+
+#if UNSAFE
+
+
             MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("Update2"), typeof(SplashScreen).GetMethod("Update"));
             foreach (var method in from type in Assembly.GetAssembly(typeof(SplashScreen)).GetTypes() where type.Name == "a" select type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic) into methods from method in methods where method.Name == "k" select method)
             {
                 MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("k2", BindingFlags.Static | BindingFlags.Public), method);
             }
+#endif
 			this.graphics = new GraphicsDeviceManager(this)
 			{
 				MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
@@ -59,6 +72,12 @@ namespace Ship_Game
 			Directory.CreateDirectory(string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/Headers"));
 			Directory.CreateDirectory(string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/Fog Maps"));
 			GlobalStats.Config = new Config();
+            string asi = ConfigurationSettings.AppSettings["AutoSaveInterval"];
+            int autosaveinterval;
+            if (int.TryParse(asi, out autosaveinterval))
+            {
+                GlobalStats.Config.AutoSaveInterval = (float)autosaveinterval;
+            }
 			string vol = ConfigurationSettings.AppSettings["MusicVolume"];
 			int musicVol = 100;
 			if (int.TryParse(vol, out musicVol))
@@ -176,13 +195,9 @@ namespace Ship_Game
 			{
 
 				return;
-			}
-            //MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("Update2"), typeof(SplashScreen).GetMethod("Update"));
-            //foreach (var method in from type in Assembly.GetAssembly(typeof(SplashScreen)).GetTypes() where type.Name == "a" select type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic) into methods from method in methods where method.Name == "k" select method)
-            //{
-            //    MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("k2", BindingFlags.Static | BindingFlags.Public), method);
-            //}
-			this.screenManager.LoadContent();
+            }
+
+            this.screenManager.LoadContent();
 			Fonts.LoadContent(base.Content);
 			this.screenManager.AddScreen(new GameLoadingScreen());
 			this.IsLoaded = true;
