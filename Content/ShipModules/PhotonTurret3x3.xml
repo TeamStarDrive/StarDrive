@@ -1,0 +1,56 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>25</Cost>
+
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>3</TechLevel>
+  
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Turret</ModuleType>
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <Name>Twin Photon Cannons</Name>
+  <Restrictions>O</Restrictions>
+  <UID>PhotonTurret3x3</UID>
+  <IconTexturePath>Modules/PhotonTurret3x3</IconTexturePath>
+
+
+  <NameIndex>1018</NameIndex>
+  <DescriptionIndex>1019</DescriptionIndex>
+
+
+  <Mass>10</Mass>
+  <Health>900</Health>
+  <HealthMax>900</HealthMax>
+  <energyreq>0</energyreq>
+  <Description>Twin photon cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire.</Description>
+
+  <PowerDraw>10</PowerDraw>
+  
+  <!-- for Weapons -->
+  <WeaponType>PhotonCannon</WeaponType>
+  <FieldOfFire>90</FieldOfFire>
+  
+  
+  
+  
+
+</ShipModule>

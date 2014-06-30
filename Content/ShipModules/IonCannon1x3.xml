@@ -1,0 +1,66 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>15</Cost>
+  <!-- Tech Level -->
+  <TechLevel>1</TechLevel>
+  <TechBranch>Cannons</TechBranch>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>1</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Ion Cannon</Name>
+  <Restrictions>O</Restrictions>
+  <UID>IonCannon1x3</UID>
+  <IconTexturePath>Modules/HeavyLaserCannon</IconTexturePath>3
+
+
+  <NameIndex>974</NameIndex>
+  <DescriptionIndex>975</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>9</Mass>
+  <Health>300</Health>
+  <HealthMax>300</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>15</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+
+ 
+  <!-- for Weapons -->
+  <WeaponType>IonDefenseCannon</WeaponType>
+  <FieldOfFire>15</FieldOfFire>
+  <Left>1</Left>
+  <Right>1</Right>
+  <Rear>1</Rear>
+  
+  
+  <!-- Description -->
+  <Description>This piece of ancient hardware mimics modern designs for planet-based Ion Cannons, except that it is incredibly minitaturized. These specifications were obviously copied from an advanced race.</Description>
+  
+
+</ShipModule>

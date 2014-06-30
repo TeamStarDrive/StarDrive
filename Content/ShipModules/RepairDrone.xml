@@ -1,0 +1,70 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>16</Cost>
+  
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Drone</ModuleType>
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <Name>Repair Drone</Name>
+  <Restrictions>O</Restrictions>
+  <UID>RepairDrone</UID>
+  <IconTexturePath>Modules/mrls_2x2</IconTexturePath>
+  <Mass>10</Mass>
+  <Health>450</Health>
+  <HealthMax>450</HealthMax>
+  <energyreq>0</energyreq>
+  <Description>
+  </Description>
+
+  <PowerDraw>10</PowerDraw>
+
+  <NameIndex>2100</NameIndex>
+  <DescriptionIndex>2101</DescriptionIndex>
+
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+  <radius>0</radius>
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+    <!-- set is repair module so it knows to scan for targets to heal while outside of combat -->
+  <IsRepairModule>true</IsRepairModule>
+  <WeaponType>RepairDrone</WeaponType>
+  <OrdinanceCapacity>50</OrdinanceCapacity>
+  <FieldOfFire>360</FieldOfFire>
+  
+  
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  
+  
+
+</ShipModule>

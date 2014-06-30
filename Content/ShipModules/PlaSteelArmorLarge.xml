@@ -1,0 +1,61 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>8</Cost>
+  <!-- Tech Level -->
+  <TechLevel>1</TechLevel>
+  <TechBranch>Armor</TechBranch>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>Armor</ModuleType>
+  <Name>Large Plasteel Armor</Name>
+  <Restrictions>O</Restrictions>
+  <UID>PlaSteelArmorLarge</UID>
+  <TexturePath>Textures/transparent</TexturePath>
+  <IconTexturePath>Modules/Plasteel_3x3</IconTexturePath>
+
+
+  <NameIndex>1022</NameIndex>
+  <DescriptionIndex>1023</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>80</Mass>
+  <Health>7500</Health>
+  <HealthMax>7500</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>0</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>0</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+
+  <!-- for Weapons -->
+
+
+  <!-- Description -->
+  <Description>Plasteel armor provides approximately 25% less protection than steel armor but does so with half of the mass</Description>
+  
+
+</ShipModule>
