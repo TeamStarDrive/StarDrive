@@ -38,7 +38,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>D:\Program Files\steam\steamapps\common\StarDrive\</OutputPath>
+    <OutputPath>..\stardrive mod\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Optimize>true</Optimize>
