@@ -3287,10 +3287,16 @@ namespace Ship_Game.Gameplay
                             this.Thrust += moduleSlot.module.thrust;
                             this.WarpThrust += (float)moduleSlot.module.WarpThrust;
                             this.TurnThrust += (float)moduleSlot.module.TurnThrust;
+                            //Added by McShooterz: shields keep charge when manually turned off
                             if (this.ShieldsUp)
+                            {
                                 this.shield_power += moduleSlot.module.shield_power;
+                                moduleSlot.module.shieldsOff = false;
+                            }
                             else
-                                moduleSlot.module.shield_power = 0.0f;
+                            {
+                                moduleSlot.module.shieldsOff = true;
+                            }
                             this.OrdAddedPerSecond += moduleSlot.module.OrdnanceAddedPerSecond;
                             this.WarpMassCapacity += moduleSlot.module.WarpMassCapacity;
                             if ((double)moduleSlot.module.FTLSpeed > 0.0)
