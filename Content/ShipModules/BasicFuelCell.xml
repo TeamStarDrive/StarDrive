@@ -1,0 +1,66 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>1</Cost>
+  
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>FuelCell</ModuleType>
+  <XSIZE>1</XSIZE>
+  <YSIZE>1</YSIZE>
+  <UID>BasicFuelCell</UID>
+  <Restrictions>IO</Restrictions>
+  <Name>Small Fuel Cell</Name>
+  <IconTexturePath>Modules/small_fuelcell</IconTexturePath>
+  <Mass>1</Mass>
+  <Health>50</Health>
+  <HealthMax>50</HealthMax>
+  <energyreq>1</energyreq>
+  <modRadius>4</modRadius>
+  <CrewRequired>0</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <Description>Fuel cells capture and store power from a ship's powerplant, increasing the ship's effective operational range as well as its stamina in combat.</Description>
+  <PowerDraw>0</PowerDraw>
+
+
+  <NameIndex>910</NameIndex>
+  <DescriptionIndex>911</DescriptionIndex>
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>250</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  
+  
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  
+  
+
+</ShipModule>
