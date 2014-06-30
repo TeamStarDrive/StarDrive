@@ -1008,11 +1008,13 @@ namespace Ship_Game
             this.Relationships[e].Known = true;
             if (!e.GetRelations()[this].Known)
                 e.DoFirstContact(this);
-            foreach (Planet planet in e.OwnedPlanets)
-            {
-                planet.ExploredDict[this] = true;
-                planet.system.ExploredDict[this] = true;
-            }
+            
+            //Added by shahmatt Do not auto explore other empire planets.
+            //foreach (Planet planet in e.OwnedPlanets)
+            //{
+            //    planet.ExploredDict[this] = true;
+            //    planet.system.ExploredDict[this] = true;
+            //}
             try
             {
                 if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this && !e.isFaction)

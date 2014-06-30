@@ -1,0 +1,66 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>180</Cost>
+
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>3</TechLevel>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>6</XSIZE>
+  <YSIZE>6</YSIZE>
+  <ModuleType>PowerPlant</ModuleType>
+  <Name>Main Engineering</Name>
+  <Restrictions>I</Restrictions>
+  <UID>WarpCore</UID>
+  <IconTexturePath>Modules/engineering_4x4</IconTexturePath>
+
+  <NameIndex>5065</NameIndex>
+  <DescriptionIndex>5066</DescriptionIndex>
+  <WarpMassCapacity>3600</WarpMassCapacity>
+
+  <Mass>108</Mass>
+  <Health>3600</Health>
+  <HealthMax>3600</HealthMax>
+  <energyreq>0</energyreq>
+  <PowerDraw>36</PowerDraw>
+  <BonusRepairRate>0</BonusRepairRate>
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+
+  <!-- for PowerPlant Items -->
+  <explodes>true</explodes>
+  <FTLSpeed>15000</FTLSpeed>
+
+  <!-- for Weapons -->
+
+
+
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  <PowerDrawAtWarp>306</PowerDrawAtWarp>
+
+
+</ShipModule>

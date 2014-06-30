@@ -1,0 +1,55 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <UID>IonBeamTurret2x2</UID>
+  <Cost>4</Cost>
+
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>Ion Beam Turret</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/ionbeam_2x2</IconTexturePath>3
+
+
+  <NameIndex>972</NameIndex>
+  <DescriptionIndex>973</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>12</Mass>
+  <Health>450</Health>
+  <HealthMax>450</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>IonBeam</WeaponType>
+  <FieldOfFire>45</FieldOfFire>
+
+  <!-- Description -->
+  <Description>This turret-mounted Ion beam drains a moderate amount of power from the targeted ship, provided that its shields are down.</Description>
+  
+
+</ShipModule>
