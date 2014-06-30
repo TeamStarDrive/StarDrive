@@ -1181,15 +1181,8 @@ namespace Ship_Game
             this.totalBuildingMaintenance = 0.0f;
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if (this.data.Privatization)
-                {
-                    if (ship.Role == "freighter" || ship.Role == "platform" || ship.Role == "station")
-                        this.totalShipMaintenance += ship.GetMaintCost() / 2f;
-                    else
-                        this.totalShipMaintenance += ship.GetMaintCost();
-                }
-                else
-                    this.totalShipMaintenance += ship.GetMaintCost();
+                //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
+                this.totalShipMaintenance += ship.GetMaintCost();
             }
             foreach (Planet planet in this.OwnedPlanets)
             {
