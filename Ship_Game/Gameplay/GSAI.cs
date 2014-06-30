@@ -7596,10 +7596,14 @@ namespace Ship_Game.Gameplay
 								break;
 							}
 						}
-						if (this.empire.ResearchTopic == "ArmorTheory" && this.empire.GetTDict()[this.empire.ResearchTopic].Unlocked && !this.empire.GetTDict()["Point Defense"].Unlocked)
-						{
-							this.empire.ResearchTopic = "Point Defense";
-						}
+
+                        // This IF may be causing crashes if a modder ever puts Point Defense anywhere other than right at the very beginning of the tech tree.
+
+						//if (this.empire.ResearchTopic == "ArmorTheory" && this.empire.GetTDict()[this.empire.ResearchTopic].Unlocked && !this.empire.GetTDict()["Point Defense"].Unlocked)
+						//{
+						//	this.empire.ResearchTopic = "Point Defense";
+						//}
+
 						if (this.empire.getResStrat() == null || this.empire.ResearchTopic == "")
 						{
 							this.res_strat = GSAI.ResearchStrategy.Random;
