@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Space Port</Name>
+  <Maintenance>1</Maintenance>
+  <Description>A space port connects to the orbital star base above and allows for the construction of ships here using materials produced on the planet</Description>
+  <Cost>50</Cost>
+  <Icon>spaceport</Icon>
+  <PlusTaxPercentage>.5</PlusTaxPercentage>
+  <ShortDescription>+50% tax revenues; allows ship construction</ShortDescription>
+  <AllowShipBuilding>true</AllowShipBuilding>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>458</NameTranslationIndex>
+  <DescriptionIndex>459</DescriptionIndex>
+  <ShortDescriptionIndex>460</ShortDescriptionIndex>
+  
+   <IsProjector>true</IsProjector> <!-- Does this building provide empire territory/subspace projection coverage from the planet of origin? -->
+  <ProjectorRange>80000.0</ProjectorRange> <!-- Define the projection radius -->
+</Building>

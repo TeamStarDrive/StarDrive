@@ -16,11 +16,151 @@ C:\Users\danny\Documents\SD-IDK\bin\Release\StarDrive.exe
 C:\Users\danny\Documents\SD-IDK\bin\Release\StarDrive.pdb
 C:\Users\danny\Documents\SD-IDK\bin\Release\Fasterflect.dll
 C:\Users\danny\Documents\SD-IDK\bin\Release\Fasterflect.xml
+C:\Users\danny\Documents\stardrive mod\StarDrive.exe.config
+C:\Users\danny\Documents\stardrive mod\StarDrive.exe
+C:\Users\danny\Documents\stardrive mod\StarDrive.pdb
 C:\Users\danny\Documents\SD-IDK\obj\x86\Release\Properties.Resources.resources
 C:\Users\danny\Documents\SD-IDK\obj\x86\Release\StarDrive.csproj.GenerateResource.Cache
 C:\Users\danny\Documents\SD-IDK\obj\x86\Release\StarDrive.exe
 C:\Users\danny\Documents\SD-IDK\obj\x86\Release\StarDrive.pdb
-C:\Users\danny\Documents\stardrive mod\upload\StarDrive.exe.config
-C:\Users\danny\Documents\stardrive mod\upload\StarDrive.exe
-C:\Users\danny\Documents\stardrive mod\upload\StarDrive.pdb
-C:\Users\danny\Documents\SD-IDK\obj\x86\Release\StarDrive.csprojResolveAssemblyReference.cache
+C:\Users\danny\Documents\stardrive mod\Content\Buildings\Capital.xml
+C:\Users\danny\Documents\stardrive mod\Content\Buildings\Outpost.xml
+C:\Users\danny\Documents\stardrive mod\Content\Buildings\Space Port.xml
+C:\Users\danny\Documents\stardrive mod\Content\Buildings\Tracking Station.xml
+C:\Users\danny\Documents\stardrive mod\Content\Localization\English\GameText_EN.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\AncientReactorMed.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\AncientRepulsor.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\AncientShield2kw.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\AntiMatterReactor.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\AuxWarpCore.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\BasicCargoHold.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\BasicFuelCell.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\BigCannon.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Bridge.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Broadside_Flak_3x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\CanopyShield.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\CapEngines.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\CIC.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Cockpit.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\ColonyModule.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\CombatEngine_2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Combat_Thruster_1x1.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Combat_Thruster_2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Combat_Thruster_3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Combat_Thruster_4x4.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\ConventionalTorpedo.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\DeathSporeBay.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\DisintegratorArray.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\DisruptorTurret.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\DisruptorTurret2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\DisruptorTurret3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Dummy.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\EMPTorpedo.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\EMPTurret2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\EMPTurret3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Engine.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\engine_fighter_1x1.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Fabricator.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Fighter Shield.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\FighterBay.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\FighterbombEnergy_1x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Fighterbomb_1x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Fighterbomb_2x4.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\FlakTurret.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\FlakTurret3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Flechette AF Turret.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\FrigateEngine.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\FuelCellMediumArmored.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\FuelCellSmallArmored.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\fuel_reactor_1x1.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\FusionBeam2x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\FusionTurret2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\HeavyLaserCannon.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Inertial Damper.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Internal Bulkhead.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\IonBeam2x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\IonBeamTurret2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\IonCannon1x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\KineticPlatform.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\LaserBeam2x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\LaserBeamTurret2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\LaserCannon.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\LaserTurret.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\LaserTurretHeavy.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Main Engineering.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Maneuvering_Thruster_1x1.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Maneuvering_Thruster_2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Maneuvering_Thruster_3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Maneuvering_Thruster_4x4.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\MarineBarracks2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\MarineBarracks8x4.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\MediumFuelCell.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\MiningLaser.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\MissileLauncher1x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\MissileLauncher3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\MRLS.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\NuclearBombBay2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\NuclearReactorMed.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\NuclearReactorSmall.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\OrdnanceLocker.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\OrdnanceLockerSmall.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\OrdnanceSupplyBay.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Owlwok Liberator.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Phalanx PD.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PhasorBeam2x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PhasorTurret2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PhotonTurret.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PhotonTurret3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PlasmaThrower.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PlaSteelArmorLarge.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PlaSteelArmorMed.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PlaSteelArmorSmall.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PolaronTurret2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PolaronTurret3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PowerConduit.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Powerplant_nuke_1x1.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Powerplant_nuke_2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\power_capacitor_1x1.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Pulse Capacitor.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\PulseBombBay.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\QTCannon.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Quantanium_1x1.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Quantanium_2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Quantanium_3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Raider Bay.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Railgun1x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Railgun2x5.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Range_Thruster_1x1.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Range_Thruster_2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Range_Thruster_3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Range_Thruster_4x4.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Reinforced Bulkhead.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\RemnantSmallFuelCell.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\RemnantSmallReactor.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\RepairDrone.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\RocketLauncher.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Shield_10KW.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Shield_1KW.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Sickbay.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\SiphonBeam2x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\SiphonBeamTurret2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\SteelArmorLarge.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\SteelArmorMed.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\SteelArmorSmall.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\SubspaceSensors.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\SupplyTransporter.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\ThalaronBeam2x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Titan Engine.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\TractorBeam2x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\TractorBeamTurret2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\TroopAssaultBay.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\VulcanCannon.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\Warp Inhibitor.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\WarpCore.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\WarpEngine_1x1.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\WarpEngine_2x2.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\WarpEngine_3x3.xml
+C:\Users\danny\Documents\stardrive mod\Content\ShipModules\WarpEngine_4x4.xml
+C:\Users\danny\Documents\stardrive mod\Content\Tooltips\Tooltips.xml
+C:\Users\danny\Documents\stardrive mod\Content\Textures\NewUI\icon_projection.xnb
+C:\Users\danny\Documents\stardrive mod\Content\Textures\NewUI\icon_sensors.xnb

@@ -748,11 +748,27 @@ namespace Ship_Game
 
 		public void GenerateRandomSystem(string name, UniverseData data, float systemScale)
 		{
-			int WhichSun = (int)RandomMath.RandomBetween(1f, 6f);
-			if (WhichSun > 5)
-			{
-				WhichSun = 5;
-			}
+            int WhichSun = (int)RandomMath.RandomBetween(1f, 6f);
+            // CHANGED BY SHAHMATT
+            if (WhichSun > 5)
+            {
+                if ((int)RandomMath.RandomBetween(0f, 100f) < 10)   // 10% for binary star (so 1/6 * 10% = 1/60 for binary star in system)
+                {
+                    WhichSun = 6;
+                }
+                else
+                {
+                    WhichSun = 5;
+                }
+
+            }
+            // END OF CHANGED BY SHAHMATT
+            
+            //int WhichSun = (int)RandomMath.RandomBetween(1f, 6f);
+            //if (WhichSun > 5)
+            //{
+            //    WhichSun = 5;
+            //}
 			if (WhichSun == 1)
 			{
 				this.SunPath = "star_red";
@@ -777,8 +793,15 @@ namespace Ship_Game
 			{
 				this.SunPath = "star_binary";
 			}
+
 			this.Name = name;
 			this.numberOfRings = (int)RandomMath.RandomBetween(1f, 6f);
+            // ADDED BY SHAHMATT (more planets in system)
+            if (GlobalStats.ExtraPlanets >0)
+            {
+                this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(0f, (float)GlobalStats.ExtraPlanets);
+            }
+            // END OF ADDED BY SHAHMATT
 			this.RingsCount = this.numberOfRings;
 			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
 			for (int i = 1; i < this.numberOfRings + 1; i++)

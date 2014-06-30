@@ -1,0 +1,74 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>100</Cost>
+  <!-- Tech Level -->
+  <TechLevel>0</TechLevel>
+  <TechBranch>Command</TechBranch>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>8</XSIZE>
+  <YSIZE>4</YSIZE>
+  <ModuleType>Command</ModuleType>
+  <Name>Large Marine Barracks</Name>
+  <Restrictions>I</Restrictions>
+  <UID>MarineBarracks8x4</UID>
+  <IconTexturePath>Modules/barracks_8x4</IconTexturePath>
+  
+  <Mass>2</Mass>
+  <Health>100</Health>
+  <HealthMax>100</HealthMax>
+  <energyreq>0</energyreq>
+  <modRadius>4</modRadius>
+  <Description>This barracks houses 4 Marine platoons. Marines increase a ship's boarding defense and can also be used offensively if their ship has an assault shuttle. Marines receive any racial ground combat bonuses or penalties. </Description>
+  <CrewRequired>1</CrewRequired>
+  <CrewSupplied>9</CrewSupplied>
+  <PowerDraw>0</PowerDraw>
+
+  <NameIndex>990</NameIndex>
+  <DescriptionIndex>991</DescriptionIndex>
+
+
+  <TroopCapacity>4</TroopCapacity>
+  <TroopsSupplied>4</TroopsSupplied>
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+
+  <!-- for Weapons -->
+
+
+
+  <!-- for Engines -->
+  <thrust>0</thrust>
+
+
+
+</ShipModule>
