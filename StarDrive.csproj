@@ -28,7 +28,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>D:\Program Files\steam\steamapps\common\StarDrive\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
@@ -38,16 +38,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>..\stardrive mod\</OutputPath>
+    <OutputPath>D:\Program Files\steam\steamapps\common\StarDrive\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>STEAM</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -59,6 +60,44 @@
   </PropertyGroup>
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x86'">
+    <OutputPath>..\stardrive mod\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>D:\Program Files\steam\steamapps\common\StarDrive\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|x86'">
+    <OutputPath>D:\Program Files\steam\steamapps\common\StarDrive\</OutputPath>
+    <DefineConstants>STEAM</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-Zip Deploy|x86'">
+    <OutputPath>..\stardrive mod\</OutputPath>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fasterflect">
@@ -1457,6 +1496,33 @@
     <Content Include="Content\Localization\English\GameText_EN.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\NameGenerators\names.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\NameGenerators\spynames_Cordrazine.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\NameGenerators\spynames_Draylok.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\NameGenerators\spynames_Humans.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\NameGenerators\spynames_Kulrathi.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\NameGenerators\spynames_Opteris.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\NameGenerators\spynames_Pollops.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\NameGenerators\spynames_Ralyeh.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\NameGenerators\spynames_Vulfen.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\ShipModules\AncientReactorMed.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1863,4 +1929,7 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if exist upload "C:\Program Files\7-Zip\7z" A -tzip $(ProjectName)-Testing @include.txt</PostBuildEvent>
+  </PropertyGroup>
 </Project>
