@@ -75,6 +75,8 @@ namespace Ship_Game
 		private Empire CreateEmpireFromEmpireSaveData(SavedGame.EmpireSaveData data)
 		{
 			Empire e = new Empire();
+            //TempEmpireData  Tdata = new TempEmpireData();
+
 			if (data.IsFaction)
 			{
 				e.isFaction = true;
@@ -86,7 +88,18 @@ namespace Ship_Game
 			}
 			else
 			{
-				e.data = data.empireData;
+                e.data = new EmpireData();
+                //Tdata = data.empireData as TempEmpireData;
+                
+                foreach (string key in e.data.WeaponTags.Keys)
+                {
+                    if(data.empireData.WeaponTags.ContainsKey(key))
+                        continue;
+                    data.empireData.WeaponTags.Add(key,new WeaponTagModifier());
+                }
+                e.data = data.empireData;
+                
+               // e.data.
 				e.data.ResearchQueue = data.empireData.ResearchQueue;
 				e.ResearchTopic = data.ResearchTopic;
 				if (e.ResearchTopic == null)
@@ -456,7 +469,9 @@ namespace Ship_Game
 			EmpireManager.EmpireList.Clear();
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
 			{
-				Empire e = this.CreateEmpireFromEmpireSaveData(d);
+				Empire e =new Empire();
+                e.data = new EmpireData();
+                    e= this.CreateEmpireFromEmpireSaveData(d);
 				this.data.EmpireList.Add(e);
 				if (e.data.Traits.Name == this.PlayerLoyalty)
 				{

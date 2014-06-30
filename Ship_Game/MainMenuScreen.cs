@@ -124,7 +124,7 @@ namespace Ship_Game
 
 		static MainMenuScreen()
 		{
-			MainMenuScreen.Version = "1.15B";
+			MainMenuScreen.Version = "15B SE 0.1";
 		}
 
 		public MainMenuScreen()
@@ -155,7 +155,11 @@ namespace Ship_Game
 				base.ScreenManager.splashScreenGameComponent.Visible = false;
 				base.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, base.ScreenManager.environment, true);
 				base.ScreenManager.editor.BeginFrameRendering(base.ScreenManager.sceneState);
-				base.ScreenManager.inter.BeginFrameRendering(base.ScreenManager.sceneState);
+                try
+                {
+                    base.ScreenManager.inter.BeginFrameRendering(base.ScreenManager.sceneState);
+                }
+                catch { }
 				this.DrawNew(gameTime);
 				base.ScreenManager.inter.RenderManager.Render();
 				base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);

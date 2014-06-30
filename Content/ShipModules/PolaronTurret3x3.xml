@@ -1,0 +1,52 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>25</Cost>
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Turret</ModuleType>
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <Name>Twin Polaron Cannons</Name>
+  <Restrictions>O</Restrictions>
+  <UID>PolaronTurret3x3</UID>
+  <IconTexturePath>Modules/PhotonTurret3x3</IconTexturePath>
+
+
+  <NameIndex>1030</NameIndex>
+  <DescriptionIndex>1031</DescriptionIndex>
+
+
+  <Mass>10</Mass>
+  <Health>450</Health>
+  <HealthMax>450</HealthMax>
+  <energyreq>0</energyreq>
+  <Description>Twin polaron cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire.</Description>
+
+  <PowerDraw>10</PowerDraw>
+  
+  <!-- for Weapons -->
+  <WeaponType>DualPolaronCannon</WeaponType>
+  <FieldOfFire>90</FieldOfFire>
+  
+  
+  
+  
+
+</ShipModule>
