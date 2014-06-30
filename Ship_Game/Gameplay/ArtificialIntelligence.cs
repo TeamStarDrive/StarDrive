@@ -2684,7 +2684,7 @@ namespace Ship_Game.Gameplay
 			this.Owner.isThrusting = false;
 		}
 
-		private void MakeFinalApproachORIG(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
+		private void MakeFinalApproach(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
 		{
 			this.Owner.HyperspaceReturn();
 			Vector2 velocity = this.Owner.Velocity;
@@ -2701,7 +2701,7 @@ namespace Ship_Game.Gameplay
 			this.DistanceLast = Distance;
 		}
         //added by gremlin Deveksmod MakeFinalApproach
-        private void MakeFinalApproach(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
+        private void MakeFinalApproachdeveks(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
         {
             this.Owner.HyperspaceReturn();
             Vector2 velocity = this.Owner.Velocity;

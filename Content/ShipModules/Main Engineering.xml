@@ -1,0 +1,71 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>64</Cost>
+
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>3</TechLevel>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>4</XSIZE>
+  <YSIZE>4</YSIZE>
+  <ModuleType>PowerPlant</ModuleType>
+  <Name>Main Engineering</Name>
+  <Restrictions>I</Restrictions>
+  <UID>Main Engineering</UID>
+  <IconTexturePath>Modules/engineering_4x4</IconTexturePath>
+
+  <NameIndex>986</NameIndex>
+  <DescriptionIndex>987</DescriptionIndex>
+
+  <Mass>50</Mass>
+  <Health>2000</Health>
+  <HealthMax>2000</HealthMax>
+  <energyreq>0</energyreq>
+  <modRadius>4</modRadius>
+  <Description>If the bridge is the brain of a starship then Main Engineering is its beating heart. This module provides advanced, integrated power systems, damage control, and a boost to ship speed while at warp. However, if the main reactor is destroyed then a massive explosion will undoubtedly claim the ship. </Description>
+  <CrewRequired>10</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>0</PowerDraw>
+  <BonusRepairRate>600</BonusRepairRate>
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+
+  <!-- for PowerPlant Items -->
+  <explodes>true</explodes>
+  <PowerFlowMax>1600</PowerFlowMax>
+  <PowerStoreMax>1000</PowerStoreMax>
+  <PowerRadius>8</PowerRadius>
+
+  <!-- for Weapons -->
+
+
+
+  <!-- for Engines -->
+  <thrust>0</thrust>
+
+
+
+</ShipModule>
