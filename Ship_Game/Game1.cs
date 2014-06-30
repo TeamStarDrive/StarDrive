@@ -38,11 +38,11 @@ namespace Ship_Game
 #if STEAM
             if (SteamManager.SteamInitialize())
 			{
-                //SteamManager.RequestCurrentStats();
-                //if (SteamManager.SetAchievement("Thanks"))
-                //{
-                //    SteamManager.SaveAllStatAndAchievementChanges();
-                //}
+                SteamManager.RequestCurrentStats();
+                if (SteamManager.SetAchievement("Thanks"))
+                {
+                    SteamManager.SaveAllStatAndAchievementChanges();
+                }
 			}
             
 

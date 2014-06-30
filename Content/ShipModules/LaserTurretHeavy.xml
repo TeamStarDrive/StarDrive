@@ -1,0 +1,62 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>27</Cost>
+  <!-- Tech Level -->
+  <TechLevel>1</TechLevel>
+  <TechBranch>Cannons</TechBranch>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>Heavy Laser Turret</Name>
+  <Restrictions>O</Restrictions>
+  <UID>LaserTurretHeavy</UID>
+  <IconTexturePath>Modules/HeavyLaserTurret</IconTexturePath>
+
+
+  <NameIndex>984</NameIndex>
+  <DescriptionIndex>985</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>27</Mass>
+  <Health>900</Health>
+  <HealthMax>900</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>10</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+
+ 
+  <!-- for Weapons -->
+  <WeaponType>HeavyLaser</WeaponType>
+  <FieldOfFire>90</FieldOfFire>
+  
+  <!-- Description -->
+  <Description>This weapon is a heavy laser cannon mounted on a swivel turret to provide a 360 degree field of fire.</Description>
+  
+
+</ShipModule>
