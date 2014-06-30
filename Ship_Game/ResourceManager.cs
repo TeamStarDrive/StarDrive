@@ -96,6 +96,9 @@ namespace Ship_Game
 
 		public static List<KeyValuePair<string, Texture2D>> FlagTextures;
 
+        //Added by McShooterz
+        public static ShipUpkeep ShipUpkeep;
+
 		static ResourceManager()
 		{
 			Ship_Game.ResourceManager.TextureDict = new Dictionary<string, Texture2D>();
@@ -137,6 +140,8 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.EconSerializer = new XmlSerializer(typeof(EconomicResearchStrategy));
 			Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>();
 			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
+            //Added by McShooterz
+            Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
 		}
 
 		public ResourceManager()
@@ -1550,6 +1555,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadExpEvents();
 			Ship_Game.ResourceManager.LoadArtifacts();
 			Ship_Game.ResourceManager.LoadLanguage();
+            //Added by McShooterz: call to load shipupkeep.xml 
 		}
 
 		private static void LoadJunk()
@@ -1671,6 +1677,8 @@ namespace Ship_Game
 			{
 				Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video"), "Content/ModVideo", true);
 			}
+            //Added by McShooterz
+            Ship_Game.ResourceManager.LoadShipUpkeep();
 		}
 
 		private static void LoadNebulas()
@@ -2105,6 +2113,19 @@ namespace Ship_Game
 			}
 			textList = null;
 		}
+
+        //Added by McShooterz: load the ShipUpkeep.xml
+        private static void LoadShipUpkeep()
+        {
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")))
+            {
+                Ship_Game.ResourceManager.ShipUpkeep = (ShipUpkeep)new XmlSerializer(typeof(ShipUpkeep)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")).OpenRead());
+            }
+            else
+            {
+                return;
+            }
+        }
 
 		public static void Reset()
 		{

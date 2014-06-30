@@ -1100,151 +1100,68 @@ namespace Ship_Game.Gameplay
             float maint = 0f;
             string role = this.Role;
             string str = role;
-            bool nonCombat = false;
+            //bool nonCombat = false;
             //added by gremlin: Maintenance changes
             float maintModReduction = 1;
-            if (role != null && this.GetShipData().ShipStyle != "Remnant" && (this.loyalty != null && this.loyalty.data != null && this.loyalty.data.PrototypeShip != this.Name))
+
+            //Ships without upkeep
+            if (role == null || this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
+                || (this.Mothership != null && (this.Role == "fighter" || this.Role == "corvette" || this.Role == "scout" || this.Role == "frigate")))
             {
+                return 0f;
+            }
 
-                if (this.Name == "Subspace Projector")
+            //Get Maintanence of ship role
+            maint = ResourceManager.ShipUpkeep.GetMaintanence(this.Role, this.loyalty.data.Traits.ShipType);
+
+            //Modify Maintanence by freighter size
+            if(this.Role == "freighter")
+            {
+                switch ((int)this.Size / 50)
                 {
-                    if (this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
-                    {
-                        maint = 0.1f;
-                    }
-                    else
-                    {
-                        maint = 0.2f;
-                    }
-                    return maint;
-                }
-                switch (str)
-                {
-                    case "freighter":
+                    case 0:
                         {
-
-
-                            switch ((int)this.Size / 50)
-                            {
-                                case 0:
-                                    {
-                                        maint = 0.2f;
-                                        break;
-                                    }
-
-                                case 1:
-                                    {
-                                        maint = 0.3f;
-                                        break;
-                                    }
-
-                                case 2:
-                                case 3:
-                                case 4:
-                                    {
-                                        maint = 0.4f;
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        maint = (int)this.Size / 50;
-                                        break;
-                                    }
-                            }
-                            if (this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization && this.Weapons.Count() < this.Size * .10f)
-                            {
-
-                                maint *= 0.5f;
-                            }
-
                             break;
                         }
 
-                    case "platform":
+                    case 1:
                         {
-                            if (this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
-                            {
-                                maint = 0.1f;
-                            }
-                            else
-                            {
-                                maint = 0.2f;
-                            }
+                            maint *= 1.5f;
                             break;
                         }
-                    case "fighter":
+
+                    case 2:
+                    case 3:
+                    case 4:
                         {
-                            if (this.Mothership != null)
-                            {
-                                return 0;
-                            }
-                            maint = 0.2f;
-                            break;
-                        }
-                    case "corvette":
-                        {
-                            if (this.Mothership != null)
-                            {
-                                return 0;
-                            }
-                            maint = 0.35f;
-                            break;
-                        }
-                    case "scout":
-                        {
-                            if (this.Mothership != null)
-                            {
-                                return 0;
-                            }
-                            maint = 0.1f;
-                            break;
-                        }
-                    case "frigate":
-                        {
-                            if (this.Mothership != null)
-                            {
-                                return 0;
-                            }
-                            maint = 1f;
-                            break;
-                        }
-                    case "cruiser":
-                        {
-                            maint = 2.5f;
-                            break;
-                        }
-                    case "carrier":
-                        {
-                            maint = 4f;
-                            break;
-                        }
-                    case "capital":
-                        {
-                            maint = 6f;
-                            break;
-                        }
-                    case "station":
-                        {
-                            maint = 6f;
-                            //added by gremlin shipyard exploit fix
-                            if (this.Name == "Shipyard" && this.IsTethered())
-                                if (this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() > 3)
-                                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() - 3;
+                            maint *= 2f;
                             break;
                         }
                     default:
                         {
-                            maint = 0f;
-                            return maint;
+                            maint *= (int)this.Size / 50;
+                            break;
                         }
                 }
             }
-            else
+
+            //Apply Privatization
+            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
             {
-                maint = 0f;
+                maint *= 0.5f;
+            }
+
+            //added by gremlin shipyard exploit fix
+            if (this.Name == "Shipyard" && this.IsTethered())
+                if (this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() > 3)
+                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() - 3;
+
+            //Subspace Projectors do not get any more modifiers
+            if (this.Name == "Subspace Projector")
+            {
                 return maint;
             }
+
             //Maintenance fluctuator
             //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
             float OptionIncreaseShipMaintenance = float.Parse( ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
@@ -1282,8 +1199,6 @@ namespace Ship_Game.Gameplay
                 if (maintModReduction < 1) maintModReduction = 1;
                 maint *= maintModReduction;
             }
-
-
             return maint;
         }
 
