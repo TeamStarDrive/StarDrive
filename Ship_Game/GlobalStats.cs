@@ -7,7 +7,7 @@ namespace Ship_Game
 {
 	public class GlobalStats
 	{
-		public static int ComparisonCounter;
+        public static int ComparisonCounter;
 
 		public static int Comparisons;
 
@@ -97,8 +97,13 @@ namespace Ship_Game
 
 		public static int CordrazinePlanetsCaptured;
 
+        public static bool ExtraNotiofications;
+        //PauseOnNotification
+        public static bool PauseOnNotification;
+        public static int ExtraPlanets;
+
 		static GlobalStats()
-		{
+		{       
 			GlobalStats.ComparisonCounter = 1;
 			GlobalStats.Comparisons = 0;
 			GlobalStats.HardcoreRuleset = false;
@@ -141,6 +146,9 @@ namespace Ship_Game
 			GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
+            GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
+            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
+            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
 		}
 
 		public GlobalStats()

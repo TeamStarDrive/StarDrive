@@ -21,6 +21,10 @@ namespace Ship_Game
 
 		private CloseButton close;
 
+        private FloatSlider GravityWellSize;
+
+        private FloatSlider extraPlanets;
+
 		public Ship itemToBuild;
 
 		public RuleOptionsScreen()
@@ -58,6 +62,8 @@ namespace Ship_Game
 			text = HelperFunctions.parseText(Fonts.Arial12, text, (float)(this.MainMenu.Menu.Width - 80));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, TitlePos, Color.White);
 			this.FTLPenaltySlider.DrawDecimal(base.ScreenManager);
+            this.GravityWellSize.Draw(base.ScreenManager);
+            this.extraPlanets.Draw(base.ScreenManager);
 			this.close.Draw(base.ScreenManager);
 			foreach (Checkbox cb in this.Checkboxes)
 			{
@@ -98,6 +104,20 @@ namespace Ship_Game
 			{
 				cb.HandleInput(input);
 			}
+            if (HelperFunctions.CheckIntersection(this.GravityWellSize.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(Localizer.Token(6003), base.ScreenManager);
+            }
+            this.GravityWellSize.HandleInput(input);
+            GlobalStats.GravityWellRange = this.GravityWellSize.amountRange; //amount replaced with amountRange
+           
+            //added by gremlin ExtraPlanets
+            if (HelperFunctions.CheckIntersection(this.extraPlanets.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("Add up to 6 random planets to each system", base.ScreenManager);
+            }
+            this.extraPlanets.HandleInput(input);
+            GlobalStats.ExtraPlanets = (int)this.extraPlanets.amountRange;
 		}
 
 		public override void LoadContent()
@@ -119,9 +139,19 @@ namespace Ship_Game
 			this.FTLPenaltySlider.SetAmount(GlobalStats.FTLInSystemModifier);
 			this.FTLPenaltySlider.amount = GlobalStats.FTLInSystemModifier;
 			Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.PlanetaryGravityWells, (bool x) => GlobalStats.PlanetaryGravityWells = x);
-			Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 65)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
+			Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 85)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2288;
+            Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
+
+            this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002),0,20000,GlobalStats.GravityWellRange);
+            //this.GravityWellSize.SetAmountGW(GlobalStats.GravityWellRange);
+            //this.GravityWellSize.amount = GlobalStats.GravityWellRange;
+            
+            //added by gremlin init extra planets slider
+            Rectangle epRect = new Rectangle(leftRect.X + 60, leftRect.Y + 340, 270, 50);
+            this.extraPlanets = new FloatSlider(epRect, "Extra Planets",0,6f,(float)GlobalStats.ExtraPlanets);
+           
 			this.MainMenu = new Menu2(base.ScreenManager, leftRect);
 		}
 	}

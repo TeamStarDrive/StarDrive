@@ -1358,6 +1358,46 @@ namespace Ship_Game
 						spriteBatch1.DrawString(spriteFont, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
 						bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
 					}
+                    if (pgs.building.IsSensor && pgs.building.SensorRange != 0f)
+                    {
+                        Rectangle fIcon;
+                        if (ResourceManager.TextureDict.ContainsKey("NewUI/icon_sensors"))
+                        {
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_sensors"].Width, ResourceManager.TextureDict["NewUI/icon_sensors"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_sensors"], fIcon, Color.White);
+                        }
+                        else
+                        {
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["Textures/transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/transparent"], fIcon, Color.White);
+                        } 
+                        Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
+                        SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
+                        SpriteFont spriteFont = Fonts.Arial12Bold;
+                        plusFlatFoodAmount = new object[] { "", pgs.building.SensorRange, " ", Localizer.Token(6000) };
+                        spriteBatch1.DrawString(spriteFont, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
+                        bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+                    }
+                    if (pgs.building.IsProjector && pgs.building.ProjectorRange != 0f)
+                    {
+                        Rectangle fIcon;
+                        if (ResourceManager.TextureDict.ContainsKey("NewUI/icon_projection"))
+                        {
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_projection"].Width, ResourceManager.TextureDict["NewUI/icon_projection"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_projection"], fIcon, Color.White);
+                        }
+                        else
+                        {
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["Textures/transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/transparent"], fIcon, Color.White);
+                        } 
+                        Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
+                        SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
+                        SpriteFont spriteFont = Fonts.Arial12Bold;
+                        plusFlatFoodAmount = new object[] { "", pgs.building.ProjectorRange, " ", Localizer.Token(6001) };
+                        spriteBatch1.DrawString(spriteFont, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
+                        bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+                    }
 					if (pgs.building.PlusFlatProductionAmount != 0f)
 					{
 						Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
@@ -1515,6 +1555,28 @@ namespace Ship_Game
 					spriteBatch10.DrawString(arial12Bold5, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
 					bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
 				}
+                if (temp.IsSensor && temp.SensorRange != 0f)
+                {
+                    Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_sensors"].Width, ResourceManager.TextureDict["NewUI/icon_sensors"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_sensors"], fIcon, Color.White);
+                    Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
+                    SpriteBatch spriteBatch10 = this.ScreenManager.SpriteBatch;
+                    SpriteFont arial12Bold5 = Fonts.Arial12Bold;
+                    plusFlatFoodAmount = new object[] { "", temp.SensorRange, " ", Localizer.Token(6000) };
+                    spriteBatch10.DrawString(arial12Bold5, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
+                    bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+                }
+                if (temp.IsProjector && temp.ProjectorRange != 0f)
+                {
+                    Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_projection"].Width, ResourceManager.TextureDict["NewUI/icon_projection"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_projection"], fIcon, Color.White);
+                    Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
+                    SpriteBatch spriteBatch10 = this.ScreenManager.SpriteBatch;
+                    SpriteFont arial12Bold5 = Fonts.Arial12Bold;
+                    plusFlatFoodAmount = new object[] { "", temp.ProjectorRange, " ", Localizer.Token(6001) };
+                    spriteBatch10.DrawString(arial12Bold5, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
+                    bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+                }
 				if (temp.PlusFlatProductionAmount != 0f)
 				{
 					Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
