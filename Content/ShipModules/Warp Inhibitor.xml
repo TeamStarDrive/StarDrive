@@ -1,0 +1,50 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <UID>Warp Inhibitor</UID>
+  <Cost>50</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>2</TechLevel>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>5</XSIZE>
+  <YSIZE>5</YSIZE>
+  <ModuleType>Special</ModuleType>
+  <Name>Warp Inhibitor</Name>
+  <Restrictions>I</Restrictions>
+
+  <IconTexturePath>Modules/Inhibitor_5x5</IconTexturePath>3
+
+
+  <NameIndex>1084</NameIndex>
+  <DescriptionIndex>1085</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>50</Mass>
+  <Health>2500</Health>
+  <HealthMax>2500</HealthMax>
+
+  <InhibitionRadius>30000</InhibitionRadius>
+  <!-- Power Drawn -->
+  <PowerDraw>750</PowerDraw>
+
+
+</ShipModule>

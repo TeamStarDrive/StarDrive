@@ -67,6 +67,8 @@ namespace Ship_Game
 
 		private int ytoApply;
 
+        private Checkbox pauseOnNotification;
+
 		//private float transitionElapsedTime;
 
 		public OptionsScreen(MainMenuScreen s, Rectangle dimensions)
@@ -126,6 +128,10 @@ namespace Ship_Game
 				{
 					Tip_Token = 2205
 				};
+                this.pauseOnNotification = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 360)), Localizer.Token(6007), new Ref<bool>(() => GlobalStats.PauseOnNotification, (bool x) => GlobalStats.PauseOnNotification = x), Fonts.Arial12Bold)
+                {
+                    Tip_Token = 7004
+                };
 				this.Resolution = new OptionsScreen.Option()
 				{
 					Name = "Resolution:     ",
@@ -380,6 +386,7 @@ namespace Ship_Game
 			}
 			this.GamespeedCap.Draw(base.ScreenManager);
 			this.ForceFullSim.Draw(base.ScreenManager);
+            this.pauseOnNotification.Draw(base.ScreenManager);
 			this.MusicVolumeSlider.DrawDecimal(base.ScreenManager);
 			this.EffectsVolumeSlider.DrawDecimal(base.ScreenManager);
 			this.ResolutionDropDown.Draw(base.ScreenManager.SpriteBatch);
@@ -404,6 +411,7 @@ namespace Ship_Game
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			this.GamespeedCap.HandleInput(input);
 			this.ForceFullSim.HandleInput(input);
+            this.pauseOnNotification.HandleInput(input);
 			if (!this.ResolutionDropDown.Open && !this.AntiAliasingDD.Open)
 			{
 				this.MusicVolumeSlider.HandleInput(input);
@@ -480,6 +488,8 @@ namespace Ship_Game
             this.GamespeedCap.Tip_Token = 2205;
             this.ForceFullSim = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 330)), "Force Full Simulation", new Ref<bool>((Func<bool>)(() => GlobalStats.ForceFullSim), (Action<bool>)(x => GlobalStats.ForceFullSim = x)), Fonts.Arial12Bold);
             this.ForceFullSim.Tip_Token = 2205;
+            this.pauseOnNotification = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 360)), Localizer.Token(6007), new Ref<bool>((Func<bool>)(() => GlobalStats.PauseOnNotification), (Action<bool>)(x => GlobalStats.PauseOnNotification = x)), Fonts.Arial12Bold);
+            this.pauseOnNotification.Tip_Token = 7004;
             this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width + 20, this.MainOptionsRect.Y, 210, 305);
             this.Resolution = new OptionsScreen.Option();
             this.Resolution.Name = Localizer.Token(9) + ":";
@@ -679,6 +689,7 @@ namespace Ship_Game
 			config.AppSettings.Settings["WindowMode"].Value = GlobalStats.Config.WindowMode.ToString();
 			config.AppSettings.Settings["RanOnce"].Value = "true";
 			config.AppSettings.Settings["ForceFullSim"].Value = (GlobalStats.ForceFullSim ? "true" : "false");
+            config.AppSettings.Settings["PauseOnNotification"].Value = (GlobalStats.PauseOnNotification ? "true" : "false");
 			config.Save();
 		}
 

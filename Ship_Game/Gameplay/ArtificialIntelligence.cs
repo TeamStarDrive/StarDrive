@@ -1544,7 +1544,7 @@ namespace Ship_Game.Gameplay
 
                     if (this.Owner.engineState != Ship.MoveState.Warp)
                     {
-                        this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed < 50 ? this.Owner.speed : 50f); //this.Owner.speed / 2f);
+                        this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed < 250 ? this.Owner.speed : 250f); //this.Owner.speed / 2f);
                     }
                     return;
                 }
