@@ -3298,7 +3298,7 @@ namespace Ship_Game.Gameplay
                             this.WarpThrust += (float)moduleSlot.module.WarpThrust;
                             this.TurnThrust += (float)moduleSlot.module.TurnThrust;
                             //Added by McShooterz: shields keep charge when manually turned off
-                            if (this.ShieldsUp)
+                            if (this.ShieldsUp && !(this.engineState == Ship.MoveState.Warp))
                             {
                                 this.shield_power += moduleSlot.module.shield_power;
                                 moduleSlot.module.shieldsOff = false;
