@@ -136,7 +136,8 @@ namespace Ship_Game
                 this.EmpireToRemoveName = EmpireToRemoveName;
                 EmpireManager.EmpireList.Clear();
                 XmlSerializer serializer2 = new XmlSerializer(typeof(DiplomaticTraits));
-                this.dtraits = (DiplomaticTraits)serializer2.Deserialize((new FileInfo("Content/Diplomacy/DiplomaticTraits.xml")).OpenRead());
+                //Added by McShooterz: mod folder support
+                this.dtraits = (DiplomaticTraits)serializer2.Deserialize((new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml") : "Content/Diplomacy/DiplomaticTraits.xml")).OpenRead());
                 Ship_Game.ResourceManager.LoadEncounters();
                 this.playerEmpire = empire;
                 empire.Initialize();
@@ -768,7 +769,8 @@ namespace Ship_Game
             Empire empire = new Empire();
             empire.isFaction = true;
             empire.data = CreatingNewGameScreen.CopyEmpireData(data);
-            DiplomaticTraits diplomaticTraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo("Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
+            //Added by McShooterz: mod folder support
+            DiplomaticTraits diplomaticTraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml") : "Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
             int index1 = (int)RandomMath.RandomBetween(0.0f, (float)diplomaticTraits.DiplomaticTraitsList.Count);
             empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index1];
             int index2 = (int)RandomMath.RandomBetween(0.0f, (float)diplomaticTraits.DiplomaticTraitsList.Count);
