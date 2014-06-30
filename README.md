@@ -1,4 +1,6 @@
 # Stardrive Extended ++G #
+#feature list#
+[Version 1 feature list](https://bitbucket.org/CrunchyGremlin/sd-idk/issues?status=resolved&status=closed&version=0.1+Gravity)
 
 ###I just want to play the mod Crunchy!###
 
