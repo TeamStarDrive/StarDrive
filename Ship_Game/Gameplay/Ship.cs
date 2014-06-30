@@ -2097,7 +2097,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin deveksmod scramble assault ships
         public void ScrambleAssaultShips()
         {
-            foreach (ModuleSlot slot in this.ModuleSlotList.AsParallel().Where(slot => slot.module != null && slot.module.ModuleType == ShipModuleType.Hangar && slot.module.IsTroopBay && this.TroopList.Count > 0 && slot.module.GetHangarShip() == null && slot.module.hangarTimer <= 0f))
+            foreach (ModuleSlot slot in this.ModuleSlotList.Where(slot => slot.module != null && slot.module.ModuleType == ShipModuleType.Hangar && slot.module.IsTroopBay && this.TroopList.Count > 0 && slot.module.GetHangarShip() == null && slot.module.hangarTimer <= 0f))
             {
                 //if (slot.module == null || slot.module.ModuleType != ShipModuleType.Hangar || !slot.module.IsTroopBay || this.TroopList.Count <= 0 || slot.module.GetHangarShip() != null || slot.module.hangarTimer > 0f)
                 //{
@@ -2521,11 +2521,11 @@ namespace Ship_Game.Gameplay
                         }
                     }
                     this.emitter.Position = new Vector3(this.Center, 0.0f);
-                    //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-                    Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
+                    foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                    //Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
                     {
                         moduleSlot.module.UpdateWhileDying(elapsedTime);
-                    });
+                    }//);
                 }
             }
             else if (!this.dying)
@@ -2630,12 +2630,12 @@ namespace Ship_Game.Gameplay
                         if (this.ShipSO == null)
                             return;
                         this.ShipSO.World = Matrix.Identity * Matrix.CreateRotationY(this.yRotation) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(new Vector3(this.Center, 0.0f));
-                        if (this.GetShipData().Animated)
+                        if (this.GetShipData().Animated && this.animationController !=null)
                         {
                             this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
                             this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                         }
-                        else if (this.GetShipData() != null && this.GetShipData().Animated)
+                        else if (this.GetShipData() != null &&this.animationController !=null&& this.GetShipData().Animated)
                         {
                             this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
                             this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
@@ -2738,8 +2738,8 @@ namespace Ship_Game.Gameplay
                     else
                         this.Projectiles.QueuePendingRemoval(projectile);
                 }//);
-                    //foreach (Beam beam in (List<Beam>)this.beams)
-                    Parallel.ForEach<Beam>(this.beams, beam =>
+                    foreach (Beam beam in (List<Beam>)this.beams)
+                    //Parallel.ForEach<Beam>(this.beams, beam =>
                     {
                         Vector2 origin = new Vector2();
                         if (beam.moduleAttachedTo != null)
@@ -2759,7 +2759,7 @@ namespace Ship_Game.Gameplay
                         beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                         if ((double)beam.duration < 0.0 && !beam.infinite)
                             this.beams.QueuePendingRemoval(beam);
-                    });
+                    }//);
                     this.beams.ApplyPendingRemovals();
                 }
             }
@@ -3083,14 +3083,14 @@ namespace Ship_Game.Gameplay
             }
             if (this.InCombat && !this.disabled || this.PlayerShip)
             {
-                //foreach (Weapon weapon in this.Weapons)
-                //    weapon.Update(elapsedTime);
+                foreach (Weapon weapon in this.Weapons)
+                    weapon.Update(elapsedTime);
                 //added by gremlin More cores for guns?
                 
-                Parallel.ForEach(this.Weapons, weapon =>
-                    {
-                        weapon.Update(elapsedTime);
-                    });
+                //Parallel.ForEach(this.Weapons, weapon =>
+                //    {
+                //        weapon.Update(elapsedTime);
+                //    });
             }
             this.TroopBoardingDefense = 0.0f;
             foreach (Troop troop in this.TroopList)
