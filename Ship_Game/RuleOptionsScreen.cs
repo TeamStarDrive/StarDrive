@@ -62,7 +62,7 @@ namespace Ship_Game
 			text = HelperFunctions.parseText(Fonts.Arial12, text, (float)(this.MainMenu.Menu.Width - 80));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, TitlePos, Color.White);
 			this.FTLPenaltySlider.DrawDecimal(base.ScreenManager);
-            this.GravityWellSize.DrawGW(base.ScreenManager);
+            this.GravityWellSize.Draw(base.ScreenManager);
             this.extraPlanets.Draw(base.ScreenManager);
 			this.close.Draw(base.ScreenManager);
 			foreach (Checkbox cb in this.Checkboxes)
@@ -108,14 +108,16 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(Localizer.Token(6003), base.ScreenManager);
             }
-            this.GravityWellSize.HandleInputGW(input);
-            GlobalStats.GravityWellRange = this.GravityWellSize.amount;
+            this.GravityWellSize.HandleInput(input);
+            GlobalStats.GravityWellRange = this.GravityWellSize.amountRange; //amount replaced with amountRange
+           
+            //added by gremlin ExtraPlanets
             if (HelperFunctions.CheckIntersection(this.extraPlanets.ContainerRect, input.CursorPosition))
             {
                 ToolTip.CreateTooltip("Add up to 6 random planets to each system", base.ScreenManager);
             }
-            this.extraPlanets.HandleInput10(input);
-            GlobalStats.ExtraPlanets = (int)this.extraPlanets.amount;
+            this.extraPlanets.HandleInput(input);
+            GlobalStats.ExtraPlanets = (int)this.extraPlanets.amountRange;
 		}
 
 		public override void LoadContent()
@@ -142,16 +144,14 @@ namespace Ship_Game
 			cb.Tip_Token = 2288;
             Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
 
-            this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002));
-            this.GravityWellSize.SetAmountGW(GlobalStats.GravityWellRange);
-            this.GravityWellSize.amount = GlobalStats.GravityWellRange;
-
+            this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002),0,20000,GlobalStats.GravityWellRange);
+            //this.GravityWellSize.SetAmountGW(GlobalStats.GravityWellRange);
+            //this.GravityWellSize.amount = GlobalStats.GravityWellRange;
+            
+            //added by gremlin init extra planets slider
             Rectangle epRect = new Rectangle(leftRect.X + 60, leftRect.Y + 340, 270, 50);
-            this.extraPlanets = new FloatSlider(epRect, "Extra Planets");
-            this.extraPlanets.SetAmount10((float)GlobalStats.ExtraPlanets);
-            this.extraPlanets.amount = GlobalStats.ExtraPlanets;
-
-
+            this.extraPlanets = new FloatSlider(epRect, "Extra Planets",0,6f,(float)GlobalStats.ExtraPlanets);
+           
 			this.MainMenu = new Menu2(base.ScreenManager, leftRect);
 		}
 	}
