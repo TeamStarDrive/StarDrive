@@ -1883,7 +1883,7 @@ namespace Ship_Game
                 this.camHeight = this.MaxCamHeight * this.GameScale;
             else if ((double)this.camHeight < 1337.0)
                 this.camHeight = 1337f;
-            if ((double)this.camHeight > 17500.0)
+            if ((double)this.camHeight > 30000.0)
             {
                 this.viewState = UniverseScreen.UnivScreenState.SystemView;
                 if ((double)this.camHeight <= 250000.0)
