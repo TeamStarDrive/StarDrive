@@ -1,4 +1,4 @@
-# How to use this repository #
+# Stardrive Extended ++G #
 
 ###I just want to play the mod Crunchy!###
 
