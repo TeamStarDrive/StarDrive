@@ -37,3 +37,153 @@ C:\Users\McShooterz\Documents\Visual Studio 2012\projects\sd-idk\obj\x86\Debug\S
 C:\Users\McShooterz\Documents\Visual Studio 2012\projects\sd-idk\obj\x86\Debug\StarDrive.exe
 C:\Users\McShooterz\Documents\Visual Studio 2012\projects\sd-idk\obj\x86\Debug\StarDrive.pdb
 C:\Users\McShooterz\Documents\Visual Studio 2012\projects\sd-idk\obj\x86\Debug\StarDrive.csprojResolveAssemblyReference.cache
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Buildings\Capital.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Buildings\Outpost.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Buildings\Space Port.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Buildings\Tracking Station.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Localization\English\GameText_EN.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\NameGenerators\names.txt
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\NameGenerators\spynames_Cordrazine.txt
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\NameGenerators\spynames_Draylok.txt
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\NameGenerators\spynames_Humans.txt
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\NameGenerators\spynames_Kulrathi.txt
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\NameGenerators\spynames_Opteris.txt
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\NameGenerators\spynames_Pollops.txt
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\NameGenerators\spynames_Ralyeh.txt
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\NameGenerators\spynames_Vulfen.txt
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\AncientReactorMed.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\AncientRepulsor.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\AncientShield2kw.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\AntiMatterReactor.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\AuxWarpCore.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\BasicCargoHold.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\BasicFuelCell.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\BigCannon.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Bridge.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Broadside_Flak_3x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\CanopyShield.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\CapEngines.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\CIC.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Cockpit.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\ColonyModule.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\CombatEngine_2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Combat_Thruster_1x1.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Combat_Thruster_2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Combat_Thruster_3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Combat_Thruster_4x4.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\ConventionalTorpedo.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\DeathSporeBay.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\DisintegratorArray.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\DisruptorTurret.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\DisruptorTurret2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\DisruptorTurret3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Dummy.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\EMPTorpedo.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\EMPTurret2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\EMPTurret3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Engine.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\engine_fighter_1x1.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Fabricator.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Fighter Shield.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\FighterBay.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\FighterbombEnergy_1x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Fighterbomb_1x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Fighterbomb_2x4.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\FlakTurret.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\FlakTurret3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Flechette AF Turret.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\FrigateEngine.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\FuelCellMediumArmored.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\FuelCellSmallArmored.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\fuel_reactor_1x1.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\FusionBeam2x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\FusionTurret2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\HeavyLaserCannon.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Inertial Damper.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Internal Bulkhead.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\IonBeam2x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\IonBeamTurret2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\IonCannon1x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\KineticPlatform.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\LaserBeam2x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\LaserBeamTurret2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\LaserCannon.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\LaserTurret.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\LaserTurretHeavy.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Main Engineering.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Maneuvering_Thruster_1x1.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Maneuvering_Thruster_2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Maneuvering_Thruster_3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Maneuvering_Thruster_4x4.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\MarineBarracks2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\MarineBarracks8x4.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\MediumFuelCell.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\MiningLaser.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\MissileLauncher1x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\MissileLauncher3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\MRLS.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\NuclearBombBay2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\NuclearReactorMed.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\NuclearReactorSmall.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\OrdnanceLocker.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\OrdnanceLockerSmall.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\OrdnanceSupplyBay.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Owlwok Liberator.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Phalanx PD.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PhasorBeam2x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PhasorTurret2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PhotonTurret.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PhotonTurret3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PlasmaThrower.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PlaSteelArmorLarge.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PlaSteelArmorMed.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PlaSteelArmorSmall.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PolaronTurret2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PolaronTurret3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PowerConduit.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Powerplant_nuke_1x1.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Powerplant_nuke_2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\power_capacitor_1x1.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Pulse Capacitor.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\PulseBombBay.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\QTCannon.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Quantanium_1x1.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Quantanium_2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Quantanium_3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Raider Bay.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Railgun1x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Railgun2x5.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Range_Thruster_1x1.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Range_Thruster_2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Range_Thruster_3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Range_Thruster_4x4.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Reinforced Bulkhead.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\RemnantSmallFuelCell.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\RemnantSmallReactor.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\RepairDrone.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\RocketLauncher.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Shield_10KW.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Shield_1KW.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Sickbay.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\SiphonBeam2x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\SiphonBeamTurret2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\SteelArmorLarge.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\SteelArmorMed.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\SteelArmorSmall.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\SubspaceSensors.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\SupplyTransporter.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\ThalaronBeam2x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Titan Engine.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\TractorBeam2x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\TractorBeamTurret2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\TroopAssaultBay.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\VulcanCannon.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Warp Inhibitor.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\WarpCore.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\WarpEngine_1x1.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\WarpEngine_2x2.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\WarpEngine_3x3.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\WarpEngine_4x4.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Tooltips\Tooltips.xml
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Textures\NewUI\icon_projection.xnb
+L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Textures\NewUI\icon_sensors.xnb
