@@ -74,7 +74,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             this.Target = null;
-            this.SetTarget(this.TargetList.AsParallel().OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>()); //use SetTarget function
+            this.SetTarget(this.TargetList.OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>()); //use SetTarget function
 
         }
 		public void ClearTargets()
