@@ -7231,6 +7231,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6006</Index>
       <Text>Beam Dur</Text>
     </Token>
+    <Token>
+      <Index>6007</Index>
+      <Text>Pause On Notifications</Text>
+    </Token>
 	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -7246,6 +7250,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7003</Index>
       <Text>Indicates the maximum duration for which this weapon may maintain its beam each time it fires.</Text>
+    </Token>
+    <Token>
+      <Index>7004</Index>
+      <Text>Pauses game on notifications. Clearing notifications unpauses the game.</Text>
     </Token>
   </TokenList>
   
