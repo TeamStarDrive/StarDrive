@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if DEBUG
+
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -6,6 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
+
     /// <summary>
     /// reflector easinator
     /// </summary>
@@ -131,3 +134,4 @@ namespace Ship_Game
         }
     }
 }
+#endif
