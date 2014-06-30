@@ -7,7 +7,15 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © Zero Sum Games 2012")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyProduct("StarDrive")]
-[assembly: AssemblyTitle("StarDrive Test")]
+
+#if !STEAM
+[assembly: AssemblyTitle("StarDrive Test")] 
+#endif
+#if STEAM
+[assembly: AssemblyTitle("StarDrive")]
+#endif
+
+
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyVersion("1.0.9.0")]
 [assembly: CompilationRelaxations(8)]
