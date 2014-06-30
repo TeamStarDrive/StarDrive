@@ -2715,12 +2715,12 @@ namespace Ship_Game.Gameplay
                         if (this.ShipSO == null)
                             return;
                         this.ShipSO.World = Matrix.Identity * Matrix.CreateRotationY(this.yRotation) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(new Vector3(this.Center, 0.0f));
-                        if (this.GetShipData().Animated)
+                        if (this.GetShipData().Animated && this.animationController !=null)
                         {
                             this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
                             this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                         }
-                        else if (this.GetShipData() != null && this.GetShipData().Animated)
+                        else if (this.GetShipData() != null &&this.animationController !=null&& this.GetShipData().Animated)
                         {
                             this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
                             this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
