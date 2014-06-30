@@ -130,6 +130,9 @@ namespace Ship_Game.Gameplay
 
 		public float shield_power;
 
+        //Added by McShooterz: shields keep charge when manually turned off
+        public Boolean shieldsOff=false;
+
 		public float shield_radius;
 
 		public float shield_power_max;
@@ -286,7 +289,8 @@ namespace Ship_Game.Gameplay
 				this.ParentOfDummy.Damage(source, damageAmount);
 				return true;
 			}
-			if (this.shield_power <= 0f)
+            //Added by McShooterz: shields keep charge when manually turned off
+			if (this.shield_power <= 0f || shieldsOff)
 			{
 				if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
 				{
@@ -472,7 +476,8 @@ namespace Ship_Game.Gameplay
 				}
 			}
 			bool moduleType = this.ModuleType == ShipModuleType.PowerPlant & this.Parent.isPlayerShip();
-			if (this.shield_power > 0f)
+            //Added by McShooterz: shields keep charge when manually turned off
+			if (this.shield_power > 0f && !shieldsOff)
 			{
 				this.radius = this.shield_radius;
 			}
@@ -514,7 +519,8 @@ namespace Ship_Game.Gameplay
 				this.ParentOfDummy.DamageInvisible(source, damageAmount);
 				return;
 			}
-			if (this.shield_power <= 0f)
+            //Added by McShooterz: shields keep charge when manually turned off
+			if (this.shield_power <= 0f || shieldsOff)
 			{
 				if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
 				{
@@ -580,7 +586,8 @@ namespace Ship_Game.Gameplay
 						velocity.Velocity = velocity.Velocity + ((vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass);
 					}
 				}
-				if (this.shield_power <= 0f)
+                //Added by McShooterz: shields keep charge when manually turned off
+				if (this.shield_power <= 0f || shieldsOff)
 				{
 					ShipModule health = this;
 					health.Health = health.Health - damageAmount;
@@ -690,7 +697,8 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
-			if (this.shield_power > 0f)
+            //Added by McShooterz: shields keep charge when manually turned off
+			if (this.shield_power > 0f && !shieldsOff)
 			{
 				this.radius = this.shield_radius;
 			}
@@ -1550,7 +1558,8 @@ namespace Ship_Game.Gameplay
 				base.Health = this.HealthMax;
 				this.onFire = false;
 			}
-			if (this.shield_power <= 0f)
+            //Added by McShooterz: shields keep charge when manually turned off
+			if (this.shield_power <= 0f || shieldsOff)
 			{
 				this.radius = 8f;
 			}
