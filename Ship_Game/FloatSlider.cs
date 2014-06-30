@@ -188,16 +188,16 @@ namespace Ship_Game
 
 		public void SetAmount(float amt)
 		{
-            if (this.amountRange != (this.amount *this.top +this.bottom))//this.amountRange > 0 && this.top > 0)
-            {
+            //if (this.amountRange != (this.amount *this.top +this.bottom))//this.amountRange > 0 && this.top > 0)
+            //{
 
-                this.amount = this.amountRange / this.top - this.bottom;
-                this.amount=this.amount < 0 ? this.amount = 0 : this.amount;
-            }
-            else
-            {
+            //    this.amount = this.amountRange / this.top - this.bottom;
+            //    this.amount=this.amount < 0 ? this.amount = 0 : this.amount;
+            //}
+            //else
+            //{
                 this.amount = amt;
-            }
+            //}
 			this.cursor = new Rectangle(this.rect.X + (int)((float)this.rect.Width * this.amount), this.rect.Y + this.rect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
 		}
 
