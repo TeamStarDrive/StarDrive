@@ -1,0 +1,54 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>15</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>1</TechLevel>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>3</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Broadside Flak Cannon</Name>
+  <Restrictions>O</Restrictions>
+  <UID>Railgun2x5</UID>
+  <IconTexturePath>Modules/Broadside_Flak_3x2</IconTexturePath>3
+
+
+  <NameIndex>1040</NameIndex>
+  <DescriptionIndex>1041</DescriptionIndex>
+
+  <!-- Mass and Health -->
+  <Mass>60</Mass>
+  <Health>1200</Health>
+  <HealthMax>1200</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>20</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>MassDriver</WeaponType>
+  <FieldOfFire>15</FieldOfFire>
+  <Left>1</Left>
+  <Right>1</Right>
+  <Rear>1</Rear>
+  
+  
+</ShipModule>

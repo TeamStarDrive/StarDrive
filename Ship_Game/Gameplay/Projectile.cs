@@ -759,7 +759,15 @@ namespace Ship_Game.Gameplay
 						this.DieNextFrame = true;
 						return true;
 					}
-					if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
+                    if (this.weapon.Tag_Guided)
+                    {
+                        float ECMResist = this.weapon.ECMResist; // check any in-built ECM resistance on the guided weapon itself
+                        Ship targetShip = (target as ShipModule).GetParent(); // identify the ship to which the module belongs
+                        float rnum = RandomMath.RandomBetween(0.0f, 1.0f); // Random roll 0.0-1.0, i.e. roll 0 to 100
+                        if (rnum + ECMResist < targetShip.ECMValue) // Can she hit?
+                            this.Miss = true;
+                    }
+                    if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
 					{
 						if (!this.ArmorsPierced.Contains(target as ShipModule) && this.ArmorsPierced.Count < this.ArmorPiercing)
 						{
@@ -846,213 +854,158 @@ namespace Ship_Game.Gameplay
 			return base.Touch(target);
 		}
 
-		public override void Update(float elapsedTime)
-		{
-			if (this.DieNextFrame && this.Active)
-			{
-				this.Die(this, false);
-				return;
-			}
-			if (!this.Active)
-			{
-				return;
-			}
-			Projectile timeElapsed = this;
-			timeElapsed.TimeElapsed = timeElapsed.TimeElapsed + elapsedTime;
-			Projectile position = this;
-			position.Position = position.Position + (base.Velocity * elapsedTime);
-			this.Scale = this.weapon.Scale;
-			if (this.weapon.Animated == 1)
-			{
-				Projectile projectile = this;
-				projectile.frameTimer = projectile.frameTimer + elapsedTime;
-				if (this.weapon.LoopAnimation == 0 && this.frameTimer > this.switchFrames)
-				{
-					this.frameTimer = 0f;
-					Projectile animationFrame = this;
-					animationFrame.AnimationFrame = animationFrame.AnimationFrame + 1;
-					if (this.AnimationFrame >= this.weapon.Frames)
-					{
-						this.AnimationFrame = 0;
-					}
-				}
-				else if (this.weapon.LoopAnimation == 1)
-				{
-					Projectile animationFrame1 = this;
-					animationFrame1.AnimationFrame = animationFrame1.AnimationFrame + 1;
-					if (this.AnimationFrame >= this.weapon.Frames)
-					{
-						this.AnimationFrame = 0;
-					}
-				}
-				string remainder = this.AnimationFrame.ToString(this.fmt);
-				this.texturePath = string.Concat(this.weapon.AnimationPath, remainder);
-			}
-			if (this.InFlightCue != "" && this.inFlight == null)
-			{
-				this.inFlight = AudioManager.GetCue(this.InFlightCue);
-				this.inFlight.Apply3D(Projectile.universeScreen.listener, this.emitter);
-				this.inFlight.Play();
-			}
-			Projectile projectile1 = this;
-			projectile1.particleDelay = projectile1.particleDelay - elapsedTime;
-			if (this.duration > 0f)
-			{
-				Projectile projectile2 = this;
-				projectile2.duration = projectile2.duration - elapsedTime;
-				if (this.duration < 0f)
-				{
-					base.Health = 0f;
-					this.Die(null, false);
-					return;
-				}
-			}
-			if (this.missileAI != null)
-			{
-				this.missileAI.Think(elapsedTime);
-			}
-			if (this.droneAI != null)
-			{
-				this.droneAI.Think(elapsedTime);
-			}
-			if ((this.WeaponType == "Rocket" || this.WeaponType == "Drone" || this.WeaponType == "Missile") && this.system != null && this.system.isVisible && !this.wasAddedToSceneGraph && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-			{
-				this.wasAddedToSceneGraph = true;
-				lock (GlobalStats.ObjectManagerLocker)
-				{
-					Projectile.universeScreen.ScreenManager.inter.ObjectManager.Submit(this.ProjSO);
-				}
-			}
-			if (!this.firstRun || this.moduleAttachedTo == null)
-			{
-				this.Center = new Vector2(base.Position.X, base.Position.Y);
-			}
-			else
-			{
-				base.Position = this.moduleAttachedTo.Center;
-				this.Center = this.moduleAttachedTo.Center;
-				this.firstRun = false;
-			}
-			this.emitter.Position = new Vector3(this.Center, 0f);
-			if ((this.isInDeepSpace || this.system != null && this.system.isVisible) && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-			{
-				if (this.zStart >= -25f)
-				{
-					this.zStart = -25f;
-				}
-				else
-				{
-					Projectile projectile3 = this;
-					projectile3.zStart = projectile3.zStart + this.velocityMaximum * elapsedTime;
-				}
-				this.ProjSO.World = ((Matrix.Identity * Matrix.CreateScale(this.Scale)) * Matrix.CreateRotationZ(base.Rotation)) * Matrix.CreateTranslation(this.Center.X, this.Center.Y, -this.zStart);
-				this.WorldMatrix = this.ProjSO.World;
-			}
-			Vector3 Pos3D = new Vector3(this.Center.X, this.Center.Y, -this.zStart);
-			if (this.firetrailEmitter != null && this.WeaponEffectType == "Plasma" && this.duration > this.initialDuration * 0.7f && this.particleDelay <= 0f)
-			{
-				this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, Pos3D, new Vector3(base.Velocity, 0f) + ((Vector3.Normalize(new Vector3(this.direction, 0f)) * this.speed) * 1.75f));
-			}
-			if (this.firetrailEmitter != null && this.WeaponEffectType == "RocketTrail")
-			{
-				this.firetrailEmitter.Update(elapsedTime, Pos3D);
-			}
-			if (this.trailEmitter != null)
-			{
-				this.trailEmitter.Update(elapsedTime, Pos3D);
-			}
-			if (this.system != null && this.system.isVisible && this.light == null && this.weapon.Light != null && Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.LightWasAddedToSceneGraph)
-			{
-				this.LightWasAddedToSceneGraph = true;
-				this.light = new PointLight()
-				{
-					Position = new Vector3(this.Center.X, this.Center.Y, -25f),
-					World = Matrix.Identity * Matrix.CreateTranslation(this.light.Position),
-					Radius = 100f,
-					ObjectType = ObjectType.Dynamic
-				};
-				if (this.weapon.Light == "Green")
-				{
-					this.light.DiffuseColor = new Vector3(0f, 0.8f, 0f);
-				}
-				else if (this.weapon.Light == "Red")
-				{
-					this.light.DiffuseColor = new Vector3(1f, 0f, 0f);
-				}
-				else if (this.weapon.Light == "Orange")
-				{
-					this.light.DiffuseColor = new Vector3(0.9f, 0.7f, 0f);
-				}
-				else if (this.weapon.Light == "Purple")
-				{
-					this.light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f);
-				}
-				else if (this.weapon.Light == "Blue")
-				{
-					this.light.DiffuseColor = new Vector3(0f, 0.8f, 1f);
-				}
-				this.light.Intensity = 1.7f;
-				this.light.FillLight = true;
-				this.light.Enabled = true;
-				lock (GlobalStats.ObjectManagerLocker)
-				{
-					Projectile.universeScreen.ScreenManager.inter.LightManager.Submit(this.light);
-				}
-			}
-			else if (this.weapon.Light != null && this.LightWasAddedToSceneGraph)
-			{
-				this.light.Position = new Vector3(this.Center.X, this.Center.Y, -25f);
-				this.light.World = Matrix.Identity * Matrix.CreateTranslation(this.light.Position);
-			}
-			if (this.moduleAttachedTo != null)
-			{
-				if (this.owner.ProjectilesFired.Count < 30 && this.system != null && this.system.isVisible && this.MuzzleFlash == null && this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.muzzleFlashAdded)
-				{
-					this.muzzleFlashAdded = true;
-					this.MuzzleFlash = new PointLight()
-					{
-						Position = new Vector3(this.moduleAttachedTo.Center.X, this.moduleAttachedTo.Center.Y, -45f),
-						World = Matrix.Identity * Matrix.CreateTranslation(this.MuzzleFlash.Position),
-						Radius = 65f,
-						ObjectType = ObjectType.Dynamic,
-						DiffuseColor = new Vector3(1f, 0.97f, 0.9f),
-						Intensity = 1f,
-						FillLight = false,
-						Enabled = true
-					};
-					lock (GlobalStats.ObjectManagerLocker)
-					{
-						Projectile.universeScreen.ScreenManager.inter.LightManager.Submit(this.MuzzleFlash);
-					}
-					Projectile projectile4 = this;
-					projectile4.flashTimer = projectile4.flashTimer - elapsedTime;
-					this.flash = new Ship_Game.MuzzleFlash()
-					{
-						WorldMatrix = (Matrix.Identity * Matrix.CreateRotationZ(this.rotation)) * Matrix.CreateTranslation(this.MuzzleFlash.Position),
-						Owner = this
-					};
-					lock (GlobalStats.ExplosionLocker)
-					{
-						MuzzleFlashManager.FlashList.Add(this.flash);
-					}
-				}
-				else if (this.flashTimer > 0f && this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && this.muzzleFlashAdded)
-				{
-					Projectile projectile5 = this;
-					projectile5.flashTimer = projectile5.flashTimer - elapsedTime;
-					this.MuzzleFlash.Position = new Vector3(this.moduleAttachedTo.Center.X, this.moduleAttachedTo.Center.Y, -45f);
-					this.flash.WorldMatrix = (Matrix.Identity * Matrix.CreateRotationZ(this.rotation)) * Matrix.CreateTranslation(this.MuzzleFlash.Position);
-					this.MuzzleFlash.World = Matrix.Identity * Matrix.CreateTranslation(this.MuzzleFlash.Position);
-				}
-			}
-			if (this.flashTimer <= 0f && this.muzzleFlashAdded)
-			{
-				lock (GlobalStats.ObjectManagerLocker)
-				{
-					Projectile.universeScreen.ScreenManager.inter.LightManager.Remove(this.MuzzleFlash);
-				}
-			}
-			base.Update(elapsedTime);
-		}
+        public override void Update(float elapsedTime)
+        {
+            if (this.DieNextFrame && this.Active)
+            {
+                this.Die((GameplayObject)this, false);
+            }
+            else
+            {
+                if (!this.Active)
+                    return;
+                this.TimeElapsed += elapsedTime;
+                //Projectile projectile = this;
+                Vector2 vector2 = this.Position + this.Velocity * elapsedTime;
+                this.Position = vector2;
+                this.Scale = this.weapon.Scale;
+                if (this.weapon.Animated == 1)
+                {
+                    this.frameTimer += elapsedTime;
+                    if (this.weapon.LoopAnimation == 0 && (double)this.frameTimer > (double)this.switchFrames)
+                    {
+                        this.frameTimer = 0.0f;
+                        ++this.AnimationFrame;
+                        if (this.AnimationFrame >= this.weapon.Frames)
+                            this.AnimationFrame = 0;
+                    }
+                    else if (this.weapon.LoopAnimation == 1)
+                    {
+                        ++this.AnimationFrame;
+                        if (this.AnimationFrame >= this.weapon.Frames)
+                            this.AnimationFrame = 0;
+                    }
+                    this.texturePath = this.weapon.AnimationPath + this.AnimationFrame.ToString(this.fmt);
+                }
+                if (this.InFlightCue != "" && this.inFlight == null)
+                {
+                    this.inFlight = AudioManager.GetCue(this.InFlightCue);
+                    this.inFlight.Apply3D(Projectile.universeScreen.listener, this.emitter);
+                    this.inFlight.Play();
+                }
+                this.particleDelay -= elapsedTime;
+                if ((double)this.duration > 0.0)
+                {
+                    this.duration -= elapsedTime;
+                    if ((double)this.duration < 0.0)
+                    {
+                        this.Health = 0.0f;
+                        this.Die((GameplayObject)null, false);
+                        return;
+                    }
+                }
+                if (this.missileAI != null)
+                    this.missileAI.Think(elapsedTime);
+                if (this.droneAI != null)
+                    this.droneAI.Think(elapsedTime);
+                if ((this.WeaponType == "Rocket" || this.WeaponType == "Drone" || this.WeaponType == "Missile") && (this.system != null && this.system.isVisible && (!this.wasAddedToSceneGraph && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)))
+                {
+                    this.wasAddedToSceneGraph = true;
+                    lock (GlobalStats.ObjectManagerLocker)
+                        Projectile.universeScreen.ScreenManager.inter.ObjectManager.Submit((ISceneObject)this.ProjSO);
+                }
+                if (this.firstRun && this.moduleAttachedTo != null)
+                {
+                    this.Position = this.moduleAttachedTo.Center;
+                    this.Center = this.moduleAttachedTo.Center;
+                    this.firstRun = false;
+                }
+                else
+                    this.Center = new Vector2(this.Position.X, this.Position.Y);
+                this.emitter.Position = new Vector3(this.Center, 0.0f);
+                if ((this.isInDeepSpace || this.system != null && this.system.isVisible) && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                {
+                    if ((double)this.zStart < -25.0)
+                        this.zStart += this.velocityMaximum * elapsedTime;
+                    else
+                        this.zStart = -25f;
+                    this.ProjSO.World = Matrix.Identity * Matrix.CreateScale(this.Scale) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.Center.X, this.Center.Y, -this.zStart);
+                    this.WorldMatrix = this.ProjSO.World;
+                }
+                Vector3 newPosition = new Vector3(this.Center.X, this.Center.Y, -this.zStart);
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "Plasma" && ((double)this.duration > (double)this.initialDuration * 0.699999988079071 && (double)this.particleDelay <= 0.0))
+                    this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "RocketTrail")
+                    this.firetrailEmitter.Update(elapsedTime, newPosition);
+                if (this.trailEmitter != null)
+                    this.trailEmitter.Update(elapsedTime, newPosition);
+                if (this.system != null && this.system.isVisible && (this.light == null && this.weapon.Light != null) && (Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.LightWasAddedToSceneGraph))
+                {
+                    this.LightWasAddedToSceneGraph = true;
+                    this.light = new PointLight();
+                    this.light.Position = new Vector3(this.Center.X, this.Center.Y, -25f);
+                    this.light.World = Matrix.Identity * Matrix.CreateTranslation(this.light.Position);
+                    this.light.Radius = 100f;
+                    this.light.ObjectType = ObjectType.Dynamic;
+                    if (this.weapon.Light == "Green")
+                        this.light.DiffuseColor = new Vector3(0.0f, 0.8f, 0.0f);
+                    else if (this.weapon.Light == "Red")
+                        this.light.DiffuseColor = new Vector3(1f, 0.0f, 0.0f);
+                    else if (this.weapon.Light == "Orange")
+                        this.light.DiffuseColor = new Vector3(0.9f, 0.7f, 0.0f);
+                    else if (this.weapon.Light == "Purple")
+                        this.light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f);
+                    else if (this.weapon.Light == "Blue")
+                        this.light.DiffuseColor = new Vector3(0.0f, 0.8f, 1f);
+                    this.light.Intensity = 1.7f;
+                    this.light.FillLight = true;
+                    this.light.Enabled = true;
+                    lock (GlobalStats.ObjectManagerLocker)
+                        Projectile.universeScreen.ScreenManager.inter.LightManager.Submit((ILight)this.light);
+                }
+                else if (this.weapon.Light != null && this.LightWasAddedToSceneGraph)
+                {
+                    this.light.Position = new Vector3(this.Center.X, this.Center.Y, -25f);
+                    this.light.World = Matrix.Identity * Matrix.CreateTranslation(this.light.Position);
+                }
+                if (this.moduleAttachedTo != null)
+                {
+                    if (this.owner.ProjectilesFired.Count < 30 && this.system != null && (this.system.isVisible && this.MuzzleFlash == null) && (this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.muzzleFlashAdded))
+                    {
+                        this.muzzleFlashAdded = true;
+                        this.MuzzleFlash = new PointLight();
+                        this.MuzzleFlash.Position = new Vector3(this.moduleAttachedTo.Center.X, this.moduleAttachedTo.Center.Y, -45f);
+                        this.MuzzleFlash.World = Matrix.Identity * Matrix.CreateTranslation(this.MuzzleFlash.Position);
+                        this.MuzzleFlash.Radius = 65f;
+                        this.MuzzleFlash.ObjectType = ObjectType.Dynamic;
+                        this.MuzzleFlash.DiffuseColor = new Vector3(1f, 0.97f, 0.9f);
+                        this.MuzzleFlash.Intensity = 1f;
+                        this.MuzzleFlash.FillLight = false;
+                        this.MuzzleFlash.Enabled = true;
+                        lock (GlobalStats.ObjectManagerLocker)
+                            Projectile.universeScreen.ScreenManager.inter.LightManager.Submit((ILight)this.MuzzleFlash);
+                        this.flashTimer -= elapsedTime;
+                        this.flash = new MuzzleFlash();
+                        this.flash.WorldMatrix = Matrix.Identity * Matrix.CreateRotationZ(this.rotation) * Matrix.CreateTranslation(this.MuzzleFlash.Position);
+                        this.flash.Owner = (GameplayObject)this;
+                        lock (GlobalStats.ExplosionLocker)
+                            MuzzleFlashManager.FlashList.Add(this.flash);
+                    }
+                    else if ((double)this.flashTimer > 0.0 && this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && this.muzzleFlashAdded)
+                    {
+                        this.flashTimer -= elapsedTime;
+                        this.MuzzleFlash.Position = new Vector3(this.moduleAttachedTo.Center.X, this.moduleAttachedTo.Center.Y, -45f);
+                        this.flash.WorldMatrix = Matrix.Identity * Matrix.CreateRotationZ(this.rotation) * Matrix.CreateTranslation(this.MuzzleFlash.Position);
+                        this.MuzzleFlash.World = Matrix.Identity * Matrix.CreateTranslation(this.MuzzleFlash.Position);
+                    }
+                }
+                if ((double)this.flashTimer <= 0.0 && this.muzzleFlashAdded)
+                {
+                    lock (GlobalStats.ObjectManagerLocker)
+                        Projectile.universeScreen.ScreenManager.inter.LightManager.Remove((ILight)this.MuzzleFlash);
+                }
+                base.Update(elapsedTime);
+            }
+        }
 	}
 }
