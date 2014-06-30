@@ -18,6 +18,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -42,7 +43,7 @@ namespace Ship_Game
         public float StarDate = 1000f;
         public string StarDateFmt = "0000.0";
         public float StarDateTimer = 5f;
-        public float AutoSaveTimer = 600f;
+        public float AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
         public bool MultiThread = true;
         public List<UniverseScreen.ClickablePlanets> ClickPlanetList = new List<UniverseScreen.ClickablePlanets>();
         public BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction>();
@@ -851,7 +852,7 @@ namespace Ship_Game
             float num = 10f;
             Matrix matrix = this.view;
             this.MaxCamHeight = 4E+07f;
-            while ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 200))
+            while ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
             {
                 Vector2 vector2_1 = new Vector2(this.Size.X / 2f, this.Size.Y / 2f);
                 Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f)) * Matrix.CreateRotationX(MathHelper.ToRadians(0.0f)) * Matrix.CreateLookAt(new Vector3(-vector2_1.X, vector2_1.Y, this.MaxCamHeight), new Vector3(-vector2_1.X, vector2_1.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
@@ -859,9 +860,10 @@ namespace Ship_Game
                 Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y);
                 Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size, 0.0f), this.projection, view, Matrix.Identity);
                 num = new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X;
-                if ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 200))
+                if ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
                     this.MaxCamHeight -= 0.1f * this.MaxCamHeight;
             }
+            if (MaxCamHeight > 23000000) MaxCamHeight = 23000000; 
             if (!this.loading)
             {
                 this.camPos.X = this.playerShip.Center.X;
@@ -1175,9 +1177,9 @@ namespace Ship_Game
                     this.PieMenuTimer += (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
                     this.NotificationManager.Update((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                     this.AutoSaveTimer -= 0.01666667f;
-                    if ((double)this.AutoSaveTimer <= 0.0)
+                    if (this.AutoSaveTimer <= 0.0f)
                     {
-                        this.AutoSaveTimer = 600f;
+                        this.AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
                         this.DoAutoSave();
                     }
                     if (this.IsActive)
@@ -1316,6 +1318,11 @@ namespace Ship_Game
             {
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
+                //Parallel.For(0, EmpireManager.EmpireList.Count, index =>
+                //    {
+                //        EmpireManager.EmpireList[index].Update(elapsedTime);
+                //    });
+
                 this.MasterShipList.ApplyPendingRemovals();
                 lock (GlobalStats.AddShipLocker)
                 {
