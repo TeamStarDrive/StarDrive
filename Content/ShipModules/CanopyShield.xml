@@ -1,0 +1,68 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>25</Cost>
+  
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Shield</ModuleType>
+  <XSIZE>3</XSIZE>
+  <YSIZE>6</YSIZE>
+  <UID>CanopyShield</UID>
+  <Restrictions>IO</Restrictions>
+  <Name>Canopy Shield</Name>
+  <IconTexturePath>Modules/shield_3x6</IconTexturePath>
+  <Mass>20</Mass>
+  <Health>100</Health>
+  <HealthMax>100</HealthMax>
+  <energyreq>0</energyreq>
+  <modRadius>4</modRadius>
+  <Description>This is a monstrous shield with the a high resistance and a massive protection radius, making it ideal for capital ships or specialized shield ships.  The power costs are enormous.</Description>
+  <CrewRequired>3</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>2500</PowerDraw>
+
+
+
+  <NameIndex>916</NameIndex>
+  <DescriptionIndex>917</DescriptionIndex>
+
+
+  <!-- for shield items -->
+  <shield_power>25000</shield_power>
+  <shield_power_max>25000</shield_power_max>
+  <shield_recharge_delay>3.5</shield_recharge_delay>
+  <shield_recharge_rate>35</shield_recharge_rate>
+  <shield_radius>400</shield_radius>
+  <shield_recharge_combat_rate>0</shield_recharge_combat_rate>
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  
+  
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  
+  
+
+</ShipModule>
