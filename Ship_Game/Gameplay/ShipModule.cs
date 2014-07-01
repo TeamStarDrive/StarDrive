@@ -1572,7 +1572,8 @@ namespace Ship_Game.Gameplay
 				ShipModule shipModule1 = this;
 				shipModule1.hangarTimer = shipModule1.hangarTimer - elapsedTime;
 			}
-			if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer >= 15f)
+            //Added by McShooterz: Shields cannot recharge when off
+            if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer >= 15f && !shieldsOff)
 			{
 				ShipModule shieldPower = this;
 				shieldPower.shield_power = shieldPower.shield_power + this.shield_recharge_rate * elapsedTime;
