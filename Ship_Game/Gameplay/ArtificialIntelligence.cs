@@ -3730,7 +3730,8 @@ namespace Ship_Game.Gameplay
 
 		public void OrderRebase(Planet p, bool ClearOrders)
 		{
-			lock (GlobalStats.WayPointLock)
+
+            lock (GlobalStats.WayPointLock)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3751,14 +3752,21 @@ namespace Ship_Game.Gameplay
 
 		public void OrderRebaseToNearest()
 		{
-			lock (GlobalStats.WayPointLock)
+            //added by gremlin if rebasing dont rebase.
+            if (this.State == AIState.Rebase && this.OrbitTarget.Owner == this.Owner.loyalty)
+                return;
+            lock (GlobalStats.WayPointLock)
 			{
 				this.ActiveWayPoints.Clear();
 			}
-			IOrderedEnumerable<Planet> sortedList = 
+            
+            IOrderedEnumerable<Planet> sortedList = 
 				from planet in this.Owner.loyalty.GetPlanets()
+                //added by gremlin if the planet is full of troops dont rebase there.
+                where planet.TroopsHere.Count + this.Owner.loyalty.GetShips().Where(troop => troop.Role == "troop" && troop.GetAI().State == AIState.Rebase && troop.GetAI().OrbitTarget == planet).Count() < planet.TilesList.Sum(space => space.number_allowed_troops)
 				orderby Vector2.Distance(this.Owner.Center, planet.Position)
 				select planet;
+            
 			if (sortedList.Count<Planet>() <= 0)
 			{
 				this.State = AIState.AwaitingOrders;

@@ -1247,7 +1247,7 @@ namespace Ship_Game.Gameplay
             }
             //Maintenance fluctuator
             //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
-            float OptionIncreaseShipMaintenance = float.Parse( ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
+            float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
             if (OptionIncreaseShipMaintenance > 1)
             {
                 maintModReduction = OptionIncreaseShipMaintenance;
