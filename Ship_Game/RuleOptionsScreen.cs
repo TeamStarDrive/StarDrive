@@ -202,7 +202,7 @@ namespace Ship_Game
             Rectangle MinimumWarpRange = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 340, 270, 50);
             this.MinimumWarpRange = new FloatSlider(MinimumWarpRange, "Minimum Warp Range", 0, 1200000f, GlobalStats.MinimumWarpRange);
             Rectangle MemoryLimiter = new Rectangle(leftRect.X + 60, leftRect.Y + 400, 270, 50);
-            this.MemoryLimiter = new FloatSlider(MemoryLimiter, "Memory Limit", 150000, 100000f, GlobalStats.MemoryLimiter);
+            this.MemoryLimiter = new FloatSlider(MemoryLimiter, "Memory Limit", 150000, 200000f, GlobalStats.MemoryLimiter);
             Rectangle OptionIncreaseShipMaintenance = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 400, 270, 50);
             this.OptionIncreaseShipMaintenance = new FloatSlider(OptionIncreaseShipMaintenance, "Increase Maintenance", 1, 10f, GlobalStats.OptionIncreaseShipMaintenance);
            

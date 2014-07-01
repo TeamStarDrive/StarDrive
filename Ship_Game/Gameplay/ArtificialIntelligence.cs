@@ -1545,24 +1545,24 @@ namespace Ship_Game.Gameplay
                 }
                 return;
             }
-            if (this.State != AIState.AssaultPlanet && this.Owner.Role == "troop" && this.Owner.loyalty == universeScreen.player)
-            {
+            //if (this.State != AIState.AssaultPlanet && this.Owner.Role == "troop" && this.Owner.loyalty == universeScreen.player)
+            //{
 
-                if (this.OrbitTarget != null && this.Owner.loyalty != this.OrbitTarget.Owner)
-                {
+            //    if (this.OrbitTarget != null && this.Owner.loyalty != this.OrbitTarget.Owner)
+            //    {
 
-                    if (OrbitTarget.Owner == null)
-                    {
-                        this.State = AIState.AssaultPlanet;
-                        this.OrderLandAllTroops(this.OrbitTarget);
-                    }
-                    else if (this.Owner.loyalty.GetRelations()[this.OrbitTarget.Owner].AtWar)
-                    {
-                        this.State = AIState.AssaultPlanet;
-                        this.OrderLandAllTroops(this.OrbitTarget);
-                    }
-                }
-            }
+            //        if (OrbitTarget.Owner == null)
+            //        {
+            //            this.State = AIState.AssaultPlanet;
+            //            this.OrderLandAllTroops(this.OrbitTarget);
+            //        }
+            //        else if (this.Owner.loyalty.GetRelations()[this.OrbitTarget.Owner].AtWar)
+            //        {
+            //            this.State = AIState.AssaultPlanet;
+            //            this.OrderLandAllTroops(this.OrbitTarget);
+            //        }
+            //    }
+            //}
             Vector2 vector2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
             Vector2 vector21 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
             Vector2 vector22 = new Vector2(-vector21.Y, vector21.X);
