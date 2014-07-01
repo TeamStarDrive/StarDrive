@@ -7255,6 +7255,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6012</Index>
       <Text>Repair Rate Modifier</Text>
     </Token>
+	<Token>
+      <Index>6013</Index>
+      <Text>Repair Rate</Text>
+    </Token>
 	
 	
 	
