@@ -2517,6 +2517,7 @@ namespace Ship_Game
                 this.RaceSummary.Spiritual += t.trait.Spiritual;
                 this.RaceSummary.SpyMultiplier += t.trait.SpyMultiplier;
                 this.RaceSummary.Pack = t.trait.Pack;
+                this.RaceSummary.RepairRateMod += t.trait.RepairRateMod; 
                 /*
 				RacialTrait prototype1 = this.RaceSummary;
 				prototype1.Prototype = prototype1.Prototype + t.trait.Prototype;
