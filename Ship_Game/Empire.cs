@@ -388,6 +388,7 @@ namespace Ship_Game
                 if (GlobalStats.ActiveMod != null &&GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
                 {
                     techEntry.Discovered = false;
+                    techEntry.GetTech().Secret = true;
                     foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceRestrictions)
                     {
                         if (raceTech.ShipType == this.data.Traits.ShipType)
