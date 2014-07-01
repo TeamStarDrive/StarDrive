@@ -7247,6 +7247,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6010</Index>
       <Text>Corvette</Text>
     </Token>
+	<Token>
+      <Index>6011</Index>
+      <Text>Warp Power Draw</Text>
+    </Token>
+	<Token>
+      <Index>6012</Index>
+      <Text>Repair Rate Modifier</Text>
+    </Token>
 	
 	
 	
