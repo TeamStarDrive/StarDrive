@@ -1055,7 +1055,7 @@ namespace Ship_Game
 							Rectangle? nullable5 = null;
 							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
 						}
-						else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+                        else if (!slot.module.InstalledWeapon.Tag_Beam)
 						{
 							Color drawcolor = new Color(255, 0, 0, 255);
 							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
@@ -1400,7 +1400,7 @@ namespace Ship_Game
                         //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
                         if (mod.PowerDrawAtWarp != 0f)
                         {
-                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
 						return;
@@ -1426,7 +1426,7 @@ namespace Ship_Game
                         //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
                         if (mod.PowerDrawAtWarp != 0f)
                         {
-                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
 						return;
@@ -1448,7 +1448,7 @@ namespace Ship_Game
                         //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
                         if (mod.PowerDrawAtWarp != 0f)
                         {
-                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
 						return;
@@ -1469,12 +1469,12 @@ namespace Ship_Game
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(135), (float)mod.BonusRepairRate, 97);
+                        this.DrawStat(ref modTitlePos, Localizer.Token(135), (float)(mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.RepairRateMod), 97);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
                         if (mod.PowerDrawAtWarp != 0f)
                         {
-                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
 						return;
@@ -1498,7 +1498,7 @@ namespace Ship_Game
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						if (mod.BonusRepairRate > 0f)
 						{
-							this.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), (float)mod.BonusRepairRate, 97);
+                            this.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), (float)(mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.RepairRateMod), 97);
 							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						}
 						modTitlePos.X = modTitlePos.X + 152f;
@@ -1523,7 +1523,7 @@ namespace Ship_Game
                         //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
                         if (mod.PowerDrawAtWarp != 0f)
                         {
-                            this.DrawStat(ref modTitlePos, "Warp Power", (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
 					}
@@ -1581,7 +1581,7 @@ namespace Ship_Game
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.InstalledWeapon.Range, 82);
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					if (mod.InstalledWeapon.WeaponType != "Energy Beam")
+					if (!mod.InstalledWeapon.Tag_Beam)
 					{
 						if (!mod.InstalledWeapon.explodes || mod.InstalledWeapon.OrdinanceRequiredToFire <= 0f)
 						{
@@ -1598,14 +1598,14 @@ namespace Ship_Game
 					modTitlePos.Y = starty;
 					this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					if (mod.InstalledWeapon.WeaponType != "Energy Beam")
+                    if (!mod.InstalledWeapon.Tag_Beam)
 					{
 						this.DrawStat(ref modTitlePos, Localizer.Token(129), (float)mod.InstalledWeapon.ProjectileSpeed, 85);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
 					if (mod.InstalledWeapon.DamageAmount > 0f)
 					{
-						if (mod.InstalledWeapon.WeaponType == "Energy Beam")
+                        if (mod.InstalledWeapon.Tag_Beam)
 						{
 							float dps = (float)mod.InstalledWeapon.DamageAmount * 60f * 3f / mod.InstalledWeapon.fireDelay;
 							this.DrawStat(ref modTitlePos, "DPS", dps, 86);
