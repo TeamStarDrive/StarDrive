@@ -3339,7 +3339,8 @@ namespace Ship_Game.Gameplay
                             this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
                             if ((double)moduleSlot.module.PowerDraw > 0.0 && moduleSlot.module.Powered)
                             {
-                                if (moduleSlot.module.ModuleType != ShipModuleType.Shield || !moduleSlot.module.Active || this.ShieldsUp)
+                                //Added by McShooterz: Shields modules do not draw power at warp due to shieldsOff, which gets turned on when ships is at warp
+                                if (moduleSlot.module.ModuleType != ShipModuleType.Shield || !moduleSlot.module.Active || !moduleSlot.module.shieldsOff)
                                 {
                                     this.AfterDraw += moduleSlot.module.PowerDrawWithAfterburner - this.loyalty.data.BurnerEfficiencyBonus * moduleSlot.module.PowerDrawWithAfterburner;
                                     this.WarpDraw += moduleSlot.module.PowerDrawAtWarp - this.loyalty.data.WarpEfficiencyBonus * moduleSlot.module.PowerDrawAtWarp;
