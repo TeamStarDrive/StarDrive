@@ -28,11 +28,13 @@ namespace Ship_Game
 
 		protected Rectangle FlagRight;
 
-		protected List<TraitEntry> PhysicalTraits = new List<TraitEntry>();
+		//protected List<TraitEntry> PhysicalTraits = new List<TraitEntry>();
 
-		protected List<TraitEntry> IndustryTraits = new List<TraitEntry>();
+		//protected List<TraitEntry> IndustryTraits = new List<TraitEntry>();
 
-		protected List<TraitEntry> SpecialTraits = new List<TraitEntry>();
+		//protected List<TraitEntry> SpecialTraits = new List<TraitEntry>();
+
+        protected List<TraitEntry> AllTraits = new List<TraitEntry>();
 
 		protected Rectangle GalaxySizeRect;
 
@@ -179,24 +181,7 @@ namespace Ship_Game
 				{
 					trait = t
 				};
-				string category = t.Category;
-				string str = category;
-				if (category == null)
-				{
-					continue;
-				}
-				if (str == "Physical")
-				{
-					this.PhysicalTraits.Add(te);
-				}
-				else if (str == "Industry")
-				{
-					this.IndustryTraits.Add(te);
-				}
-				else if (str == "Special")
-				{
-					this.SpecialTraits.Add(te);
-				}
+				AllTraits.Add(te);
 			}
 		}
 
@@ -1057,7 +1042,7 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", this.TotalPointsUsed), rpos, Color.White);
             rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 8);
 			int numTraits = 0;
-			foreach (TraitEntry t in this.PhysicalTraits)
+            foreach (TraitEntry t in this.AllTraits)
 			{
 				if (numTraits == 9)
 				{
@@ -1072,40 +1057,6 @@ namespace Ship_Game
 				}
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
 				rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-				numTraits++;
-			}
-			foreach (TraitEntry t in this.IndustryTraits)
-			{
-				if (numTraits == 9)
-				{
-					rpos = drawCurs;
-					rpos.X = rpos.X + 145f;
-					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
-                    rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-				}
-				if (!t.Selected)
-				{
-					continue;
-				}
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
-                rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-				numTraits++;
-			}
-			foreach (TraitEntry t in this.SpecialTraits)
-			{
-				if (numTraits == 9)
-				{
-					rpos = drawCurs;
-					rpos.X = rpos.X + 145f;
-                    rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
-                    rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-				}
-				if (!t.Selected)
-				{
-					continue;
-				}
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
-                rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
 				numTraits++;
 			}
 			this.TitleBar.Draw();
@@ -1475,23 +1426,7 @@ namespace Ship_Game
                                 totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
                                 AudioManager.GetCue("blip_click").Play();
                                 int excludes = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.PhysicalTraits)
-                                {
-                                    if (t.trait.Excludes != ex.trait.TraitName)
-                                    {
-                                        continue;
-                                    }
-                                    ex.Excluded = false;
-                                }
-                                foreach (TraitEntry ex in this.IndustryTraits)
-                                {
-                                    if (t.trait.Excludes != ex.trait.TraitName)
-                                    {
-                                        continue;
-                                    }
-                                    ex.Excluded = false;
-                                }
-                                foreach (TraitEntry ex in this.SpecialTraits)
+                                foreach (TraitEntry ex in this.AllTraits)
                                 {
                                     if (t.trait.Excludes != ex.trait.TraitName)
                                     {
@@ -1508,23 +1443,7 @@ namespace Ship_Game
                             {
                                 bool OK = true;
                                 int num = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.PhysicalTraits)
-                                {
-                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
-                                    {
-                                        continue;
-                                    }
-                                    OK = false;
-                                }
-                                foreach (TraitEntry ex in this.SpecialTraits)
-                                {
-                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
-                                    {
-                                        continue;
-                                    }
-                                    OK = false;
-                                }
-                                foreach (TraitEntry ex in this.IndustryTraits)
+                                foreach (TraitEntry ex in this.AllTraits)
                                 {
                                     if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
                                     {
@@ -1539,23 +1458,7 @@ namespace Ship_Game
                                     raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
                                     AudioManager.GetCue("blip_click").Play();
                                     int excludes1 = t.trait.Excludes;
-                                    foreach (TraitEntry ex in this.PhysicalTraits)
-                                    {
-                                        if (t.trait.Excludes != ex.trait.TraitName)
-                                        {
-                                            continue;
-                                        }
-                                        ex.Excluded = true;
-                                    }
-                                    foreach (TraitEntry ex in this.SpecialTraits)
-                                    {
-                                        if (t.trait.Excludes != ex.trait.TraitName)
-                                        {
-                                            continue;
-                                        }
-                                        ex.Excluded = true;
-                                    }
-                                    foreach (TraitEntry ex in this.IndustryTraits)
+                                    foreach (TraitEntry ex in this.AllTraits)
                                     {
                                         if (t.trait.Excludes != ex.trait.TraitName)
                                         {
@@ -1897,23 +1800,7 @@ namespace Ship_Game
                                 totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
                                 AudioManager.GetCue("blip_click").Play();
                                 int excludes = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.PhysicalTraits)
-                                {
-                                    if (t.trait.Excludes != ex.trait.TraitName)
-                                    {
-                                        continue;
-                                    }
-                                    ex.Excluded = false;
-                                }
-                                foreach (TraitEntry ex in this.IndustryTraits)
-                                {
-                                    if (t.trait.Excludes != ex.trait.TraitName)
-                                    {
-                                        continue;
-                                    }
-                                    ex.Excluded = false;
-                                }
-                                foreach (TraitEntry ex in this.SpecialTraits)
+                                foreach (TraitEntry ex in this.AllTraits)
                                 {
                                     if (t.trait.Excludes != ex.trait.TraitName)
                                     {
@@ -1930,23 +1817,7 @@ namespace Ship_Game
                             {
                                 bool OK = true;
                                 int num = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.PhysicalTraits)
-                                {
-                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
-                                    {
-                                        continue;
-                                    }
-                                    OK = false;
-                                }
-                                foreach (TraitEntry ex in this.SpecialTraits)
-                                {
-                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
-                                    {
-                                        continue;
-                                    }
-                                    OK = false;
-                                }
-                                foreach (TraitEntry ex in this.IndustryTraits)
+                                foreach (TraitEntry ex in this.AllTraits)
                                 {
                                     if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
                                     {
@@ -1961,23 +1832,7 @@ namespace Ship_Game
                                     raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
                                     AudioManager.GetCue("blip_click").Play();
                                     int excludes1 = t.trait.Excludes;
-                                    foreach (TraitEntry ex in this.PhysicalTraits)
-                                    {
-                                        if (t.trait.Excludes != ex.trait.TraitName)
-                                        {
-                                            continue;
-                                        }
-                                        ex.Excluded = true;
-                                    }
-                                    foreach (TraitEntry ex in this.SpecialTraits)
-                                    {
-                                        if (t.trait.Excludes != ex.trait.TraitName)
-                                        {
-                                            continue;
-                                        }
-                                        ex.Excluded = true;
-                                    }
-                                    foreach (TraitEntry ex in this.IndustryTraits)
+                                    foreach (TraitEntry ex in this.AllTraits)
                                     {
                                         if (t.trait.Excludes != ex.trait.TraitName)
                                         {
@@ -2309,9 +2164,10 @@ namespace Ship_Game
 				size = 70;
 			}
 			this.traitsSL = new ScrollList(this.Traits, size);
-			foreach (TraitEntry t in this.PhysicalTraits)
+            foreach (TraitEntry t in this.AllTraits)
 			{
-				this.traitsSL.AddItem(t);
+                if (t.trait.Category == "Physical")
+				    this.traitsSL.AddItem(t);
 			}
 			this.Engage = new UIButton()
 			{
@@ -2477,25 +2333,28 @@ namespace Ship_Game
 			if (this.Traits.Tabs[0].Selected)
 			{
 				this.traitsSL.Entries.Clear();
-				foreach (TraitEntry t in this.PhysicalTraits)
+                foreach (TraitEntry t in this.AllTraits)
 				{
-					this.traitsSL.AddItem(t);
+                    if(t.trait.Category == "Physical")
+					    this.traitsSL.AddItem(t);
 				}
 			}
 			else if (this.Traits.Tabs[1].Selected)
 			{
 				this.traitsSL.Entries.Clear();
-				foreach (TraitEntry t in this.IndustryTraits)
+                foreach (TraitEntry t in this.AllTraits)
 				{
-					this.traitsSL.AddItem(t);
+                    if (t.trait.Category == "Industry")
+					    this.traitsSL.AddItem(t);
 				}
 			}
 			else if (this.Traits.Tabs[2].Selected)
 			{
 				this.traitsSL.Entries.Clear();
-				foreach (TraitEntry t in this.SpecialTraits)
+                foreach (TraitEntry t in this.AllTraits)
 				{
-					this.traitsSL.AddItem(t);
+                    if (t.trait.Category == "Special")
+					    this.traitsSL.AddItem(t);
 				}
 			}
 		}
@@ -2512,477 +2371,103 @@ namespace Ship_Game
 			this.HomeSystemName = data.Traits.HomeSystemName;
 			this.HomeWorldName = data.Traits.HomeworldName;
 			this.TotalPointsUsed = 8;
-			foreach (TraitEntry t in this.PhysicalTraits)
+            foreach (TraitEntry t in this.AllTraits)
 			{
 				t.Selected = false;
-				if (data.Traits.ConsumptionModifier > 0f && t.trait.ConsumptionModifier > 0f || t.trait.ConsumptionModifier < 0f && data.Traits.ConsumptionModifier < 0f)
+                //Added by McShooterz: Searches for new trait tags
+				if (data.Traits.ConsumptionModifier > 0f && t.trait.ConsumptionModifier > 0f 
+                    || t.trait.ConsumptionModifier < 0f && data.Traits.ConsumptionModifier < 0f
+                    || data.Traits.DiplomacyMod > 0f && t.trait.DiplomacyMod > 0f 
+                    || t.trait.DiplomacyMod < 0f && data.Traits.DiplomacyMod < 0f 
+                    || data.Traits.EnergyDamageMod > 0f && t.trait.EnergyDamageMod > 0f
+                    || t.trait.EnergyDamageMod < 0f && data.Traits.EnergyDamageMod < 0f 
+                    || data.Traits.MaintMod > 0f && t.trait.MaintMod > 0f 
+                    || t.trait.MaintMod < 0f && data.Traits.MaintMod < 0f
+                    || data.Traits.PopGrowthMax > 0f && t.trait.PopGrowthMax > 0f 
+                    || data.Traits.PopGrowthMin > 0f && t.trait.PopGrowthMin > 0f 
+                    || data.Traits.ResearchMod > 0f && t.trait.ResearchMod > 0f 
+                    || t.trait.ResearchMod < 0f && data.Traits.ResearchMod < 0f
+                    || data.Traits.ShipCostMod > 0f && t.trait.ShipCostMod > 0f 
+                    || t.trait.ShipCostMod < 0f && data.Traits.ShipCostMod < 0f 
+                    || data.Traits.TaxMod > 0f && t.trait.TaxMod > 0f 
+                    || t.trait.TaxMod < 0f && data.Traits.TaxMod < 0f
+                    || data.Traits.ProductionMod > 0f && t.trait.ProductionMod > 0f 
+                    || t.trait.ProductionMod < 0f && data.Traits.ProductionMod < 0f 
+                    || data.Traits.ModHpModifier > 0f && t.trait.ModHpModifier > 0f 
+                    || t.trait.ModHpModifier < 0f && data.Traits.ModHpModifier < 0f
+                    || data.Traits.Mercantile > 0f && t.trait.Mercantile > 0f 
+                    || t.trait.Mercantile < 0f && data.Traits.Mercantile < 0f 
+                    || data.Traits.GroundCombatModifier > 0f && t.trait.GroundCombatModifier > 0f 
+                    || t.trait.GroundCombatModifier < 0f && data.Traits.GroundCombatModifier < 0f
+                    || data.Traits.Cybernetic > 0 && t.trait.Cybernetic > 0 
+                    || t.trait.Cybernetic < 0 && data.Traits.Cybernetic < 0 
+                    || data.Traits.Blind > 0 && t.trait.Blind > 0 
+                    || t.trait.Blind < 0 && data.Traits.Blind < 0
+                    || data.Traits.DodgeMod > 0f && t.trait.DodgeMod > 0f 
+                    || t.trait.DodgeMod < 0f && data.Traits.DodgeMod < 0f 
+                    || data.Traits.Burrowers > 0 && t.trait.Burrowers > 0 
+                    || t.trait.Burrowers < 0 && data.Traits.Burrowers < 0
+                    || data.Traits.HomeworldSizeMod > 0f && t.trait.HomeworldSizeMod > 0f 
+                    || t.trait.HomeworldSizeMod < 0f && data.Traits.HomeworldSizeMod < 0f 
+                    || data.Traits.HomeworldFertMod > 0f && t.trait.HomeworldFertMod > 0f && t.trait.HomeworldRichMod == 0f 
+                    || t.trait.HomeworldFertMod < 0f && data.Traits.HomeworldFertMod < 0f && t.trait.HomeworldRichMod == 0f
+                    || data.Traits.HomeworldFertMod > 0f && t.trait.HomeworldFertMod > 0f && t.trait.HomeworldRichMod != 0f 
+                    || t.trait.HomeworldFertMod < 0f && data.Traits.HomeworldFertMod < 0f && t.trait.HomeworldRichMod != 0f
+                    || data.Traits.Militaristic > 0 && t.trait.Militaristic > 0 
+                    || t.trait.Militaristic < 0 && data.Traits.Militaristic < 0 
+                    || data.Traits.PassengerModifier > 1 && t.trait.PassengerModifier > 1 
+                    || t.trait.PassengerModifier < 1 && data.Traits.PassengerModifier < 1
+                    || data.Traits.BonusExplored > 0 && t.trait.BonusExplored > 0 
+                    || t.trait.BonusExplored < 0 && data.Traits.BonusExplored < 0 
+                    || data.Traits.Spiritual > 0f && t.trait.Spiritual > 0f 
+                    || t.trait.Spiritual < 0f && data.Traits.Spiritual < 0f
+                    || data.Traits.Prototype > 0 && t.trait.Prototype > 0 
+                    || data.Traits.Pack && t.trait.Pack 
+                    || data.Traits.SpyMultiplier > 0f && t.trait.SpyMultiplier > 0f 
+                    || data.Traits.SpyMultiplier < 0f && t.trait.SpyMultiplier < 0f
+                    || t.trait.PhysicalTraitAlluring && data.Traits.PhysicalTraitAlluring
+                    || t.trait.PhysicalTraitRepulsive && data.Traits.PhysicalTraitRepulsive
+                    || t.trait.PhysicalTraitEagleEyed && data.Traits.PhysicalTraitEagleEyed
+                    || t.trait.PhysicalTraitBlind && data.Traits.PhysicalTraitBlind
+                    || t.trait.PhysicalTraitEfficientMetabolism && data.Traits.PhysicalTraitEfficientMetabolism
+                    || t.trait.PhysicalTraitGluttonous && data.Traits.PhysicalTraitGluttonous
+                    || t.trait.PhysicalTraitFertile && data.Traits.PhysicalTraitFertile
+                    || t.trait.PhysicalTraitLessFertile && data.Traits.PhysicalTraitLessFertile
+                    || t.trait.PhysicalTraitSmart && data.Traits.PhysicalTraitSmart
+                    || t.trait.PhysicalTraitDumb && data.Traits.PhysicalTraitDumb
+                    || t.trait.PhysicalTraitReflexes && data.Traits.PhysicalTraitReflexes
+                    || t.trait.PhysicalTraitPonderous && data.Traits.PhysicalTraitPonderous
+                    || t.trait.PhysicalTraitSavage && data.Traits.PhysicalTraitSavage
+                    || t.trait.PhysicalTraitTimid && data.Traits.PhysicalTraitTimid
+                    || t.trait.SociologicalTraitEfficient && data.Traits.SociologicalTraitEfficient
+                    || t.trait.SociologicalTraitWasteful && data.Traits.SociologicalTraitWasteful
+                    || t.trait.SociologicalTraitIndustrious && data.Traits.SociologicalTraitIndustrious
+                    || t.trait.SociologicalTraitMercantile && data.Traits.SociologicalTraitMercantile
+                    || t.trait.SociologicalTraitMeticulous && data.Traits.SociologicalTraitMeticulous
+                    || t.trait.SociologicalTraitCorrupt && data.Traits.SociologicalTraitCorrupt
+                    || t.trait.SociologicalTraitSkilledEngineers && data.Traits.SociologicalTraitSkilledEngineers
+                    || t.trait.SociologicalTraitHaphazardEngineers && data.Traits.SociologicalTraitHaphazardEngineers
+                    || t.trait.HistoryTraitAstronomers && data.Traits.HistoryTraitAstronomers
+                    || t.trait.HistoryTraitCybernetic && data.Traits.HistoryTraitCybernetic
+                    || t.trait.HistoryTraitManifestDestiny && data.Traits.HistoryTraitManifestDestiny
+                    || t.trait.HistoryTraitMilitaristic && data.Traits.HistoryTraitMilitaristic
+                    || t.trait.HistoryTraitNavalTraditions && data.Traits.HistoryTraitNavalTraditions
+                    || t.trait.HistoryTraitPackMentality && data.Traits.HistoryTraitPackMentality
+                    || t.trait.HistoryTraitPrototypeFlagship && data.Traits.HistoryTraitPrototypeFlagship
+                    || t.trait.HistoryTraitSpiritual && data.Traits.HistoryTraitSpiritual
+                    || t.trait.HistoryTraitPollutedHomeWorld && data.Traits.HistoryTraitPollutedHomeWorld
+                    || t.trait.HistoryTraitIndustrializedHomeWorld && data.Traits.HistoryTraitIndustrializedHomeWorld
+                    || t.trait.HistoryTraitDuplicitous && data.Traits.HistoryTraitDuplicitous
+                    || t.trait.HistoryTraitHonest && data.Traits.HistoryTraitHonest
+                    || t.trait.HistoryTraitHugeHomeWorld && data.Traits.HistoryTraitHugeHomeWorld
+                    || t.trait.HistoryTraitSmallHomeWorld && data.Traits.HistoryTraitSmallHomeWorld)
 				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed = this;
-					totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.DiplomacyMod > 0f && t.trait.DiplomacyMod > 0f || t.trait.DiplomacyMod < 0f && data.Traits.DiplomacyMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen = this;
-					raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.EnergyDamageMod > 0f && t.trait.EnergyDamageMod > 0f || t.trait.EnergyDamageMod < 0f && data.Traits.EnergyDamageMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed1 = this;
-					totalPointsUsed1.TotalPointsUsed = totalPointsUsed1.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.MaintMod > 0f && t.trait.MaintMod > 0f || t.trait.MaintMod < 0f && data.Traits.MaintMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen1 = this;
-					raceDesignScreen1.TotalPointsUsed = raceDesignScreen1.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.PopGrowthMax > 0f && t.trait.PopGrowthMax > 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed2 = this;
-					totalPointsUsed2.TotalPointsUsed = totalPointsUsed2.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.PopGrowthMin > 0f && t.trait.PopGrowthMin > 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen2 = this;
-					raceDesignScreen2.TotalPointsUsed = raceDesignScreen2.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ResearchMod > 0f && t.trait.ResearchMod > 0f || t.trait.ResearchMod < 0f && data.Traits.ResearchMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed3 = this;
-					totalPointsUsed3.TotalPointsUsed = totalPointsUsed3.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ShipCostMod > 0f && t.trait.ShipCostMod > 0f || t.trait.ShipCostMod < 0f && data.Traits.ShipCostMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen3 = this;
-					raceDesignScreen3.TotalPointsUsed = raceDesignScreen3.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.TaxMod > 0f && t.trait.TaxMod > 0f || t.trait.TaxMod < 0f && data.Traits.TaxMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed4 = this;
-					totalPointsUsed4.TotalPointsUsed = totalPointsUsed4.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ProductionMod > 0f && t.trait.ProductionMod > 0f || t.trait.ProductionMod < 0f && data.Traits.ProductionMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen4 = this;
-					raceDesignScreen4.TotalPointsUsed = raceDesignScreen4.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ModHpModifier > 0f && t.trait.ModHpModifier > 0f || t.trait.ModHpModifier < 0f && data.Traits.ModHpModifier < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed5 = this;
-					totalPointsUsed5.TotalPointsUsed = totalPointsUsed5.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Mercantile > 0f && t.trait.Mercantile > 0f || t.trait.Mercantile < 0f && data.Traits.Mercantile < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen5 = this;
-					raceDesignScreen5.TotalPointsUsed = raceDesignScreen5.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.GroundCombatModifier > 0f && t.trait.GroundCombatModifier > 0f || t.trait.GroundCombatModifier < 0f && data.Traits.GroundCombatModifier < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed6 = this;
-					totalPointsUsed6.TotalPointsUsed = totalPointsUsed6.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Cybernetic > 0 && t.trait.Cybernetic > 0 || t.trait.Cybernetic < 0 && data.Traits.Cybernetic < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen6 = this;
-					raceDesignScreen6.TotalPointsUsed = raceDesignScreen6.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Blind > 0 && t.trait.Blind > 0 || t.trait.Blind < 0 && data.Traits.Blind < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed7 = this;
-					totalPointsUsed7.TotalPointsUsed = totalPointsUsed7.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.DodgeMod > 0f && t.trait.DodgeMod > 0f || t.trait.DodgeMod < 0f && data.Traits.DodgeMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen7 = this;
-					raceDesignScreen7.TotalPointsUsed = raceDesignScreen7.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Burrowers > 0 && t.trait.Burrowers > 0 || t.trait.Burrowers < 0 && data.Traits.Burrowers < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed8 = this;
-					totalPointsUsed8.TotalPointsUsed = totalPointsUsed8.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.HomeworldSizeMod > 0f && t.trait.HomeworldSizeMod > 0f || t.trait.HomeworldSizeMod < 0f && data.Traits.HomeworldSizeMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen8 = this;
-					raceDesignScreen8.TotalPointsUsed = raceDesignScreen8.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Aquatic > 0 && t.trait.Aquatic > 0 || t.trait.Aquatic < 0 && data.Traits.Aquatic < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed9 = this;
-					totalPointsUsed9.TotalPointsUsed = totalPointsUsed9.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.HomeworldFertMod > 0f && t.trait.HomeworldFertMod > 0f && t.trait.HomeworldRichMod == 0f || t.trait.HomeworldFertMod < 0f && data.Traits.HomeworldFertMod < 0f && t.trait.HomeworldRichMod == 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen9 = this;
-					raceDesignScreen9.TotalPointsUsed = raceDesignScreen9.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.HomeworldFertMod > 0f && t.trait.HomeworldFertMod > 0f && t.trait.HomeworldRichMod != 0f || t.trait.HomeworldFertMod < 0f && data.Traits.HomeworldFertMod < 0f && t.trait.HomeworldRichMod != 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed10 = this;
-					totalPointsUsed10.TotalPointsUsed = totalPointsUsed10.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Militaristic > 0 && t.trait.Militaristic > 0 || t.trait.Militaristic < 0 && data.Traits.Militaristic < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen10 = this;
-					raceDesignScreen10.TotalPointsUsed = raceDesignScreen10.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.PassengerModifier > 1 && t.trait.PassengerModifier > 1 || t.trait.PassengerModifier < 1 && data.Traits.PassengerModifier < 1)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed11 = this;
-					totalPointsUsed11.TotalPointsUsed = totalPointsUsed11.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.BonusExplored > 0 && t.trait.BonusExplored > 0 || t.trait.BonusExplored < 0 && data.Traits.BonusExplored < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen11 = this;
-					raceDesignScreen11.TotalPointsUsed = raceDesignScreen11.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Spiritual > 0f && t.trait.Spiritual > 0f || t.trait.Spiritual < 0f && data.Traits.Spiritual < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed12 = this;
-					totalPointsUsed12.TotalPointsUsed = totalPointsUsed12.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Prototype > 0 && t.trait.Prototype > 0)
-				{
+
 					t.Selected = true;
 					RaceDesignScreen raceDesignScreen12 = this;
-					raceDesignScreen12.TotalPointsUsed = raceDesignScreen12.TotalPointsUsed - t.trait.Cost;
+					this.TotalPointsUsed -= t.trait.Cost;
 				}
-				if (!t.Selected)
-				{
-					continue;
-				}
-				this.SetExclusions(t);
-			}
-			foreach (TraitEntry t in this.IndustryTraits)
-			{
-				t.Selected = false;
-				if (data.Traits.ConsumptionModifier > 0f && t.trait.ConsumptionModifier > 0f || t.trait.ConsumptionModifier < 0f && data.Traits.ConsumptionModifier < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed13 = this;
-					totalPointsUsed13.TotalPointsUsed = totalPointsUsed13.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Prototype > 0 && t.trait.Prototype > 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen13 = this;
-					raceDesignScreen13.TotalPointsUsed = raceDesignScreen13.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.DiplomacyMod > 0f && t.trait.DiplomacyMod > 0f || t.trait.DiplomacyMod < 0f && data.Traits.DiplomacyMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed14 = this;
-					totalPointsUsed14.TotalPointsUsed = totalPointsUsed14.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.EnergyDamageMod > 0f && t.trait.EnergyDamageMod > 0f || t.trait.EnergyDamageMod < 0f && data.Traits.EnergyDamageMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen14 = this;
-					raceDesignScreen14.TotalPointsUsed = raceDesignScreen14.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.MaintMod > 0f && t.trait.MaintMod > 0f || t.trait.MaintMod < 0f && data.Traits.MaintMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed15 = this;
-					totalPointsUsed15.TotalPointsUsed = totalPointsUsed15.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ResearchMod > 0f && t.trait.ResearchMod > 0f || t.trait.ResearchMod < 0f && data.Traits.ResearchMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen15 = this;
-					raceDesignScreen15.TotalPointsUsed = raceDesignScreen15.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ShipCostMod > 0f && t.trait.ShipCostMod > 0f || t.trait.ShipCostMod < 0f && data.Traits.ShipCostMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed16 = this;
-					totalPointsUsed16.TotalPointsUsed = totalPointsUsed16.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.TaxMod > 0f && t.trait.TaxMod > 0f || t.trait.TaxMod < 0f && data.Traits.TaxMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen16 = this;
-					raceDesignScreen16.TotalPointsUsed = raceDesignScreen16.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ProductionMod > 0f && t.trait.ProductionMod > 0f || t.trait.ProductionMod < 0f && data.Traits.ProductionMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed17 = this;
-					totalPointsUsed17.TotalPointsUsed = totalPointsUsed17.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ModHpModifier > 0f && t.trait.ModHpModifier > 0f || t.trait.ModHpModifier < 0f && data.Traits.ModHpModifier < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen17 = this;
-					raceDesignScreen17.TotalPointsUsed = raceDesignScreen17.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Mercantile > 0f && t.trait.Mercantile > 0f || t.trait.Mercantile < 0f && data.Traits.Mercantile < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed18 = this;
-					totalPointsUsed18.TotalPointsUsed = totalPointsUsed18.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.GroundCombatModifier > 0f && t.trait.GroundCombatModifier > 0f || t.trait.GroundCombatModifier < 0f && data.Traits.GroundCombatModifier < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen18 = this;
-					raceDesignScreen18.TotalPointsUsed = raceDesignScreen18.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Cybernetic > 0 && t.trait.Cybernetic > 0 || t.trait.Cybernetic < 0 && data.Traits.Cybernetic < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed19 = this;
-					totalPointsUsed19.TotalPointsUsed = totalPointsUsed19.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Blind > 0 && t.trait.Blind > 0 || t.trait.Blind < 0 && data.Traits.Blind < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen19 = this;
-					raceDesignScreen19.TotalPointsUsed = raceDesignScreen19.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.DodgeMod > 0f && t.trait.DodgeMod > 0f || t.trait.DodgeMod < 0f && data.Traits.DodgeMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed20 = this;
-					totalPointsUsed20.TotalPointsUsed = totalPointsUsed20.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Burrowers > 0 && t.trait.Burrowers > 0 || t.trait.Burrowers < 0 && data.Traits.Burrowers < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen20 = this;
-					raceDesignScreen20.TotalPointsUsed = raceDesignScreen20.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.HomeworldSizeMod > 0f && t.trait.HomeworldSizeMod > 0f || t.trait.HomeworldSizeMod < 0f && data.Traits.HomeworldSizeMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed21 = this;
-					totalPointsUsed21.TotalPointsUsed = totalPointsUsed21.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Aquatic > 0 && t.trait.Aquatic > 0 || t.trait.Aquatic < 0 && data.Traits.Aquatic < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen21 = this;
-					raceDesignScreen21.TotalPointsUsed = raceDesignScreen21.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.HomeworldFertMod > 0f && t.trait.HomeworldFertMod > 0f || t.trait.HomeworldFertMod < 0f && data.Traits.HomeworldFertMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed22 = this;
-					totalPointsUsed22.TotalPointsUsed = totalPointsUsed22.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Militaristic > 0 && t.trait.Militaristic > 0 || t.trait.Militaristic < 0 && data.Traits.Militaristic < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen22 = this;
-					raceDesignScreen22.TotalPointsUsed = raceDesignScreen22.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.PassengerModifier > 1 && t.trait.PassengerModifier > 1 || t.trait.PassengerModifier < 1 && data.Traits.PassengerModifier < 1)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed23 = this;
-					totalPointsUsed23.TotalPointsUsed = totalPointsUsed23.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.BonusExplored > 0 && t.trait.BonusExplored > 0 || t.trait.BonusExplored < 0 && data.Traits.BonusExplored < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen23 = this;
-					raceDesignScreen23.TotalPointsUsed = raceDesignScreen23.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Spiritual > 0f && t.trait.Spiritual > 0f || t.trait.Spiritual < 0f && data.Traits.Spiritual < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed24 = this;
-					totalPointsUsed24.TotalPointsUsed = totalPointsUsed24.TotalPointsUsed - t.trait.Cost;
-				}
-				if (!t.Selected)
-				{
-					continue;
-				}
-				this.SetExclusions(t);
-			}
-			foreach (TraitEntry t in this.SpecialTraits)
-			{
-				t.Selected = false;
-				if (data.Traits.ConsumptionModifier > 0f && t.trait.ConsumptionModifier > 0f || t.trait.ConsumptionModifier < 0f && data.Traits.ConsumptionModifier < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen24 = this;
-					raceDesignScreen24.TotalPointsUsed = raceDesignScreen24.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Pack && t.trait.Pack)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed25 = this;
-					totalPointsUsed25.TotalPointsUsed = totalPointsUsed25.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Prototype > 0 && t.trait.Prototype > 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen25 = this;
-					raceDesignScreen25.TotalPointsUsed = raceDesignScreen25.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.DiplomacyMod > 0f && t.trait.DiplomacyMod > 0f || t.trait.DiplomacyMod < 0f && data.Traits.DiplomacyMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed26 = this;
-					totalPointsUsed26.TotalPointsUsed = totalPointsUsed26.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.EnergyDamageMod > 0f && t.trait.EnergyDamageMod > 0f || t.trait.EnergyDamageMod < 0f && data.Traits.EnergyDamageMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen26 = this;
-					raceDesignScreen26.TotalPointsUsed = raceDesignScreen26.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.MaintMod > 0f && t.trait.MaintMod > 0f || t.trait.MaintMod < 0f && data.Traits.MaintMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed27 = this;
-					totalPointsUsed27.TotalPointsUsed = totalPointsUsed27.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ResearchMod > 0f && t.trait.ResearchMod > 0f || t.trait.ResearchMod < 0f && data.Traits.ResearchMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen27 = this;
-					raceDesignScreen27.TotalPointsUsed = raceDesignScreen27.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ShipCostMod > 0f && t.trait.ShipCostMod > 0f || t.trait.ShipCostMod < 0f && data.Traits.ShipCostMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed28 = this;
-					totalPointsUsed28.TotalPointsUsed = totalPointsUsed28.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.TaxMod > 0f && t.trait.TaxMod > 0f || t.trait.TaxMod < 0f && data.Traits.TaxMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen28 = this;
-					raceDesignScreen28.TotalPointsUsed = raceDesignScreen28.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ProductionMod > 0f && t.trait.ProductionMod > 0f || t.trait.ProductionMod < 0f && data.Traits.ProductionMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed29 = this;
-					totalPointsUsed29.TotalPointsUsed = totalPointsUsed29.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.ModHpModifier > 0f && t.trait.ModHpModifier > 0f || t.trait.ModHpModifier < 0f && data.Traits.ModHpModifier < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen29 = this;
-					raceDesignScreen29.TotalPointsUsed = raceDesignScreen29.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Mercantile > 0f && t.trait.Mercantile > 0f || t.trait.Mercantile < 0f && data.Traits.Mercantile < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed30 = this;
-					totalPointsUsed30.TotalPointsUsed = totalPointsUsed30.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.GroundCombatModifier > 0f && t.trait.GroundCombatModifier > 0f || t.trait.GroundCombatModifier < 0f && data.Traits.GroundCombatModifier < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen30 = this;
-					raceDesignScreen30.TotalPointsUsed = raceDesignScreen30.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Cybernetic > 0 && t.trait.Cybernetic > 0 || t.trait.Cybernetic < 0 && data.Traits.Cybernetic < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed31 = this;
-					totalPointsUsed31.TotalPointsUsed = totalPointsUsed31.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Blind > 0 && t.trait.Blind > 0 || t.trait.Blind < 0 && data.Traits.Blind < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen31 = this;
-					raceDesignScreen31.TotalPointsUsed = raceDesignScreen31.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.DodgeMod > 0f && t.trait.DodgeMod > 0f || t.trait.DodgeMod < 0f && data.Traits.DodgeMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed32 = this;
-					totalPointsUsed32.TotalPointsUsed = totalPointsUsed32.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Burrowers > 0 && t.trait.Burrowers > 0 || t.trait.Burrowers < 0 && data.Traits.Burrowers < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen32 = this;
-					raceDesignScreen32.TotalPointsUsed = raceDesignScreen32.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.HomeworldSizeMod > 0f && t.trait.HomeworldSizeMod > 0f || t.trait.HomeworldSizeMod < 0f && data.Traits.HomeworldSizeMod < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed33 = this;
-					totalPointsUsed33.TotalPointsUsed = totalPointsUsed33.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Aquatic > 0 && t.trait.Aquatic > 0 || t.trait.Aquatic < 0 && data.Traits.Aquatic < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen33 = this;
-					raceDesignScreen33.TotalPointsUsed = raceDesignScreen33.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.HomeworldFertMod > 0f && t.trait.HomeworldFertMod > 0f && t.trait.HomeworldRichMod == 0f || t.trait.HomeworldFertMod < 0f && data.Traits.HomeworldFertMod < 0f && t.trait.HomeworldRichMod == 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed34 = this;
-					totalPointsUsed34.TotalPointsUsed = totalPointsUsed34.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.HomeworldFertMod > 0f && t.trait.HomeworldFertMod > 0f && t.trait.HomeworldRichMod != 0f || t.trait.HomeworldFertMod < 0f && data.Traits.HomeworldFertMod < 0f && t.trait.HomeworldRichMod != 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen34 = this;
-					raceDesignScreen34.TotalPointsUsed = raceDesignScreen34.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Militaristic > 0 && t.trait.Militaristic > 0 || t.trait.Militaristic < 0 && data.Traits.Militaristic < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed35 = this;
-					totalPointsUsed35.TotalPointsUsed = totalPointsUsed35.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.PassengerBonus > 0 && t.trait.PassengerBonus > 0 || t.trait.PassengerModifier < 1 && data.Traits.PassengerModifier < 1)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen35 = this;
-					raceDesignScreen35.TotalPointsUsed = raceDesignScreen35.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.BonusExplored > 0 && t.trait.BonusExplored > 0 || t.trait.BonusExplored < 0 && data.Traits.BonusExplored < 0)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed36 = this;
-					totalPointsUsed36.TotalPointsUsed = totalPointsUsed36.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.Spiritual > 0f && t.trait.Spiritual > 0f || t.trait.Spiritual < 0f && data.Traits.Spiritual < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen raceDesignScreen36 = this;
-					raceDesignScreen36.TotalPointsUsed = raceDesignScreen36.TotalPointsUsed - t.trait.Cost;
-				}
-				if (data.Traits.SpyMultiplier > 0f && t.trait.SpyMultiplier > 0f || data.Traits.SpyMultiplier < 0f && t.trait.SpyMultiplier < 0f)
-				{
-					t.Selected = true;
-					RaceDesignScreen totalPointsUsed37 = this;
-					totalPointsUsed37.TotalPointsUsed = totalPointsUsed37.TotalPointsUsed - t.trait.Cost;
-				}
+
 				if (!t.Selected)
 				{
 					continue;
@@ -2995,23 +2480,7 @@ namespace Ship_Game
 		private void SetExclusions(TraitEntry t)
 		{
 			int excludes = t.trait.Excludes;
-			foreach (TraitEntry ex in this.PhysicalTraits)
-			{
-				if (t.trait.Excludes != ex.trait.TraitName)
-				{
-					continue;
-				}
-				ex.Excluded = false;
-			}
-			foreach (TraitEntry ex in this.IndustryTraits)
-			{
-				if (t.trait.Excludes != ex.trait.TraitName)
-				{
-					continue;
-				}
-				ex.Excluded = false;
-			}
-			foreach (TraitEntry ex in this.SpecialTraits)
+            foreach (TraitEntry ex in this.AllTraits)
 			{
 				if (t.trait.Excludes != ex.trait.TraitName)
 				{
@@ -3032,7 +2501,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				foreach (TraitEntry t in this.PhysicalTraits)
+                foreach (TraitEntry t in this.AllTraits)
 				{
 					if (!HelperFunctions.CheckIntersection(t.rect, mousePos))
 					{
@@ -3041,36 +2510,6 @@ namespace Ship_Game
 					overSomething = true;
 					RaceDesignScreen raceDesignScreen = this;
 					raceDesignScreen.tTimer = raceDesignScreen.tTimer - elapsedTime;
-					if (this.tTimer > 0f)
-					{
-						continue;
-					}
-					this.tipped = t.trait;
-				}
-				foreach (TraitEntry t in this.IndustryTraits)
-				{
-					if (!HelperFunctions.CheckIntersection(t.rect, mousePos))
-					{
-						continue;
-					}
-					overSomething = true;
-					RaceDesignScreen raceDesignScreen1 = this;
-					raceDesignScreen1.tTimer = raceDesignScreen1.tTimer - elapsedTime;
-					if (this.tTimer > 0f)
-					{
-						continue;
-					}
-					this.tipped = t.trait;
-				}
-				foreach (TraitEntry t in this.SpecialTraits)
-				{
-					if (!HelperFunctions.CheckIntersection(t.rect, mousePos))
-					{
-						continue;
-					}
-					overSomething = true;
-					RaceDesignScreen raceDesignScreen2 = this;
-					raceDesignScreen2.tTimer = raceDesignScreen2.tTimer - elapsedTime;
 					if (this.tTimer > 0f)
 					{
 						continue;
@@ -3093,126 +2532,41 @@ namespace Ship_Game
 			this.Plural = this.PlurEntry.Text;
 			this.HomeSystemName = this.HomeSystemEntry.Text;
 			this.RaceSummary = new RacialTrait();
-			foreach (TraitEntry t in this.PhysicalTraits)
+            foreach (TraitEntry t in this.AllTraits)
 			{
 				if (!t.Selected)
 				{
 					continue;
 				}
-				RacialTrait raceSummary = this.RaceSummary;
-				raceSummary.ConsumptionModifier = raceSummary.ConsumptionModifier + t.trait.ConsumptionModifier;
-				RacialTrait diplomacyMod = this.RaceSummary;
-				diplomacyMod.DiplomacyMod = diplomacyMod.DiplomacyMod + t.trait.DiplomacyMod;
-				RacialTrait energyDamageMod = this.RaceSummary;
-				energyDamageMod.EnergyDamageMod = energyDamageMod.EnergyDamageMod + t.trait.EnergyDamageMod;
-				RacialTrait maintMod = this.RaceSummary;
-				maintMod.MaintMod = maintMod.MaintMod + t.trait.MaintMod;
-				RacialTrait reproductionMod = this.RaceSummary;
-				reproductionMod.ReproductionMod = reproductionMod.ReproductionMod + t.trait.ReproductionMod;
-				RacialTrait popGrowthMax = this.RaceSummary;
-				popGrowthMax.PopGrowthMax = popGrowthMax.PopGrowthMax + t.trait.PopGrowthMax;
-				RacialTrait popGrowthMin = this.RaceSummary;
-				popGrowthMin.PopGrowthMin = popGrowthMin.PopGrowthMin + t.trait.PopGrowthMin;
-				RacialTrait researchMod = this.RaceSummary;
-				researchMod.ResearchMod = researchMod.ResearchMod + t.trait.ResearchMod;
-				RacialTrait shipCostMod = this.RaceSummary;
-				shipCostMod.ShipCostMod = shipCostMod.ShipCostMod + t.trait.ShipCostMod;
-				RacialTrait taxMod = this.RaceSummary;
-				taxMod.TaxMod = taxMod.TaxMod + t.trait.TaxMod;
-				RacialTrait productionMod = this.RaceSummary;
-				productionMod.ProductionMod = productionMod.ProductionMod + t.trait.ProductionMod;
-				RacialTrait modHpModifier = this.RaceSummary;
-				modHpModifier.ModHpModifier = modHpModifier.ModHpModifier + t.trait.ModHpModifier;
-				RacialTrait mercantile = this.RaceSummary;
-				mercantile.Mercantile = mercantile.Mercantile + t.trait.Mercantile;
-				RacialTrait groundCombatModifier = this.RaceSummary;
-				groundCombatModifier.GroundCombatModifier = groundCombatModifier.GroundCombatModifier + t.trait.GroundCombatModifier;
-				RacialTrait cybernetic = this.RaceSummary;
-				cybernetic.Cybernetic = cybernetic.Cybernetic + t.trait.Cybernetic;
-				RacialTrait blind = this.RaceSummary;
-				blind.Blind = blind.Blind + t.trait.Blind;
-				RacialTrait dodgeMod = this.RaceSummary;
-				dodgeMod.DodgeMod = dodgeMod.DodgeMod + t.trait.DodgeMod;
-				RacialTrait burrowers = this.RaceSummary;
-				burrowers.Burrowers = burrowers.Burrowers + t.trait.Burrowers;
-				RacialTrait aquatic = this.RaceSummary;
-				aquatic.Aquatic = aquatic.Aquatic + t.trait.Aquatic;
-				RacialTrait homeworldFertMod = this.RaceSummary;
-				homeworldFertMod.HomeworldFertMod = homeworldFertMod.HomeworldFertMod + t.trait.HomeworldFertMod;
-				RacialTrait homeworldRichMod = this.RaceSummary;
-				homeworldRichMod.HomeworldRichMod = homeworldRichMod.HomeworldRichMod + t.trait.HomeworldRichMod;
-				RacialTrait homeworldSizeMod = this.RaceSummary;
-				homeworldSizeMod.HomeworldSizeMod = homeworldSizeMod.HomeworldSizeMod + t.trait.HomeworldSizeMod;
-				RacialTrait militaristic = this.RaceSummary;
-				militaristic.Militaristic = militaristic.Militaristic + t.trait.Militaristic;
-				RacialTrait passengerModifier = this.RaceSummary;
-				passengerModifier.PassengerModifier = passengerModifier.PassengerModifier + t.trait.PassengerBonus;
-				RacialTrait bonusExplored = this.RaceSummary;
-				bonusExplored.BonusExplored = bonusExplored.BonusExplored + t.trait.BonusExplored;
-				RacialTrait prototype = this.RaceSummary;
-				prototype.Prototype = prototype.Prototype + t.trait.Prototype;
-			}
-			foreach (TraitEntry t in this.IndustryTraits)
-			{
-				if (!t.Selected)
-				{
-					continue;
-				}
-				RacialTrait racialTrait = this.RaceSummary;
-				racialTrait.Prototype = racialTrait.Prototype + t.trait.Prototype;
-				RacialTrait consumptionModifier = this.RaceSummary;
-				consumptionModifier.ConsumptionModifier = consumptionModifier.ConsumptionModifier + t.trait.ConsumptionModifier;
-				RacialTrait raceSummary1 = this.RaceSummary;
-				raceSummary1.DiplomacyMod = raceSummary1.DiplomacyMod + t.trait.DiplomacyMod;
-				RacialTrait energyDamageMod1 = this.RaceSummary;
-				energyDamageMod1.EnergyDamageMod = energyDamageMod1.EnergyDamageMod + t.trait.EnergyDamageMod;
-				RacialTrait maintMod1 = this.RaceSummary;
-				maintMod1.MaintMod = maintMod1.MaintMod + t.trait.MaintMod;
-				RacialTrait reproductionMod1 = this.RaceSummary;
-				reproductionMod1.ReproductionMod = reproductionMod1.ReproductionMod + t.trait.ReproductionMod;
-				RacialTrait researchMod1 = this.RaceSummary;
-				researchMod1.ResearchMod = researchMod1.ResearchMod + t.trait.ResearchMod;
-				RacialTrait shipCostMod1 = this.RaceSummary;
-				shipCostMod1.ShipCostMod = shipCostMod1.ShipCostMod + t.trait.ShipCostMod;
-				RacialTrait taxMod1 = this.RaceSummary;
-				taxMod1.TaxMod = taxMod1.TaxMod + t.trait.TaxMod;
-				RacialTrait productionMod1 = this.RaceSummary;
-				productionMod1.ProductionMod = productionMod1.ProductionMod + t.trait.ProductionMod;
-				RacialTrait modHpModifier1 = this.RaceSummary;
-				modHpModifier1.ModHpModifier = modHpModifier1.ModHpModifier + t.trait.ModHpModifier;
-				RacialTrait mercantile1 = this.RaceSummary;
-				mercantile1.Mercantile = mercantile1.Mercantile + t.trait.Mercantile;
-				RacialTrait groundCombatModifier1 = this.RaceSummary;
-				groundCombatModifier1.GroundCombatModifier = groundCombatModifier1.GroundCombatModifier + t.trait.GroundCombatModifier;
-				RacialTrait cybernetic1 = this.RaceSummary;
-				cybernetic1.Cybernetic = cybernetic1.Cybernetic + t.trait.Cybernetic;
-				RacialTrait blind1 = this.RaceSummary;
-				blind1.Blind = blind1.Blind + t.trait.Blind;
-				RacialTrait dodgeMod1 = this.RaceSummary;
-				dodgeMod1.DodgeMod = dodgeMod1.DodgeMod + t.trait.DodgeMod;
-				RacialTrait burrowers1 = this.RaceSummary;
-				burrowers1.Burrowers = burrowers1.Burrowers + t.trait.Burrowers;
-				RacialTrait aquatic1 = this.RaceSummary;
-				aquatic1.Aquatic = aquatic1.Aquatic + t.trait.Aquatic;
-				RacialTrait homeworldFertMod1 = this.RaceSummary;
-				homeworldFertMod1.HomeworldFertMod = homeworldFertMod1.HomeworldFertMod + t.trait.HomeworldFertMod;
-				RacialTrait homeworldRichMod1 = this.RaceSummary;
-				homeworldRichMod1.HomeworldRichMod = homeworldRichMod1.HomeworldRichMod + t.trait.HomeworldRichMod;
-				RacialTrait homeworldSizeMod1 = this.RaceSummary;
-				homeworldSizeMod1.HomeworldSizeMod = homeworldSizeMod1.HomeworldSizeMod + t.trait.HomeworldSizeMod;
-				RacialTrait militaristic1 = this.RaceSummary;
-				militaristic1.Militaristic = militaristic1.Militaristic + t.trait.Militaristic;
-				RacialTrait passengerModifier1 = this.RaceSummary;
-				passengerModifier1.PassengerModifier = passengerModifier1.PassengerModifier + t.trait.PassengerBonus;
-				RacialTrait bonusExplored1 = this.RaceSummary;
-				bonusExplored1.BonusExplored = bonusExplored1.BonusExplored + t.trait.BonusExplored;
-			}
-			foreach (TraitEntry t in this.SpecialTraits)
-			{
-				if (!t.Selected)
-				{
-					continue;
-				}
+                //Added by McShooterz: code cleaning
+                this.RaceSummary.ConsumptionModifier += t.trait.ConsumptionModifier;
+                this.RaceSummary.DiplomacyMod += t.trait.DiplomacyMod;
+                this.RaceSummary.EnergyDamageMod += t.trait.EnergyDamageMod;
+                this.RaceSummary.MaintMod += t.trait.MaintMod;
+                this.RaceSummary.ReproductionMod += t.trait.ReproductionMod;
+                this.RaceSummary.PopGrowthMax += t.trait.PopGrowthMax;
+                this.RaceSummary.PopGrowthMin += t.trait.PopGrowthMin;
+                this.RaceSummary.ResearchMod += t.trait.ResearchMod;
+                this.RaceSummary.ShipCostMod += t.trait.ShipCostMod;
+                this.RaceSummary.TaxMod += t.trait.TaxMod;
+                this.RaceSummary.ProductionMod += t.trait.ProductionMod;
+                this.RaceSummary.ModHpModifier += t.trait.ModHpModifier;
+                this.RaceSummary.Mercantile += t.trait.Mercantile;
+                this.RaceSummary.GroundCombatModifier += t.trait.GroundCombatModifier;
+                this.RaceSummary.Cybernetic += t.trait.Cybernetic;
+                this.RaceSummary.Blind += t.trait.Blind;
+                this.RaceSummary.DodgeMod += t.trait.DodgeMod;
+                this.RaceSummary.HomeworldFertMod += t.trait.HomeworldFertMod;
+                this.RaceSummary.HomeworldRichMod += t.trait.HomeworldRichMod;
+                this.RaceSummary.HomeworldSizeMod += t.trait.HomeworldSizeMod;
+                this.RaceSummary.Militaristic += t.trait.Militaristic;
+                this.RaceSummary.PassengerModifier += t.trait.PassengerModifier;
+                this.RaceSummary.BonusExplored += t.trait.BonusExplored;
+                this.RaceSummary.Prototype += t.trait.Prototype;
+                this.RaceSummary.Spiritual += t.trait.Spiritual;
+                this.RaceSummary.SpyMultiplier += t.trait.SpyMultiplier;
+                this.RaceSummary.Pack = t.trait.Pack;
+                /*
 				RacialTrait prototype1 = this.RaceSummary;
 				prototype1.Prototype = prototype1.Prototype + t.trait.Prototype;
 				RacialTrait consumptionModifier1 = this.RaceSummary;
@@ -3270,6 +2624,7 @@ namespace Ship_Game
 					continue;
 				}
 				this.RaceSummary.Pack = t.trait.Pack;
+                */
 			}
 		}
 

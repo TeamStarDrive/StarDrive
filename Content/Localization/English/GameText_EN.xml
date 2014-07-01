@@ -7235,6 +7235,19 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6007</Index>
       <Text>Pause On Notifications</Text>
     </Token>
+	<Token>
+      <Index>6008</Index>
+      <Text>Boarding</Text>
+    </Token>
+	<Token>
+      <Index>6009</Index>
+      <Text>Station</Text>
+    </Token>
+	<Token>
+      <Index>6010</Index>
+      <Text>Corvette</Text>
+    </Token>
+	
 	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
