@@ -1239,10 +1239,7 @@ namespace Ship_Game
 				bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 //added by McShooterz: adds boarding strength to troop info in colony screen
                 tCursor.Y = bCursor.Y;
-                if(Localizer.Token(5087) != null)
-                    desc = string.Concat(Localizer.Token(5087), ": ");
-                else
-                    desc = string.Concat("Boarding", ": ");
+                desc = string.Concat(Localizer.Token(6008), ": ");
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.BoardingStrength.ToString(), tCursor, new Color(255, 239, 208));
                 bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
