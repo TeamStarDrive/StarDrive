@@ -1367,16 +1367,33 @@ namespace Ship_Game.Gameplay
 				List<Troop> ToRemove = new List<Troop>();
                 if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f  )
 				{
-					for (int i = 0; i < this.Owner.TroopList.Count; i++)
+                    int i = 0;
+                    foreach(ShipModule hangar in this.Owner.GetHangars().Where(hangar=> hangar.hangarTimer<=0))
+                    //for (int i = 0; i < this.Owner.TroopList.Count; i++)
 					{
-						//added by gremlin: if cant place troops then dont.
-                        if(goal.TargetPlanet.AssignTroopToTile(this.Owner.TroopList[i]))
-						ToRemove.Add(this.Owner.TroopList[i]);
+                        Troop troop = this.Owner.TroopList[i];
+                        //added by gremlin: if cant place troops then dont.
+                        if (troop != null )
+                        {
+                            if (troop.GetOwner() == this.Owner.loyalty)
+                            {
+                                if (goal.TargetPlanet.AssignTroopToTile(troop))
+                                {
+                                    //this.Owner.TroopList.Remove(troop);
+                                    hangar.hangarTimer = hangar.hangarTimerConstant;
+                                    ToRemove.Add(troop);
+                                    i++;
+                                }
+                            }
+                            else
+                                i++;
+                        }
+                        
 					}
-					foreach (Troop to in ToRemove)
-					{
-						this.Owner.TroopList.Remove(to);
-					}
+                    foreach (Troop to in ToRemove)
+                    {
+                        this.Owner.TroopList.Remove(to);
+                    }
 				}
 			}
 		}
@@ -1545,24 +1562,24 @@ namespace Ship_Game.Gameplay
                 }
                 return;
             }
-            if (this.State != AIState.AssaultPlanet && this.Owner.Role == "troop" && this.Owner.loyalty == universeScreen.player)
-            {
+            //if (this.State != AIState.AssaultPlanet && this.Owner.Role == "troop" && this.Owner.loyalty == universeScreen.player)
+            //{
 
-                if (this.OrbitTarget != null && this.Owner.loyalty != this.OrbitTarget.Owner)
-                {
+            //    if (this.OrbitTarget != null && this.Owner.loyalty != this.OrbitTarget.Owner)
+            //    {
 
-                    if (OrbitTarget.Owner == null)
-                    {
-                        this.State = AIState.AssaultPlanet;
-                        this.OrderLandAllTroops(this.OrbitTarget);
-                    }
-                    else if (this.Owner.loyalty.GetRelations()[this.OrbitTarget.Owner].AtWar)
-                    {
-                        this.State = AIState.AssaultPlanet;
-                        this.OrderLandAllTroops(this.OrbitTarget);
-                    }
-                }
-            }
+            //        if (OrbitTarget.Owner == null)
+            //        {
+            //            this.State = AIState.AssaultPlanet;
+            //            this.OrderLandAllTroops(this.OrbitTarget);
+            //        }
+            //        else if (this.Owner.loyalty.GetRelations()[this.OrbitTarget.Owner].AtWar)
+            //        {
+            //            this.State = AIState.AssaultPlanet;
+            //            this.OrderLandAllTroops(this.OrbitTarget);
+            //        }
+            //    }
+            //}
             Vector2 vector2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
             Vector2 vector21 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
             Vector2 vector22 = new Vector2(-vector21.Y, vector21.X);
@@ -3730,7 +3747,8 @@ namespace Ship_Game.Gameplay
 
 		public void OrderRebase(Planet p, bool ClearOrders)
 		{
-			lock (GlobalStats.WayPointLock)
+
+            lock (GlobalStats.WayPointLock)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3751,14 +3769,21 @@ namespace Ship_Game.Gameplay
 
 		public void OrderRebaseToNearest()
 		{
-			lock (GlobalStats.WayPointLock)
+            //added by gremlin if rebasing dont rebase.
+            if (this.State == AIState.Rebase && this.OrbitTarget.Owner == this.Owner.loyalty)
+                return;
+            lock (GlobalStats.WayPointLock)
 			{
 				this.ActiveWayPoints.Clear();
 			}
-			IOrderedEnumerable<Planet> sortedList = 
+            
+            IOrderedEnumerable<Planet> sortedList = 
 				from planet in this.Owner.loyalty.GetPlanets()
+                //added by gremlin if the planet is full of troops dont rebase there.
+                where planet.TroopsHere.Count + this.Owner.loyalty.GetShips().Where(troop => troop.Role == "troop" && troop.GetAI().State == AIState.Rebase && troop.GetAI().OrbitTarget == planet).Count() < planet.TilesList.Sum(space => space.number_allowed_troops)
 				orderby Vector2.Distance(this.Owner.Center, planet.Position)
 				select planet;
+            
 			if (sortedList.Count<Planet>() <= 0)
 			{
 				this.State = AIState.AwaitingOrders;

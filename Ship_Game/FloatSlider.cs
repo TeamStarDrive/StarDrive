@@ -57,8 +57,8 @@ namespace Ship_Game
             this.amountRange = defaultValue;
             if (this.amountRange > 0 && this.top > 0)
             {
-                this.amount = this.amountRange / this.top - this.bottom;
-                this.amount = this.amount < 0 ? this.amount = 0 : this.amount;
+                this.amount = (this.amountRange -this.bottom) / (this.top-this.bottom);
+                this.amount = this.amount < 0 ? 0 : this.amount;
             }
             else
                 this.amount = 0;
@@ -181,7 +181,7 @@ namespace Ship_Game
 				}
 				this.amount = 1f - (float)((float)this.rect.X + (float)this.rect.Width - (float)this.cursor.X) / (float)this.rect.Width;
 			}
-            this.amountRange = this.amount * this.top + this.bottom;
+            this.amountRange = this.amount * this.top;//+ this.bottom;
 			return this.amount;
 
 		}

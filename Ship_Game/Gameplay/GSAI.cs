@@ -60,9 +60,9 @@ namespace Ship_Game.Gameplay
 
 		private GSAI.ResearchStrategy res_strat = GSAI.ResearchStrategy.Scripted;
         bool modSupport = bool.Parse( ConfigurationManager.AppSettings["ModSupport"]);
-        float minimumWarpRange = float.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
+        float minimumWarpRange = GlobalStats.MinimumWarpRange;
         //SizeLimiter
-        float SizeLimiter = float.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
+        float SizeLimiter = GlobalStats.MemoryLimiter;
 
 		public GSAI(Empire e)
 		{
