@@ -24,7 +24,7 @@ namespace Ship_Game
 
         public struct UpkeepTable
         {
-            public string ShipType;
+            public List<string> ShipTypes;
             public float freighterUpkeep;
             public float platformUpkeep;
             public float scoutUpkeep;
@@ -45,10 +45,13 @@ namespace Ship_Game
 
             for (int i = 0; i < RacialUpkeepTables.Count(); i++)
             {
-                if (RacialUpkeepTables.ElementAt(i).ShipType == Shiptype)
+                for (int j = 0; j < RacialUpkeepTables.ElementAt(i).ShipTypes.Count(); j++)
                 {
-                    index = i;
-                    raceFound = true;
+                    if (RacialUpkeepTables.ElementAt(i).ShipTypes.ElementAt(j) == Shiptype)
+                    {
+                        index = i;
+                        raceFound = true;
+                    }
                 }
             }
             if (raceFound)

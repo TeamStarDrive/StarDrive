@@ -11,7 +11,10 @@
   <capitalUpkeep>6.0</capitalUpkeep>
   <RacialUpkeepTables>
    <UpkeepTable>
-	 <ShipType>Human</ShipType>
+	 <ShipTypes>
+	   <string>Human</string>
+	   <string>Draylok</string>
+	 </ShipTypes>
 	 <freighterUpkeep>0.2</freighterUpkeep>
 	 <platformUpkeep>0.2</platformUpkeep>
 	 <scoutUpkeep>0.2</scoutUpkeep>
