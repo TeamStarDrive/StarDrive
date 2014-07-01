@@ -2375,92 +2375,43 @@ namespace Ship_Game
 			{
 				t.Selected = false;
                 //Added by McShooterz: Searches for new trait tags
-				if (data.Traits.ConsumptionModifier > 0f && t.trait.ConsumptionModifier > 0f 
-                    || t.trait.ConsumptionModifier < 0f && data.Traits.ConsumptionModifier < 0f
-                    || data.Traits.DiplomacyMod > 0f && t.trait.DiplomacyMod > 0f 
-                    || t.trait.DiplomacyMod < 0f && data.Traits.DiplomacyMod < 0f 
-                    || data.Traits.EnergyDamageMod > 0f && t.trait.EnergyDamageMod > 0f
-                    || t.trait.EnergyDamageMod < 0f && data.Traits.EnergyDamageMod < 0f 
-                    || data.Traits.MaintMod > 0f && t.trait.MaintMod > 0f 
-                    || t.trait.MaintMod < 0f && data.Traits.MaintMod < 0f
-                    || data.Traits.PopGrowthMax > 0f && t.trait.PopGrowthMax > 0f 
-                    || data.Traits.PopGrowthMin > 0f && t.trait.PopGrowthMin > 0f 
-                    || data.Traits.ResearchMod > 0f && t.trait.ResearchMod > 0f 
-                    || t.trait.ResearchMod < 0f && data.Traits.ResearchMod < 0f
-                    || data.Traits.ShipCostMod > 0f && t.trait.ShipCostMod > 0f 
-                    || t.trait.ShipCostMod < 0f && data.Traits.ShipCostMod < 0f 
-                    || data.Traits.TaxMod > 0f && t.trait.TaxMod > 0f 
-                    || t.trait.TaxMod < 0f && data.Traits.TaxMod < 0f
-                    || data.Traits.ProductionMod > 0f && t.trait.ProductionMod > 0f 
-                    || t.trait.ProductionMod < 0f && data.Traits.ProductionMod < 0f 
-                    || data.Traits.ModHpModifier > 0f && t.trait.ModHpModifier > 0f 
-                    || t.trait.ModHpModifier < 0f && data.Traits.ModHpModifier < 0f
-                    || data.Traits.Mercantile > 0f && t.trait.Mercantile > 0f 
-                    || t.trait.Mercantile < 0f && data.Traits.Mercantile < 0f 
-                    || data.Traits.GroundCombatModifier > 0f && t.trait.GroundCombatModifier > 0f 
-                    || t.trait.GroundCombatModifier < 0f && data.Traits.GroundCombatModifier < 0f
-                    || data.Traits.Cybernetic > 0 && t.trait.Cybernetic > 0 
-                    || t.trait.Cybernetic < 0 && data.Traits.Cybernetic < 0 
-                    || data.Traits.Blind > 0 && t.trait.Blind > 0 
-                    || t.trait.Blind < 0 && data.Traits.Blind < 0
-                    || data.Traits.DodgeMod > 0f && t.trait.DodgeMod > 0f 
-                    || t.trait.DodgeMod < 0f && data.Traits.DodgeMod < 0f 
-                    || data.Traits.Burrowers > 0 && t.trait.Burrowers > 0 
-                    || t.trait.Burrowers < 0 && data.Traits.Burrowers < 0
-                    || data.Traits.HomeworldSizeMod > 0f && t.trait.HomeworldSizeMod > 0f 
-                    || t.trait.HomeworldSizeMod < 0f && data.Traits.HomeworldSizeMod < 0f 
-                    || data.Traits.HomeworldFertMod > 0f && t.trait.HomeworldFertMod > 0f && t.trait.HomeworldRichMod == 0f 
-                    || t.trait.HomeworldFertMod < 0f && data.Traits.HomeworldFertMod < 0f && t.trait.HomeworldRichMod == 0f
-                    || data.Traits.HomeworldFertMod > 0f && t.trait.HomeworldFertMod > 0f && t.trait.HomeworldRichMod != 0f 
-                    || t.trait.HomeworldFertMod < 0f && data.Traits.HomeworldFertMod < 0f && t.trait.HomeworldRichMod != 0f
-                    || data.Traits.Militaristic > 0 && t.trait.Militaristic > 0 
-                    || t.trait.Militaristic < 0 && data.Traits.Militaristic < 0 
-                    || data.Traits.PassengerModifier > 1 && t.trait.PassengerModifier > 1 
-                    || t.trait.PassengerModifier < 1 && data.Traits.PassengerModifier < 1
-                    || data.Traits.BonusExplored > 0 && t.trait.BonusExplored > 0 
-                    || t.trait.BonusExplored < 0 && data.Traits.BonusExplored < 0 
-                    || data.Traits.Spiritual > 0f && t.trait.Spiritual > 0f 
-                    || t.trait.Spiritual < 0f && data.Traits.Spiritual < 0f
-                    || data.Traits.Prototype > 0 && t.trait.Prototype > 0 
-                    || data.Traits.Pack && t.trait.Pack 
-                    || data.Traits.SpyMultiplier > 0f && t.trait.SpyMultiplier > 0f 
-                    || data.Traits.SpyMultiplier < 0f && t.trait.SpyMultiplier < 0f
-                    || t.trait.PhysicalTraitAlluring && data.Traits.PhysicalTraitAlluring
-                    || t.trait.PhysicalTraitRepulsive && data.Traits.PhysicalTraitRepulsive
-                    || t.trait.PhysicalTraitEagleEyed && data.Traits.PhysicalTraitEagleEyed
-                    || t.trait.PhysicalTraitBlind && data.Traits.PhysicalTraitBlind
-                    || t.trait.PhysicalTraitEfficientMetabolism && data.Traits.PhysicalTraitEfficientMetabolism
-                    || t.trait.PhysicalTraitGluttonous && data.Traits.PhysicalTraitGluttonous
-                    || t.trait.PhysicalTraitFertile && data.Traits.PhysicalTraitFertile
-                    || t.trait.PhysicalTraitLessFertile && data.Traits.PhysicalTraitLessFertile
-                    || t.trait.PhysicalTraitSmart && data.Traits.PhysicalTraitSmart
-                    || t.trait.PhysicalTraitDumb && data.Traits.PhysicalTraitDumb
-                    || t.trait.PhysicalTraitReflexes && data.Traits.PhysicalTraitReflexes
-                    || t.trait.PhysicalTraitPonderous && data.Traits.PhysicalTraitPonderous
-                    || t.trait.PhysicalTraitSavage && data.Traits.PhysicalTraitSavage
-                    || t.trait.PhysicalTraitTimid && data.Traits.PhysicalTraitTimid
-                    || t.trait.SociologicalTraitEfficient && data.Traits.SociologicalTraitEfficient
-                    || t.trait.SociologicalTraitWasteful && data.Traits.SociologicalTraitWasteful
-                    || t.trait.SociologicalTraitIndustrious && data.Traits.SociologicalTraitIndustrious
-                    || t.trait.SociologicalTraitMercantile && data.Traits.SociologicalTraitMercantile
-                    || t.trait.SociologicalTraitMeticulous && data.Traits.SociologicalTraitMeticulous
-                    || t.trait.SociologicalTraitCorrupt && data.Traits.SociologicalTraitCorrupt
-                    || t.trait.SociologicalTraitSkilledEngineers && data.Traits.SociologicalTraitSkilledEngineers
-                    || t.trait.SociologicalTraitHaphazardEngineers && data.Traits.SociologicalTraitHaphazardEngineers
-                    || t.trait.HistoryTraitAstronomers && data.Traits.HistoryTraitAstronomers
-                    || t.trait.HistoryTraitCybernetic && data.Traits.HistoryTraitCybernetic
-                    || t.trait.HistoryTraitManifestDestiny && data.Traits.HistoryTraitManifestDestiny
-                    || t.trait.HistoryTraitMilitaristic && data.Traits.HistoryTraitMilitaristic
-                    || t.trait.HistoryTraitNavalTraditions && data.Traits.HistoryTraitNavalTraditions
-                    || t.trait.HistoryTraitPackMentality && data.Traits.HistoryTraitPackMentality
-                    || t.trait.HistoryTraitPrototypeFlagship && data.Traits.HistoryTraitPrototypeFlagship
-                    || t.trait.HistoryTraitSpiritual && data.Traits.HistoryTraitSpiritual
-                    || t.trait.HistoryTraitPollutedHomeWorld && data.Traits.HistoryTraitPollutedHomeWorld
-                    || t.trait.HistoryTraitIndustrializedHomeWorld && data.Traits.HistoryTraitIndustrializedHomeWorld
-                    || t.trait.HistoryTraitDuplicitous && data.Traits.HistoryTraitDuplicitous
-                    || t.trait.HistoryTraitHonest && data.Traits.HistoryTraitHonest
-                    || t.trait.HistoryTraitHugeHomeWorld && data.Traits.HistoryTraitHugeHomeWorld
-                    || t.trait.HistoryTraitSmallHomeWorld && data.Traits.HistoryTraitSmallHomeWorld)
+                if ((data.Traits.ConsumptionModifier > 0f || data.Traits.PhysicalTraitGluttonous) && t.trait.ConsumptionModifier > 0f 
+                    || t.trait.ConsumptionModifier < 0f && (data.Traits.ConsumptionModifier < 0f || data.Traits.PhysicalTraitEfficientMetabolism)
+                    || (data.Traits.DiplomacyMod > 0f || data.Traits.PhysicalTraitAlluring) && t.trait.DiplomacyMod > 0f 
+                    || t.trait.DiplomacyMod < 0f && (data.Traits.DiplomacyMod < 0f || data.Traits.PhysicalTraitRepulsive)
+                    || (data.Traits.EnergyDamageMod > 0f || data.Traits.PhysicalTraitEagleEyed) && t.trait.EnergyDamageMod > 0f
+                    || t.trait.EnergyDamageMod < 0f && (data.Traits.EnergyDamageMod < 0f || data.Traits.PhysicalTraitBlind)
+                    || (data.Traits.MaintMod > 0f || data.Traits.SociologicalTraitWasteful) && t.trait.MaintMod > 0f 
+                    || t.trait.MaintMod < 0f && (data.Traits.MaintMod < 0f || data.Traits.SociologicalTraitEfficient)
+                    || (data.Traits.PopGrowthMax > 0f || data.Traits.PhysicalTraitLessFertile) && t.trait.PopGrowthMax > 0f 
+                    || (data.Traits.PopGrowthMin > 0f || data.Traits.PhysicalTraitFertile) && t.trait.PopGrowthMin > 0f 
+                    || (data.Traits.ResearchMod > 0f || data.Traits.PhysicalTraitSmart) && t.trait.ResearchMod > 0f 
+                    || t.trait.ResearchMod < 0f && (data.Traits.ResearchMod < 0f || data.Traits.PhysicalTraitDumb)
+                    || t.trait.ShipCostMod < 0f && (data.Traits.ShipCostMod < 0f || data.Traits.HistoryTraitNavalTraditions) 
+                    || (data.Traits.TaxMod > 0f || data.Traits.SociologicalTraitMeticulous) && t.trait.TaxMod > 0f 
+                    || t.trait.TaxMod < 0f && (data.Traits.TaxMod < 0f || data.Traits.SociologicalTraitCorrupt)
+                    || (data.Traits.ProductionMod > 0f || data.Traits.SociologicalTraitIndustrious) && t.trait.ProductionMod > 0f 
+                    || t.trait.ProductionMod < 0f && (data.Traits.ProductionMod < 0f || data.Traits.SociologicalTraitLazy)
+                    || (data.Traits.ModHpModifier > 0f || data.Traits.SociologicalTraitSkilledEngineers) && t.trait.ModHpModifier > 0f 
+                    || t.trait.ModHpModifier < 0f && (data.Traits.ModHpModifier < 0f || data.Traits.SociologicalTraitHaphazardEngineers)
+                    || (data.Traits.Mercantile > 0f || data.Traits.SociologicalTraitMercantile) && t.trait.Mercantile > 0f  
+                    || (data.Traits.GroundCombatModifier > 0f || data.Traits.PhysicalTraitSavage) && t.trait.GroundCombatModifier > 0f 
+                    || t.trait.GroundCombatModifier < 0f && (data.Traits.GroundCombatModifier < 0f || data.Traits.PhysicalTraitTimid)
+                    || (data.Traits.Cybernetic > 0 || data.Traits.HistoryTraitCybernetic) && t.trait.Cybernetic > 0 
+                    || (data.Traits.DodgeMod > 0f || data.Traits.PhysicalTraitReflexes) && t.trait.DodgeMod > 0f 
+                    || t.trait.DodgeMod < 0f && (data.Traits.DodgeMod < 0f || data.Traits.PhysicalTraitPonderous) 
+                    || (data.Traits.HomeworldSizeMod > 0f || data.Traits.HistoryTraitHugeHomeWorld) && t.trait.HomeworldSizeMod > 0f 
+                    || t.trait.HomeworldSizeMod < 0f && (data.Traits.HomeworldSizeMod < 0f || data.Traits.HistoryTraitSmallHomeWorld)
+                    || t.trait.HomeworldFertMod < 0f && (data.Traits.HomeworldFertMod < 0f || data.Traits.HistoryTraitPollutedHomeWorld) && t.trait.HomeworldRichMod == 0f
+                    || t.trait.HomeworldFertMod < 0f && (data.Traits.HomeworldFertMod < 0f || data.Traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
+                    || (data.Traits.Militaristic > 0 || data.Traits.HistoryTraitMilitaristic) && t.trait.Militaristic > 0 
+                    || (data.Traits.PassengerModifier > 1 || data.Traits.HistoryTraitManifestDestiny) && t.trait.PassengerModifier > 1 
+                    || (data.Traits.BonusExplored > 0 || data.Traits.HistoryTraitAstronomers) && t.trait.BonusExplored > 0 
+                    || (data.Traits.Spiritual > 0f || data.Traits.HistoryTraitSpiritual) && t.trait.Spiritual > 0f 
+                    || (data.Traits.Prototype > 0 || data.Traits.HistoryTraitPrototypeFlagship) && t.trait.Prototype > 0 
+                    || (data.Traits.Pack || data.Traits.HistoryTraitPackMentality) && t.trait.Pack 
+                    || (data.Traits.SpyMultiplier > 0f || data.Traits.HistoryTraitDuplicitous) && t.trait.SpyMultiplier > 0f 
+                    || (data.Traits.SpyMultiplier < 0f || data.Traits.HistoryTraitHonest) && t.trait.SpyMultiplier < 0f)
 				{
 
 					t.Selected = true;
