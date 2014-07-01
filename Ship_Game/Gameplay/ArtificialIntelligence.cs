@@ -1367,16 +1367,33 @@ namespace Ship_Game.Gameplay
 				List<Troop> ToRemove = new List<Troop>();
                 if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f  )
 				{
-					for (int i = 0; i < this.Owner.TroopList.Count; i++)
+                    int i = 0;
+                    foreach(ShipModule hangar in this.Owner.GetHangars().Where(hangar=> hangar.hangarTimer<=0))
+                    //for (int i = 0; i < this.Owner.TroopList.Count; i++)
 					{
-						//added by gremlin: if cant place troops then dont.
-                        if(goal.TargetPlanet.AssignTroopToTile(this.Owner.TroopList[i]))
-						ToRemove.Add(this.Owner.TroopList[i]);
+                        Troop troop = this.Owner.TroopList[i];
+                        //added by gremlin: if cant place troops then dont.
+                        if (troop != null )
+                        {
+                            if (troop.GetOwner() == this.Owner.loyalty)
+                            {
+                                if (goal.TargetPlanet.AssignTroopToTile(troop))
+                                {
+                                    //this.Owner.TroopList.Remove(troop);
+                                    hangar.hangarTimer = hangar.hangarTimerConstant;
+                                    ToRemove.Add(troop);
+                                    i++;
+                                }
+                            }
+                            else
+                                i++;
+                        }
+                        
 					}
-					foreach (Troop to in ToRemove)
-					{
-						this.Owner.TroopList.Remove(to);
-					}
+                    foreach (Troop to in ToRemove)
+                    {
+                        this.Owner.TroopList.Remove(to);
+                    }
 				}
 			}
 		}
