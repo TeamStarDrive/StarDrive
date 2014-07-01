@@ -2456,6 +2456,7 @@ namespace Ship_Game
 			float WarpDraw = 0f;
 			float FTLCount = 0f;
 			float FTLSpeed = 0f;
+            float RepairRate = 0f;
 			foreach (SlotStruct slot in this.Slots)
 			{
 				Size = Size + 1f;
@@ -2495,6 +2496,7 @@ namespace Ship_Game
 					WarpThrust = WarpThrust + (float)slot.module.WarpThrust;
 					TurnThrust = TurnThrust + (float)slot.module.TurnThrust;
 					AfterThrust = AfterThrust + slot.module.AfterburnerThrust;
+                    RepairRate += (slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairRateMod);
 				}
 				Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
 				CargoSpace = CargoSpace + slot.module.Cargo_Capacity;
@@ -2541,6 +2543,9 @@ namespace Ship_Game
 
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(113), ":"), (int)HitPoints, 103);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            //Added by McShooterz: draw total repair
+            this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6013), ":"), (int)RepairRate, 103);
+            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(114), ":"), (int)ShieldPower, 104);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
