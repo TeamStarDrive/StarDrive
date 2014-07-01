@@ -436,7 +436,7 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			this.ScreenCenter = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-			this.textList = HelperFunctions.GetFilesFromDirectory("Content/LoadingScreen");
+			this.textList = HelperFunctions.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen") : "Content/LoadingScreen");
 			XmlSerializer serializer2 = new XmlSerializer(typeof(List<string>));
             //Added by McShooterz: mod folder support of Advice folder
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/", GlobalStats.Config.Language, "/Advice.xml")))
