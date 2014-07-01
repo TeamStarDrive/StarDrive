@@ -3347,12 +3347,13 @@ namespace Ship_Game
 
                     if (planet.Owner == null && planet.habitable)
                     {
-                        
+
+                        ship.GetAI().State = AIState.AssaultPlanet;
                         ship.GetAI().OrderLandAllTroops(planet);
                     }
                     else if (planet.Owner!=null&& planet.Owner !=this.player &&  (ship.loyalty.GetRelations()[planet.Owner].AtWar ||planet.Owner.isFaction ||planet.Owner.data.Defeated ))
                     {
-                       
+                        ship.GetAI().State = AIState.AssaultPlanet;
                         ship.GetAI().OrderLandAllTroops(planet);
                     }
                     //end
