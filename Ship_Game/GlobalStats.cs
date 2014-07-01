@@ -101,6 +101,13 @@ namespace Ship_Game
         //PauseOnNotification
         public static bool PauseOnNotification;
         public static int ExtraPlanets;
+        //OptionIncreaseShipMaintenance
+        public static float OptionIncreaseShipMaintenance;
+        public static float MinimumWarpRange;
+
+        public static float MemoryLimiter;
+
+        public static float StartingPlanetRichness;
 
 		static GlobalStats()
 		{       
@@ -149,6 +156,11 @@ namespace Ship_Game
             GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
             GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
             GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
+
+            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
+            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
+            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
+            GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
 		}
 
 		public GlobalStats()
