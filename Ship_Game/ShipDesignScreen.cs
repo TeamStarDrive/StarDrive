@@ -1579,20 +1579,17 @@ namespace Ship_Game
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.InstalledWeapon.Range, 82);
+					this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)ModifiedWeaponStat(mod.InstalledWeapon, "range"), 82);
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					if (!mod.InstalledWeapon.Tag_Beam)
+					if (!mod.InstalledWeapon.explodes || mod.InstalledWeapon.OrdinanceRequiredToFire <= 0f)
 					{
-						if (!mod.InstalledWeapon.explodes || mod.InstalledWeapon.OrdinanceRequiredToFire <= 0f)
-						{
-							this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)mod.InstalledWeapon.DamageAmount, 83);
-							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						}
-						else
-						{
-							this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)mod.InstalledWeapon.DamageAmount + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount, 83);
-							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						}
+						this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon,"damage"), 83);
+						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+					}
+					else
+					{
+                        this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount, 83);
+						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
 					modTitlePos.X = modTitlePos.X + 152f;
 					modTitlePos.Y = starty;
@@ -1600,14 +1597,14 @@ namespace Ship_Game
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     if (!mod.InstalledWeapon.Tag_Beam)
 					{
-						this.DrawStat(ref modTitlePos, Localizer.Token(129), (float)mod.InstalledWeapon.ProjectileSpeed, 85);
+                        this.DrawStat(ref modTitlePos, Localizer.Token(129), (float)ModifiedWeaponStat(mod.InstalledWeapon, "speed"), 85);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
 					if (mod.InstalledWeapon.DamageAmount > 0f)
 					{
                         if (mod.InstalledWeapon.Tag_Beam)
 						{
-							float dps = (float)mod.InstalledWeapon.DamageAmount * 60f * 3f / mod.InstalledWeapon.fireDelay;
+                            float dps = (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 60f * 3f / ModifiedWeaponStat(mod.InstalledWeapon, "firedelay");
 							this.DrawStat(ref modTitlePos, "DPS", dps, 86);
 							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 							this.DrawStat(ref modTitlePos, "Pwr / Sec", (float)mod.InstalledWeapon.BeamPowerCostPerSecond, 87);
@@ -1617,14 +1614,14 @@ namespace Ship_Game
 						{
 							if (mod.InstalledWeapon.SalvoCount <= 1)
 							{
-								float dps = 1f / mod.InstalledWeapon.fireDelay * ((float)mod.InstalledWeapon.DamageAmount + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
+                                float dps = 1f / ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
 								dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
 								this.DrawStat(ref modTitlePos, "DPS", dps, 86);
 								modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 							}
 							else
 							{
-								float dps = (float)mod.InstalledWeapon.SalvoCount / mod.InstalledWeapon.fireDelay * ((float)mod.InstalledWeapon.DamageAmount + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
+                                float dps = (float)mod.InstalledWeapon.SalvoCount / ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
 								dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
 								this.DrawStat(ref modTitlePos, "DPS", dps, 86);
 								modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -1632,14 +1629,14 @@ namespace Ship_Game
 						}
 						else if (mod.InstalledWeapon.SalvoCount <= 1)
 						{
-							float dps = 1f / mod.InstalledWeapon.fireDelay * ((float)mod.InstalledWeapon.DamageAmount + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
+                            float dps = 1f / ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
 							dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
 							this.DrawStat(ref modTitlePos, "DPS", dps, 86);
 							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						}
 						else
 						{
-							float dps = (float)mod.InstalledWeapon.SalvoCount / mod.InstalledWeapon.fireDelay * ((float)mod.InstalledWeapon.DamageAmount + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
+                            float dps = (float)mod.InstalledWeapon.SalvoCount / ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
 							dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
 							this.DrawStat(ref modTitlePos, "DPS", dps, 86);
 							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -1647,7 +1644,7 @@ namespace Ship_Game
 					}
 					if (mod.InstalledWeapon.EMPDamage > 0f)
 					{
-						this.DrawStat(ref modTitlePos, "EMP", 1f / mod.InstalledWeapon.fireDelay * (float)mod.InstalledWeapon.EMPDamage, 110);
+                        this.DrawStat(ref modTitlePos, "EMP", 1f / ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * (float)mod.InstalledWeapon.EMPDamage, 110);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
 					this.DrawStat(ref modTitlePos, Localizer.Token(130), (float)mod.FieldOfFire, 88);
@@ -1666,12 +1663,12 @@ namespace Ship_Game
 					{
 						if (mod.InstalledWeapon.EffectVsArmor <= 1f)
 						{
-							float effectVsArmor = mod.InstalledWeapon.EffectVsArmor * 100f;
+                            float effectVsArmor = ModifiedWeaponStat(mod.InstalledWeapon, "armor") * 100f;
 							this.DrawStat105Bad(ref modTitlePos, "VS Armor", string.Concat(effectVsArmor.ToString("#"), "%"), 147);
 						}
 						else
 						{
-							float single = mod.InstalledWeapon.EffectVsArmor * 100f;
+                            float single = ModifiedWeaponStat(mod.InstalledWeapon, "armor") * 100f;
 							this.DrawStat105(ref modTitlePos, "VS Armor", string.Concat(single.ToString("#"), "%"), 147);
 						}
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -1680,12 +1677,12 @@ namespace Ship_Game
 					{
 						if (mod.InstalledWeapon.EffectVSShields <= 1f)
 						{
-							float effectVSShields = mod.InstalledWeapon.EffectVSShields * 100f;
+                            float effectVSShields = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
 							this.DrawStat105Bad(ref modTitlePos, "VS Shield", string.Concat(effectVSShields.ToString("#"), "%"), 147);
 						}
 						else
 						{
-							float effectVSShields1 = mod.InstalledWeapon.EffectVSShields * 100f;
+                            float effectVSShields1 = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
 							this.DrawStat105(ref modTitlePos, "VS Shield", string.Concat(effectVSShields1.ToString("#"), "%"), 147);
 						}
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -4890,6 +4887,468 @@ namespace Ship_Game
 			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f))) * Matrix.CreateRotationX(MathHelper.ToRadians(0f))) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
+
+        //Added by McShooterz: modifies weapon stats to reflect weapon tag bonuses
+        private float ModifiedWeaponStat(Weapon weapon, string stat)
+        {
+            float value=0;
+
+            switch (stat)
+            {
+                case "damage":
+                    value = weapon.DamageAmount;
+                    break;
+                case "range":
+                    value = weapon.Range;
+                    break;
+                case "speed":
+                    value = weapon.ProjectileSpeed;
+                    break;
+                case "firedelay":
+                    value = weapon.fireDelay;
+                    break;
+                case "armor":
+                    value = weapon.EffectVsArmor;
+                    break;
+                case "shield":
+                    value = weapon.EffectVSShields;
+                    break;
+            }
+
+            if (weapon.Tag_Missile)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Missile"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Missile"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Missile"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Missile"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Missile"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Missile"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Energy)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Energy"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Energy"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Energy"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Energy"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Energy"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Energy"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Torpedo)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Torpedo"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Torpedo"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Torpedo"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Torpedo"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Torpedo"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Torpedo"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Kinetic)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Kinetic"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Kinetic"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Kinetic"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Kinetic"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Kinetic"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Kinetic"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Hybrid)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Hybrid"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Hybrid"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Hybrid"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Hybrid"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Hybrid"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Hybrid"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Railgun)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Railgun"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Railgun"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Railgun"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Railgun"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Railgun"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Railgun"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Explosive)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Explosive"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Explosive"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Explosive"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Explosive"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Explosive"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Explosive"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Guided)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Guided"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Guided"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Guided"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Guided"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Guided"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Guided"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Intercept)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Intercept"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Intercept"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Intercept"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Intercept"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Intercept"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Intercept"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_PD)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["PD"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["PD"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["PD"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["PD"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["PD"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["PD"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_SpaceBomb)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Spacebomb"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Spacebomb"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Spacebomb"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Spacebomb"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Spacebomb"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Spacebomb"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_BioWeapon)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["BioWeapon"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["BioWeapon"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["BioWeapon"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["BioWeapon"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["BioWeapon"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["BioWeapon"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Drone)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Drone"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Drone"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Drone"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Drone"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Drone"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Drone"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Subspace)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Subspace"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Subspace"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Subspace"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Subspace"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Subspace"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Subspace"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Warp)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Warp"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Warp"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Warp"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Warp"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Warp"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Warp"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Cannon)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Cannon"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Cannon"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Cannon"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Cannon"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Cannon"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Cannon"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Beam)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Beam"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Beam"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Beam"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Beam"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Beam"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Beam"].ShieldDamage;
+                        break;
+                }
+            }
+            if (weapon.Tag_Bomb)
+            {
+                switch (stat)
+                {
+                    case "damage":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Bomb"].Damage;
+                        break;
+                    case "range":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Bomb"].Range;
+                        break;
+                    case "speed":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Bomb"].Speed;
+                        break;
+                    case "firedelay":
+                        value -= value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Bomb"].Rate;
+                        break;
+                    case "armor":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Bomb"].ArmorDamage;
+                        break;
+                    case "shield":
+                        value += value * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.WeaponTags["Bomb"].ShieldDamage;
+                        break;
+                }
+            }
+            return value;
+        }
 
 		public enum ActiveModuleState
 		{

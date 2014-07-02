@@ -1734,6 +1734,7 @@ namespace Ship_Game
 			projMesh = drone.Meshes[0];
 			Ship_Game.ResourceManager.ProjectileMeshDict["spacemine"] = projMesh;
 			Ship_Game.ResourceManager.ProjectileModelDict["spacemine"] = missile;
+             
             /* Added by McShooterz: failed attempt at loading projectile models
             FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles"));
             for (int i = 0; i < (int)filesFromDirectory.Length; i++)
