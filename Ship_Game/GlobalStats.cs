@@ -108,6 +108,7 @@ namespace Ship_Game
         public static float MemoryLimiter;
 
         public static float StartingPlanetRichness;
+        public static string ExtendedVersion;
 
 		static GlobalStats()
 		{       
@@ -161,6 +162,7 @@ namespace Ship_Game
             GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
             GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
+            GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
 		}
 
 		public GlobalStats()
