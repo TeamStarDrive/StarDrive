@@ -436,6 +436,31 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public bool doingScrap
+        {
+            get
+            {
+                return this.AI.State == AIState.Scrap;
+            }
+            set
+            {
+                this.GetAI().OrderScrapShip();
+            }
+        }
+
+        public bool doingRefit
+        {
+            get
+            {
+                return this.AI.State == AIState.Refit;
+            }
+            set
+            {
+                //this.GetAI().OrderScrapShip();
+                Ship.universeScreen.ScreenManager.AddScreen((GameScreen)new RefitToWindow(this));
+            }
+        }
+
         public Ship()
         {
             foreach (KeyValuePair<string, Good> keyValuePair in Ship_Game.ResourceManager.GoodsDict)

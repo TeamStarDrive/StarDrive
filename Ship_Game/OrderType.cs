@@ -14,6 +14,8 @@ namespace Ship_Game
 		TroopToggle,
 		Explore,
 		OrderResupply,
-		EmpireDefense
+		EmpireDefense,
+        Scrap,
+        Refit
 	}
 }
