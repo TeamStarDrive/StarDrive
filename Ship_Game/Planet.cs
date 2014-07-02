@@ -3492,6 +3492,8 @@ namespace Ship_Game
                             this.ps = Planet.GoodState.IMPORT;
                         float num5 = 0.0f;
                         bool flag5 = false;
+                        //Added by McShooterz: Check it troops in queue
+                        bool TroopsInQueue = false;
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                         {
                             if (queueItem.isBuilding && queueItem.Building.Name != "Biospheres")
@@ -3500,6 +3502,8 @@ namespace Ship_Game
                                 ++num5;
                             if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
                                 flag5 = true;
+                            if (queueItem.isTroop)
+                                TroopsInQueue = true;
                         }
                         bool flag6 = true;
                         foreach (Building building in this.BuildingList)
@@ -3613,6 +3617,32 @@ namespace Ship_Game
                                 this.ConstructionQueue.Clear();
                                 foreach (QueueItem queueItem2 in linkedList)
                                     this.ConstructionQueue.Add(queueItem2);
+                            }
+                        }
+                        //Added by McShooterz: Colony build troops
+                        if (!TroopsInQueue && this.ps == Planet.GoodState.EXPORT)
+                        {
+                            bool addTroop = false;
+                            foreach (PlanetGridSquare planetGridSquare in this.TilesList)
+                            {
+                                if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops)
+                                    addTroop = true;
+                            }
+                            if (addTroop)
+                            {
+                                foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
+                                {
+                                    if (EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty).WeCanBuildTroop(troop.Key))
+                                    {
+                                        QueueItem qi = new QueueItem();
+                                        qi.isTroop = true;
+                                        qi.troop = troop.Value;
+                                        qi.Cost = troop.Value.Cost;
+                                        qi.productionTowards = 0f;
+                                        this.ConstructionQueue.Add(qi);
+                                        break;
+                                    }
+                                } 
                             }
                         }
                         if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
