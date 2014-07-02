@@ -1799,7 +1799,7 @@ namespace Ship_Game.Gameplay
                 if (this.loyalty != null && moduleSlot.module.ModuleType == ShipModuleType.FuelCell)
                     this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax;
                 this.PowerCurrent += moduleSlot.module.PowerStoreMax;
-                this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
+                this.PowerFlowMax += moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod;
                 this.shield_max += moduleSlot.module.shield_power_max;
                 this.shield_power += moduleSlot.module.shield_power_max;
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
@@ -1970,7 +1970,10 @@ namespace Ship_Game.Gameplay
                 Ship powerCurrent = this;
                 powerCurrent.PowerCurrent = powerCurrent.PowerCurrent + moduleSlotList.module.PowerStoreMax;
                 Ship powerFlowMax = this;
-                powerFlowMax.PowerFlowMax = powerFlowMax.PowerFlowMax + moduleSlotList.module.PowerFlowMax;
+                if (this.loyalty != null)
+                    powerFlowMax.PowerFlowMax += moduleSlotList.module.PowerFlowMax + moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod;
+                else
+                    powerFlowMax.PowerFlowMax += moduleSlotList.module.PowerFlowMax;
                 Ship shieldMax = this;
                 shieldMax.shield_max = shieldMax.shield_max + moduleSlotList.module.shield_power_max;
                 Ship shieldPower = this;
@@ -2198,7 +2201,7 @@ namespace Ship_Game.Gameplay
                 this.PowerStoreMax += moduleSlot.module.PowerStoreMax;
                 if (this.loyalty != null && moduleSlot.module.ModuleType == ShipModuleType.FuelCell)
                     this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax;
-                this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
+                this.PowerFlowMax += moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod;
                 this.shield_max += moduleSlot.module.shield_power_max;
                 this.shield_power += moduleSlot.module.shield_power;
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
@@ -3337,7 +3340,7 @@ namespace Ship_Game.Gameplay
                             this.PowerStoreMax += moduleSlot.module.PowerStoreMax;
                             if (moduleSlot.module.ModuleType == ShipModuleType.FuelCell)
                                 this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax;
-                            this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
+                            this.PowerFlowMax += moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod;
                             if ((double)moduleSlot.module.PowerDraw > 0.0 && moduleSlot.module.Powered)
                             {
                                 //Added by McShooterz: Shields modules do not draw power at warp due to shieldsOff, which gets turned on when ships is at warp
@@ -3567,7 +3570,7 @@ namespace Ship_Game.Gameplay
                 this.PowerCurrent -= this.AfterDraw * elapsedTime;
             this.PowerCurrent -= this.PowerDraw * elapsedTime;
             if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
-                this.PowerCurrent += this.PowerFlowMax * elapsedTime;
+                this.PowerCurrent += this.PowerFlowMax * this.loyalty.data.PowerFlowMod * elapsedTime;
 
             foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
             {

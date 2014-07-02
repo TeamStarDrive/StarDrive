@@ -659,6 +659,8 @@ namespace Ship_Game
                     this.data.Traits.RepairRateMod += unlockedBonus.Bonus;
                 if(str == "Maintenance Bonus")
                     this.data.Traits.MaintMod -= unlockedBonus.Bonus;
+                if(str == "Power Flow Bonus")
+                    this.data.PowerFlowMod += unlockedBonus.Bonus;
             }
             this.UpdateShipsWeCanBuild();
             if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
