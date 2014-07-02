@@ -11,7 +11,7 @@ namespace Ship_Game
         //Default values for Roles
         public float freighterUpkeep = 0.2f;
         public float platformUpkeep = 0.2f;
-        public float scoutUpkeep = 5.1f;
+        public float scoutUpkeep = 0.1f;
         public float fighterUpKeep = 0.2f;
         public float corvetteUpkeep = 0.35f;
         public float frigateUpkeep = 1.0f;
