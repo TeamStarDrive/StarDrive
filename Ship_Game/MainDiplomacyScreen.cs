@@ -469,8 +469,8 @@ namespace Ship_Game
                 if(this.SelectedEmpire.data.Traits.ModHpModifier != 0)
 				    this.DrawStat(Localizer.Token(4023), this.SelectedEmpire.data.Traits.ModHpModifier, ref TextCursor);
                 //Added by McShooterz: new races stats to display in diplomacy
-                if(this.SelectedEmpire.data.Traits.RepairRateMod != 0)
-                    this.DrawStat(Localizer.Token(6012), this.SelectedEmpire.data.Traits.RepairRateMod, ref TextCursor);
+                if(this.SelectedEmpire.data.Traits.RepairMod != 0)
+                    this.DrawStat(Localizer.Token(6012), this.SelectedEmpire.data.Traits.RepairMod, ref TextCursor);
                 if(this.SelectedEmpire.data.PowerFlowMod != 0)
                     this.DrawStat(Localizer.Token(6014), this.SelectedEmpire.data.PowerFlowMod, ref TextCursor);
 

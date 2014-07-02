@@ -3245,7 +3245,7 @@ namespace Ship_Game.Gameplay
                         }
                         //Added by McShooterz: use racial trait for repair rate bonus
                         if ((double)moduleSlot.module.BonusRepairRate > 0.0 && (double)moduleSlot.module.PowerDraw != 0.0 && moduleSlot.module.Powered)
-                            this.RepairRate += (moduleSlot.module.BonusRepairRate + moduleSlot.module.BonusRepairRate * this.loyalty.data.Traits.RepairRateMod);
+                            this.RepairRate += (moduleSlot.module.BonusRepairRate + moduleSlot.module.BonusRepairRate * this.loyalty.data.Traits.RepairMod);
                         this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                     }//);
                     this.RepairRate += (float)((double)this.RepairRate * (double)this.Level * 0.0500000007450581);

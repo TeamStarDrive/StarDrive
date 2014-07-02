@@ -703,7 +703,7 @@ namespace Ship_Game
             empireData.Traits.PassengerModifier = data.Traits.PassengerModifier;
             empireData.Traits.ProductionMod = data.Traits.ProductionMod;
             empireData.Traits.R = 128f;
-            empireData.Traits.RepairRateMod = data.Traits.RepairRateMod;
+            empireData.Traits.RepairMod = data.Traits.RepairMod;
             empireData.Traits.ReproductionMod = data.Traits.ReproductionMod;
             empireData.Traits.PopGrowthMax = data.Traits.PopGrowthMax;
             empireData.Traits.PopGrowthMin = data.Traits.PopGrowthMin;
