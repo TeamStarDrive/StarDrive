@@ -7055,8 +7055,10 @@ namespace Ship_Game.Gameplay
                 this.OrderTransportPassengers();
                 return;
             }
-            //try
+#if !DEBUG
+            try
             {
+#endif
                 if (this.OrderQueue.Count == 0)
                 {
                     if (this.Owner.fleet == null)
@@ -7250,14 +7252,19 @@ namespace Ship_Game.Gameplay
                 }
                 else if (this.OrderQueue.Count > 0)
                 {
+#if DEBUG
                     try
+#endif
                     {
                         toEvaluate = this.OrderQueue.First<ArtificialIntelligence.ShipGoal>();
                     }
+#if DEBUG                    
                     catch
+
                     {
                         return;
                     }
+#endif
                     Planet target = toEvaluate.TargetPlanet;
                     switch (toEvaluate.Plan)
                     {
@@ -7585,10 +7592,14 @@ namespace Ship_Game.Gameplay
                     }
                 }
                 goto Label0;
-            }
-            //catch
+#if !DEBUG   
+        }
+            
+            catch
+
             {
             }
+            #endif
             return;
         Label0:
             AIState aIState = this.State;
