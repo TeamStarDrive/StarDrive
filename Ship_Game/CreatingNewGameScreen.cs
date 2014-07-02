@@ -68,56 +68,7 @@ namespace Ship_Game
 
         public CreatingNewGameScreen(Empire empire, string size, float StarNumModifier, string EmpireToRemoveName, int numOpponents, RaceDesignScreen.GameMode gamemode, int GameScale, UniverseData.GameDifficulty difficulty, MainMenuScreen mmscreen)
         {
-            //GlobalStats.RemnantArmageddon = false;
-            //GlobalStats.RemnantKills = 0;
-            //this.mmscreen = mmscreen;
-            //foreach (KeyValuePair<string, Artifact> keyValuePair in ResourceManager.ArtifactsDict)
-            //    keyValuePair.Value.Discovered = false;
-            //RandomEventManager.ActiveEvent = (RandomEvent)null;
-            //this.difficulty = difficulty;
-            //this.scale = (float)GameScale;
-            //this.mode = gamemode;
-            //this.numOpponents = numOpponents;
-            //this.EmpireToRemoveName = EmpireToRemoveName;
-            //EmpireManager.EmpireList.Clear();
-            //this.dtraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo("Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
-            //ResourceManager.LoadEncounters();
-            //this.playerEmpire = empire;
-            //empire.Initialize();
-            //empire.data.CurrentAutoColony = empire.data.DefaultColonyShip;
-            //empire.data.CurrentAutoFreighter = empire.data.DefaultSmallTransport;
-            //empire.data.CurrentAutoScout = empire.data.StartingScout;
-            //this.data = new UniverseData();
-            //this.data.FTLSpeedModifier = GlobalStats.FTLInSystemModifier;
-            //this.data.GravityWells = GlobalStats.PlanetaryGravityWells;
-            //switch (size)
-            //{
-            //    case "Tiny":
-            //        this.numSystems = (int)(16.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(3500000f, 3500000f);
-            //        break;
-            //    case "Small":
-            //        this.numSystems = (int)(30.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(7300000f, 7300000f);
-            //        break;
-            //    case "Medium":
-            //        this.numSystems = (int)(50.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(9350000f, 9350000f);
-            //        break;
-            //    case "Large":
-            //        this.numSystems = (int)(75.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
-            //        break;
-            //    case "Epic":
-            //        this.numSystems = (int)(100.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
-            //        break;
-            //}
-            //this.data.Size *= this.scale;
-            //this.data.EmpireList.Add(empire);
-            //EmpireManager.EmpireList.Add(empire);
-            //this.GalacticCenter = new Vector2(this.data.Size.X / 2f, this.data.Size.Y / 2f);
-            //StatTracker.SnapshotsDict.Clear();
+            
             {
                 GlobalStats.RemnantArmageddon = false;
                 GlobalStats.RemnantKills = 0;
@@ -367,6 +318,7 @@ namespace Ship_Game
                             this.data.SolarSystemsList.Add(solarSystem);
                             if (Owner == this.playerEmpire)
                                 this.PlayerSystem = solarSystem;
+
                         }
                     }
                     MarkovNameGenerator markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
@@ -477,6 +429,7 @@ namespace Ship_Game
                         {
                             foreach (Planet planet1 in index.GetPlanets())
                             {
+                                planet1.MineralRichness += GlobalStats.StartingPlanetRichness;
                                 planet1.system.ExploredDict[index] = true;
                                 planet1.ExploredDict[index] = true;
                                 foreach (Planet planet2 in planet1.system.PlanetList)
