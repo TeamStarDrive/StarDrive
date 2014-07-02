@@ -7357,7 +7357,11 @@ namespace Ship_Game.Gameplay
                         foreach (MilitaryTask mt in this.TaskList)
                         //Parallel.ForEach(this.TaskList, (mt,state) =>
                         {
-                            if (mt.type != MilitaryTask.TaskType.DefendClaim && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies || (g.GetMarkedPlanet() != null && !(mt.TargetPlanetGuid == g.GetMarkedPlanet().guid)))
+                            if ((mt.type != MilitaryTask.TaskType.DefendClaim 
+                                && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies )
+                                || g.GetMarkedPlanet() != null 
+                                && !(mt.TargetPlanetGuid == g.GetMarkedPlanet().guid))
+                                
                             {
                                 continue;
                             }
@@ -7369,6 +7373,8 @@ namespace Ship_Game.Gameplay
                     {
                         continue;
                     }
+                    if (g.GetMarkedPlanet() == null)
+                        continue;
                     MilitaryTask task = new MilitaryTask()
                     {
                         AO = g.GetMarkedPlanet().Position
