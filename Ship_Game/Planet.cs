@@ -2235,8 +2235,8 @@ namespace Ship_Game
                     index.data.Traits.PassengerModifier = this.Owner.data.Traits.PassengerModifier;
                 if ((double)index.data.Traits.ProductionMod < (double)this.Owner.data.Traits.ProductionMod)
                     index.data.Traits.ProductionMod = this.Owner.data.Traits.ProductionMod;
-                if ((double)index.data.Traits.RepairRateMod < (double)this.Owner.data.Traits.RepairRateMod)
-                    index.data.Traits.RepairRateMod = this.Owner.data.Traits.RepairRateMod;
+                if ((double)index.data.Traits.RepairMod < (double)this.Owner.data.Traits.RepairMod)
+                    index.data.Traits.RepairMod = this.Owner.data.Traits.RepairMod;
                 if ((double)index.data.Traits.ResearchMod < (double)this.Owner.data.Traits.ResearchMod)
                     index.data.Traits.ResearchMod = this.Owner.data.Traits.ResearchMod;
                 if ((double)index.data.Traits.ShipCostMod > (double)this.Owner.data.Traits.ShipCostMod)

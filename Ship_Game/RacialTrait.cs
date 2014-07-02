@@ -110,7 +110,7 @@ namespace Ship_Game
 
 		public float GroundCombatModifier;
 
-		public float RepairRateMod;
+		public float RepairMod;
 
 		public int Cybernetic;
 

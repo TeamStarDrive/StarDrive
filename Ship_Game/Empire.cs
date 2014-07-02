@@ -656,7 +656,7 @@ namespace Ship_Game
                 if (str == "Tax Bonus")
                     this.data.Traits.TaxMod += unlockedBonus.Bonus;
                 if(str == "Repair Bonus")
-                    this.data.Traits.RepairRateMod += unlockedBonus.Bonus;
+                    this.data.Traits.RepairMod += unlockedBonus.Bonus;
                 if(str == "Maintenance Bonus")
                     this.data.Traits.MaintMod -= unlockedBonus.Bonus;
                 if(str == "Power Flow Bonus")
