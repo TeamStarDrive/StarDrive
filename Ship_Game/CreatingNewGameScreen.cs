@@ -305,7 +305,12 @@ namespace Ship_Game
                         if (!Owner.isFaction)
                         {
                             SolarSystem solarSystem = new SolarSystem();
-                            if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
+                            //Added by McShooterz: support for SolarSystems folder for mods
+                            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")))
+                            {
+                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
+                            }
+                            else if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
                             {
                                 solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
