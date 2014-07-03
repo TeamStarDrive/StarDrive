@@ -26,7 +26,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>D:\Program Files\steam\steamapps\common\StarDrive\</OutputPath>
+    <OutputPath>L:\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
     <Optimize>true</Optimize>
@@ -109,6 +109,7 @@
       <HintPath>..\StarDrive\StarDriveReferences\SynapseGaming-SunBurn-Pro.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -184,6 +185,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\ShipUpkeep.cs" />
     <Compile Include="Ship_Game\TestScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>

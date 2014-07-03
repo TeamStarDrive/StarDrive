@@ -7235,6 +7235,35 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6007</Index>
       <Text>Pause On Notifications</Text>
     </Token>
+	<Token>
+      <Index>6008</Index>
+      <Text>Boarding</Text>
+    </Token>
+	<Token>
+      <Index>6009</Index>
+      <Text>Station</Text>
+    </Token>
+	<Token>
+      <Index>6010</Index>
+      <Text>Corvette</Text>
+    </Token>
+	<Token>
+      <Index>6011</Index>
+      <Text>Warp Power Draw</Text>
+    </Token>
+	<Token>
+      <Index>6012</Index>
+      <Text>Repair Rate Modifier</Text>
+    </Token>
+	<Token>
+      <Index>6013</Index>
+      <Text>Repair Rate</Text>
+    </Token>
+	<Token>
+      <Index>6014</Index>
+      <Text>Reactor Power Modifier</Text>
+    </Token>
+	
 	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -7254,6 +7283,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>7004</Index>
       <Text>Pauses game on notifications. Clearing notifications unpauses the game.</Text>
+    </Token>
+	<Token>
+      <Index>7005</Index>
+      <Text>Order ship back to the shipyards to be scrapped.</Text>
+    </Token>
+	<Token>
+      <Index>7006</Index>
+      <Text>Order ship refit.</Text>
+    </Token>
+	<Token>
+      <Index>7007</Index>
+      <Text>Hull Bonus: </Text>
+    </Token>
+	<Token>
+      <Index>7008</Index>
+      <Text>Armor</Text>
     </Token>
   </TokenList>
   
