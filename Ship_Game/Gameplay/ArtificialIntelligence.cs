@@ -1237,7 +1237,7 @@ namespace Ship_Game.Gameplay
                 if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f  )
 				{
                     int i = 0;
-                    foreach(ShipModule hangar in this.Owner.GetHangars().Where(hangar=> hangar.hangarTimer<=0))
+                    foreach(ShipModule hangar in this.Owner.GetHangars().Where(hangar=> hangar.hangarTimer<=0 && hangar.IsTroopBay))
                     //for (int i = 0; i < this.Owner.TroopList.Count; i++)
 					{
                         Troop troop = this.Owner.TroopList[i];
