@@ -19,6 +19,7 @@ namespace Ship_Game
         //added by McShooterz
         public bool useRacialTech;
         public bool useAlternateTech;
+        public bool useHullBonuses;
 
 
 		public ModInformation()
