@@ -284,6 +284,19 @@ namespace Ship_Game
 				case AIState.AttackRunner:
 				case AIState.PatrolSystem:
 				case AIState.Flee:
+                
+                {
+                    if (ship.GetAI().OrbitTarget == null)
+                    {
+                        text = Localizer.Token(182);
+                        break;
+                    }
+                    else
+                    {
+                        text = string.Concat("Fleeing to", " ", ship.GetAI().OrbitTarget.Name);
+                        break;
+                    }
+                }
 				case AIState.PirateRaiderCarrier:
 				case AIState.AwaitingOffenseOrders:
 				case AIState.MineAsteroids:
