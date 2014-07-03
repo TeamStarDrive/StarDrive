@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShipUpkeep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <freighterUpkeep>0.2</freighterUpkeep>
+  <platformUpkeep>0.2</platformUpkeep>
+  <scoutUpkeep>0.1</scoutUpkeep>
+  <fighterUpKeep>0.2</fighterUpKeep>
+  <corvetteUpkeep>0.35</corvetteUpkeep>
+  <frigateUpkeep>1.0</frigateUpkeep>
+  <cruiserUpkeep>2.5</cruiserUpkeep>
+  <carrierUpkeep>4.0</carrierUpkeep>
+  <capitalUpkeep>6.0</capitalUpkeep>
+  <RacialUpkeepTables>
+   <UpkeepTable>
+	 <ShipTypes>
+	   <string>Human</string>
+	   <string>Draylok</string>
+	 </ShipTypes>
+	 <freighterUpkeep>0.2</freighterUpkeep>
+	 <platformUpkeep>0.2</platformUpkeep>
+	 <scoutUpkeep>0.2</scoutUpkeep>
+	 <fighterUpKeep>0.2</fighterUpKeep>
+	 <corvetteUpkeep>0.35</corvetteUpkeep>
+     <frigateUpkeep>1.0</frigateUpkeep>
+     <cruiserUpkeep>2.5</cruiserUpkeep>
+     <carrierUpkeep>4.0</carrierUpkeep>
+     <capitalUpkeep>6.0</capitalUpkeep>
+   </UpkeepTable>
+  </RacialUpkeepTables>
+</ShipUpkeep>
