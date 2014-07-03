@@ -207,7 +207,11 @@ namespace Ship_Game
 				Role = hull.Role,
 				ShipStyle = hull.ShipStyle,
 				ThrusterList = hull.ThrusterList,
-				ModuleSlotList = new List<ModuleSlotData>()
+				ModuleSlotList = new List<ModuleSlotData>(),
+                //Added by McShooterz: Copy hull bonus
+                ArmoredBonus = hull.ArmoredBonus,
+                SensorBonus = hull.SensorBonus,
+                SpeedBonus = hull.SpeedBonus
 			};
 			foreach (ModuleSlotData slot in hull.ModuleSlotList)
 			{
@@ -2518,7 +2522,16 @@ namespace Ship_Game
 			float AfterSpeed = AfterThrust / (Mass + 0.1f);
 			AfterSpeed = AfterSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier;
 			Turn = (float)MathHelper.ToDegrees(Turn);
-			Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
+            Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
+            //Added by McShooterz: Draw Hull Bonuses
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+            {
+                if (this.ActiveHull.ArmoredBonus != 0)
+                {
+                    this.DrawHullBonus(ref Cursor, Localizer.Token(7008), this.ActiveHull.ArmoredBonus);
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                }
+            }
 			this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)((int)Cost), 99);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(110), ":"), (int)PowerCapacity, 100);
@@ -2645,6 +2658,11 @@ namespace Ship_Game
 			}
 			this.DrawRequirement(ref Cursor, Localizer.Token(121), EmptySlots);
 		}
+
+        private void DrawHullBonus(ref Vector2 Cursor, string words, byte stat)
+        {
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(7007), stat.ToString(), "% ", words), Cursor, Color.Green);
+        }
 
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, string tip)
 		{

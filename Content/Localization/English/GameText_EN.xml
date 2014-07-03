@@ -7292,6 +7292,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7006</Index>
       <Text>Order ship refit.</Text>
     </Token>
+	<Token>
+      <Index>7007</Index>
+      <Text>Hull Bonus: </Text>
+    </Token>
+	<Token>
+      <Index>7008</Index>
+      <Text>Armor</Text>
+    </Token>
   </TokenList>
   
 </LocalizationFile>
