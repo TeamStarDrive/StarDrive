@@ -726,7 +726,7 @@ namespace Ship_Game
 								this.p.AssignTroopToTile(e.item as Troop);
 							}
 						}
-						this.OrbitSL.Entries.Clear();
+                        this.ResetNextFrame = true;
 					}
 				}
 			}
@@ -756,20 +756,8 @@ namespace Ship_Game
                             trooper.Launch();
                         }
                         launchtroop.Clear();
-                        for (int i = 0; i < this.OrbitSL.Entries.Count; i++)
-                        {
-                            ScrollList.Entry e = this.OrbitSL.Entries[i];
-                            if (e.item is Ship)
-                            {
-                                (e.item as Ship).GetAI().OrderLandAllTroops(this.p);
-                            }
-                            else if (e.item is Troop)
-                            {
-                                (e.item as Troop).GetShip().TroopList.Remove(e.item as Troop);
-                                this.p.AssignTroopToTile(e.item as Troop);
-                            }
-                        }
-                        this.OrbitSL.Entries.Clear();
+
+                        this.ResetNextFrame = true;
                     }
                 }
             }
@@ -1017,8 +1005,11 @@ namespace Ship_Game
 					}
 					else if (s.HasTroopBay)
 					{
-						foreach (Troop t in s.TroopList)
+						int readyhangers = s.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <=0).Count();
+                        foreach (Troop t in s.TroopList)
 						{
+                            if (readyhangers <= 0)
+                                break;
 							this.OrbitSL.AddItem(t);
 						}
 					}
