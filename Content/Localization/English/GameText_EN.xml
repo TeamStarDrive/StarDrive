@@ -7263,6 +7263,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6014</Index>
       <Text>Reactor Power Modifier</Text>
     </Token>
+	<Token>
+      <Index>6015</Index>
+      <Text>Hull Bonus: </Text>
+    </Token>
+	<Token>
+      <Index>6016</Index>
+      <Text>Armor Protection</Text>
+    </Token>
+	<Token>
+      <Index>6017</Index>
+      <Text>Sensor Range</Text>
+    </Token>
+	<Token>
+      <Index>6018</Index>
+      <Text>Max Speed</Text>
+    </Token>
+	<Token>
+      <Index>6019</Index>
+      <Text>Cargo Space</Text>
+    </Token>
 	
 	
 	
@@ -7294,12 +7314,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>7007</Index>
-      <Text>Hull Bonus: </Text>
+      <Text>Ship sensor range</Text>
     </Token>
-	<Token>
-      <Index>7008</Index>
-      <Text>Armor</Text>
-    </Token>
+	
   </TokenList>
-  
 </LocalizationFile>

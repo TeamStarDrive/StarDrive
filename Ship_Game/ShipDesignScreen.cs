@@ -211,7 +211,9 @@ namespace Ship_Game
                 //Added by McShooterz: Copy hull bonus
                 ArmoredBonus = hull.ArmoredBonus,
                 SensorBonus = hull.SensorBonus,
-                SpeedBonus = hull.SpeedBonus
+                SpeedBonus = hull.SpeedBonus,
+                StartingCost = hull.StartingCost,
+                CargoBonus = hull.CargoBonus
 			};
 			foreach (ModuleSlotData slot in hull.ModuleSlotList)
 			{
@@ -2458,6 +2460,7 @@ namespace Ship_Game
 			float FTLCount = 0f;
 			float FTLSpeed = 0f;
             float RepairRate = 0f;
+            float sensorRange = 0f;
 			foreach (SlotStruct slot in this.Slots)
 			{
 				Size = Size + 1f;
@@ -2498,6 +2501,10 @@ namespace Ship_Game
 					TurnThrust = TurnThrust + (float)slot.module.TurnThrust;
 					AfterThrust = AfterThrust + slot.module.AfterburnerThrust;
                     RepairRate += (slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod);
+                    if (slot.module.SensorRange > sensorRange)
+                    {
+                        sensorRange = slot.module.SensorRange;
+                    }
 				}
 				Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
 				CargoSpace = CargoSpace + slot.module.Cargo_Capacity;
@@ -2510,7 +2517,8 @@ namespace Ship_Game
 			}
 			float Speed = 0f;
 			float WarpSpeed = WarpThrust / (Mass + 0.1f);
-			WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier;
+            //Added by McShooterz: hull bonus speed
+            WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.ActiveHull.SpeedBonus / 100f) : 1);
 			float single = WarpSpeed / 1000f;
 			string WarpString = string.Concat(single.ToString("#.0"), "k");
 			float Turn = 0f;
@@ -2528,11 +2536,27 @@ namespace Ship_Game
             {
                 if (this.ActiveHull.ArmoredBonus != 0)
                 {
-                    this.DrawHullBonus(ref Cursor, Localizer.Token(7008), this.ActiveHull.ArmoredBonus);
+                    this.DrawHullBonus(ref Cursor, Localizer.Token(6016), this.ActiveHull.ArmoredBonus);
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                }
+                if (this.ActiveHull.SensorBonus != 0)
+                {
+                    this.DrawHullBonus(ref Cursor, Localizer.Token(6017), this.ActiveHull.SensorBonus);
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                }
+                if (this.ActiveHull.SpeedBonus != 0)
+                {
+                    this.DrawHullBonus(ref Cursor, Localizer.Token(6018), this.ActiveHull.SpeedBonus);
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                }
+                if (this.ActiveHull.CargoBonus != 0)
+                {
+                    this.DrawHullBonus(ref Cursor, Localizer.Token(6019), this.ActiveHull.CargoBonus);
                     Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
             }
-			this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)((int)Cost), 99);
+            //Added by McShooterz: hull bonus starting cost
+            this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)((int)Cost + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? this.ActiveHull.StartingCost : 0)), 99);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(110), ":"), (int)PowerCapacity, 100);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
@@ -2560,7 +2584,8 @@ namespace Ship_Game
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			if (GlobalStats.HardcoreRuleset)
+            #region HardcoreRule info
+            if (GlobalStats.HardcoreRuleset)
 			{
 				string massstring = "";
 				if (Mass >= 1000f && Mass < 10000f || Mass <= -1000f && Mass > -10000f)
@@ -2611,8 +2636,9 @@ namespace Ship_Game
 					this.DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), (int)speed, 135);
 					Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
-			}
-			else if (WarpSpeed <= 0f)
+            }
+            #endregion
+            else if (WarpSpeed <= 0f)
 			{
 				this.DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), 0, 135);
 				Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
@@ -2622,7 +2648,7 @@ namespace Ship_Game
 				this.DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), WarpString, 135);
 				Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			}
-			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier), 105);
+            this.DrawStat(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.ActiveHull.SpeedBonus / 100f) : 1)), 105);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             //added by McShooterz: afterburn speed
             if (AfterSpeed != 0)
@@ -2634,8 +2660,13 @@ namespace Ship_Game
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(118), ":"), (int)OrdnanceCap, 108);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(119), ":"), (int)CargoSpace, 109);
+			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(119), ":"), (int)(CargoSpace * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.ActiveHull.CargoBonus / 100f) : 1)), 109);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            if (sensorRange != 0)
+            {
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6000), ":"), (int)(sensorRange * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.ActiveHull.SensorBonus / 100f) : 1)), 159);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			bool hasBridge = false;
 			bool EmptySlots = true;
@@ -2661,7 +2692,7 @@ namespace Ship_Game
 
         private void DrawHullBonus(ref Vector2 Cursor, string words, byte stat)
         {
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(7007), stat.ToString(), "% ", words), Cursor, Color.Green);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(6015), stat.ToString(), "% ", words), Cursor, Color.Green);
         }
 
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, string tip)

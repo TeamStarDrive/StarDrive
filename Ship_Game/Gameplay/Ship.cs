@@ -490,7 +490,7 @@ namespace Ship_Game.Gameplay
         public float GetAfterBurnerSpeed()
         {
             double num = (double)this.loyalty.data.AfterBurnerSpeedModifier;
-            return (float)((double)this.AfterThrust / (double)this.Mass + (double)this.AfterThrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier);
+            return (float)((double)this.AfterThrust / (double)this.Mass + (double)this.AfterThrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
         }
 
         public float GetFTLSpeedORIG()
@@ -505,7 +505,8 @@ namespace Ship_Game.Gameplay
         //added by gremlin The Generals GetFTL speed
         public float GetFTLSpeed()
         {
-            float v1 = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier;
+            //Added by McShooterz: hull bonus speed
+            float v1 = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
             float v2;
             if (this.FTLCount <= 0 || base.Mass > this.WarpMassCapacity)
             {
@@ -513,7 +514,8 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                v2 = (float)(this.FTLSpeed * (1.0 + this.loyalty.data.FTLBonus) / this.FTLCount);
+                //Added by McShooterz: hull bonus speed
+                v2 = (float)(this.FTLSpeed * (1.0 + this.loyalty.data.FTLBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1) / this.FTLCount);
             }
             if (v1 >= v2)
             {
@@ -527,7 +529,8 @@ namespace Ship_Game.Gameplay
 
         public float GetSTLSpeed()
         {
-            return (float)((double)this.Thrust / (double)this.Mass + (double)this.Thrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier);
+            //Added by McShooterz: hull bonus speed
+            return (float)((double)this.Thrust / (double)this.Mass + (double)this.Thrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
         }
 
         public Dictionary<Vector2, ModuleSlot> GetMD()
@@ -566,7 +569,8 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                 num += moduleSlot.module.Cost * UniverseScreen.GamePaceStatic;
             if (e != null)
-                return (float)(int)((double)num + (double)num * (double)e.data.Traits.ShipCostMod);
+                //Added by McShooterz: hull bonus starting cost
+                return (float)(int)((double)num + (double)num * (double)e.data.Traits.ShipCostMod) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? this.GetShipData().StartingCost : 0);
             else
                 return (float)(int)num;
         }
@@ -2246,6 +2250,8 @@ namespace Ship_Game.Gameplay
             this.speed = this.velocityMaximum;
             this.rotationRadiansPerSecond = this.speed / 700f;
             this.ShipMass = this.mass;
+            //Added by McShooterz: hull bonus cargo space
+            this.CargoSpace_Max *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().CargoBonus / 100f) : 1);
         }
 
         public static Ship LoadSavedShip(ShipData data)
@@ -3384,7 +3390,9 @@ namespace Ship_Game.Gameplay
                     Ship ship4 = this;
                     double num4 = (double)ship4.Mass * (double)this.loyalty.data.MassModifier;
                     ship4.Mass = (float)num4;
-                    this.SensorRange *= this.loyalty.data.SensorModifier;
+                    //Added by McShooterz: hull bonus cargo space and sensor range
+                    this.CargoSpace_Max *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().CargoBonus / 100f) : 1);
+                    this.SensorRange *= this.loyalty.data.SensorModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SensorBonus / 100f) : 1);
                 }
                 List<Troop> list1 = new List<Troop>();
                 List<Troop> list2 = new List<Troop>();
