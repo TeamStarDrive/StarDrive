@@ -283,6 +283,11 @@ namespace Ship_Game.Gameplay
 			{
 				damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
+            //Added by McShooterz: ArmorBonus Hull Bonus
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.Parent.GetShipData().ArmoredBonus != 0 && this.Parent.GetShipData().ArmoredBonus < 100)
+            {
+                damageAmount *= ((float)(100 - this.Parent.GetShipData().ArmoredBonus)) / 100f;
+            }
 			this.Parent.InCombatTimer = 15f;
 			this.Parent.UnderAttackTimer = 5f;
 			if (this.ModuleType == ShipModuleType.Dummy)
