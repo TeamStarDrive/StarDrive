@@ -97,6 +97,9 @@ namespace Ship_Game
 
 		public static List<KeyValuePair<string, Texture2D>> FlagTextures;
 
+        //Added by McShooterz
+        public static ShipUpkeep ShipUpkeep;
+
 		static ResourceManager()
 		{
 			Ship_Game.ResourceManager.TextureDict = new Dictionary<string, Texture2D>();
@@ -138,6 +141,8 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.EconSerializer = new XmlSerializer(typeof(EconomicResearchStrategy));
 			Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>();
 			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
+            //Added by McShooterz
+            Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
 		}
 
 		public ResourceManager()
@@ -1141,7 +1146,8 @@ namespace Ship_Game
 
 		public static RacialTraits GetRaceTraits()
 		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/RacialTraits");
+            //Added by McShooterz: mod folder support for RacialTraits folder
+            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RacialTraits")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RacialTraits") : "Content/RacialTraits");
 			XmlSerializer serializer1 = new XmlSerializer(typeof(RacialTraits));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
@@ -1663,6 +1669,8 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadArtifacts();
 			Ship_Game.ResourceManager.LoadLanguage();
 			Ship_Game.ResourceManager.LoadShips();
+            Ship_Game.ResourceManager.LoadRandomItems();
+            Ship_Game.ResourceManager.LoadProjTexts();
 			if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
 			{
 				Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);
@@ -1671,6 +1679,8 @@ namespace Ship_Game
 			{
 				Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video"), "Content/ModVideo", true);
 			}
+            //Added by McShooterz
+            Ship_Game.ResourceManager.LoadShipUpkeep();
 		}
 
 		private static void LoadNebulas()
@@ -1724,11 +1734,28 @@ namespace Ship_Game
 			projMesh = drone.Meshes[0];
 			Ship_Game.ResourceManager.ProjectileMeshDict["spacemine"] = projMesh;
 			Ship_Game.ResourceManager.ProjectileModelDict["spacemine"] = missile;
+             
+            /* Added by McShooterz: failed attempt at loading projectile models
+            FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles"));
+            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            {
+                string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
+                if (name != "blank")
+                {
+                    Model projModel = Game1.Instance.Content.Load<Model>(string.Concat("Model/Projectiles/", name));
+                    ModelMesh projMesh = projModel.Meshes[0];
+                    Ship_Game.ResourceManager.ProjectileMeshDict[name] = projMesh;
+                    Ship_Game.ResourceManager.ProjectileModelDict[name] = projModel;
+                }
+            }
+            */
+
 		}
 
 		private static void LoadProjTexts()
 		{
-			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/Model/Projectiles/textures");
+            //Added by McShooterz: mod folder support /Model/Projectiles/textures
+			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/textures"));
 			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
 			{
 				string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
@@ -1743,7 +1770,8 @@ namespace Ship_Game
 		private static void LoadRandomItems()
 		{
 			Ship_Game.ResourceManager.RandomItemsList.Clear();
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RandomStuff"));
+            //Added by McShooterz: mod folder support RandomStuff
+			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RandomStuff")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RandomStuff") : "Content/RandomStuff");
 			XmlSerializer serializer1 = new XmlSerializer(typeof(RandomItem));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
@@ -2183,6 +2211,19 @@ namespace Ship_Game
 			}
 			textList = null;
 		}
+
+        //Added by McShooterz: load the ShipUpkeep.xml
+        private static void LoadShipUpkeep()
+        {
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")))
+            {
+                Ship_Game.ResourceManager.ShipUpkeep = (ShipUpkeep)new XmlSerializer(typeof(ShipUpkeep)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")).OpenRead());
+            }
+            else
+            {
+                return;
+            }
+        }
 
 		public static void Reset()
 		{
