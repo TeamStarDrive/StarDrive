@@ -270,17 +270,18 @@ namespace Ship_Game.Gameplay
 			this.Parent.InCombatTimer = 15f;
 			this.damagedLastTimer = -5f;
 			this.Parent.ShieldRechargeTimer = 0f;
+            //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
 			if (source is Projectile)
 			{
 				this.Parent.LastDamagedBy = source;
 				if (this.Parent.Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
 				{
-					damageAmount = damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
+					damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 				}
 			}
 			if (source is Ship && (source as Ship).Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
 			{
-				damageAmount = damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
+				damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
 			this.Parent.InCombatTimer = 15f;
 			this.Parent.UnderAttackTimer = 5f;
