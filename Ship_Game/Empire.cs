@@ -1975,7 +1975,7 @@ namespace Ship_Game
             List<Ship> list1 = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if (ship.Role == "freighter" && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
+                if (ship.GetAI().State!=AIState.Flee && ship.Role == "freighter" && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
                 {
                     if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
                         ++num1;
