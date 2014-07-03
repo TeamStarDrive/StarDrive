@@ -132,7 +132,7 @@ namespace Ship_Game
 				}
 				if (s.Role != "troop")
 				{
-					if (!s.HasTroopBay)
+					if (!s.HasTroopBay || s.TroopList.Count <=0)
 					{
 						continue;
 					}
@@ -146,7 +146,7 @@ namespace Ship_Game
                             if (troop.GetOwner() == s.loyalty)
                             {
                                 this.OrbitSL.AddItem(troop);
-                                hangar.hangarTimer = hangar.hangarTimerConstant;
+                                //hangar.hangarTimer = hangar.hangarTimerConstant;
                                 i++;
                             }
                             else
@@ -726,8 +726,9 @@ namespace Ship_Game
 								this.p.AssignTroopToTile(e.item as Troop);
 							}
 						}
-                        this.ResetNextFrame = true;
+                        this.OrbitSL.Entries.Clear();
 					}
+                    
 				}
 			}
             if (p.TroopsHere.Where(mytroops => mytroops.GetOwner() == universeScreen.player).Count() > 0)
@@ -756,8 +757,9 @@ namespace Ship_Game
                             trooper.Launch();
                         }
                         launchtroop.Clear();
-
                         this.ResetNextFrame = true;
+
+                       
                     }
                 }
             }
