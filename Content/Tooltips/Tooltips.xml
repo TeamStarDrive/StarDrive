@@ -784,5 +784,15 @@
       <Title>Beam Duration</Title>
       <Data>7003</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>157</TIP_ID>
+      <Title>Scrap Ship</Title>
+      <Data>7005</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>158</TIP_ID>
+      <Title>Refit Ship</Title>
+      <Data>7006</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
