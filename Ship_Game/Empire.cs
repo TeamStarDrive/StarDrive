@@ -384,11 +384,10 @@ namespace Ship_Game
                 techEntry.Progress = 0.0f;
                 techEntry.UID = keyValuePair.Key;
 
-                //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
+                //Racial Tech check
                 if (GlobalStats.ActiveMod != null &&GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
                 {
                     techEntry.Discovered = false;
-                    techEntry.GetTech().Secret = true;
                     foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceRestrictions)
                     {
                         if (raceTech.ShipType == this.data.Traits.ShipType)
@@ -411,7 +410,7 @@ namespace Ship_Game
                 if (this.data.Traits.Militaristic == 1)
                 {
                     //added by McShooterz: alternate way to unlock militaristic techs
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useAlternateTech && techEntry.GetTech().Militaristic)
+                    if(techEntry.GetTech().Militaristic)
                         techEntry.Unlocked = true;
 
                     if (techEntry.UID == "HeavyFighterHull")
@@ -465,15 +464,7 @@ namespace Ship_Game
             this.UpdateShipsWeCanBuild();
             if (this.data.EconomicPersonality == null)
                 return;
-            //Added by McShooterz: mod support for EconomicResearchStrategy folder
-            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/EconomicResearchStrategy/" , this.data.EconomicPersonality.Name , ".xml")))
-            {
-                this.economicResearchStrategy = (EconomicResearchStrategy)ResourceManager.EconSerializer.Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/EconomicResearchStrategy/", this.data.EconomicPersonality.Name, ".xml")).OpenRead());
-            }
-            else
-            {
-                this.economicResearchStrategy = (EconomicResearchStrategy)ResourceManager.EconSerializer.Deserialize((Stream)new FileInfo("Content/EconomicResearchStrategy/" + this.data.EconomicPersonality.Name + ".xml").OpenRead());
-            }
+            this.economicResearchStrategy = (EconomicResearchStrategy)ResourceManager.EconSerializer.Deserialize((Stream)new FileInfo("Content/EconomicResearchStrategy/" + this.data.EconomicPersonality.Name + ".xml").OpenRead());
         }
 
         public EconomicResearchStrategy getResStrat()
@@ -656,11 +647,7 @@ namespace Ship_Game
                 if (str == "Tax Bonus")
                     this.data.Traits.TaxMod += unlockedBonus.Bonus;
                 if(str == "Repair Bonus")
-                    this.data.Traits.RepairMod += unlockedBonus.Bonus;
-                if(str == "Maintenance Bonus")
-                    this.data.Traits.MaintMod -= unlockedBonus.Bonus;
-                if(str == "Power Flow Bonus")
-                    this.data.PowerFlowMod += unlockedBonus.Bonus;
+                    this.data.Traits.RepairRateMod += unlockedBonus.Bonus;
             }
             this.UpdateShipsWeCanBuild();
             if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
@@ -1186,8 +1173,15 @@ namespace Ship_Game
             this.totalBuildingMaintenance = 0.0f;
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
-                this.totalShipMaintenance += ship.GetMaintCost();
+                if (this.data.Privatization)
+                {
+                    if (ship.Role == "freighter" || ship.Role == "platform" || ship.Role == "station")
+                        this.totalShipMaintenance += ship.GetMaintCost() / 2f;
+                    else
+                        this.totalShipMaintenance += ship.GetMaintCost();
+                }
+                else
+                    this.totalShipMaintenance += ship.GetMaintCost();
             }
             foreach (Planet planet in this.OwnedPlanets)
             {
@@ -1438,8 +1432,8 @@ namespace Ship_Game
             foreach (Planet planet in this.OwnedPlanets)
             {   //loop over OWN planets
                 Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
-                influenceNode1.KeyedObject = (object)planet.system;
-                influenceNode1.Position = planet.system.Position;
+                influenceNode1.KeyedObject = (object)planet;
+                influenceNode1.Position = planet.Position;
                 influenceNode1.Radius = this.isFaction ? 1f : 1f;
                 for (int index = 0; index < planet.BuildingList.Count; ++index)
                 {
@@ -1975,7 +1969,7 @@ namespace Ship_Game
             List<Ship> list1 = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if (ship.GetAI().State!=AIState.Flee && ship.Role == "freighter" && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
+                if (ship.Role == "freighter" && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
                 {
                     if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
                         ++num1;
