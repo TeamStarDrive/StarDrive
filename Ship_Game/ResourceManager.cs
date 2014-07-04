@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 using SgMotion;
 using SgMotion.Controllers;
 using Ship_Game.Gameplay;
@@ -97,6 +98,8 @@ namespace Ship_Game
 
 		public static List<KeyValuePair<string, Texture2D>> FlagTextures;
 
+        public static Dictionary<string, SoundEffect> SoundEffectDict;
+
         //Added by McShooterz
         public static ShipUpkeep ShipUpkeep;
 
@@ -143,6 +146,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
             //Added by McShooterz
             Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
+            Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
 		}
 
 		public ResourceManager()
@@ -1681,6 +1685,7 @@ namespace Ship_Game
 			}
             //Added by McShooterz
             Ship_Game.ResourceManager.LoadShipUpkeep();
+            Ship_Game.ResourceManager.LoadSoundEffects();
 		}
 
 		private static void LoadNebulas()
@@ -2222,6 +2227,25 @@ namespace Ship_Game
             else
             {
                 return;
+            }
+        }
+
+        //Added by McShooterz: load sound effects
+        private static void LoadSoundEffects()
+        {
+            FileInfo[] fileInfoArray1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SoundEffects"));
+            for (int j = 0; j < (int)fileInfoArray1.Length; j++)
+            {
+                FileInfo FI = fileInfoArray1[j];
+                string name = Path.GetFileNameWithoutExtension(FI.Name);
+                if (name != "Thumbs")
+                {
+                    SoundEffect se = Game1.Instance.Content.Load<SoundEffect>(string.Concat("SoundEffects/", Path.GetFileNameWithoutExtension(FI.Name)));
+                    if (!Ship_Game.ResourceManager.SoundEffectDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
+                    {
+                        Ship_Game.ResourceManager.SoundEffectDict[string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name))] = se;
+                    }
+                }
             }
         }
 
