@@ -84,15 +84,10 @@ namespace Ship_Game
 					{
 						return Localizer.Token(147);
 					}
-                    //Added by McShooterz: add station and corvette to localization
 					case "station":
 					{
-                        return Localizer.Token(6009);
+						return "Station";
 					}
-                    case "corvette":
-                    {
-                        return Localizer.Token(6010);
-                    }
 				}
 			}
 			return role;
