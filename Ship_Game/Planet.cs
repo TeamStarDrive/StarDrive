@@ -5209,6 +5209,20 @@ namespace Ship_Game
             planet1.DevelopmentStatus = str1;
         }
 
+        //added by gremlin: get a planets ground combat strength
+        public int GetGroundStrength(Empire empire)
+        {
+            int num = 0;
+            if (this.Owner == empire)
+                num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            return num;
+
+
+        }
+
+
+
         private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
         {
             return this.findPointFromAngleAndDistance(center, angle, radius);
