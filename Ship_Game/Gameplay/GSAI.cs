@@ -60,9 +60,9 @@ namespace Ship_Game.Gameplay
 
 		private GSAI.ResearchStrategy res_strat = GSAI.ResearchStrategy.Scripted;
         bool modSupport = bool.Parse( ConfigurationManager.AppSettings["ModSupport"]);
-        float minimumWarpRange = GlobalStats.MinimumWarpRange;
+        float minimumWarpRange = float.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
         //SizeLimiter
-        float SizeLimiter = GlobalStats.MemoryLimiter;
+        float SizeLimiter = float.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
 
 		public GSAI(Empire e)
 		{
@@ -7357,11 +7357,7 @@ namespace Ship_Game.Gameplay
                         foreach (MilitaryTask mt in this.TaskList)
                         //Parallel.ForEach(this.TaskList, (mt,state) =>
                         {
-                            if ((mt.type != MilitaryTask.TaskType.DefendClaim 
-                                && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies )
-                                || g.GetMarkedPlanet() != null 
-                                && !(mt.TargetPlanetGuid == g.GetMarkedPlanet().guid))
-                                
+                            if (mt.type != MilitaryTask.TaskType.DefendClaim && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies || (g.GetMarkedPlanet() != null && !(mt.TargetPlanetGuid == g.GetMarkedPlanet().guid)))
                             {
                                 continue;
                             }
@@ -7373,8 +7369,6 @@ namespace Ship_Game.Gameplay
                     {
                         continue;
                     }
-                    if (g.GetMarkedPlanet() == null)
-                        continue;
                     MilitaryTask task = new MilitaryTask()
                     {
                         AO = g.GetMarkedPlanet().Position
@@ -7602,10 +7596,14 @@ namespace Ship_Game.Gameplay
 								break;
 							}
 						}
-						if (this.empire.ResearchTopic == "ArmorTheory" && this.empire.GetTDict()[this.empire.ResearchTopic].Unlocked && !this.empire.GetTDict()["Point Defense"].Unlocked)
-						{
-							this.empire.ResearchTopic = "Point Defense";
-						}
+
+                        // This IF may be causing crashes if a modder ever puts Point Defense anywhere other than right at the very beginning of the tech tree.
+
+						//if (this.empire.ResearchTopic == "ArmorTheory" && this.empire.GetTDict()[this.empire.ResearchTopic].Unlocked && !this.empire.GetTDict()["Point Defense"].Unlocked)
+						//{
+						//	this.empire.ResearchTopic = "Point Defense";
+						//}
+
 						if (this.empire.getResStrat() == null || this.empire.ResearchTopic == "")
 						{
 							this.res_strat = GSAI.ResearchStrategy.Random;
