@@ -388,8 +388,7 @@ namespace Ship_Game
 					List<string> PotentialUIDs = new List<string>();
 					foreach (KeyValuePair<string, TechEntry> entry in Target.GetTDict())
 					{
-                        //Added by McShooterz: Racial tech cannot be stolen
-                        if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked || entry.Value.GetTech().RaceRestrictions.Count != 0)
+						if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked)
 						{
 							continue;
 						}
