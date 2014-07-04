@@ -3074,6 +3074,18 @@ namespace Ship_Game
             return num;
         }
 
+        //added by gremlin: get a planets ground combat strength
+        public int GetGroundStrength(Empire empire)
+        {
+            int num =0;
+            if(this.Owner == empire )
+                num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            return num;
+
+               
+        }
+
         public List<Building> GetBuildingsWeCanBuildHere()
         {
             if (this.Owner == null)

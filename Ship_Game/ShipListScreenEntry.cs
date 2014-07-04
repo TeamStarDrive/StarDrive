@@ -462,6 +462,23 @@ namespace Ship_Game
 						break;
 					}
 				}
+                case AIState.BombardTroops:
+                {
+                    if (ship.GetAI().OrderQueue.Count <= 0 || ship.GetAI().OrderQueue.First.Value.TargetPlanet == null)
+                    {
+                        break;
+                    }
+                    if (Vector2.Distance(ship.Center, ship.GetAI().OrderQueue.First.Value.TargetPlanet.Position) >= 2500f)
+                    {
+                        text = string.Concat("Soften", " ", ship.GetAI().OrderQueue.First.Value.TargetPlanet.Name);
+                        break;
+                    }
+                    else
+                    {
+                        text = string.Concat(Localizer.Token(175), " ", ship.GetAI().OrderQueue.First.Value.TargetPlanet.Name);
+                        break;
+                    }
+                }
 				case AIState.Boarding:
 				{
 					text = Localizer.Token(177);
