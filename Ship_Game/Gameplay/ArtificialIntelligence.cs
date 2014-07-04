@@ -3521,6 +3521,13 @@ namespace Ship_Game.Gameplay
         //added by gremlin to run away
         public void OrderFlee(bool ClearOrders)
         {
+            if (this.Owner.Mothership != null)
+            {
+                this.OrderReturnToHangar();
+
+                return;
+            }
+            
             lock (GlobalStats.WayPointLock)
             {
                 this.ActiveWayPoints.Clear();
