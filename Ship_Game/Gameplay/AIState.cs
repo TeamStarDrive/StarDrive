@@ -36,7 +36,6 @@ namespace Ship_Game.Gameplay
 		FormationWarp,
 		AssaultPlanet,
 		Exterminate,
-		Scuttle,
-        BombardTroops
+		Scuttle
 	}
 }

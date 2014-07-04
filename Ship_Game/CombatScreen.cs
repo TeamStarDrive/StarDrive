@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Ship_Game
 {
@@ -47,7 +46,6 @@ namespace Ship_Game
 		private TroopInfoUIElement hInfo;
 
 		private UIButton LandAll;
-        private UIButton LaunchAll;
 
 		private Rectangle GridRect;
 
@@ -100,7 +98,7 @@ namespace Ship_Game
 			this.hInfo = new TroopInfoUIElement(this.HoveredItemRect, this.ScreenManager, PlanetScreen.screen);
 			Rectangle ColonyGrid = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
 			this.CombatField = new Menu2(sm, ColonyGrid);
-			Rectangle OrbitalRect = new Rectangle(5, ColonyGrid.Y, (screenWidth - ColonyGrid.Width) / 2 - 20, ColonyGrid.Height+20);
+			Rectangle OrbitalRect = new Rectangle(5, ColonyGrid.Y, (screenWidth - ColonyGrid.Width) / 2 - 20, ColonyGrid.Height);
 			this.OrbitalResources = new Menu1(this.ScreenManager, OrbitalRect);
 			Rectangle psubRect = new Rectangle(this.AssetsRect.X + 225, this.AssetsRect.Y, 185, this.AssetsRect.Height);
 			this.orbitalResourcesSub = new Submenu(this.ScreenManager, psubRect);
@@ -115,15 +113,6 @@ namespace Ship_Game
 				Launches = "Land",
 				Text = "Land All"
 			};
-            this.LaunchAll = new UIButton()
-            {
-                Rect = new Rectangle(this.orbitalResourcesSub.Menu.X + 20, this.orbitalResourcesSub.Menu.Y +18, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-                Launches = "LaunchAll",
-                Text = "Launch All"
-            };
 			foreach (Ship s in CombatScreen.universeScreen.MasterShipList)
 			{
 				if (Vector2.Distance(p.Position, s.Center) >= 4000f || s.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
@@ -132,27 +121,14 @@ namespace Ship_Game
 				}
 				if (s.Role != "troop")
 				{
-					if (!s.HasTroopBay || s.TroopList.Count <=0)
+					if (!s.HasTroopBay)
 					{
 						continue;
 					}
-                    int i = 0;
-                    foreach (ShipModule hangar in s.GetHangars().Where(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0))
-                    {
-
-                        Troop troop = s.TroopList[i];
-                        if (troop != null)
-                        {
-                            if (troop.GetOwner() == s.loyalty)
-                            {
-                                this.OrbitSL.AddItem(troop);
-                                //hangar.hangarTimer = hangar.hangarTimerConstant;
-                                i++;
-                            }
-                            else
-                                i++;
-                        }
-                    }
+					foreach (Troop t in s.TroopList)
+					{
+						this.OrbitSL.AddItem(t);
+					}
 				}
 				else
 				{
@@ -371,12 +347,7 @@ namespace Ship_Game
 				if (this.OrbitSL.Entries.Count > 0)
 				{
 					this.LandAll.Draw(this.ScreenManager.SpriteBatch);
-                    
 				}
-                if (p.TroopsHere.Where(mytroops => mytroops.GetOwner() == universeScreen.player).Count() > 0)
-                {
-                    this.LaunchAll.Draw(this.ScreenManager.SpriteBatch);
-                }
 			}
 			foreach (PlanetGridSquare pgs in this.ReversedList)
 			{
@@ -726,43 +697,10 @@ namespace Ship_Game
 								this.p.AssignTroopToTile(e.item as Troop);
 							}
 						}
-                        this.OrbitSL.Entries.Clear();
+						this.OrbitSL.Entries.Clear();
 					}
-                    
 				}
 			}
-            if (p.TroopsHere.Where(mytroops => mytroops.GetOwner() == universeScreen.player).Count() > 0)
-            {
-                if (!HelperFunctions.CheckIntersection(this.LaunchAll.Rect, input.CursorPosition))
-                {
-                    this.LaunchAll.State = UIButton.PressState.Normal;
-                }
-                else
-                {
-                    this.LaunchAll.State = UIButton.PressState.Hover;
-                    if (input.InGameSelect)
-                    {
-                        AudioManager.PlayCue("sd_troop_land");
-                        List<Troop> launchtroop = new List<Troop>();
-                        foreach (Troop trooper in p.TroopsHere)
-                        {
-                            if (trooper.GetOwner() != universeScreen.player)
-                                continue;
-                            launchtroop.Add(trooper);
-                            
-                            
-                        }
-                        foreach (Troop trooper in launchtroop)
-                        {
-                            trooper.Launch();
-                        }
-                        launchtroop.Clear();
-                        this.ResetNextFrame = true;
-
-                       
-                    }
-                }
-            }
 			this.OrbitSL.HandleInput(input);
 			foreach (ScrollList.Entry e in this.OrbitSL.Copied)
 			{
@@ -990,7 +928,7 @@ namespace Ship_Game
 			this.hInfo.SetPGS(this.HoveredSquare);
 			this.previousMouse = this.currentMouse;
 		}
-        
+
 		private void ResetTroopList()
 		{
 			this.OrbitSL.Entries.Clear();
@@ -1007,11 +945,8 @@ namespace Ship_Game
 					}
 					else if (s.HasTroopBay)
 					{
-						int readyhangers = s.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <=0).Count();
-                        foreach (Troop t in s.TroopList)
+						foreach (Troop t in s.TroopList)
 						{
-                            if (readyhangers <= 0)
-                                break;
 							this.OrbitSL.AddItem(t);
 						}
 					}

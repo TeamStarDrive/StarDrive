@@ -785,8 +785,7 @@ namespace Ship_Game
 			newCurs.X = newCurs.X + 10f;
 			foreach (KeyValuePair<string, TechEntry> Technology in this.playerEmpire.GetTDict())
 			{
-                //added by McShooterz: Prevents racial tech from being traded
-				if (!Technology.Value.Unlocked || this.them.GetTDict()[Technology.Key].Unlocked || !this.them.HavePreReq(Technology.Key) || (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useRacialTech && Technology.Value.GetTech().RaceRestrictions.Count != 0))
+				if (!Technology.Value.Unlocked || this.them.GetTDict()[Technology.Key].Unlocked || !this.them.HavePreReq(Technology.Key))
 				{
 					continue;
 				}
@@ -880,8 +879,7 @@ namespace Ship_Game
 			newCurs.X = newCurs.X + 10f;
 			foreach (KeyValuePair<string, TechEntry> Technology in this.them.GetTDict())
 			{
-                //added by McShooterz: Prevents Racial techs from being traded
-                if (!Technology.Value.Unlocked || this.playerEmpire.GetTDict()[Technology.Key].Unlocked || !this.playerEmpire.HavePreReq(Technology.Key) || (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useRacialTech && Technology.Value.GetTech().RaceRestrictions.Count != 0))
+				if (!Technology.Value.Unlocked || this.playerEmpire.GetTDict()[Technology.Key].Unlocked || !this.playerEmpire.HavePreReq(Technology.Key))
 				{
 					continue;
 				}
