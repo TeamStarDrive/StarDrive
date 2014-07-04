@@ -2421,7 +2421,7 @@ namespace Ship_Game
                     }
                 case RaceDesignScreen.StarNum.Crowded:
                     {
-                        modifier = 1.5f;
+                        modifier = 1.4f;
                         this.ExitScreen();
                         base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
                         UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
@@ -2429,7 +2429,7 @@ namespace Ship_Game
                     }
                 case RaceDesignScreen.StarNum.Packed:
                     {
-                        modifier = 1.75f;
+                        modifier = 1.6f;
                         this.ExitScreen();
                         base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
                         UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
@@ -2437,7 +2437,7 @@ namespace Ship_Game
                     }
                 case RaceDesignScreen.StarNum.SuperPacked:
                     {
-                        modifier = 2f;
+                        modifier = 1.8f;
                         this.ExitScreen();
                         base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
                         UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
