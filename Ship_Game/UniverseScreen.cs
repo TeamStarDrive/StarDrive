@@ -2721,44 +2721,17 @@ namespace Ship_Game
                             {
                                 foreach (Ship ship2 in (List<Ship>)this.SelectedFleet.Ships)
                                 {
-
-                                    RightClickship(ship2, planet,false);
-                                    //if (planet.Owner != null)
-                                    //{
-
-                                    //    if (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction)
-                                    //    {
-                                    //        //add new right click troop and troop ship options on planets
-                                    //        if (ship2.Role == "troop" || (ship2.GetHangars().Where(troop => troop.IsTroopBay).Count() >0 && ship2.TroopList.Count>0))
-                                    //        {
-                                    //            //ship2.GetAI().State = AIState.AssaultPlanet;
-                                    //            ship2.GetAI().OrderLandAllTroops(planet);
-                                    //        }
-          
-                                    //        //end
-
-                                    //        if (ship2.BombBays.Count > 0 && planet.Owner != this.player && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)  || planet.TroopsHere.Where(ourtroops => ourtroops.GetOwner() == this.player).Count() == 0))
-                                    //        {
-                                                
-                                    //            ship2.GetAI().OrderBombardPlanet(planet);
-                                    //        }
-
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        if (ship2.Role == "troop")
-                                    //        {
-                                    //            ship2.GetAI().State = AIState.AssaultPlanet;
-                                    //            ship2.GetAI().OrderLandAllTroops(planet);
-                                    //        }
-                                    //        else
-                                    //        ship2.GetAI().OrderToOrbit(planet, true);
-                                    //    }
-                                    //}
-                                    //else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                    //    ship2.GetAI().OrderToOrbit(planet, false);
-                                    //else
-                                    //    ship2.GetAI().OrderToOrbit(planet, true);
+                                    if (planet.Owner != null)
+                                    {
+                                        if (ship2.BombBays.Count > 0 && planet.Owner != this.player && (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction))
+                                            ship2.GetAI().OrderBombardPlanet(planet);
+                                        else
+                                            ship2.GetAI().OrderToOrbit(planet, true);
+                                    }
+                                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                        ship2.GetAI().OrderToOrbit(planet, false);
+                                    else
+                                        ship2.GetAI().OrderToOrbit(planet, true);
                                 }
                             }
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
@@ -2825,61 +2798,47 @@ namespace Ship_Game
                             }
                             else if (planet != null)
                             {
-
-                                RightClickship(this.SelectedShip, planet,true);
-                                //if (this.SelectedShip.Role == "construction")
-                                //{
-                                //    AudioManager.PlayCue("UI_Misc20");
-                                //    return;
-                                //}
-                                //else
-                                //{
-                                //    AudioManager.PlayCue("echo_affirm1");
-                                //    if (this.SelectedShip.isColonyShip)
-                                //    {
-                                //        if (planet.Owner == null && planet.habitable)
-                                //            this.SelectedShip.GetAI().OrderColonization(planet);
-                                //        else
-                                //            this.SelectedShip.GetAI().OrderToOrbit(planet, true);
-                                //    }
-                                //    else if (this.SelectedShip.Role == "troop")
-                                //    {
-                                //        if (planet.Owner != null && planet.Owner == this.player)
-                                //        {
-                                //            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                //                this.SelectedShip.GetAI().OrderRebase(planet, false);
-                                //            else
-                                //                this.SelectedShip.GetAI().OrderRebase(planet, true);
-                                //        }
-                                //            //add new right click troop and troop ship options on planets
-                                //        if (planet.Owner == null)
-                                //        {
-                                //            this.SelectedShip.GetAI().State = AIState.AssaultPlanet;
-                                //            this.SelectedShip.GetAI().OrderLandAllTroops(planet);
-                                //        }
-                                //        else if (this.SelectedShip.loyalty.GetRelations()[planet.Owner].AtWar)
-                                //        {
-                                //            this.SelectedShip.GetAI().State = AIState.AssaultPlanet;
-                                //            this.SelectedShip.GetAI().OrderLandAllTroops(planet);
-                                //        }
-                                //            //end
-                                //        else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                //            this.SelectedShip.GetAI().OrderToOrbit(planet, false);
-                                //        else
-                                //            this.SelectedShip.GetAI().OrderToOrbit(planet, true);
-                                //    }
-                                //    else if (planet.Owner != null)
-                                //    {
-                                //        if (this.SelectedShip.BombBays.Count > 0 &&  (planet.Owner != this.player) && (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction &&(input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) || planet.TroopsHere.Where(ourtroops=> ourtroops.GetOwner()==this.player).Count()==0)))
-                                //            this.SelectedShip.GetAI().OrderBombardPlanet(planet);
-                                //        else
-                                //            this.SelectedShip.GetAI().OrderToOrbit(planet, true);
-                                //    }
-                                //    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                //        this.SelectedShip.GetAI().OrderToOrbit(planet, false);
-                                //    else
-                                //        this.SelectedShip.GetAI().OrderToOrbit(planet, true);
-                                //}
+                                if (this.SelectedShip.Role == "construction")
+                                {
+                                    AudioManager.PlayCue("UI_Misc20");
+                                    return;
+                                }
+                                else
+                                {
+                                    AudioManager.PlayCue("echo_affirm1");
+                                    if (this.SelectedShip.isColonyShip)
+                                    {
+                                        if (planet.Owner == null && planet.habitable)
+                                            this.SelectedShip.GetAI().OrderColonization(planet);
+                                        else
+                                            this.SelectedShip.GetAI().OrderToOrbit(planet, true);
+                                    }
+                                    else if (this.SelectedShip.Role == "troop")
+                                    {
+                                        if (planet.Owner != null && planet.Owner == this.player)
+                                        {
+                                            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                                this.SelectedShip.GetAI().OrderRebase(planet, false);
+                                            else
+                                                this.SelectedShip.GetAI().OrderRebase(planet, true);
+                                        }
+                                        else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                            this.SelectedShip.GetAI().OrderToOrbit(planet, false);
+                                        else
+                                            this.SelectedShip.GetAI().OrderToOrbit(planet, true);
+                                    }
+                                    else if (planet.Owner != null)
+                                    {
+                                        if (this.SelectedShip.BombBays.Count > 0 && planet.Owner != this.player && (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction))
+                                            this.SelectedShip.GetAI().OrderBombardPlanet(planet);
+                                        else
+                                            this.SelectedShip.GetAI().OrderToOrbit(planet, true);
+                                    }
+                                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                        this.SelectedShip.GetAI().OrderToOrbit(planet, false);
+                                    else
+                                        this.SelectedShip.GetAI().OrderToOrbit(planet, true);
+                                }
                             }
                             else if (this.SelectedShip.Role == "construction")
                             {
@@ -2949,56 +2908,40 @@ namespace Ship_Game
                                     }
                                     else if (planet != null)
                                     {
-                                       RightClickship(ship2,planet,false);
-                                        //if (ship2.isColonyShip)
-                                        //{
-                                        //    if (planet.Owner == null && planet.habitable)
-                                        //        ship2.GetAI().OrderColonization(planet);
-                                        //    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                        //        ship2.GetAI().OrderToOrbit(planet, false);
-                                        //    else
-                                        //        ship2.GetAI().OrderToOrbit(planet, true);
-                                        //}
-                                        //else if (ship2.Role == "troop" ||(ship2.TroopList.Count >0 && ship2.GetHangars().Where(troops=> troops.IsTroopBay).Count()>0))
-                                        //{
-                                        //    if (ship2.Role == "troop")
-                                        //    {
-                                        //        if (planet.Owner != null && planet.Owner == this.player)
-                                        //        {
-                                        //            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                        //                ship2.GetAI().OrderRebase(planet, false);
-                                        //            else
-                                        //                ship2.GetAI().OrderRebase(planet, true);
-                                        //        }
-                                        //        else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                        //            ship2.GetAI().OrderToOrbit(planet, false);
-                                        //        else
-                                        //            ship2.GetAI().OrderToOrbit(planet, true);
-                                        //    }
-
-                                        //    else if (planet.Owner ==null ||  
-                                        //        planet.Owner != this.player 
-                                        //        && ((planet.Owner == null && planet.habitable) 
-                                        //        || (ship2.loyalty.GetRelations()[planet.Owner].AtWar ||planet.Owner.isFaction)))
-                                        //    {
-
-                                        //        ship2.GetAI().OrderLandAllTroops(planet);
-                                        //    }
-                                            
-
-
-                                        //}
-                                        //else if (planet.Owner != null)
-                                        //{
-                                        //    if (ship2.BombBays.Count > 0 && planet.Owner != this.player && (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction) && (planet.TroopsHere.Where(ourtroops=> ourtroops.GetOwner() ==this.player).Count()==0 || input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))
-                                        //        ship2.GetAI().OrderBombardPlanet(planet);
-                                        //    else
-                                        //        ship2.GetAI().OrderToOrbit(planet, true);
-                                        //}
-                                        //else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                        //    ship2.GetAI().OrderToOrbit(planet, false);
-                                        //else
-                                        //    ship2.GetAI().OrderToOrbit(planet, true);
+                                        if (ship2.isColonyShip)
+                                        {
+                                            if (planet.Owner == null && planet.habitable)
+                                                ship2.GetAI().OrderColonization(planet);
+                                            else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                                ship2.GetAI().OrderToOrbit(planet, false);
+                                            else
+                                                ship2.GetAI().OrderToOrbit(planet, true);
+                                        }
+                                        else if (ship2.Role == "troop")
+                                        {
+                                            if (planet.Owner != null && planet.Owner == this.player)
+                                            {
+                                                if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                                    ship2.GetAI().OrderRebase(planet, false);
+                                                else
+                                                    ship2.GetAI().OrderRebase(planet, true);
+                                            }
+                                            else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                                ship2.GetAI().OrderToOrbit(planet, false);
+                                            else
+                                                ship2.GetAI().OrderToOrbit(planet, true);
+                                        }
+                                        else if (planet.Owner != null)
+                                        {
+                                            if (ship2.BombBays.Count > 0 && planet.Owner != this.player && (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction))
+                                                ship2.GetAI().OrderBombardPlanet(planet);
+                                            else
+                                                ship2.GetAI().OrderToOrbit(planet, true);
+                                        }
+                                        else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                            ship2.GetAI().OrderToOrbit(planet, false);
+                                        else
+                                            ship2.GetAI().OrderToOrbit(planet, true);
                                     }
                                 }
                             }
@@ -3307,78 +3250,6 @@ namespace Ship_Game
                 else
                     this.ProjectingPosition = false;
             }
-        }
-
-        //added by gremlin replace redundant code with method
-
-        private void RightClickship(Ship ship, Planet planet, bool audio)
-        {
-            
-
-
-           
-            if (ship.Role == "construction")
-            {
-                if(audio)
-                    AudioManager.PlayCue("UI_Misc20");
-                return;
-            }
-            else
-            {
-                if(audio)
-                    AudioManager.PlayCue("echo_affirm1");
-                if (ship.isColonyShip)
-                {
-                    if (planet.Owner == null && planet.habitable)
-                        ship.GetAI().OrderColonization(planet);
-                    else
-                        ship.GetAI().OrderToOrbit(planet, true);
-                }
-                else if (ship.Role == "troop" || (ship.HasTroopBay &&ship.TroopList.Count >0 ))
-                {
-                    if (planet.Owner != null && planet.Owner == this.player && !ship.HasTroopBay)
-                    {
-                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                            ship.GetAI().OrderRebase(planet, false);
-                        else
-                            ship.GetAI().OrderRebase(planet, true);
-                    }
-                    //add new right click troop and troop ship options on planets
-
-                    if (planet.Owner == null && planet.habitable)
-                    {
-
-                        ship.GetAI().State = AIState.AssaultPlanet;
-                        ship.GetAI().OrderLandAllTroops(planet);
-                    }
-                    else if (planet.Owner!=null&& planet.Owner !=this.player &&  (ship.loyalty.GetRelations()[planet.Owner].AtWar ||planet.Owner.isFaction ||planet.Owner.data.Defeated ))
-                    {
-                        ship.GetAI().State = AIState.AssaultPlanet;
-                        ship.GetAI().OrderLandAllTroops(planet);
-                    }
-                    //end
-
-                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                        ship.GetAI().OrderToOrbit(planet, false);
-                    else
-                        ship.GetAI().OrderToOrbit(planet, true);
-                }
-                else if (planet.Owner != null)
-                {
-                    if (ship.BombBays.Count > 0 && (planet.Owner != this.player) && (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) || planet.TroopsHere.Where(ourtroops => ourtroops.GetOwner() == this.player).Count() == 0)))
-                        ship.GetAI().OrderBombardPlanet(planet);
-                    else
-                        ship.GetAI().OrderToOrbit(planet, true);
-                }
-                else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                    ship.GetAI().OrderToOrbit(planet, false);
-                else
-                    ship.GetAI().OrderToOrbit(planet, true);
-            }
-                            
-
-
-
         }
 
         public Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenSpace)
@@ -4297,8 +4168,7 @@ namespace Ship_Game
             Vector2 vector2_1 = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
             foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
             {
-                //Added by McShooterz: Changed it so when shields are turned off manually, do not draw bubble
-                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && (double)moduleSlot.module.shield_power > 0.0 && !moduleSlot.module.shieldsOff)
+                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && (double)moduleSlot.module.shield_power > 0.0)
                 {
                     Vector2 origin1 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2));
                     Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);

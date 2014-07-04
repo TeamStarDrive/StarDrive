@@ -58,6 +58,10 @@ namespace Ship_Game
 
 		public float GenericMaxPopMod;
 
+		public int Aquatic;
+
+		public int Burrowers;
+
 		public int Blind;
 
 		public int BonusExplored;
@@ -110,66 +114,9 @@ namespace Ship_Game
 
 		public float GroundCombatModifier;
 
-		public float RepairMod;
+		public float RepairRateMod;
 
 		public int Cybernetic;
-
-        //Trait Booleans
-        public Boolean PhysicalTraitAlluring;
-        public Boolean PhysicalTraitRepulsive;
-
-        public Boolean PhysicalTraitEagleEyed;
-        public Boolean PhysicalTraitBlind;
-
-        public Boolean PhysicalTraitEfficientMetabolism;
-        public Boolean PhysicalTraitGluttonous;
-
-        public Boolean PhysicalTraitFertile;
-        public Boolean PhysicalTraitLessFertile;
-
-        public Boolean PhysicalTraitSmart;
-        public Boolean PhysicalTraitDumb;
-
-        public Boolean PhysicalTraitReflexes;
-        public Boolean PhysicalTraitPonderous;
-
-        public Boolean PhysicalTraitSavage;
-        public Boolean PhysicalTraitTimid;
-
-        public Boolean SociologicalTraitEfficient;
-        public Boolean SociologicalTraitWasteful;
-
-        public Boolean SociologicalTraitIndustrious;
-        public Boolean SociologicalTraitLazy;
-
-        public Boolean SociologicalTraitMercantile;
-
-        public Boolean SociologicalTraitMeticulous;
-        public Boolean SociologicalTraitCorrupt;
-
-        public Boolean SociologicalTraitSkilledEngineers;
-        public Boolean SociologicalTraitHaphazardEngineers;
-
-        public Boolean HistoryTraitAstronomers;
-        public Boolean HistoryTraitCybernetic;
-        public Boolean HistoryTraitManifestDestiny;
-        public Boolean HistoryTraitMilitaristic;
-        public Boolean HistoryTraitNavalTraditions;
-        public Boolean HistoryTraitPackMentality;
-        public Boolean HistoryTraitPrototypeFlagship;
-        public Boolean HistoryTraitSpiritual;
-        public Boolean HistoryTraitPollutedHomeWorld;
-        public Boolean HistoryTraitIndustrializedHomeWorld;
-
-        public Boolean HistoryTraitDuplicitous;
-        public Boolean HistoryTraitHonest;
-
-        public Boolean HistoryTraitHugeHomeWorld;
-        public Boolean HistoryTraitSmallHomeWorld;
-
-        //Pointless variables
-        public int Aquatic;
-        public int Burrowers;
 
 		public RacialTrait()
 		{
