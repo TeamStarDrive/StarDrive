@@ -19,6 +19,9 @@ namespace Ship_Game
         //added by McShooterz
         public bool useRacialTech;
         public bool useAlternateTech;
+        public bool useHullBonuses;
+
+        //added by The Doctor
         public bool useDestroyers;
         public bool useDrones;
         public bool enableECM;
