@@ -201,14 +201,6 @@ namespace Ship_Game.Gameplay
 
         public float ECMResist;
 
-        public bool Excludes_Fighters;
-
-        public bool Excludes_Corvettes;
-
-        public bool Excludes_Capitals;
-
-        public bool Excludes_Stations;
-
 		public static AudioListener audioListener
 		{
 			get;
@@ -255,12 +247,16 @@ namespace Ship_Game.Gameplay
 				moduleAttachedTo = this.moduleAttachedTo,
 				range = this.Range,
 				thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
+                //Duration = (float)this.BeamDuration,
 				PowerCost = (float)this.BeamPowerCostPerSecond,
 				damageAmount = this.DamageAmount,
 				weapon = this,
 				RotationRadsPerSecond = this.RotationRadsPerSecond
 			};
+            //added by McShooterz: modify beam duration
+            if(this.BeamDuration > 0)
+                beam.Duration = (float)this.BeamDuration;
+
 			this.ModifyProjectile(beam);
 			this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
@@ -362,7 +358,10 @@ namespace Ship_Game.Gameplay
 			beam.PowerCost = (float)this.BeamPowerCostPerSecond;
 			beam.range = this.Range;
 			beam.thickness = this.BeamThickness;
-            beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
+            //added by McShooterz: modify beam duration
+            if (this.BeamDuration > 0)
+                beam.Duration = (float)this.BeamDuration;
+
 			beam.damageAmount = this.DamageAmount;
 			beam.weapon = this;
 			source.Beams.Add(beam);
@@ -526,11 +525,15 @@ namespace Ship_Game.Gameplay
 				range = this.Range,
 				followMouse = true,
 				thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
+                //Duration = (float)this.BeamDuration,
 				PowerCost = (float)this.BeamPowerCostPerSecond,
 				damageAmount = this.DamageAmount,
 				weapon = this
 			};
+            //added by McShooterz: modify beam duration
+            if (this.BeamDuration > 0)
+                beam.Duration = (float)this.BeamDuration;
+
 			this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
 			this.ToggleSoundOn = false;
@@ -761,10 +764,14 @@ namespace Ship_Game.Gameplay
 				PowerCost = (float)this.BeamPowerCostPerSecond,
 				range = this.Range,
 				thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
+                //Duration = (float)this.BeamDuration,
 				damageAmount = this.DamageAmount,
 				weapon = this
 			};
+            //added by McShooterz: modify beam duration
+            if (this.BeamDuration > 0)
+                beam.Duration = (float)this.BeamDuration;
+
 			this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
 			this.ToggleSoundOn = false;
