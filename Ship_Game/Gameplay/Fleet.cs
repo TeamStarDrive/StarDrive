@@ -2006,7 +2006,7 @@ namespace Ship_Game.Gameplay
                             while (enumerator.MoveNext())
                             {
                                 Ship current = enumerator.Current;
-                                if (current.GetAI().State != AIState.Orbit)
+                                if (!(current.GetAI().State == AIState.Orbit ))
                                     current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());
                                 else if (current.GetAI().State == AIState.Orbit && (current.GetAI().OrbitTarget == null || current.GetAI().OrbitTarget != null && current.GetAI().OrbitTarget != Task.GetTargetPlanet()))
                                     current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());
