@@ -164,3 +164,4 @@ C:\Users\danny\Documents\stardrive mod\Content\ShipModules\WarpEngine_4x4.xml
 C:\Users\danny\Documents\stardrive mod\Content\Tooltips\Tooltips.xml
 C:\Users\danny\Documents\stardrive mod\Content\Textures\NewUI\icon_projection.xnb
 C:\Users\danny\Documents\stardrive mod\Content\Textures\NewUI\icon_sensors.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Game.ico
