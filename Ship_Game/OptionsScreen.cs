@@ -68,6 +68,7 @@ namespace Ship_Game
 		private int ytoApply;
 
         private Checkbox pauseOnNotification;
+        private FloatSlider IconSize;
 
 		//private float transitionElapsedTime;
 
@@ -160,7 +161,12 @@ namespace Ship_Game
 				this.EffectsVolumeSlider = new FloatSlider(ftlRect, "Effects Volume");
 				this.EffectsVolumeSlider.SetAmount(GlobalStats.Config.EffectsVolume);
 				this.EffectsVolumeSlider.amount = GlobalStats.Config.EffectsVolume;
-				Vector2 Cursor = new Vector2((float)(this.SecondaryOptionsRect.X + 10), (float)(this.SecondaryOptionsRect.Y + 10));
+                //ftlRect = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 200, 270, 50);
+                //this.IconSize = new FloatSlider(ftlRect, "Icon Sizes",0,20,GlobalStats.IconSize);
+                //this.IconSize.SetAmount(GlobalStats.IconSize);
+                //this.IconSize.amount = GlobalStats.IconSize;
+                
+                Vector2 Cursor = new Vector2((float)(this.SecondaryOptionsRect.X + 10), (float)(this.SecondaryOptionsRect.Y + 10));
 				this.ResolutionOptions.Clear();
 				this.ResolutionDropDown = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y + 3, 105, 18));
 				foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
@@ -389,6 +395,7 @@ namespace Ship_Game
             this.pauseOnNotification.Draw(base.ScreenManager);
 			this.MusicVolumeSlider.DrawDecimal(base.ScreenManager);
 			this.EffectsVolumeSlider.DrawDecimal(base.ScreenManager);
+            this.IconSize.Draw(base.ScreenManager);
 			this.ResolutionDropDown.Draw(base.ScreenManager.SpriteBatch);
 			ToolTip.Draw(base.ScreenManager);
 			base.ScreenManager.SpriteBatch.End();
@@ -412,6 +419,10 @@ namespace Ship_Game
 			this.GamespeedCap.HandleInput(input);
 			this.ForceFullSim.HandleInput(input);
             this.pauseOnNotification.HandleInput(input);
+            this.IconSize.HandleInput(input);
+            GlobalStats.IconSize = (int)this.IconSize.amountRange;
+            
+                
 			if (!this.ResolutionDropDown.Open && !this.AntiAliasingDD.Open)
 			{
 				this.MusicVolumeSlider.HandleInput(input);
@@ -518,6 +529,12 @@ namespace Ship_Game
             this.EffectsVolumeSlider = new FloatSlider(r, "Effects Volume");
             this.EffectsVolumeSlider.SetAmount(GlobalStats.Config.EffectsVolume);
             this.EffectsVolumeSlider.amount = GlobalStats.Config.EffectsVolume;
+
+            r = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 200, 270, 50);
+            this.IconSize = new FloatSlider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
+            
+            
+            
             Vector2 vector2 = new Vector2((float)(this.SecondaryOptionsRect.X + 10), (float)(this.SecondaryOptionsRect.Y + 10));
             this.ResolutionDropDown = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y - 2, 105, 18));
             foreach (DisplayMode displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)

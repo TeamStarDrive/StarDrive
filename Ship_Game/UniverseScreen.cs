@@ -4512,6 +4512,7 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
             this.ScreenManager.GraphicsDevice.RenderState.AlphaSourceBlend = Blend.One;
             this.ScreenManager.GraphicsDevice.RenderState.AlphaDestinationBlend = Blend.One;
+            this.ScreenManager.GraphicsDevice.RenderState.MultiSampleAntiAlias = true;
             if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
                 this.DrawBorders();
             this.ScreenManager.SpriteBatch.End();
@@ -4755,7 +4756,7 @@ namespace Ship_Game
                                     ScreenPos = vector2,
                                     ClickRadius = 15f
                                 });
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["FleetIcons/" + (object)keyValuePair.Value.FleetIconIndex], vector2, new Rectangle?(), empire.EmpireColor, 0.0f, origin, 0.35f, SpriteEffects.None, 1f);
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["FleetIcons/" + (object)keyValuePair.Value.FleetIconIndex], vector2, new Rectangle?(), empire.EmpireColor, 0.0f, origin, 0.35f, SpriteEffects.None, 1f); //(float)( 0.35f+GlobalStats.IconSize/100) , SpriteEffects.None, 1f);//0.35f, SpriteEffects.None, 1f);
                                 HelperFunctions.DrawDropShadowText(this.ScreenManager, keyValuePair.Value.Name, new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
                             }
                         }
@@ -5093,8 +5094,9 @@ namespace Ship_Game
                         try
                         {
                             Ship local_9 = item_0.Fleet.Ships[local_8];
-                            Rectangle local_10 = new Rectangle((int)local_7.X, (int)local_7.Y, 15, 15);
-                            local_7.X += 15f;
+                            //added by gremlin original values Rectangle local_10 = new Rectangle((int)local_7.X, (int)local_7.Y, 15, 15);
+                            Rectangle local_10 = new Rectangle((int)local_7.X, (int)local_7.Y, 20, 20);
+                            local_7.X += (float)(15 );
                             if ((double)local_7.X > 200.0)
                             {
                                 local_7.X = (float)(item_0.ClickRect.X + 50);
@@ -5461,7 +5463,7 @@ namespace Ship_Game
                 float num2 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), position);
                 if ((double)num2 < 5.0)
                     num2 = 5f;
-                float scale = num2 / 45f;
+                float scale = num2 / (float)(45 - GlobalStats.IconSize);
                 Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
                 bool flag = true;
                 foreach (UniverseScreen.ClickableFleet clickableFleet in this.ClickableFleetsList)
@@ -5485,7 +5487,7 @@ namespace Ship_Game
                 float num2 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), position);
                 if ((double)num2 < 5.0)
                     num2 = 5f;
-                float scale = num2 / 45f;
+                float scale = num2 / (float)(45- GlobalStats.IconSize); //45
                 Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
                 bool flag = true;
                 foreach (UniverseScreen.ClickableFleet clickableFleet in this.ClickableFleetsList)
@@ -5513,7 +5515,7 @@ namespace Ship_Game
                 float num2 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), vector2_1);
                 if ((double)num2 < 5.0)
                     num2 = 5f;
-                float scale = num2 / 45f;
+                float scale = num2 / (float)(45 - GlobalStats.IconSize); //45
                 Vector2 vector2_2 = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
                 if ((double)ship.OrdinanceMax <= 0.0)
                     return;
