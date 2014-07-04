@@ -48,29 +48,29 @@ namespace Ship_Game.Gameplay
 
 		public short MaximumHangarShipSize;
 
-        public bool FightersOnly;
+		public bool FightersOnly;
 
-        public bool DroneModule = true;
+        public bool DroneModule;
 
-        public bool FighterModule = true;
+        public bool FighterModule;
 
-        public bool CorvetteModule = true;
+        public bool CorvetteModule;
 
-        public bool FrigateModule = true;
+        public bool FrigateModule;
 
-        public bool DestroyerModule = true;
+        public bool DestroyerModule;
 
-        public bool CruiserModule = true;
+        public bool CruiserModule;
 
-        public bool CarrierModule = true;
+        public bool CarrierModule;
 
-        public bool CapitalModule = true;
+        public bool CapitalModule;
 
-        public bool FreighterModule = true;
+        public bool FreighterModule;
 
-        public bool PlatformModule = true;
+        public bool PlatformModule;
 
-        public bool StationModule = true;
+        public bool StationModule;
 
 		public bool explodes;
 
