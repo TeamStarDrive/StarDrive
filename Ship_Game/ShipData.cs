@@ -44,6 +44,11 @@ namespace Ship_Game
 
 		public AIState DefaultAIState;
 
+        //Added by McShooterz: New tags for Hull modifiers
+        public byte ArmoredBonus;
+        public byte SensorBonus;
+        public byte SpeedBonus;
+
 		public List<ModuleSlotData> ModuleSlotList = new List<ModuleSlotData>();
 
 		public ShipData()
