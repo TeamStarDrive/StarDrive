@@ -19,7 +19,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Configuration;
-
+using System.Threading;
 
 namespace Ship_Game.Gameplay
 {
@@ -3611,11 +3611,13 @@ namespace Ship_Game.Gameplay
                         float cos = (float)Math.Cos((double)this.Rotation);
                         float sin = (float)Math.Sin((double)this.Rotation);
                         float tan = (float)Math.Tan((double)this.yRotation);
-                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                        //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                        Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
                         {
-                            ++GlobalStats.ModuleUpdates;
+                            Interlocked.Increment(ref GlobalStats.ModuleUpdates);
+                            //++GlobalStats.ModuleUpdates;
                             moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        }
+                        });
                     }
                 }
                 else if ((double)elapsedTime < 0.0 && !this.UpdatedModulesOnce)
