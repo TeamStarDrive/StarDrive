@@ -326,7 +326,7 @@ namespace Ship_Game
 					{
 					}
 				}
-				if (!this.InFrustumWhenFired && !GlobalStats.ForceFullSim)
+				if (!this.InFrustumWhenFired )
 				{
 					target.Damage(this, this.damageAmount * 90f);
 					this.Die(null, true);

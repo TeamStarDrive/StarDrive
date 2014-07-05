@@ -101,6 +101,15 @@ namespace Ship_Game
         //PauseOnNotification
         public static bool PauseOnNotification;
         public static int ExtraPlanets;
+        //OptionIncreaseShipMaintenance
+        public static float OptionIncreaseShipMaintenance;
+        public static float MinimumWarpRange;
+
+        public static float MemoryLimiter;
+
+        public static float StartingPlanetRichness;
+        public static string ExtendedVersion;
+        public static int IconSize;
 
 		static GlobalStats()
 		{       
@@ -137,7 +146,7 @@ namespace Ship_Game
 			GlobalStats.CombatScans = 0;
 			GlobalStats.DistanceCheckTotal = 0;
 			GlobalStats.LimitSpeed = true;
-			GlobalStats.GravityWellRange = 8000f;
+            GlobalStats.GravityWellRange = float.Parse(ConfigurationManager.AppSettings["GravityWellRange"]); ;// 8000f;
 			GlobalStats.PlanetaryGravityWells = true;
 			GlobalStats.AutoCombat = true;
 			GlobalStats.TimesPlayed = 0;
@@ -149,6 +158,13 @@ namespace Ship_Game
             GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
             GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
             GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
+
+            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
+            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
+            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
+            GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
+            GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
+            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
 		}
 
 		public GlobalStats()
