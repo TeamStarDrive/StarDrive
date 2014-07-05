@@ -300,6 +300,17 @@ namespace Ship_Game
 						button.Active = true;
 					}
 				}
+                else if (str == "broadside_left")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideLeft)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
 				else if (str != "orbit_right")
 				{
 					if (str == "evade")
@@ -314,6 +325,17 @@ namespace Ship_Game
 						}
 					}
 				}
+                else if (str == "broadside_right")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideRight)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
 				else if (this.CombatState != Ship_Game.Gameplay.CombatState.OrbitRight)
 				{
 					button.Active = false;
@@ -1553,7 +1575,7 @@ namespace Ship_Game
                 string shipRest = "";
                 bool specialString = false;
 
-                if (GlobalStats.ActiveMod!=null && GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
                 {
                     if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1582,7 +1604,7 @@ namespace Ship_Game
                     }
 
                 }
-                if (GlobalStats.ActiveMod !=null && !GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
+                if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
                 {
                     if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1606,7 +1628,7 @@ namespace Ship_Game
                     }
 
                 }
-                if (GlobalStats.ActiveMod!=null && GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers)
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers)
                 {
                     if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1634,7 +1656,7 @@ namespace Ship_Game
                         specialString = true;
                     }
                 }
-                if (GlobalStats.ActiveMod == null || ( GlobalStats.ActiveMod != null &&!GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers))
+                if (GlobalStats.ActiveMod == null || (!GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers))
                 {
                     if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1894,7 +1916,7 @@ namespace Ship_Game
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
                         {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(6004), (float)mod.ECM * 100, 154);
+                            this.DrawStatPercent(ref modTitlePos, Localizer.Token(6004), (float)mod.ECM, 154);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         return;
@@ -2126,7 +2148,7 @@ namespace Ship_Game
                     }
                     if (mod.InstalledWeapon.Tag_Guided && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6005), (float)mod.InstalledWeapon.ECMResist, 155);
+                        this.DrawStatPercent(ref modTitlePos, Localizer.Token(6005), (float)mod.InstalledWeapon.ECMResist, 155);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.InstalledWeapon.EffectVsArmor != 1f)
@@ -2167,7 +2189,7 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(fireRest), modTitlePos, Color.LightCoral);
                         return;
                     }
-                    else if (!mod.InstalledWeapon.TruePD && mod.InstalledWeapon.Excludes_Fighters || mod.InstalledWeapon.Excludes_Corvettes || mod.InstalledWeapon.Excludes_Capitals || mod.InstalledWeapon.Excludes_Stations)
+                    else if (GlobalStats.ActiveMod != null && !mod.InstalledWeapon.TruePD && mod.InstalledWeapon.Excludes_Fighters || mod.InstalledWeapon.Excludes_Corvettes || mod.InstalledWeapon.Excludes_Capitals || mod.InstalledWeapon.Excludes_Stations)
                     {
                         string fireRest = "Cannot Target:";
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -3267,6 +3289,29 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
 			}
 		}
+
+        private void DrawStatPercent(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 105f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = "";
+            float statPC = stat * 100;
+            numbers = string.Concat(statPC.ToString("#"), "%");
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
 
 		private void DrawStat(ref Vector2 Cursor, string words, int stat, string tip)
 		{
@@ -4380,9 +4425,15 @@ namespace Ship_Game
                                     case "orbit_left":
                                         this.CombatState = CombatState.OrbitLeft;
                                         break;
+                                    case "broadside_left":
+                                        this.CombatState = CombatState.BroadsideLeft;
+                                        break;                                         
                                     case "orbit_right":
                                         this.CombatState = CombatState.OrbitRight;
                                         break;
+                                    case "broadside_right":
+                                        this.CombatState = CombatState.BroadsideRight;
+                                        break; 
                                     case "evade":
                                         this.CombatState = CombatState.Evade;
                                         break;
@@ -4405,8 +4456,14 @@ namespace Ship_Game
                             case "orbit_left":
                                 toggleButton.Active = this.CombatState == CombatState.OrbitLeft;
                                 continue;
+                            case "broadside_left":
+                                toggleButton.Active = this.CombatState == CombatState.BroadsideLeft;
+                                continue;
                             case "orbit_right":
                                 toggleButton.Active = this.CombatState == CombatState.OrbitRight;
+                                continue;
+                            case "broadside_right":
+                                toggleButton.Active = this.CombatState == CombatState.BroadsideRight;
                                 continue;
                             case "evade":
                                 toggleButton.Active = this.CombatState == CombatState.Evade;
@@ -4947,13 +5004,32 @@ namespace Ship_Game
 			OrbitLeft.Action = "orbit_left";
 			OrbitLeft.HasToolTip = true;
 			OrbitLeft.WhichToolTip = 3;
-			OrdersBarPos.X = OrdersBarPos.X + 29f;
+            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+
+            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bleft");
+            this.CombatStatusButtons.Add(BroadsideLeft);
+            BroadsideLeft.Action = "broadside_left";
+            BroadsideLeft.HasToolTip = true;
+            BroadsideLeft.WhichToolTip = 159;
+            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
+            OrdersBarPos.X = OrdersBarPos.X + 29f;
+            
+
 			ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_right");
 			this.CombatStatusButtons.Add(OrbitRight);
 			OrbitRight.Action = "orbit_right";
 			OrbitRight.HasToolTip = true;
 			OrbitRight.WhichToolTip = 4;
-			OrdersBarPos.X = OrdersBarPos.X + 29f;
+            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+
+            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bright");
+            this.CombatStatusButtons.Add(BroadsideRight);
+            BroadsideRight.Action = "broadside_right";
+            BroadsideRight.HasToolTip = true;
+            BroadsideRight.WhichToolTip = 160;
+            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
+            OrdersBarPos.X = OrdersBarPos.X + 29f;
+
 			ToggleButton Evade = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_stop");
 			this.CombatStatusButtons.Add(Evade);
 			Evade.Action = "evade";
@@ -5027,7 +5103,7 @@ namespace Ship_Game
 					e.AddItem(hull.Value);
 				}
 			}
-			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height + 10, 280, 320);
+			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height + 40, 280, 320);
 			this.ShipStats = new Menu1(base.ScreenManager, ShipStatsPanel);
 			this.statsSub = new Submenu(base.ScreenManager, ShipStatsPanel);
 			this.statsSub.AddTab(Localizer.Token(108));
