@@ -87,8 +87,7 @@ namespace Ship_Game
                 this.EmpireToRemoveName = EmpireToRemoveName;
                 EmpireManager.EmpireList.Clear();
                 XmlSerializer serializer2 = new XmlSerializer(typeof(DiplomaticTraits));
-                //Added by McShooterz: mod folder support
-                this.dtraits = (DiplomaticTraits)serializer2.Deserialize((new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml") : "Content/Diplomacy/DiplomaticTraits.xml")).OpenRead());
+                this.dtraits = (DiplomaticTraits)serializer2.Deserialize((new FileInfo("Content/Diplomacy/DiplomaticTraits.xml")).OpenRead());
                 Ship_Game.ResourceManager.LoadEncounters();
                 this.playerEmpire = empire;
                 empire.Initialize();
@@ -215,10 +214,8 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            //Added by McShooterz: Enable LoadingScreen folder for mods
-            this.textList = HelperFunctions.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen") : "Content/LoadingScreen");
-            //Added by McShooterz: mod support for Advice folder
-            this.AdviceList = (List<string>)new XmlSerializer(typeof(List<string>)).Deserialize((Stream)new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/" + GlobalStats.Config.Language + "/Advice.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/" + GlobalStats.Config.Language + "/Advice.xml") : "Content/Advice/" + GlobalStats.Config.Language + "/Advice.xml").OpenRead());
+            this.textList = HelperFunctions.GetFilesFromDirectory("Content/LoadingScreen");
+            this.AdviceList = (List<string>)new XmlSerializer(typeof(List<string>)).Deserialize((Stream)new FileInfo("Content/Advice/" + GlobalStats.Config.Language + "/Advice.xml").OpenRead());
             this.ScreenManager.inter.ObjectManager.Clear();
             this.ScreenManager.inter.LightManager.Clear();
             for (int index = 1; index < this.textList.Length; ++index)
@@ -305,12 +302,7 @@ namespace Ship_Game
                         if (!Owner.isFaction)
                         {
                             SolarSystem solarSystem = new SolarSystem();
-                            //Added by McShooterz: support for SolarSystems folder for mods
-                            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")))
-                            {
-                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
-                            }
-                            else if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
+                            if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
                             {
                                 solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
@@ -708,7 +700,7 @@ namespace Ship_Game
             empireData.Traits.PassengerModifier = data.Traits.PassengerModifier;
             empireData.Traits.ProductionMod = data.Traits.ProductionMod;
             empireData.Traits.R = 128f;
-            empireData.Traits.RepairMod = data.Traits.RepairMod;
+            empireData.Traits.RepairRateMod = data.Traits.RepairRateMod;
             empireData.Traits.ReproductionMod = data.Traits.ReproductionMod;
             empireData.Traits.PopGrowthMax = data.Traits.PopGrowthMax;
             empireData.Traits.PopGrowthMin = data.Traits.PopGrowthMin;
@@ -729,8 +721,7 @@ namespace Ship_Game
             Empire empire = new Empire();
             empire.isFaction = true;
             empire.data = CreatingNewGameScreen.CopyEmpireData(data);
-            //Added by McShooterz: mod folder support
-            DiplomaticTraits diplomaticTraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml") : "Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
+            DiplomaticTraits diplomaticTraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo("Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
             int index1 = (int)RandomMath.RandomBetween(0.0f, (float)diplomaticTraits.DiplomaticTraitsList.Count);
             empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index1];
             int index2 = (int)RandomMath.RandomBetween(0.0f, (float)diplomaticTraits.DiplomaticTraitsList.Count);
