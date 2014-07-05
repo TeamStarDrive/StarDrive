@@ -28,13 +28,11 @@ namespace Ship_Game
 
 		protected Rectangle FlagRight;
 
-		//protected List<TraitEntry> PhysicalTraits = new List<TraitEntry>();
+		protected List<TraitEntry> PhysicalTraits = new List<TraitEntry>();
 
-		//protected List<TraitEntry> IndustryTraits = new List<TraitEntry>();
+		protected List<TraitEntry> IndustryTraits = new List<TraitEntry>();
 
-		//protected List<TraitEntry> SpecialTraits = new List<TraitEntry>();
-
-        protected List<TraitEntry> AllTraits = new List<TraitEntry>();
+		protected List<TraitEntry> SpecialTraits = new List<TraitEntry>();
 
 		protected Rectangle GalaxySizeRect;
 
@@ -181,7 +179,24 @@ namespace Ship_Game
 				{
 					trait = t
 				};
-				AllTraits.Add(te);
+				string category = t.Category;
+				string str = category;
+				if (category == null)
+				{
+					continue;
+				}
+				if (str == "Physical")
+				{
+					this.PhysicalTraits.Add(te);
+				}
+				else if (str == "Industry")
+				{
+					this.IndustryTraits.Add(te);
+				}
+				else if (str == "Special")
+				{
+					this.SpecialTraits.Add(te);
+				}
 			}
 		}
 
@@ -1042,7 +1057,7 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", this.TotalPointsUsed), rpos, Color.White);
             rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 8);
 			int numTraits = 0;
-            foreach (TraitEntry t in this.AllTraits)
+			foreach (TraitEntry t in this.PhysicalTraits)
 			{
 				if (numTraits == 9)
 				{
@@ -1057,6 +1072,40 @@ namespace Ship_Game
 				}
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
 				rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+				numTraits++;
+			}
+			foreach (TraitEntry t in this.IndustryTraits)
+			{
+				if (numTraits == 9)
+				{
+					rpos = drawCurs;
+					rpos.X = rpos.X + 145f;
+					rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
+                    rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+				}
+				if (!t.Selected)
+				{
+					continue;
+				}
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+				numTraits++;
+			}
+			foreach (TraitEntry t in this.SpecialTraits)
+			{
+				if (numTraits == 9)
+				{
+					rpos = drawCurs;
+					rpos.X = rpos.X + 145f;
+                    rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
+                    rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+				}
+				if (!t.Selected)
+				{
+					continue;
+				}
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
 				numTraits++;
 			}
 			this.TitleBar.Draw();
@@ -1426,7 +1475,23 @@ namespace Ship_Game
                                 totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
                                 AudioManager.GetCue("blip_click").Play();
                                 int excludes = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.AllTraits)
+                                foreach (TraitEntry ex in this.PhysicalTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                                foreach (TraitEntry ex in this.IndustryTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                                foreach (TraitEntry ex in this.SpecialTraits)
                                 {
                                     if (t.trait.Excludes != ex.trait.TraitName)
                                     {
@@ -1443,7 +1508,23 @@ namespace Ship_Game
                             {
                                 bool OK = true;
                                 int num = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.AllTraits)
+                                foreach (TraitEntry ex in this.PhysicalTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                foreach (TraitEntry ex in this.SpecialTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                foreach (TraitEntry ex in this.IndustryTraits)
                                 {
                                     if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
                                     {
@@ -1458,7 +1539,23 @@ namespace Ship_Game
                                     raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
                                     AudioManager.GetCue("blip_click").Play();
                                     int excludes1 = t.trait.Excludes;
-                                    foreach (TraitEntry ex in this.AllTraits)
+                                    foreach (TraitEntry ex in this.PhysicalTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                    foreach (TraitEntry ex in this.SpecialTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                    foreach (TraitEntry ex in this.IndustryTraits)
                                     {
                                         if (t.trait.Excludes != ex.trait.TraitName)
                                         {
@@ -1800,7 +1897,23 @@ namespace Ship_Game
                                 totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
                                 AudioManager.GetCue("blip_click").Play();
                                 int excludes = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.AllTraits)
+                                foreach (TraitEntry ex in this.PhysicalTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                                foreach (TraitEntry ex in this.IndustryTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName)
+                                    {
+                                        continue;
+                                    }
+                                    ex.Excluded = false;
+                                }
+                                foreach (TraitEntry ex in this.SpecialTraits)
                                 {
                                     if (t.trait.Excludes != ex.trait.TraitName)
                                     {
@@ -1817,7 +1930,23 @@ namespace Ship_Game
                             {
                                 bool OK = true;
                                 int num = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.AllTraits)
+                                foreach (TraitEntry ex in this.PhysicalTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                foreach (TraitEntry ex in this.SpecialTraits)
+                                {
+                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                    {
+                                        continue;
+                                    }
+                                    OK = false;
+                                }
+                                foreach (TraitEntry ex in this.IndustryTraits)
                                 {
                                     if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
                                     {
@@ -1832,7 +1961,23 @@ namespace Ship_Game
                                     raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
                                     AudioManager.GetCue("blip_click").Play();
                                     int excludes1 = t.trait.Excludes;
-                                    foreach (TraitEntry ex in this.AllTraits)
+                                    foreach (TraitEntry ex in this.PhysicalTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                    foreach (TraitEntry ex in this.SpecialTraits)
+                                    {
+                                        if (t.trait.Excludes != ex.trait.TraitName)
+                                        {
+                                            continue;
+                                        }
+                                        ex.Excluded = true;
+                                    }
+                                    foreach (TraitEntry ex in this.IndustryTraits)
                                     {
                                         if (t.trait.Excludes != ex.trait.TraitName)
                                         {
@@ -2164,10 +2309,9 @@ namespace Ship_Game
 				size = 70;
 			}
 			this.traitsSL = new ScrollList(this.Traits, size);
-            foreach (TraitEntry t in this.AllTraits)
+			foreach (TraitEntry t in this.PhysicalTraits)
 			{
-                if (t.trait.Category == "Physical")
-				    this.traitsSL.AddItem(t);
+				this.traitsSL.AddItem(t);
 			}
 			this.Engage = new UIButton()
 			{
@@ -2277,7 +2421,7 @@ namespace Ship_Game
                     }
                 case RaceDesignScreen.StarNum.Crowded:
                     {
-                        modifier = 1.5f;
+                        modifier = 1.4f;
                         this.ExitScreen();
                         base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
                         UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
@@ -2285,7 +2429,7 @@ namespace Ship_Game
                     }
                 case RaceDesignScreen.StarNum.Packed:
                     {
-                        modifier = 1.75f;
+                        modifier = 1.6f;
                         this.ExitScreen();
                         base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
                         UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
@@ -2293,7 +2437,7 @@ namespace Ship_Game
                     }
                 case RaceDesignScreen.StarNum.SuperPacked:
                     {
-                        modifier = 2f;
+                        modifier = 1.8f;
                         this.ExitScreen();
                         base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
                         UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
@@ -2333,28 +2477,25 @@ namespace Ship_Game
 			if (this.Traits.Tabs[0].Selected)
 			{
 				this.traitsSL.Entries.Clear();
-                foreach (TraitEntry t in this.AllTraits)
+				foreach (TraitEntry t in this.PhysicalTraits)
 				{
-                    if(t.trait.Category == "Physical")
-					    this.traitsSL.AddItem(t);
+					this.traitsSL.AddItem(t);
 				}
 			}
 			else if (this.Traits.Tabs[1].Selected)
 			{
 				this.traitsSL.Entries.Clear();
-                foreach (TraitEntry t in this.AllTraits)
+				foreach (TraitEntry t in this.IndustryTraits)
 				{
-                    if (t.trait.Category == "Industry")
-					    this.traitsSL.AddItem(t);
+					this.traitsSL.AddItem(t);
 				}
 			}
 			else if (this.Traits.Tabs[2].Selected)
 			{
 				this.traitsSL.Entries.Clear();
-                foreach (TraitEntry t in this.AllTraits)
+				foreach (TraitEntry t in this.SpecialTraits)
 				{
-                    if (t.trait.Category == "Special")
-					    this.traitsSL.AddItem(t);
+					this.traitsSL.AddItem(t);
 				}
 			}
 		}
