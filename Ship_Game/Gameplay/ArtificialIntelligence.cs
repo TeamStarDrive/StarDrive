@@ -6993,8 +6993,16 @@ namespace Ship_Game.Gameplay
             //    this.OrderQueue.Clear();
             //    this.State = this.DefaultAIState;
             //}
-               
-            if ((this.BadGuysNear ||this.Owner.InCombatTimer>0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0)
+
+            if ((this.BadGuysNear ||this.Owner.InCombatTimer>0) 
+                && this.State!= AIState.FormationWarp
+                && this.State != AIState.ReturnToHangar
+                && this.State != AIState.Ferrying
+                && this.State != AIState.Scuttle
+                && !this.hasPriorityTarget
+                && !this.Owner.IsSupplyShip
+                && this.Owner.Role !="construction
+                && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0)
             {
                 if (this.State != AIState.Flee && !this.HasPriorityOrder)
                 {
@@ -7009,10 +7017,10 @@ namespace Ship_Game.Gameplay
 
                     }
                 }
-
-
-
             }
+            else if (this.State == AIState.Flee && this.Owner.GetSystem() != null && this.Owner.GetSystem().combatTimer <= 0)
+                this.State = this.DefaultAIState;
+
             if (this.State == AIState.SystemTrader && this.start != null && this.end != null && (this.start.Owner != this.Owner.loyalty || this.end.Owner != this.Owner.loyalty))
             {
                 this.start = null;
