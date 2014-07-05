@@ -2235,8 +2235,8 @@ namespace Ship_Game
                     index.data.Traits.PassengerModifier = this.Owner.data.Traits.PassengerModifier;
                 if ((double)index.data.Traits.ProductionMod < (double)this.Owner.data.Traits.ProductionMod)
                     index.data.Traits.ProductionMod = this.Owner.data.Traits.ProductionMod;
-                if ((double)index.data.Traits.RepairRateMod < (double)this.Owner.data.Traits.RepairRateMod)
-                    index.data.Traits.RepairRateMod = this.Owner.data.Traits.RepairRateMod;
+                if ((double)index.data.Traits.RepairMod < (double)this.Owner.data.Traits.RepairMod)
+                    index.data.Traits.RepairMod = this.Owner.data.Traits.RepairMod;
                 if ((double)index.data.Traits.ResearchMod < (double)this.Owner.data.Traits.ResearchMod)
                     index.data.Traits.ResearchMod = this.Owner.data.Traits.ResearchMod;
                 if ((double)index.data.Traits.ShipCostMod > (double)this.Owner.data.Traits.ShipCostMod)
@@ -3074,7 +3074,17 @@ namespace Ship_Game
             return num;
         }
 
+        //added by gremlin: get a planets ground combat strength
+        public int GetGroundStrength(Empire empire)
+        {
+            int num =0;
+            if(this.Owner == empire )
+                num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            return num;
 
+               
+        }
 
         public List<Building> GetBuildingsWeCanBuildHere()
         {
@@ -4084,6 +4094,35 @@ namespace Ship_Game
                         }
                         else
                             break;
+                }
+            }
+            //Added by McShooterz: Colony build troops
+            if (this.ConstructionQueue.Count == 0 && this.ps == Planet.GoodState.EXPORT && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+            {
+                bool addTroop = false;
+                foreach (PlanetGridSquare planetGridSquare in this.TilesList)
+                {
+                    if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops)
+                    {
+                        addTroop = true;
+                        break;
+                    }
+                }
+                if (addTroop)
+                {
+                    foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
+                    {
+                        if (this.Owner.WeCanBuildTroop(troop.Key))
+                        {
+                            QueueItem qi = new QueueItem();
+                            qi.isTroop = true;
+                            qi.troop = troop.Value;
+                            qi.Cost = troop.Value.Cost;
+                            qi.productionTowards = 0f;
+                            this.ConstructionQueue.Add(qi);
+                            break;
+                        }
+                    }
                 }
             }
             if ((double)this.Population > 3000.0 || (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.75)
@@ -5210,20 +5249,6 @@ namespace Ship_Game
             string str1 = planet1.DevelopmentStatus + Localizer.Token(1779);
             planet1.DevelopmentStatus = str1;
         }
-
-        //added by gremlin: get a planets ground combat strength
-        public int GetGroundStrength(Empire empire)
-        {
-            int num = 0;
-            if (this.Owner == empire)
-                num += this.BuildingList.Sum(offense => offense.CombatStrength);
-            num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
-            return num;
-
-
-        }
-
-
 
         private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
         {

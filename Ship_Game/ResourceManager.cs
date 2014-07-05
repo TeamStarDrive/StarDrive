@@ -1090,8 +1090,7 @@ namespace Ship_Game
 				ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
 				IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
 				shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
-                FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime,
-                shieldsOff = Ship_Game.ResourceManager.ShipModulesDict[uid].shieldsOff
+                FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime
 			};
 			return module;
 		}
@@ -1746,7 +1745,7 @@ namespace Ship_Game
             for (int i = 0; i < (int)filesFromDirectory.Length; i++)
             {
                 string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
-                if (name != "Thumbs")
+                if (name != "blank")
                 {
                     Model projModel = Game1.Instance.Content.Load<Model>(string.Concat("Model/Projectiles/", name));
                     ModelMesh projMesh = projModel.Meshes[0];
@@ -2241,10 +2240,10 @@ namespace Ship_Game
                 string name = Path.GetFileNameWithoutExtension(FI.Name);
                 if (name != "Thumbs")
                 {
-                    SoundEffect se = Game1.Instance.Content.Load<SoundEffect>(string.Concat("..\\", Ship_Game.ResourceManager.WhichModPath, "\\SoundEffects\\", name));
-                    if (!Ship_Game.ResourceManager.SoundEffectDict.ContainsKey(name))
+                    SoundEffect se = Game1.Instance.Content.Load<SoundEffect>(string.Concat("SoundEffects/", Path.GetFileNameWithoutExtension(FI.Name)));
+                    if (!Ship_Game.ResourceManager.SoundEffectDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
                     {
-                        Ship_Game.ResourceManager.SoundEffectDict[name] = se;
+                        Ship_Game.ResourceManager.SoundEffectDict[string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name))] = se;
                     }
                 }
             }

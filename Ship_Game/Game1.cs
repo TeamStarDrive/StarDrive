@@ -16,7 +16,6 @@ using System.Reflection;
 using Fasterflect;
 using System.Linq;
 using System.Threading;
-using System.Configuration;
 
 
 
@@ -216,19 +215,8 @@ namespace Ship_Game
 			else
 			{
 				e.GraphicsDeviceInformation.PresentationParameters.MultiSampleQuality = (quality == 1 ? 0 : 1);
-                // added by gremlin video
-                e.GraphicsDeviceInformation.PresentationParameters.MultiSampleType = MultiSampleType.FourSamples;
-              
+				e.GraphicsDeviceInformation.PresentationParameters.MultiSampleType = MultiSampleType.TwoSamples;
 			}
-
-            if (bool.Parse(ConfigurationManager.AppSettings["8XAntiAliasing"]) && adapter.CheckDeviceMultiSampleType(DeviceType.Hardware, adapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out quality))
-            {
-                // even if a greater quality is returned, we only want quality 0
-               e.GraphicsDeviceInformation.PresentationParameters.MultiSampleQuality = 0;
-                e.GraphicsDeviceInformation.PresentationParameters.MultiSampleType = MultiSampleType.EightSamples;
-                    
-            }
-
 			e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
 		}
 
@@ -296,7 +284,6 @@ namespace Ship_Game
 					form.Location = new System.Drawing.Point(num1, size3.Height / 2 - height / 2);
 					this.CurrentMode = Game1.WindowMode.Borderless;
 					GlobalStats.Config.WindowMode = 2;
-                   
 					return;
 				}
 				default:

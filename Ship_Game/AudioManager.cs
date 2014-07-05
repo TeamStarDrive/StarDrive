@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.ObjectModel;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -16,16 +15,12 @@ namespace Ship_Game
 
 		private WaveBank waveBank;
 
-        //Added by McShooterz: store sounds instances
-        private List<SoundEffectInstance> SoundEffectInstances;
-
 		static AudioManager()
 		{
 		}
 
 		private AudioManager(Microsoft.Xna.Framework.Game game, string settingsFile, string waveBankFile, string soundBankFile) : base(game)
 		{
-            this.SoundEffectInstances = new List<SoundEffectInstance>();
 			try
 			{
 				this.audioEngine = new AudioEngine(settingsFile);
@@ -116,34 +111,11 @@ namespace Ship_Game
 
 		public override void Update(GameTime gameTime)
 		{
-            this.DisposeSoundEffectInstances();
 			if (this.audioEngine != null)
 			{
 				this.audioEngine.Update();
 			}
 			base.Update(gameTime);
 		}
-
-        //Added by McShooterz: Play 3d sound effect
-        public static void Play3DSoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae)
-        {
-            SoundEffectInstance sei = se.CreateInstance();
-            AudioManager.audioManager.SoundEffectInstances.Add(sei);
-            sei.Apply3D(al, ae);
-            sei.Play();
-        }
-
-        //Added by McShooterz: Dispose and remove sounds when finished
-        private void DisposeSoundEffectInstances()
-        {
-            for (int i = 0; i < SoundEffectInstances.Count; i++)
-            {
-                if (SoundEffectInstances[i].State == SoundState.Stopped && !SoundEffectInstances[i].IsDisposed)
-                {
-                    SoundEffectInstances[i].Dispose();
-                }
-            }
-            SoundEffectInstances.RemoveAll(x => x.IsDisposed);
-        }
 	}
 }

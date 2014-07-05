@@ -247,15 +247,13 @@ namespace Ship_Game
                     }
                     if (planet1 == null)
                         break;
-                    this.PlanetBuildingAt = planet1;
-                        planet1.ConstructionQueue.Add(new QueueItem()
+                    planet1.ConstructionQueue.Add(new QueueItem()
                     {
                         isShip = true,
                         QueueNumber = planet1.ConstructionQueue.Count,
                         sData = this.beingBuilt.GetShipData(),
                         Goal = this,
                         Cost = this.beingBuilt.GetCost(this.empire)
-                        
                     });
                     ++this.Step;
                     break;
