@@ -69,6 +69,7 @@ namespace Ship_Game
 
         private Checkbox pauseOnNotification;
         private FloatSlider IconSize;
+        private FloatSlider memoryLimit;
 
 		//private float transitionElapsedTime;
 
@@ -396,6 +397,7 @@ namespace Ship_Game
 			this.MusicVolumeSlider.DrawDecimal(base.ScreenManager);
 			this.EffectsVolumeSlider.DrawDecimal(base.ScreenManager);
             this.IconSize.Draw(base.ScreenManager);
+            this.memoryLimit.Draw(base.ScreenManager);
 			this.ResolutionDropDown.Draw(base.ScreenManager.SpriteBatch);
 			ToolTip.Draw(base.ScreenManager);
 			base.ScreenManager.SpriteBatch.End();
@@ -421,6 +423,8 @@ namespace Ship_Game
             this.pauseOnNotification.HandleInput(input);
             this.IconSize.HandleInput(input);
             GlobalStats.IconSize = (int)this.IconSize.amountRange;
+            this.memoryLimit.HandleInput(input);
+            GlobalStats.MemoryLimiter = this.memoryLimit.amountRange;
             
                 
 			if (!this.ResolutionDropDown.Open && !this.AntiAliasingDD.Open)
@@ -525,15 +529,16 @@ namespace Ship_Game
             this.MusicVolumeSlider = new FloatSlider(r, "Music Volume");
             this.MusicVolumeSlider.SetAmount(GlobalStats.Config.MusicVolume);
             this.MusicVolumeSlider.amount = GlobalStats.Config.MusicVolume;
-            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 120, 270, 50);
+            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 90, 270, 50);
             this.EffectsVolumeSlider = new FloatSlider(r, "Effects Volume");
             this.EffectsVolumeSlider.SetAmount(GlobalStats.Config.EffectsVolume);
             this.EffectsVolumeSlider.amount = GlobalStats.Config.EffectsVolume;
 
-            r = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 200, 270, 50);
+            r = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 140, 270, 50);
             this.IconSize = new FloatSlider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
-            
-            
+
+            r = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 190, 270, 50);
+            this.memoryLimit = new FloatSlider(r, string.Concat("Memory limit. KBs In Use: ",(int)GC.GetTotalMemory(true)/1000f), 150000, 200000, GlobalStats.MemoryLimiter);
             
             Vector2 vector2 = new Vector2((float)(this.SecondaryOptionsRect.X + 10), (float)(this.SecondaryOptionsRect.Y + 10));
             this.ResolutionDropDown = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y - 2, 105, 18));

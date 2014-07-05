@@ -164,7 +164,7 @@ namespace Ship_Game
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
             GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
             GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
-            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
+            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
 		}
 
 		public GlobalStats()
