@@ -7192,6 +7192,39 @@ namespace Ship_Game.Gameplay
                 if (HowMuchWeAreScrapping < Math.Abs(Capacity))
                 {
                     float Added = 0f;
+                    
+                    //added by gremlin clear out building ships before active ships.
+                    foreach (Goal g in this.Goals.Where(goal => goal.GoalName == "BuildOffensiveShips").OrderByDescending(goal => ResourceManager.ShipsDict[goal.ToBuildUID].GetMaintCost()))
+                    {
+                        bool flag = false;
+                        if (g.GetPlanetWhereBuilding() == null)
+                            continue;
+                        foreach(QueueItem shipToRemove in g.GetPlanetWhereBuilding().ConstructionQueue)
+                        {
+                           
+                            if (shipToRemove.Goal != g)
+                            {
+                                continue;
+                                
+                            }
+                            g.GetPlanetWhereBuilding().ProductionHere += shipToRemove.productionTowards;
+                            g.GetPlanetWhereBuilding().ConstructionQueue.QueuePendingRemoval(shipToRemove);
+                            this.Goals.QueuePendingRemoval(g);
+                            Added += ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                            flag = true;
+                            break;
+              
+                        }
+                        if (flag)
+                            g.GetPlanetWhereBuilding().ConstructionQueue.ApplyPendingRemovals();
+
+                    }
+                    this.Goals.ApplyPendingRemovals();
+                    
+                   
+                    
+                    
+
                     IOrderedEnumerable<Ship> sortedList =
                         from ship in this.empire.GetShips()
                         orderby ship.GetTechScore()
