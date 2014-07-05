@@ -635,19 +635,6 @@ namespace Ship_Game
 				Active = false
 			};
 			this.Orders.Add(SystemDefense);
-            //Added by McShooterz: scrap order
-            OrdersButton sc = new OrdersButton(this.ship, Vector2.Zero, OrderType.Scrap, 157)
-            {
-                ValueToModify = new Ref<bool>(() => this.ship.doingScrap, (bool x) => this.ship.doingScrap = x),
-                Active = false
-            };
-            this.Orders.Add(sc);
-            OrdersButton rf = new OrdersButton(this.ship, Vector2.Zero, OrderType.Refit, 158)
-            {
-                ValueToModify = new Ref<bool>(() => this.ship.doingRefit, (bool x) => this.ship.doingRefit = x),
-                Active = false
-            };
-            this.Orders.Add(rf);
 			int ex = 0;
 			int y = 0;
 			for (int i = 0; i < this.Orders.Count; i++)
