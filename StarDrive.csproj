@@ -1940,6 +1940,6 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist upload "C:\Program Files\7-Zip\7z" A -tzip $(ProjectName)-$(ConfigurationName)@include.txt</PostBuildEvent>
+    <PostBuildEvent>if exist upload "C:\Program Files\7-Zip\7z" A -tzip $(ProjectName)-$(ConfigurationName).zip @include.txt</PostBuildEvent>
   </PropertyGroup>
 </Project>
