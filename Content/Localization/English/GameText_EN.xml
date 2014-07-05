@@ -7290,7 +7290,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>7006</Index>
-      <Text>Order ship refit.</Text>
+      <Text>Order ship refit</Text>
     </Token>
 	<Token>
       <Index>7007</Index>
@@ -7299,6 +7299,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7008</Index>
       <Text>Armor</Text>
+    </Token>
+	<Token>
+      <Index>7009</Index>
+      <Text>Ship will move within maximum weapons range and present her Port broadside to the enemy for maximum coverage</Text>
+    </Token>
+		<Token>
+      <Index>7010</Index>
+      <Text>Ship will move within maximum weapons range and present her Starboard broadside to the enemy for maximum coverage</Text>
     </Token>
   </TokenList>
   
