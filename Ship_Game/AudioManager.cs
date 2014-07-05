@@ -124,12 +124,19 @@ namespace Ship_Game
 			base.Update(gameTime);
 		}
 
+        //Added by McShooterz: Play a sound
+        public static void PlaySoundEffect(SoundEffect se)
+        {
+            se.Play(GlobalStats.Config.EffectsVolume, 0, 0);
+        }
+
         //Added by McShooterz: Play 3d sound effect
         public static void Play3DSoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae)
         {
             SoundEffectInstance sei = se.CreateInstance();
             AudioManager.audioManager.SoundEffectInstances.Add(sei);
             sei.Apply3D(al, ae);
+            sei.Volume = GlobalStats.Config.EffectsVolume;
             sei.Play();
         }
 
