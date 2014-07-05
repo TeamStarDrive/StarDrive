@@ -44,7 +44,7 @@ namespace Ship_Game
             public string ShipType;
         }
 
-        //added by McShooterz: Alternate Tach variables
+        //added by McShooterz
         public bool Militaristic;
         public bool unlockFrigates;
         public bool unlockCruisers;
