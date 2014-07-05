@@ -436,6 +436,31 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public bool doingScrap
+        {
+            get
+            {
+                return this.AI.State == AIState.Scrap;
+            }
+            set
+            {
+                this.GetAI().OrderScrapShip();
+            }
+        }
+
+        public bool doingRefit
+        {
+            get
+            {
+                return this.AI.State == AIState.Refit;
+            }
+            set
+            {
+                //this.GetAI().OrderScrapShip();
+                Ship.universeScreen.ScreenManager.AddScreen((GameScreen)new RefitToWindow(this));
+            }
+        }
+
         public Ship()
         {
             foreach (KeyValuePair<string, Good> keyValuePair in Ship_Game.ResourceManager.GoodsDict)
@@ -1104,151 +1129,68 @@ namespace Ship_Game.Gameplay
             float maint = 0f;
             string role = this.Role;
             string str = role;
-            bool nonCombat = false;
+            //bool nonCombat = false;
             //added by gremlin: Maintenance changes
             float maintModReduction = 1;
-            if (role != null && this.GetShipData().ShipStyle != "Remnant" && (this.loyalty != null && this.loyalty.data != null && this.loyalty.data.PrototypeShip != this.Name))
+
+            //Ships without upkeep
+            if (role == null || this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
+                || (this.Mothership != null && (this.Role == "fighter" || this.Role == "corvette" || this.Role == "scout" || this.Role == "frigate")))
             {
+                return 0f;
+            }
 
-                if (this.Name == "Subspace Projector")
+            //Get Maintanence of ship role
+            maint = ResourceManager.ShipUpkeep.GetMaintanence(this.Role, this.loyalty.data.Traits.ShipType);
+
+            //Modify Maintanence by freighter size
+            if(this.Role == "freighter")
+            {
+                switch ((int)this.Size / 50)
                 {
-                    if (this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
-                    {
-                        maint = 0.1f;
-                    }
-                    else
-                    {
-                        maint = 0.2f;
-                    }
-                    return maint;
-                }
-                switch (str)
-                {
-                    case "freighter":
+                    case 0:
                         {
-
-
-                            switch ((int)this.Size / 50)
-                            {
-                                case 0:
-                                    {
-                                        maint = 0.2f;
-                                        break;
-                                    }
-
-                                case 1:
-                                    {
-                                        maint = 0.3f;
-                                        break;
-                                    }
-
-                                case 2:
-                                case 3:
-                                case 4:
-                                    {
-                                        maint = 0.4f;
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        maint = (int)this.Size / 50;
-                                        break;
-                                    }
-                            }
-                            if (this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization && this.Weapons.Count() < this.Size * .10f)
-                            {
-
-                                maint *= 0.5f;
-                            }
-
                             break;
                         }
 
-                    case "platform":
+                    case 1:
                         {
-                            if (this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
-                            {
-                                maint = 0.1f;
-                            }
-                            else
-                            {
-                                maint = 0.2f;
-                            }
+                            maint *= 1.5f;
                             break;
                         }
-                    case "fighter":
+
+                    case 2:
+                    case 3:
+                    case 4:
                         {
-                            if (this.Mothership != null)
-                            {
-                                return 0;
-                            }
-                            maint = 0.2f;
-                            break;
-                        }
-                    case "corvette":
-                        {
-                            if (this.Mothership != null)
-                            {
-                                return 0;
-                            }
-                            maint = 0.35f;
-                            break;
-                        }
-                    case "scout":
-                        {
-                            if (this.Mothership != null)
-                            {
-                                return 0;
-                            }
-                            maint = 0.1f;
-                            break;
-                        }
-                    case "frigate":
-                        {
-                            if (this.Mothership != null)
-                            {
-                                return 0;
-                            }
-                            maint = 1f;
-                            break;
-                        }
-                    case "cruiser":
-                        {
-                            maint = 2.5f;
-                            break;
-                        }
-                    case "carrier":
-                        {
-                            maint = 4f;
-                            break;
-                        }
-                    case "capital":
-                        {
-                            maint = 6f;
-                            break;
-                        }
-                    case "station":
-                        {
-                            maint = 6f;
-                            //added by gremlin shipyard exploit fix
-                            if (this.Name == "Shipyard" && this.IsTethered())
-                                if (this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() > 3)
-                                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() - 3;
+                            maint *= 2f;
                             break;
                         }
                     default:
                         {
-                            maint = 0f;
-                            return maint;
+                            maint *= (int)this.Size / 50;
+                            break;
                         }
                 }
             }
-            else
+
+            //Apply Privatization
+            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
             {
-                maint = 0f;
+                maint *= 0.5f;
+            }
+
+            //added by gremlin shipyard exploit fix
+            if (this.Name == "Shipyard" && this.IsTethered())
+                if (this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() > 3)
+                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() - 3;
+
+            //Subspace Projectors do not get any more modifiers
+            if (this.Name == "Subspace Projector")
+            {
                 return maint;
             }
+
             //Maintenance fluctuator
             //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
             float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
@@ -1286,8 +1228,6 @@ namespace Ship_Game.Gameplay
                 if (maintModReduction < 1) maintModReduction = 1;
                 maint *= maintModReduction;
             }
-
-
             return maint;
         }
 
@@ -1625,7 +1565,7 @@ namespace Ship_Game.Gameplay
             {
                 if (moduleSlot.module.FTLSpoolTime != 0) // Ignore 0 values (as 0 is assumed as default value if the XML contains no <FTLSpoolTime> data
                 {
-                    if (this.JumpTimer < moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
+                    if (this.JumpTimer < moduleSlot.module.FTLSpoolTime) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
                         this.JumpTimer = moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier; // New addition: Added capability to modify the spool time via research/racial bonus and apply this on top
                 }
             }
@@ -2059,7 +1999,7 @@ namespace Ship_Game.Gameplay
                 Ship powerCurrent = this;
                 powerCurrent.PowerCurrent = powerCurrent.PowerCurrent + moduleSlotList.module.PowerStoreMax;
                 Ship powerFlowMax = this;
-                powerFlowMax.PowerFlowMax = powerFlowMax.PowerFlowMax + moduleSlotList.module.PowerFlowMax;
+                powerFlowMax.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
                 Ship shieldMax = this;
                 shieldMax.shield_max = shieldMax.shield_max + moduleSlotList.module.shield_power_max;
                 Ship shieldPower = this;
@@ -2287,7 +2227,7 @@ namespace Ship_Game.Gameplay
                 this.PowerStoreMax += moduleSlot.module.PowerStoreMax;
                 if (this.loyalty != null && moduleSlot.module.ModuleType == ShipModuleType.FuelCell)
                     this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax;
-                this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
+                this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
                 this.shield_max += moduleSlot.module.shield_power_max;
                 this.shield_power += moduleSlot.module.shield_power;
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
@@ -3331,8 +3271,9 @@ namespace Ship_Game.Gameplay
                                 (dictionary = this.ResourceDrawDict)[index = moduleSlot.module.ResourceRequired] = dictionary[index] + moduleSlot.module.ResourcePerSecondAfterburner;
                             }
                         }
+                        //Added by McShooterz: use racial trait for repair rate bonus
                         if ((double)moduleSlot.module.BonusRepairRate > 0.0 && (double)moduleSlot.module.PowerDraw != 0.0 && moduleSlot.module.Powered)
-                            this.RepairRate += moduleSlot.module.BonusRepairRate;
+                            this.RepairRate += (moduleSlot.module.BonusRepairRate + moduleSlot.module.BonusRepairRate * this.loyalty.data.Traits.RepairMod);
                         this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                     }//);
                     this.RepairRate += (float)((double)this.RepairRate * (double)this.Level * 0.0500000007450581);
@@ -3388,10 +3329,16 @@ namespace Ship_Game.Gameplay
                             this.Thrust += moduleSlot.module.thrust;
                             this.WarpThrust += (float)moduleSlot.module.WarpThrust;
                             this.TurnThrust += (float)moduleSlot.module.TurnThrust;
-                            if (this.ShieldsUp)
+                            //Added by McShooterz: shields keep charge when manually turned off
+                            if (this.ShieldsUp && !(this.engineState == Ship.MoveState.Warp))
+                            {
                                 this.shield_power += moduleSlot.module.shield_power;
+                                moduleSlot.module.shieldsOff = false;
+                            }
                             else
-                                moduleSlot.module.shield_power = 0.0f;
+                            {
+                                moduleSlot.module.shieldsOff = true;
+                            }
                             this.OrdAddedPerSecond += moduleSlot.module.OrdnanceAddedPerSecond;
                             this.WarpMassCapacity += moduleSlot.module.WarpMassCapacity;
                             if ((double)moduleSlot.module.FTLSpeed > 0.0)
@@ -3421,10 +3368,11 @@ namespace Ship_Game.Gameplay
                             this.PowerStoreMax += moduleSlot.module.PowerStoreMax;
                             if (moduleSlot.module.ModuleType == ShipModuleType.FuelCell)
                                 this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax;
-                            this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
+                            this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
                             if ((double)moduleSlot.module.PowerDraw > 0.0 && moduleSlot.module.Powered)
                             {
-                                if (moduleSlot.module.ModuleType != ShipModuleType.Shield || !moduleSlot.module.Active || this.ShieldsUp)
+                                //Added by McShooterz: Shields modules do not draw power at warp due to shieldsOff, which gets turned on when ships is at warp
+                                if (moduleSlot.module.ModuleType != ShipModuleType.Shield || !moduleSlot.module.Active || !moduleSlot.module.shieldsOff)
                                 {
                                     this.AfterDraw += moduleSlot.module.PowerDrawWithAfterburner - this.loyalty.data.BurnerEfficiencyBonus * moduleSlot.module.PowerDrawWithAfterburner;
                                     this.WarpDraw += moduleSlot.module.PowerDrawAtWarp - this.loyalty.data.WarpEfficiencyBonus * moduleSlot.module.PowerDrawAtWarp;
@@ -3436,8 +3384,9 @@ namespace Ship_Game.Gameplay
                             this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                         }
                     }
-                    if (!this.inborders && this.engineState == Ship.MoveState.Warp && !GlobalStats.HardcoreRuleset)
-                        this.PowerDraw = this.loyalty.data.FTLPowerDrainModifier * this.PowerDraw;
+                    //added by McShooterz: apply warp draw to power draw
+                    if (!this.inborders && this.engineState == Ship.MoveState.Warp)
+                        this.PowerDraw = (this.loyalty.data.FTLPowerDrainModifier * this.PowerDraw) + (this.WarpDraw * this.loyalty.data.FTLPowerDrainModifier / 2);
                     Ship ship4 = this;
                     double num4 = (double)ship4.Mass * (double)this.loyalty.data.MassModifier;
                     ship4.Mass = (float)num4;
@@ -3646,33 +3595,13 @@ namespace Ship_Game.Gameplay
                 this.Die((GameplayObject)null, false);
             if ((double)this.Mass < (double)(this.Size / 2))
                 this.Mass = (float)(this.Size / 2);
-            if (GlobalStats.HardcoreRuleset)
-            {
-                if (this.engineState == Ship.MoveState.Warp)
-                {
-                    this.PowerCurrent -= this.WarpDraw * elapsedTime;
-                    if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
-                        this.PowerCurrent += this.PowerFlowMax * elapsedTime;
-                }
-                else if (this.engineState == Ship.MoveState.Afterburner)
-                {
-                    this.PowerCurrent -= this.AfterDraw * elapsedTime;
-                    if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
-                        this.PowerCurrent += this.PowerFlowMax * elapsedTime;
-                }
-                else
-                {
-                    this.PowerCurrent -= this.PowerDraw * elapsedTime;
-                    if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
-                        this.PowerCurrent += this.PowerFlowMax * elapsedTime;
-                }
-            }
-            else
-            {
-                this.PowerCurrent -= this.PowerDraw * elapsedTime;
-                if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
-                    this.PowerCurrent += this.PowerFlowMax * elapsedTime;
-            }
+            //added by McShooterz: apply afterburn power draw
+            if (this.engineState == Ship.MoveState.Afterburner)
+                this.PowerCurrent -= this.AfterDraw * elapsedTime;
+            this.PowerCurrent -= this.PowerDraw * elapsedTime;
+            if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
+                this.PowerCurrent += (this.PowerFlowMax + (this.loyalty != null ? this.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0)) * elapsedTime;
+
             foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
             {
                 Dictionary<string, float> dictionary;
