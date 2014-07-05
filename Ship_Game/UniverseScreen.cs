@@ -242,6 +242,7 @@ namespace Ship_Game
         //private int cursorFrame;
         private float radlast;
         private int SelectorFrame;
+        private float garbageCollector;
 
         static UniverseScreen()
         {
@@ -1177,6 +1178,17 @@ namespace Ship_Game
                     this.PieMenuTimer += (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
                     this.NotificationManager.Update((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                     this.AutoSaveTimer -= 0.01666667f;
+                    
+                    //added forced garbage collection to hlep ship building issues.
+                    this.garbageCollector -= 0.01666667f;
+                    if (this.garbageCollector <= 0.0f)
+                    {
+                        this.garbageCollector = 100;
+                        if(GC.GetTotalMemory(false) > GlobalStats.MemoryLimiter)
+                        {
+                            GC.GetTotalMemory(true);
+                        }
+                    }
                     if (this.AutoSaveTimer <= 0.0f)
                     {
                         this.AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
@@ -1212,6 +1224,7 @@ namespace Ship_Game
 
         public void DoAutoSave()
         {
+            GC.GetTotalMemory(true);
             SavedGame savedGame = new SavedGame(this, "Autosave " + this.Auto.ToString());
             ++this.Auto;
             if (this.Auto <= 3)

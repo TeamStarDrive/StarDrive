@@ -3527,6 +3527,11 @@ namespace Ship_Game.Gameplay
 
                 return;
             }
+            if (this.Owner.GetSystem() != null && this.Owner.GetSystem().combatTimer <= 0)
+            {
+                this.State = AIState.AwaitingOrders;
+                this.HasPriorityOrder = false;
+            }
             
             lock (GlobalStats.WayPointLock)
             {
@@ -3542,12 +3547,12 @@ namespace Ship_Game.Gameplay
            
             IOrderedEnumerable<SolarSystem> systemList =
                 from solarsystem in this.Owner.loyalty.GetOwnedSystems()
-                where solarsystem.CombatInSystem ==false && Vector2.Distance(solarsystem.Position,this.Owner.Position) >300000
+                where solarsystem.combatTimer <=0 && Vector2.Distance(solarsystem.Position,this.Owner.Position) >300000
                 orderby Vector2.Distance(this.Owner.Center, solarsystem.Position)
                 select solarsystem;
             if (systemList.Count<SolarSystem>() > 0)
             {
-                Planet item = systemList.First<SolarSystem>().PlanetList[0];
+                Planet item = systemList.First<SolarSystem>().PlanetList.Where(ours => ours.Owner == this.Owner.loyalty).First();
                 this.OrbitTarget = item;
                 ArtificialIntelligence.ShipGoal orbit = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Orbit, Vector2.Zero, 0f)
                 {
