@@ -1061,7 +1061,7 @@ namespace Ship_Game
 							Rectangle? nullable5 = null;
 							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
 						}
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.module.InstalledWeapon.Tag_Beam)
 						{
 							Color drawcolor = new Color(255, 0, 0, 255);
 							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
@@ -1601,14 +1601,14 @@ namespace Ship_Game
 					modTitlePos.Y = starty;
 					this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    if (!mod.InstalledWeapon.isBeam)
+                    if (!mod.InstalledWeapon.Tag_Beam)
 					{
                         this.DrawStat(ref modTitlePos, Localizer.Token(129), (float)ModifiedWeaponStat(mod.InstalledWeapon, "speed"), 85);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
 					if (mod.InstalledWeapon.DamageAmount > 0f)
 					{
-                        if (mod.InstalledWeapon.isBeam)
+                        if (mod.InstalledWeapon.Tag_Beam)
 						{
                             float dps = (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 60f * 3f / ModifiedWeaponStat(mod.InstalledWeapon, "firedelay");
 							this.DrawStat(ref modTitlePos, "DPS", dps, 86);

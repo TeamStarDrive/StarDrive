@@ -759,7 +759,7 @@ namespace Ship_Game.Gameplay
 						this.DieNextFrame = true;
 						return true;
 					}
-                    if (this.weapon.Tag_Guided && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
+                    if (this.weapon.Tag_Guided)
                     {
                         float ECMResist = this.weapon.ECMResist; // check any in-built ECM resistance on the guided weapon itself
                         Ship targetShip = (target as ShipModule).GetParent(); // identify the ship to which the module belongs

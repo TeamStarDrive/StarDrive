@@ -21,12 +21,6 @@ namespace Ship_Game
         public bool useAlternateTech;
         public bool useHullBonuses;
 
-        //added by The Doctor
-        public bool useDestroyers;
-        public bool useDrones;
-        public bool enableECM;
-        public bool extraFireArcs;
-
 
 		public ModInformation()
 		{
