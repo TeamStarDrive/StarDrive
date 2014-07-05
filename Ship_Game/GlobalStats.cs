@@ -109,6 +109,7 @@ namespace Ship_Game
 
         public static float StartingPlanetRichness;
         public static string ExtendedVersion;
+        public static int IconSize;
 
 		static GlobalStats()
 		{       
@@ -163,6 +164,7 @@ namespace Ship_Game
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
             GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
             GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
+            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
 		}
 
 		public GlobalStats()
