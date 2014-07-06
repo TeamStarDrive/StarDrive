@@ -62,7 +62,7 @@ namespace Ship_Game
 			this.graphics = new GraphicsDeviceManager(this)
 			{
 				MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
-				MinimumVertexShaderProfile = ShaderProfile.VS_2_0
+				MinimumVertexShaderProfile = ShaderProfile. VS_2_0
 			};
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive"));
@@ -240,8 +240,10 @@ namespace Ship_Game
                 height = 600;
             }
 			Form form = (Form)Control.FromHandle(base.Window.Handle);
+#if DEBUG
             if (mode == WindowMode.Fullscreen)
-                mode = WindowMode.Borderless;
+                mode = WindowMode.Borderless; 
+#endif
             switch (mode)
 			{
 				case Game1.WindowMode.Fullscreen:
