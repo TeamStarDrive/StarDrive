@@ -4317,7 +4317,8 @@ namespace Ship_Game
             Vector2 vector2_1 = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
             foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
             {
-                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && (double)moduleSlot.module.shield_power > 0.0)
+                //Added by McShooterz: Changed it so when shields are turned off manually, do not draw bubble
+                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && (double)moduleSlot.module.shield_power > 0.0 && !moduleSlot.module.shieldsOff)
                 {
                     Vector2 origin1 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2));
                     Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);
@@ -4776,7 +4777,7 @@ namespace Ship_Game
                                     ScreenPos = vector2,
                                     ClickRadius = 15f
                                 });
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["FleetIcons/" + (object)keyValuePair.Value.FleetIconIndex], vector2, new Rectangle?(), empire.EmpireColor, 0.0f, origin, 0.35f, SpriteEffects.None, 1f); //(float)( 0.35f+GlobalStats.IconSize/100) , SpriteEffects.None, 1f);//0.35f, SpriteEffects.None, 1f);
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["FleetIcons/" + (object)keyValuePair.Value.FleetIconIndex], vector2, new Rectangle?(), empire.EmpireColor, 0.0f, origin, 0.35f, SpriteEffects.None, 1f);
                                 HelperFunctions.DrawDropShadowText(this.ScreenManager, keyValuePair.Value.Name, new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
                             }
                         }
