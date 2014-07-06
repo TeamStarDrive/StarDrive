@@ -20,6 +20,7 @@ namespace Ship_Game
         public bool useRacialTech;
         public bool useAlternateTech;
         public bool useHullBonuses;
+        public bool useWeaponModifiers;
 
         //added by The Doctor
         public bool useDestroyers;
