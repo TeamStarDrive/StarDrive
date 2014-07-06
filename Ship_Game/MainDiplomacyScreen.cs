@@ -446,72 +446,73 @@ namespace Ship_Game
 				TextCursor = new Vector2((float)(this.OperationsRect.X + 20), (float)(this.OperationsRect.Y + 10));
 				HelperFunctions.DrawDropShadowText(base.ScreenManager, (this.SelectedEmpire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ? Localizer.Token(2181) : Localizer.Token(2212)), TextCursor, Fonts.Arial20Bold);
 				TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
-				if (this.SelectedEmpire.data.Traits.PopGrowthMax > 0f)
-				{
-					this.DrawBadStat(Localizer.Token(4041), string.Concat("+", this.SelectedEmpire.data.Traits.PopGrowthMax.ToString(".##")), ref TextCursor);
-				}
-				if (this.SelectedEmpire.data.Traits.PopGrowthMin > 0f)
-				{
-					this.DrawGoodStat(Localizer.Token(4040), string.Concat("+", this.SelectedEmpire.data.Traits.PopGrowthMin.ToString(".##")), ref TextCursor);
-				}
-                if(this.SelectedEmpire.data.Traits.ReproductionMod != 0)
-				    this.DrawStat(Localizer.Token(4017), this.SelectedEmpire.data.Traits.ReproductionMod, ref TextCursor);
-                if(this.SelectedEmpire.data.Traits.ProductionMod != 0)
-				    this.DrawStat(Localizer.Token(4018), this.SelectedEmpire.data.Traits.ProductionMod, ref TextCursor);
-                if(this.SelectedEmpire.data.Traits.ResearchMod != 0)
-				    this.DrawStat(Localizer.Token(4019), this.SelectedEmpire.data.Traits.ResearchMod, ref TextCursor);
-                if(this.SelectedEmpire.data.Traits.DiplomacyMod != 0)
-				    this.DrawStat(Localizer.Token(4020), this.SelectedEmpire.data.Traits.DiplomacyMod, ref TextCursor);
-                if(this.SelectedEmpire.data.Traits.GroundCombatModifier != 0)
-				    this.DrawStat(Localizer.Token(4021), this.SelectedEmpire.data.Traits.GroundCombatModifier, ref TextCursor);
-                if(this.SelectedEmpire.data.Traits.ShipCostMod != 0)
-				    this.DrawStat(Localizer.Token(4022), this.SelectedEmpire.data.Traits.ShipCostMod, ref TextCursor, true);
-                if(this.SelectedEmpire.data.Traits.ModHpModifier != 0)
-				    this.DrawStat(Localizer.Token(4023), this.SelectedEmpire.data.Traits.ModHpModifier, ref TextCursor);
+                //Added by McShooterz: Only display modified bonuses
+                if (this.SelectedEmpire.data.Traits.PopGrowthMax > 0f)
+                {
+                    this.DrawBadStat(Localizer.Token(4041), string.Concat("+", this.SelectedEmpire.data.Traits.PopGrowthMax.ToString(".##")), ref TextCursor);
+                }
+                if (this.SelectedEmpire.data.Traits.PopGrowthMin > 0f)
+                {
+                    this.DrawGoodStat(Localizer.Token(4040), string.Concat("+", this.SelectedEmpire.data.Traits.PopGrowthMin.ToString(".##")), ref TextCursor);
+                }
+                if (this.SelectedEmpire.data.Traits.ReproductionMod != 0)
+                    this.DrawStat(Localizer.Token(4017), this.SelectedEmpire.data.Traits.ReproductionMod, ref TextCursor);
+                if (this.SelectedEmpire.data.Traits.ProductionMod != 0)
+                    this.DrawStat(Localizer.Token(4018), this.SelectedEmpire.data.Traits.ProductionMod, ref TextCursor);
+                if (this.SelectedEmpire.data.Traits.ResearchMod != 0)
+                    this.DrawStat(Localizer.Token(4019), this.SelectedEmpire.data.Traits.ResearchMod, ref TextCursor);
+                if (this.SelectedEmpire.data.Traits.DiplomacyMod != 0)
+                    this.DrawStat(Localizer.Token(4020), this.SelectedEmpire.data.Traits.DiplomacyMod, ref TextCursor);
+                if (this.SelectedEmpire.data.Traits.GroundCombatModifier != 0)
+                    this.DrawStat(Localizer.Token(4021), this.SelectedEmpire.data.Traits.GroundCombatModifier, ref TextCursor);
+                if (this.SelectedEmpire.data.Traits.ShipCostMod != 0)
+                    this.DrawStat(Localizer.Token(4022), this.SelectedEmpire.data.Traits.ShipCostMod, ref TextCursor, true);
+                if (this.SelectedEmpire.data.Traits.ModHpModifier != 0)
+                    this.DrawStat(Localizer.Token(4023), this.SelectedEmpire.data.Traits.ModHpModifier, ref TextCursor);
                 //Added by McShooterz: new races stats to display in diplomacy
-                if(this.SelectedEmpire.data.Traits.RepairMod != 0)
+                if (this.SelectedEmpire.data.Traits.RepairMod != 0)
                     this.DrawStat(Localizer.Token(6012), this.SelectedEmpire.data.Traits.RepairMod, ref TextCursor);
-                if(this.SelectedEmpire.data.PowerFlowMod != 0)
+                if (this.SelectedEmpire.data.PowerFlowMod != 0)
                     this.DrawStat(Localizer.Token(6014), this.SelectedEmpire.data.PowerFlowMod, ref TextCursor);
 
-                if(this.SelectedEmpire.data.MassModifier != 1)
-				    this.DrawStat(Localizer.Token(4036), this.SelectedEmpire.data.MassModifier - 1f, ref TextCursor, true);
-                if(this.SelectedEmpire.data.Traits.TaxMod != 0)
-				    this.DrawStat(Localizer.Token(4024), this.SelectedEmpire.data.Traits.TaxMod, ref TextCursor);
-                if(this.SelectedEmpire.data.Traits.MaintMod != 0)
-				    this.DrawStat(Localizer.Token(4037), this.SelectedEmpire.data.Traits.MaintMod, ref TextCursor, true);
-				this.DrawStat(Localizer.Token(4025), this.SelectedEmpire.data.Traits.InBordersSpeedBonus, ref TextCursor);
-				if (Ship.universeScreen.FTLModifier != 1f)
-				{
-					float fTLModifier = Ship.universeScreen.FTLModifier * 100f;
-					this.DrawBadStat(Localizer.Token(4038), string.Concat(fTLModifier.ToString("##"), "%"), ref TextCursor);
-				}
-				this.DrawStat(Localizer.Token(4026), string.Concat(this.SelectedEmpire.data.FTLModifier, "x"), ref TextCursor);
-				this.DrawStat(Localizer.Token(4027), string.Concat(this.SelectedEmpire.data.FTLPowerDrainModifier, "x"), ref TextCursor);
-                if(this.SelectedEmpire.data.FuelCellModifier != 0)
-				    this.DrawStat(Localizer.Token(4039), this.SelectedEmpire.data.FuelCellModifier, ref TextCursor);
-                if(this.SelectedEmpire.data.SubLightModifier != 1)
-				    this.DrawStat(Localizer.Token(4028), this.SelectedEmpire.data.SubLightModifier - 1f, ref TextCursor);
-                if(this.SelectedEmpire.data.SensorModifier != 1)
-				    this.DrawStat(Localizer.Token(4029), this.SelectedEmpire.data.SensorModifier - 1f, ref TextCursor);
-				if (this.SelectedEmpire.data.SpyModifier > 0f)
-				{
-					this.DrawGoodStat(Localizer.Token(4030), string.Concat("+", this.SelectedEmpire.data.SpyModifier.ToString("#")), ref TextCursor);
-				}
-                else if (this.SelectedEmpire.data.SpyModifier < 0f) 
-				{
-					this.DrawBadStat(Localizer.Token(4030), string.Concat("-", this.SelectedEmpire.data.SpyModifier.ToString("#")), ref TextCursor);
-				}
-                if(this.SelectedEmpire.data.Traits.Spiritual != 0)
-				    this.DrawStat(Localizer.Token(4031), this.SelectedEmpire.data.Traits.Spiritual, ref TextCursor);
-                if(this.SelectedEmpire.data.Traits.EnergyDamageMod != 0)
-				    this.DrawStat(Localizer.Token(4032), this.SelectedEmpire.data.Traits.EnergyDamageMod, ref TextCursor);
-                if(this.SelectedEmpire.data.OrdnanceEffectivenessBonus != 0)
-				    this.DrawStat(Localizer.Token(4033), this.SelectedEmpire.data.OrdnanceEffectivenessBonus, ref TextCursor);
-                if(this.SelectedEmpire.data.MissileHPModifier != 1)
-				    this.DrawStat(Localizer.Token(4034), this.SelectedEmpire.data.MissileHPModifier - 1f, ref TextCursor);
-                if(this.SelectedEmpire.data.MissileDodgeChance != 0)
-				    this.DrawStat(Localizer.Token(4035), this.SelectedEmpire.data.MissileDodgeChance, ref TextCursor);
+                if (this.SelectedEmpire.data.MassModifier != 1)
+                    this.DrawStat(Localizer.Token(4036), this.SelectedEmpire.data.MassModifier - 1f, ref TextCursor, true);
+                if (this.SelectedEmpire.data.Traits.TaxMod != 0)
+                    this.DrawStat(Localizer.Token(4024), this.SelectedEmpire.data.Traits.TaxMod, ref TextCursor);
+                if (this.SelectedEmpire.data.Traits.MaintMod != 0)
+                    this.DrawStat(Localizer.Token(4037), this.SelectedEmpire.data.Traits.MaintMod, ref TextCursor, true);
+                this.DrawStat(Localizer.Token(4025), this.SelectedEmpire.data.Traits.InBordersSpeedBonus, ref TextCursor);
+                if (Ship.universeScreen.FTLModifier != 1f)
+                {
+                    float fTLModifier = Ship.universeScreen.FTLModifier * 100f;
+                    this.DrawBadStat(Localizer.Token(4038), string.Concat(fTLModifier.ToString("##"), "%"), ref TextCursor);
+                }
+                this.DrawStat(Localizer.Token(4026), string.Concat(this.SelectedEmpire.data.FTLModifier, "x"), ref TextCursor);
+                this.DrawStat(Localizer.Token(4027), string.Concat(this.SelectedEmpire.data.FTLPowerDrainModifier, "x"), ref TextCursor);
+                if (this.SelectedEmpire.data.FuelCellModifier != 0)
+                    this.DrawStat(Localizer.Token(4039), this.SelectedEmpire.data.FuelCellModifier, ref TextCursor);
+                if (this.SelectedEmpire.data.SubLightModifier != 1)
+                    this.DrawStat(Localizer.Token(4028), this.SelectedEmpire.data.SubLightModifier - 1f, ref TextCursor);
+                if (this.SelectedEmpire.data.SensorModifier != 1)
+                    this.DrawStat(Localizer.Token(4029), this.SelectedEmpire.data.SensorModifier - 1f, ref TextCursor);
+                if (this.SelectedEmpire.data.SpyModifier > 0f)
+                {
+                    this.DrawGoodStat(Localizer.Token(4030), string.Concat("+", this.SelectedEmpire.data.SpyModifier.ToString("#")), ref TextCursor);
+                }
+                else if (this.SelectedEmpire.data.SpyModifier < 0f)
+                {
+                    this.DrawBadStat(Localizer.Token(4030), string.Concat("-", this.SelectedEmpire.data.SpyModifier.ToString("#")), ref TextCursor);
+                }
+                if (this.SelectedEmpire.data.Traits.Spiritual != 0)
+                    this.DrawStat(Localizer.Token(4031), this.SelectedEmpire.data.Traits.Spiritual, ref TextCursor);
+                if (this.SelectedEmpire.data.Traits.EnergyDamageMod != 0)
+                    this.DrawStat(Localizer.Token(4032), this.SelectedEmpire.data.Traits.EnergyDamageMod, ref TextCursor);
+                if (this.SelectedEmpire.data.OrdnanceEffectivenessBonus != 0)
+                    this.DrawStat(Localizer.Token(4033), this.SelectedEmpire.data.OrdnanceEffectivenessBonus, ref TextCursor);
+                if (this.SelectedEmpire.data.MissileHPModifier != 1)
+                    this.DrawStat(Localizer.Token(4034), this.SelectedEmpire.data.MissileHPModifier - 1f, ref TextCursor);
+                if (this.SelectedEmpire.data.MissileDodgeChance != 0)
+                    this.DrawStat(Localizer.Token(4035), this.SelectedEmpire.data.MissileDodgeChance, ref TextCursor);
 			}
 			this.close.Draw(base.ScreenManager);
 			if (base.IsActive)

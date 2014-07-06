@@ -769,9 +769,19 @@ namespace Ship_Game.Gameplay
                             this.OrbitShipLeft(this.Target as Ship, elapsedTime);
                             break;
                         }
+                    case CombatState.BroadsideLeft:
+                        {
+                            this.DoNonFleetBroadsideLeft(elapsedTime);
+                            break;
+                        }
                     case CombatState.OrbitRight:
                         {
                             this.OrbitShip(this.Target as Ship, elapsedTime);
+                            break;
+                        }
+                    case CombatState.BroadsideRight:
+                        {
+                            this.DoNonFleetBroadsideRight(elapsedTime);
                             break;
                         }
                     case CombatState.AttackRuns:
@@ -810,9 +820,19 @@ namespace Ship_Game.Gameplay
                             this.OrbitShipLeft(this.Target as Ship, elapsedTime);
                             break;
                         }
+                    case CombatState.BroadsideLeft:
+                        {
+                            this.DoNonFleetBroadsideLeft(elapsedTime);
+                            break;
+                        }
                     case CombatState.OrbitRight:
                         {
                             this.OrbitShip(this.Target as Ship, elapsedTime);
+                            break;
+                        }
+                    case CombatState.BroadsideRight:
+                        {
+                            this.DoNonFleetBroadsideRight(elapsedTime);
                             break;
                         }
                     case CombatState.AttackRuns:
@@ -1294,30 +1314,82 @@ namespace Ship_Game.Gameplay
 			this.OrderQueue.AddLast(oredrop);
 		}
 
-		private void DoNonFleetArtillery(float elapsedTime)
-		{
-			Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-			Vector2 right = new Vector2(-forward.Y, forward.X);
-			Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, this.Target.Center);
-			float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
-			float DistanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
-			if (DistanceToTarget > this.Owner.maxWeaponsRange)
-			{
-				this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
-				return;
-			}
-			if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
-			{
-				Ship owner = this.Owner;
-				owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
-			}
-			if (angleDiff <= 0.02f)
-			{
-				this.DeRotate();
-				return;
-			}
-			this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f));
-		}
+        private void DoNonFleetArtillery(float elapsedTime)
+        {
+            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+            Vector2 right = new Vector2(-forward.Y, forward.X);
+            Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, this.Target.Center);
+            float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
+            float DistanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
+            if (DistanceToTarget > this.Owner.maxWeaponsRange)
+            {
+                this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
+                return;
+            }
+            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+            {
+                Ship owner = this.Owner;
+                owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+            }
+            if (angleDiff <= 0.02f)
+            {
+                this.DeRotate();
+                return;
+            }
+            this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f));
+        }
+
+        private void DoNonFleetBroadsideRight(float elapsedTime)
+        {
+            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+            Vector2 right = new Vector2(-forward.Y, forward.X);
+            Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, this.Target.Center);
+            float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, right));
+            float DistanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
+            if (DistanceToTarget > this.Owner.maxWeaponsRange)
+            {
+                this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
+                return;
+            }
+            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+            {
+                Ship owner = this.Owner;
+                owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+            }
+            if (angleDiff <= 0.02f)
+            {
+                this.DeRotate();
+                return;
+            }
+            this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, forward) > 0f ? 1f : -1f));
+        }
+
+        private void DoNonFleetBroadsideLeft(float elapsedTime)
+        {
+            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+            Vector2 right = new Vector2(-forward.Y, forward.X);
+            Vector2 left = new Vector2(forward.Y, -forward.X);
+            Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, this.Target.Center);
+            float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, left));
+            float DistanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
+            if (DistanceToTarget > this.Owner.maxWeaponsRange)
+            {
+                this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
+                return;
+            }
+            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+            {
+                Ship owner = this.Owner;
+                owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+            }
+            if (angleDiff <= 0.02f && angleDiff >= -0.02f)
+            {
+                this.DeRotate();
+                return;
+            }
+            this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, forward) > 0f ? 1f : -1f));
+        }
+
 
 		private void DoOrbit(Planet OrbitTarget, float OrbitalDistance, float elapsedTime)
 		{
