@@ -1485,10 +1485,20 @@ namespace Ship_Game.Gameplay
 
 		private void ModifyProjectile(Projectile projectile)
 		{
-			if (this.owner == null)
+            if (this.owner == null)
 			{
 				return;
 			}
+            if (this.owner.loyalty.data.Traits.Pack)
+            {
+                Projectile projectile1 = projectile;
+                projectile1.damageAmount = projectile1.damageAmount + projectile.damageAmount * this.owner.DamageModifier;
+            }
+            //Added by McShooterz: Check if mod uses weapon modifiers
+            if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useWeaponModifiers)
+            {
+                return;
+            }
 			if (this.Tag_Missile)
 			{
 				this.AddModifiers("Missile", projectile);
@@ -1562,11 +1572,6 @@ namespace Ship_Game.Gameplay
             {
                 this.AddModifiers("Bomb", projectile);
             }
-			if (this.owner.loyalty.data.Traits.Pack)
-			{
-				Projectile projectile1 = projectile;
-				projectile1.damageAmount = projectile1.damageAmount + projectile.damageAmount * this.owner.DamageModifier;
-			}
 		}
 
 		public void ResetToggleSound()
