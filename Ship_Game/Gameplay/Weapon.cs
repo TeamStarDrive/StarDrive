@@ -267,22 +267,30 @@ namespace Ship_Game.Gameplay
 			this.ToggleSoundOn = false;
 			if (this.owner.InFrustum && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
-				if (this.fireCueName != "")
-				{
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					if (!this.owner.isPlayerShip())
-					{
-						this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					}
-					this.fireCue.Play();
-				}
-				if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
-				{
-					this.ToggleSoundOn = true;
-					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-					this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					this.ToggleCue.Play();
-				}
+                //Added by McShooterz: Use sounds from new sound dictionary
+                if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                {
+                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                }
+                else
+                {
+                    if (this.fireCueName != "")
+                    {
+                        this.fireCue = AudioManager.GetCue(this.fireCueName);
+                        if (!this.owner.isPlayerShip())
+                        {
+                            this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                        }
+                        this.fireCue.Play();
+                    }
+                }
+                if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+                {
+                    this.ToggleSoundOn = true;
+                    this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
+                    this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                    this.ToggleCue.Play();
+                }
 			}
 		}
 
@@ -370,12 +378,20 @@ namespace Ship_Game.Gameplay
 			this.ToggleSoundOn = false;
 			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
-				if (this.fireCueName != "")
-				{
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					this.fireCue.Apply3D(Weapon.audioListener, source.Owner.emitter);
-					this.fireCue.Play();
-				}
+                //Added by McShooterz: Use sounds from new sound dictionary
+                if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                {
+                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, source.Owner.emitter);
+                }
+                else
+                {
+                    if (this.fireCueName != "")
+                    {
+                        this.fireCue = AudioManager.GetCue(this.fireCueName);
+                        this.fireCue.Apply3D(Weapon.audioListener, source.Owner.emitter);
+                        this.fireCue.Play();
+                    }
+                }
 				if (this.ToggleSoundName != "")
 				{
 					this.ToggleSoundOn = true;
@@ -536,22 +552,30 @@ namespace Ship_Game.Gameplay
 			this.ToggleSoundOn = false;
 			if ((this.owner.GetSystem() != null && this.owner.GetSystem().isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
-				if (this.fireCueName != "")
-				{
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					if (!this.owner.isPlayerShip())
-					{
-						this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					}
-					this.fireCue.Play();
-				}
-				if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
-				{
-					this.ToggleSoundOn = true;
-					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-					this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					this.ToggleCue.Play();
-				}
+                //Added by McShooterz: Use sounds from new sound dictionary
+                if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                {
+                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                }
+                else
+                {
+                    if (this.fireCueName != "")
+                    {
+                        this.fireCue = AudioManager.GetCue(this.fireCueName);
+                        if (!this.owner.isPlayerShip())
+                        {
+                            this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                        }
+                        this.fireCue.Play();
+                    }
+                }
+                if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+                {
+                    this.ToggleSoundOn = true;
+                    this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
+                    this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                    this.ToggleCue.Play();
+                }
 			}
 		}
 
@@ -596,16 +620,24 @@ namespace Ship_Game.Gameplay
 					this.ToggleCue.Play();
 					if (this.fireCue != null)
 					{
-						this.fireCue = AudioManager.GetCue(this.fireCueName);
-						if (!this.owner.isPlayerShip())
-						{
-							this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-						}
-						this.lastFireSound = 0f;
-						if (this.fireCue != null)
-						{
-							this.fireCue.Play();
-						}
+                        //Added by McShooterz: Use sounds from new sound dictionary
+                        if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                        {
+                            AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                        }
+                        else
+                        {
+                            this.fireCue = AudioManager.GetCue(this.fireCueName);
+                            if (!this.owner.isPlayerShip())
+                            {
+                                this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                            }
+                            this.lastFireSound = 0f;
+                            if (this.fireCue != null)
+                            {
+                                this.fireCue.Play();
+                            }
+                        }
 					}
 				}
 				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
@@ -618,17 +650,25 @@ namespace Ship_Game.Gameplay
 				}
 				if (this.ToggleCue == null && this.owner.ProjectilesFired.Count < 30)
 				{
+                    this.lastFireSound = 0f;
 					this.owner.ProjectilesFired.Add(new ProjectileTracker());
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					if (!this.owner.isPlayerShip())
-					{
-						this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					}
-					this.lastFireSound = 0f;
-					if (this.fireCue != null)
-					{
-						this.fireCue.Play();
-					}
+                    //Added by McShooterz: Use sounds from new sound dictionary
+                    if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                    {
+                        AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                    }
+                    else
+                    {
+                        this.fireCue = AudioManager.GetCue(this.fireCueName);
+                        if (!this.owner.isPlayerShip())
+                        {
+                            this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                        }
+                        if (this.fireCue != null)
+                        {
+                            this.fireCue.Play();
+                        }
+                    }
 				}
 			}
 			this.owner.Projectiles.Add(projectile);
@@ -668,16 +708,24 @@ namespace Ship_Game.Gameplay
 					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
 					this.ToggleCue.Apply3D(Weapon.audioListener, this.planetEmitter);
 					this.ToggleCue.Play();
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					if (!this.owner.isPlayerShip())
-					{
-						this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
-					}
-					this.lastFireSound = 0f;
-					if (this.fireCue != null)
-					{
-						this.fireCue.Play();
-					}
+                    this.lastFireSound = 0f;
+                    //Added by McShooterz: Use sounds from new sound dictionary
+                    if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                    {
+                        AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.planetEmitter);
+                    }
+                    else
+                    {
+                        this.fireCue = AudioManager.GetCue(this.fireCueName);
+                        if (!this.owner.isPlayerShip())
+                        {
+                            this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
+                        }
+                        if (this.fireCue != null)
+                        {
+                            this.fireCue.Play();
+                        }
+                    }
 				}
 				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
 				{
@@ -691,14 +739,22 @@ namespace Ship_Game.Gameplay
 				{
 					if (this.ToggleCue == null)
 					{
-						this.fireCue = AudioManager.GetCue(this.fireCueName);
-						this.planetEmitter.Position = new Vector3(p.Position, -2500f);
-						this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
-						this.lastFireSound = 0f;
-						if (this.fireCue != null)
-						{
-							this.fireCue.Play();
-						}
+                        this.planetEmitter.Position = new Vector3(p.Position, -2500f);
+                        this.lastFireSound = 0f;
+                        //Added by McShooterz: Use sounds from new sound dictionary
+                        if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                        {
+                            AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.planetEmitter);
+                        }
+                        else
+                        {
+                            this.fireCue = AudioManager.GetCue(this.fireCueName);
+                            this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
+                            if (this.fireCue != null)
+                            {
+                                this.fireCue.Play();
+                            }
+                        }
 					}
 				}
 				catch
@@ -770,15 +826,23 @@ namespace Ship_Game.Gameplay
 			this.ToggleSoundOn = false;
 			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && this.moduleAttachedTo.GetParent().InFrustum)
 			{
-				if (this.fireCueName != "")
-				{
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					if (!this.owner.isPlayerShip())
-					{
-						this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					}
-					this.fireCue.Play();
-				}
+                //Added by McShooterz: Use sounds from new sound dictionary
+                if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                {
+                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                }
+                else
+                {
+                    if (this.fireCueName != "")
+                    {
+                        this.fireCue = AudioManager.GetCue(this.fireCueName);
+                        if (!this.owner.isPlayerShip())
+                        {
+                            this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                        }
+                        this.fireCue.Play();
+                    }
+                }
 				if (this.ToggleSoundName != "")
 				{
 					this.ToggleSoundOn = true;
@@ -1421,10 +1485,20 @@ namespace Ship_Game.Gameplay
 
 		private void ModifyProjectile(Projectile projectile)
 		{
-			if (this.owner == null)
+            if (this.owner == null)
 			{
 				return;
 			}
+            if (this.owner.loyalty.data.Traits.Pack)
+            {
+                Projectile projectile1 = projectile;
+                projectile1.damageAmount = projectile1.damageAmount + projectile.damageAmount * this.owner.DamageModifier;
+            }
+            //Added by McShooterz: Check if mod uses weapon modifiers
+            if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useWeaponModifiers)
+            {
+                return;
+            }
 			if (this.Tag_Missile)
 			{
 				this.AddModifiers("Missile", projectile);
@@ -1498,11 +1572,6 @@ namespace Ship_Game.Gameplay
             {
                 this.AddModifiers("Bomb", projectile);
             }
-			if (this.owner.loyalty.data.Traits.Pack)
-			{
-				Projectile projectile1 = projectile;
-				projectile1.damageAmount = projectile1.damageAmount + projectile.damageAmount * this.owner.DamageModifier;
-			}
 		}
 
 		public void ResetToggleSound()
