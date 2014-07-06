@@ -1481,7 +1481,7 @@ namespace Ship_Game
 			{
 				Vector2 modTitlePos = new Vector2((float)(this.activeModSubMenu.Menu.X + 10), (float)(this.activeModSubMenu.Menu.Y + 35));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].NameIndex), modTitlePos, Color.White);
-				modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 3);
+				modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 6);
 				string rest = "";
 				if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.IO)
 				{
@@ -1780,7 +1780,7 @@ namespace Ship_Game
 				}
 				string txt = this.parseText(Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].DescriptionIndex), (float)(this.activeModSubMenu.Menu.Width - 20), Fonts.Arial12);
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
-				modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 2f);
+				modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
 				float starty = modTitlePos.Y;
 				if (!mod.isWeapon || mod.InstalledWeapon == null)
 				{
@@ -1842,6 +1842,25 @@ namespace Ship_Game
                         }
 						return;
 					}
+                    if (mod.ModuleType == ShipModuleType.Countermeasure)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier, 80);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        modTitlePos.X = modTitlePos.X + 152f;
+                        modTitlePos.Y = starty;
+                        this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
+                        {
+                            this.DrawStatPercent(ref modTitlePos, Localizer.Token(6004), (float)mod.ECM, 154);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        return;
+                    }
 					if (mod.ModuleType == ShipModuleType.Sensors)
 					{
 						this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
@@ -2070,6 +2089,11 @@ namespace Ship_Game
 						this.DrawStat(ref modTitlePos, "Pwr / Shot", (float)mod.InstalledWeapon.PowerRequiredToFire, 90);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
+                    if (mod.InstalledWeapon.Tag_Guided && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
+                    {
+                        this.DrawStatPercent(ref modTitlePos, Localizer.Token(6005), (float)mod.InstalledWeapon.ECMResist, 155);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
 					if (mod.InstalledWeapon.EffectVsArmor != 1f)
 					{
 						if (mod.InstalledWeapon.EffectVsArmor <= 1f)
@@ -2084,22 +2108,68 @@ namespace Ship_Game
 						}
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
-					if (mod.InstalledWeapon.EffectVSShields != 1f)
-					{
-						if (mod.InstalledWeapon.EffectVSShields <= 1f)
-						{
+                    if (mod.InstalledWeapon.EffectVSShields != 1f)
+                    {
+                        if (mod.InstalledWeapon.EffectVSShields <= 1f)
+                        {
                             float effectVSShields = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
-							this.DrawStat105Bad(ref modTitlePos, "VS Shield", string.Concat(effectVSShields.ToString("#"), "%"), 147);
-						}
-						else
-						{
+                            this.DrawStat105Bad(ref modTitlePos, "VS Shield", string.Concat(effectVSShields.ToString("#"), "%"), 147);
+                        }
+                        else
+                        {
                             float effectVSShields1 = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
-							this.DrawStat105(ref modTitlePos, "VS Shield", string.Concat(effectVSShields1.ToString("#"), "%"), 147);
-						}
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						return;
+                            this.DrawStat105(ref modTitlePos, "VS Shield", string.Concat(effectVSShields1.ToString("#"), "%"), 147);
+                        }
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.InstalledWeapon.TruePD)
+                    {
+                        string fireRest = "Cannot Target Ships";
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        modTitlePos.X = modTitlePos.X - 152f;
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(fireRest), modTitlePos, Color.LightCoral);
+                        return;
 					}
-				}
+                    else if (GlobalStats.ActiveMod != null && !mod.InstalledWeapon.TruePD && mod.InstalledWeapon.Excludes_Fighters || mod.InstalledWeapon.Excludes_Corvettes || mod.InstalledWeapon.Excludes_Capitals || mod.InstalledWeapon.Excludes_Stations)
+                    {
+                        string fireRest = "Cannot Target:";
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        modTitlePos.X = modTitlePos.X - 152f;
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(fireRest), modTitlePos, Color.LightCoral);
+                        modTitlePos.X = modTitlePos.X + 120f;
+
+                        if (mod.InstalledWeapon.Excludes_Fighters)
+                        {
+                            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
+                            {
+                                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Drones", modTitlePos, Color.LightCoral);
+                                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                            }
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Fighters", modTitlePos, Color.LightCoral);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        if (mod.InstalledWeapon.Excludes_Corvettes)
+                        {
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Corvettes", modTitlePos, Color.LightCoral);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        if (mod.InstalledWeapon.Excludes_Capitals)
+                        {
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Capitals", modTitlePos, Color.LightCoral);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        if (mod.InstalledWeapon.Excludes_Stations)
+                        {
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Stations", modTitlePos, Color.LightCoral);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+
+                        return;
+
+                    }
+                    else
+                        return;
+                }
 			}
 		}
 
@@ -2278,6 +2348,13 @@ namespace Ship_Game
                                 continue;
                             }
                         }
+                            // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "fighter")
+                            continue;
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "scout")
+                            continue;
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "corvette")
+                            continue;
 						if (tmp.isWeapon)
 						{
 							if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
@@ -2358,6 +2435,13 @@ namespace Ship_Game
                                     continue;
                                 }
                             }
+                            // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "fighter")
+                                continue;
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "scout")
+                                continue;
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "corvette")
+                                continue;
 							if (tmp.isWeapon)
 							{
 								if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
@@ -2444,6 +2528,13 @@ namespace Ship_Game
                                 continue;
                             }
                         }
+                        // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "fighter")
+                            continue;
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "scout")
+                            continue;
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "corvette")
+                            continue;
 						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
 						{
 							ModuleCategories.Add(tmp.ModuleType.ToString());
@@ -3177,6 +3268,29 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
 			}
 		}
+
+        private void DrawStatPercent(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 105f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = "";
+            float statPC = stat * 100;
+            numbers = string.Concat(statPC.ToString("#"), "%");
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
 
 		private void DrawStat(ref Vector2 Cursor, string words, int stat, string tip)
 		{
@@ -4290,8 +4404,14 @@ namespace Ship_Game
                                     case "orbit_left":
                                         this.CombatState = CombatState.OrbitLeft;
                                         break;
+                                    case "broadside_left":
+                                        this.CombatState = CombatState.BroadsideLeft;
+                                        break;                                         
                                     case "orbit_right":
                                         this.CombatState = CombatState.OrbitRight;
+                                        break;
+                                    case "broadside_right":
+                                        this.CombatState = CombatState.BroadsideRight;
                                         break;
                                     case "evade":
                                         this.CombatState = CombatState.Evade;
@@ -4315,8 +4435,14 @@ namespace Ship_Game
                             case "orbit_left":
                                 toggleButton.Active = this.CombatState == CombatState.OrbitLeft;
                                 continue;
+                            case "broadside_left":
+                                toggleButton.Active = this.CombatState == CombatState.BroadsideLeft;
+                                continue;
                             case "orbit_right":
                                 toggleButton.Active = this.CombatState == CombatState.OrbitRight;
+                                continue;
+                            case "broadside_right":
+                                toggleButton.Active = this.CombatState == CombatState.BroadsideRight;
                                 continue;
                             case "evade":
                                 toggleButton.Active = this.CombatState == CombatState.Evade;
@@ -4331,7 +4457,8 @@ namespace Ship_Game
             }
         }
 
-        private void InstallModule(SlotStruct slot)
+        
+        private void InstallModuleOrig(SlotStruct slot)
         {
             int num = 0;
             for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
@@ -4397,6 +4524,72 @@ namespace Ship_Game
                 this.RecalculatePower();
                 this.ShipSaved = false;
                 this.ActiveModule = ResourceManager.GetModule(this.ActiveModule.UID);
+                this.ChangeModuleState(this.ActiveModState);
+            }
+            else
+                this.PlayNegativeSound();
+        }
+
+        private void InstallModule(SlotStruct slot)
+        {
+            int num = 0;
+            for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
+            {
+                for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
+                {
+                    foreach (SlotStruct slotStruct in this.Slots)
+                    {
+                        if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2 && slotStruct.ShowValid)
+                            ++num;
+                    }
+                }
+            }
+            if (num == (int)this.ActiveModule.XSIZE * (int)this.ActiveModule.YSIZE)
+            {
+                DesignAction designAction = new DesignAction();
+                designAction.clickedSS = new SlotStruct();
+                designAction.clickedSS.pq = slot.pq;
+                designAction.clickedSS.Restrictions = slot.Restrictions;
+                designAction.clickedSS.facing = slot.module != null ? slot.module.facing : 0.0f;
+                designAction.clickedSS.ModuleUID = slot.ModuleUID;
+                designAction.clickedSS.module = slot.module;
+                designAction.clickedSS.tex = slot.tex;
+                designAction.clickedSS.slotReference = slot.slotReference;
+                designAction.clickedSS.state = slot.state;
+                this.DesignStack.Push(designAction);
+                this.ClearSlot(slot);
+                this.ClearDestinationSlots(slot);
+                slot.ModuleUID = this.ActiveModule.UID;
+                slot.module = this.ActiveModule;
+                slot.module.SetAttributesNoParent();
+                slot.state = this.ActiveModState;
+                slot.module.facing = this.ActiveModule.facing;
+                slot.tex = Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
+                for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
+                {
+                    for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
+                    {
+                        if (!(index2 == 0 & index1 == 0))
+                        {
+                            foreach (SlotStruct slotStruct in this.Slots)
+                            {
+                                if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2)
+                                {
+                                    slot.facing = 0.0f;
+                                    slotStruct.facing = 0.0f;
+                                    slotStruct.ModuleUID = (string)null;
+                                    slotStruct.isDummy = true;
+                                    slotStruct.tex = (Texture2D)null;
+                                    slotStruct.module = (ShipModule)null;
+                                    slotStruct.parent = slot;
+                                }
+                            }
+                        }
+                    }
+                }
+                this.RecalculatePower();
+                this.ShipSaved = false;
+                this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
                 this.ChangeModuleState(this.ActiveModState);
             }
             else
@@ -4599,16 +4792,16 @@ namespace Ship_Game
 			this.modSel.AddTab("Spc");
 			this.weaponSL = new ScrollList(this.modSel);
 			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 175), 80f);
-			Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 10, modSelR.Width, 220);
+			Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
 			this.activeModWindow = new Menu1(base.ScreenManager, active);
-			Rectangle acsub = new Rectangle(active.X, modSelR.Y + modSelR.Height + 10, 305, 240);
+			Rectangle acsub = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
 			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 760)
 			{
-				acsub.Height = acsub.Height + 40;
+				acsub.Height = acsub.Height + 120;
 			}
 			this.activeModSubMenu = new Submenu(base.ScreenManager, acsub);
 			this.activeModSubMenu.AddTab("Active Module");
-			this.choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y, 240, 240);
+			this.choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y, 240, 270);
 			if (this.choosefighterrect.Y + this.choosefighterrect.Height > base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
 			{
 				int diff = this.choosefighterrect.Y + this.choosefighterrect.Height - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
@@ -4790,12 +4983,28 @@ namespace Ship_Game
 			OrbitLeft.Action = "orbit_left";
 			OrbitLeft.HasToolTip = true;
 			OrbitLeft.WhichToolTip = 3;
+            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+
+            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bleft");
+            this.CombatStatusButtons.Add(BroadsideLeft);
+            BroadsideLeft.Action = "broadside_left";
+            BroadsideLeft.HasToolTip = true;
+            BroadsideLeft.WhichToolTip = 159;
+            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
 			OrdersBarPos.X = OrdersBarPos.X + 29f;
 			ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_right");
 			this.CombatStatusButtons.Add(OrbitRight);
 			OrbitRight.Action = "orbit_right";
 			OrbitRight.HasToolTip = true;
 			OrbitRight.WhichToolTip = 4;
+            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+
+            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bright");
+            this.CombatStatusButtons.Add(BroadsideRight);
+            BroadsideRight.Action = "broadside_right";
+            BroadsideRight.HasToolTip = true;
+            BroadsideRight.WhichToolTip = 160;
+            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
 			OrdersBarPos.X = OrdersBarPos.X + 29f;
 			ToggleButton Evade = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_stop");
 			this.CombatStatusButtons.Add(Evade);
@@ -4870,7 +5079,7 @@ namespace Ship_Game
 					e.AddItem(hull.Value);
 				}
 			}
-			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height + 10, 280, 320);
+			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height + 40, 280, 320);
 			this.ShipStats = new Menu1(base.ScreenManager, ShipStatsPanel);
 			this.statsSub = new Submenu(base.ScreenManager, ShipStatsPanel);
 			this.statsSub.AddTab(Localizer.Token(108));
