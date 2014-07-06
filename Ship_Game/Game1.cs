@@ -240,8 +240,10 @@ namespace Ship_Game
                 height = 600;
             }
 			Form form = (Form)Control.FromHandle(base.Window.Handle);
+#if DEBUG
             if (mode == WindowMode.Fullscreen)
-                mode = WindowMode.Borderless;
+                mode = WindowMode.Borderless; 
+#endif
             switch (mode)
 			{
 				case Game1.WindowMode.Fullscreen:
