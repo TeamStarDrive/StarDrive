@@ -26,9 +26,9 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>L:\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
+    <OutputPath>C:\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;STEAM</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
@@ -40,15 +40,14 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>..\stardrive mod\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
-    <DefineConstants>STEAM</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -99,10 +98,22 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Docs Debug|x86'">
+    <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '++GReleaseCandidate|x86'">
+    <OutputPath>..\stardrive mod\</OutputPath>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'McShooterz|x86'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\McShooterz\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
+    <OutputPath>L:\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;STEAM</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
@@ -1492,6 +1503,18 @@
     <None Include="Content\Textures\NewUI\icon_sensors.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\SelectionBox\icon_formation_bleft.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\SelectionBox\icon_formation_bleft_active.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\SelectionBox\icon_formation_bright.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Buildings\Capital.xml">
@@ -1944,6 +1967,6 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist upload "C:\Program Files\7-Zip\7z" A -tzip $(ProjectName)-Testing @include.txt</PostBuildEvent>
+    <PostBuildEvent>if exist upload "C:\Program Files\7-Zip\7z" A -tzip $(ProjectName)-$(ConfigurationName) @include.txt</PostBuildEvent>
   </PropertyGroup>
 </Project>
