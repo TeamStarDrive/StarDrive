@@ -102,6 +102,14 @@
     <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '++GReleaseCandidate|x86'">
+    <OutputPath>..\stardrive mod\</OutputPath>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fasterflect">
       <HintPath>.\Fasterflect.dll</HintPath>
@@ -1484,6 +1492,18 @@
     <None Include="Content\Textures\NewUI\icon_sensors.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\SelectionBox\icon_formation_bleft.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\SelectionBox\icon_formation_bleft_active.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\SelectionBox\icon_formation_bright.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Buildings\Capital.xml">
@@ -1936,6 +1956,6 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist upload "C:\Program Files\7-Zip\7z" A -tzip $(ProjectName)-Testing @include.txt</PostBuildEvent>
+    <PostBuildEvent>if exist upload "C:\Program Files\7-Zip\7z" A -tzip $(ProjectName)-$(ConfigurationName) @include.txt</PostBuildEvent>
   </PropertyGroup>
 </Project>
