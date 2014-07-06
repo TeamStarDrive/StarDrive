@@ -28,12 +28,6 @@ namespace Ship_Game
         public bool enableECM;
         public bool extraFireArcs;
 
-        //added by The Doctor
-        public bool useDestroyers;
-        public bool useDrones;
-        public bool enableECM;
-        public bool extraFireArcs;
-
 
 		public ModInformation()
 		{
