@@ -306,6 +306,17 @@ namespace Ship_Game
 						button.Active = true;
 					}
 				}
+                else if (str == "broadside_left")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideLeft)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
 				else if (str != "orbit_right")
 				{
 					if (str == "evade")
@@ -320,6 +331,17 @@ namespace Ship_Game
 						}
 					}
 				}
+                else if (str == "broadside_right")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideRight)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
 				else if (this.CombatState != Ship_Game.Gameplay.CombatState.OrbitRight)
 				{
 					button.Active = false;
@@ -1027,7 +1049,7 @@ namespace Ship_Game
 						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
 						Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, Center, slot.module.shield_radius, 50, Color.LightGreen);
 					}
-					if (slot.module.FieldOfFire != 90f)
+                    if (slot.module.FieldOfFire != 90f && (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.extraFireArcs))
 					{
 						if (slot.module.FieldOfFire == 0f)
 						{
@@ -1042,6 +1064,253 @@ namespace Ship_Game
 						Color arc = new Color(255, 165, 0, 100);
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
+					}
+                    else if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs && (slot.module.FieldOfFire != 15f && slot.module.FieldOfFire != 45f && slot.module.FieldOfFire != 90f && slot.module.FieldOfFire != 180f && slot.module.FieldOfFire != 360f && slot.module.FieldOfFire != 120f && slot.module.FieldOfFire != 60f && slot.module.FieldOfFire != 20f))
+                    {
+                        if (slot.module.FieldOfFire == 0f)
+                        {
+                            continue;
+                        }
+                        float halfArc = slot.module.FieldOfFire / 2f;
+                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
+                        Vector2 rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
+                        leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
+                        rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
+                        Color arc = new Color(255, 165, 0, 100);
+                        Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
+                        Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
+                    }
+                    else if (slot.module.FieldOfFire == 15f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    {
+                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Origin = new Vector2(250f, 250f);
+                        if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+                        {
+                            Color drawcolor = new Color(255, 255, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable4 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable5 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable6 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else
+                        {
+                            Color drawcolor = new Color(0, 0, 255, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable7 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                    }
+                    else if (slot.module.FieldOfFire == 20f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc20"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    {
+                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Origin = new Vector2(250f, 250f);
+                        if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+                        {
+                            Color drawcolor = new Color(255, 255, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable4 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable5 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable6 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else
+                        {
+                            Color drawcolor = new Color(0, 0, 255, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable7 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                    }
+                    else if (slot.module.FieldOfFire == 45f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    {
+                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Origin = new Vector2(250f, 250f);
+                        if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+                        {
+                            Color drawcolor = new Color(255, 255, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable4 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable5 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable6 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else
+                        {
+                            Color drawcolor = new Color(0, 0, 255, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable7 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                    }
+                    else if (slot.module.FieldOfFire == 120f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    {
+                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Origin = new Vector2(250f, 250f);
+                        if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+                        {
+                            Color drawcolor = new Color(255, 255, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable4 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable5 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable6 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else
+                        {
+                            Color drawcolor = new Color(0, 0, 255, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable7 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                    }
+                    else if (slot.module.FieldOfFire == 60f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    {
+                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Origin = new Vector2(250f, 250f);
+                        if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+                        {
+                            Color drawcolor = new Color(255, 255, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable4 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable5 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable6 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else
+                        {
+                            Color drawcolor = new Color(0, 0, 255, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable7 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                    }
+                    else if (slot.module.FieldOfFire == 360f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    {
+                        Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+                        Vector2 Origin = new Vector2(250f, 250f);
+                        if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+                        {
+                            Color drawcolor = new Color(255, 255, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable4 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable5 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable6 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else
+                        {
+                            Color drawcolor = new Color(0, 0, 255, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable7 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                    }
+                    else if (slot.module.FieldOfFire == 180f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+					{
+						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
+						Vector2 Origin = new Vector2(250f, 250f);
+						if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+						{
+							Color drawcolor = new Color(255, 255, 0, 255);
+							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+							Rectangle? nullable4 = null;
+							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+						}
+						else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+						{
+							Color drawcolor = new Color(255, 0, 0, 255);
+							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+							Rectangle? nullable5 = null;
+							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+						}
+						else if (slot.module.InstalledWeapon.WeaponType != "Energy Beam")
+						{
+							Color drawcolor = new Color(255, 0, 0, 255);
+							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+							Rectangle? nullable6 = null;
+							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+						}
+						else
+						{
+							Color drawcolor = new Color(0, 0, 255, 255);
+							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+							Rectangle? nullable7 = null;
+							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+						}
 					}
 					else
 					{
@@ -1061,7 +1330,7 @@ namespace Ship_Game
 							Rectangle? nullable5 = null;
 							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
 						}
-                        else if (!slot.module.InstalledWeapon.isBeam)
+                        else if (!slot.module.InstalledWeapon.Tag_Beam)
 						{
 							Color drawcolor = new Color(255, 0, 0, 255);
 							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
@@ -1212,7 +1481,7 @@ namespace Ship_Game
 			{
 				Vector2 modTitlePos = new Vector2((float)(this.activeModSubMenu.Menu.X + 10), (float)(this.activeModSubMenu.Menu.Y + 35));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].NameIndex), modTitlePos, Color.White);
-				modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 3);
+				modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 6);
 				string rest = "";
 				if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.IO)
 				{
@@ -1234,8 +1503,144 @@ namespace Ship_Game
 				{
 					rest = "I, O, or E";
 				}
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(122), ": ", rest), modTitlePos, Color.Orange);
-				modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 3);
+
+                // Concat ship class restrictions
+                string shipRest = "";
+                bool specialString = false;
+
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
+                {
+                    if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                    else if (mod.FighterModule && !mod.DroneModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Fighters Only";
+                        specialString = true;
+                    }
+                    else if (mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Drones Only";
+                        specialString = true;
+                    }
+                    else if (mod.FightersOnly && !specialString)
+                    {
+                        shipRest = "Fighters/Corvettes Only";
+                        specialString = true;
+                    }
+                    else if (!mod.FightersOnly && !mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+
+                }
+                if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
+                {
+                    if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                    else if (mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Fighters Only";
+                        specialString = true;
+                    }
+                    else if (mod.FightersOnly && !specialString)
+                    {
+                        shipRest = "Fighters/Corvettes Only";
+                        specialString = true;
+                    }
+                    else if (!mod.FightersOnly && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+
+                }
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers)
+                {
+                    if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                    else if (mod.FighterModule && !mod.DroneModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Fighters Only";
+                        specialString = true;
+                    }
+                    else if (mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Drones Only";
+                        specialString = true;
+                    }
+                    else if (mod.FightersOnly && !specialString)
+                    {
+                        shipRest = "Fighters/Corvettes Only";
+                        specialString = true;
+                    }
+                    else if (!mod.FightersOnly && !mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                }
+                if (GlobalStats.ActiveMod == null || (!GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers))
+                {
+                    if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                    else if (mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "Fighters Only";
+                        specialString = true;
+                    }
+                    else if (mod.FightersOnly && !specialString)
+                    {
+                        shipRest = "Fighters/Corvettes Only";
+                        specialString = true;
+                    }
+                    else if (!mod.FightersOnly && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                    {
+                        shipRest = "All Hulls";
+                        specialString = true;
+                    }
+                }
+
+                else if (!specialString && (!mod.DroneModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones) || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || (!mod.DestroyerModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDestroyers) || !mod.CruiserModule || !mod.CruiserModule || !mod.CarrierModule || !mod.CapitalModule || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
+                {
+                    if (mod.DroneModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
+                        shipRest += "Dr ";
+                    if (mod.FighterModule)
+                        shipRest += "F ";
+                    if (mod.CorvetteModule)
+                        shipRest += "CO ";
+                    if (mod.FrigateModule)
+                        shipRest += "FF ";
+                    if (mod.DestroyerModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDestroyers)
+                        shipRest += "DD ";
+                    if (mod.CruiserModule)
+                        shipRest += "CC ";
+                    if (mod.CarrierModule)
+                        shipRest += "CV ";
+                    if (mod.CapitalModule)
+                        shipRest += "CA ";
+                    if (mod.FreighterModule)
+                        shipRest += "Frt ";
+                    if (mod.PlatformModule || mod.StationModule)
+                        shipRest += "Stat ";
+                }
+
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(Localizer.Token(122), ": ", rest), modTitlePos, Color.Orange);
+				modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial8Bold.LineSpacing);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Hulls: ", shipRest), modTitlePos, Color.LightSteelBlue);
+                modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial8Bold.LineSpacing + 11);
 				int startx = (int)modTitlePos.X;
 				string tag = "";
 				if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].IsWeapon && Ship_Game.ResourceManager.ShipModulesDict[mod.UID].BombType == null)
@@ -1243,130 +1648,130 @@ namespace Ship_Game
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Guided)
 					{
 						tag = string.Concat(tag, "GUIDED ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Intercept)
 					{
 						tag = string.Concat(tag, "INTERCEPTABLE ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Energy)
 					{
 						tag = string.Concat(tag, "ENERGY ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Hybrid)
 					{
 						tag = string.Concat(tag, "HYBRID ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Kinetic)
 					{
 						tag = string.Concat(tag, "KINETIC ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Explosive)
 					{
 						tag = string.Concat(tag, "EXPLOSIVE ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Subspace)
 					{
 						tag = string.Concat(tag, "SUBSPACE ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Warp)
 					{
 						tag = string.Concat(tag, "WARP ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_PD)
 					{
 						tag = string.Concat(tag, "POINT DEFENSE ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile)
 					{
 						tag = string.Concat(tag, "MISSILE ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Beam)
 					{
 						tag = string.Concat(tag, "BEAM ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Railgun)
 					{
 						tag = string.Concat(tag, "RAILGUN ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Torpedo)
 					{
 						tag = string.Concat(tag, "TORPEDO ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Bomb)
 					{
 						tag = string.Concat(tag, "BOMB ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_BioWeapon)
 					{
 						tag = string.Concat(tag, "BIOWEAPON ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_SpaceBomb)
 					{
 						tag = string.Concat(tag, "SPACEBOMB ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Drone)
 					{
 						tag = string.Concat(tag, "DRONE ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Cannon)
 					{
 						tag = string.Concat(tag, "CANNON ");
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.Orange);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
-					modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial8Bold.LineSpacing + 2);
+					modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial8Bold.LineSpacing + 5);
 					modTitlePos.X = (float)startx;
 				}
 				else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].IsWeapon)
@@ -1375,7 +1780,7 @@ namespace Ship_Game
 				}
 				string txt = this.parseText(Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].DescriptionIndex), (float)(this.activeModSubMenu.Menu.Width - 20), Fonts.Arial12);
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
-				modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 2f);
+				modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
 				float starty = modTitlePos.Y;
 				if (!mod.isWeapon || mod.InstalledWeapon == null)
 				{
@@ -1437,6 +1842,25 @@ namespace Ship_Game
                         }
 						return;
 					}
+                    if (mod.ModuleType == ShipModuleType.Countermeasure)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier, 80);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        modTitlePos.X = modTitlePos.X + 152f;
+                        modTitlePos.Y = starty;
+                        this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
+                        {
+                            this.DrawStatPercent(ref modTitlePos, Localizer.Token(6004), (float)mod.ECM, 154);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        return;
+                    }
 					if (mod.ModuleType == ShipModuleType.Sensors)
 					{
 						this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
@@ -1601,14 +2025,14 @@ namespace Ship_Game
 					modTitlePos.Y = starty;
 					this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    if (!mod.InstalledWeapon.isBeam)
+                    if (!mod.InstalledWeapon.Tag_Beam)
 					{
                         this.DrawStat(ref modTitlePos, Localizer.Token(129), (float)ModifiedWeaponStat(mod.InstalledWeapon, "speed"), 85);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
 					if (mod.InstalledWeapon.DamageAmount > 0f)
 					{
-                        if (mod.InstalledWeapon.isBeam)
+                        if (mod.InstalledWeapon.Tag_Beam)
 						{
                             float dps = (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 60f * 3f / ModifiedWeaponStat(mod.InstalledWeapon, "firedelay");
 							this.DrawStat(ref modTitlePos, "DPS", dps, 86);
@@ -1665,6 +2089,11 @@ namespace Ship_Game
 						this.DrawStat(ref modTitlePos, "Pwr / Shot", (float)mod.InstalledWeapon.PowerRequiredToFire, 90);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
+                    if (mod.InstalledWeapon.Tag_Guided && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
+                    {
+                        this.DrawStatPercent(ref modTitlePos, Localizer.Token(6005), (float)mod.InstalledWeapon.ECMResist, 155);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
 					if (mod.InstalledWeapon.EffectVsArmor != 1f)
 					{
 						if (mod.InstalledWeapon.EffectVsArmor <= 1f)
@@ -1679,22 +2108,68 @@ namespace Ship_Game
 						}
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
-					if (mod.InstalledWeapon.EffectVSShields != 1f)
-					{
-						if (mod.InstalledWeapon.EffectVSShields <= 1f)
-						{
+                    if (mod.InstalledWeapon.EffectVSShields != 1f)
+                    {
+                        if (mod.InstalledWeapon.EffectVSShields <= 1f)
+                        {
                             float effectVSShields = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
-							this.DrawStat105Bad(ref modTitlePos, "VS Shield", string.Concat(effectVSShields.ToString("#"), "%"), 147);
-						}
-						else
-						{
+                            this.DrawStat105Bad(ref modTitlePos, "VS Shield", string.Concat(effectVSShields.ToString("#"), "%"), 147);
+                        }
+                        else
+                        {
                             float effectVSShields1 = ModifiedWeaponStat(mod.InstalledWeapon, "shield") * 100f;
-							this.DrawStat105(ref modTitlePos, "VS Shield", string.Concat(effectVSShields1.ToString("#"), "%"), 147);
-						}
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						return;
+                            this.DrawStat105(ref modTitlePos, "VS Shield", string.Concat(effectVSShields1.ToString("#"), "%"), 147);
+                        }
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.InstalledWeapon.TruePD)
+                    {
+                        string fireRest = "Cannot Target Ships";
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        modTitlePos.X = modTitlePos.X - 152f;
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(fireRest), modTitlePos, Color.LightCoral);
+                        return;
 					}
-				}
+                    else if (GlobalStats.ActiveMod != null && !mod.InstalledWeapon.TruePD && mod.InstalledWeapon.Excludes_Fighters || mod.InstalledWeapon.Excludes_Corvettes || mod.InstalledWeapon.Excludes_Capitals || mod.InstalledWeapon.Excludes_Stations)
+                    {
+                        string fireRest = "Cannot Target:";
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        modTitlePos.X = modTitlePos.X - 152f;
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(fireRest), modTitlePos, Color.LightCoral);
+                        modTitlePos.X = modTitlePos.X + 120f;
+
+                        if (mod.InstalledWeapon.Excludes_Fighters)
+                        {
+                            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
+                            {
+                                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Drones", modTitlePos, Color.LightCoral);
+                                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                            }
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Fighters", modTitlePos, Color.LightCoral);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        if (mod.InstalledWeapon.Excludes_Corvettes)
+                        {
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Corvettes", modTitlePos, Color.LightCoral);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        if (mod.InstalledWeapon.Excludes_Capitals)
+                        {
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Capitals", modTitlePos, Color.LightCoral);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        if (mod.InstalledWeapon.Excludes_Stations)
+                        {
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Stations", modTitlePos, Color.LightCoral);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+
+                        return;
+
+                    }
+                    else
+                        return;
+                }
 			}
 		}
 
@@ -1873,6 +2348,13 @@ namespace Ship_Game
                                 continue;
                             }
                         }
+                            // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "fighter")
+                            continue;
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "scout")
+                            continue;
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "corvette")
+                            continue;
 						if (tmp.isWeapon)
 						{
 							if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
@@ -1953,6 +2435,13 @@ namespace Ship_Game
                                     continue;
                                 }
                             }
+                            // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "fighter")
+                                continue;
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "scout")
+                                continue;
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "corvette")
+                                continue;
 							if (tmp.isWeapon)
 							{
 								if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
@@ -2039,6 +2528,13 @@ namespace Ship_Game
                                 continue;
                             }
                         }
+                        // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "fighter")
+                            continue;
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "scout")
+                            continue;
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "corvette")
+                            continue;
 						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
 						{
 							ModuleCategories.Add(tmp.ModuleType.ToString());
@@ -2772,6 +3268,29 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
 			}
 		}
+
+        private void DrawStatPercent(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 105f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = "";
+            float statPC = stat * 100;
+            numbers = string.Concat(statPC.ToString("#"), "%");
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
 
 		private void DrawStat(ref Vector2 Cursor, string words, int stat, string tip)
 		{
@@ -3885,8 +4404,14 @@ namespace Ship_Game
                                     case "orbit_left":
                                         this.CombatState = CombatState.OrbitLeft;
                                         break;
+                                    case "broadside_left":
+                                        this.CombatState = CombatState.BroadsideLeft;
+                                        break;                                         
                                     case "orbit_right":
                                         this.CombatState = CombatState.OrbitRight;
+                                        break;
+                                    case "broadside_right":
+                                        this.CombatState = CombatState.BroadsideRight;
                                         break;
                                     case "evade":
                                         this.CombatState = CombatState.Evade;
@@ -3910,8 +4435,14 @@ namespace Ship_Game
                             case "orbit_left":
                                 toggleButton.Active = this.CombatState == CombatState.OrbitLeft;
                                 continue;
+                            case "broadside_left":
+                                toggleButton.Active = this.CombatState == CombatState.BroadsideLeft;
+                                continue;
                             case "orbit_right":
                                 toggleButton.Active = this.CombatState == CombatState.OrbitRight;
+                                continue;
+                            case "broadside_right":
+                                toggleButton.Active = this.CombatState == CombatState.BroadsideRight;
                                 continue;
                             case "evade":
                                 toggleButton.Active = this.CombatState == CombatState.Evade;
@@ -3926,7 +4457,8 @@ namespace Ship_Game
             }
         }
 
-        private void InstallModule(SlotStruct slot)
+        
+        private void InstallModuleOrig(SlotStruct slot)
         {
             int num = 0;
             for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
@@ -3992,6 +4524,72 @@ namespace Ship_Game
                 this.RecalculatePower();
                 this.ShipSaved = false;
                 this.ActiveModule = ResourceManager.GetModule(this.ActiveModule.UID);
+                this.ChangeModuleState(this.ActiveModState);
+            }
+            else
+                this.PlayNegativeSound();
+        }
+
+        private void InstallModule(SlotStruct slot)
+        {
+            int num = 0;
+            for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
+            {
+                for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
+                {
+                    foreach (SlotStruct slotStruct in this.Slots)
+                    {
+                        if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2 && slotStruct.ShowValid)
+                            ++num;
+                    }
+                }
+            }
+            if (num == (int)this.ActiveModule.XSIZE * (int)this.ActiveModule.YSIZE)
+            {
+                DesignAction designAction = new DesignAction();
+                designAction.clickedSS = new SlotStruct();
+                designAction.clickedSS.pq = slot.pq;
+                designAction.clickedSS.Restrictions = slot.Restrictions;
+                designAction.clickedSS.facing = slot.module != null ? slot.module.facing : 0.0f;
+                designAction.clickedSS.ModuleUID = slot.ModuleUID;
+                designAction.clickedSS.module = slot.module;
+                designAction.clickedSS.tex = slot.tex;
+                designAction.clickedSS.slotReference = slot.slotReference;
+                designAction.clickedSS.state = slot.state;
+                this.DesignStack.Push(designAction);
+                this.ClearSlot(slot);
+                this.ClearDestinationSlots(slot);
+                slot.ModuleUID = this.ActiveModule.UID;
+                slot.module = this.ActiveModule;
+                slot.module.SetAttributesNoParent();
+                slot.state = this.ActiveModState;
+                slot.module.facing = this.ActiveModule.facing;
+                slot.tex = Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
+                for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
+                {
+                    for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
+                    {
+                        if (!(index2 == 0 & index1 == 0))
+                        {
+                            foreach (SlotStruct slotStruct in this.Slots)
+                            {
+                                if (slotStruct.pq.Y == slot.pq.Y + 16 * index1 && slotStruct.pq.X == slot.pq.X + 16 * index2)
+                                {
+                                    slot.facing = 0.0f;
+                                    slotStruct.facing = 0.0f;
+                                    slotStruct.ModuleUID = (string)null;
+                                    slotStruct.isDummy = true;
+                                    slotStruct.tex = (Texture2D)null;
+                                    slotStruct.module = (ShipModule)null;
+                                    slotStruct.parent = slot;
+                                }
+                            }
+                        }
+                    }
+                }
+                this.RecalculatePower();
+                this.ShipSaved = false;
+                this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
                 this.ChangeModuleState(this.ActiveModState);
             }
             else
@@ -4194,16 +4792,16 @@ namespace Ship_Game
 			this.modSel.AddTab("Spc");
 			this.weaponSL = new ScrollList(this.modSel);
 			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 175), 80f);
-			Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 10, modSelR.Width, 220);
+			Rectangle active = new Rectangle(modSelR.X, modSelR.Y + modSelR.Height + 15, modSelR.Width, 300);
 			this.activeModWindow = new Menu1(base.ScreenManager, active);
-			Rectangle acsub = new Rectangle(active.X, modSelR.Y + modSelR.Height + 10, 305, 240);
+			Rectangle acsub = new Rectangle(active.X, modSelR.Y + modSelR.Height + 15, 305, 320);
 			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 760)
 			{
-				acsub.Height = acsub.Height + 40;
+				acsub.Height = acsub.Height + 120;
 			}
 			this.activeModSubMenu = new Submenu(base.ScreenManager, acsub);
 			this.activeModSubMenu.AddTab("Active Module");
-			this.choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y, 240, 240);
+			this.choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y, 240, 270);
 			if (this.choosefighterrect.Y + this.choosefighterrect.Height > base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
 			{
 				int diff = this.choosefighterrect.Y + this.choosefighterrect.Height - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
@@ -4385,12 +4983,28 @@ namespace Ship_Game
 			OrbitLeft.Action = "orbit_left";
 			OrbitLeft.HasToolTip = true;
 			OrbitLeft.WhichToolTip = 3;
+            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+
+            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bleft");
+            this.CombatStatusButtons.Add(BroadsideLeft);
+            BroadsideLeft.Action = "broadside_left";
+            BroadsideLeft.HasToolTip = true;
+            BroadsideLeft.WhichToolTip = 159;
+            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
 			OrdersBarPos.X = OrdersBarPos.X + 29f;
 			ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_right");
 			this.CombatStatusButtons.Add(OrbitRight);
 			OrbitRight.Action = "orbit_right";
 			OrbitRight.HasToolTip = true;
 			OrbitRight.WhichToolTip = 4;
+            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+
+            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bright");
+            this.CombatStatusButtons.Add(BroadsideRight);
+            BroadsideRight.Action = "broadside_right";
+            BroadsideRight.HasToolTip = true;
+            BroadsideRight.WhichToolTip = 160;
+            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
 			OrdersBarPos.X = OrdersBarPos.X + 29f;
 			ToggleButton Evade = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_stop");
 			this.CombatStatusButtons.Add(Evade);
@@ -4465,7 +5079,7 @@ namespace Ship_Game
 					e.AddItem(hull.Value);
 				}
 			}
-			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height + 10, 280, 320);
+			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height + 40, 280, 320);
 			this.ShipStats = new Menu1(base.ScreenManager, ShipStatsPanel);
 			this.statsSub = new Submenu(base.ScreenManager, ShipStatsPanel);
 			this.statsSub.AddTab(Localizer.Token(108));
