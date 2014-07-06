@@ -296,7 +296,6 @@ namespace Ship_Game
 					form.Location = new System.Drawing.Point(num1, size3.Height / 2 - height / 2);
 					this.CurrentMode = Game1.WindowMode.Borderless;
 					GlobalStats.Config.WindowMode = 2;
-                   
 					return;
 				}
 				default:

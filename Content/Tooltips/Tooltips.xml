@@ -769,9 +769,7 @@
       <Title>trade</Title>
       <Data>2283</Data>
     </ToolTip>
-	
-	
-	 <ToolTip>
+	    <ToolTip>
       <TIP_ID>154</TIP_ID>
       <Title>ECM value</Title>
       <Data>7001</Data>
