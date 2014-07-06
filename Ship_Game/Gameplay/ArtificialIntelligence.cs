@@ -2175,6 +2175,18 @@ namespace Ship_Game.Gameplay
 						if (this.Owner.InFrustum || (this.Target as Ship).InFrustum || GlobalStats.ForceFullSim)
 						{
 							this.fireTarget = null;
+
+                            // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
+                            if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone") && this.Target != null)
+                                continue;
+                            if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette") && this.Target != null)
+                                continue;
+                            if ((weapon.Excludes_Capitals && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "destroyer" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "capital") && this.Target != null)
+                                continue;
+                            if ((weapon.Excludes_Stations && (this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station") && this.Target != null)
+                                continue;
+
+
 							if ((weapon.TruePD || weapon.Tag_PD) && this.Owner.GetSystem() != null)
 							{
 								foreach (Planet p in this.Owner.GetSystem().PlanetList)
@@ -2209,6 +2221,17 @@ namespace Ship_Game.Gameplay
 										{
 											continue;
 										}
+
+                                        // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
+                                        if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone") && this.Target != null)
+                                            continue;
+                                        if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette") && this.Target != null)
+                                            continue;
+                                        if ((weapon.Excludes_Capitals && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "destroyer" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "capital") && this.Target != null)
+                                            continue;
+                                        if ((weapon.Excludes_Stations && (this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station") && this.Target != null)
+                                            continue;
+
 										if (weapon.TruePD || weapon.Tag_PD)
 										{
 											foreach (Projectile p in ship.Projectiles)
