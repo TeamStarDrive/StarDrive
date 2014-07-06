@@ -1302,7 +1302,11 @@ namespace Ship_Game
 				Tag_Drone = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Drone,
 				Tag_BioWeapon = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_BioWeapon,
 				Tag_PD = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_PD,
-                ECMResist = Ship_Game.ResourceManager.WeaponsDict[uid].ECMResist
+                ECMResist = Ship_Game.ResourceManager.WeaponsDict[uid].ECMResist,
+                Excludes_Fighters = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Fighters,
+                Excludes_Corvettes = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Corvettes,
+                Excludes_Capitals = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Capitals,
+                Excludes_Stations = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Stations
 			};
 			return w;
 		}
