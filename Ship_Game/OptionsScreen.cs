@@ -158,7 +158,7 @@ namespace Ship_Game
 				this.MusicVolumeSlider = new FloatSlider(ftlRect, "Music Volume");
 				this.MusicVolumeSlider.SetAmount(GlobalStats.Config.MusicVolume);
 				this.MusicVolumeSlider.amount = GlobalStats.Config.MusicVolume;
-				ftlRect = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 120, 270, 50);
+				ftlRect = new Rectangle(this.MainOptionsRect.X + 20, (int)ftlRect.Y + 50, 270, 50);
 				this.EffectsVolumeSlider = new FloatSlider(ftlRect, "Effects Volume");
 				this.EffectsVolumeSlider.SetAmount(GlobalStats.Config.EffectsVolume);
 				this.EffectsVolumeSlider.amount = GlobalStats.Config.EffectsVolume;
@@ -289,7 +289,7 @@ namespace Ship_Game
 			this.MusicVolumeSlider = new FloatSlider(ftlRect, "Music Volume");
 			this.MusicVolumeSlider.SetAmount(GlobalStats.Config.MusicVolume);
 			this.MusicVolumeSlider.amount = GlobalStats.Config.MusicVolume;
-			ftlRect = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 120, 270, 50);
+            ftlRect = new Rectangle(this.MainOptionsRect.X + 20, (int)ftlRect.Y + 50, 270, 50);
 			this.EffectsVolumeSlider = new FloatSlider(ftlRect, "Effects Volume");
 			this.EffectsVolumeSlider.SetAmount(GlobalStats.Config.EffectsVolume);
 			this.EffectsVolumeSlider.amount = GlobalStats.Config.EffectsVolume;
@@ -529,7 +529,7 @@ namespace Ship_Game
             this.MusicVolumeSlider = new FloatSlider(r, "Music Volume");
             this.MusicVolumeSlider.SetAmount(GlobalStats.Config.MusicVolume);
             this.MusicVolumeSlider.amount = GlobalStats.Config.MusicVolume;
-            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 90, 270, 50);
+            r = new Rectangle(this.MainOptionsRect.X + 9, (int)r.Y + 50, 270, 50);
             this.EffectsVolumeSlider = new FloatSlider(r, "Effects Volume");
             this.EffectsVolumeSlider.SetAmount(GlobalStats.Config.EffectsVolume);
             this.EffectsVolumeSlider.amount = GlobalStats.Config.EffectsVolume;
@@ -640,7 +640,7 @@ namespace Ship_Game
 			this.MusicVolumeSlider = new FloatSlider(ftlRect, "Music Volume");
 			this.MusicVolumeSlider.SetAmount(GlobalStats.Config.MusicVolume);
 			this.MusicVolumeSlider.amount = GlobalStats.Config.MusicVolume;
-			ftlRect = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 120, 270, 50);
+            ftlRect = new Rectangle(this.MainOptionsRect.X + 20, (int)ftlRect.Y + 50, 270, 50);
 			this.EffectsVolumeSlider = new FloatSlider(ftlRect, "Effects Volume");
 			this.EffectsVolumeSlider.SetAmount(GlobalStats.Config.EffectsVolume);
 			this.EffectsVolumeSlider.amount = GlobalStats.Config.EffectsVolume;

@@ -976,6 +976,12 @@ namespace Ship_Game.Gameplay
         {
             float modifiedRange = w.Range;
 
+            //Added by McShooterz: check if mod uses weapon modifiers
+            if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useWeaponModifiers)
+            {
+                return modifiedRange;
+            }
+
             if (w.Tag_Beam)
             {
                 modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Beam"].Range;
@@ -1565,7 +1571,7 @@ namespace Ship_Game.Gameplay
             {
                 if (moduleSlot.module.FTLSpoolTime != 0) // Ignore 0 values (as 0 is assumed as default value if the XML contains no <FTLSpoolTime> data
                 {
-                    if (this.JumpTimer < moduleSlot.module.FTLSpoolTime) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
+                    if (this.JumpTimer < moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
                         this.JumpTimer = moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier; // New addition: Added capability to modify the spool time via research/racial bonus and apply this on top
                 }
             }
@@ -3143,25 +3149,47 @@ namespace Ship_Game.Gameplay
                             this.maxWeaponsRange = weapon.Range;
                             flag = true;
                         }
-                        weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
-                        if (weapon.Tag_Beam)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Beam"].Rate;
-                        if (weapon.Tag_Energy)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Energy"].Rate;
-                        if (weapon.Tag_Explosive)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Explosive"].Rate;
-                        if (weapon.Tag_Guided)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Guided"].Rate;
-                        if (weapon.Tag_Hybrid)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Hybrid"].Rate;
-                        if (weapon.Tag_Intercept)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Intercept"].Rate;
-                        if (weapon.Tag_Kinetic)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Kinetic"].Rate;
-                        if (weapon.Tag_Missile)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Missile"].Rate;
-                        if (weapon.Tag_Railgun)
-                            weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Railgun"].Rate;
+                        //Added by McShooterz: weapon tag modifiers with check if mod uses them
+                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWeaponModifiers)
+                        {
+                            weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
+                            if (weapon.Tag_Beam)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Beam"].Rate;
+                            if (weapon.Tag_Energy)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Energy"].Rate;
+                            if (weapon.Tag_Explosive)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Explosive"].Rate;
+                            if (weapon.Tag_Guided)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Guided"].Rate;
+                            if (weapon.Tag_Hybrid)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Hybrid"].Rate;
+                            if (weapon.Tag_Intercept)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Intercept"].Rate;
+                            if (weapon.Tag_Kinetic)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Kinetic"].Rate;
+                            if (weapon.Tag_Missile)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Missile"].Rate;
+                            if (weapon.Tag_Railgun)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Railgun"].Rate;
+                            if (weapon.Tag_Torpedo)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Torpedo"].Rate;
+                            if (weapon.Tag_Cannon)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Cannon"].Rate;
+                            if (weapon.Tag_Subspace)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Subspace"].Rate;
+                            if (weapon.Tag_PD)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["PD"].Rate;
+                            if (weapon.Tag_Bomb)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Bomb"].Rate;
+                            if (weapon.Tag_SpaceBomb)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Spacebomb"].Rate;
+                            if (weapon.Tag_BioWeapon)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["BioWeapon"].Rate;
+                            if (weapon.Tag_Drone)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Drone"].Rate;
+                            if (weapon.Tag_Warp)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Warp"].Rate;
+                        }
                     }
                 }
                 foreach (Empire index1 in EmpireManager.EmpireList)

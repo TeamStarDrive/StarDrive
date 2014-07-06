@@ -188,5 +188,159 @@ L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Tooltips\Tooltip
 L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Textures\NewUI\icon_projection.xnb
 L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Textures\NewUI\icon_sensors.xnb
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\StarDrive.exe.config
-C:\Users\danny\Documents\sd-idk23\obj\x86\Debug\StarDrive.exe
-C:\Users\danny\Documents\sd-idk23\obj\x86\Debug\StarDrive.pdb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Buildings\Capital.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Buildings\Outpost.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Buildings\Space Port.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Buildings\Tracking Station.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\NameGenerators\names.txt
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\NameGenerators\spynames_Cordrazine.txt
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\NameGenerators\spynames_Draylok.txt
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\NameGenerators\spynames_Humans.txt
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\NameGenerators\spynames_Kulrathi.txt
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\NameGenerators\spynames_Opteris.txt
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\NameGenerators\spynames_Pollops.txt
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\NameGenerators\spynames_Ralyeh.txt
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\NameGenerators\spynames_Vulfen.txt
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\AncientReactorMed.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\AncientRepulsor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\AncientShield2kw.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\AntiMatterReactor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\AuxWarpCore.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\BasicCargoHold.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\BasicFuelCell.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\BigCannon.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Bridge.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Broadside_Flak_3x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\CanopyShield.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\CapEngines.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\CIC.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Cockpit.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\ColonyModule.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\CombatEngine_2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Combat_Thruster_1x1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Combat_Thruster_2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Combat_Thruster_3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Combat_Thruster_4x4.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\ConventionalTorpedo.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\DeathSporeBay.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\DisintegratorArray.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\DisruptorTurret.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\DisruptorTurret2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\DisruptorTurret3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Dummy.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\EMPTorpedo.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\EMPTurret2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\EMPTurret3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Engine.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\engine_fighter_1x1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Fabricator.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Fighter Shield.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\FighterBay.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\FighterbombEnergy_1x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Fighterbomb_1x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Fighterbomb_2x4.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\FlakTurret.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\FlakTurret3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Flechette AF Turret.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\FrigateEngine.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\FuelCellMediumArmored.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\FuelCellSmallArmored.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\fuel_reactor_1x1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\FusionBeam2x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\FusionTurret2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\HeavyLaserCannon.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Inertial Damper.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Internal Bulkhead.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\IonBeam2x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\IonBeamTurret2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\IonCannon1x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\KineticPlatform.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\LaserBeam2x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\LaserBeamTurret2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\LaserCannon.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\LaserTurret.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\LaserTurretHeavy.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Main Engineering.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Maneuvering_Thruster_1x1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Maneuvering_Thruster_2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Maneuvering_Thruster_3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Maneuvering_Thruster_4x4.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\MarineBarracks2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\MarineBarracks8x4.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\MediumFuelCell.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\MiningLaser.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\MissileLauncher1x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\MissileLauncher3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\MRLS.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\NuclearBombBay2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\NuclearReactorMed.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\NuclearReactorSmall.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\OrdnanceLocker.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\OrdnanceLockerSmall.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\OrdnanceSupplyBay.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Owlwok Liberator.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Phalanx PD.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PhasorBeam2x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PhasorTurret2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PhotonTurret.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PhotonTurret3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PlasmaThrower.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PlaSteelArmorLarge.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PlaSteelArmorMed.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PlaSteelArmorSmall.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PolaronTurret2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PolaronTurret3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PowerConduit.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Powerplant_nuke_1x1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Powerplant_nuke_2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\power_capacitor_1x1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Pulse Capacitor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\PulseBombBay.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\QTCannon.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Quantanium_1x1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Quantanium_2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Quantanium_3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Raider Bay.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Railgun1x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Railgun2x5.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Range_Thruster_1x1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Range_Thruster_2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Range_Thruster_3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Range_Thruster_4x4.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Reinforced Bulkhead.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\RemnantSmallFuelCell.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\RemnantSmallReactor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\RepairDrone.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\RocketLauncher.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Shield_10KW.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Shield_1KW.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Sickbay.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\SiphonBeam2x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\SiphonBeamTurret2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\SteelArmorLarge.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\SteelArmorMed.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\SteelArmorSmall.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\SubspaceSensors.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\SupplyTransporter.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\ThalaronBeam2x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Titan Engine.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\TractorBeam2x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\TractorBeamTurret2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\TroopAssaultBay.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\VulcanCannon.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\Warp Inhibitor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\WarpCore.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\WarpEngine_1x1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\WarpEngine_2x2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\WarpEngine_3x3.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipModules\WarpEngine_4x4.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\NewUI\icon_projection.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\NewUI\icon_sensors.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Localization\English\GameText_EN.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Tooltips\Tooltips.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\SelectionBox\icon_formation_bleft.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\SelectionBox\icon_formation_bleft_active.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\SelectionBox\icon_formation_bright.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\SelectionBox\icon_formation_bright_active.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\StarDrive.exe
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\StarDrive.pdb
