@@ -794,10 +794,15 @@
       <Title>Refit Ship</Title>
       <Data>7006</Data>
     </ToolTip>
-    <ToolTip>
+	    <ToolTip>
       <TIP_ID>159</TIP_ID>
-      <Title>Sensor Range</Title>
-      <Data>7007</Data>
+      <Title>Broadside Port</Title>
+      <Data>7009</Data>
+    </ToolTip>
+	    <ToolTip>
+      <TIP_ID>160</TIP_ID>
+      <Title>Broadside Starboard</Title>
+      <Data>7010</Data>
     </ToolTip>
   </ToolTipsList>
 </Tooltips>

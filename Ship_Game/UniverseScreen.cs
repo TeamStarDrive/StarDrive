@@ -242,6 +242,7 @@ namespace Ship_Game
         //private int cursorFrame;
         private float radlast;
         private int SelectorFrame;
+        private float garbageCollector;
 
         static UniverseScreen()
         {
@@ -1177,6 +1178,17 @@ namespace Ship_Game
                     this.PieMenuTimer += (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
                     this.NotificationManager.Update((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                     this.AutoSaveTimer -= 0.01666667f;
+                    
+                    //added forced garbage collection to hlep ship building issues.
+                    this.garbageCollector -= 0.01666667f;
+                    if (this.garbageCollector <= 0.0f)
+                    {
+                        this.garbageCollector = 100;
+                        if(GC.GetTotalMemory(false) > GlobalStats.MemoryLimiter)
+                        {
+                            GC.GetTotalMemory(true);
+                        }
+                    }
                     if (this.AutoSaveTimer <= 0.0f)
                     {
                         this.AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
@@ -1212,6 +1224,7 @@ namespace Ship_Game
 
         public void DoAutoSave()
         {
+            GC.GetTotalMemory(true);
             SavedGame savedGame = new SavedGame(this, "Autosave " + this.Auto.ToString());
             ++this.Auto;
             if (this.Auto <= 3)
@@ -1883,7 +1896,7 @@ namespace Ship_Game
                 this.camHeight = this.MaxCamHeight * this.GameScale;
             else if ((double)this.camHeight < 1337.0)
                 this.camHeight = 1337f;
-            if ((double)this.camHeight > 17500.0)
+            if ((double)this.camHeight > 30000.0)
             {
                 this.viewState = UniverseScreen.UnivScreenState.SystemView;
                 if ((double)this.camHeight <= 250000.0)
@@ -2253,6 +2266,8 @@ namespace Ship_Game
                         this.transitionElapsedTime = 0.0f;
                         this.transitionDestination = new Vector3(this.camPos.X, this.camPos.Y, 147000f);
                     }
+                    else if (this.viewState < UniverseScreen.UnivScreenState.SystemView)
+                        this.transitionDestination =new Vector3(this.camPos.X, this.camPos.Y, this.GetZfromScreenState(UnivScreenState.SystemView));
                 }
                 if (input.Tab)
                     this.ShowShipNames = !this.ShowShipNames;
@@ -2318,7 +2333,8 @@ namespace Ship_Game
                         }
                     }
                     else
-                        this.ClickTimer = 0.0f;
+                        //this.ClickTimer = 0.0f;
+                        this.ClickTimer = 0.5f;
                 }
                 this.HandleSelectionBox(input);
                 this.HandleScrolls(input);
@@ -2395,6 +2411,8 @@ namespace Ship_Game
                                 this.AdjustCamTimer = 0.5f;
                                 this.transitionDestination.X = this.SelectedFleet.findAveragePosition().X;
                                 this.transitionDestination.Y = this.SelectedFleet.findAveragePosition().Y;
+                                if (this.viewState < UniverseScreen.UnivScreenState.SystemView)
+                                    this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                             }
                             else
                                 this.ClickTimer = 0.0f;
@@ -2592,6 +2610,8 @@ namespace Ship_Game
                         this.AdjustCamTimer = 0.5f;
                         this.transitionDestination.X = this.SelectedFleet.findAveragePosition().X;
                         this.transitionDestination.Y = this.SelectedFleet.findAveragePosition().Y;
+                        if (this.viewState < UniverseScreen.UnivScreenState.SystemView)
+                            this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                     }
                     else
                         this.ClickTimer = 0.0f;
@@ -4513,6 +4533,7 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
             this.ScreenManager.GraphicsDevice.RenderState.AlphaSourceBlend = Blend.One;
             this.ScreenManager.GraphicsDevice.RenderState.AlphaDestinationBlend = Blend.One;
+            this.ScreenManager.GraphicsDevice.RenderState.MultiSampleAntiAlias = true;
             if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
                 this.DrawBorders();
             this.ScreenManager.SpriteBatch.End();
@@ -5094,8 +5115,9 @@ namespace Ship_Game
                         try
                         {
                             Ship local_9 = item_0.Fleet.Ships[local_8];
+                            
                             Rectangle local_10 = new Rectangle((int)local_7.X, (int)local_7.Y, 15, 15);
-                            local_7.X += 15f;
+                            local_7.X += (float)(15 );
                             if ((double)local_7.X > 200.0)
                             {
                                 local_7.X = (float)(item_0.ClickRect.X + 50);
@@ -5462,7 +5484,7 @@ namespace Ship_Game
                 float num2 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), position);
                 if ((double)num2 < 5.0)
                     num2 = 5f;
-                float scale = num2 / 45f;
+                float scale = num2 / (float)(45 - GlobalStats.IconSize);
                 Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
                 bool flag = true;
                 foreach (UniverseScreen.ClickableFleet clickableFleet in this.ClickableFleetsList)
@@ -5486,7 +5508,7 @@ namespace Ship_Game
                 float num2 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), position);
                 if ((double)num2 < 5.0)
                     num2 = 5f;
-                float scale = num2 / 45f;
+                float scale = num2 / (float)(45- GlobalStats.IconSize); //45
                 Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
                 bool flag = true;
                 foreach (UniverseScreen.ClickableFleet clickableFleet in this.ClickableFleetsList)
@@ -5514,7 +5536,7 @@ namespace Ship_Game
                 float num2 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), vector2_1);
                 if ((double)num2 < 5.0)
                     num2 = 5f;
-                float scale = num2 / 45f;
+                float scale = num2 / (float)(45 - GlobalStats.IconSize); //45
                 Vector2 vector2_2 = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
                 if ((double)ship.OrdinanceMax <= 0.0)
                     return;
@@ -6748,6 +6770,32 @@ namespace Ship_Game
             GalaxyView,
         }
 
+        //80000f
+
+        public float GetZfromScreenState(UnivScreenState screenState)
+        {
+            float returnZ = 0;
+            switch (screenState)
+            {
+                case UnivScreenState.ShipView:
+                    returnZ = 4500f; 
+                    break;
+                case UnivScreenState.SystemView:
+                    returnZ = 500000;
+                    break;
+                case UnivScreenState.SectorView:
+                    returnZ = 1000000;
+                    break;
+                case UnivScreenState.GalaxyView:
+                    returnZ = this.MaxCamHeight;
+                    break;
+                default:
+                    returnZ = 550f;
+                    break;
+            }
+            return returnZ;
+
+        }
         private struct FleetButton
         {
             public Rectangle ClickRect;
