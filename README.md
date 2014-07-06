@@ -6,7 +6,7 @@
 
 * Great!
 * If you are running an in game mod then unload that before doing the below. Go into the games mod manager and unload any loaded mod. You can load them up after you switch to this.
-* go to the download section and download the latest release version. Or latest test version depending on your level of patience.
+* go to the download section and download the latest release version. Do not download the top option for the repository. You don't need that. Download the test version if your level of patience can take it.
 * backup you original stardrive.exe and stardrive.exe.config. 
 open the zip and look at the files inside and back up any folders and files you want to be able to restore. 
 You don't have to do this as you can just go to the steam and reverify steam content for the game.
