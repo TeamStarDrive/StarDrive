@@ -243,6 +243,7 @@ namespace Ship_Game
         private float radlast;
         private int SelectorFrame;
         private float garbageCollector;
+        private bool doubleclicked;
 
         static UniverseScreen()
         {
@@ -2333,8 +2334,8 @@ namespace Ship_Game
                         }
                     }
                     else
-                        //this.ClickTimer = 0.0f;
-                        this.ClickTimer = 0.5f;
+                        this.ClickTimer = 0.0f;
+                        //this.ClickTimer = 0.5f;
                 }
                 this.HandleSelectionBox(input);
                 this.HandleScrolls(input);
@@ -2415,7 +2416,7 @@ namespace Ship_Game
                                     this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                             }
                             else
-                                this.ClickTimer = 0.0f;
+                                this.ClickTimer = 0.5f;
                         }
                     }
                 }
