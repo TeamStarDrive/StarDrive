@@ -44,7 +44,7 @@ namespace Ship_Game
 
 		private Selector selector;
         public int spyLimitCount = 0;
-        public static bool AutoTrain = true;
+        public static bool AutoTrain = false;
         private static Checkbox CBAutoRepeat;
         public static bool SpyMute = false;
         private static Checkbox cbSpyMute;
@@ -81,7 +81,7 @@ namespace Ship_Game
 			this.OpsSL.AddItem(this.StealTech);
 			this.OpsSL.AddItem(this.StealShip);
 			this.OpsSL.AddItem(this.InciteRebellion);
-			this.RecruitButton = new DanButton(new Vector2((float)(this.ComponentRect.X + 30), (float)mdscreen.Contact.r.Y), Localizer.Token(2179))
+			this.RecruitButton = new DanButton(new Vector2((float)(this.ComponentRect.X), (float)mdscreen.Contact.r.Y - 10), Localizer.Token(2179))
 			{
 				Toggled = true
 			};
@@ -172,7 +172,7 @@ namespace Ship_Game
             Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.SubRect, Color.Black);
             this.AgentSL.Draw(this.ScreenManager.SpriteBatch);
             this.RecruitButton.Draw(this.ScreenManager);
-            Rectangle MoneyRect = new Rectangle(this.RecruitButton.r.X + 200, this.RecruitButton.r.Y + this.RecruitButton.r.Height / 2 - 10, 21, 20);
+            Rectangle MoneyRect = new Rectangle(this.RecruitButton.r.X, this.RecruitButton.r.Y + 30, 21, 20);
             this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_money"], MoneyRect, Color.White);
             Vector2 costPos = new Vector2((float)(MoneyRect.X + 25), (float)(MoneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2));
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "250", costPos, Color.White);
@@ -184,23 +184,23 @@ namespace Ship_Game
             //});
 
             Ref<bool> ATRef = new Ref<bool>(() => AutoTrain, (bool x) => AutoTrain = x);
-            Vector2 ATCBPos = new Vector2((float)(MoneyRect.X), (float)(MoneyRect.Y - 20));
+            Vector2 ATCBPos = new Vector2((float)(this.OpsSubRect.X - 10), (float)(MoneyRect.Y - 30));
             CBAutoRepeat = new Checkbox(ATCBPos, "Repeat Missions", ATRef, Fonts.Arial12);
             Ref<bool> muteATRef = new Ref<bool>(() => SpyMute, (bool x) => SpyMute = x);
-            Vector2 muteCBPos = new Vector2((float)(MoneyRect.X), (float)(MoneyRect.Y + 20));
+            Vector2 muteCBPos = new Vector2((float)(ATCBPos.X), (float)(ATCBPos.Y + 15));
             cbSpyMute = new Checkbox(muteCBPos, "Mute Spies", muteATRef, Fonts.Arial12);
 
             CBAutoRepeat.Draw(ScreenManager);
             cbSpyMute.Draw(ScreenManager);
 
-            Rectangle spyLimit = new Rectangle(this.RecruitButton.r.X, this.RecruitButton.r.Y + this.RecruitButton.r.Height + 5, 21, 20);
+            Rectangle spyLimit = new Rectangle((int)MoneyRect.X + 65, (int)MoneyRect.Y, 21, 20);
             this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_lock"], spyLimit, Color.White);
-            Vector2 spyLimitPos = new Vector2((float)(spyLimit.X + 25), (float)(spyLimit.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2));
+            Vector2 spyLimitPos = new Vector2((float)(spyLimit.X + 25), (float)(spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
             empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
             spyLimitCount = (empirePlanetSpys - EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count);
             if (empirePlanetSpys < 0) empirePlanetSpys = 0;
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "For Hire : " + spyLimitCount.ToString(), spyLimitPos, Color.White);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "For Hire : " + spyLimitCount.ToString(), spyLimitPos, Color.White);
 
             //Rectangle spyDefense = new Rectangle(spyLimitPos.Y, spyLimitPos, 21, 20);
             //this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_planetshield"], spyDefense, Color.White);
