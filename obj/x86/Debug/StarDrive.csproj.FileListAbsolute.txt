@@ -187,3 +187,6 @@ L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\ShipModules\Warp
 L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Tooltips\Tooltips.xml
 L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Textures\NewUI\icon_projection.xnb
 L:\Program Files (x86)\Steam\steamapps\common\StarDrive\Content\Textures\NewUI\icon_sensors.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\StarDrive.exe.config
+C:\Users\danny\Documents\sd-idk23\obj\x86\Debug\StarDrive.exe
+C:\Users\danny\Documents\sd-idk23\obj\x86\Debug\StarDrive.pdb
