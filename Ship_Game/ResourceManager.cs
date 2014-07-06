@@ -1302,7 +1302,11 @@ namespace Ship_Game
 				Tag_Drone = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Drone,
 				Tag_BioWeapon = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_BioWeapon,
 				Tag_PD = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_PD,
-                ECMResist = Ship_Game.ResourceManager.WeaponsDict[uid].ECMResist
+                ECMResist = Ship_Game.ResourceManager.WeaponsDict[uid].ECMResist,
+                Excludes_Fighters = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Fighters,
+                Excludes_Corvettes = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Corvettes,
+                Excludes_Capitals = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Capitals,
+                Excludes_Stations = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Stations
 			};
 			return w;
 		}
@@ -1676,6 +1680,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadShips();
             Ship_Game.ResourceManager.LoadRandomItems();
             Ship_Game.ResourceManager.LoadProjTexts();
+            Ship_Game.ResourceManager.LoadModsProjectileMeshes();
 			if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
 			{
 				Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);
@@ -1743,6 +1748,7 @@ namespace Ship_Game
              
             //Added by McShooterz: failed attempt at loading projectile models
             //modified by gremlin
+            /*
             if (Ship_Game.ResourceManager.WhichModPath != "Content")
             {
                 FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles"));
@@ -1766,10 +1772,25 @@ namespace Ship_Game
                         Ship_Game.ResourceManager.ProjectileModelDict[name] = projModel;
                     }
                 }
-            }
-            
-
+            }*/
 		}
+
+        //Added by McShooterz: Load projectile models for mods
+        private static void LoadModsProjectileMeshes()
+        {
+            FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectoryNoSub(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles"));
+            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            {
+                string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
+                if (name != "Thumbs" && (filesFromDirectory[i].GetType() ==  typeof(Model)))
+                {
+                    Model projModel = Game1.Instance.Content.Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
+                    ModelMesh projMesh2 = projModel.Meshes[0];
+                    Ship_Game.ResourceManager.ProjectileMeshDict[name] = projMesh2;
+                    Ship_Game.ResourceManager.ProjectileModelDict[name] = projModel;
+                }
+            }
+        }
 
       
 
