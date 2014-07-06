@@ -150,6 +150,9 @@ namespace Ship_Game
 
 		public float BaseReproductiveRate = 0.01f;
 
+        //Added by McShooterz: power bonus
+        public float PowerFlowMod = 0.0f;
+
 		public EmpireData()
 		{
 			this.WeaponTags.Add("Kinetic", new WeaponTagModifier());
