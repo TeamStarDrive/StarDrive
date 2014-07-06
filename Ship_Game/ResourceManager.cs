@@ -1741,37 +1741,70 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.ProjectileMeshDict["spacemine"] = projMesh;
 			Ship_Game.ResourceManager.ProjectileModelDict["spacemine"] = missile;
              
-            /* Added by McShooterz: failed attempt at loading projectile models
-            FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles"));
-            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            //Added by McShooterz: failed attempt at loading projectile models
+            //modified by gremlin
+            if (Ship_Game.ResourceManager.WhichModPath != "Content")
             {
-                string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
-                if (name != "Thumbs")
+                FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles"));
+                for (int i = 0; i < (int)filesFromDirectory.Length; i++)
                 {
-                    Model projModel = Game1.Instance.Content.Load<Model>(string.Concat("Model/Projectiles/", name));
-                    ModelMesh projMesh = projModel.Meshes[0];
-                    Ship_Game.ResourceManager.ProjectileMeshDict[name] = projMesh;
-                    Ship_Game.ResourceManager.ProjectileModelDict[name] = projModel;
+                    string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
+                    if (name != "Thumbs")
+                    {
+                        Model projModel = Game1.Instance.Content.Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
+                        //try
+                        //{
+                        //    Model projModel = Game1.Instance.Content.Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
+                        //}
+                        
+                        //catch
+                        //{
+
+                        //}
+                        ModelMesh projMesh2 = projModel.Meshes[0];
+                        Ship_Game.ResourceManager.ProjectileMeshDict[name] = projMesh2;
+                        Ship_Game.ResourceManager.ProjectileModelDict[name] = projModel;
+                    }
                 }
             }
-            */
+            
 
 		}
+
+      
+
 
 		private static void LoadProjTexts()
 		{
+
+            ////Added by McShooterz: mod folder support /Model/Projectiles/textures
+            //FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat("/Model/Projectiles/textures"));
+            //for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            //{
+            //    string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
+            //    if (name != "Thumbs")
+            //    {
+            //        Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("/Model/Projectiles/textures/", name));
+            //        Ship_Game.ResourceManager.ProjTextDict[name] = tex;
+            //    }
+            //}
             //Added by McShooterz: mod folder support /Model/Projectiles/textures
-			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/textures"));
-			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
-			{
-				string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
-				if (name != "Thumbs")
-				{
-					Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("Model/Projectiles/textures/", name));
-					Ship_Game.ResourceManager.ProjTextDict[name] = tex;
-				}
-			}
+            
+            {
+                FileInfo[] filesFrommodDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/textures"));
+                for (int i = 0; i < (int)filesFrommodDirectory.Length; i++)
+                {
+                    string name = Path.GetFileNameWithoutExtension(filesFrommodDirectory[i].Name);
+                    if (name != "Thumbs")
+                    {
+                        Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("../",Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/textures/", name));
+                        Ship_Game.ResourceManager.ProjTextDict[name] = tex;
+                    }
+                }
+            }
+
 		}
+
 
 		private static void LoadRandomItems()
 		{
