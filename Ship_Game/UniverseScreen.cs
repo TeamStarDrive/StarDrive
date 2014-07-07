@@ -1180,7 +1180,7 @@ namespace Ship_Game
                     this.NotificationManager.Update((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                     this.AutoSaveTimer -= 0.01666667f;
                     
-                    //added forced garbage collection to hlep ship building issues.
+                    //added by gremlin forced garbage collection to hlep ship building issues.
                     this.garbageCollector -= 0.01666667f;
                     if (this.garbageCollector <= 0.0f)
                     {
@@ -1188,6 +1188,7 @@ namespace Ship_Game
                         if(GC.GetTotalMemory(false) > GlobalStats.MemoryLimiter)
                         {
                             GC.GetTotalMemory(true);
+                            //GlobalStats.MemoryLimiter=(GC.GetTotalMemory(true)/1000) +500;
                         }
                     }
                     if (this.AutoSaveTimer <= 0.0f)
@@ -2416,7 +2417,7 @@ namespace Ship_Game
                                     this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                             }
                             else
-                                this.ClickTimer = 0.5f;
+                                this.ClickTimer = 0.0f;
                         }
                     }
                 }
@@ -2493,7 +2494,7 @@ namespace Ship_Game
                     flag = true;
                 }
             }
-            if (flag)
+            if (flag && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
             {
                 if (this.SelectedShipList.Count > 0)
                 {
@@ -2532,7 +2533,11 @@ namespace Ship_Game
                             break;
                     }
                     foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                    {
+
                         ship.RemoveFromAllFleets();
+
+                    }
                     this.player.GetFleetsDict()[index] = new Fleet();
                     this.player.GetFleetsDict()[index].Name = str + " Fleet";
                     this.player.GetFleetsDict()[index].Owner = this.player;
@@ -2560,6 +2565,83 @@ namespace Ship_Game
                     this.RecomputeFleetButtons(true);
                 }
             }
+            //added by gremlin add ships to exiting fleet
+            if (flag && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+            {
+                if (this.SelectedShipList.Count > 0)
+                {
+                    //foreach (Ship ship in (List<Ship>)this.player.GetFleetsDict()[index].Ships)
+                    //    ship.fleet = (Fleet)null;
+                    //this.player.GetFleetsDict()[index] = (Fleet)null;
+                    string str = "";
+                    switch (index)
+                    {
+                        case 1:
+                            str = "First";
+                            break;
+                        case 2:
+                            str = "Second";
+                            break;
+                        case 3:
+                            str = "Third";
+                            break;
+                        case 4:
+                            str = "Fourth";
+                            break;
+                        case 5:
+                            str = "Fifth";
+                            break;
+                        case 6:
+                            str = "Sixth";
+                            break;
+                        case 7:
+                            str = "Seventh";
+                            break;
+                        case 8:
+                            str = "Eigth";
+                            break;
+                        case 9:
+                            str = "Ninth";
+                            break;
+                    }
+                    foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                    {
+                        if (ship.fleet != null && ship.fleet.Name == str + " Fleet")
+                            continue;
+                        if (ship.fleet != null && ship.fleet.Name != str + " Fleet")
+                            ship.RemoveFromAllFleets();
+                    }
+                    if (this.player.GetFleetsDict()[index] !=null && this.player.GetFleetsDict()[index].Ships.Count == 0)
+                    {
+                        this.player.GetFleetsDict()[index] = new Fleet();
+                        this.player.GetFleetsDict()[index].Name = str + " Fleet";
+                        this.player.GetFleetsDict()[index].Owner = this.player;
+                    }
+                    foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                    {
+                        if (ship.loyalty == this.player && ship.Role != "construction" && (ship.fleet ==null ||ship.fleet.Name != str + " Fleet"))
+                            this.player.GetFleetsDict()[index].Ships.Add(ship);
+                    }
+                    this.player.GetFleetsDict()[index].AutoArrange();
+                    this.SelectedShip = (Ship)null;
+                    this.SelectedShipList.Clear();
+                    this.SelectedFlank = (List<Fleet.Squad>)null;
+                    if (this.player.GetFleetsDict()[index].Ships.Count > 0)
+                    {
+                        this.SelectedFleet = this.player.GetFleetsDict()[index];
+                        AudioManager.PlayCue("techy_affirm1");
+                    }
+                    else
+                        this.SelectedFleet = (Fleet)null;
+                    foreach (Ship ship in (List<Ship>)this.player.GetFleetsDict()[index].Ships)
+                    {
+                        this.SelectedShipList.Add(ship);
+                        ship.fleet = this.player.GetFleetsDict()[index];
+                    }
+                    this.RecomputeFleetButtons(true);
+                }
+            }
+               //end of added by
             else
             {
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.D1) && input.LastKeyboardState.IsKeyUp(Keys.D1))
@@ -2611,7 +2693,7 @@ namespace Ship_Game
                         this.AdjustCamTimer = 0.5f;
                         this.transitionDestination.X = this.SelectedFleet.findAveragePosition().X;
                         this.transitionDestination.Y = this.SelectedFleet.findAveragePosition().Y;
-                        if (this.viewState < UniverseScreen.UnivScreenState.SystemView)
+                        if (this.camHeight < this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView))
                             this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                     }
                     else
