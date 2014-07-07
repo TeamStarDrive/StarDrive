@@ -7283,6 +7283,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6019</Index>
       <Text>Cargo Space</Text>
     </Token>
+	<Token>
+      <Index>6020</Index>
+      <Text>Fire Rate</Text>
+    </Token>
+	<Token>
+      <Index>6021</Index>
+      <Text>Cost Reduction</Text>
+    </Token>
 	
 	
 	
@@ -7314,11 +7322,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>7007</Index>
-      <Text>Hull Bonus: </Text>
+      <Text></Text>
     </Token>
 	<Token>
       <Index>7008</Index>
-      <Text>Armor</Text>
+      <Text></Text>
     </Token>
 	<Token>
       <Index>7009</Index>
