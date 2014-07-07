@@ -3630,7 +3630,7 @@ namespace Ship_Game.Gameplay
            
             IOrderedEnumerable<SolarSystem> systemList =
                 from solarsystem in this.Owner.loyalty.GetOwnedSystems()
-                where solarsystem.CombatInSystem ==false && Vector2.Distance(solarsystem.Position,this.Owner.Position) >300000
+                where solarsystem.combatTimer <=0 && Vector2.Distance(solarsystem.Position,this.Owner.Position) >300000
                 orderby Vector2.Distance(this.Owner.Center, solarsystem.Position)
                 select solarsystem;
             if (systemList.Count<SolarSystem>() > 0)
@@ -6536,11 +6536,15 @@ namespace Ship_Game.Gameplay
                 }
             }
             ArtificialIntelligence scanForThreatTimer = this;
-
+            if (this.State == AIState.Flee && this.inOrbit && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000)
+            {
+                this.OrderQueue.Clear();
+                this.State = this.DefaultAIState;
+            }
             scanForThreatTimer.ScanForThreatTimer = this.ScanForThreatTimer - elapsedTime;
             if (scanForThreatTimer.ScanForThreatTimer < 0f)
             {
-                if (this.inOrbit == true && !(this.State == AIState.Orbit || this.State ==AIState.Flee))
+                if (this.inOrbit == true )//&& !(this.State == AIState.Orbit ||                     this.State == AIState.Flee))
                 {
                     this.inOrbit = false;
                 }
@@ -6564,13 +6568,10 @@ namespace Ship_Game.Gameplay
             this.ReadyToWarp = true;
             this.Owner.isThrusting = false;
             this.Owner.isTurning = false;
-            //if (!this.BadGuysNear && this.State == AIState.Flee)
-            //{
-            //    this.OrderQueue.Clear();
-            //    this.State = this.DefaultAIState;
-            //}
+
                
-            if ((this.BadGuysNear ||this.Owner.InCombatTimer>0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0)
+            if ((this.BadGuysNear ||this.Owner.InCombatTimer>0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 
+                && !(this.Owner.Role == "construction" || this.State == AIState.FormationWarp || this.IgnoreCombat))
             {
                 if (this.State != AIState.Flee && !this.HasPriorityOrder)
                 {
@@ -6584,6 +6585,10 @@ namespace Ship_Game.Gameplay
                         this.OrderFlee(true);
 
                     }
+                }
+                else if (this.State == AIState.Flee  && Vector2.Distance(this.OrbitTarget.Position,this.Owner.Position)< this.Owner.SensorRange+10000)
+                {
+                    this.State = this.DefaultAIState;
                 }
 
 
