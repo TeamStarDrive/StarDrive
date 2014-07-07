@@ -1180,7 +1180,7 @@ namespace Ship_Game
                     this.NotificationManager.Update((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                     this.AutoSaveTimer -= 0.01666667f;
                     
-                    //added forced garbage collection to hlep ship building issues.
+                    //added by gremlin forced garbage collection to hlep ship building issues.
                     this.garbageCollector -= 0.01666667f;
                     if (this.garbageCollector <= 0.0f)
                     {
@@ -1188,6 +1188,7 @@ namespace Ship_Game
                         if(GC.GetTotalMemory(false) > GlobalStats.MemoryLimiter)
                         {
                             GC.GetTotalMemory(true);
+                            //GlobalStats.MemoryLimiter=(GC.GetTotalMemory(true)/1000) +500;
                         }
                     }
                     if (this.AutoSaveTimer <= 0.0f)
@@ -2640,6 +2641,7 @@ namespace Ship_Game
                     this.RecomputeFleetButtons(true);
                 }
             }
+               //end of added by
             else
             {
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.D1) && input.LastKeyboardState.IsKeyUp(Keys.D1))
