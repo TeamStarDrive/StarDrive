@@ -3846,7 +3846,8 @@ namespace Ship_Game.Gameplay
                     break;
             }
             ++this.kills;
-            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant"))
+            //Added by McShooterz: a way to prevent remnant story in mods
+            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory))
                 GlobalStats.IncrementRemnantKills();
             if (this.experience > 5)
             {
