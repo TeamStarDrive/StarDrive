@@ -838,6 +838,7 @@ namespace Ship_Game
         }
         public void UpdateKnownShips()
         {
+            this.GetGSAI().ThreatMatrix.ScrubMatrix();
             lock (GlobalStats.KnownShipsLock)
             {
                 if (this.isPlayer && Empire.universeScreen.Debug)
@@ -882,6 +883,12 @@ namespace Ship_Game
                             if ((node.KeyedObject is Ship && ((node.KeyedObject as Ship).inborders || (node.KeyedObject as Ship).Name == "Subspace Projector")) || node.KeyedObject is SolarSystem)
                             {
                                 border = true;
+                                if (this.Relationships[nearby.loyalty].AtWar)
+                                    nearby.IsIndangerousSpace = true;
+                                else if (this.Relationships[nearby.loyalty].Treaty_Alliance)
+                                    nearby.IsInFriendlySpace = true;
+                                else if (this.Relationships[nearby.loyalty].Treaty_OpenBorders || this.Relationships[nearby.loyalty].Treaty_NAPact)
+                                    nearby.IsInNeutralSpace = true;
                             }
                             //this.GSAI.ThreatMatrix.UpdatePin(nearby);
                             if (!this.isPlayer)
@@ -912,12 +919,14 @@ namespace Ship_Game
                         if (flag)
                         {
                             toadd.Add(nearby);
-                            this.GSAI.ThreatMatrix.UpdatePin(nearby);
-                            if (border)
-                            {
-                                lock (this.UnownedShipsInOurBorders)
-                                    this.UnownedShipsInOurBorders.Add(nearby);
-                            }
+                            this.GSAI.ThreatMatrix.UpdatePin(nearby,border);
+                            //if (border)
+                            //{
+                            //   this.GSAI.ThreatMatrix.Pins. 
+                            //    //lock (this.UnownedShipsInOurBorders)
+                            //    //    this.UnownedShipsInOurBorders.Add(nearby);
+                            //}
+                            
                         }
                     }
                     lock (GlobalStats.KnownShipsLock)
