@@ -111,6 +111,8 @@ namespace Ship_Game
         public static string ExtendedVersion;
         public static int IconSize;
 
+        public static bool preventFederations;
+
 		static GlobalStats()
 		{       
 			GlobalStats.ComparisonCounter = 1;
@@ -165,6 +167,7 @@ namespace Ship_Game
             GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
             GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
             GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
+            GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
 		}
 
 		public GlobalStats()
