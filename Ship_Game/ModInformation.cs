@@ -28,6 +28,7 @@ namespace Ship_Game
         public bool useDrones;
         public bool enableECM;
         public bool extraFireArcs;
+        public bool useWeaponExclusions; //XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
 
 
 		public ModInformation()
