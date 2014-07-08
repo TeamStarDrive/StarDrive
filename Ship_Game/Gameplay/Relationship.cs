@@ -519,162 +519,162 @@ namespace Ship_Game.Gameplay
 		}
 
 		public void UpdateRelationship(Empire us, Empire them)
-		{
-			if (us.data.Defeated)
-			{
-				return;
-			}
-			if (this.FedQuest != null)
-			{
-				if (this.FedQuest.type == QuestType.DestroyEnemy && EmpireManager.GetEmpireByName(this.FedQuest.EnemyName).data.Defeated)
-				{
-					DiplomacyScreen ds = new DiplomacyScreen(us, EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty), "Federation_YouDidIt_KilledEnemy", true)
-					{
-						empToDiscuss = EmpireManager.GetEmpireByName(this.FedQuest.EnemyName)
-					};
-					us.GetUS().ScreenManager.AddScreen(ds);
-					EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).AbsorbEmpire(us);
-					this.FedQuest = null;
-					return;
-				}
-				if (this.FedQuest.type == QuestType.AllyFriend)
-				{
-					if (EmpireManager.GetEmpireByName(this.FedQuest.EnemyName).data.Defeated)
-					{
-						this.FedQuest = null;
-					}
-					else if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetRelations()[EmpireManager.GetEmpireByName(this.FedQuest.EnemyName)].Treaty_Alliance)
-					{
-						DiplomacyScreen ds = new DiplomacyScreen(us, EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty), "Federation_YouDidIt_AllyFriend", true)
-						{
-							empToDiscuss = EmpireManager.GetEmpireByName(this.FedQuest.EnemyName)
-						};
-						us.GetUS().ScreenManager.AddScreen(ds);
-						EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).AbsorbEmpire(us);
-						this.FedQuest = null;
-						return;
-					}
-				}
-			}
-			if (this.Posture == Ship_Game.Gameplay.Posture.Hostile && this.Trust > 50f && this.TotalAnger < 10f)
-			{
-				this.Posture = Ship_Game.Gameplay.Posture.Neutral;
-			}
-			if (them.isFaction)
-			{
-				this.AtWar = false;
-			}
-			this.UpdateIntelligence(us, them);
-			if (this.AtWar && this.ActiveWar != null)
-			{
-				War activeWar = this.ActiveWar;
-				activeWar.TurnsAtWar = activeWar.TurnsAtWar + 1f;
-			}
-			foreach (TrustEntry te in this.TrustEntries)
-			{
-				TrustEntry turnsInExistence = te;
-				turnsInExistence.TurnsInExistence = turnsInExistence.TurnsInExistence + 1;
-				if (te.TurnTimer == 0 || te.TurnsInExistence <= 250)
-				{
-					continue;
-				}
-				this.TrustEntries.QueuePendingRemoval(te);
-			}
-			this.TrustEntries.ApplyPendingRemovals();
-			foreach (FearEntry te in this.FearEntries)
-			{
-				FearEntry fearEntry = te;
-				fearEntry.TurnsInExistence = fearEntry.TurnsInExistence + 1f;
-				if (te.TurnTimer == 0 || te.TurnsInExistence <= 250f)
-				{
-					continue;
-				}
-				this.FearEntries.QueuePendingRemoval(te);
-			}
-			this.FearEntries.ApplyPendingRemovals();
-			if (!this.Treaty_Alliance)
-			{
-				this.TurnsAllied = 0;
-			}
-			else
-			{
-				Relationship turnsAllied = this;
-				turnsAllied.TurnsAllied = turnsAllied.TurnsAllied + 1;
-			}
-			DTrait dt = us.data.DiplomaticPersonality;
-			if (this.Posture == Ship_Game.Gameplay.Posture.Friendly)
-			{
-				Relationship trust = this;
-				trust.Trust = trust.Trust + dt.TrustGainedAtPeace;
-				if (this.Trust > 100f && !us.GetRelations()[them].Treaty_Alliance)
-				{
-					this.Trust = 100f;
-				}
-				else if (this.Trust > 150f && us.GetRelations()[them].Treaty_Alliance)
-				{
-					this.Trust = 150f;
-				}
-			}
-			else if (this.Posture == Ship_Game.Gameplay.Posture.Hostile)
-			{
-				Relationship relationship = this;
-				relationship.Trust = relationship.Trust - dt.TrustGainedAtPeace;
-			}
-			if (this.Treaty_NAPact)
-			{
-				Relationship trust1 = this;
-				trust1.Trust = trust1.Trust + 0.0125f;
-			}
-			if (this.Treaty_OpenBorders)
-			{
-				Relationship relationship1 = this;
-				relationship1.Trust = relationship1.Trust + 0.0125f;
-			}
-			if (this.Treaty_Trade)
-			{
-				Relationship trust2 = this;
-				trust2.Trust = trust2.Trust + 0.0125f;
-				Relationship treatyTradeTurnsExisted = this;
-				treatyTradeTurnsExisted.Treaty_Trade_TurnsExisted = treatyTradeTurnsExisted.Treaty_Trade_TurnsExisted + 1;
-			}
-			if (this.Treaty_Peace)
-			{
-				Relationship peaceTurnsRemaining = this;
-				peaceTurnsRemaining.PeaceTurnsRemaining = peaceTurnsRemaining.PeaceTurnsRemaining - 1;
-				if (this.PeaceTurnsRemaining <= 0)
-				{
-					this.Treaty_Peace = false;
-					us.GetRelations()[them].Treaty_Peace = false;
-				}
-				Relationship angerDiplomaticConflict = this;
-				angerDiplomaticConflict.Anger_DiplomaticConflict = angerDiplomaticConflict.Anger_DiplomaticConflict - 0.1f;
-				Relationship angerFromShipsInOurBorders = this;
-				angerFromShipsInOurBorders.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders.Anger_FromShipsInOurBorders - 0.1f;
-				Relationship angerMilitaryConflict = this;
-				angerMilitaryConflict.Anger_MilitaryConflict = angerMilitaryConflict.Anger_MilitaryConflict - 0.1f;
-				Relationship angerTerritorialConflict = this;
-				angerTerritorialConflict.Anger_TerritorialConflict = angerTerritorialConflict.Anger_TerritorialConflict - 0.1f;
-			}
-			if (this.Trust <= 95f)
-			{
-				this.TurnsAbove95 = 0;
-			}
-			else
-			{
-				Relationship turnsAbove95 = this;
-				turnsAbove95.TurnsAbove95 = turnsAbove95.TurnsAbove95 + 1;
-			}
-			this.TrustUsed = 0f;
-			foreach (TrustEntry te in this.TrustEntries)
-			{
-				Relationship trustUsed = this;
-				trustUsed.TrustUsed = trustUsed.TrustUsed + te.TrustCost;
-			}
-			foreach (FearEntry te in this.FearEntries)
-			{
-				Relationship fearUsed = this;
-				fearUsed.FearUsed = fearUsed.FearUsed + te.FearCost;
-			}
+        {
+            if (us.data.Defeated)
+            {
+                return;
+            }
+            if (this.FedQuest != null)
+            {
+                if (this.FedQuest.type == QuestType.DestroyEnemy && EmpireManager.GetEmpireByName(this.FedQuest.EnemyName).data.Defeated)
+                {
+                    DiplomacyScreen ds = new DiplomacyScreen(us, EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty), "Federation_YouDidIt_KilledEnemy", true)
+                    {
+                        empToDiscuss = EmpireManager.GetEmpireByName(this.FedQuest.EnemyName)
+                    };
+                    us.GetUS().ScreenManager.AddScreen(ds);
+                    EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).AbsorbEmpire(us);
+                    this.FedQuest = null;
+                    return;
+                }
+                if (this.FedQuest.type == QuestType.AllyFriend)
+                {
+                    if (EmpireManager.GetEmpireByName(this.FedQuest.EnemyName).data.Defeated)
+                    {
+                        this.FedQuest = null;
+                    }
+                    else if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetRelations()[EmpireManager.GetEmpireByName(this.FedQuest.EnemyName)].Treaty_Alliance)
+                    {
+                        DiplomacyScreen ds = new DiplomacyScreen(us, EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty), "Federation_YouDidIt_AllyFriend", true)
+                        {
+                            empToDiscuss = EmpireManager.GetEmpireByName(this.FedQuest.EnemyName)
+                        };
+                        us.GetUS().ScreenManager.AddScreen(ds);
+                        EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).AbsorbEmpire(us);
+                        this.FedQuest = null;
+                        return;
+                    }
+                }
+            }
+            if (this.Posture == Ship_Game.Gameplay.Posture.Hostile && this.Trust > 50f && this.TotalAnger < 10f)
+            {
+                this.Posture = Ship_Game.Gameplay.Posture.Neutral;
+            }
+            if (them.isFaction)
+            {
+                this.AtWar = false;
+            }
+            this.UpdateIntelligence(us, them);
+            if (this.AtWar && this.ActiveWar != null)
+            {
+                War activeWar = this.ActiveWar;
+                activeWar.TurnsAtWar = activeWar.TurnsAtWar + 1f;
+            }
+            foreach (TrustEntry te in this.TrustEntries)
+            {
+                TrustEntry turnsInExistence = te;
+                turnsInExistence.TurnsInExistence = turnsInExistence.TurnsInExistence + 1;
+                if (te.TurnTimer == 0 || te.TurnsInExistence <= 250)
+                {
+                    continue;
+                }
+                this.TrustEntries.QueuePendingRemoval(te);
+            }
+            this.TrustEntries.ApplyPendingRemovals();
+            foreach (FearEntry te in this.FearEntries)
+            {
+                FearEntry fearEntry = te;
+                fearEntry.TurnsInExistence = fearEntry.TurnsInExistence + 1f;
+                if (te.TurnTimer == 0 || te.TurnsInExistence <= 250f)
+                {
+                    continue;
+                }
+                this.FearEntries.QueuePendingRemoval(te);
+            }
+            this.FearEntries.ApplyPendingRemovals();
+            if (!this.Treaty_Alliance)
+            {
+                this.TurnsAllied = 0;
+            }
+            else
+            {
+                Relationship turnsAllied = this;
+                turnsAllied.TurnsAllied = turnsAllied.TurnsAllied + 1;
+            }
+            DTrait dt = us.data.DiplomaticPersonality;
+            if (this.Posture == Ship_Game.Gameplay.Posture.Friendly)
+            {
+                Relationship trust = this;
+                trust.Trust = trust.Trust + dt.TrustGainedAtPeace;
+                if (this.Trust > 100f && !us.GetRelations()[them].Treaty_Alliance)
+                {
+                    this.Trust = 100f;
+                }
+                else if (this.Trust > 150f && us.GetRelations()[them].Treaty_Alliance)
+                {
+                    this.Trust = 150f;
+                }
+            }
+            else if (this.Posture == Ship_Game.Gameplay.Posture.Hostile)
+            {
+                Relationship relationship = this;
+                relationship.Trust = relationship.Trust - dt.TrustGainedAtPeace;
+            }
+            if (this.Treaty_NAPact)
+            {
+                Relationship trust1 = this;
+                trust1.Trust = trust1.Trust + 0.0125f;
+            }
+            if (this.Treaty_OpenBorders)
+            {
+                Relationship relationship1 = this;
+                relationship1.Trust = relationship1.Trust + 0.0125f;
+            }
+            if (this.Treaty_Trade)
+            {
+                Relationship trust2 = this;
+                trust2.Trust = trust2.Trust + 0.0125f;
+                Relationship treatyTradeTurnsExisted = this;
+                treatyTradeTurnsExisted.Treaty_Trade_TurnsExisted = treatyTradeTurnsExisted.Treaty_Trade_TurnsExisted + 1;
+            }
+            if (this.Treaty_Peace)
+            {
+                Relationship peaceTurnsRemaining = this;
+                peaceTurnsRemaining.PeaceTurnsRemaining = peaceTurnsRemaining.PeaceTurnsRemaining - 1;
+                if (this.PeaceTurnsRemaining <= 0)
+                {
+                    this.Treaty_Peace = false;
+                    us.GetRelations()[them].Treaty_Peace = false;
+                }
+                Relationship angerDiplomaticConflict = this;
+                angerDiplomaticConflict.Anger_DiplomaticConflict = angerDiplomaticConflict.Anger_DiplomaticConflict - 0.1f;
+                Relationship angerFromShipsInOurBorders = this;
+                angerFromShipsInOurBorders.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders.Anger_FromShipsInOurBorders - 0.1f;
+                Relationship angerMilitaryConflict = this;
+                angerMilitaryConflict.Anger_MilitaryConflict = angerMilitaryConflict.Anger_MilitaryConflict - 0.1f;
+                Relationship angerTerritorialConflict = this;
+                angerTerritorialConflict.Anger_TerritorialConflict = angerTerritorialConflict.Anger_TerritorialConflict - 0.1f;
+            }
+            if (this.Trust <= 95f)
+            {
+                this.TurnsAbove95 = 0;
+            }
+            else
+            {
+                Relationship turnsAbove95 = this;
+                turnsAbove95.TurnsAbove95 = turnsAbove95.TurnsAbove95 + 1;
+            }
+            this.TrustUsed = 0f;
+            foreach (TrustEntry te in this.TrustEntries)
+            {
+                Relationship trustUsed = this;
+                trustUsed.TrustUsed = trustUsed.TrustUsed + te.TrustCost;
+            }
+            foreach (FearEntry te in this.FearEntries)
+            {
+                Relationship fearUsed = this;
+                fearUsed.FearUsed = fearUsed.FearUsed + te.FearCost;
+            }
             //foreach (Ship ship in us.GetShipsInOurBorders())
             //{
             //    if (ship.loyalty != them || them.GetRelations()[us].Treaty_OpenBorders || this.Treaty_Alliance)
@@ -693,114 +693,137 @@ namespace Ship_Game.Gameplay
             //    }
             //}
 
-            foreach (Ship shipsInOurBorder in us.GetShipsInOurBorders().Where(ship => ship.loyalty != null && ship.loyalty != us && !ship.loyalty.isFaction))
+            // Inborders us.GetGSAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them)
+            if(!this.Treaty_Alliance && !this.Treaty_OpenBorders)
             {
-                //shipsInOurBorder.WeaponCentered = false;
-                //added by gremlin: maintenance in enemy space
-                if (shipsInOurBorder.loyalty != them || them.GetRelations()[us].Treaty_OpenBorders || this.Treaty_Alliance)
-                {
-                    if (shipsInOurBorder.loyalty == them && (them.GetRelations()[us].Treaty_OpenBorders))
-                    {
-                        shipsInOurBorder.isCloaking = true;
-                        if (this.Treaty_Alliance)
-                        {
-                            shipsInOurBorder.isCloaked = true;
-                        }
-
-                    }
-                    continue;
-
-                }
-
+                
+                
+                float strengthofshipsinborders = us.GetGSAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
+                if(strengthofshipsinborders>0)
                 if (!this.Treaty_NAPact)
                 {
 
                     Relationship angerFromShipsInOurBorders1 = this;
-                    angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 150f;
-                    shipsInOurBorder.isDecloaking = true;
+                    angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders += (100f - this.Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore*.10f);
+                    //shipsInOurBorder.isDecloaking = true;
                 }
-                else
+                else 
                 {
                     Relationship angerFromShipsInOurBorders2 = this;
-                    angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 300f;
+                    //angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 300f;
+                    angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders += (100f - this.Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore * .2f);
 
                 }
-            }
 
-			float OurMilScore = 230f + us.MilitaryScore;
-			float TheirMilScore = 230f + them.MilitaryScore;
-			this.Threat = (1f - OurMilScore / TheirMilScore) * 100f;
-			if (this.Threat > 100f)
-			{
-				this.Threat = 100f;
-			}
-			if (us.MilitaryScore < 1000f)
-			{
-				this.Threat = 0f;
-			}
-			if (this.Trust > 100f && !us.GetRelations()[them].Treaty_Alliance)
-			{
-				this.Trust = 100f;
-			}
-			else if (this.Trust > 150f && us.GetRelations()[them].Treaty_Alliance)
-			{
-				this.Trust = 150f;
-			}
-			Relationship initialStrength = this;
-			initialStrength.InitialStrength = initialStrength.InitialStrength + dt.NaturalRelChange;
-			if (this.Anger_TerritorialConflict > 0f)
-			{
-				Relationship angerTerritorialConflict1 = this;
-				angerTerritorialConflict1.Anger_TerritorialConflict = angerTerritorialConflict1.Anger_TerritorialConflict - dt.AngerDissipation;
-			}
-			if (this.Anger_TerritorialConflict < 0f)
-			{
-				this.Anger_TerritorialConflict = 0f;
-			}
-			if (this.Anger_FromShipsInOurBorders > 100f)
-			{
-				this.Anger_FromShipsInOurBorders = 100f;
-			}
-			if (this.Anger_FromShipsInOurBorders > 0f)
-			{
-				Relationship relationship2 = this;
-				relationship2.Anger_FromShipsInOurBorders = relationship2.Anger_FromShipsInOurBorders - dt.AngerDissipation;
-			}
-			if (this.Anger_FromShipsInOurBorders < 0f)
-			{
-				this.Anger_FromShipsInOurBorders = 0f;
-			}
-			if (this.Anger_MilitaryConflict > 0f)
-			{
-				Relationship angerTerritorialConflict2 = this;
-				angerTerritorialConflict2.Anger_TerritorialConflict = angerTerritorialConflict2.Anger_TerritorialConflict - dt.AngerDissipation;
-			}
-			if (this.Anger_MilitaryConflict < 0f)
-			{
-				this.Anger_MilitaryConflict = 0f;
-			}
-			if (this.Anger_DiplomaticConflict > 0f)
-			{
-				Relationship angerDiplomaticConflict1 = this;
-				angerDiplomaticConflict1.Anger_DiplomaticConflict = angerDiplomaticConflict1.Anger_DiplomaticConflict - dt.AngerDissipation;
-			}
-			if (this.Anger_DiplomaticConflict < 0f)
-			{
-				this.Anger_DiplomaticConflict = 0f;
-			}
-			this.TotalAnger = 0f;
-			Relationship totalAnger = this;
-			totalAnger.TotalAnger = totalAnger.TotalAnger + this.Anger_DiplomaticConflict;
-			Relationship totalAnger1 = this;
-			totalAnger1.TotalAnger = totalAnger1.TotalAnger + this.Anger_FromShipsInOurBorders;
-			Relationship totalAnger2 = this;
-			totalAnger2.TotalAnger = totalAnger2.TotalAnger + this.Anger_MilitaryConflict;
-			Relationship totalAnger3 = this;
-			totalAnger3.TotalAnger = totalAnger3.TotalAnger + this.Anger_TerritorialConflict;
-			Relationship turnsKnown = this;
-			turnsKnown.TurnsKnown = turnsKnown.TurnsKnown + 1;
-			Relationship relationship3 = this;
-			relationship3.turnsSinceLastContact = relationship3.turnsSinceLastContact + 1;
-		}
+            }
+            //foreach (Ship shipsInOurBorder in us.GetShipsInOurBorders().Where(ship => ship.loyalty != null && ship.loyalty != us && !ship.loyalty.isFaction))
+            //{
+            //    //shipsInOurBorder.WeaponCentered = false;
+            //    //added by gremlin: maintenance in enemy space
+            //    if (shipsInOurBorder.loyalty != them || them.GetRelations()[us].Treaty_OpenBorders || this.Treaty_Alliance)
+            //    {
+            //        if (shipsInOurBorder.loyalty == them && (them.GetRelations()[us].Treaty_OpenBorders))
+            //        {
+            //            shipsInOurBorder.isCloaking = true;
+            //            if (this.Treaty_Alliance)
+            //            {
+            //                shipsInOurBorder.isCloaked = true;
+            //            }
+
+            //        }
+            //        continue;
+
+            //    }
+
+            //    if (!this.Treaty_NAPact)
+            //    {
+
+            //        Relationship angerFromShipsInOurBorders1 = this;
+            //        angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 150f;
+            //        shipsInOurBorder.isDecloaking = true;
+            //    }
+            //    else
+            //    {
+            //        Relationship angerFromShipsInOurBorders2 = this;
+            //        angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 300f;
+
+            //    }
+            //}
+
+            float OurMilScore = 230f + us.MilitaryScore;
+            float TheirMilScore = 230f + them.MilitaryScore;
+            this.Threat = (1f - OurMilScore / TheirMilScore) * 100f;
+            if (this.Threat > 100f)
+            {
+                this.Threat = 100f;
+            }
+            if (us.MilitaryScore < 1000f)
+            {
+                this.Threat = 0f;
+            }
+            if (this.Trust > 100f && !us.GetRelations()[them].Treaty_Alliance)
+            {
+                this.Trust = 100f;
+            }
+            else if (this.Trust > 150f && us.GetRelations()[them].Treaty_Alliance)
+            {
+                this.Trust = 150f;
+            }
+            Relationship initialStrength = this;
+            initialStrength.InitialStrength = initialStrength.InitialStrength + dt.NaturalRelChange;
+            if (this.Anger_TerritorialConflict > 0f)
+            {
+                Relationship angerTerritorialConflict1 = this;
+                angerTerritorialConflict1.Anger_TerritorialConflict = angerTerritorialConflict1.Anger_TerritorialConflict - dt.AngerDissipation;
+            }
+            if (this.Anger_TerritorialConflict < 0f)
+            {
+                this.Anger_TerritorialConflict = 0f;
+            }
+            if (this.Anger_FromShipsInOurBorders > 100f)
+            {
+                this.Anger_FromShipsInOurBorders = 100f;
+            }
+            if (this.Anger_FromShipsInOurBorders > 0f)
+            {
+                Relationship relationship2 = this;
+                relationship2.Anger_FromShipsInOurBorders = relationship2.Anger_FromShipsInOurBorders - dt.AngerDissipation;
+            }
+            if (this.Anger_FromShipsInOurBorders < 0f)
+            {
+                this.Anger_FromShipsInOurBorders = 0f;
+            }
+            if (this.Anger_MilitaryConflict > 0f)
+            {
+                Relationship angerTerritorialConflict2 = this;
+                angerTerritorialConflict2.Anger_TerritorialConflict = angerTerritorialConflict2.Anger_TerritorialConflict - dt.AngerDissipation;
+            }
+            if (this.Anger_MilitaryConflict < 0f)
+            {
+                this.Anger_MilitaryConflict = 0f;
+            }
+            if (this.Anger_DiplomaticConflict > 0f)
+            {
+                Relationship angerDiplomaticConflict1 = this;
+                angerDiplomaticConflict1.Anger_DiplomaticConflict = angerDiplomaticConflict1.Anger_DiplomaticConflict - dt.AngerDissipation;
+            }
+            if (this.Anger_DiplomaticConflict < 0f)
+            {
+                this.Anger_DiplomaticConflict = 0f;
+            }
+            this.TotalAnger = 0f;
+            Relationship totalAnger = this;
+            totalAnger.TotalAnger = totalAnger.TotalAnger + this.Anger_DiplomaticConflict;
+            Relationship totalAnger1 = this;
+            totalAnger1.TotalAnger = totalAnger1.TotalAnger + this.Anger_FromShipsInOurBorders;
+            Relationship totalAnger2 = this;
+            totalAnger2.TotalAnger = totalAnger2.TotalAnger + this.Anger_MilitaryConflict;
+            Relationship totalAnger3 = this;
+            totalAnger3.TotalAnger = totalAnger3.TotalAnger + this.Anger_TerritorialConflict;
+            Relationship turnsKnown = this;
+            turnsKnown.TurnsKnown = turnsKnown.TurnsKnown + 1;
+            Relationship relationship3 = this;
+            relationship3.turnsSinceLastContact = relationship3.turnsSinceLastContact + 1;
+        }
 	}
 }
