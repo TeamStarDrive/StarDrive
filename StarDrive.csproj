@@ -28,7 +28,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>C:\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;STEAM</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;STEAM</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
@@ -101,7 +101,7 @@
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '++GReleaseCandidate|x86'">
-    <OutputPath>L:\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
+    <OutputPath>.\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>

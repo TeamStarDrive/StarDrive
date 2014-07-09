@@ -669,6 +669,13 @@ namespace Ship_Game
 				Active = false
 			};
 			this.Orders.Add(Explore);
+            //Added by McShooterz: fleet scrap button
+            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
+            {
+                SimpleToggle = true,
+                Active = false
+            };
+            this.Orders.Add(Scrap);
 			OrdersButton ordersButton = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15);
 			SystemDefense.SimpleToggle = true;
 			if (AllFreighters)
