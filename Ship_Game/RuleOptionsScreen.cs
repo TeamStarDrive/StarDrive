@@ -48,7 +48,8 @@ namespace Ship_Game
 
 		public void Dispose()
 		{
-			this.Dispose(true);
+            System.Configuration.ConfigurationManager.AppSettings.Set("OptionIncreaseShipMaintenance", GlobalStats.OptionIncreaseShipMaintenance.ToString());
+            this.Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
