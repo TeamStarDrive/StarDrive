@@ -1,4 +1,4 @@
-# Stardrive Extended ++G #
+# Stardrive BlackBox#
 #feature list#
 [Version 1 feature list](https://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Code+Project+Not+game.&status=closed&status=resolved&version=0.1+Gravity)
 
