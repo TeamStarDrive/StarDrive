@@ -218,6 +218,9 @@ namespace Ship_Game.Gameplay
         public static UniverseScreen universeScreen;
         public float FTLSpoolTime;
         public bool instantFTL;
+        public bool IsIndangerousSpace;
+        public bool IsInNeutralSpace;
+        public bool IsInFriendlySpace;
 
         public bool IsWarpCapable
         {
@@ -1208,7 +1211,7 @@ namespace Ship_Game.Gameplay
             {
                 maintModReduction = OptionIncreaseShipMaintenance;
 
-                if (this.isCloaked || this.inborders)// && Properties.Settings.Default.OptionIncreaseShipMaintenance >1)
+                if (this.IsInFriendlySpace || this.inborders)// && Properties.Settings.Default.OptionIncreaseShipMaintenance >1)
                 {
                     maintModReduction *= .25f;
                     if (this.inborders) maintModReduction *= .75f;
@@ -1217,12 +1220,12 @@ namespace Ship_Game.Gameplay
                         maintModReduction *= .25f;
                     }
                 }
-                if (this.isCloaking && !this.isCloaked && !this.inborders)
+                if (this.IsInNeutralSpace && !this.IsInFriendlySpace && !this.inborders)
                 {
                     maintModReduction *= .5f;
                 }
 
-                if (this.isDecloaking)
+                if (this.IsIndangerousSpace)
                 {
                     maintModReduction *= 2f;
                 }
@@ -3765,7 +3768,8 @@ namespace Ship_Game.Gameplay
                         }
                         else
                         {
-                            offRate += w.DamageAmount * (1f / w.fireDelay) * 0.75f;
+                            
+                            offRate += (w.DamageAmount*w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
 
                         }
                         if (offRate > 0 && w.TruePD || w.Range < 1000)
