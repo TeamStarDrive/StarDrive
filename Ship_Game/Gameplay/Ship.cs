@@ -3761,7 +3761,8 @@ namespace Ship_Game.Gameplay
                         }
                         else
                         {
-                            offRate += w.DamageAmount * (1f / w.fireDelay) * 0.75f;
+                            
+                            offRate += (w.DamageAmount*w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
 
                         }
                         if (offRate > 0 && w.TruePD || w.Range < 1000)

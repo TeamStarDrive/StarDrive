@@ -233,6 +233,10 @@ namespace Ship_Game
 				{
 					this.AcceptChanges(this, EventArgs.Empty);
 				}
+                System.Configuration.ConfigurationManager.AppSettings.Set("IconSize",GlobalStats.IconSize.ToString());
+                System.Configuration.ConfigurationManager.AppSettings.Set("PauseOnNotification", GlobalStats.PauseOnNotification.ToString());
+                System.Configuration.ConfigurationManager.AppSettings.Set("MemoryLimiter", GlobalStats.MemoryLimiter.ToString());
+                
 			}
 			catch
 			{
