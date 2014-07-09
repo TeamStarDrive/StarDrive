@@ -704,14 +704,14 @@ namespace Ship_Game.Gameplay
                 {
 
                     Relationship angerFromShipsInOurBorders1 = this;
-                    angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders += (100f - this.Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore*.10f);
+                    angerFromShipsInOurBorders1.Anger_FromShipsInOurBorders += (100f - this.Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore);
                     //shipsInOurBorder.isDecloaking = true;
                 }
                 else 
                 {
                     Relationship angerFromShipsInOurBorders2 = this;
                     //angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders = angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders + (100f - this.Trust) / 100f * (float)shipsInOurBorder.Size / 300f;
-                    angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders += (100f - this.Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore * .2f);
+                    angerFromShipsInOurBorders2.Anger_FromShipsInOurBorders += (100f - this.Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore * 2f);
 
                 }
 
