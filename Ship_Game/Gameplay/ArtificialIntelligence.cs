@@ -5178,7 +5178,7 @@ namespace Ship_Game.Gameplay
                     this.Target = null;
                     this.hasPriorityTarget = false;
                 }
-                else if ((Vector2.Distance(Position, this.Target.Center) > Radius && !this.Intercepting) || (this.Target is Ship && !(this.Target as Ship).inSensorRange))
+                else if (((!this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(this.Target as Ship) && (Vector2.Distance(Position, this.Target.Center) > Radius )&& !this.Intercepting)))
                 {
                     this.Target = null;
                     this.Owner.InCombat = false;
@@ -5195,7 +5195,8 @@ namespace Ship_Game.Gameplay
             if (this.EscortTarget == null || !this.EscortTarget.Active)
             {
                 //changing the ship to parrallel query for MOAR perf.AsParallel().
-                foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item => item.Active && !item.dying && Vector2.Distance(this.Owner.Center, item.Center) <= Radius))
+                foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item => item.Active && !item.dying 
+                    && (this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(item)|| Vector2.Distance(this.Owner.Center, item.Center) <= Radius)))
                 //for (int i = 0; i < nearby.Count(); i++)
                 {
                     Ship item = nearby as Ship;
@@ -5207,13 +5208,14 @@ namespace Ship_Game.Gameplay
                         {
                             this.FriendliesNearby.Add(item);
                         }
-                        else if ((item.loyalty != this.Owner.loyalty && this.Owner.loyalty.GetRelations()[item.loyalty].AtWar || this.Owner.loyalty.isFaction || item.loyalty.isFaction) && Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
+                        else if ((item.loyalty != this.Owner.loyalty && this.Owner.loyalty.GetRelations()[item.loyalty].AtWar || this.Owner.loyalty.isFaction || item.loyalty.isFaction) )//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
                         {
                             ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
                             sw.ship = item;
                             sw.weight = 1f;
                             this.NearbyShips.Add(sw);
                             this.PotentialTargets.Add(item);
+                            if(Vector2.Distance(this.Owner.Center, item.Center) <= Radius)
                             this.BadGuysNear = true;
                         }
                     }
@@ -6592,7 +6594,7 @@ namespace Ship_Game.Gameplay
 
                     }
                 }
-                else if (this.State == AIState.Flee  && Vector2.Distance(this.OrbitTarget.Position,this.Owner.Position)< this.Owner.SensorRange+10000)
+                else if (this.State == AIState.Flee  && (this.OrbitTarget != null && Vector2.Distance(this.OrbitTarget.Position,this.Owner.Position)< this.Owner.SensorRange+10000))
                 {
                     this.State = this.DefaultAIState;
                 }
