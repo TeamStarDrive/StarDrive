@@ -102,6 +102,7 @@ namespace Ship_Game
 
         //Added by McShooterz
         public static ShipUpkeep ShipUpkeep;
+        public static HostileFleets HostileFleets;
 
 		static ResourceManager()
 		{
@@ -146,6 +147,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
             //Added by McShooterz
             Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
+            Ship_Game.ResourceManager.HostileFleets = new HostileFleets();
             Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
 		}
 
@@ -1691,6 +1693,7 @@ namespace Ship_Game
 			}
             //Added by McShooterz
             Ship_Game.ResourceManager.LoadShipUpkeep();
+            Ship_Game.ResourceManager.LoadHostileFleets();
             Ship_Game.ResourceManager.LoadSoundEffects();
 		}
 
@@ -2278,6 +2281,19 @@ namespace Ship_Game
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")))
             {
                 Ship_Game.ResourceManager.ShipUpkeep = (ShipUpkeep)new XmlSerializer(typeof(ShipUpkeep)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")).OpenRead());
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        //Added by McShooterz: Load hostileFleets.xml
+        private static void LoadHostileFleets()
+        {
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")))
+            {
+                Ship_Game.ResourceManager.HostileFleets = (HostileFleets)new XmlSerializer(typeof(HostileFleets)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")).OpenRead());
             }
             else
             {

@@ -2158,7 +2158,7 @@ namespace Ship_Game.Gameplay
 			{
 				this.Target = null;
 			}
-			if (this.Target != null && this.Target is Ship && !this.Owner.loyalty.isFaction && this.Target != null && this.Owner.loyalty.GetRelations().ContainsKey((this.Target as Ship).loyalty) && this.Target != null && this.Owner.loyalty.GetRelations()[(this.Target as Ship).loyalty].Treaty_Peace)
+			if (this.Target != null && this.Target is Ship && !this.Owner.loyalty.isFaction && this.Owner.loyalty.GetRelations().ContainsKey((this.Target as Ship).loyalty) && this.Owner.loyalty.GetRelations()[(this.Target as Ship).loyalty].Treaty_Peace)
 			{
 				return;
 			}
@@ -2176,16 +2176,19 @@ namespace Ship_Game.Gameplay
 						{
 							this.fireTarget = null;
 
-                            // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                            if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone") && this.Target != null)
-                                continue;
-                            if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette") && this.Target != null)
-                                continue;
-                            if ((weapon.Excludes_Capitals && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "destroyer" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "capital") && this.Target != null)
-                                continue;
-                            if ((weapon.Excludes_Stations && (this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station") && this.Target != null)
-                                continue;
-
+                            if (this.Target.GetType() == typeof(Ship) && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWeaponExclusions)
+                            {
+                                // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
+                                if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone"))
+                                    continue;
+                                if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette"))
+                                    continue;
+                                if ((weapon.Excludes_Capitals && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "destroyer" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "capital"))
+                                    continue;
+                                if ((weapon.Excludes_Stations && (this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station"))
+                                    continue;
+                            }
+                            
 
 							if ((weapon.TruePD || weapon.Tag_PD) && this.Owner.GetSystem() != null)
 							{
@@ -2222,16 +2225,19 @@ namespace Ship_Game.Gameplay
 											continue;
 										}
 
-                                        // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                                        if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone") && this.Target != null)
-                                            continue;
-                                        if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette") && this.Target != null)
-                                            continue;
-                                        if ((weapon.Excludes_Capitals && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "destroyer" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "capital") && this.Target != null)
-                                            continue;
-                                        if ((weapon.Excludes_Stations && (this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station") && this.Target != null)
-                                            continue;
-
+                                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWeaponExclusions)
+                                        {
+                                            // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
+                                            if ((weapon.Excludes_Fighters && ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone"))
+                                                continue;
+                                            if ((weapon.Excludes_Corvettes && ship.Role == "corvette"))
+                                                continue;
+                                            if ((weapon.Excludes_Capitals && ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital"))
+                                                continue;
+                                            if ((weapon.Excludes_Stations && ship.Role == "platform" || ship.Role == "station"))
+                                                continue;
+                                        }
+                                        
 										if (weapon.TruePD || weapon.Tag_PD)
 										{
 											foreach (Projectile p in ship.Projectiles)
