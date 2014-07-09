@@ -175,6 +175,7 @@ namespace Ship_Game
                     Primitives2D.DrawRectangle(spriteBatch, this.UnlocksRect, this.complete || flag ? new Color((byte)34, (byte)136, (byte)200) : Color.Black);
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_base_complete"] : ResourceManager.TextureDict["ResearchMenu/tech_base"], this.BaseRect, Color.White);
+                    //Added by McShooterz: Allows non root techs to use IconPath
                     if(ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.GetTech().IconPath))
                     {
                         spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.GetTech().IconPath], this.IconRect, Color.White);
@@ -206,6 +207,7 @@ namespace Ship_Game
                     Primitives2D.DrawRectangle(spriteBatch, this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
+                    //Added by McShooterz: Allows non root techs to use IconPath
                     if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.GetTech().IconPath))
                     {
                         spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.GetTech().IconPath], this.IconRect, Color.White);
@@ -237,6 +239,7 @@ namespace Ship_Game
                     Primitives2D.DrawRectangle(spriteBatch, this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
+                    //Added by McShooterz: Allows non root techs to use IconPath
                     if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.GetTech().IconPath))
                     {
                         spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.GetTech().IconPath], this.IconRect, Color.White);
