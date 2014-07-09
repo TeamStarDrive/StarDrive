@@ -524,28 +524,28 @@ namespace Ship_Game
 			}
 		}
 
-        private void ClearParentSlot(SlotStruct parent)
+        private void ClearParentSlot(SlotStruct parentSlotStruct)
         {   //actually supposed to clear ALL slots of a module, not just the parent
             SlotStruct slotStruct1 = new SlotStruct();
-            slotStruct1.pq = parent.pq;
-            slotStruct1.Restrictions = parent.Restrictions;
-            slotStruct1.facing = parent.facing;
-            slotStruct1.ModuleUID = parent.ModuleUID;
-            slotStruct1.module = parent.module;
-            slotStruct1.state = parent.state;
-            slotStruct1.slotReference = parent.slotReference;
+            slotStruct1.pq = parentSlotStruct.pq;
+            slotStruct1.Restrictions = parentSlotStruct.Restrictions;
+            slotStruct1.facing = parentSlotStruct.facing;
+            slotStruct1.ModuleUID = parentSlotStruct.ModuleUID;
+            slotStruct1.module = parentSlotStruct.module;
+            slotStruct1.state = parentSlotStruct.state;
+            slotStruct1.slotReference = parentSlotStruct.slotReference;
             if (this.DesignStack.Count > 0)
                 this.DesignStack.Peek().AlteredSlots.Add(slotStruct1);
             //clear up child slots
-            for (int index1 = 0; index1 < (int)parent.module.YSIZE; ++index1)
+            for (int index1 = 0; index1 < (int)parentSlotStruct.module.YSIZE; ++index1)
             {
-                for (int index2 = 0; index2 < (int)parent.module.XSIZE; ++index2)
+                for (int index2 = 0; index2 < (int)parentSlotStruct.module.XSIZE; ++index2)
                 {
                     if (!(index2 == 0 & index1 == 0))
                     {
                         foreach (SlotStruct slotStruct2 in this.Slots)
                         {
-                            if (slotStruct2.pq.Y == parent.pq.Y + 16 * index1 && slotStruct2.pq.X == parent.pq.X + 16 * index2)
+                            if (slotStruct2.pq.Y == parentSlotStruct.pq.Y + 16 * index1 && slotStruct2.pq.X == parentSlotStruct.pq.X + 16 * index2)
                             {
                                 slotStruct2.ModuleUID = (string)null;
                                 slotStruct2.isDummy = false;
@@ -559,12 +559,12 @@ namespace Ship_Game
                 }
             }
             //clear parent slot
-            parent.ModuleUID = (string)null;
-            parent.isDummy = false;
-            parent.tex = (Texture2D)null;
-            parent.module = (ShipModule)null;
-            parent.parent = null;
-            parent.state = ShipDesignScreen.ActiveModuleState.Normal;
+            parentSlotStruct.ModuleUID = (string)null;
+            parentSlotStruct.isDummy = false;
+            parentSlotStruct.tex = (Texture2D)null;
+            parentSlotStruct.module = (ShipModule)null;
+            parentSlotStruct.parent = null;
+            parentSlotStruct.state = ShipDesignScreen.ActiveModuleState.Normal;
         }
 
         private void ClearParentSlotNoStack(SlotStruct parent)
@@ -4560,6 +4560,7 @@ namespace Ship_Game
         private void InstallModule(SlotStruct slot)
         {
             int num = 0;
+            //Checks if active module can fit
             for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
             {
                 for (int index2 = 0; index2 < (int)this.ActiveModule.XSIZE; ++index2)
@@ -4571,6 +4572,7 @@ namespace Ship_Game
                     }
                 }
             }
+            //if module fits
             if (num == (int)this.ActiveModule.XSIZE * (int)this.ActiveModule.YSIZE)
             {
                 DesignAction designAction = new DesignAction();
