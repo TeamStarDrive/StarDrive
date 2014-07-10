@@ -3829,10 +3829,13 @@ namespace Ship_Game.Gameplay
                     ++this.experience;
                     break;
                 case "fighter":
-                    this.experience += 2;
+                    this.experience += 2 + (1 * killed.Level);
+                    break;
+                case "corvette":
+                    this.experience += 4 + (2 * killed.Level);
                     break;
                 case "frigate":
-                    this.experience += 6;
+                    this.experience += 6 + (3 * killed.Level);
                     break;
                 case "freighter":
                     ++this.experience;
@@ -3841,16 +3844,16 @@ namespace Ship_Game.Gameplay
                     ++this.experience;
                     break;
                 case "station":
-                    this.experience += 7;
+                    this.experience += 7 + (3 * killed.Level);
                     break;
                 case "cruiser":
-                    this.experience += 14;
+                    this.experience += 14 + (7 * killed.Level);
                     break;
                 case "capital":
-                    this.experience += 30;
+                    this.experience += 30 + (15 * killed.Level);
                     break;
                 case "carrier":
-                    this.experience += 30;
+                    this.experience += 30 + (15 * killed.Level);
                     break;
                 default:
                     ++this.experience;
@@ -3861,7 +3864,7 @@ namespace Ship_Game.Gameplay
             if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory))
                 GlobalStats.IncrementRemnantKills();
             //Added by McShooterz: change level cap, dynamic experience required per level
-            int expMod = 0;//Modifier for experience requirements
+            int expMod = 1;//Modifier for experience requirements
             switch (this.Role)
             {
                 case "fighter":
@@ -3869,6 +3872,9 @@ namespace Ship_Game.Gameplay
                     break;
                 case "platform":
                     expMod = 2;
+                    break;
+                case "corvette":
+                    expMod = 6;
                     break;
                 case "frigate":
                     expMod = 9;
@@ -3889,7 +3895,7 @@ namespace Ship_Game.Gameplay
                     expMod = 1;
                     break;
             }
-            if (this.experience > expMod + (expMod * this.Level))
+            while (this.experience > expMod + (expMod * this.Level))
             {
                 this.experience -= expMod + (expMod * this.Level);
                 ++this.Level;
