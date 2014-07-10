@@ -7326,7 +7326,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>7007</Index>
-      <Text></Text>
+      <Text>Indicates a ship's experience level. For each experience level, a ship gains a 5% bonus each to repair rate, turning speed, and weapons damage.</Text>
     </Token>
 	<Token>
       <Index>7008</Index>
