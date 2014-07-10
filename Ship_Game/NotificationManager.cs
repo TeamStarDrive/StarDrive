@@ -369,7 +369,9 @@ namespace Ship_Game
 				Tech = true,
 				Message = string.Concat(Localizer.Token(ResourceManager.TechTree[unlocked].NameIndex), Localizer.Token(1514)),
 				ReferencedItem1 = unlocked,
-				IconPath = string.Concat("TechIcons/", unlocked),
+                //Added by McShooterz: Techs using Icon Path need this for notifications
+                IconPath = ResourceManager.TextureDict.ContainsKey(string.Concat("TechIcons/", ResourceManager.TechTree[unlocked].IconPath)) ? string.Concat("TechIcons/", ResourceManager.TechTree[unlocked].IconPath) : string.Concat("TechIcons/", unlocked),
+                //IconPath = string.Concat("TechIcons/", unlocked),
 				Action = "ResearchScreen",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
