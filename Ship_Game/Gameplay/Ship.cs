@@ -3861,7 +3861,7 @@ namespace Ship_Game.Gameplay
             if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory))
                 GlobalStats.IncrementRemnantKills();
             //Added by McShooterz: change level cap, dynamic experience required per level
-            int expMod = 0;//Modifier for experience requirements
+            int expMod = 1;//Modifier for experience requirements
             switch (this.Role)
             {
                 case "fighter":
@@ -3889,7 +3889,7 @@ namespace Ship_Game.Gameplay
                     expMod = 1;
                     break;
             }
-            if (this.experience > expMod + (expMod * this.Level))
+            while (this.experience > expMod + (expMod * this.Level))
             {
                 this.experience -= expMod + (expMod * this.Level);
                 ++this.Level;

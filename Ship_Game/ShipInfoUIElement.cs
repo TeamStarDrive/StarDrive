@@ -249,28 +249,30 @@ namespace Ship_Game
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
-			if (this.ship.Level > 0)
-			{
-                Rectangle star = new Rectangle(this.ShipInfoRect.X + this.ShipInfoRect.Width - 26, this.ShipInfoRect.Y - 4, 12, 11);
-                Vector2 levelPos = new Vector2((float)(star.X + 13), (float)(star.Y));
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.Level.ToString(), levelPos, Color.White);
-                if (HelperFunctions.CheckIntersection(star, MousePos))
+            //Added by McShooterz: new experience level display
+            Rectangle star = new Rectangle(this.TroopRect.X + 6, this.TroopRect.Y + this.TroopRect.Height + 3, 12, 11);
+            Vector2 levelPos = new Vector2((float)(star.X + 13), (float)(star.Y));
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.Level.ToString(), levelPos, Color.White);
+            if (HelperFunctions.CheckIntersection(star, MousePos))
+            {
+                ToolTip.CreateTooltip(161, this.ScreenManager);
+            }
+            /*Remove old star system for level
+            if (this.ship.Level > 0)
+            {
+                for (int i = 0; i < this.ship.Level; i++)
                 {
-                    ToolTip.CreateTooltip(68, this.ScreenManager);
+                    Rectangle star = new Rectangle(this.ShipInfoRect.X + this.ShipInfoRect.Width - 13 * i, this.ShipInfoRect.Y - 4, 12, 11);
+                    if (HelperFunctions.CheckIntersection(star, MousePos))
+                    {
+                        ToolTip.CreateTooltip(68, this.ScreenManager);
+                    }
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
                 }
-                /* Remove old star system for level
-				for (int i = 0; i < this.ship.Level; i++)
-				{
-					Rectangle star = new Rectangle(this.ShipInfoRect.X + this.ShipInfoRect.Width - 13 * i, this.ShipInfoRect.Y - 4, 12, 11);
-					if (HelperFunctions.CheckIntersection(star, MousePos))
-					{
-						ToolTip.CreateTooltip(68, this.ScreenManager);
-					}
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
-				}
-                */
-			}
+               
+            }
+            */ 
 			Vector2 StatusArea = new Vector2((float)(this.Housing.X + 175), (float)(this.Housing.Y + 15));
 			int numStatus = 0;
 			if (this.ship.loyalty.data.Traits.Pack)
