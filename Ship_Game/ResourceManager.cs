@@ -103,6 +103,7 @@ namespace Ship_Game
         //Added by McShooterz
         public static ShipUpkeep ShipUpkeep;
         public static HostileFleets HostileFleets;
+        public static ShipNames ShipNames;
 
 		static ResourceManager()
 		{
@@ -148,6 +149,7 @@ namespace Ship_Game
             //Added by McShooterz
             Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
             Ship_Game.ResourceManager.HostileFleets = new HostileFleets();
+            Ship_Game.ResourceManager.ShipNames = new ShipNames();
             Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
 		}
 
@@ -245,6 +247,9 @@ namespace Ship_Game
 			newShip.Position = p.Position;
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -330,6 +335,9 @@ namespace Ship_Game
 			}
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -409,6 +417,9 @@ namespace Ship_Game
 			newShip.Position = p;
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -479,6 +490,9 @@ namespace Ship_Game
 			newShip.Position = p;
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -551,6 +565,9 @@ namespace Ship_Game
 			newShip.Position = p;
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -1694,6 +1711,7 @@ namespace Ship_Game
             //Added by McShooterz
             Ship_Game.ResourceManager.LoadShipUpkeep();
             Ship_Game.ResourceManager.LoadHostileFleets();
+            Ship_Game.ResourceManager.LoadShipNames();
             Ship_Game.ResourceManager.LoadSoundEffects();
 		}
 
@@ -2329,6 +2347,19 @@ namespace Ship_Game
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")))
             {
                 Ship_Game.ResourceManager.HostileFleets = (HostileFleets)new XmlSerializer(typeof(HostileFleets)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")).OpenRead());
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        //Added by McShooterz: Load ShipNames.xml
+        private static void LoadShipNames()
+        {
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipNames/ShipNames.xml")))
+            {
+                Ship_Game.ResourceManager.ShipNames = (ShipNames)new XmlSerializer(typeof(ShipNames)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipNames/ShipNames.xml")).OpenRead());
             }
             else
             {
