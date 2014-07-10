@@ -838,6 +838,7 @@ namespace Ship_Game
         }
         public void UpdateKnownShips()
         {
+            this.GetGSAI().ThreatMatrix.ScrubMatrix();
             lock (GlobalStats.KnownShipsLock)
             {
                 if (this.isPlayer && Empire.universeScreen.Debug)
@@ -882,6 +883,12 @@ namespace Ship_Game
                             if ((node.KeyedObject is Ship && ((node.KeyedObject as Ship).inborders || (node.KeyedObject as Ship).Name == "Subspace Projector")) || node.KeyedObject is SolarSystem)
                             {
                                 border = true;
+                                if (this.Relationships[nearby.loyalty].AtWar)
+                                    nearby.IsIndangerousSpace = true;
+                                else if (this.Relationships[nearby.loyalty].Treaty_Alliance)
+                                    nearby.IsInFriendlySpace = true;
+                                else if (this.Relationships[nearby.loyalty].Treaty_OpenBorders || this.Relationships[nearby.loyalty].Treaty_NAPact)
+                                    nearby.IsInNeutralSpace = true;
                             }
                             //this.GSAI.ThreatMatrix.UpdatePin(nearby);
                             if (!this.isPlayer)
@@ -912,12 +919,14 @@ namespace Ship_Game
                         if (flag)
                         {
                             toadd.Add(nearby);
-                            this.GSAI.ThreatMatrix.UpdatePin(nearby);
-                            if (border)
-                            {
-                                lock (this.UnownedShipsInOurBorders)
-                                    this.UnownedShipsInOurBorders.Add(nearby);
-                            }
+                            this.GSAI.ThreatMatrix.UpdatePin(nearby,border);
+                            //if (border)
+                            //{
+                            //   this.GSAI.ThreatMatrix.Pins. 
+                            //    //lock (this.UnownedShipsInOurBorders)
+                            //    //    this.UnownedShipsInOurBorders.Add(nearby);
+                            //}
+                            
                         }
                     }
                     lock (GlobalStats.KnownShipsLock)
@@ -1600,7 +1609,8 @@ namespace Ship_Game
                                         if (empire != biggest && empire.GetRelations()[biggest].Known && (double)biggest.TotalScore * 0.660000026226044 > (double)empire.TotalScore)
                                             list3.Add(empire);
                                     }
-                                    if (list3.Count > 0)
+                                    //Added by McShooterz: prevent AI from automatically merging together
+                                    if (list3.Count > 0 && !GlobalStats.preventFederations)
                                     {
                                         IOrderedEnumerable<Empire> orderedEnumerable = Enumerable.OrderByDescending<Empire, float>((IEnumerable<Empire>)list3, (Func<Empire, float>)(emp => biggest.GetRelations()[emp].GetStrength()));
                                         if (!biggest.GetRelations()[Enumerable.First<Empire>((IEnumerable<Empire>)orderedEnumerable)].AtWar)

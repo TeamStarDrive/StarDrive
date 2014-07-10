@@ -835,14 +835,30 @@ namespace Ship_Game
                     ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.PlanetList[0], true);
                 foreach (Planet p in solarSystem.PlanetList)
                 {
-                    foreach (string key in p.Guardians)
-                        ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), p, true);
-                    if (p.CorsairPresence)
+                    //Added by McShooterz: alternate hostile fleets populate universe
+                    if (GlobalStats.ActiveMod != null && ResourceManager.HostileFleets.Fleets.Count != 0)
                     {
-                        ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
-                        ResourceManager.CreateShipAt("Corsair", EmpireManager.GetEmpireByName("Corsairs"), p, true);
-                        ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
-                        ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                        if (p.Guardians.Count != 0)
+                        {
+                            Random r = new Random();
+                            int randomFleet = r.Next(0, (int)ResourceManager.HostileFleets.Fleets.Count);
+                            foreach (string ship in ResourceManager.HostileFleets.Fleets[randomFleet].Ships)
+                            {
+                                ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName(ResourceManager.HostileFleets.Fleets[randomFleet].Empire), p, true);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (string key in p.Guardians)
+                            ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), p, true);
+                        if (p.CorsairPresence)
+                        {
+                            ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
+                            ResourceManager.CreateShipAt("Corsair", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                            ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                            ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                        }
                     }
                 }
                 foreach (Anomaly anomaly in solarSystem.AnomaliesList)
@@ -1180,7 +1196,7 @@ namespace Ship_Game
                     this.NotificationManager.Update((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                     this.AutoSaveTimer -= 0.01666667f;
                     
-                    //added forced garbage collection to hlep ship building issues.
+                    //added by gremlin forced garbage collection to hlep ship building issues.
                     this.garbageCollector -= 0.01666667f;
                     if (this.garbageCollector <= 0.0f)
                     {
@@ -1188,6 +1204,7 @@ namespace Ship_Game
                         if(GC.GetTotalMemory(false) > GlobalStats.MemoryLimiter)
                         {
                             GC.GetTotalMemory(true);
+                            //GlobalStats.MemoryLimiter=(GC.GetTotalMemory(true)/1000) +500;
                         }
                     }
                     if (this.AutoSaveTimer <= 0.0f)
@@ -2640,6 +2657,7 @@ namespace Ship_Game
                     this.RecomputeFleetButtons(true);
                 }
             }
+               //end of added by
             else
             {
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.D1) && input.LastKeyboardState.IsKeyUp(Keys.D1))
@@ -5226,15 +5244,15 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
             lock (GlobalStats.KnownShipsLock)
             {
-                for (int local_0 = 0; local_0 < this.player.KnownShips.Count; ++local_0)
+                for (int i = 0; i < this.player.KnownShips.Count; ++i)
                 {
-                    Ship local_1 = this.player.KnownShips[local_0];
-                    if (local_1 != null)
+                    Ship ship = this.player.KnownShips[i];
+                    if (ship != null)
                     {
-                        if (!local_1.Active)
-                            this.MasterShipList.QueuePendingRemoval(local_1);
+                        if (!ship.Active)
+                            this.MasterShipList.QueuePendingRemoval(ship);
                         else
-                            this.DrawInRange(local_1);
+                            this.DrawInRange(ship);
                     }
                 }
             }
@@ -5248,24 +5266,24 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
             lock (GlobalStats.KnownShipsLock)
             {
-                foreach (Ship item_0 in this.player.KnownShips)
+                foreach (Ship ship in this.player.KnownShips)
                 {
-                    if (item_0.Active)
+                    if (ship.Active)
                     {
-                        this.DrawTacticalIcons(item_0);
-                        this.DrawOverlay(item_0);
-                        if ((this.SelectedShipList.Contains(item_0) || this.SelectedShip == item_0) && HelperFunctions.CheckIntersection(this.ScreenRectangle, item_0.ScreenPosition))
+                        this.DrawTacticalIcons(ship);
+                        this.DrawOverlay(ship);
+                        if ((this.SelectedShipList.Contains(ship) || this.SelectedShip == ship) && HelperFunctions.CheckIntersection(this.ScreenRectangle, ship.ScreenPosition))
                         {
                             //Color local_3 = new Color();
-                            if (!this.player.GetRelations().ContainsKey(item_0.loyalty))
+                            if (!this.player.GetRelations().ContainsKey(ship.loyalty))
                             {
                                 Color local_3_1 = Color.LightGreen;
-                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, item_0.ScreenPosition, item_0.ScreenRadius, local_3_1);
+                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_1);
                             }
                             else
                             {
-                                Color local_3_2 = this.player.GetRelations()[item_0.loyalty].AtWar || item_0.loyalty.isFaction ? Color.Red : Color.Gray;
-                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, item_0.ScreenPosition, item_0.ScreenRadius, local_3_2);
+                                Color local_3_2 = this.player.GetRelations()[ship.loyalty].AtWar || ship.loyalty.isFaction ? Color.Red : Color.Gray;
+                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_2);
                             }
                         }
                     }
@@ -5275,28 +5293,28 @@ namespace Ship_Game
                 this.DrawProjectedGroup();
             lock (GlobalStats.ClickableItemLocker)
             {
-                for (int local_4 = 0; local_4 < this.ItemsToBuild.Count; ++local_4)
+                for (int i = 0; i < this.ItemsToBuild.Count; ++i)
                 {
-                    UniverseScreen.ClickableItemUnderConstruction local_5 = this.ItemsToBuild[local_4];
-                    if (ResourceManager.ShipsDict.ContainsKey(local_5.UID))
+                    UniverseScreen.ClickableItemUnderConstruction item = this.ItemsToBuild[i];
+                    if (ResourceManager.ShipsDict.ContainsKey(item.UID))
                     {
-                        float local_6 = (float)(ResourceManager.ShipsDict[local_5.UID].Size / ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width);
+                        float local_6 = (float)(ResourceManager.ShipsDict[item.UID].Size / ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width);
                         Vector2 local_7 = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_platform"].Width / 2));
                         float local_6_1 = local_6 * 4000f / this.camHeight;
                         float local_6_2 = 0.07f;
-                        Vector3 local_8 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(local_5.BuildPos, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 local_8 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item.BuildPos, 0.0f), this.projection, this.view, Matrix.Identity);
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_platform"], new Vector2(local_8.X, local_8.Y), new Rectangle?(), new Color((byte)0, byte.MaxValue, (byte)0, (byte)100), 0.0f, local_7, local_6_2, SpriteEffects.None, 1f);
                         if (this.showingDSBW)
                         {
-                            if (local_5.UID == "Subspace Projector")
+                            if (item.UID == "Subspace Projector")
                             {
-                                Vector3 local_10 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(local_5.AssociatedGoal.BuildPosition + new Vector2(Empire.ProjectorRadius, 0.0f), 0.0f), this.projection, this.view, Matrix.Identity);
+                                Vector3 local_10 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item.AssociatedGoal.BuildPosition + new Vector2(Empire.ProjectorRadius, 0.0f), 0.0f), this.projection, this.view, Matrix.Identity);
                                 float local_11 = Vector2.Distance(new Vector2(local_8.X, local_8.Y), new Vector2(local_10.X, local_10.Y));
                                 Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, new Vector2(local_8.X, local_8.Y), local_11, 50, Color.Orange, 2f);
                             }
-                            else if ((double)ResourceManager.ShipsDict[local_5.UID].SensorRange > 0.0)
+                            else if ((double)ResourceManager.ShipsDict[item.UID].SensorRange > 0.0)
                             {
-                                Vector3 local_13 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(local_5.AssociatedGoal.BuildPosition + new Vector2(ResourceManager.ShipsDict[local_5.UID].SensorRange, 0.0f), 0.0f), this.projection, this.view, Matrix.Identity);
+                                Vector3 local_13 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item.AssociatedGoal.BuildPosition + new Vector2(ResourceManager.ShipsDict[item.UID].SensorRange, 0.0f), 0.0f), this.projection, this.view, Matrix.Identity);
                                 float local_14 = Vector2.Distance(new Vector2(local_8.X, local_8.Y), new Vector2(local_13.X, local_13.Y));
                                 Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, new Vector2(local_8.X, local_8.Y), local_14, 50, Color.Blue, 1f);
                             }
@@ -5604,7 +5622,11 @@ namespace Ship_Game
                     return;
                 if (ship.isColonyShip)
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], position + new Vector2(-7f, -17f), ship.loyalty.EmpireColor);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.Role], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
+                //Added by McShooterz: Make Fighter tactical symbol default if not found
+                if(ResourceManager.TextureDict.ContainsKey("TacticalIcons/symbol_" + ship.Role))
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.Role], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
+                else
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
             }
             else
             {

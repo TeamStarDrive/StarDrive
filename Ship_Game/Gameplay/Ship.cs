@@ -218,6 +218,9 @@ namespace Ship_Game.Gameplay
         public static UniverseScreen universeScreen;
         public float FTLSpoolTime;
         public bool instantFTL;
+        public bool IsIndangerousSpace;
+        public bool IsInNeutralSpace;
+        public bool IsInFriendlySpace;
 
         public bool IsWarpCapable
         {
@@ -490,7 +493,7 @@ namespace Ship_Game.Gameplay
         public float GetAfterBurnerSpeed()
         {
             double num = (double)this.loyalty.data.AfterBurnerSpeedModifier;
-            return (float)((double)this.AfterThrust / (double)this.Mass + (double)this.AfterThrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
+            return (float)((double)this.AfterThrust / (double)this.Mass + (double)this.AfterThrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
         }
 
         public float GetFTLSpeedORIG()
@@ -506,7 +509,7 @@ namespace Ship_Game.Gameplay
         public float GetFTLSpeed()
         {
             //Added by McShooterz: hull bonus speed
-            float v1 = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
+            float v1 = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
             float v2;
             if (this.FTLCount <= 0 || base.Mass > this.WarpMassCapacity)
             {
@@ -515,7 +518,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 //Added by McShooterz: hull bonus speed
-                v2 = (float)(this.FTLSpeed * (1.0 + this.loyalty.data.FTLBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1) / this.FTLCount);
+                v2 = (float)(this.FTLSpeed * (1.0 + this.loyalty.data.FTLBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1) / this.FTLCount);
             }
             if (v1 >= v2)
             {
@@ -530,7 +533,7 @@ namespace Ship_Game.Gameplay
         public float GetSTLSpeed()
         {
             //Added by McShooterz: hull bonus speed
-            return (float)((double)this.Thrust / (double)this.Mass + (double)this.Thrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
+            return (float)((double)this.Thrust / (double)this.Mass + (double)this.Thrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
         }
 
         public Dictionary<Vector2, ModuleSlot> GetMD()
@@ -569,8 +572,12 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                 num += moduleSlot.module.Cost * UniverseScreen.GamePaceStatic;
             if (e != null)
+            {
                 //Added by McShooterz: hull bonus starting cost
-                return (float)(int)((double)num + (double)num * (double)e.data.Traits.ShipCostMod) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? this.GetShipData().StartingCost : 0);
+                num += (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? this.GetShipData().StartingCost : 0);
+                num += num * e.data.Traits.ShipCostMod;
+                return (float)(int)(num * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().CostBonus != 0 ? (1 - (float)this.GetShipData().CostBonus / 100f) : 1));
+            }
             else
                 return (float)(int)num;
         }
@@ -1204,7 +1211,7 @@ namespace Ship_Game.Gameplay
             {
                 maintModReduction = OptionIncreaseShipMaintenance;
 
-                if (this.isCloaked || this.inborders)// && Properties.Settings.Default.OptionIncreaseShipMaintenance >1)
+                if (this.IsInFriendlySpace || this.inborders)// && Properties.Settings.Default.OptionIncreaseShipMaintenance >1)
                 {
                     maintModReduction *= .25f;
                     if (this.inborders) maintModReduction *= .75f;
@@ -1213,12 +1220,12 @@ namespace Ship_Game.Gameplay
                         maintModReduction *= .25f;
                     }
                 }
-                if (this.isCloaking && !this.isCloaked && !this.inborders)
+                if (this.IsInNeutralSpace && !this.IsInFriendlySpace && !this.inborders)
                 {
                     maintModReduction *= .5f;
                 }
 
-                if (this.isDecloaking)
+                if (this.IsIndangerousSpace)
                 {
                     maintModReduction *= 2f;
                 }
@@ -2257,7 +2264,7 @@ namespace Ship_Game.Gameplay
             this.rotationRadiansPerSecond = this.speed / 700f;
             this.ShipMass = this.mass;
             //Added by McShooterz: hull bonus cargo space
-            this.CargoSpace_Max *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().CargoBonus / 100f) : 1);
+            this.CargoSpace_Max *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().CargoBonus != 0 ? (1 + (float)this.GetShipData().CargoBonus / 100f) : 1);
         }
 
         public static Ship LoadSavedShip(ShipData data)
@@ -3149,10 +3156,10 @@ namespace Ship_Game.Gameplay
                             this.maxWeaponsRange = weapon.Range;
                             flag = true;
                         }
+                        weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
                         //Added by McShooterz: weapon tag modifiers with check if mod uses them
                         if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWeaponModifiers)
                         {
-                            weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
                             if (weapon.Tag_Beam)
                                 weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Beam"].Rate;
                             if (weapon.Tag_Energy)
@@ -3190,6 +3197,9 @@ namespace Ship_Game.Gameplay
                             if (weapon.Tag_Warp)
                                 weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Warp"].Rate;
                         }
+                        //Added by McShooterz: Hull bonus Fire Rate
+                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().FireRateBonus != 0)
+                            weapon.fireDelay *= (1 - (float)this.GetShipData().FireRateBonus / 100f);
                     }
                 }
                 foreach (Empire index1 in EmpireManager.EmpireList)
@@ -3301,7 +3311,7 @@ namespace Ship_Game.Gameplay
                         }
                         //Added by McShooterz: use racial trait for repair rate bonus
                         if ((double)moduleSlot.module.BonusRepairRate > 0.0 && (double)moduleSlot.module.PowerDraw != 0.0 && moduleSlot.module.Powered)
-                            this.RepairRate += (moduleSlot.module.BonusRepairRate + moduleSlot.module.BonusRepairRate * this.loyalty.data.Traits.RepairMod);
+                            this.RepairRate += (moduleSlot.module.BonusRepairRate + moduleSlot.module.BonusRepairRate * this.loyalty.data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().RepairBonus != 0 ? (1 + (float)this.GetShipData().RepairBonus / 100f) : 1);
                         this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                     }//);
                     this.RepairRate += (float)((double)this.RepairRate * (double)this.Level * 0.0500000007450581);
@@ -3419,8 +3429,8 @@ namespace Ship_Game.Gameplay
                     double num4 = (double)ship4.Mass * (double)this.loyalty.data.MassModifier;
                     ship4.Mass = (float)num4;
                     //Added by McShooterz: hull bonus cargo space and sensor range
-                    this.CargoSpace_Max *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().CargoBonus / 100f) : 1);
-                    this.SensorRange *= this.loyalty.data.SensorModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1 + (float)this.GetShipData().SensorBonus / 100f) : 1);
+                    this.CargoSpace_Max *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().CargoBonus != 0 ? (1 + (float)this.GetShipData().CargoBonus / 100f) : 1);
+                    this.SensorRange *= this.loyalty.data.SensorModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SensorBonus != 0 ? (1 + (float)this.GetShipData().SensorBonus / 100f) : 1);
                 }
                 List<Troop> list1 = new List<Troop>();
                 List<Troop> list2 = new List<Troop>();
@@ -3758,7 +3768,8 @@ namespace Ship_Game.Gameplay
                         }
                         else
                         {
-                            offRate += w.DamageAmount * (1f / w.fireDelay) * 0.75f;
+                            
+                            offRate += (w.DamageAmount*w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
 
                         }
                         if (offRate > 0 && w.TruePD || w.Range < 1000)
@@ -3839,7 +3850,8 @@ namespace Ship_Game.Gameplay
                     break;
             }
             ++this.kills;
-            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant"))
+            //Added by McShooterz: a way to prevent remnant story in mods
+            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory))
                 GlobalStats.IncrementRemnantKills();
             if (this.experience > 5)
             {
