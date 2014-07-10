@@ -48,7 +48,8 @@ namespace Ship_Game
 
 		public void Dispose()
 		{
-			this.Dispose(true);
+            System.Configuration.ConfigurationManager.AppSettings.Set("OptionIncreaseShipMaintenance", GlobalStats.OptionIncreaseShipMaintenance.ToString());
+            this.Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
@@ -187,8 +188,13 @@ namespace Ship_Game
 			Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 85)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2288;
-            Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
+            //Added by McShooterz: new checkbox to prevent AI federations
+            Ref<bool> pfRef = new Ref<bool>(() => GlobalStats.preventFederations, (bool x) => GlobalStats.preventFederations = x);
+            Checkbox cb2 = new Checkbox(new Vector2((float)(ftlRect.X + 500), (float)(ftlRect.Y)), Localizer.Token(6022), pfRef, Fonts.Arial12Bold);
+            this.Checkboxes.Add(cb2);
+            cb2.Tip_Token = 7011;
 
+            Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
             this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002),0,20000,GlobalStats.GravityWellRange);
             //this.GravityWellSize.SetAmountGW(GlobalStats.GravityWellRange);
             //this.GravityWellSize.amount = GlobalStats.GravityWellRange;
@@ -202,7 +208,7 @@ namespace Ship_Game
             Rectangle MinimumWarpRange = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 340, 270, 50);
             this.MinimumWarpRange = new FloatSlider(MinimumWarpRange, "Minimum Warp Range", 0, 1200000f, GlobalStats.MinimumWarpRange);
             Rectangle MemoryLimiter = new Rectangle(leftRect.X + 60, leftRect.Y + 400, 270, 50);
-            this.MemoryLimiter = new FloatSlider(MemoryLimiter, "Memory Limit", 150000, 200000f, GlobalStats.MemoryLimiter);
+            this.MemoryLimiter = new FloatSlider(MemoryLimiter, "Memory Limit", 150000, 300000f, GlobalStats.MemoryLimiter);
             Rectangle OptionIncreaseShipMaintenance = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 400, 270, 50);
             this.OptionIncreaseShipMaintenance = new FloatSlider(OptionIncreaseShipMaintenance, "Increase Maintenance", 1, 10f, GlobalStats.OptionIncreaseShipMaintenance);
            
