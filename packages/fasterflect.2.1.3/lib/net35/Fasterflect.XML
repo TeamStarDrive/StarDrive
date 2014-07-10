@@ -126,49 +126,6 @@
             default set of options used. 
             </summary>
         </member>
-        <member name="M:Fasterflect.DynamicWrapper.TrySetMember(System.Dynamic.SetMemberBinder,System.Object)">
-            <summary>
-            Sets the member on the target to the given value. Returns true if the value was
-            actually written to the underlying member.
-            </summary>     
-        </member>
-        <member name="M:Fasterflect.DynamicWrapper.TryGetMember(System.Dynamic.GetMemberBinder,System.Object@)">
-            <summary>
-            Gets the member on the target and assigns it to the result parameter. Returns
-            true if a value other than null was found and false otherwise.
-            </summary>      
-        </member>
-        <member name="M:Fasterflect.DynamicWrapper.TryInvokeMember(System.Dynamic.InvokeMemberBinder,System.Object[],System.Object@)">
-            <summary>
-            Invokes the method specified and assigns the result to the result parameter. Returns
-            true if a method to invoke was found and false otherwise.
-            </summary>     
-        </member>
-        <member name="M:Fasterflect.DynamicWrapper.GetDynamicMemberNames">
-            <summary>
-            Gets all member names from the underlying instance.
-            </summary>
-        </member>
-        <member name="M:Fasterflect.DynamicBuilder.TrySetMember(System.Dynamic.SetMemberBinder,System.Object)">
-            <summary>
-            Assigns the given value to the specified member, overwriting any previous definition if one existed.
-            </summary>     
-        </member>
-        <member name="M:Fasterflect.DynamicBuilder.TryGetMember(System.Dynamic.GetMemberBinder,System.Object@)">
-            <summary>
-            Gets the value of the specified member.
-            </summary>      
-        </member>
-        <member name="M:Fasterflect.DynamicBuilder.TryInvokeMember(System.Dynamic.InvokeMemberBinder,System.Object[],System.Object@)">
-            <summary>
-            Invokes the specified member (if it is a delegate).
-            </summary>     
-        </member>
-        <member name="M:Fasterflect.DynamicBuilder.GetDynamicMemberNames">
-            <summary>
-            Gets a list of all dynamically defined members.
-            </summary>
-        </member>
         <member name="T:Fasterflect.Emitter.MapCallInfo">
             <summary>
             Stores all necessary information to construct a dynamic method for member mapping.
