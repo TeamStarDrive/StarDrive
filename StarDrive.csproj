@@ -28,7 +28,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>C:\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;STEAM</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;STEAM</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
@@ -55,7 +55,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <ApplicationIcon>Game.ico</ApplicationIcon>
+    <ApplicationIcon>StarTrek-SA.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x86'">
@@ -101,7 +101,7 @@
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '++GReleaseCandidate|x86'">
-    <OutputPath>..\stardrive mod\</OutputPath>
+    <OutputPath>.\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -118,6 +118,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
@@ -167,6 +169,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\HostileFleets.cs" />
     <Compile Include="Ship_Game\MethodUtil.cs" />
     <Compile Include="Ship_Game\Ref_T_.cs">
       <AutoGen>false</AutoGen>
@@ -1967,6 +1970,7 @@
     <Content Include="Game.ico" />
     <Content Include="Icons\PipeSmoke.ico" />
     <Content Include="Icons\StarTrek-SA.ico" />
+    <Content Include="StarTrek-SA.ico" />
     <None Include="Resources\StarTrek-SA.ico" />
   </ItemGroup>
   <ItemGroup />

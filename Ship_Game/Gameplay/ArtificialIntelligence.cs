@@ -2158,7 +2158,7 @@ namespace Ship_Game.Gameplay
 			{
 				this.Target = null;
 			}
-			if (this.Target != null && this.Target is Ship && !this.Owner.loyalty.isFaction && this.Target != null && this.Owner.loyalty.GetRelations().ContainsKey((this.Target as Ship).loyalty) && this.Target != null && this.Owner.loyalty.GetRelations()[(this.Target as Ship).loyalty].Treaty_Peace)
+			if (this.Target != null && this.Target is Ship && !this.Owner.loyalty.isFaction && this.Owner.loyalty.GetRelations().ContainsKey((this.Target as Ship).loyalty) && this.Owner.loyalty.GetRelations()[(this.Target as Ship).loyalty].Treaty_Peace)
 			{
 				return;
 			}
@@ -2176,16 +2176,19 @@ namespace Ship_Game.Gameplay
 						{
 							this.fireTarget = null;
 
-                            // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                            if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone") && this.Target != null)
-                                continue;
-                            if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette") && this.Target != null)
-                                continue;
-                            if ((weapon.Excludes_Capitals && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "destroyer" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "capital") && this.Target != null)
-                                continue;
-                            if ((weapon.Excludes_Stations && (this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station") && this.Target != null)
-                                continue;
-
+                            if (this.Target.GetType() == typeof(Ship) && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWeaponExclusions)
+                            {
+                                // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
+                                if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone"))
+                                    continue;
+                                if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette"))
+                                    continue;
+                                if ((weapon.Excludes_Capitals && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "destroyer" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "capital"))
+                                    continue;
+                                if ((weapon.Excludes_Stations && (this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station"))
+                                    continue;
+                            }
+                            
 
 							if ((weapon.TruePD || weapon.Tag_PD) && this.Owner.GetSystem() != null)
 							{
@@ -2222,16 +2225,19 @@ namespace Ship_Game.Gameplay
 											continue;
 										}
 
-                                        // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                                        if ((weapon.Excludes_Fighters && (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone") && this.Target != null)
-                                            continue;
-                                        if ((weapon.Excludes_Corvettes && (this.Target as Ship).Role == "corvette") && this.Target != null)
-                                            continue;
-                                        if ((weapon.Excludes_Capitals && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "destroyer" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "capital") && this.Target != null)
-                                            continue;
-                                        if ((weapon.Excludes_Stations && (this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station") && this.Target != null)
-                                            continue;
-
+                                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWeaponExclusions)
+                                        {
+                                            // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
+                                            if ((weapon.Excludes_Fighters && ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone"))
+                                                continue;
+                                            if ((weapon.Excludes_Corvettes && ship.Role == "corvette"))
+                                                continue;
+                                            if ((weapon.Excludes_Capitals && ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital"))
+                                                continue;
+                                            if ((weapon.Excludes_Stations && ship.Role == "platform" || ship.Role == "station"))
+                                                continue;
+                                        }
+                                        
 										if (weapon.TruePD || weapon.Tag_PD)
 										{
 											foreach (Projectile p in ship.Projectiles)
@@ -3630,7 +3636,7 @@ namespace Ship_Game.Gameplay
            
             IOrderedEnumerable<SolarSystem> systemList =
                 from solarsystem in this.Owner.loyalty.GetOwnedSystems()
-                where solarsystem.CombatInSystem ==false && Vector2.Distance(solarsystem.Position,this.Owner.Position) >300000
+                where solarsystem.combatTimer <=0 && Vector2.Distance(solarsystem.Position,this.Owner.Position) >300000
                 orderby Vector2.Distance(this.Owner.Center, solarsystem.Position)
                 select solarsystem;
             if (systemList.Count<SolarSystem>() > 0)
@@ -5172,7 +5178,7 @@ namespace Ship_Game.Gameplay
                     this.Target = null;
                     this.hasPriorityTarget = false;
                 }
-                else if ((Vector2.Distance(Position, this.Target.Center) > Radius && !this.Intercepting) || (this.Target is Ship && !(this.Target as Ship).inSensorRange))
+                else if (((!this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(this.Target as Ship) && (Vector2.Distance(Position, this.Target.Center) > Radius )&& !this.Intercepting)))
                 {
                     this.Target = null;
                     this.Owner.InCombat = false;
@@ -5189,7 +5195,8 @@ namespace Ship_Game.Gameplay
             if (this.EscortTarget == null || !this.EscortTarget.Active)
             {
                 //changing the ship to parrallel query for MOAR perf.AsParallel().
-                foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item => item.Active && !item.dying && Vector2.Distance(this.Owner.Center, item.Center) <= Radius))
+                foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item => item.Active && !item.dying 
+                    && (this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(item)|| Vector2.Distance(this.Owner.Center, item.Center) <= Radius)))
                 //for (int i = 0; i < nearby.Count(); i++)
                 {
                     Ship item = nearby as Ship;
@@ -5201,13 +5208,14 @@ namespace Ship_Game.Gameplay
                         {
                             this.FriendliesNearby.Add(item);
                         }
-                        else if ((item.loyalty != this.Owner.loyalty && this.Owner.loyalty.GetRelations()[item.loyalty].AtWar || this.Owner.loyalty.isFaction || item.loyalty.isFaction) && Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
+                        else if ((item.loyalty != this.Owner.loyalty && this.Owner.loyalty.GetRelations()[item.loyalty].AtWar || this.Owner.loyalty.isFaction || item.loyalty.isFaction) )//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
                         {
                             ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
                             sw.ship = item;
                             sw.weight = 1f;
                             this.NearbyShips.Add(sw);
                             this.PotentialTargets.Add(item);
+                            if(Vector2.Distance(this.Owner.Center, item.Center) <= Radius)
                             this.BadGuysNear = true;
                         }
                     }
@@ -6536,11 +6544,15 @@ namespace Ship_Game.Gameplay
                 }
             }
             ArtificialIntelligence scanForThreatTimer = this;
-
+            if (this.State == AIState.Flee && this.inOrbit && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000)
+            {
+                this.OrderQueue.Clear();
+                this.State = this.DefaultAIState;
+            }
             scanForThreatTimer.ScanForThreatTimer = this.ScanForThreatTimer - elapsedTime;
             if (scanForThreatTimer.ScanForThreatTimer < 0f)
             {
-                if (this.inOrbit == true && !(this.State == AIState.Orbit || this.State ==AIState.Flee))
+                if (this.inOrbit == true )//&& !(this.State == AIState.Orbit ||                     this.State == AIState.Flee))
                 {
                     this.inOrbit = false;
                 }
@@ -6564,13 +6576,10 @@ namespace Ship_Game.Gameplay
             this.ReadyToWarp = true;
             this.Owner.isThrusting = false;
             this.Owner.isTurning = false;
-            //if (!this.BadGuysNear && this.State == AIState.Flee)
-            //{
-            //    this.OrderQueue.Clear();
-            //    this.State = this.DefaultAIState;
-            //}
+
                
-            if ((this.BadGuysNear ||this.Owner.InCombatTimer>0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0)
+            if ((this.BadGuysNear ||this.Owner.InCombatTimer>0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 
+                && !(this.Owner.Role == "construction" || this.State == AIState.FormationWarp || this.IgnoreCombat))
             {
                 if (this.State != AIState.Flee && !this.HasPriorityOrder)
                 {
@@ -6584,6 +6593,10 @@ namespace Ship_Game.Gameplay
                         this.OrderFlee(true);
 
                     }
+                }
+                else if (this.State == AIState.Flee  && (this.OrbitTarget != null && Vector2.Distance(this.OrbitTarget.Position,this.Owner.Position)< this.Owner.SensorRange+10000))
+                {
+                    this.State = this.DefaultAIState;
                 }
 
 

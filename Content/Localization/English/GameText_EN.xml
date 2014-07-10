@@ -7283,6 +7283,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6019</Index>
       <Text>Cargo Space</Text>
     </Token>
+	<Token>
+      <Index>6020</Index>
+      <Text>Fire Rate</Text>
+    </Token>
+	<Token>
+      <Index>6021</Index>
+      <Text>Cost Reduction</Text>
+    </Token>
+	<Token>
+      <Index>6022</Index>
+      <Text>Prevent AI Federations</Text>
+    </Token>
 	
 	
 	
@@ -7314,19 +7326,23 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>7007</Index>
-      <Text>Hull Bonus: </Text>
+      <Text></Text>
     </Token>
 	<Token>
       <Index>7008</Index>
-      <Text>Armor</Text>
+      <Text></Text>
     </Token>
 	<Token>
       <Index>7009</Index>
       <Text>Ship will move within maximum weapons range and present her Port broadside to the enemy for maximum coverage</Text>
     </Token>
-		<Token>
+	<Token>
       <Index>7010</Index>
       <Text>Ship will move within maximum weapons range and present her Starboard broadside to the enemy for maximum coverage</Text>
+    </Token>
+	<Token>
+      <Index>7011</Index>
+      <Text>Prevents AI empires from merging into Federations at the first site of a powerful opponent.</Text>
     </Token>
   </TokenList>
   

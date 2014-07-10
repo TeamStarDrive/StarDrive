@@ -102,6 +102,7 @@ namespace Ship_Game
 
         //Added by McShooterz
         public static ShipUpkeep ShipUpkeep;
+        public static HostileFleets HostileFleets;
 
 		static ResourceManager()
 		{
@@ -146,6 +147,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
             //Added by McShooterz
             Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
+            Ship_Game.ResourceManager.HostileFleets = new HostileFleets();
             Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
 		}
 
@@ -1691,6 +1693,7 @@ namespace Ship_Game
 			}
             //Added by McShooterz
             Ship_Game.ResourceManager.LoadShipUpkeep();
+            Ship_Game.ResourceManager.LoadHostileFleets();
             Ship_Game.ResourceManager.LoadSoundEffects();
 		}
 
@@ -1888,24 +1891,33 @@ namespace Ship_Game
 		public static void LoadShips()
 		{
 			Ship_Game.ResourceManager.ShipsDict.Clear();
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/StarterShips");
-			XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
-				stream.Dispose();
-				Ship newShip = Ship.CreateShipFromShipData(newShipData);
-				newShip.SetShipData(newShipData);
-				newShip.reserved = true;
-				if (newShip.InitForLoad())
-				{
-					newShip.InitializeStatus();
-					Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
-				}
-			}
+            //Added by McShooterz: Changed how StarterShips loads from mod if folder exists
+            XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
+            FileInfo[] textList;
+            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips")))
+            {
+                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/StarterShips/"));
+            }
+            else
+            {
+                textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/StarterShips");           
+            }
+            FileInfo[] fileInfoArray = textList;
+            for (int i = 0; i < (int)fileInfoArray.Length; i++)
+            {
+                FileStream stream = fileInfoArray[i].OpenRead();
+                ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
+                stream.Close();
+                stream.Dispose();
+                Ship newShip = Ship.CreateShipFromShipData(newShipData);
+                newShip.SetShipData(newShipData);
+                newShip.reserved = true;
+                if (newShip.InitForLoad())
+                {
+                    newShip.InitializeStatus();
+                    Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                }
+            }
 			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/SavedDesigns");
 			for (int j = 0; j < (int)filesFromDirectory.Length; j++)
 			{
@@ -2278,6 +2290,19 @@ namespace Ship_Game
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")))
             {
                 Ship_Game.ResourceManager.ShipUpkeep = (ShipUpkeep)new XmlSerializer(typeof(ShipUpkeep)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")).OpenRead());
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        //Added by McShooterz: Load hostileFleets.xml
+        private static void LoadHostileFleets()
+        {
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")))
+            {
+                Ship_Game.ResourceManager.HostileFleets = (HostileFleets)new XmlSerializer(typeof(HostileFleets)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")).OpenRead());
             }
             else
             {

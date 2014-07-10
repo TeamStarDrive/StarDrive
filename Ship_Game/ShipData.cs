@@ -45,11 +45,14 @@ namespace Ship_Game
 		public AIState DefaultAIState;
 
         //Added by McShooterz: New tags for Hull modifiers
-        public short StartingCost;
-        public byte ArmoredBonus;
-        public byte SensorBonus;
-        public byte SpeedBonus;
-        public byte CargoBonus;
+        public short StartingCost; // additional cost to build
+        public byte ArmoredBonus; // % damage reduction
+        public byte SensorBonus; // % sensor range
+        public byte SpeedBonus; // % speed increase
+        public byte CargoBonus; // % cargo room
+        public byte FireRateBonus; // % fire rate
+        public byte RepairBonus; // % repair rate
+        public byte CostBonus;  // % cost reduction
 
 		public List<ModuleSlotData> ModuleSlotList = new List<ModuleSlotData>();
 
