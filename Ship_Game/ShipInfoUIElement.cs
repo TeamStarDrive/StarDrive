@@ -251,6 +251,15 @@ namespace Ship_Game
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			if (this.ship.Level > 0)
 			{
+                Rectangle star = new Rectangle(this.ShipInfoRect.X + this.ShipInfoRect.Width - 26, this.ShipInfoRect.Y - 4, 12, 11);
+                Vector2 levelPos = new Vector2((float)(star.X + 13), (float)(star.Y));
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.Level.ToString(), levelPos, Color.White);
+                if (HelperFunctions.CheckIntersection(star, MousePos))
+                {
+                    ToolTip.CreateTooltip(68, this.ScreenManager);
+                }
+                /* Remove old star system for level
 				for (int i = 0; i < this.ship.Level; i++)
 				{
 					Rectangle star = new Rectangle(this.ShipInfoRect.X + this.ShipInfoRect.Width - 13 * i, this.ShipInfoRect.Y - 4, 12, 11);
@@ -260,6 +269,7 @@ namespace Ship_Game
 					}
 					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
 				}
+                */
 			}
 			Vector2 StatusArea = new Vector2((float)(this.Housing.X + 175), (float)(this.Housing.Y + 15));
 			int numStatus = 0;
