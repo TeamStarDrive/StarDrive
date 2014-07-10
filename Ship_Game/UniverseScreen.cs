@@ -836,7 +836,7 @@ namespace Ship_Game
                 foreach (Planet p in solarSystem.PlanetList)
                 {
                     //Added by McShooterz: alternate hostile fleets populate universe
-                    if (GlobalStats.ActiveMod != null && ResourceManager.HostileFleets.Fleets.Count != 0)
+                    if (GlobalStats.ActiveMod != null && ResourceManager.HostileFleets != null && ResourceManager.HostileFleets.Fleets !=null && ResourceManager.HostileFleets.Fleets.Count != 0)
                     {
                         if (p.Guardians.Count != 0)
                         {
