@@ -3764,7 +3764,7 @@ namespace Ship_Game.Gameplay
                         Weapon w = module.InstalledWeapon;
                         if (!w.explodes)
                         {
-                            offRate += (!w.isBeam ? w.DamageAmount * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
                         }
                         else
                         {
@@ -3862,8 +3862,8 @@ namespace Ship_Game.Gameplay
                 this.Level = 5;
             if (!this.loyalty.GetRelations().ContainsKey(killed.loyalty) || !this.loyalty.GetRelations()[killed.loyalty].AtWar)
                 return;
-            this.loyalty.GetRelations()[killed.loyalty].ActiveWar.StrengthKilled += killed.GetStrength();
-            killed.loyalty.GetRelations()[this.loyalty].ActiveWar.StrengthLost += killed.GetStrength();
+            this.loyalty.GetRelations()[killed.loyalty].ActiveWar.StrengthKilled += killed.BaseStrength;
+            killed.loyalty.GetRelations()[this.loyalty].ActiveWar.StrengthLost += killed.BaseStrength;
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
