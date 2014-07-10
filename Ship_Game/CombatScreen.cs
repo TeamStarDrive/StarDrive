@@ -742,24 +742,44 @@ namespace Ship_Game
                     this.LaunchAll.State = UIButton.PressState.Hover;
                     if (input.InGameSelect)
                     {
-                        AudioManager.PlayCue("sd_troop_land");
-                        List<Troop> launchtroop = new List<Troop>();
-                        foreach (Troop trooper in p.TroopsHere)
-                        {
-                            if (trooper.GetOwner() != universeScreen.player)
-                                continue;
-                            launchtroop.Add(trooper);
+                        //AudioManager.PlayCue("sd_troop_land");
+                        //List<Troop> launchtroop = new List<Troop>();
+                        //foreach (Troop trooper in p.TroopsHere)
+                        //{
+                        //    if (trooper.GetOwner() != universeScreen.player)
+                        //        continue;
+                        //    launchtroop.Add(trooper);
                             
                             
-                        }
-                        foreach (Troop trooper in launchtroop)
-                        {
-                            trooper.Launch();
-                        }
-                        launchtroop.Clear();
-                        this.ResetNextFrame = true;
+                        //}
+                        //foreach (Troop trooper in launchtroop)
+                        //{
+                        //    trooper.Launch();
+                        //}
+                        //launchtroop.Clear();
 
-                       
+                        bool play = false;
+                        foreach (PlanetGridSquare pgs in this.p.TilesList)
+                        {
+                            if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+                            {
+                                continue;
+                            }
+                            play = true;
+                            ResourceManager.CreateTroopShipAtPoint(this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+                            this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
+                            pgs.TroopsHere[0].SetPlanet(null);
+                            pgs.TroopsHere.Clear();
+
+                        }
+                        if (play)
+                        {
+                            AudioManager.PlayCue("sd_troop_takeoff");
+                            this.ResetNextFrame = true;
+
+                        }
+
+                        
                     }
                 }
             }
