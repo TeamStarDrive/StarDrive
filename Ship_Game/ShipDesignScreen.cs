@@ -448,7 +448,8 @@ namespace Ship_Game
 			{
 				for (int x = 0; x < this.ActiveModule.XSIZE; x++)
 				{
-					if (x == 0 & y == 0)
+                    //added by gremlin changed to not like the other modules clear methods are.
+					if (!(x == 0 & y == 0))
 					{
 						foreach (SlotStruct dummyslot in this.Slots)
 						{
@@ -496,7 +497,8 @@ namespace Ship_Game
 			{
 				for (int x = 0; x < this.ActiveModule.XSIZE; x++)
 				{
-					if (x == 0 & y == 0)
+					//added by gremlin Changed to not like the other methods are.
+                    if (!(x == 0 & y == 0))
 					{
 						foreach (SlotStruct dummyslot in this.Slots)
 						{
@@ -2318,7 +2320,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            if (this.ActiveHull.Role == "fighter" || this.ActiveHull.Role == "scout" && tmp.FighterModule == false)
+                            if ((this.ActiveHull.Role == "fighter" || this.ActiveHull.Role == "scout" )&& tmp.FighterModule == false)
                             {
                                 continue;
                             }
