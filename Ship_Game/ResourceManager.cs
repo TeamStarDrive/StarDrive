@@ -1867,7 +1867,11 @@ namespace Ship_Game
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
-				FileInfo FI = fileInfoArray[i];
+				
+                FileInfo FI = fileInfoArray[i];
+                //added by gremlin support techlevel disabled folder.
+                if(FI.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase)  >0)
+                    continue;
 				FileStream stream = FI.OpenRead();
 				ShipModule data = (ShipModule)serializer1.Deserialize(stream);
 				stream.Close();
@@ -1902,20 +1906,28 @@ namespace Ship_Game
             {
                 textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/StarterShips");           
             }
+
             FileInfo[] fileInfoArray = textList;
             for (int i = 0; i < (int)fileInfoArray.Length; i++)
             {
+                //added by gremlin support techlevel disabled folder.
+                if (fileInfoArray[i].DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
+                    continue;
                 FileStream stream = fileInfoArray[i].OpenRead();
+
                 ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
                 stream.Close();
                 stream.Dispose();
                 Ship newShip = Ship.CreateShipFromShipData(newShipData);
-                newShip.SetShipData(newShipData);
-                newShip.reserved = true;
-                if (newShip.InitForLoad())
+                if(newShip.Role!="disabled")
                 {
-                    newShip.InitializeStatus();
-                    Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                    newShip.SetShipData(newShipData);
+                    newShip.reserved = true;
+                    if (newShip.InitForLoad())
+                    {
+                        newShip.InitializeStatus();
+                        Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                    }
                 }
             }
 			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/SavedDesigns");
@@ -1926,36 +1938,47 @@ namespace Ship_Game
 				stream.Close();
 				stream.Dispose();
 				Ship newShip = Ship.CreateShipFromShipData(newShipData);
-				newShip.SetShipData(newShipData);
-				if (newShip.InitForLoad())
-				{
-					newShip.InitializeStatus();
-					Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
-				}
+                if (newShip.Role != "disabled")
+                {
+                    newShip.SetShipData(newShipData);
+                    if (newShip.InitForLoad())
+                    {
+                        newShip.InitializeStatus();
+                        Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                    }
+                }
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			FileInfo[] filesFromDirectory1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Designs"));
 			for (int k = 0; k < (int)filesFromDirectory1.Length; k++)
 			{
 				FileInfo FI = filesFromDirectory1[k];
-				try
+				
+#if !DEBUG
+                try
+#endif
 				{
 					FileStream stream = FI.OpenRead();
 					ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
 					stream.Close();
 					stream.Dispose();
 					Ship newShip = Ship.CreateShipFromShipData(newShipData);
-					newShip.IsPlayerDesign = true;
-					newShip.SetShipData(newShipData);
-					if (newShip.InitForLoad())
-					{
-						newShip.InitializeStatus();
-						Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
-					}
+                    if (newShip.Role != "disabled")
+                    {
+                        newShip.IsPlayerDesign = true;
+                        newShip.SetShipData(newShipData);
+                        if (newShip.InitForLoad())
+                        {
+                            newShip.InitializeStatus();
+                            Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                        }
+                    }
 				}
+#if !DEBUG
 				catch
 				{
 				}
+#endif
 			}
 			if (GlobalStats.ActiveMod != null)
 			{
@@ -1971,13 +1994,16 @@ namespace Ship_Game
 						stream.Close();
 						stream.Dispose();
 						Ship newShip = Ship.CreateShipFromShipData(newShipData);
-						newShip.IsPlayerDesign = true;
-						newShip.SetShipData(newShipData);
-						if (newShip.InitForLoad())
-						{
-							newShip.InitializeStatus();
-							Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
-						}
+                        if (newShip.Role != "disabled")
+                        {
+                            newShip.IsPlayerDesign = true;
+                            newShip.SetShipData(newShipData);
+                            if (newShip.InitForLoad())
+                            {
+                                newShip.InitializeStatus();
+                                Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                            }
+                        }
 					}
 					catch
 					{
@@ -2043,11 +2069,11 @@ namespace Ship_Game
                         Weapon w = module.InstalledWeapon;
                         if (!w.explodes)
                         {
-                            offRate += (!w.isBeam ? w.DamageAmount * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                            offRate += (!w.isBeam ? (w.DamageAmount *w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
                         }
                         else
                         {
-                            offRate += w.DamageAmount * (1f / w.fireDelay) * 0.75f;
+                            offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
 
                         }
                         if (offRate > 0 && (w.TruePD || w.Range < 1000))
