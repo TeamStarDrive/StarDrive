@@ -422,7 +422,7 @@ namespace Ship_Game
 					select system;
 				foreach (SolarSystem solarSystem3 in sortedSystems)
 				{
-					if ((float)troop.Strength >= this.DefenseDict[solarSystem3].TroopStrengthNeeded)
+					if (solarSystem3.combatTimer >0 ||  (float)troop.Strength >= this.DefenseDict[solarSystem3].TroopStrengthNeeded)
 					{
 						continue;
 					}
