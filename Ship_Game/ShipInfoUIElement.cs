@@ -202,15 +202,20 @@ namespace Ship_Game
 			}
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
 			this.gridbutton.Draw(this.ScreenManager);
-			Vector2 NamePos = new Vector2((float)(this.Housing.X + 41), (float)(this.Housing.Y + 65));
+			Vector2 NamePos = new Vector2((float)(this.Housing.X + 31), (float)(this.Housing.Y + 60));
 			string name = (this.ship.VanityName != "" ? this.ship.VanityName : this.ship.Name);
 			SpriteFont TitleFont = Fonts.Arial20Bold;
+            Vector2 ShipSuperName = new Vector2((float)(NamePos.X), (float)(NamePos.Y + 20));
 			if (Fonts.Arial20Bold.MeasureString(name).X > 190f)
 			{
 				TitleFont = Fonts.Arial12Bold;
 				NamePos.Y = NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2 - TitleFont.LineSpacing / 2);
+                ShipSuperName.Y = NamePos.Y + 15;
 			}
 			this.ShipNameArea.Draw(TitleFont, this.ScreenManager.SpriteBatch, NamePos, gameTime, this.tColor);
+            //Added by McShooterz:
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, string.Concat(this.ship.Name, " ", Localizer.GetRole(this.ship.Role)), ShipSuperName, Color.Orange);
+
 			string text = HelperFunctions.parseText(Fonts.Arial12, ShipListScreenEntry.GetStatusText(this.ship), 130f);
 			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), NamePos.Y + (float)(TitleFont.LineSpacing / 2) - Fonts.Arial12.MeasureString(text).Y / 2f + 2f);
 			text = HelperFunctions.parseText(Fonts.Arial12, ShipListScreenEntry.GetStatusText(this.ship), 130f);
