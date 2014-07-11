@@ -22,8 +22,6 @@ namespace Ship_Game
         public bool useHullBonuses;
         public bool useWeaponModifiers;
         public bool removeRemnantStory;
-        public bool useHostileFleets;
-        public bool useShipNames;
 
         //added by The Doctor
         public bool useDestroyers;
