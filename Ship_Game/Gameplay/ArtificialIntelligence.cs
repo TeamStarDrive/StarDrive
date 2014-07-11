@@ -2225,7 +2225,7 @@ namespace Ship_Game.Gameplay
 									if (this.Target is Ship && !this.PotentialTargets.Contains(this.Target as Ship))
 									{
 										this.PotentialTargets.Add(this.Target as Ship);
-										this.BadGuysNear = true;
+                                        this.BadGuysNear = Vector2.Distance(this.Owner.Center, this.Target.Position) <= this.Owner.SensorRange; //true;
 									}
 									foreach (Ship ship in this.PotentialTargets)
 									{
@@ -5204,8 +5204,8 @@ namespace Ship_Game.Gameplay
             if (this.EscortTarget == null || !this.EscortTarget.Active)
             {
                 //changing the ship to parrallel query for MOAR perf.AsParallel().
-                foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item => item.Active && !item.dying 
-                    && (this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(item)|| Vector2.Distance(this.Owner.Center, item.Center) <= Radius)))
+                foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item => item.Active && !item.dying
+                    && (Vector2.Distance(this.Owner.Center, item.Center) <= Radius))) //this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(item)||
                 //for (int i = 0; i < nearby.Count(); i++)
                 {
                     Ship item = nearby as Ship;
@@ -5224,8 +5224,8 @@ namespace Ship_Game.Gameplay
                             sw.weight = 1f;
                             this.NearbyShips.Add(sw);
                             this.PotentialTargets.Add(item);
-                            if(Vector2.Distance(this.Owner.Center, item.Center) <= Radius)
-                            this.BadGuysNear = true;
+                            this.BadGuysNear = Vector2.Distance(Position, item.Position) <= Radius;
+                             
                         }
                     }
                 }
@@ -6587,8 +6587,8 @@ namespace Ship_Game.Gameplay
             this.Owner.isTurning = false;
 
                
-            if ((this.BadGuysNear ||this.Owner.InCombatTimer>0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 
-                && !(this.Owner.Role == "construction" || this.State == AIState.FormationWarp || this.IgnoreCombat))
+            if (( this.BadGuysNear ||  this.Owner.InCombatTimer>0 ) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 
+                && !(this.Owner.Role == "construction" || this.Owner.fleet !=null || this.IgnoreCombat))
             {
                 if (this.State != AIState.Flee && !this.HasPriorityOrder)
                 {
@@ -6600,6 +6600,7 @@ namespace Ship_Game.Gameplay
                     if (this.State == AIState.Flee)
                     {
                         this.OrderFlee(true);
+                        this.Owner.InCombatTimer = 15f;
 
                     }
                 }
