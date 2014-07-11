@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Audio;
 using System.Runtime.CompilerServices;
 
 namespace Ship_Game
@@ -1898,13 +1899,16 @@ namespace Ship_Game
 				this.launchTroops.State = UIButton.PressState.Hover;
 				if (input.InGameSelect)
 				{
-					foreach (PlanetGridSquare pgs in this.p.TilesList)
+					bool play =false;
+                    foreach (PlanetGridSquare pgs in this.p.TilesList)
 					{
 						if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
 						{
 							continue;
 						}
-						AudioManager.PlayCue("sd_troop_takeoff");
+                        
+                        play =true;
+                        
 						ResourceManager.CreateTroopShipAtPoint(this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
 						this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
 						pgs.TroopsHere[0].SetPlanet(null);
@@ -1912,6 +1916,11 @@ namespace Ship_Game
 						this.ClickedTroop = true;
 						this.detailInfo = null;
 					}
+                    if(play)
+                    {
+                            
+                        AudioManager.PlayCue("sd_troop_takeoff");
+                        }
 				}
 			}
 			if (!HelperFunctions.CheckIntersection(this.edit_name_button, MousePos))

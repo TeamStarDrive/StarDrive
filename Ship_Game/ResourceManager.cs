@@ -103,6 +103,7 @@ namespace Ship_Game
         //Added by McShooterz
         public static ShipUpkeep ShipUpkeep;
         public static HostileFleets HostileFleets;
+        public static ShipNames ShipNames;
 
 		static ResourceManager()
 		{
@@ -148,6 +149,7 @@ namespace Ship_Game
             //Added by McShooterz
             Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
             Ship_Game.ResourceManager.HostileFleets = new HostileFleets();
+            Ship_Game.ResourceManager.ShipNames = new ShipNames();
             Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
 		}
 
@@ -245,6 +247,9 @@ namespace Ship_Game
 			newShip.Position = p.Position;
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -330,6 +335,9 @@ namespace Ship_Game
 			}
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -409,6 +417,9 @@ namespace Ship_Game
 			newShip.Position = p;
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -479,6 +490,9 @@ namespace Ship_Game
 			newShip.Position = p;
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -551,6 +565,9 @@ namespace Ship_Game
 			newShip.Position = p;
 			newShip.loyalty = Owner;
 			newShip.Initialize();
+            //Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -1694,6 +1711,7 @@ namespace Ship_Game
             //Added by McShooterz
             Ship_Game.ResourceManager.LoadShipUpkeep();
             Ship_Game.ResourceManager.LoadHostileFleets();
+            Ship_Game.ResourceManager.LoadShipNames();
             Ship_Game.ResourceManager.LoadSoundEffects();
 		}
 
@@ -1867,7 +1885,11 @@ namespace Ship_Game
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
-				FileInfo FI = fileInfoArray[i];
+				
+                FileInfo FI = fileInfoArray[i];
+                //added by gremlin support techlevel disabled folder.
+                if(FI.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase)  >0)
+                    continue;
 				FileStream stream = FI.OpenRead();
 				ShipModule data = (ShipModule)serializer1.Deserialize(stream);
 				stream.Close();
@@ -1902,20 +1924,28 @@ namespace Ship_Game
             {
                 textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/StarterShips");           
             }
+
             FileInfo[] fileInfoArray = textList;
             for (int i = 0; i < (int)fileInfoArray.Length; i++)
             {
+                //added by gremlin support techlevel disabled folder.
+                if (fileInfoArray[i].DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
+                    continue;
                 FileStream stream = fileInfoArray[i].OpenRead();
+
                 ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
                 stream.Close();
                 stream.Dispose();
                 Ship newShip = Ship.CreateShipFromShipData(newShipData);
-                newShip.SetShipData(newShipData);
-                newShip.reserved = true;
-                if (newShip.InitForLoad())
+                if(newShip.Role!="disabled")
                 {
-                    newShip.InitializeStatus();
-                    Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                    newShip.SetShipData(newShipData);
+                    newShip.reserved = true;
+                    if (newShip.InitForLoad())
+                    {
+                        newShip.InitializeStatus();
+                        Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                    }
                 }
             }
 			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/SavedDesigns");
@@ -1926,36 +1956,47 @@ namespace Ship_Game
 				stream.Close();
 				stream.Dispose();
 				Ship newShip = Ship.CreateShipFromShipData(newShipData);
-				newShip.SetShipData(newShipData);
-				if (newShip.InitForLoad())
-				{
-					newShip.InitializeStatus();
-					Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
-				}
+                if (newShip.Role != "disabled")
+                {
+                    newShip.SetShipData(newShipData);
+                    if (newShip.InitForLoad())
+                    {
+                        newShip.InitializeStatus();
+                        Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                    }
+                }
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			FileInfo[] filesFromDirectory1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Designs"));
 			for (int k = 0; k < (int)filesFromDirectory1.Length; k++)
 			{
 				FileInfo FI = filesFromDirectory1[k];
-				try
+				
+#if !DEBUG
+                try
+#endif
 				{
 					FileStream stream = FI.OpenRead();
 					ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
 					stream.Close();
 					stream.Dispose();
 					Ship newShip = Ship.CreateShipFromShipData(newShipData);
-					newShip.IsPlayerDesign = true;
-					newShip.SetShipData(newShipData);
-					if (newShip.InitForLoad())
-					{
-						newShip.InitializeStatus();
-						Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
-					}
+                    if (newShip.Role != "disabled")
+                    {
+                        newShip.IsPlayerDesign = true;
+                        newShip.SetShipData(newShipData);
+                        if (newShip.InitForLoad())
+                        {
+                            newShip.InitializeStatus();
+                            Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                        }
+                    }
 				}
+#if !DEBUG
 				catch
 				{
 				}
+#endif
 			}
 			if (GlobalStats.ActiveMod != null)
 			{
@@ -1971,13 +2012,16 @@ namespace Ship_Game
 						stream.Close();
 						stream.Dispose();
 						Ship newShip = Ship.CreateShipFromShipData(newShipData);
-						newShip.IsPlayerDesign = true;
-						newShip.SetShipData(newShipData);
-						if (newShip.InitForLoad())
-						{
-							newShip.InitializeStatus();
-							Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
-						}
+                        if (newShip.Role != "disabled")
+                        {
+                            newShip.IsPlayerDesign = true;
+                            newShip.SetShipData(newShipData);
+                            if (newShip.InitForLoad())
+                            {
+                                newShip.InitializeStatus();
+                                Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                            }
+                        }
 					}
 					catch
 					{
@@ -2043,11 +2087,11 @@ namespace Ship_Game
                         Weapon w = module.InstalledWeapon;
                         if (!w.explodes)
                         {
-                            offRate += (!w.isBeam ? w.DamageAmount * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                            offRate += (!w.isBeam ? (w.DamageAmount *w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
                         }
                         else
                         {
-                            offRate += w.DamageAmount * (1f / w.fireDelay) * 0.75f;
+                            offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
 
                         }
                         if (offRate > 0 && (w.TruePD || w.Range < 1000))
@@ -2303,6 +2347,19 @@ namespace Ship_Game
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")))
             {
                 Ship_Game.ResourceManager.HostileFleets = (HostileFleets)new XmlSerializer(typeof(HostileFleets)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")).OpenRead());
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        //Added by McShooterz: Load ShipNames.xml
+        private static void LoadShipNames()
+        {
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipNames/ShipNames.xml")))
+            {
+                Ship_Game.ResourceManager.ShipNames = (ShipNames)new XmlSerializer(typeof(ShipNames)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipNames/ShipNames.xml")).OpenRead());
             }
             else
             {
