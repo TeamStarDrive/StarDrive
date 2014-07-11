@@ -2194,7 +2194,7 @@ namespace Ship_Game.Gameplay
                                 {
                                     continue;
                                 }
-                                if ((weapon.Excludes_Stations && (this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station"))
+                                if (weapon.Excludes_Stations && ((this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station"))
                                     continue;
                             }
                             
@@ -6586,13 +6586,13 @@ namespace Ship_Game.Gameplay
             this.Owner.isThrusting = false;
             this.Owner.isTurning = false;
 
-               
-            if (( this.BadGuysNear ||  this.Owner.InCombatTimer>0 ) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 
-                && !(this.Owner.Role == "construction" || this.Owner.fleet !=null || this.IgnoreCombat))
+
+            if ((this.BadGuysNear || this.Owner.InCombatTimer > 0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
+                && (this.Owner.Role != "construction" && !this.IgnoreCombat) &&( this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
             {
                 if (this.State != AIState.Flee && !this.HasPriorityOrder)
                 {
-                     this.OrderQueue.Clear();
+                    this.OrderQueue.Clear();
                     //if (this.CombatState == CombatState.Evade)
                     //    this.State = AIState.AwaitingOrders;
                     this.HasPriorityOrder = true;
@@ -6604,7 +6604,7 @@ namespace Ship_Game.Gameplay
 
                     }
                 }
-                else if (this.State == AIState.Flee  && (this.OrbitTarget != null && Vector2.Distance(this.OrbitTarget.Position,this.Owner.Position)< this.Owner.SensorRange+10000))
+                else if (this.State == AIState.Flee && (this.OrbitTarget != null && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000))
                 {
                     this.State = this.DefaultAIState;
                 }
