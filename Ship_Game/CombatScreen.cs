@@ -761,7 +761,7 @@ namespace Ship_Game
                         bool play = false;
                         foreach (PlanetGridSquare pgs in this.p.TilesList)
                         {
-                            if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty) && (pgs.TroopsHere[0].AvailableMoveActions<0 || pgs.TroopsHere[0].AvailableAttackActions < 0))
+                            if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty) && (pgs.TroopsHere[0].AvailableMoveActions<1 || pgs.TroopsHere[0].AvailableAttackActions < 1))
                             {
                                 continue;
                             }
