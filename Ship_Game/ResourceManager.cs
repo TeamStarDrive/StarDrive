@@ -248,7 +248,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -336,7 +336,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -418,7 +418,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -491,7 +491,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -566,7 +566,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
