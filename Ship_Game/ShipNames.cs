@@ -5,10 +5,11 @@ using System.Text;
 
 namespace Ship_Game
 {
+    //Added by McShooterz: class to store names for ships
     public class ShipNames
     {
 
-        public List<EmpireEntry> EmpireEntries;
+        public List<EmpireEntry> EmpireEntries = new List<EmpireEntry>();
 
         public struct EmpireEntry
         {
@@ -41,6 +42,7 @@ namespace Ship_Game
             return false;
         }
 
+        //Grab random name from list to use
         public string GetName(string Empire, string Role)
         {
             for (int i = 0; i < EmpireEntries.Count; i++)
