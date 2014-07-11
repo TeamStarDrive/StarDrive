@@ -1198,7 +1198,11 @@ namespace Ship_Game
             {
                 //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
                 this.totalShipMaintenance += ship.GetMaintCost();
+                //added by gremlin reset border stats.
+                ship.IsInNeutralSpace = false;
+                ship.IsIndangerousSpace = false;
                 
+                ship.IsInFriendlySpace = false;
                 
             }
             foreach (Planet planet in this.OwnedPlanets)
