@@ -8,7 +8,7 @@ namespace Ship_Game
     //Added by McShooterz: defines new enemy fleets to spawn in place of Remnant
     public class HostileFleets
     {
-        public List<Fleet> Fleets;
+        public List<Fleet> Fleets = new List<Fleet>();
 
         public struct Fleet
         {
