@@ -119,7 +119,9 @@ namespace Ship_Game.Gameplay
 
         public void UpdatePin(Ship ship, bool ShipinBorders)
         {
-            if (!this.Pins.ContainsKey(ship.guid))
+            if (!ShipinBorders && !this.Pins.ContainsKey(ship.guid))
+                return;
+            if ( !this.Pins.ContainsKey(ship.guid))
             {
                 ThreatMatrix.Pin pin = new ThreatMatrix.Pin()
                 {
