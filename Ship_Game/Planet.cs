@@ -4087,7 +4087,7 @@ namespace Ship_Game
                 }
             }
             //Added by McShooterz: Colony build troops
-            if (this.ConstructionQueue.Count == 0 && this.ps == Planet.GoodState.EXPORT && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+            if (this.CanBuildInfantry() && this.ConstructionQueue.Count == 0 && this.ps == Planet.GoodState.EXPORT && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
             {
                 bool addTroop = false;
                 foreach (PlanetGridSquare planetGridSquare in this.TilesList)
