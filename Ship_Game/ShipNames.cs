@@ -9,7 +9,7 @@ namespace Ship_Game
     public class ShipNames
     {
 
-        public List<EmpireEntry> EmpireEntries = new List<EmpireEntry>();
+        public List<EmpireEntry> EmpireEntries;
 
         public struct EmpireEntry
         {
@@ -22,6 +22,11 @@ namespace Ship_Game
             public string Role;
             public List<string> Names;
         };
+
+        public ShipNames()
+        {
+            this.EmpireEntries = new List<EmpireEntry>();
+        }
 
         //Check to see if there are names to use
         public bool CheckForName(string Empire, string Role)
