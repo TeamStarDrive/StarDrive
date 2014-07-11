@@ -3829,13 +3829,13 @@ namespace Ship_Game.Gameplay
                     ++this.experience;
                     break;
                 case "fighter":
-                    this.experience += 2 + (1 * killed.Level);
+                    this.experience += 2 + (killed.Level / 2);
                     break;
                 case "corvette":
-                    this.experience += 4 + (2 * killed.Level);
+                    this.experience += 4 + (killed.Level);
                     break;
                 case "frigate":
-                    this.experience += 6 + (3 * killed.Level);
+                    this.experience += 6 + (2 * killed.Level);
                     break;
                 case "freighter":
                     ++this.experience;
@@ -3844,16 +3844,16 @@ namespace Ship_Game.Gameplay
                     ++this.experience;
                     break;
                 case "station":
-                    this.experience += 7 + (3 * killed.Level);
+                    this.experience += 7 + (2 * killed.Level);
                     break;
                 case "cruiser":
-                    this.experience += 14 + (7 * killed.Level);
+                    this.experience += 14 + (4 * killed.Level);
                     break;
                 case "capital":
-                    this.experience += 30 + (15 * killed.Level);
+                    this.experience += 30 + (8 * killed.Level);
                     break;
                 case "carrier":
-                    this.experience += 30 + (15 * killed.Level);
+                    this.experience += 30 + (8 * killed.Level);
                     break;
                 default:
                     ++this.experience;
