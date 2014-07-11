@@ -3016,6 +3016,8 @@ namespace Ship_Game
             this.HarvestResources();
             this.ApplyProductionTowardsConstruction();
             this.GrowPopulation();
+            //Added by McShooterz
+            this.HealBuildingsAndTroops();
             if ((double)this.FoodHere > (double)this.MAX_STORAGE)
                 this.FoodHere = this.MAX_STORAGE;
             if ((double)this.ProductionHere <= (double)this.MAX_STORAGE)
@@ -5252,7 +5254,22 @@ namespace Ship_Game
 
         }
 
-
+        //Added by McShooterz: heal builds and troops every turn
+        public void HealBuildingsAndTroops()
+        {
+            if (this.RecentCombat)
+                return;
+            //heal troops
+            foreach (Troop troop in this.TroopsHere)
+            {
+                troop.Strength = troop.StrengthMax + (int)((float)troop.StrengthMax * this.Owner.data.Traits.GroundCombatModifier);
+            }
+            //Repair buildings
+            foreach (Building building in this.BuildingList)
+            {
+                    building.CombatStrength = Ship_Game.ResourceManager.BuildingsDict[building.Name].CombatStrength;
+            }
+        }
 
         private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
         {
