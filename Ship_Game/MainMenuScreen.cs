@@ -124,7 +124,7 @@ namespace Ship_Game
 
 		static MainMenuScreen()
 		{
-			MainMenuScreen.Version = "BlackBox : " + GlobalStats.ExtendedVersion;
+			MainMenuScreen.Version = "BlackBox Gravity : " + GlobalStats.ExtendedVersion;
 		}
 
 		public MainMenuScreen()
@@ -433,7 +433,12 @@ namespace Ship_Game
 				Rectangle Version = new Rectangle(205, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 37, 318, 12);
 				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
 				Vector2 TextPos = new Vector2(20f, (float)(Version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, string.Concat("SD ", MainMenuScreen.Version), TextPos, Color.White);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, string.Concat("StarDrive"," 15B"), TextPos, Color.White);
+
+                 Version = new Rectangle(20+ (int)Fonts.Pirulen12.MeasureString(MainMenuScreen.Version).X , base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 85, 318, 12);
+                base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
+                 TextPos = new Vector2(20f, (float)(Version.Y  +6 - Fonts.Pirulen12.LineSpacing / 2 - 1));
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, string.Concat(MainMenuScreen.Version), TextPos, Color.White);
 			}
 			if (this.AnimationFrame > 300)
 			{

@@ -289,14 +289,19 @@ namespace Ship_Game
 			{
 				if (!this.Idle)
 				{
-					this.updateTimer = 0.75f / (float)this.num_attack_frames;
-					Troop whichFrame = this;
-					whichFrame.WhichFrame = whichFrame.WhichFrame + 1;
-					if (this.WhichFrame > this.num_attack_frames - (this.first_frame == 1 ? 0 : 1))
-					{
-						this.WhichFrame = this.first_frame;
-						this.Idle = true;
-					}
+                    try //added by gremlin hot fix to stop troop crashing.
+                    {
+                        this.updateTimer = 0.75f / (float)this.num_attack_frames;
+                        Troop whichFrame = this;
+                        whichFrame.WhichFrame = whichFrame.WhichFrame + 1;
+
+                        if (this.WhichFrame > this.num_attack_frames - (this.first_frame == 1 ? 0 : 1))
+                        {
+                            this.WhichFrame = this.first_frame;
+                            this.Idle = true;
+                        }
+                    }
+                    catch { }
 				}
 				else
 				{

@@ -3764,7 +3764,7 @@ namespace Ship_Game.Gameplay
                         Weapon w = module.InstalledWeapon;
                         if (!w.explodes)
                         {
-                            offRate += (!w.isBeam ? w.DamageAmount * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
                         }
                         else
                         {
@@ -3820,6 +3820,7 @@ namespace Ship_Game.Gameplay
             return num;
         }
 
+        //Added by McShooterz: add experience for cruisers and stations, modified for dynamic system
         public void AddKill(Ship killed)
         {
             switch (killed.Role)
@@ -3828,10 +3829,13 @@ namespace Ship_Game.Gameplay
                     ++this.experience;
                     break;
                 case "fighter":
-                    ++this.experience;
+                    this.experience += 2 + (killed.Level / 2);
+                    break;
+                case "corvette":
+                    this.experience += 4 + (killed.Level);
                     break;
                 case "frigate":
-                    this.experience += 2;
+                    this.experience += 6 + (2 * killed.Level);
                     break;
                 case "freighter":
                     ++this.experience;
@@ -3839,11 +3843,17 @@ namespace Ship_Game.Gameplay
                 case "platform":
                     ++this.experience;
                     break;
+                case "station":
+                    this.experience += 7 + (2 * killed.Level);
+                    break;
+                case "cruiser":
+                    this.experience += 14 + (4 * killed.Level);
+                    break;
                 case "capital":
-                    this.experience += 3;
+                    this.experience += 30 + (8 * killed.Level);
                     break;
                 case "carrier":
-                    this.experience += 3;
+                    this.experience += 30 + (8 * killed.Level);
                     break;
                 default:
                     ++this.experience;
@@ -3853,17 +3863,49 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: a way to prevent remnant story in mods
             if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory))
                 GlobalStats.IncrementRemnantKills();
-            if (this.experience > 5)
+            //Added by McShooterz: change level cap, dynamic experience required per level
+            int expMod = 1;//Modifier for experience requirements
+            switch (this.Role)
             {
-                ++this.Level;
-                this.experience = this.experience - 5;
+                case "fighter":
+                    expMod = 3;
+                    break;
+                case "platform":
+                    expMod = 2;
+                    break;
+                case "corvette":
+                    expMod = 6;
+                    break;
+                case "frigate":
+                    expMod = 9;
+                    break;
+                case "station":
+                    expMod = 11;
+                    break;
+                case "cruiser":
+                    expMod = 21;
+                    break;
+                case "capital":
+                    expMod = 45;
+                    break;
+                case "carrier":
+                    expMod = 45;
+                    break;
+                default:
+                    expMod = 1;
+                    break;
             }
-            if (this.Level > 5)
-                this.Level = 5;
+            while (this.experience > expMod + (expMod * this.Level))
+            {
+                this.experience -= expMod + (expMod * this.Level);
+                ++this.Level;
+            }
+            if (this.Level > 255)
+                this.Level = 255;
             if (!this.loyalty.GetRelations().ContainsKey(killed.loyalty) || !this.loyalty.GetRelations()[killed.loyalty].AtWar)
                 return;
-            this.loyalty.GetRelations()[killed.loyalty].ActiveWar.StrengthKilled += killed.GetStrength();
-            killed.loyalty.GetRelations()[this.loyalty].ActiveWar.StrengthLost += killed.GetStrength();
+            this.loyalty.GetRelations()[killed.loyalty].ActiveWar.StrengthKilled += killed.BaseStrength;
+            killed.loyalty.GetRelations()[this.loyalty].ActiveWar.StrengthLost += killed.BaseStrength;
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
