@@ -1837,9 +1837,7 @@ namespace Ship_Game.Gameplay
                 ship2.mass = (float)num2;
                 this.WarpMassCapacity += moduleSlot.module.WarpMassCapacity;
                 this.Thrust += moduleSlot.module.thrust;
-                this.PowerStoreMax += moduleSlot.module.PowerStoreMax;
-                if (this.loyalty != null && moduleSlot.module.ModuleType == ShipModuleType.FuelCell)
-                    this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax;
+                this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
                 this.PowerCurrent += moduleSlot.module.PowerStoreMax;
                 this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
                 this.shield_max += moduleSlot.module.shield_power_max;
@@ -2002,13 +2000,8 @@ namespace Ship_Game.Gameplay
                 warpMassCapacity.WarpMassCapacity = warpMassCapacity.WarpMassCapacity + moduleSlotList.module.WarpMassCapacity;
                 Ship thrust = this;
                 thrust.Thrust = thrust.Thrust + moduleSlotList.module.thrust;
-                Ship powerStoreMax = this;
-                powerStoreMax.PowerStoreMax = powerStoreMax.PowerStoreMax + moduleSlotList.module.PowerStoreMax;
-                if (this.loyalty != null && moduleSlotList.module.ModuleType == ShipModuleType.FuelCell)
-                {
-                    Ship powerStoreMax1 = this;
-                    powerStoreMax1.PowerStoreMax = powerStoreMax1.PowerStoreMax + this.loyalty.data.FuelCellModifier * moduleSlotList.module.PowerStoreMax;
-                }
+                //Added by McShooterz: fuel cell modifier apply to all modules with power store
+                this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax;
                 Ship powerCurrent = this;
                 powerCurrent.PowerCurrent = powerCurrent.PowerCurrent + moduleSlotList.module.PowerStoreMax;
                 Ship powerFlowMax = this;
@@ -2237,9 +2230,8 @@ namespace Ship_Game.Gameplay
                 ship1.mass = (float)num1;
                 this.Thrust += moduleSlot.module.thrust;
                 this.MechanicalBoardingDefense += moduleSlot.module.MechanicalBoardingDefense;
-                this.PowerStoreMax += moduleSlot.module.PowerStoreMax;
-                if (this.loyalty != null && moduleSlot.module.ModuleType == ShipModuleType.FuelCell)
-                    this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax;
+                //Added by McShooterz
+                this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
                 this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
                 this.shield_max += moduleSlot.module.shield_power_max;
                 this.shield_power += moduleSlot.module.shield_power;
@@ -3403,9 +3395,7 @@ namespace Ship_Game.Gameplay
                         if (moduleSlot.module.Active)
                         {
                             ++this.number_alive_modules;
-                            this.PowerStoreMax += moduleSlot.module.PowerStoreMax;
-                            if (moduleSlot.module.ModuleType == ShipModuleType.FuelCell)
-                                this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax;
+                            this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
                             this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
                             if ((double)moduleSlot.module.PowerDraw > 0.0 && moduleSlot.module.Powered)
                             {
