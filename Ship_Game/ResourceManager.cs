@@ -668,7 +668,8 @@ namespace Ship_Game
 				Troop strength = troop;
 				strength.Strength = strength.Strength + (int)(Owner.data.Traits.GroundCombatModifier * (float)troop.Strength);
 				Troop strengthMax = troop;
-				strengthMax.StrengthMax = strengthMax.StrengthMax + (int)(Owner.data.Traits.GroundCombatModifier * (float)troop.Strength);
+                //Added by McShooterz: strength max is now properly used
+                strengthMax.StrengthMax = strength.Strength;
 			}
 			troop.TargetType = t.TargetType;
 			troop.TexturePath = t.TexturePath;
