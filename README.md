@@ -1,6 +1,6 @@
 # Stardrive BlackBox#
 #feature list#
-[Version 1 feature list](issues?component=%21Code+Project+Not+game.&status=closed&status=resolved&version=0.1+Gravity)
+[Version 1](http://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Code+Project+Not+game.&component=%21Mod+Issue&status=closed&status=resolved&version=0.1+Gravity)
 
 ###I just want to play the mod Crunchy!###
 
@@ -28,6 +28,9 @@ Any required files will be in the download.
 * well... ideally the mod would support the mod enhancements in the BlackBox Code mode. Otherwise you should be able to take the mod files and put the them all in the mod folder and any folders that the mod tells you to put in the content folder... Dont. Put them int he mod folder too. If something goes wrong. Post the issue and we hopefully will figure out how to get that mod to work.
 * Some modders have put together blackbox compatible downloads for their mods. here is a list. Well.. Its short...
 * TechLevel: https://www.dropbox.com/s/frzdmh1n16g5rap/Tech%20Level%20Mod%20V1.07F.zip
+
+#Future Features#
+[Future Features](http://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Code+Project+Not+game.&component=%21Mod+Issue&status=%21resolved&status=%21closed&version=%210.1+Gravity)
 
 ### Yeah thats great but i want to add my own features or change some issue that bugs me###
 * even better!!!
