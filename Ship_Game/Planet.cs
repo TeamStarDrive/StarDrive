@@ -1936,8 +1936,8 @@ namespace Ship_Game
                         if (combat.Attacker.TroopsHere.Count > 0)
                         {
                             num1 = combat.Attacker.TroopsHere[0].Strength;
-                            num2 = combat.Attacker.TroopsHere[0].HardAttack;
-                            num3 = combat.Attacker.TroopsHere[0].SoftAttack;
+                            num2 = combat.Attacker.TroopsHere[0].GetHardAttack();
+                            num3 = combat.Attacker.TroopsHere[0].GetSoftAttack();
                         }
                         else
                         {
@@ -1978,8 +1978,7 @@ namespace Ship_Game
                                             });
                                         if (combat.Attacker.TroopsHere.Count > 0)
                                         {
-                                            ++combat.Attacker.TroopsHere[0].Kills;
-                                            ++combat.Attacker.TroopsHere[0].Level;
+                                            combat.Attacker.TroopsHere[0].AddKill();
                                         }
                                     }
                                 }
@@ -2055,8 +2054,8 @@ namespace Ship_Game
                         if (combat.Attacker.TroopsHere.Count > 0)
                         {
                             num1 = combat.Attacker.TroopsHere[0].Strength;
-                            num2 = combat.Attacker.TroopsHere[0].HardAttack;
-                            num3 = combat.Attacker.TroopsHere[0].SoftAttack;
+                            num2 = combat.Attacker.TroopsHere[0].GetHardAttack();
+                            num3 = combat.Attacker.TroopsHere[0].GetSoftAttack();
                         }
                         else
                         {
@@ -2086,8 +2085,7 @@ namespace Ship_Game
                                         this.ActiveCombats.QueuePendingRemoval(combat);
                                         if (combat.Attacker.TroopsHere.Count > 0)
                                         {
-                                            ++combat.Attacker.TroopsHere[0].Kills;
-                                            ++combat.Attacker.TroopsHere[0].Level;
+                                            combat.Attacker.TroopsHere[0].AddKill();
                                         }
                                     }
                                 }
@@ -5259,7 +5257,7 @@ namespace Ship_Game
             //heal troops
             foreach (Troop troop in this.TroopsHere)
             {
-                troop.Strength = troop.StrengthMax + (int)((float)troop.StrengthMax * this.Owner.data.Traits.GroundCombatModifier);
+                troop.Strength = troop.GetStrengthMax() + (int)((float)troop.GetStrengthMax() * this.Owner.data.Traits.GroundCombatModifier);
             }
             //Repair buildings
             foreach (Building building in this.BuildingList)
