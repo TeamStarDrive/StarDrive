@@ -7295,6 +7295,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6022</Index>
       <Text>Prevent AI Federations</Text>
     </Token>
+	<Token>
+      <Index>6023</Index>
+      <Text>Level</Text>
+    </Token>
 	
 	
 	
