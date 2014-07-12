@@ -20,7 +20,7 @@ namespace Ship_Game
         public float capitalUpkeep = 6.0f;
         public float stationUpkeep = 6.0f;
 
-        public List<ShipUpkeep.UpkeepTable> RacialUpkeepTables = new List<ShipUpkeep.UpkeepTable>();
+        public List<ShipUpkeep.UpkeepTable> RacialUpkeepTables;
 
         public struct UpkeepTable
         {
@@ -35,6 +35,11 @@ namespace Ship_Game
             public float carrierUpkeep;
             public float capitalUpkeep;
             public float stationUpkeep;
+        }
+
+        public ShipUpkeep()
+        {
+            this.RacialUpkeepTables = new List<ShipUpkeep.UpkeepTable>();
         }
 
         public float GetMaintanence(string Role, string Shiptype)
