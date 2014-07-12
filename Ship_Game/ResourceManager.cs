@@ -175,7 +175,6 @@ namespace Ship_Game
 			troop.StrengthMax = t.StrengthMax;
 			troop.TargetType = t.TargetType;
 			troop.TexturePath = t.TexturePath;
-			troop.Kills = t.Kills;
 			troop.Experience = t.Experience;
 			troop.Icon = t.Icon;
 			troop.animated = t.animated;
@@ -194,6 +193,7 @@ namespace Ship_Game
 			troop.AttackTimerBase = t.AttackTimerBase;
 			troop.Level = t.Level;
 			troop.Kills = t.Kills;
+            troop.BoardingStrength = t.BoardingStrength;
 			return troop;
 		}
 
@@ -661,7 +661,8 @@ namespace Ship_Game
 				SoftAttack = t.SoftAttack,
 				Strength = t.Strength,
 				StrengthMax = t.StrengthMax,
-				Icon = t.Icon
+				Icon = t.Icon,
+                BoardingStrength = t.BoardingStrength
 			};
 			if (Owner != null)
 			{
@@ -674,7 +675,6 @@ namespace Ship_Game
 			troop.TargetType = t.TargetType;
 			troop.TexturePath = t.TexturePath;
 			troop.Range = t.Range;
-			troop.Kills = t.Kills;
 			troop.Experience = t.Experience;
 			troop.SetOwner(Owner);
 			troop.animated = t.animated;

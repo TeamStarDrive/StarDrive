@@ -1995,21 +1995,15 @@ namespace Ship_Game.Gameplay
                     }
                 }
                 Ship ship = this;
-                ship.mass = ship.mass + moduleSlotList.module.Mass;
-                Ship warpMassCapacity = this;
-                warpMassCapacity.WarpMassCapacity = warpMassCapacity.WarpMassCapacity + moduleSlotList.module.WarpMassCapacity;
-                Ship thrust = this;
-                thrust.Thrust = thrust.Thrust + moduleSlotList.module.thrust;
+                ship.mass += moduleSlotList.module.Mass;
+                ship.WarpMassCapacity += moduleSlotList.module.WarpMassCapacity;
+                ship.Thrust += moduleSlotList.module.thrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
-                this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax;
-                Ship powerCurrent = this;
-                powerCurrent.PowerCurrent = powerCurrent.PowerCurrent + moduleSlotList.module.PowerStoreMax;
-                Ship powerFlowMax = this;
-                powerFlowMax.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                Ship shieldMax = this;
-                shieldMax.shield_max = shieldMax.shield_max + moduleSlotList.module.shield_power_max;
-                Ship shieldPower = this;
-                shieldPower.shield_power = shieldPower.shield_power + moduleSlotList.module.shield_power_max;
+                ship.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? ship.loyalty.data.FuelCellModifier : 0);
+                ship.PowerCurrent += moduleSlotList.module.PowerStoreMax;
+                ship.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
+                ship.shield_max += moduleSlotList.module.shield_power_max;
+                ship.shield_power += moduleSlotList.module.shield_power_max;
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
                 {
                     Ship armorMax = this;
