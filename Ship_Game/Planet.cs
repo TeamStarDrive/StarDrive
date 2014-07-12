@@ -2319,58 +2319,55 @@ namespace Ship_Game
 
         private void MakeCombatDecisions()
         {
-            bool flag1 = false;
+            bool enemyTroopsFound = false;
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() != this.Owner)
+                if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() != this.Owner || planetGridSquare.building != null && planetGridSquare.building.EventTriggerUID != "")
                 {
-                    flag1 = true;
-                    break;
-                }
-                else if (planetGridSquare.building != null && planetGridSquare.building.EventTriggerUID != "")
-                {
-                    flag1 = true;
+                    enemyTroopsFound = true;
                     break;
                 }
             }
-            if (!flag1)
+            if (!enemyTroopsFound)
                 return;
             List<PlanetGridSquare> list = new List<PlanetGridSquare>();
             for (int index = 0; index < this.TilesList.Count; ++index)
             {
                 PlanetGridSquare pgs = this.TilesList[index];
-                bool flag2 = false;
+                bool hasAttacked = false;
                 if (pgs.TroopsHere.Count > 0)
                 {
                     if (pgs.TroopsHere[0].AvailableAttackActions > 0)
                     {
                         if (pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat)
                         {
-                            foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                             {
-                                if (CombatScreen.TroopCanAttackSquare(pgs, planetGridSquare, this))
+                                foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                                 {
-                                    flag2 = true;
-                                    if (pgs.TroopsHere[0].AvailableAttackActions > 0)
+                                    if (CombatScreen.TroopCanAttackSquare(pgs, planetGridSquare, this))
                                     {
-                                        --pgs.TroopsHere[0].AvailableAttackActions;
-                                        --pgs.TroopsHere[0].AvailableMoveActions;
-                                        if (planetGridSquare.x > pgs.x)
-                                            pgs.TroopsHere[0].facingRight = true;
-                                        else if (planetGridSquare.x < pgs.x)
-                                            pgs.TroopsHere[0].facingRight = false;
-                                        CombatScreen.StartCombat(pgs, planetGridSquare, this);
-                                        break;
+                                        hasAttacked = true;
+                                        if (pgs.TroopsHere[0].AvailableAttackActions > 0)
+                                        {
+                                            --pgs.TroopsHere[0].AvailableAttackActions;
+                                            --pgs.TroopsHere[0].AvailableMoveActions;
+                                            if (planetGridSquare.x > pgs.x)
+                                                pgs.TroopsHere[0].facingRight = true;
+                                            else if (planetGridSquare.x < pgs.x)
+                                                pgs.TroopsHere[0].facingRight = false;
+                                            CombatScreen.StartCombat(pgs, planetGridSquare, this);
+                                            break;
+                                        }
+                                        else
+                                            break;
                                     }
-                                    else
-                                        break;
                                 }
                             }
                         }
                         else
                             continue;
                     }
-                    if (!flag2 && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
+                    if (!hasAttacked && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
                     {
                         foreach (PlanetGridSquare planetGridSquare in (IEnumerable<PlanetGridSquare>)Enumerable.OrderBy<PlanetGridSquare, int>((IEnumerable<PlanetGridSquare>)this.TilesList, (Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
                         {
@@ -5267,7 +5264,8 @@ namespace Ship_Game
             //Repair buildings
             foreach (Building building in this.BuildingList)
             {
-                    building.CombatStrength = Ship_Game.ResourceManager.BuildingsDict[building.Name].CombatStrength;
+                building.CombatStrength = Ship_Game.ResourceManager.BuildingsDict[building.Name].CombatStrength;
+                building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
             }
         }
 
