@@ -316,5 +316,24 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        //Added by McShooterz
+        public void AddKill()
+        {
+            this.Kills++;
+            this.Experience++;
+            if (this.Experience == 1 + this.Level)
+            {
+                this.Experience -= 1 + this.Level;
+                this.Level++;
+            }
+            if (this.Level > 10)
+                this.Level = 10;
+        }
+
+        public int GetStrengthMax()
+        {
+            return this.StrengthMax + this.Level / 2;
+        }
 	}
 }
