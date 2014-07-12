@@ -1054,39 +1054,42 @@ namespace Ship_Game
 						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
 						Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, Center, slot.module.shield_radius, 50, Color.LightGreen);
 					}
-                    if (slot.module.FieldOfFire != 90f && (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.extraFireArcs))
-					{
-						if (slot.module.FieldOfFire == 0f)
-						{
-							continue;
-						}
-						float halfArc = slot.module.FieldOfFire / 2f;
-						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
-						Vector2 leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
-						Vector2 rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
-						leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
-						rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
-						Color arc = new Color(255, 165, 0, 100);
-						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
-						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
-					}
-                    else if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs && (slot.module.FieldOfFire != 15f && slot.module.FieldOfFire != 45f && slot.module.FieldOfFire != 90f && slot.module.FieldOfFire != 180f && slot.module.FieldOfFire != 360f && slot.module.FieldOfFire != 120f && slot.module.FieldOfFire != 60f && slot.module.FieldOfFire != 20f))
+                    //Original by The Doctor, modified by McShooterz
+                    if (slot.module.FieldOfFire == 90f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc90"))
                     {
-                        if (slot.module.FieldOfFire == 0f)
-                        {
-                            continue;
-                        }
-                        float halfArc = slot.module.FieldOfFire / 2f;
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
-                        Vector2 leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
-                        Vector2 rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
-                        leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
-                        rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
-                        Color arc = new Color(255, 165, 0, 100);
-                        Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
-                        Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
+                        Vector2 Origin = new Vector2(250f, 250f);
+                        if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
+                        {
+                            Color drawcolor = new Color(255, 255, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable4 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable5 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else if (!slot.module.InstalledWeapon.isBeam)
+                        {
+                            Color drawcolor = new Color(255, 0, 0, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable6 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
+                        else
+                        {
+                            Color drawcolor = new Color(0, 0, 255, 255);
+                            Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
+                            Rectangle? nullable7 = null;
+                            base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
+                        }
                     }
-                    else if (slot.module.FieldOfFire == 15f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    //Original by The Doctor, modified by McShooterz
+                    else if (slot.module.FieldOfFire == 15f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc15"))
                     {
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
@@ -1119,7 +1122,8 @@ namespace Ship_Game
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc15"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
                         }
                     }
-                    else if (slot.module.FieldOfFire == 20f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc20"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    //Original by The Doctor, modified by McShooterz
+                    else if (slot.module.FieldOfFire == 20f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc20"))
                     {
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
@@ -1152,7 +1156,8 @@ namespace Ship_Game
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc20"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
                         }
                     }
-                    else if (slot.module.FieldOfFire == 45f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    //Original by The Doctor, modified by McShooterz
+                    else if (slot.module.FieldOfFire == 45f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc45"))
                     {
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
@@ -1185,7 +1190,8 @@ namespace Ship_Game
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc45"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
                         }
                     }
-                    else if (slot.module.FieldOfFire == 120f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    //Original by The Doctor, modified by McShooterz
+                    else if (slot.module.FieldOfFire == 120f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc120"))
                     {
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
@@ -1218,7 +1224,8 @@ namespace Ship_Game
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc120"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
                         }
                     }
-                    else if (slot.module.FieldOfFire == 60f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    //Original by The Doctor, modified by McShooterz
+                    else if (slot.module.FieldOfFire == 60f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc60"))
                     {
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
@@ -1251,7 +1258,8 @@ namespace Ship_Game
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc60"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
                         }
                     }
-                    else if (slot.module.FieldOfFire == 360f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    //Original by The Doctor, modified by McShooterz
+                    else if (slot.module.FieldOfFire == 360f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc360"))
                     {
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
                         Vector2 Origin = new Vector2(250f, 250f);
@@ -1284,7 +1292,8 @@ namespace Ship_Game
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc360"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
                         }
                     }
-                    else if (slot.module.FieldOfFire == 180f && Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"] != null && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.extraFireArcs)
+                    //Original by The Doctor, modified by McShooterz
+                    else if (slot.module.FieldOfFire == 180f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc180"))
 					{
 						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
 						Vector2 Origin = new Vector2(250f, 250f);
@@ -1317,39 +1326,23 @@ namespace Ship_Game
 							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc180"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
 						}
 					}
-					else
-					{
+                    //Original by The Doctor, modified by McShooterz
+                    else
+                    {
+                        if (slot.module.FieldOfFire == 0f)
+						{
+							continue;
+						}
+						float halfArc = slot.module.FieldOfFire / 2f;
 						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
-						Vector2 Origin = new Vector2(250f, 250f);
-						if (slot.module.InstalledWeapon.WeaponType == "Ballistic Cannon")
-						{
-							Color drawcolor = new Color(255, 255, 0, 255);
-							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
-							Rectangle? nullable4 = null;
-							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable4, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
-						}
-						else if (slot.module.InstalledWeapon.WeaponType == "Energy Cannon")
-						{
-							Color drawcolor = new Color(255, 0, 0, 255);
-							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
-							Rectangle? nullable5 = null;
-							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable5, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
-						}
-                        else if (!slot.module.InstalledWeapon.isBeam)
-						{
-							Color drawcolor = new Color(255, 0, 0, 255);
-							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
-							Rectangle? nullable6 = null;
-							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable6, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
-						}
-						else
-						{
-							Color drawcolor = new Color(0, 0, 255, 255);
-							Rectangle toDraw = new Rectangle((int)Center.X, (int)Center.Y, 500, 500);
-							Rectangle? nullable7 = null;
-							base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["Arcs/Arc90"], toDraw, nullable7, drawcolor, (float)MathHelper.ToRadians(slot.module.facing), Origin, SpriteEffects.None, 1f);
-						}
-					}
+						Vector2 leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
+						Vector2 rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
+						leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
+						rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
+						Color arc = new Color(255, 165, 0, 100);
+						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
+						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
+                    }
 				}
 				foreach (SlotStruct ss in this.Slots)
 				{
