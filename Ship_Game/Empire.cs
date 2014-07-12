@@ -1985,75 +1985,77 @@ namespace Ship_Game
             return false;
         }
 
+        //Added by McShooterz: Change to freighter needs logic
         private void AssessFreighterNeeds()
         {
-            int num1 = 0;
-            int num2 = 0;
-            List<Ship> list1 = new List<Ship>();
+            int tradeShips = 0;
+            int passengerShips = 0;
+            List<Ship> unusedFreighters = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if (ship.GetAI().State!=AIState.Flee && ship.Role == "freighter" && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
+                if (ship.GetAI().State != AIState.Flee && ship.Role == "freighter" && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
                 {
                     if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
-                        ++num1;
+                        ++tradeShips;
                     else if (ship.GetAI() != null && ship.GetAI().State == AIState.PassengerTransport)
-                        ++num2;
+                        ++passengerShips;
                     else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
-                        list1.Add(ship);
+                        unusedFreighters.Add(ship);
                 }
             }
-            int num3 = this.OwnedPlanets.Count / 3;
-            int num4 = this.OwnedPlanets.Count / 3;
-            int num5 = 0 + num1;
+            int freighterLimit = this.OwnedPlanets.Count / 3;
+            /*
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
-                    ++num5;
+                    ++tradeShips;
             }
-            List<Ship> list2 = new List<Ship>();
-            foreach (Ship ship in list1)
+            */ 
+            List<Ship> assignedShips = new List<Ship>();
+            foreach (Ship ship in unusedFreighters)
             {
-                ship.GetAI().OrderTrade();
-                list2.Add(ship);
-                ++num5;
-                if (num5 == num3)
+                if (tradeShips >= freighterLimit)
                     break;
+                ship.GetAI().OrderTrade();
+                assignedShips.Add(ship);
+                ++tradeShips;
             }
-            foreach (Ship ship in list2)
-                list1.Remove(ship);
-            list2.Clear();
-            for (; num5 < num3; ++num5)
+            foreach (Ship ship in assignedShips)
+                unusedFreighters.Remove(ship);
+            assignedShips.Clear();
+            for (; tradeShips < freighterLimit; ++tradeShips)
                 this.GSAI.Goals.Add(new Goal(this)
                 {
                     GoalName = "IncreaseFreighters",
                     type = GoalType.BuildShips
                 });
-            int num6 = 0 + num2;
+            /*
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreasePassengerShips")
-                    ++num6;
+                    ++passengerShips;
             }
-            foreach (Ship ship in list1)
+            */
+            foreach (Ship ship in unusedFreighters)
             {
-                ship.GetAI().OrderTransportPassengers();
-                list2.Add(ship);
-                ++num6;
-                if (num6 == num3)
+                if (passengerShips >= freighterLimit)
                     break;
+                ship.GetAI().OrderTransportPassengers();
+                assignedShips.Add(ship);
+                ++passengerShips;
             }
-            foreach (Ship ship in list2)
-                list1.Remove(ship);
-            list2.Clear();
-            for (; num6 < num4; ++num6)
+            foreach (Ship ship in assignedShips)
+                unusedFreighters.Remove(ship);
+            assignedShips.Clear();
+            for (; passengerShips < freighterLimit; ++passengerShips)
                 this.GSAI.Goals.Add(new Goal(this)
                 {
                     type = GoalType.BuildShips,
                     GoalName = "IncreasePassengerShips"
                 });
-            foreach (Ship ship in list1)
-                ship.GetAI().OrderTransportPassengers();
-        }
+            foreach (Ship ship in unusedFreighters)
+                ship.GetAI().OrderTrade();
+        } //End
 
         public void ReportGoalComplete(Goal g)
         {
