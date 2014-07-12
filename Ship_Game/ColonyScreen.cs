@@ -1230,19 +1230,25 @@ namespace Ship_Game
 				tCursor.Y = bCursor.Y;
 				desc = string.Concat(Localizer.Token(2218), ": ");
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.HardAttack.ToString(), tCursor, new Color(255, 239, 208));
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.GetHardAttack().ToString(), tCursor, new Color(255, 239, 208));
 				bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				tCursor.Y = bCursor.Y;
 				desc = string.Concat(Localizer.Token(2219), ": ");
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
                 //added by McShooterz: bug fix where hard attack value was used in place of soft attack value
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.SoftAttack.ToString(), tCursor, new Color(255, 239, 208));
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.GetSoftAttack().ToString(), tCursor, new Color(255, 239, 208));
 				bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 //added by McShooterz: adds boarding strength to troop info in colony screen
                 tCursor.Y = bCursor.Y;
                 desc = string.Concat(Localizer.Token(6008), ": ");
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.BoardingStrength.ToString(), tCursor, new Color(255, 239, 208));
+                bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                //Added by McShooterz: display troop level
+                tCursor.Y = bCursor.Y;
+                desc = string.Concat(Localizer.Token(6023), ": ");
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Level.ToString(), tCursor, new Color(255, 239, 208));
                 bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 			}
 			if (this.detailInfo is string)
