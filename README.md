@@ -23,6 +23,11 @@ Any required files will be in the download.
 * THE SAVE GAMES FROM THIS MOD MAY NOT LOAD IN VANILLA SD.
 * Vanilla SD saves will load in this mod but saving again may break compatibility with SD vanilla.
 
+###Regular Mods###
+* how to install...
+** well... ideally the mod would support the mod enhancements in the BlackBox Code mode. Otherwise you should be able to take the mod files and put the them all in the mod folder and any folders that the mod tells you to put in the content folder... Dont. Put them int he mod folder too. If something goes wrong. Post the issue and we hopefully will figure out how to get that mod to work.
+** Some modders have put together blackbox compatible downloads for their mods. here is a list. Well.. Its short...
+* TechLevel: https://www.dropbox.com/s/frzdmh1n16g5rap/Tech%20Level%20Mod%20V1.07F.zip
 
 ### Yeah thats great but i want to add my own features or change some issue that bugs me###
 * even better!!!
