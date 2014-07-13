@@ -660,7 +660,7 @@ namespace Ship_Game
 				Initiative = t.Initiative,
 				SoftAttack = t.SoftAttack,
 				Strength = t.Strength,
-				StrengthMax = t.StrengthMax,
+				StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength,
 				Icon = t.Icon,
                 BoardingStrength = t.BoardingStrength
 			};
@@ -668,9 +668,6 @@ namespace Ship_Game
 			{
 				Troop strength = troop;
 				strength.Strength = strength.Strength + (int)(Owner.data.Traits.GroundCombatModifier * (float)troop.Strength);
-				Troop strengthMax = troop;
-                //Added by McShooterz: strength max is now properly used
-                strengthMax.StrengthMax = strength.Strength;
 			}
 			troop.TargetType = t.TargetType;
 			troop.TexturePath = t.TexturePath;
