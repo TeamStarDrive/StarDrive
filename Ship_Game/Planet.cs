@@ -1617,11 +1617,14 @@ namespace Ship_Game
                         this.TroopsHere.Add(t);
                         t.SetPlanet(this);
                         return true;
+
                     }
                 }
             }
             return false;
+
         }
+        
 
         public bool AssignTroopToTile(Troop t)
         {
@@ -2616,7 +2619,7 @@ namespace Ship_Game
             {
                 if (this.TroopsHere.Count > 0)
                 {
-                    try
+                    //try
                     {
                         this.DoCombats(elapsedTime);
                         if ((double)this.DecisionTimer <= 0.0)
@@ -2625,7 +2628,7 @@ namespace Ship_Game
                             this.DecisionTimer = 0.5f;
                         }
                     }
-                    catch
+                    //catch
                     {
                     }
                 }
@@ -2677,73 +2680,7 @@ namespace Ship_Game
             this.UpdatePosition(elapsedTime);
         }
 
-        private void AffectNearbyShipsORIG()
-        {
-            for (int index = 0; index < this.system.ShipList.Count; ++index)
-            {
-                Ship ship = this.system.ShipList[index];
-                if (ship != null && ship.loyalty == this.Owner && (this.HasShipyard && (double)Vector2.Distance(this.Position, ship.Position) <= 5000.0))
-                {
-                    ship.PowerCurrent = ship.PowerStoreMax;
-                    ship.Ordinance = ship.OrdinanceMax;
-                    if (GlobalStats.HardcoreRuleset)
-                    {
-                        using (Dictionary<string, float>.Enumerator enumerator = ship.GetMaxGoods().GetEnumerator())
-                        {
-                        //label_10:
-                            while (enumerator.MoveNext())
-                            {
-                                KeyValuePair<string, float> current = enumerator.Current;
-                                if ((double)ship.GetCargo()[current.Key] < (double)current.Value)
-                                {
-                                    while (true)
-                                    {
-                                        if ((double)this.ResourcesDict[current.Key] > 0.0 && (double)ship.GetCargo()[current.Key] < (double)current.Value)
-                                        {
-                                            if ((double)current.Value - (double)ship.GetCargo()[current.Key] >= 1.0)
-                                            {
-                                                Dictionary<string, float> dictionary;
-                                                string key1;
-                                                (dictionary = this.ResourcesDict)[key1 = current.Key] = dictionary[key1] - 1f;
-                                                Dictionary<string, float> cargo;
-                                                string key2;
-                                                (cargo = ship.GetCargo())[key2 = current.Key] = cargo[key2] + 1f;
-                                            }
-                                            else
-                                            {
-                                                Dictionary<string, float> dictionary;
-                                                string key1;
-                                                (dictionary = this.ResourcesDict)[key1 = current.Key] = dictionary[key1] - (current.Value - ship.GetCargo()[current.Key]);
-                                                Dictionary<string, float> cargo;
-                                                string key2;
-                                                (cargo = ship.GetCargo())[key2 = current.Key] = cargo[key2] + (current.Value - ship.GetCargo()[current.Key]);
-                                            }
-                                        }
-                                        else
-                                            break;
-                                            //goto label_10;   
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if ((double)ship.Health < (double)ship.HealthMax && (double)ship.LastHitTimer <= 0.0)
-                    {
-                        foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
-                        {
-                            if ((double)moduleSlot.module.Health / (double)moduleSlot.module.HealthMax < 1.0)
-                            {
-                                ShipModule module = moduleSlot.module;
-                                double num = (double)module.Health + 10.0;
-                                module.Health = (float)num;
-                                if ((double)moduleSlot.module.Health / (double)moduleSlot.module.HealthMax > 1.0)
-                                    moduleSlot.module.Health = moduleSlot.module.HealthMax;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+   
         //added by gremlin affectnearbyships
         private void AffectNearbyShips()
         {
@@ -2815,7 +2752,8 @@ namespace Ship_Game
 
                         foreach (var pgs in this.TilesList)
                         {
-                            if (item.TroopList.Count >= item.TroopCapacity) break;
+                            if (item.TroopCapacity >0 && item.TroopList.Count >= item.TroopCapacity) 
+                                break;
                             if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
                             {
                                 Troop troop = pgs.TroopsHere[0];
