@@ -2619,7 +2619,7 @@ namespace Ship_Game
             {
                 if (this.TroopsHere.Count > 0)
                 {
-                    try
+                    //try
                     {
                         this.DoCombats(elapsedTime);
                         if ((double)this.DecisionTimer <= 0.0)
@@ -2628,7 +2628,7 @@ namespace Ship_Game
                             this.DecisionTimer = 0.5f;
                         }
                     }
-                    catch
+                    //catch
                     {
                     }
                 }
@@ -2950,7 +2950,8 @@ namespace Ship_Game
             this.ApplyProductionTowardsConstruction();
             this.GrowPopulation();
             //Added by McShooterz
-            this.HealBuildingsAndTroops();
+            //added by gremlin remarking the heal code until we can fix the core issues.
+            //this.HealBuildingsAndTroops();
             if ((double)this.FoodHere > (double)this.MAX_STORAGE)
                 this.FoodHere = this.MAX_STORAGE;
             if ((double)this.ProductionHere <= (double)this.MAX_STORAGE)

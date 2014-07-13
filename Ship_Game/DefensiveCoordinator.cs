@@ -418,7 +418,7 @@ namespace Ship_Game
 			}
 			foreach (Troop troop in GroundTroops)
 			{
-                if (troop.GetPlanet() == null || troop.GetPlanet().CombatTimer >0)
+                if (troop.GetPlanet() == null || troop.GetPlanet().CombatTimer > 0 || troop.GetPlanet().ParentSystem.combatTimer>0)
 				{
 					continue;
 				}
