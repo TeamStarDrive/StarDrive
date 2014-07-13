@@ -2004,13 +2004,11 @@ namespace Ship_Game
                 }
             }
             int freighterLimit = this.OwnedPlanets.Count / 3;
-            /*
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
                     ++tradeShips;
             }
-            */ 
             List<Ship> assignedShips = new List<Ship>();
             foreach (Ship ship in unusedFreighters)
             {
@@ -2029,13 +2027,11 @@ namespace Ship_Game
                     GoalName = "IncreaseFreighters",
                     type = GoalType.BuildShips
                 });
-            /*
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreasePassengerShips")
                     ++passengerShips;
             }
-            */
             foreach (Ship ship in unusedFreighters)
             {
                 if (passengerShips >= freighterLimit)
