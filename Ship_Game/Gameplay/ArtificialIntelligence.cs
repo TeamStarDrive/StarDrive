@@ -2176,28 +2176,24 @@ namespace Ship_Game.Gameplay
 						{
 							this.fireTarget = null;
 
-                           // if (this.Target.GetType() == typeof(Ship) && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWeaponExclusions)
+                            // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
+                            if (weapon.Excludes_Fighters 
+                                &&( (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone"))
+                                continue;
+                            if (weapon.Excludes_Corvettes 
+                                && ((this.Target as Ship).Role == "corvette"))
+                                continue;
+                            if (weapon.Excludes_Capitals 
+                                && ((this.Target as Ship).Role == "frigate" 
+                                || (this.Target as Ship).Role == "destroyer" 
+                                || (this.Target as Ship).Role == "cruiser" 
+                                || (this.Target as Ship).Role == "carrier" 
+                                || (this.Target as Ship).Role == "capital"))
                             {
-                                // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                                if (weapon.Excludes_Fighters 
-                                    &&( (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone"))
-                                    continue;
-                                if (weapon.Excludes_Corvettes 
-                                    && ((this.Target as Ship).Role == "corvette"))
-                                    continue;
-                                if (weapon.Excludes_Capitals 
-                                    && ((this.Target as Ship).Role == "frigate" 
-                                    || (this.Target as Ship).Role == "destroyer" 
-                                    || (this.Target as Ship).Role == "cruiser" 
-                                    || (this.Target as Ship).Role == "carrier" 
-                                    || (this.Target as Ship).Role == "capital"))
-                                {
-                                    continue;
-                                }
-                                if (weapon.Excludes_Stations && ((this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station"))
-                                    continue;
+                                continue;
                             }
-                            
+                            if (weapon.Excludes_Stations && ((this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station"))
+                                continue;
 
 							if ((weapon.TruePD || weapon.Tag_PD) && this.Owner.GetSystem() != null)
 							{
@@ -2234,18 +2230,15 @@ namespace Ship_Game.Gameplay
 											continue;
 										}
 
- //                                       if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWeaponExclusions)
-                                        {
-                                            // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                                            if (weapon.Excludes_Fighters && (ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone"))
-                                                continue;
-                                            if (weapon.Excludes_Corvettes &&( ship.Role == "corvette"))
-                                                continue;
-                                            if (weapon.Excludes_Capitals && (ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital"))
-                                                continue;
-                                            if (weapon.Excludes_Stations &&( ship.Role == "platform" || ship.Role == "station"))
-                                                continue;
-                                        }
+                                        // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
+                                        if (weapon.Excludes_Fighters && (ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone"))
+                                            continue;
+                                        if (weapon.Excludes_Corvettes &&( ship.Role == "corvette"))
+                                            continue;
+                                        if (weapon.Excludes_Capitals && (ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital"))
+                                            continue;
+                                        if (weapon.Excludes_Stations &&( ship.Role == "platform" || ship.Role == "station"))
+                                            continue;
                                         
 										if (weapon.TruePD || weapon.Tag_PD)
 										{
@@ -4020,7 +4013,7 @@ namespace Ship_Game.Gameplay
         public void OrderTrade()
         {
             //added by gremlin if fleeing keep fleeing
-            if (this.Owner.CargoSpace_Max < 1 || this.State == AIState.Flee)
+            if (this.Owner.CargoSpace_Max ==0 || this.State == AIState.Flee)
             {
                 return;
             }
@@ -4032,11 +4025,12 @@ namespace Ship_Game.Gameplay
 
 
           //if system all systems in combat... OMG no trade.
-            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer !=0).Count() == 0)
+            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer <1).Count() == 0)
                 return;
             //if starting or ending system in combat... clear order...
-            if (( this.Owner.CargoSpace_Used==0&& this.start != null && this.start.ParentSystem.combatTimer >0) 
-                || this.end !=null && this.end.ParentSystem.combatTimer >0)
+            if ( this.Owner.CargoSpace_Used>0 && (
+                (this.start != null && this.start.ParentSystem.combatTimer >0) 
+                || (this.end !=null && this.end.ParentSystem.combatTimer >0)))
             {
                 this.start = null;
                 this.end = null;
@@ -4051,7 +4045,7 @@ namespace Ship_Game.Gameplay
                 if (this.Owner.TradingFood && this.Owner.GetCargo()["Food"] > 0f)
                 {
                     List<Planet> planets = new List<Planet>();
-                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat=>combat.ParentSystem.combatTimer >=0).Count(); i++)
+                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat=>combat.ParentSystem.combatTimer <=0).Count(); i++)
                     {
                         Planet item = this.Owner.loyalty.GetPlanets()[i];
                         if (item != null)
@@ -4158,10 +4152,10 @@ namespace Ship_Game.Gameplay
                 {
                     List<Planet> planets1 = new List<Planet>();
                     this.end = null;
-                    for (int l = 0; l < this.Owner.loyalty.GetPlanets().Where(combat=>combat.ParentSystem.combatTimer !=0).Count(); l++)
+                    for (int l = 0; l < this.Owner.loyalty.GetPlanets().Count; l++)
                     {
                         Planet planet = this.Owner.loyalty.GetPlanets()[l];
-                        if (planet != null)
+                        if (planet != null && planet.ParentSystem.combatTimer < 1)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -4273,10 +4267,10 @@ namespace Ship_Game.Gameplay
             }
             if (this.Owner.TradingFood)
             {
-                for (int o = 0; o < this.Owner.loyalty.GetPlanets().Where(combat => !combat.ParentSystem.CombatInSystem).Count(); o++)
+                for (int o = 0; o < this.Owner.loyalty.GetPlanets().Count(); o++)
                 {
                     Planet planet1 = this.Owner.loyalty.GetPlanets()[o];
-                    if (planet1 != null)
+                    if (planet1 != null && planet1.ParentSystem.combatTimer < 1)
                     {
                         if (this.Owner.AreaOfOperation.Count > 0)
                         {
@@ -4358,10 +4352,10 @@ namespace Ship_Game.Gameplay
                 if (this.end != null)
                 {
                     planets2 = new List<Planet>();
-                    for (int r = 0; r < this.Owner.loyalty.GetPlanets().Where(combat => !combat.ParentSystem.CombatInSystem).Count(); r++)
+                    for (int r = 0; r < this.Owner.loyalty.GetPlanets().Count(); r++)
                     {
                         Planet planet2 = this.Owner.loyalty.GetPlanets()[r];
-                        if (planet2 != null && planet2 != this.end)
+                        if (planet2 != null && planet2 != this.end && planet2.ParentSystem.combatTimer < 1)
                         {
                             #region AO
                             if (this.Owner.AreaOfOperation.Count > 0)
@@ -4419,10 +4413,10 @@ namespace Ship_Game.Gameplay
             if (this.Owner.TradingProd && this.start == null)
             {
                 this.end = null;
-                for (int s = 0; s < this.Owner.loyalty.GetPlanets().Where(combat => !combat.ParentSystem.CombatInSystem).Count(); s++)
+                for (int s = 0; s < this.Owner.loyalty.GetPlanets().Count(); s++)
                 {
                     Planet planet3 = this.Owner.loyalty.GetPlanets()[s];
-                    if (planet3 != null)
+                    if (planet3 != null && planet3.ParentSystem.combatTimer < 1)
                     {
                         if (this.Owner.AreaOfOperation.Count > 0)
                         {
@@ -4518,10 +4512,10 @@ namespace Ship_Game.Gameplay
                 if (this.end != null)
                 {
                     planets2 = new List<Planet>();
-                    for (int v = 0; v < this.Owner.loyalty.GetPlanets().Where(combat => !combat.ParentSystem.CombatInSystem).Count(); v++)
+                    for (int v = 0; v < this.Owner.loyalty.GetPlanets().Count(); v++)
                     {
                         Planet planet4 = this.Owner.loyalty.GetPlanets()[v];
-                        if (planet4 != null && planet4 != this.end)
+                        if (planet4 != null && planet4 != this.end && planet4.ParentSystem.combatTimer < 1)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -4580,10 +4574,15 @@ namespace Ship_Game.Gameplay
 
 		public void OrderTradeFromSave(bool hasCargo, Guid startGUID, Guid endGUID)
 		{
-            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.CombatInSystem).Count() == 0)
+            if (this.Owner.CargoSpace_Max == 0 || this.State == AIState.Flee)
+            {
                 return;
-            if ((this.Owner.CargoSpace_Used == 0 && this.start != null && this.start.ParentSystem.CombatInSystem)
-                || this.end != null && this.end.ParentSystem.CombatInSystem)
+            }
+            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer >0).Count() == 0)
+                return;
+            if (this.Owner.CargoSpace_Max >0 
+                && (this.start != null && this.start.ParentSystem.combatTimer >0)
+                || (this.end != null && this.end.ParentSystem.CombatInSystem))
             {
                 this.start = null;
                 this.end = null;
@@ -4628,10 +4627,11 @@ namespace Ship_Game.Gameplay
 
 		public void OrderTransportPassengers()
 		{
-            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.CombatInSystem).Count() == 0)
+            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer >0).Count() == 0)
                 return;
-            if ((this.Owner.CargoSpace_Used == 0 && this.start != null && this.start.ParentSystem.CombatInSystem)
-                || this.end != null && this.end.ParentSystem.CombatInSystem)
+            if (this.Owner.CargoSpace_Max >0  
+                && (this.start != null && this.start.ParentSystem.combatTimer >0)
+                || (this.end != null && this.end.ParentSystem.combatTimer>0))
             {
                 this.start = null;
                 this.end = null;
@@ -4646,7 +4646,7 @@ namespace Ship_Game.Gameplay
 			if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
 			{
 				List<Planet> PossibleEnds = new List<Planet>();
-                foreach (Planet p in this.Owner.loyalty.GetPlanets().Where(combat => !combat.ParentSystem.CombatInSystem))
+                foreach (Planet p in this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer<=0))
 				{
 					if (this.Owner.AreaOfOperation.Count <= 0)
 					{
@@ -4688,7 +4688,7 @@ namespace Ship_Game.Gameplay
 			}
 			this.OrderQueue.Clear();
 			List<Planet> Possible = new List<Planet>();
-            foreach (Planet p in this.Owner.loyalty.GetPlanets().Where(combat => !combat.ParentSystem.CombatInSystem))
+            foreach (Planet p in this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0))
 			{
 				if (this.Owner.AreaOfOperation.Count <= 0)
 				{
@@ -4720,7 +4720,7 @@ namespace Ship_Game.Gameplay
 				this.start = Possible[random];
 			}
 			Possible = new List<Planet>();
-            foreach (Planet p in this.Owner.loyalty.GetPlanets().Where(combat => !combat.ParentSystem.CombatInSystem))
+            foreach (Planet p in this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0))
 			{
 				if (p == this.start)
 				{
@@ -4765,7 +4765,20 @@ namespace Ship_Game.Gameplay
 
 		public void OrderTransportPassengersFromSave()
 		{
-			if (!this.Owner.GetCargo().ContainsKey("Colonists_1000"))
+            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer > 0).Count() == 0)
+                return;
+            if (this.Owner.CargoSpace_Max > 0
+                && (this.start != null && this.start.ParentSystem.combatTimer > 0)
+                || (this.end != null && this.end.ParentSystem.combatTimer > 0))
+            {
+                this.start = null;
+                this.end = null;
+                this.OrderQueue.Clear();
+                this.State = AIState.AwaitingOrders;
+
+            }
+            
+            if (!this.Owner.GetCargo().ContainsKey("Colonists_1000"))
 			{
 				this.Owner.GetCargo().Add("Colonists_1000", 0f);
 			}
@@ -6588,9 +6601,9 @@ namespace Ship_Game.Gameplay
 
 
             if ((this.BadGuysNear || this.Owner.InCombatTimer > 0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
-                && (this.Owner.Role != "construction" && !this.IgnoreCombat) &&( this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
+                && (this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State!=AIState.Rebase) &&( this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
             {
-                if (this.State != AIState.Flee && !this.HasPriorityOrder)
+                if (this.State != AIState.Flee )//&& !this.HasPriorityOrder)
                 {
                     this.OrderQueue.Clear();
                     //if (this.CombatState == CombatState.Evade)
