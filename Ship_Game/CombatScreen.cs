@@ -1093,7 +1093,8 @@ namespace Ship_Game
                             {
                                 if (planetGridSquare2 != ActiveTroop && planetGridSquare2 == squareToAttack)
                                 {
-                                    if (planetGridSquare2.TroopsHere.Count == 0 && planetGridSquare2.building == null || planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength == 0 && planetGridSquare2.TroopsHere.Count == 0)
+                                    //Added by McShooterz: Prevent troops from firing on own buildings
+                                    if (planetGridSquare2.TroopsHere.Count == 0 && (planetGridSquare2.building == null || (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength == 0) || p.Owner == ActiveTroop.TroopsHere[0].GetOwner()))
                                         return false;
                                     int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
                                     int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
@@ -1124,7 +1125,8 @@ namespace Ship_Game
                             {
                                 if (planetGridSquare2 != ActiveTroop && planetGridSquare2 == squareToAttack)
                                 {
-                                    if (planetGridSquare2.TroopsHere.Count == 0 && planetGridSquare2.building == null || planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength == 0 && planetGridSquare2.TroopsHere.Count == 0)
+                                    //Added by McShooterz: Prevent buildings from firing on buildings
+                                    if (planetGridSquare2.TroopsHere.Count == 0)
                                         return false;
                                     int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
                                     int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
