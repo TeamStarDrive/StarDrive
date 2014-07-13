@@ -2582,7 +2582,7 @@ namespace Ship_Game
                 }
             }
             //added by gremlin add ships to exiting fleet
-            if (flag && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+            else if (flag && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
             {
                 if (this.SelectedShipList.Count > 0)
                 {
