@@ -2752,7 +2752,7 @@ namespace Ship_Game
 
                         foreach (var pgs in this.TilesList)
                         {
-                            if (item.TroopList.Count >= item.TroopCapacity) 
+                            if (item.TroopCapacity >0 && item.TroopList.Count >= item.TroopCapacity) 
                                 break;
                             if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
                             {
