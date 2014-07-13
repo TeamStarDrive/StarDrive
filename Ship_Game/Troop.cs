@@ -327,10 +327,9 @@ namespace Ship_Game
                 this.Experience -= 1 + this.Level;
                 this.Level++;
             }
-            if (this.Level > 10)
-                this.Level = 10;
         }
 
+        //Added by McShooterz
         public int GetStrengthMax()
         {
             return this.StrengthMax + this.Level / 2;
