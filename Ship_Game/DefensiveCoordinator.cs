@@ -111,6 +111,10 @@ namespace Ship_Game
 						systemCommander.ValueToUs = systemCommander.ValueToUs + p.Fertility;
 						SystemCommander value1 = entry.Value;
 						value1.ValueToUs = value1.ValueToUs + p.MineralRichness;
+                        if(this.us.data.Traits.Cybernetic >0)
+                        {
+                            value1.ValueToUs += p.MineralRichness;
+                        }
 					}
 					foreach (Planet other in entry.Key.PlanetList)
 					{
@@ -300,7 +304,7 @@ namespace Ship_Game
 			{
 				for (int i = 0; i < p.TroopsHere.Count; i++)
 				{
-					if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == this.us)
+					if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == this.us )
 					{
 						GroundTroops.Add(p.TroopsHere[i]);
 					}
@@ -308,16 +312,18 @@ namespace Ship_Game
 			}
 			foreach (Ship ship2 in this.us.GetShips())
 			{
-				if (!(ship2.Role == "troop") || ship2.fleet != null)
+				if (!(ship2.Role == "troop") || ship2.fleet != null )
 				{
 					continue;
 				}
 				TroopShips.Add(ship2);
+
 			}
 			float TotalTroopStrength = 0f;
 			foreach (Troop t in GroundTroops)
 			{
-				TotalTroopStrength = TotalTroopStrength + (float)t.Strength;
+				
+                TotalTroopStrength = TotalTroopStrength + (float)t.Strength;
 			}
 			foreach (Ship ship3 in TroopShips)
 			{
@@ -335,7 +341,7 @@ namespace Ship_Game
 				entry.Value.TroopStrengthNeeded = entry.Value.PercentageOfValue * TotalTroopStrength;
 				foreach (Planet p in entry.Key.PlanetList)
 				{
-					if (p.Owner != this.us)
+					if (p.Owner != this.us )
 					{
 						continue;
 					}
@@ -369,7 +375,7 @@ namespace Ship_Game
 			foreach (Ship ship4 in TroopShips)
 			{
                 //added by gremlin troop defense fix?
-				if (ship4.TroopList.Count == 0 || ship4.GetAI().State !=AIState.AwaitingOrders)
+                if (ship4.TroopList.Count == 0 || ship4.GetAI().State != AIState.AwaitingOrders )
 				{
 					continue;
 				}
@@ -412,17 +418,19 @@ namespace Ship_Game
 			}
 			foreach (Troop troop in GroundTroops)
 			{
-				if (troop.GetPlanet() == null)
+                if (troop.GetPlanet() == null || troop.GetPlanet().CombatTimer > 0 || troop.GetPlanet().ParentSystem.combatTimer>0)
 				{
 					continue;
 				}
 				IOrderedEnumerable<SolarSystem> sortedSystems = 
 					from system in systems
-					orderby Vector2.Distance(system.Position, troop.GetPlanet().Position)
+                    orderby (int)(Vector2.Distance(system.Position, troop.GetPlanet().Position) / (UniverseData.UniverseWidth /5f))
+                    orderby system.combatTimer descending
+                    
 					select system;
 				foreach (SolarSystem solarSystem3 in sortedSystems)
 				{
-					if (solarSystem3.combatTimer >0 ||  (float)troop.Strength >= this.DefenseDict[solarSystem3].TroopStrengthNeeded)
+                    if (solarSystem3.combatTimer > 0 || (float)troop.Strength < this.DefenseDict[solarSystem3].TroopStrengthNeeded)
 					{
 						continue;
 					}
