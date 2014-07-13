@@ -5257,7 +5257,7 @@ namespace Ship_Game
             //heal troops
             foreach (Troop troop in this.TroopsHere)
             {
-                troop.Strength = troop.GetStrengthMax() + (int)((float)troop.GetStrengthMax() * this.Owner.data.Traits.GroundCombatModifier);
+                troop.Strength = troop.GetStrengthMax();
             }
             //Repair buildings
             foreach (Building building in this.BuildingList)
