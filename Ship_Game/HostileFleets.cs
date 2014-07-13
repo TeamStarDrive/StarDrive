@@ -15,5 +15,10 @@ namespace Ship_Game
             public string Empire;
             public List<string> Ships;
         }
+
+        public HostileFleets()
+        {
+            this.Fleets = new List<Fleet>();
+        }
     }
 }

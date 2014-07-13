@@ -175,7 +175,6 @@ namespace Ship_Game
 			troop.StrengthMax = t.StrengthMax;
 			troop.TargetType = t.TargetType;
 			troop.TexturePath = t.TexturePath;
-			troop.Kills = t.Kills;
 			troop.Experience = t.Experience;
 			troop.Icon = t.Icon;
 			troop.animated = t.animated;
@@ -194,6 +193,7 @@ namespace Ship_Game
 			troop.AttackTimerBase = t.AttackTimerBase;
 			troop.Level = t.Level;
 			troop.Kills = t.Kills;
+            troop.BoardingStrength = t.BoardingStrength;
 			return troop;
 		}
 
@@ -248,7 +248,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -336,7 +336,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -418,7 +418,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -491,7 +491,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -566,7 +566,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useShipNames && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -661,19 +661,20 @@ namespace Ship_Game
 				SoftAttack = t.SoftAttack,
 				Strength = t.Strength,
 				StrengthMax = t.StrengthMax,
-				Icon = t.Icon
+				Icon = t.Icon,
+                BoardingStrength = t.BoardingStrength
 			};
 			if (Owner != null)
 			{
 				Troop strength = troop;
 				strength.Strength = strength.Strength + (int)(Owner.data.Traits.GroundCombatModifier * (float)troop.Strength);
 				Troop strengthMax = troop;
-				strengthMax.StrengthMax = strengthMax.StrengthMax + (int)(Owner.data.Traits.GroundCombatModifier * (float)troop.Strength);
+                //Added by McShooterz: strength max is now properly used
+                strengthMax.StrengthMax = strength.Strength;
 			}
 			troop.TargetType = t.TargetType;
 			troop.TexturePath = t.TexturePath;
 			troop.Range = t.Range;
-			troop.Kills = t.Kills;
 			troop.Experience = t.Experience;
 			troop.SetOwner(Owner);
 			troop.animated = t.animated;
