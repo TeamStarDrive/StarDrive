@@ -12,6 +12,8 @@ namespace Ship_Game
 
 		public int Level = 1;
 
+        public int Experience = 0;
+
 		public AgentMission Mission;
 
 		public int TurnsRemaining;
@@ -1530,5 +1532,18 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        //Added by McShooterz: add experience to the agent and determine if level up.
+        private void AddExperience(int exp)
+        {
+            this.Experience += exp;
+            while(this.Experience >= 4 + (4 * this.Level))
+            {
+                this.Experience -= 4 + (4 * this.Level);
+                this.Level++;
+            }
+            if (this.Level > 10)
+                this.Level = 10;
+        }
 	}
 }
