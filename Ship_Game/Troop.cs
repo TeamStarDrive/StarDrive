@@ -332,7 +332,7 @@ namespace Ship_Game
         //Added by McShooterz
         public int GetStrengthMax()
         {
-            return this.StrengthMax + this.Level / 2;
+            return this.StrengthMax + this.Level / 2 + (int)(this.StrengthMax * this.Owner.data.Traits.GroundCombatModifier);
         }
 	}
 }
