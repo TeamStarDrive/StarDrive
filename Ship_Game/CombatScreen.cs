@@ -223,17 +223,20 @@ namespace Ship_Game
 			{
 				pgs.CanAttack = false;
 				pgs.CanMoveTo = false;
+                if (this.ActiveTroop == null)
+                pgs.ShowAttackHover = false;
 			}
 			if (this.ActiveTroop == null)
 			{
-				foreach (PlanetGridSquare pgs in this.p.TilesList)
-				{
-					pgs.CanMoveTo = false;
-					pgs.CanAttack = false;
-					pgs.ShowAttackHover = false;
-				}
+                //added by gremlin why two loops? moved hover clear to first loop and move null check to third loop.
+                //foreach (PlanetGridSquare pgs in this.p.TilesList)
+                //{
+                //    pgs.CanMoveTo = false;
+                //    pgs.CanAttack = false;
+                //    pgs.ShowAttackHover = false;
+                //}
 			}
-			else
+            if (this.ActiveTroop != null)
 			{
 				foreach (PlanetGridSquare pgs in this.p.TilesList)
 				{
@@ -1094,16 +1097,26 @@ namespace Ship_Game
                                 if (planetGridSquare2 != ActiveTroop && planetGridSquare2 == squareToAttack)
                                 {
                                     //Added by McShooterz: Prevent troops from firing on own buildings
-                                    if (planetGridSquare2.TroopsHere.Count == 0 && (planetGridSquare2.building == null || (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength == 0) || p.Owner == ActiveTroop.TroopsHere[0].GetOwner()))
+                                    if (planetGridSquare2.TroopsHere.Count == 0 && 
+                                        (planetGridSquare2.building == null || 
+                                        (planetGridSquare2.building != null && 
+                                        planetGridSquare2.building.CombatStrength == 0) || 
+                                        p.Owner == ActiveTroop.TroopsHere[0].GetOwner()))
                                         return false;
                                     int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
                                     int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
                                     if (planetGridSquare2.TroopsHere.Count > 0)
                                     {
-                                        if (planetGridSquare1.TroopsHere.Count != 0 && (double)num1 <= (double)planetGridSquare1.TroopsHere[0].Range && ((double)num2 <= (double)planetGridSquare1.TroopsHere[0].Range && planetGridSquare2.TroopsHere[0].GetOwner() != ActiveTroop.TroopsHere[0].GetOwner()))
+                                        if (planetGridSquare1.TroopsHere.Count != 0 && 
+                                            (double)num1 <= (double)planetGridSquare1.TroopsHere[0].Range && 
+                                            ((double)num2 <= (double)planetGridSquare1.TroopsHere[0].Range && 
+                                            planetGridSquare2.TroopsHere[0].GetOwner() != ActiveTroop.TroopsHere[0].GetOwner()))
                                             return true;
                                     }
-                                    else if (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength > 0 && ((double)num1 <= (double)planetGridSquare1.TroopsHere[0].Range && (double)num2 <= (double)planetGridSquare1.TroopsHere[0].Range))
+                                    else if (planetGridSquare2.building != null && 
+                                        planetGridSquare2.building.CombatStrength > 0 && 
+                                        ((double)num1 <= (double)planetGridSquare1.TroopsHere[0].Range && 
+                                        (double)num2 <= (double)planetGridSquare1.TroopsHere[0].Range))
                                     {
                                         if (p.Owner == null)
                                             return false;
@@ -1132,7 +1145,8 @@ namespace Ship_Game
                                     int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
                                     if (planetGridSquare2.TroopsHere.Count > 0)
                                     {
-                                        if (num1 <= 1 && num2 <= 1 && planetGridSquare2.TroopsHere[0].GetOwner() != p.Owner)
+                                        if (num1 <= 1 && num2 <= 1 && 
+                                            planetGridSquare2.TroopsHere[0].GetOwner() != p.Owner)
                                             return true;
                                     }
                                     else if (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength > 0 && (num1 <= 1 && num2 <= 1))
