@@ -304,7 +304,7 @@ namespace Ship_Game
 			{
 				for (int i = 0; i < p.TroopsHere.Count; i++)
 				{
-					if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == this.us )
+					if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == this.us )//&& !p.RecentCombat && p.ParentSystem.combatTimer <=0)
 					{
 						GroundTroops.Add(p.TroopsHere[i]);
 					}
