@@ -660,10 +660,11 @@ namespace Ship_Game
 				Initiative = t.Initiative,
 				SoftAttack = t.SoftAttack,
 				Strength = t.Strength,
-				StrengthMax = t.StrengthMax,
+                StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength,
 				Icon = t.Icon,
                 BoardingStrength = t.BoardingStrength
 			};
+
 			if (Owner != null)
 			{
 				Troop strength = troop;
