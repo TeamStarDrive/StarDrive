@@ -2301,7 +2301,7 @@ namespace Ship_Game
 					Ship_Game.ResourceManager.TroopsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
                 Troop troop = Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)];
-                if(troop.StrengthMax < troop.Strength)
+                if(troop.StrengthMax <= 0)
                 {
                     troop.StrengthMax = troop.Strength;
                 }
