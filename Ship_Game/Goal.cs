@@ -259,6 +259,20 @@ namespace Ship_Game
                     });
                     ++this.Step;
                     break;
+                case 1:
+                    {
+                        if (this.PlanetBuildingAt == null)
+                            break;
+                        if (this.PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        {
+                            if (this.PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
+                            {
+                                this.PlanetBuildingAt.ApplyStoredProduction();
+                            }
+                        }
+
+                        break;
+                    }
                 case 2:
                     this.beingBuilt.GetAI().State = AIState.AwaitingOrders;
                     this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
@@ -304,6 +318,19 @@ namespace Ship_Game
                     });
                     ++this.Step;
                     break;
+                case 1:
+                    {
+                        if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        {
+                            if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
+                            {
+                                PlanetBuildingAt.ApplyStoredProduction();
+                            }
+                        }
+
+                        break;
+                    }
+
                 case 2:
                     this.beingBuilt.DoDefense();
                     this.empire.ForcePoolAdd(this.beingBuilt);
@@ -326,7 +353,21 @@ namespace Ship_Game
                         Cost = ResourceManager.TroopsDict[this.ToBuildUID].Cost
                     });
                     this.Step = 1;
+
                     break;
+
+                case 1:
+                    {
+                        if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        {
+                           if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.75f)
+                           {
+                               PlanetBuildingAt.ApplyStoredProduction();
+                           }
+                        }
+
+                        break;
+                    }
                 case 2:
                     this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
                     break;
