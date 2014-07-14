@@ -645,7 +645,7 @@ namespace Ship_Game.Gameplay
 					List<Troop> toLaunch = new List<Troop>();
 					foreach (Troop t in this.TargetPlanet.TroopsHere)
 					{
-						if (t.GetOwner() != this.empire)
+						if (t.GetOwner() != this.empire ||this.TargetPlanet.CombatTimer >0 ||t.AvailableAttackActions==0 ||t.MoveTimer>0) 
 						{
 							continue;
 						}
@@ -737,15 +737,20 @@ namespace Ship_Game.Gameplay
                             this.RequisitionAssaultForces();
                             return;
                         case 1:
-                            if (this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
+                            //if (this.GetTargetPlanet().GetGroundStrength(this.empire) > 0)
+                            //    return;
+                            //else 
+                            if (this.empire.GetFleetsDict().ContainsKey(this.WhichFleet) )
                             {
                                 if (this.empire.GetFleetsDict()[this.WhichFleet].Ships.Count != 0)
                                     return;
+                                
                                 this.EndTask();
                                 return;
                             }
                             else
                             {
+                                
                                 this.EndTask();
                                 return;
                             }
@@ -843,11 +848,31 @@ namespace Ship_Game.Gameplay
 				this.Step = 0;
 				return;
 			}
-			if (this.empire.GetFleetsDict()[this.WhichFleet].Task == null)
+            if( this.type == TaskType.Exploration ||this.type ==TaskType.AssaultPlanet)
+            {
+                if (this.GetTargetPlanet().TroopsHere.Where(troop => troop.GetOwner() == this.empire).Count()>0)
+                {
+                    if(this.type==TaskType.Exploration)
+                    {
+                        Planet p = this.GetTargetPlanet();
+                        if (p.BuildingList.Where(relic => relic.EventTriggerUID != "").Count() > 0)
+                        {
+                            return;
+                        }
+                    }
+                    else if (this.type == TaskType.AssaultPlanet)
+                    {
+                        if (this.GetTargetPlanet().GetGroundStrengthOther(this.empire) > 0)
+                        return;
+                    }
+                }
+            }
+			if (this.empire.GetFleetsDict()[this.WhichFleet].Task == null )
 			{
 				this.EndTask();
 				return;
 			}
+            
 			float currentStrength = 0f;
 			foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
 			{
@@ -1190,7 +1215,7 @@ namespace Ship_Game.Gameplay
 									break;
 								}
 								Troop t = enumerator2.Current;
-								if (t.GetPlanet() != null)
+                                if (t.GetPlanet() != null && t.GetPlanet().ParentSystem.combatTimer<=0 && !t.GetPlanet().RecentCombat &&t.GetPlanet().TroopsHere.Count >t.GetPlanet().developmentLevel)
 								{
 									(new List<Troop>()).Add(t);
 									if (t.GetOwner() != null)
