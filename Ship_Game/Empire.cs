@@ -1893,8 +1893,10 @@ namespace Ship_Game
                 this.GSAI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 this.GSAI.DefensiveCoordinator.DefenseDict.Clear();
                 this.ForcePool.Clear();
-                foreach (Ship s in (List<Ship>)this.OwnedShips)
+                foreach (Ship s in (List<Ship>)this.OwnedShips.OrderByDescending(experience=> experience.experience).ThenBy(strength=> strength.GetStrength()))
                 {
+                    //added by gremlin Do not include 0 strength ships in defensive force pool
+  
                     s.GetAI().OrderQueue.Clear();
                     s.GetAI().State = AIState.AwaitingOrders;
                     this.ForcePoolAdd(s);
@@ -1993,7 +1995,7 @@ namespace Ship_Game
             List<Ship> unusedFreighters = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if (ship.GetAI().State != AIState.Flee && ship.Role == "freighter" && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
+                if ( ship.Role == "freighter" && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
                 {
                     if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
                         ++tradeShips;
@@ -2004,17 +2006,23 @@ namespace Ship_Game
                 }
             }
             int freighterLimit = this.OwnedPlanets.Count / 3;
+            
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
                     ++tradeShips;
             }
+             
             List<Ship> assignedShips = new List<Ship>();
             foreach (Ship ship in unusedFreighters)
             {
                 if (tradeShips >= freighterLimit)
                     break;
-                ship.GetAI().OrderTrade();
+                if (ship.GetAI().State != AIState.Flee)
+                {
+                    ship.GetAI().OrderTrade();
+                    
+                }
                 assignedShips.Add(ship);
                 ++tradeShips;
             }
@@ -2027,11 +2035,13 @@ namespace Ship_Game
                     GoalName = "IncreaseFreighters",
                     type = GoalType.BuildShips
                 });
+            
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreasePassengerShips")
                     ++passengerShips;
             }
+            
             foreach (Ship ship in unusedFreighters)
             {
                 if (passengerShips >= freighterLimit)

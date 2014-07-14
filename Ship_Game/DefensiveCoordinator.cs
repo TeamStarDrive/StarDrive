@@ -304,7 +304,7 @@ namespace Ship_Game
 			{
 				for (int i = 0; i < p.TroopsHere.Count; i++)
 				{
-					if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == this.us )
+					if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == this.us )//&& !p.RecentCombat && p.ParentSystem.combatTimer <=0)
 					{
 						GroundTroops.Add(p.TroopsHere[i]);
 					}
@@ -312,7 +312,7 @@ namespace Ship_Game
 			}
 			foreach (Ship ship2 in this.us.GetShips())
 			{
-				if (!(ship2.Role == "troop") || ship2.fleet != null )
+				if (!(ship2.Role == "troop") || ship2.fleet != null || ship2.GetAI().State != AIState.AwaitingOrders)
 				{
 					continue;
 				}
@@ -430,7 +430,8 @@ namespace Ship_Game
 					select system;
 				foreach (SolarSystem solarSystem3 in sortedSystems)
 				{
-                    if (solarSystem3.combatTimer > 0 || (float)troop.Strength < this.DefenseDict[solarSystem3].TroopStrengthNeeded)
+                    //added by gremlin Dont take troops from system that have combat. and prevent troop loop
+                    if (solarSystem3.combatTimer > 0 || (float)troop.Strength < this.DefenseDict[solarSystem3].TroopStrengthNeeded + (float)troop.Strength)
 					{
 						continue;
 					}
@@ -440,7 +441,8 @@ namespace Ship_Game
 						continue;
 					}
 					SystemCommander item1 = this.DefenseDict[solarSystem3];
-					item1.TroopStrengthNeeded = item1.TroopStrengthNeeded - (float)troop.Strength;
+                    //added by gremlin... Instead of lowering needed strength when removing a strength. increase it.
+					item1.TroopStrengthNeeded = item1.TroopStrengthNeeded + (float)troop.Strength;
 					if (solarSystem3.PlanetList.Count <= 0)
 					{
 						continue;
