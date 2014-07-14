@@ -20,6 +20,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace Ship_Game
 {
     public class UniverseScreen : GameScreen, IDisposable
@@ -244,6 +245,8 @@ namespace Ship_Game
         private int SelectorFrame;
         private float garbageCollector;
         private bool doubleclicked;
+        public static bool debug;
+
 
         static UniverseScreen()
         {
@@ -2042,6 +2045,7 @@ namespace Ship_Game
             if (input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde) && input.LastKeyboardState.IsKeyUp(Keys.OemTilde) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))
             {
                 this.Debug = !this.Debug;
+                UniverseScreen.debug = !this.Debug;
                 foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                     solarSystem.ExploredDict[this.player] = true;
                 GlobalStats.LimitSpeed = this.Debug;

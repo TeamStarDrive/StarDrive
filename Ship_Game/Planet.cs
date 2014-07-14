@@ -2368,15 +2368,84 @@ namespace Ship_Game
                         else
                             continue;
                     }
-                    if (!hasAttacked && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
+                    try
                     {
-                        foreach (PlanetGridSquare planetGridSquare in (IEnumerable<PlanetGridSquare>)Enumerable.OrderBy<PlanetGridSquare, int>((IEnumerable<PlanetGridSquare>)this.TilesList, (Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
+                        if (!hasAttacked && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
                         {
-                            if (planetGridSquare != pgs)
+                            foreach (PlanetGridSquare planetGridSquare in (IEnumerable<PlanetGridSquare>)Enumerable.OrderBy<PlanetGridSquare, int>((IEnumerable<PlanetGridSquare>)this.TilesList, (Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
                             {
-                                if (planetGridSquare.TroopsHere.Count > 0)
+                                if (planetGridSquare != pgs)
                                 {
-                                    if (planetGridSquare.TroopsHere[0].GetOwner() != pgs.TroopsHere[0].GetOwner())
+                                    if (planetGridSquare.TroopsHere.Count > 0)
+                                    {
+                                        if (planetGridSquare.TroopsHere[0].GetOwner() != pgs.TroopsHere[0].GetOwner())
+                                        {
+                                            if (planetGridSquare.x > pgs.x)
+                                            {
+                                                if (planetGridSquare.y > pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(1, 1, pgs))
+                                                        break;
+                                                }
+                                                if (planetGridSquare.y < pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(1, -1, pgs))
+                                                        break;
+                                                }
+                                                if (!this.TryTroopMove(1, 0, pgs))
+                                                {
+                                                    if (!this.TryTroopMove(1, -1, pgs))
+                                                    {
+                                                        if (this.TryTroopMove(1, 1, pgs))
+                                                            break;
+                                                    }
+                                                    else
+                                                        break;
+                                                }
+                                                else
+                                                    break;
+                                            }
+                                            else if (planetGridSquare.x < pgs.x)
+                                            {
+                                                if (planetGridSquare.y > pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(-1, 1, pgs))
+                                                        break;
+                                                }
+                                                if (planetGridSquare.y < pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(-1, -1, pgs))
+                                                        break;
+                                                }
+                                                if (!this.TryTroopMove(-1, 0, pgs))
+                                                {
+                                                    if (!this.TryTroopMove(-1, -1, pgs))
+                                                    {
+                                                        if (this.TryTroopMove(-1, 1, pgs))
+                                                            break;
+                                                    }
+                                                    else
+                                                        break;
+                                                }
+                                                else
+                                                    break;
+                                            }
+                                            else
+                                            {
+                                                if (planetGridSquare.y > pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(0, 1, pgs))
+                                                        break;
+                                                }
+                                                if (planetGridSquare.y < pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(0, -1, pgs))
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (planetGridSquare.building != null && (planetGridSquare.building.CombatStrength > 0 || planetGridSquare.building.EventTriggerUID != "") && (this.Owner != pgs.TroopsHere[0].GetOwner() || planetGridSquare.building.EventTriggerUID != ""))
                                     {
                                         if (planetGridSquare.x > pgs.x)
                                         {
@@ -2432,107 +2501,44 @@ namespace Ship_Game
                                         {
                                             if (planetGridSquare.y > pgs.y)
                                             {
-                                                if (this.TryTroopMove(0, 1, pgs))
+                                                if (!this.TryTroopMove(0, 1, pgs))
+                                                {
+                                                    if (!this.TryTroopMove(1, 1, pgs))
+                                                    {
+                                                        if (this.TryTroopMove(-1, 1, pgs))
+                                                            break;
+                                                    }
+                                                    else
+                                                        break;
+                                                }
+                                                else
                                                     break;
                                             }
                                             if (planetGridSquare.y < pgs.y)
                                             {
-                                                if (this.TryTroopMove(0, -1, pgs))
-                                                    break;
-                                            }
-                                        }
-                                    }
-                                }
-                                else if (planetGridSquare.building != null && (planetGridSquare.building.CombatStrength > 0 || planetGridSquare.building.EventTriggerUID != "") && (this.Owner != pgs.TroopsHere[0].GetOwner() || planetGridSquare.building.EventTriggerUID != ""))
-                                {
-                                    if (planetGridSquare.x > pgs.x)
-                                    {
-                                        if (planetGridSquare.y > pgs.y)
-                                        {
-                                            if (this.TryTroopMove(1, 1, pgs))
-                                                break;
-                                        }
-                                        if (planetGridSquare.y < pgs.y)
-                                        {
-                                            if (this.TryTroopMove(1, -1, pgs))
-                                                break;
-                                        }
-                                        if (!this.TryTroopMove(1, 0, pgs))
-                                        {
-                                            if (!this.TryTroopMove(1, -1, pgs))
-                                            {
-                                                if (this.TryTroopMove(1, 1, pgs))
-                                                    break;
-                                            }
-                                            else
-                                                break;
-                                        }
-                                        else
-                                            break;
-                                    }
-                                    else if (planetGridSquare.x < pgs.x)
-                                    {
-                                        if (planetGridSquare.y > pgs.y)
-                                        {
-                                            if (this.TryTroopMove(-1, 1, pgs))
-                                                break;
-                                        }
-                                        if (planetGridSquare.y < pgs.y)
-                                        {
-                                            if (this.TryTroopMove(-1, -1, pgs))
-                                                break;
-                                        }
-                                        if (!this.TryTroopMove(-1, 0, pgs))
-                                        {
-                                            if (!this.TryTroopMove(-1, -1, pgs))
-                                            {
-                                                if (this.TryTroopMove(-1, 1, pgs))
-                                                    break;
-                                            }
-                                            else
-                                                break;
-                                        }
-                                        else
-                                            break;
-                                    }
-                                    else
-                                    {
-                                        if (planetGridSquare.y > pgs.y)
-                                        {
-                                            if (!this.TryTroopMove(0, 1, pgs))
-                                            {
-                                                if (!this.TryTroopMove(1, 1, pgs))
+                                                if (!this.TryTroopMove(0, -1, pgs))
                                                 {
-                                                    if (this.TryTroopMove(-1, 1, pgs))
+                                                    if (!this.TryTroopMove(1, -1, pgs))
+                                                    {
+                                                        if (this.TryTroopMove(-1, -1, pgs))
+                                                            break;
+                                                    }
+                                                    else
                                                         break;
                                                 }
                                                 else
                                                     break;
                                             }
-                                            else
-                                                break;
-                                        }
-                                        if (planetGridSquare.y < pgs.y)
-                                        {
-                                            if (!this.TryTroopMove(0, -1, pgs))
-                                            {
-                                                if (!this.TryTroopMove(1, -1, pgs))
-                                                {
-                                                    if (this.TryTroopMove(-1, -1, pgs))
-                                                        break;
-                                                }
-                                                else
-                                                    break;
-                                            }
-                                            else
-                                                break;
                                         }
                                     }
                                 }
                             }
                         }
+
                     }
+                    catch { }
                 }
+                    
                 else if (pgs.building != null && pgs.building.CombatStrength > 0 && (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat) && pgs.building.AvailableAttackActions > 0)
                 {
                     foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -2545,7 +2551,9 @@ namespace Ship_Game
                         }
                     }
                 }
+                
             }
+            
         }
 
         private bool TryTroopMove(int changex, int changey, PlanetGridSquare start)
@@ -2752,7 +2760,7 @@ namespace Ship_Game
 
                         foreach (var pgs in this.TilesList)
                         {
-                            if (item.TroopCapacity >0 && item.TroopList.Count >= item.TroopCapacity) 
+                            if (item.TroopCapacity ==0 || item.TroopList.Count >= item.TroopCapacity) 
                                 break;
                             if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
                             {
@@ -2950,8 +2958,8 @@ namespace Ship_Game
             this.ApplyProductionTowardsConstruction();
             this.GrowPopulation();
             //Added by McShooterz
-            //added by gremlin remarking the heal code until we can fix the core issues.
-            //this.HealBuildingsAndTroops();
+            
+            this.HealBuildingsAndTroops();
             if ((double)this.FoodHere > (double)this.MAX_STORAGE)
                 this.FoodHere = this.MAX_STORAGE;
             if ((double)this.ProductionHere <= (double)this.MAX_STORAGE)
@@ -5187,6 +5195,16 @@ namespace Ship_Game
 
 
         }
+        public int GetGroundStrengthOther(Empire empire)
+        {
+            int num = 0;
+            if (this.Owner == null || this.Owner != empire)
+                num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner()==null ||empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
+            return num;
+
+
+        }
 
         //Added by McShooterz: heal builds and troops every turn
         public void HealBuildingsAndTroops()
@@ -5196,6 +5214,7 @@ namespace Ship_Game
             //heal troops
             foreach (Troop troop in this.TroopsHere)
             {
+                if(troop.StrengthMax>0)
                 troop.Strength = troop.GetStrengthMax() + (int)((float)troop.GetStrengthMax() * this.Owner.data.Traits.GroundCombatModifier);
             }
             //Repair buildings
