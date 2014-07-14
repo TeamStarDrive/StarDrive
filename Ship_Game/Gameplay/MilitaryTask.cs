@@ -347,7 +347,7 @@ namespace Ship_Game.Gameplay
                 }
                 foreach (Planet p in area.GetPlanets())
                 {
-                    if (p.RecentCombat)
+                    if (p.RecentCombat || p.ParentSystem.combatTimer>0)
                     {
                         continue;
                     }
@@ -1003,7 +1003,7 @@ namespace Ship_Game.Gameplay
 			List<Ship> PotentialBombers = new List<Ship>();
 			foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
 			{
-				if ((!ship.HasTroopBay || ship.TroopList.Count <= 0) && !(ship.Role == "troop") || ship.fleet != null)
+				if ((!ship.HasTroopBay || ship.TroopList.Count <= 0) && !(ship.Role == "troop"  || ship.fleet != null))
 				{
 					continue;
 				}
@@ -1431,7 +1431,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach (Troop t in planet2.TroopsHere)
                 {
-                    if (t.GetOwner() != this.empire)
+                    if (t.GetOwner() != this.empire || planet2.ParentSystem.combatTimer >0)
                     {
                         continue;
                     }
