@@ -1893,8 +1893,10 @@ namespace Ship_Game
                 this.GSAI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 this.GSAI.DefensiveCoordinator.DefenseDict.Clear();
                 this.ForcePool.Clear();
-                foreach (Ship s in (List<Ship>)this.OwnedShips)
+                foreach (Ship s in (List<Ship>)this.OwnedShips.OrderByDescending(experience=> experience.experience).ThenBy(strength=> strength.GetStrength()))
                 {
+                    //added by gremlin Do not include 0 strength ships in defensive force pool
+  
                     s.GetAI().OrderQueue.Clear();
                     s.GetAI().State = AIState.AwaitingOrders;
                     this.ForcePoolAdd(s);
