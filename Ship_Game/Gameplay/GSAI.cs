@@ -2543,7 +2543,8 @@ namespace Ship_Game.Gameplay
 			{
 				EntireStrength = EntireStrength + ship.GetStrength();
 			}
-			if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct && (toAdd.BombBays.Count <= 0 || toAdd.WarpThrust <= 0f))
+			//added by gremlin dont add zero strength ships to defensive force pool
+            if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct && (toAdd.BombBays.Count <= 0 || toAdd.WarpThrust <= 0f)) //&&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
 			{
 				this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
 				toAdd.GetAI().SystemToDefend = null;
@@ -5488,7 +5489,7 @@ namespace Ship_Game.Gameplay
 				{
 					foreach (Ship ship in data.MasterShipList)
 					{
-						if (ship.guid != guid)
+						if (ship.guid != guid)//||ship.GetStrength() <=0)
 						{
 							continue;
 						}
