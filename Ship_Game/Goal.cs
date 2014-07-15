@@ -358,7 +358,7 @@ namespace Ship_Game
 
                 case 1:
                     {
-                        if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        if (PlanetBuildingAt.ConstructionQueue.Count >0 && PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {
                            if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.75f)
                            {
