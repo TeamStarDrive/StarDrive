@@ -447,9 +447,14 @@ namespace Ship_Game
             {
                 this.AdviceList = (List<string>)serializer2.Deserialize((new FileInfo(string.Concat("Content/Advice/", GlobalStats.Config.Language, "/Advice.xml"))).OpenRead());
             }
-			for (int i = 1; i < (int)this.textList.Length; i++)
+            //Added by McShooterz: fix to load game crash, not finding loading screen
+			for (int i = 0; i < (int)this.textList.Length; i++)
 			{
-				Texture2D what = base.ScreenManager.Content.Load<Texture2D>(string.Concat("LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[i].Name)));
+                Texture2D what;
+                if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")))
+                    what = base.ScreenManager.Content.Load<Texture2D>(string.Concat("../",Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[i].Name)));
+                else
+                    what = base.ScreenManager.Content.Load<Texture2D>(string.Concat("LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[i].Name)));
 				this.TextureList.Add(what);
 			}
 			this.whichAdvice = (int)RandomMath.RandomBetween(0f, (float)this.AdviceList.Count);

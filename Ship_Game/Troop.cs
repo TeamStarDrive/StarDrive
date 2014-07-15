@@ -332,6 +332,8 @@ namespace Ship_Game
         //Added by McShooterz
         public int GetStrengthMax()
         {
+            if (this.StrengthMax <= 0)
+                this.StrengthMax = Ship_Game.ResourceManager.TroopsDict[this.Name].Strength;
             return this.StrengthMax + this.Level / 2 + (int)(this.StrengthMax * this.Owner.data.Traits.GroundCombatModifier);
         }
 	}
