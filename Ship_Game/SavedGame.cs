@@ -35,6 +35,14 @@ namespace Ship_Game
 			this.data.RandomEvent = RandomEventManager.ActiveEvent;
 			this.data.campos = new Vector2(screenToSave.camPos.X, screenToSave.camPos.Y);
 			this.data.camheight = screenToSave.camHeight;
+            this.data.MemoryLimiter = GlobalStats.MemoryLimiter;
+            this.data.MinimumWarpRange = GlobalStats.MinimumWarpRange;
+            this.data.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+
+            this.data.IconSize=GlobalStats.IconSize;
+            this.data.preventFederations=GlobalStats.preventFederations;
+            this.data.GravityWellRange=GlobalStats.GravityWellRange;
+
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{
 				SavedGame.SolarSystemSaveData sdata = new SavedGame.SolarSystemSaveData()
@@ -931,6 +939,15 @@ namespace Ship_Game
 			public RandomEvent RandomEvent;
 
 			public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
+            public float OptionIncreaseShipMaintenance=GlobalStats.OptionIncreaseShipMaintenance;
+            public float MinimumWarpRange=GlobalStats.MinimumWarpRange;
+
+            public float MemoryLimiter=GlobalStats.MemoryLimiter;
+            
+            public int IconSize;
+
+            public bool preventFederations;
+            public float GravityWellRange=GlobalStats.GravityWellRange;
 
 			public UniverseSaveData()
 			{
