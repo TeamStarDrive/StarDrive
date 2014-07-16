@@ -169,7 +169,20 @@ namespace Ship_Game
             GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
 		}
+        public static void Statreset()
+        {
+            GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
+            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
+            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
 
+            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
+            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
+            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
+            GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
+            GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
+            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
+            GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
+        }
 		public GlobalStats()
 		{
 		}
