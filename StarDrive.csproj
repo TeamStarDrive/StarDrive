@@ -55,7 +55,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <ApplicationIcon>StarTrek-SA.ico</ApplicationIcon>
+    <ApplicationIcon>blackbox drop.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x86'">
@@ -100,7 +100,7 @@
     <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '++GReleaseCandidate|x86'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_Gravity_RC_|x86' ">
     <OutputPath>..\stardrive mod\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -1546,6 +1546,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="blackbox drop.ico" />
+    <Content Include="blackbox.ico" />
     <Content Include="Content\Buildings\Capital.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1993,6 +1995,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Game.ico" />
+    <Content Include="Icons\blackbox drop.ico" />
+    <Content Include="Icons\blackbox.ico" />
     <Content Include="Icons\PipeSmoke.ico" />
     <Content Include="Icons\StarTrek-SA.ico" />
     <Content Include="StarTrek-SA.ico" />
@@ -2001,6 +2005,6 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist upload "C:\Program Files\7-Zip\7z" A -tzip $(ProjectName)-$(ConfigurationName) @include.txt</PostBuildEvent>
+    <PostBuildEvent>if exist upload "C:\Program Files\7-Zip\7z" A -tzip $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).zip @include.txt</PostBuildEvent>
   </PropertyGroup>
 </Project>

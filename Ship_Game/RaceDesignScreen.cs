@@ -166,6 +166,7 @@ namespace Ship_Game
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            GlobalStats.Statreset();
 		}
 
 		public RaceDesignScreen(GraphicsDevice device, MainMenuScreen mmscreen)
@@ -183,6 +184,7 @@ namespace Ship_Game
 				};
 				AllTraits.Add(te);
 			}
+            GlobalStats.Statreset();
 		}
 
 		private void AddKeyToText(ref string text, Keys key)
