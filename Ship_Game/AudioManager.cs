@@ -134,12 +134,12 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: Play 3d sound effect
-        public static void Play3DSoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae)
+        public static void Play3DSoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae, float VolumeMod)
         {
             SoundEffectInstance sei = se.CreateInstance();
             AudioManager.audioManager.SoundEffectInstances.Add(sei);
             sei.Apply3D(al, ae);
-            sei.Volume = GlobalStats.Config.EffectsVolume;
+            sei.Volume = GlobalStats.Config.EffectsVolume * VolumeMod;
             sei.Play();
         }
 
