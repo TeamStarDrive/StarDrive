@@ -261,7 +261,7 @@ namespace Ship_Game
                     break;
                 case 1:
                     {
-                        if (this.PlanetBuildingAt == null)
+                        if (this.PlanetBuildingAt == null || this.PlanetBuildingAt.ConstructionQueue.Count==0)
                             break;
                         if (this.PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {
@@ -358,7 +358,7 @@ namespace Ship_Game
 
                 case 1:
                     {
-                        if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        if (PlanetBuildingAt.ConstructionQueue.Count >0 && PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {
                            if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.75f)
                            {
