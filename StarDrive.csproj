@@ -164,6 +164,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Ship_Game\AgentMissionData.cs" />
     <Compile Include="Ship_Game\DevekSplash.cs" />
     <Compile Include="Ship_Game\EventTypes.cs">
       <AutoGen>false</AutoGen>
