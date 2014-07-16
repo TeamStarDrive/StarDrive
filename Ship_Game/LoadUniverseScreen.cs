@@ -66,6 +66,7 @@ namespace Ship_Game
 		{
 			GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
+            GlobalStats.Statreset();
 			BackgroundWorker bgw = new BackgroundWorker();
 			bgw.DoWork += new DoWorkEventHandler(this.DecompressFile);
 			bgw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.LoadEverything);
@@ -316,6 +317,19 @@ namespace Ship_Game
 			decompressed.Delete();
 			GlobalStats.RemnantKills = savedData.RemnantKills;
 			GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
+            
+                GlobalStats.GravityWellRange = savedData.GravityWellRange;
+            
+                GlobalStats.IconSize = savedData.IconSize;
+            
+                GlobalStats.MemoryLimiter = savedData.MemoryLimiter;
+            
+                GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;
+         
+                GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;
+            
+                GlobalStats.preventFederations = savedData.preventFederations;
+
 			this.savedData = savedData;
 			this.camPos = savedData.campos;
 			this.camHeight = savedData.camheight;
