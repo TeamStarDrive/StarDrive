@@ -67,7 +67,15 @@ namespace Ship_Game
 		{
 			foreach (Planet p in this.us.GetPlanets())
 			{
-				if (p == null || p.system == null || this.DefenseDict.ContainsKey(p.system))
+				if(p.Owner==null&&p.BuildingList.Count ==0&& p.TroopsHere.Count >0 && p.GetGroundStrengthOther(this.us)>0  )
+                {
+                    foreach(Troop troop in p.TroopsHere.Where(loyalty=> loyalty.GetOwner() == this.us))
+                    {
+                        troop.Launch();
+                    }
+                }
+                
+                if (p == null || p.system == null || this.DefenseDict.ContainsKey(p.system))
 				{
 					continue;
 				}
@@ -110,7 +118,9 @@ namespace Ship_Game
 						SystemCommander systemCommander = entry.Value;
 						systemCommander.ValueToUs = systemCommander.ValueToUs + p.Fertility;
 						SystemCommander value1 = entry.Value;
-						value1.ValueToUs = value1.ValueToUs + p.MineralRichness;
+						//added by gremlin commodities increase defense desire
+                        value1.ValueToUs = value1.ValueToUs + p.MineralRichness;
+                        value.ValueToUs += p.BuildingList.Where(commodity=> commodity.IsCommodity).Count() *2f;
                         if(this.us.data.Traits.Cybernetic >0)
                         {
                             value1.ValueToUs += p.MineralRichness;
