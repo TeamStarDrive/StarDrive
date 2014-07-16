@@ -750,7 +750,10 @@ namespace Ship_Game
 				World = this.worldMatrix
 			};
 			//this.whichPlanet = 1;
-			Model planetModel = base.ScreenManager.Content.Load<Model>(string.Concat("Model/SpaceObjects/planet_", 18));
+            //Added by McShooterz: Random Main menu planet
+            Random rd = new Random();
+            int planetIndex = rd.Next(1,30);
+            Model planetModel = base.ScreenManager.Content.Load<Model>(string.Concat("Model/SpaceObjects/planet_", planetIndex));
 			mesh = planetModel.Meshes[0];
 			this.planetSO = new SceneObject(mesh)
 			{
