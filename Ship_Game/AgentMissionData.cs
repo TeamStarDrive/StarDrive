@@ -8,18 +8,22 @@ namespace Ship_Game
     //Added by McShooterz: store modifiable data for agent missions
     public class AgentMissionData
     {
+        public short AgentCost = 200;
+
         //Training
         public short TrainingCost = 50;
         public short TrainingTurns = 25;
         public short TrainingPerfect = 95;
         public short TrainingGood = 25;
         public short TrainingBad = 10;
+        public short TrainingWorst = 5;
 
         //Infiltrate
         public short InfiltrateCost = 75;
         public short InfiltrateTurns = 30;
         public short InfiltrateGood = 50;
         public short InfiltrateBad = 25;
+        public short InfiltrateWorst = 15;
 
         //Assassinate
         public short AssassinateCost = 75;
@@ -27,6 +31,7 @@ namespace Ship_Game
         public short AssassinatePerfect = 85;
         public short AssassinateGood = 70;
         public short AssassinateBad = 25;
+        public short AssassinateWorst = 25;
 
         //Sabotage
         public short SabotageCost = 75;
@@ -34,6 +39,7 @@ namespace Ship_Game
         public short SabotagePerfect = 80;
         public short SabotageGood = 50;
         public short SabotageBad = 25;
+        public short SabotageWorst = 15;
 
         //StealTech
         public short StealTechCost = 250;
@@ -41,6 +47,7 @@ namespace Ship_Game
         public short StealTechPerfect = 85;
         public short StealTechGood = 75;
         public short StealTechBad = 20;
+        public short StealTechWorst = 15;
 
         //Robbery
         public short RobberyCost = 50;
@@ -48,6 +55,7 @@ namespace Ship_Game
         public short RobberyPerfect = 85;
         public short RobberyGood = 60;
         public short RobberyBad = 20;
+        public short RobberyWorst = 10;
 
         //InciteRebellion
         public short RebellionCost = 250;
@@ -55,5 +63,9 @@ namespace Ship_Game
         public short RebellionPerfect = 85;
         public short RebellionGood = 70;
         public short RebellionBad = 40;
+        public short RebellionWorst = 30;
+
+        //Recovering
+        public short RecoveringTurns = 20;
     }
 }
