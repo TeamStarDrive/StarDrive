@@ -7551,7 +7551,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6086</Index>
       <Text>has recovered from their injuries.</Text>
     </Token>
-	
+	<Token>
+      <Index>6087</Index>
+      <Text>has been promoted, and gains +1 Level.</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	

@@ -647,7 +647,7 @@ namespace Ship_Game
                         {
                             this.Mission = AgentMission.Defending;
                             this.MissionNameIndex = 2183;
-                            if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " ", Localizer.Token(6086)), Owner);
+                            if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " ", Localizer.Token(6086)), Owner);
                             break;
                         }
                 #endregion
@@ -718,7 +718,6 @@ namespace Ship_Game
                 case AgentMission.Recovering:
                 {
                     this.TurnsRemaining = ResourceManager.AgentMissionData.RecoveringTurns;
-                    Empire owner2 = Owner;
                     this.MissionNameIndex = 6024;
                     return;
                 }
@@ -739,7 +738,7 @@ namespace Ship_Game
                 if (this.Level < 10)
                 {
                     this.Level++;
-                    if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " has been promoted, and gains +1 Level"), Owner);
+                    if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " ", Localizer.Token(6087)), Owner);
                 }
             }
         }
