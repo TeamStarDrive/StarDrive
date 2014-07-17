@@ -886,9 +886,10 @@ namespace Ship_Game
 			TimeSpan timeSpan = gameTime.ElapsedGameTime;
 			this.MoonPosition.X = x + (float)timeSpan.Milliseconds / 400f;
 			this.planetSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(new Vector3(this.MoonPosition, this.zshift));
+            //Added by McShooterz: slow moves the ship across the screen
             if (this.shipSO != null)
             {
-                this.ShipPosition.X += (float)timeSpan.Milliseconds / 500f;
+                this.ShipPosition.X += (float)timeSpan.Milliseconds / 800f;
                 this.ShipPosition.Y += (float)timeSpan.Milliseconds / 1200f;
                 this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale * 1.75f)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(-15f))) * Matrix.CreateRotationY(MathHelper.ToRadians(60f))) * Matrix.CreateRotationZ(1f)) * Matrix.CreateTranslation(new Vector3(this.ShipPosition, this.zshift));
             }

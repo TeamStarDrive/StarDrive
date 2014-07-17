@@ -218,20 +218,21 @@ namespace Ship_Game
         //added by gremlin deveks missionInit
         public void Initialize()
         {
+            if (this.Component.SelectedAgent.Mission == AgentMission.Recovering)
+                return;
             this.Available = false;
             switch (this.TheMission)
             {
                 case AgentMission.Training:
                     {
-                        if (this.Component.SelectedAgent.Mission == AgentMission.Defending)//|| this.Component.SelectedAgent.Mission == AgentMission.Undercover)
-                        {
-                            this.Available = true;
-
-                            this.turns = ResourceManager.AgentMissionData.TrainingTurns;
-                            this.cost = ResourceManager.AgentMissionData.TrainingCost;
-                            this.NameIndex = 2196;
-                            this.DescriptionIndex = 2197;
-                        }
+                        if (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover)
+				        {
+					        this.Available = true;
+				        }
+                        this.turns = ResourceManager.AgentMissionData.TrainingTurns;
+                        this.cost = ResourceManager.AgentMissionData.TrainingCost;
+                        this.NameIndex = 2196;
+                        this.DescriptionIndex = 2197;
                         break;
                     }
                 case AgentMission.Infiltrate:
