@@ -5095,7 +5095,7 @@ namespace Ship_Game.Gameplay
             if (canBuildCapitals)
             {
                 ratio_Fighters = 0f;
-                ratio_Frigates = 6f;
+                ratio_Frigates = 4f;
                 ratio_Cruisers = 3f;
                 ratio_Capitals = 1f;
             }
@@ -5109,28 +5109,28 @@ namespace Ship_Game.Gameplay
             }
             else if (canBuildFrigates)
             {
-                ratio_Fighters = 7f;
+                ratio_Fighters =5.5f;
                 ratio_Frigates = 3f;
                 ratio_Cruisers = 0f;
                 ratio_Capitals = 0f;
             }
-            bool carriers = this.empire.ShipsWeCanBuild.Where(hangars => ResourceManager.ShipsDict[hangars].GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0).Count() > 0;
-            bool assaultShips = this.empire.ShipsWeCanBuild.Where(hangars => ResourceManager.ShipsDict[hangars].GetHangars().Where(fighters => fighters.IsTroopBay).Count() > 0).Count() > 0;
-            float ratio_Carriers;
-            float ratio_AssaultShips;
-            if (carriers)
-            {
-                ratio_Capitals -= .2f;
-                ratio_Cruisers -= .2f;
-                ratio_Carriers = .4f;
+            //bool carriers = this.empire.ShipsWeCanBuild.Where(hangars => ResourceManager.ShipsDict[hangars].GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0).Count() > 0;
+            //bool assaultShips = this.empire.ShipsWeCanBuild.Where(hangars => ResourceManager.ShipsDict[hangars].GetHangars().Where(fighters => fighters.IsTroopBay).Count() > 0).Count() > 0;
+            //float ratio_Carriers;
+            //float ratio_AssaultShips;
+            //if (carriers)
+            //{
+            //    ratio_Capitals -= .2f;
+            //    ratio_Cruisers -= .2f;
+            //    ratio_Carriers = .4f;
 
-            }
-            if (assaultShips)
-            {
-                ratio_Capitals -= .1f;
-                ratio_Cruisers -= .1f;
-                ratio_Carriers = .2f;
-            }
+            //}
+            //if (assaultShips)
+            //{
+            //    ratio_Capitals -= .1f;
+            //    ratio_Cruisers -= .1f;
+            //    ratio_Carriers = .2f;
+            //}
 
 
 

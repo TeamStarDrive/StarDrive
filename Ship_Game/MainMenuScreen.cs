@@ -94,8 +94,6 @@ namespace Ship_Game
 
 		private SceneObject shipSO;
 
-		private SceneObject shipSO2;
-
 		private MouseState currentMouse;
 
 		private MouseState previousMouse;
@@ -742,31 +740,29 @@ namespace Ship_Game
 				base.ScreenManager.Music = AudioManager.GetCue("SD_Theme_Reprise_06");
 				base.ScreenManager.Music.Play();
 			}
-			this.model = base.ScreenManager.Content.Load<Model>("Model/Stations/spacestation01_inner");
-			ModelMesh mesh = this.model.Meshes[0];
-			this.shipSO = new SceneObject(mesh)
-			{
-				ObjectType = ObjectType.Dynamic,
-				World = this.worldMatrix
-			};
 			//this.whichPlanet = 1;
-			Model planetModel = base.ScreenManager.Content.Load<Model>(string.Concat("Model/SpaceObjects/planet_", 18));
-			mesh = planetModel.Meshes[0];
+            //Added by McShooterz: Random Main menu planet
+            Random rd = new Random();
+            int planetIndex = rd.Next(1,30);
+            Model planetModel = base.ScreenManager.Content.Load<Model>(string.Concat("Model/SpaceObjects/planet_", planetIndex));
+            ModelMesh mesh = planetModel.Meshes[0];
 			this.planetSO = new SceneObject(mesh)
 			{
 				ObjectType = ObjectType.Dynamic,
 				World = (((((Matrix.Identity * Matrix.CreateScale(25f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 30000f, this.ShipPosition.Y - 500f, 80000f)
 			};
 			base.ScreenManager.inter.ObjectManager.Submit(this.planetSO);
-			this.model = base.ScreenManager.Content.Load<Model>("Model/Stations/spacestation01_outer");
-			ModelMesh mesh1 = this.model.Meshes[0];
-			this.shipSO2 = new SceneObject(mesh1)
-			{
-				ObjectType = ObjectType.Dynamic,
-				World = this.worldMatrix
-			};
-			this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 40000f);
-			this.shipSO2.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) * Matrix.CreateRotationZ(1.57079637f + this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 40000f);
+            //Added by McShooterz
+            if (GlobalStats.ActiveMod != null && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
+            {
+                int shipIndex = rd.Next(0, ResourceManager.MainMenuShipList.ModelPaths.Count);
+                this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel(ResourceManager.MainMenuShipList.ModelPaths[shipIndex]).Meshes)[0]);
+                this.shipSO.ObjectType = ObjectType.Dynamic;
+                this.ShipPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 1200), (float)(this.LogoRect.Y + 500 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
+                this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale * 1.75f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(-15f))) * Matrix.CreateRotationY(MathHelper.ToRadians(75f))) * Matrix.CreateRotationZ(1.00079637f)) * Matrix.CreateTranslation(new Vector3(this.ShipPosition, this.zshift + 50000));
+                this.shipSO.Visibility = ObjectVisibility.Rendered;
+                base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+            }
 			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/MM_light_rig");
 			base.ScreenManager.inter.LightManager.Submit(rig);
 			base.ScreenManager.environment = base.ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
@@ -886,8 +882,6 @@ namespace Ship_Game
 			float zrotate = milliseconds.Zrotate;
 			TimeSpan elapsedGameTime = gameTime.ElapsedGameTime;
 			milliseconds.Zrotate = zrotate + (float)elapsedGameTime.Milliseconds / 20000f;
-			this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 40000f);
-			this.shipSO2.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) * Matrix.CreateRotationZ(1.57079637f + this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 40000f);
 			float x = this.MoonPosition.X;
 			TimeSpan timeSpan = gameTime.ElapsedGameTime;
 			this.MoonPosition.X = x + (float)timeSpan.Milliseconds / 400f;

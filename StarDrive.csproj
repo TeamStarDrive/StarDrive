@@ -111,7 +111,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'McShooterz|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>L:\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;STEAM</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
@@ -164,12 +164,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Ship_Game\AgentMissionData.cs" />
     <Compile Include="Ship_Game\DevekSplash.cs" />
     <Compile Include="Ship_Game\EventTypes.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\HostileFleets.cs" />
+    <Compile Include="Ship_Game\MainMenuShipList.cs" />
     <Compile Include="Ship_Game\MethodUtil.cs" />
     <Compile Include="Ship_Game\Ref_T_.cs">
       <AutoGen>false</AutoGen>
