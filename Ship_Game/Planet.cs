@@ -2957,8 +2957,7 @@ namespace Ship_Game
             this.HarvestResources();
             this.ApplyProductionTowardsConstruction();
             this.GrowPopulation();
-            //Added by McShooterz
-            
+            //Added by McShooterz         
             this.HealBuildingsAndTroops();
             if ((double)this.FoodHere > (double)this.MAX_STORAGE)
                 this.FoodHere = this.MAX_STORAGE;
@@ -5215,7 +5214,7 @@ namespace Ship_Game
             foreach (Troop troop in this.TroopsHere)
             {
                 if(troop.StrengthMax>0)
-                troop.Strength = troop.GetStrengthMax() + (int)((float)troop.GetStrengthMax() * this.Owner.data.Traits.GroundCombatModifier);
+                    troop.Strength = troop.GetStrengthMax();
             }
             //Repair buildings
             foreach (Building building in this.BuildingList)

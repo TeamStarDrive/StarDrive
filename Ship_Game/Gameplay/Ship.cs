@@ -1753,11 +1753,19 @@ namespace Ship_Game.Gameplay
                 this.Jump.Stop(AudioStopOptions.Immediate);
                 this.Jump = (Cue)null;
             }
-            if (this.engineState == Ship.MoveState.Warp && (double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0)
+            if (this.engineState == Ship.MoveState.Warp && (double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && Ship.universeScreen.camHeight < 250000)
             {
-                Cue cue = AudioManager.GetCue(this.GetEndWarpCue());
-                cue.Apply3D(Ship.universeScreen.listener, this.emitter);
-                cue.Play();
+                 //Added by McShooterz: Use sounds from new sound dictionary
+                if (ResourceManager.SoundEffectDict.ContainsKey(this.GetEndWarpCue()))
+                {
+                    AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[this.GetEndWarpCue()], 0.2f);
+                }
+                else
+                {
+                    Cue cue = AudioManager.GetCue(this.GetEndWarpCue());
+                    cue.Apply3D(Ship.universeScreen.listener, this.emitter);
+                    cue.Play();
+                }
                 FTL ftl = new FTL();
                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
                 lock (FTLManager.FTLLock)
@@ -2712,11 +2720,20 @@ namespace Ship_Game.Gameplay
                         //task gremlin move fighter recall here.
                         if ((double)this.JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
                         {
-                            if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying))
+                            if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying) && Ship.universeScreen.camHeight < 250000)
                             {
-                                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
-                                this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
-                                this.Jump.Play();
+                                //Added by McShooterz: Use sounds from new sound dictionary
+                                if (ResourceManager.SoundEffectDict.ContainsKey(this.GetStartWarpCue()))
+                                {
+                                    if((double)this.JumpTimer <= 0.1)
+                                        AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[this.GetStartWarpCue()], 0.2f);
+                                }
+                                else
+                                {
+                                    this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
+                                    this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
+                                    this.Jump.Play();
+                                }
                             }
                         }
                         if ((double)this.JumpTimer <= 0.1)
