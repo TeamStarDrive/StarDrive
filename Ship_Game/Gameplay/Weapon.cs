@@ -270,7 +270,7 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz: Use sounds from new sound dictionary
                 if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
                 {
-                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.9f);
                 }
                 else
                 {
@@ -381,7 +381,7 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz: Use sounds from new sound dictionary
                 if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
                 {
-                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, source.Owner.emitter);
+                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, source.Owner.emitter, 0.9f);
                 }
                 else
                 {
@@ -555,7 +555,7 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz: Use sounds from new sound dictionary
                 if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
                 {
-                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.9f);
                 }
                 else
                 {
@@ -623,7 +623,7 @@ namespace Ship_Game.Gameplay
                         //Added by McShooterz: Use sounds from new sound dictionary
                         if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
                         {
-                            AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                            AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.9f);
                         }
                         else
                         {
@@ -655,7 +655,7 @@ namespace Ship_Game.Gameplay
                     //Added by McShooterz: Use sounds from new sound dictionary
                     if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
                     {
-                        AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                        AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.9f);
                     }
                     else
                     {
@@ -712,7 +712,7 @@ namespace Ship_Game.Gameplay
                     //Added by McShooterz: Use sounds from new sound dictionary
                     if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
                     {
-                        AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.planetEmitter);
+                        AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.planetEmitter, 0.9f);
                     }
                     else
                     {
@@ -744,7 +744,7 @@ namespace Ship_Game.Gameplay
                         //Added by McShooterz: Use sounds from new sound dictionary
                         if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
                         {
-                            AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.planetEmitter);
+                            AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.planetEmitter, 0.9f);
                         }
                         else
                         {
@@ -829,7 +829,7 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz: Use sounds from new sound dictionary
                 if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
                 {
-                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter);
+                    AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.9f);
                 }
                 else
                 {

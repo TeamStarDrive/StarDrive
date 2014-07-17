@@ -104,6 +104,8 @@ namespace Ship_Game
         public static ShipUpkeep ShipUpkeep;
         public static HostileFleets HostileFleets;
         public static ShipNames ShipNames;
+        public static AgentMissionData AgentMissionData;
+        public static MainMenuShipList MainMenuShipList;
 
 		static ResourceManager()
 		{
@@ -151,6 +153,8 @@ namespace Ship_Game
             Ship_Game.ResourceManager.HostileFleets = new HostileFleets();
             Ship_Game.ResourceManager.ShipNames = new ShipNames();
             Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
+            Ship_Game.ResourceManager.AgentMissionData = new AgentMissionData();
+            Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
 		}
 
 		public ResourceManager()
@@ -669,9 +673,6 @@ namespace Ship_Game
 			{
 				Troop strength = troop;
 				strength.Strength = strength.Strength + (int)(Owner.data.Traits.GroundCombatModifier * (float)troop.Strength);
-				Troop strengthMax = troop;
-                //Added by McShooterz: strength max is now properly used
-                strengthMax.StrengthMax = strength.Strength;
 			}
 			troop.TargetType = t.TargetType;
 			troop.TexturePath = t.TexturePath;
@@ -1714,6 +1715,8 @@ namespace Ship_Game
             Ship_Game.ResourceManager.LoadShipUpkeep();
             Ship_Game.ResourceManager.LoadHostileFleets();
             Ship_Game.ResourceManager.LoadShipNames();
+            Ship_Game.ResourceManager.LoadAgentMissions();
+            Ship_Game.ResourceManager.LoadMainMenuShipList();
             Ship_Game.ResourceManager.LoadSoundEffects();
 		}
 
@@ -2304,7 +2307,7 @@ namespace Ship_Game
 					Ship_Game.ResourceManager.TroopsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
                 Troop troop = Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)];
-                if(troop.StrengthMax < troop.Strength)
+                if(troop.StrengthMax <= 0)
                 {
                     troop.StrengthMax = troop.Strength;
                 }
@@ -2367,6 +2370,32 @@ namespace Ship_Game
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipNames/ShipNames.xml")))
             {
                 Ship_Game.ResourceManager.ShipNames = (ShipNames)new XmlSerializer(typeof(ShipNames)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipNames/ShipNames.xml")).OpenRead());
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        //Added by McShooterz: Load AgentMissionData.xml
+        private static void LoadAgentMissions()
+        {
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")))
+            {
+                Ship_Game.ResourceManager.AgentMissionData = (AgentMissionData)new XmlSerializer(typeof(AgentMissionData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")).OpenRead());
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        //Added by McShooterz: Load AgentMissionData.xml
+        private static void LoadMainMenuShipList()
+        {
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/MainMenu/MainMenuShipList.xml")))
+            {
+                Ship_Game.ResourceManager.MainMenuShipList = (MainMenuShipList)new XmlSerializer(typeof(MainMenuShipList)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/MainMenu/MainMenuShipList.xml")).OpenRead());
             }
             else
             {
