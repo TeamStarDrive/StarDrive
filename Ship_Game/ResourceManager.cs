@@ -105,6 +105,7 @@ namespace Ship_Game
         public static HostileFleets HostileFleets;
         public static ShipNames ShipNames;
         public static AgentMissionData AgentMissionData;
+        public static MainMenuShipList MainMenuShipList;
 
 		static ResourceManager()
 		{
@@ -153,6 +154,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.ShipNames = new ShipNames();
             Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
             Ship_Game.ResourceManager.AgentMissionData = new AgentMissionData();
+            Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
 		}
 
 		public ResourceManager()
@@ -1714,6 +1716,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.LoadHostileFleets();
             Ship_Game.ResourceManager.LoadShipNames();
             Ship_Game.ResourceManager.LoadAgentMissions();
+            Ship_Game.ResourceManager.LoadMainMenuShipList();
             Ship_Game.ResourceManager.LoadSoundEffects();
 		}
 
@@ -2379,7 +2382,20 @@ namespace Ship_Game
         {
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")))
             {
-                Ship_Game.ResourceManager.ShipNames = (ShipNames)new XmlSerializer(typeof(ShipNames)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")).OpenRead());
+                Ship_Game.ResourceManager.AgentMissionData = (AgentMissionData)new XmlSerializer(typeof(AgentMissionData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")).OpenRead());
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        //Added by McShooterz: Load AgentMissionData.xml
+        private static void LoadMainMenuShipList()
+        {
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/MainMenu/MainMenuShipList.xml")))
+            {
+                Ship_Game.ResourceManager.MainMenuShipList = (MainMenuShipList)new XmlSerializer(typeof(MainMenuShipList)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/MainMenu/MainMenuShipList.xml")).OpenRead());
             }
             else
             {
