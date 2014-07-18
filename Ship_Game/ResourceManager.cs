@@ -1674,7 +1674,15 @@ namespace Ship_Game
 				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				Ship_Game.ResourceManager.Empires.Add(data);
+
+                
+                //ResourceManager.Empires.RemoveAll(x => x.PortraitName == data.PortraitName);
+                EmpireData remove = ResourceManager.Empires.Find(x => x.PortraitName == data.PortraitName);
+                if(remove != null)
+                ResourceManager.Empires.Remove(remove);
+                
+                    
+                Ship_Game.ResourceManager.Empires.Add(data);
 			}
 			textList = null;
 		}
@@ -1917,10 +1925,11 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.ShipsDict.Clear();
             //Added by McShooterz: Changed how StarterShips loads from mod if folder exists
             XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
-            FileInfo[] textList;
+            FileInfo[] textList; //"Mods/", 
             if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips")))
             {
-                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/StarterShips/"));
+                Ship_Game.ResourceManager.ShipsDict.Clear();
+                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(GlobalStats.ActiveMod.ModPath, "/StarterShips/"));
             }
             else
             {
@@ -2157,7 +2166,7 @@ namespace Ship_Game
 
 		public static void LoadSubsetEmpires()
 		{
-			Ship_Game.ResourceManager.Empires.Clear();
+			//Ship_Game.ResourceManager.Empires.Clear();
 			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Races"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(EmpireData));
 			FileInfo[] fileInfoArray = textList;
