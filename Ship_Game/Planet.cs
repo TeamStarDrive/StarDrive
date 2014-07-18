@@ -4102,19 +4102,12 @@ namespace Ship_Game
         {
             if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null))
                 return;
-            if ((double)this.ProductionHere >= 10.0 && (double)this.Owner.Money >= 10.0)
-            {
-                this.ProductionHere -= 10f;
-                this.ApplyProductiontoQueue(10f, 0);
-            }
-            else
-            {
-                if ((double)this.Owner.Money < (double)this.ProductionHere)
-                    return;
-                this.ApplyProductiontoQueue(this.ProductionHere, 0);
-                this.ProductionHere = 0.0f;
-            }
-        }
+
+            float amount = this.ProductionHere * .25f;
+                this.ProductionHere -= amount;
+                this.ApplyProductiontoQueue(amount, 0);
+
+       }
 
         private void ApplyProductionTowardsConstruction()
         {
