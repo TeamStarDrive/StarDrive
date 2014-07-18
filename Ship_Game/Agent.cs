@@ -652,6 +652,7 @@ namespace Ship_Game
 			}
 			this.TargetEmpire = "";
 		}
+
         //added by gremlin Domission from devek mod.
         public void DoMission(Empire Owner)
         {
@@ -668,6 +669,7 @@ namespace Ship_Game
             }
             #endregion
             #region DefensiveRoll
+            /*
             float DefensiveRoll = 0f;
             int spysOnDefense = 0;
             int spysOnDefenseLevel = 0;
@@ -727,16 +729,18 @@ namespace Ship_Game
                                 if (spyBattle <= -5)
                                 {
                                     effectiveLevel--;
+                                    defender.AddExperience(2, Target);
                                     //this.Level--;
-                                    if (defender.Level < 8) defender.Level++;
+                                    //if (defender.Level < 8) defender.Level++;
                                     //defender.AssignMission(AgentMission.Training, Target, "");
                                 }
                                 else
                                 {
                                     if (spyBattle <= -1)
                                     {
-                                        if (this.Level > defender.Level && defender.Level < 8) defender.Level++;
+                                        //if (this.Level > defender.Level && defender.Level < 8) defender.Level++;
                                         effectiveLevel--;
+                                        defender.AddExperience(1, Target);
                                         //this.Level--;
                                         //defender.AssignMission(AgentMission.Training, Target, "");
                                     }
@@ -746,20 +750,20 @@ namespace Ship_Game
                                     effectiveLevel--;
                                     //this.Level--;
                                     //if (defender.Level > 1) defender.Level--;
-                                    defender.AssignMission(AgentMission.Training, Target, "");
+                                    //defender.AssignMission(AgentMission.Training, Target, "");
                                 }
                                 if (spyBattle >= 5)
                                 {
-                                    if (defender.Level > 1) defender.Level--;
-                                    if (this.Level < 5) this.Level++;
-                                    defender.AssignMission(AgentMission.Training, Target, "");
+                                    //if (defender.Level > 1) defender.Level--;
+                                    this.AddExperience(1, Owner);
+                                    //defender.AssignMission(AgentMission.Training, Target, "");
                                 }
                                 else
                                 {
                                     if (spyBattle >= 1)
                                     {
                                         //if (defender.Level > 1) defender.Level--;
-                                        defender.AssignMission(AgentMission.Training, Target, "");
+                                        //defender.AssignMission(AgentMission.Training, Target, "");
                                     }
                                 }
                             }
@@ -773,11 +777,12 @@ namespace Ship_Game
 
 
 
-            }
+            }*/
 
 
             #endregion
             #region DiceRoll
+            /*
             IEnumerable<Agent> moleList = Owner.data.AgentList.Where(moles => moles.Mission == AgentMission.Undercover);
 
 
@@ -805,96 +810,67 @@ namespace Ship_Game
                     DiceRoll = DiceRoll - RandomMath.RandomBetween(1f, 5f);
                 }
             }
-            DiceRoll = DiceRoll + Owner.data.OffensiveSpyBonus;
+            DiceRoll = DiceRoll + Owner.data.OffensiveSpyBonus;*/
             #endregion
+            #region New DiceRoll
+            float DiceRoll = RandomMath.RandomBetween(0f, 90f);
+            float DefensiveRoll = 0f;
+            DiceRoll += (float)this.Level * RandomMath.RandomBetween(1f, 5f);
+            DiceRoll += Owner.data.SpyModifier;
+            DiceRoll += Owner.data.OffensiveSpyBonus;
+            if (Target != null)
+            {
+                for (int i = 0; i < Target.data.AgentList.Count; i++)
+                {
+                    if (Target.data.AgentList[i].Mission == AgentMission.Defending)
+                    {
+                        DefensiveRoll += (float)Target.data.AgentList[i].Level * RandomMath.RandomBetween(1f, 2f);
+                    }
+                }
+                DefensiveRoll /= Owner.GetPlanets().Count;
+                DefensiveRoll += Target.data.SpyModifier;
+                DefensiveRoll += Target.data.DefensiveSpyBonus;
 
-
+                DiceRoll -= DefensiveRoll;
+            }
+            #endregion
             switch (this.Mission)
             {
                 #region Training
                 case AgentMission.Training:
+                {
+                    this.Mission = AgentMission.Defending;
+                    this.MissionNameIndex = 2183;
+                    if (DiceRoll >= ResourceManager.AgentMissionData.TrainingPerfect)
                     {
-                        this.Mission = AgentMission.Defending;
-                        this.MissionNameIndex = 2183;
-                        if (this.Level < 2)
-                        {
-                            if (DiceRoll >= 95f)
-                            {
-                                Agent level = this;
-                                level.Level = level.Level + 2;
-                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " completed training course Gremlins Paradox\n Also fixed the captains sink.\n +2 Levels. "), Owner);
-                                startingmission = AgentMission.Defending;
-                                break;
-                            }
-                            if (DiceRoll > 25f)
-                            {
-                                Agent agent = this;
-                                agent.Level = agent.Level + 1;
-                                if (this.Level < 2)
-                                {
-                                    this.AssignMission(AgentMission.Training, Owner, TargetEmpire);
-                                }
-                                else
-                                {
-                                    this.Mission = AgentMission.Defending;
-                                }
-
-                                break;
-                            }
-                            else if (DiceRoll < 10f)
-                            {
-                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " was eaten by a gremlin... and died."), Owner);
-                                Owner.data.AgentList.QueuePendingRemoval(this);
-                                break;
-                            }
-                            else
-                            {
-
-
-                                startingmission = AgentMission.Defending;
-                                break;
-                            }
-                        }
-                        startingmission = AgentMission.Defending;
+                        //Added by McShooterz
+                        this.AddExperience(2, Owner);
+                        if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " has successfully complete training\nThe Agent's performance exceeded expectation."), Owner);
                         break;
-                        //else
-                        //{
-
-
-                        //    if (DiceRoll > 10f && Mole != null)
-                        //    {
-                        //        Mole = moleList.Skip(HelperFunctions.GetRandomIndex(Owner.data.MoleList.Count) - 1).FirstOrDefault();
-                        //        Target = EmpireManager.GetEmpireByName(Mole.TargetEmpire);
-                        //        moleEmpire = String.Concat("Empire: ", Target.PortraitName, "/n");
-                        //        moleSpies = String.Concat("Spy Count: ", Target.data.AgentList.Count, "/n");
-
-                        //        if (DiceRoll > 50 && Mole != null)
-                        //        {
-                        //            missionReport = String.Concat(missionReport, " /nMole Data Retrived: /n", moleEmpire, moleSpies);
-                        //        }
-                        //        else
-                        //        {
-
-                        //        }
-                        //    }
-
-
-
-                        //    if (DiceRoll < 10f)
-                        //    {
-
-
-                        //        DamageSpy(agent, Owner, 1, string.Concat(agent.Name, " was attacked by gremlins!\n"));
-                        //        break;
-                        //    }
-
-                        //    if (missionReport != null) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, missionReport), Owner);
-                        //    if (this.Mission == AgentMission.Training) this.AssignMission(startingmission, Owner, this.TargetEmpire);
-                        //    this.Mission = AgentMission.Defending;
-                        //    this.MissionNameIndex = 2183;
-                        //    break;
-                        //}
                     }
+                    else if (DiceRoll > ResourceManager.AgentMissionData.TrainingGood)
+                    {
+                        //Added by McShooterz
+                        this.AddExperience(1, Owner);
+                        if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " has successfully completed training\nand has gained valuable knowledge."), Owner);
+                        break;
+                    }
+                    else if (DiceRoll < ResourceManager.AgentMissionData.TrainingBad)
+                    {
+                        if (DiceRoll >= 10f)
+                        {
+                            break;
+                        }
+                        if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " was killed in a training accident."), Owner);
+                        Owner.data.AgentList.QueuePendingRemoval(this);
+                        break;
+                    }
+                    else
+                    {
+                        if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " has completed training, but failed to learn anything useful."), Owner);
+                        break;
+                    }
+                }
                 #endregion
                 #region Infiltrate easy
                 case AgentMission.Infiltrate:
@@ -905,22 +881,18 @@ namespace Ship_Game
                             this.MissionNameIndex = 2183;
                             return;
                         }
-                        if (DiceRoll >= 50f)
+                        if (DiceRoll >= ResourceManager.AgentMissionData.InfiltrateGood)
                         {
                             this.Mission = AgentMission.Undercover;
                             this.MissionNameIndex = 2201;
-                            Agent level1 = this;
-                            level1.Level = level1.Level + 1;
-                            if (this.Level > 10)
-                            {
-                                this.Level = 10;
-                            }
+                            //Added by McShooterz
+                            this.AddExperience(3, Owner);
                             Mole m = Mole.PlantMole(Owner, Target);
                             this.TargetGUID = m.PlanetGuid;
-                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " successfully infiltrated a colony: ", Ship.universeScreen.PlanetsDict[m.PlanetGuid].Name, "\nThe Agent was not detected and gains +1 level"), Owner);
+                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " successfully infiltrated a colony: ", Ship.universeScreen.PlanetsDict[m.PlanetGuid].Name, "\nThe Agent was not detected"), Owner);
                             break;
                         }
-                        else if (DiceRoll < 25f)
+                        else if (DiceRoll < ResourceManager.AgentMissionData.InfiltrateBad)
                         {
                             if (DiceRoll >= 15f)
                             {
@@ -934,14 +906,6 @@ namespace Ship_Game
                             Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying Failed", 20f, null);
                             if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " was killed trying to infiltrate a colony"), Owner);
                             Owner.data.AgentList.QueuePendingRemoval(this);
-                            //if (!DamageSpy(this, Owner, 5, " was killed trying to infiltrate a colony"))
-                            //{
-                            //    Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " says airlocks are no match for me"), Owner);
-                            //    if (this.Level < 2)
-                            //    {
-                            //        this.Mission = AgentMission.Training;
-                            //    }
-                            //}
                             if (Target != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                             {
                                 break;
@@ -974,14 +938,10 @@ namespace Ship_Game
                             if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " could not assassinate an enemy Agent \nbecause target empire has no Agents"), Owner);
                             return;
                         }
-                        if (DiceRoll >= 85f)
+                        if (DiceRoll >= ResourceManager.AgentMissionData.AssassinatePerfect)
                         {
-                            Agent agent1 = this;
-                            agent1.Level = agent1.Level + 1;
-                            if (this.Level > 10)
-                            {
-                                this.Level = 10;
-                            }
+                            //Added by McShooterz
+                            this.AddExperience(6, Owner);
                             Agent m = Target.data.AgentList[HelperFunctions.GetRandomIndex(Target.data.AgentList.Count)];
                             Target.data.AgentList.Remove(m);
                             if (m.Mission == AgentMission.Undercover)
@@ -1001,10 +961,10 @@ namespace Ship_Game
                             {
                                 //if (!GremlinAgentComponent.AutoTrain) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat("One of our Agents was mysteriously assassinated: ", m.Name), Target);
                             }
-                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " assassinated an enemy Agent: ", m.Name, "\nOur agent escaped unharmed and undetected, gaining + 1 level"), Owner);
+                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " assassinated an enemy Agent: ", m.Name, "\nOur agent escaped unharmed and undetected."), Owner);
                             break;
                         }
-                        else if (DiceRoll >= 70f)
+                        else if (DiceRoll >= ResourceManager.AgentMissionData.AssassinateGood)
                         {
                             Agent m = Target.data.AgentList[HelperFunctions.GetRandomIndex(Target.data.AgentList.Count)];
                             Target.data.AgentList.Remove(m);
@@ -1020,15 +980,17 @@ namespace Ship_Game
                                     break;
                                 }
                             }
+                            //Added by McShooterz
+                            this.AddExperience(5, Owner);
                             Owner.data.MoleList.ApplyPendingRemovals();
                             if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                             {
                                 if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat("One of our Agents was assassinated: ", m.Name, "\nThe Assassin was sent by ", Owner.data.Traits.Name), Target);
                             }
-                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " assassinated an enemy Agent: ", m.Name, "\nOur agent was detected but escaped, gaining + 1 level"), Owner);
+                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " assassinated an enemy Agent: ", m.Name, "\nOur agent was detected but escaped."), Owner);
                             break;
                         }
-                        else if (DiceRoll < 25f)
+                        else if (DiceRoll < ResourceManager.AgentMissionData.AssassinateBad)
                         {
                             if (DiceRoll >= 15f)
                             {
@@ -1048,7 +1010,8 @@ namespace Ship_Game
                         }
                         else
                         {
-                            if (this.Level < 10) this.Level++;
+                            //Added by McShooterz
+                            this.AddExperience(3, Owner);
                             if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                             {
                                 if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat("We managed to detect an enemy Assassin before it could strike\nThe Assassin was sent by ", Owner.data.Traits.Name), Target);
@@ -1070,7 +1033,7 @@ namespace Ship_Game
                         }
                         target = EmpireManager.GetEmpireByName(this.TargetEmpire).GetPlanets()[HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(this.TargetEmpire).GetPlanets().Count)];
                         this.TargetGUID = target.guid;
-                        if (DiceRoll >= 80f)
+                        if (DiceRoll >= ResourceManager.AgentMissionData.SabotagePerfect)
                         {
                             Planet crippledTurns = target;
                             crippledTurns.Crippled_Turns = crippledTurns.Crippled_Turns + 5 + this.Level * 5;
@@ -1084,18 +1047,13 @@ namespace Ship_Game
                             name[2] = num.ToString();
                             name[3] = " turns: ";
                             name[4] = target.Name;
-                            name[5] = "\nThe Agent was not detected and gains +1 level";
+                            name[5] = "\nThe Agent was not detected";
                             if (!spyMute) notificationManager.AddAgentResultNotification(true, string.Concat(name), Owner);
-                            Agent level2 = this;
-                            level2.Level = level2.Level + 1;
-                            if (this.Level <= 10)
-                            {
-                                break;
-                            }
-                            this.Level = 10;
+                            //Added by McShooterz
+                            this.AddExperience(4, Owner);
                             break;
                         }
-                        else if (DiceRoll > 50f)
+                        else if (DiceRoll > ResourceManager.AgentMissionData.SabotageGood)
                         {
                             Planet planet = target;
                             planet.Crippled_Turns = planet.Crippled_Turns + 5 + this.Level * 3;
@@ -1109,18 +1067,13 @@ namespace Ship_Game
                             str[2] = num1.ToString();
                             str[3] = " turns: ";
                             str[4] = target.Name;
-                            str[5] = "\nThe Agent was not detected and gains +1 level";
+                            str[5] = "\nThe Agent was not detected";
                             if (!spyMute) notificationManager1.AddAgentResultNotification(true, string.Concat(str), Owner);
-                            Agent agent2 = this;
-                            agent2.Level = agent2.Level + 1;
-                            if (this.Level <= 10)
-                            {
-                                break;
-                            }
-                            this.Level = 10;
+                            //Added by McShooterz
+                            this.AddExperience(3, Owner);
                             break;
                         }
-                        else if (DiceRoll < 25f)
+                        else if (DiceRoll < ResourceManager.AgentMissionData.SabotageBad)
                         {
                             if (DiceRoll >= 15f)
                             {
@@ -1138,7 +1091,9 @@ namespace Ship_Game
                         }
                         else
                         {
-                            if (this.Level < 10) this.Level++;
+                            //if (this.Level < 10) this.Level++;
+                            //Added by McShooterz
+                            this.AddExperience(3, Owner);
                             if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                             {
                                 if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat("We foiled an enemy Agent trying to sabotage production on ", target.Name, "\nThe Agent was sent by ", Owner.data.Traits.Name), Target);
@@ -1157,7 +1112,8 @@ namespace Ship_Game
                         List<string> PotentialUIDs = new List<string>();
                         foreach (KeyValuePair<string, TechEntry> entry in Target.GetTDict())
                         {
-                            if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked)
+                            //Added by McShooterz: Racial tech cannot be stolen, also root nodes cannot be stolen
+                            if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked || entry.Value.GetTech().RaceRestrictions.Count != 0 || entry.Value.GetTech().RootNode != 0)
                             {
                                 continue;
                             }
@@ -1167,40 +1123,32 @@ namespace Ship_Game
                         if (PotentialUIDs.Count != 0)
                         {
                             theUID = PotentialUIDs[HelperFunctions.GetRandomIndex(PotentialUIDs.Count)];
-                            if (DiceRoll >= 85f)
+                            if (DiceRoll >= ResourceManager.AgentMissionData.StealTechPerfect)
                             {
-                                Agent level3 = this;
-                                level3.Level = level3.Level + 1;
-                                if (this.Level > 10)
-                                {
-                                    this.Level = 10;
-                                }
+                                //Added by McShooterz
+                                this.AddExperience(6, Owner);
                                 if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                                 {
-                                    // Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, "An enemy spy stole some technology from us \nbut we don't know who they were working for", Target);
+                                    if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, "An enemy spy stole some technology from us \nbut we don't know who they were working for", Target);
                                 }
                                 Owner.UnlockTech(theUID);
-                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " stole a technology: ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), "\nThe Agent was not detected and gains +1 level"), Owner);
+                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " stole a technology: ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), "\nThe Agent was not detected"), Owner);
                                 break;
                             }
-                            else if (DiceRoll > 75f)
+                            else if (DiceRoll > ResourceManager.AgentMissionData.StealTechGood)
                             {
-                                Agent agent3 = this;
-                                agent3.Level = agent3.Level + 1;
-                                if (this.Level > 10)
-                                {
-                                    this.Level = 10;
-                                }
+                                //Added by McShooterz
+                                this.AddExperience(5, Owner);
                                 if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                                 {
                                     if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat("An enemy Agent stole a technology from us: ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), "\nThe Agent was sent by ", Owner.data.Traits.Name), Target);
                                 }
                                 Owner.UnlockTech(theUID);
                                 Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " stole a technology: ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), "\nHowever, the Agent was detected but escaped. + 1 level"), Owner);
+                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " stole a technology: ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), "\nHowever, the Agent was detected but escaped."), Owner);
                                 break;
                             }
-                            else if (DiceRoll < 20f)
+                            else if (DiceRoll < ResourceManager.AgentMissionData.StealTechBad)
                             {
                                 if (DiceRoll >= 10f)
                                 {
@@ -1229,7 +1177,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            if (this.Level < 10) this.Level++;
+                            this.AddExperience(4, Owner);
                             if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " aborted the Steal Technology mission because\nthere is nothing to steal; 125 Credits are therefore refunded"), Owner);
                             Empire owner = Owner;
                             owner.Money = owner.Money + 125f;
@@ -1252,20 +1200,16 @@ namespace Ship_Game
                             if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " could not rob ", this.TargetEmpire, "\nbecause they have no money"), Owner);
                             return;
                         }
-                        if (DiceRoll >= 85f)
+                        if (DiceRoll >= ResourceManager.AgentMissionData.RobberyPerfect)
                         {
-                            Agent level4 = this;
-                            level4.Level = level4.Level + 1;
-                            if (this.Level > 10)
-                            {
-                                this.Level = 10;
-                            }
+                            //Added by McShooterz
+                            this.AddExperience(4, Owner);
                             Empire money = Target;
                             money.Money = money.Money - (float)amount;
                             Empire empire = Owner;
                             empire.Money = empire.Money + (float)amount;
                             NotificationManager notificationManager2 = Ship.universeScreen.NotificationManager;
-                            object[] objArray = new object[] { this.Name, " stole ", amount, " credits from ", this.TargetEmpire, "\nThe Agent was not detected and gains +1 level" };
+                            object[] objArray = new object[] { this.Name, " stole ", amount, " credits from ", this.TargetEmpire, "\nThe Agent was not detected" };
                             if (!spyMute) notificationManager2.AddAgentResultNotification(true, string.Concat(objArray), Owner);
                             if (Target != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                             {
@@ -1274,14 +1218,10 @@ namespace Ship_Game
                             if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(amount, " credits were mysteriously stolen from our treasury.\nWe have no suspects in the theft"), Target);
                             break;
                         }
-                        else if (DiceRoll > 60f)
+                        else if (DiceRoll > ResourceManager.AgentMissionData.RobberyGood)
                         {
-                            Agent agent4 = this;
-                            agent4.Level = agent4.Level + 1;
-                            if (this.Level > 10)
-                            {
-                                this.Level = 10;
-                            }
+                            //Added by McShooterz
+                            this.AddExperience(3, Owner);
                             Empire money1 = Target;
                             money1.Money = money1.Money - (float)amount;
                             Empire owner1 = Owner;
@@ -1292,11 +1232,11 @@ namespace Ship_Game
                             }
                             Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
                             NotificationManager notificationManager3 = Ship.universeScreen.NotificationManager;
-                            object[] name1 = new object[] { this.Name, " stole ", amount, " credits from ", this.TargetEmpire, "\nHowever, the Agent was detected but escaped. + 1 level" };
+                            object[] name1 = new object[] { this.Name, " stole ", amount, " credits from ", this.TargetEmpire, "\nHowever, the Agent was detected but escaped." };
                             if (!spyMute) notificationManager3.AddAgentResultNotification(true, string.Concat(name1), Owner);
                             break;
                         }
-                        else if (DiceRoll < 20f)
+                        else if (DiceRoll < ResourceManager.AgentMissionData.RobberyBad)
                         {
                             if (DiceRoll >= 10f)
                             {
@@ -1314,7 +1254,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            if (this.Level < 10) this.Level++;
+                            this.AddExperience(2, Owner);
                             if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                             {
                                 if (!AgentComponent.AutoTrain && !spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat("We foiled an enemy plot to rob our treasury\nThe Agent was sent by ", Owner.data.Traits.Name), Target);
@@ -1325,8 +1265,96 @@ namespace Ship_Game
                         }
                     }
                 #endregion
-                #region InciteRebellion hard and deadly
                 case AgentMission.InciteRebellion:
+                    {
+                        this.Mission = AgentMission.Defending;
+                        this.MissionNameIndex = 2183;
+                        if (Target.GetPlanets().Count == 0)
+                        {
+                            return;
+                        }
+                        target = EmpireManager.GetEmpireByName(this.TargetEmpire).GetPlanets()[HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(this.TargetEmpire).GetPlanets().Count)];
+                        if (DiceRoll >= ResourceManager.AgentMissionData.RebellionPerfect)
+                        {
+                            this.AddExperience(7, Owner);
+                            if (!EmpireManager.GetEmpireByName(this.TargetEmpire).data.RebellionLaunched)
+                            {
+                                Empire rebels = CreatingNewGameScreen.CreateRebelsFromEmpireData(EmpireManager.GetEmpireByName(this.TargetEmpire).data, EmpireManager.GetEmpireByName(this.TargetEmpire));
+                                rebels.data.IsRebelFaction = true;
+                                rebels.data.Traits.Name = EmpireManager.GetEmpireByName(this.TargetEmpire).data.RebelName;
+                                rebels.data.Traits.Singular = EmpireManager.GetEmpireByName(this.TargetEmpire).data.RebelSing;
+                                rebels.data.Traits.Plural = EmpireManager.GetEmpireByName(this.TargetEmpire).data.RebelPlur;
+                                rebels.isFaction = true;
+                                foreach (Empire e in EmpireManager.EmpireList)
+                                {
+                                    e.GetRelations().Add(rebels, new Relationship(rebels.data.Traits.Name));
+                                    rebels.GetRelations().Add(e, new Relationship(e.data.Traits.Name));
+                                }
+                                EmpireManager.EmpireList.Add(rebels);
+                                EmpireManager.GetEmpireByName(this.TargetEmpire).data.RebellionLaunched = true;
+                            }
+                            Empire darebels = EmpireManager.GetEmpireByName(EmpireManager.GetEmpireByName(this.TargetEmpire).data.RebelName);
+                            for (int i = 0; i < 4; i++)
+                            {
+                                foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
+                                {
+                                    if (!EmpireManager.GetEmpireByName(this.TargetEmpire).WeCanBuildTroop(troop.Key))
+                                    {
+                                        continue;
+                                    }
+                                    Troop t = ResourceManager.CreateTroop(troop.Value, darebels);
+                                    t.Name = Localizer.Token(darebels.data.TroopNameIndex);
+                                    t.Description = Localizer.Token(darebels.data.TroopDescriptionIndex);
+                                    target.AssignTroopToTile(t);
+                                    break;
+                                }
+                            }
+                            if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+                            {
+                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat("An enemy Agent has incited rebellion on ", target.Name), Target);
+                            }
+                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " incited a serious rebellion on ", target.Name, "\nThe Agent was not detected and gains +1 level"), Owner);
+                            break;
+                        }
+                        else if (DiceRoll > ResourceManager.AgentMissionData.RebellionGood)
+                        {
+                            this.AddExperience(5, Owner);
+                            if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+                            {
+                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat("An enemy Agent has incited rebellion on ", target.Name, "\nThe Agent was sent by ", Owner.data.Traits.Name), Target);
+                            }
+                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " incited a serious rebellion on ", target.Name, "\nHowever, they know we are behind it. Agent gains +1 level"), Owner);
+                            break;
+                        }
+                        else if (DiceRoll < ResourceManager.AgentMissionData.RebellionBad)
+                        {
+                            if (DiceRoll >= 40f)
+                            {
+                                break;
+                            }
+                            if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+                            {
+                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat("We killed an enemy agent trying to incite rebellion on ", target.Name, "\nThe Agent was sent by ", Owner.data.Traits.Name), Target);
+                            }
+                            Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying Failed", 20f, null);
+                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " was killed trying to incite rebellion on ", target.Name), Owner);
+                            Owner.data.AgentList.QueuePendingRemoval(this);
+                            break;
+                        }
+                        else
+                        {
+                            this.AddExperience(2, Owner);
+                            if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+                            {
+                                Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat("We foiled an enemy plot to incite rebellion on ", target.Name, "\nThe Agent was sent by ", Owner.data.Traits.Name), Target);
+                            }
+                            Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
+                            Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " escaped after being detected while trying to incite rebellion on ", target.Name), Owner);
+                            break;
+                        }
+                    }
+                #region InciteRebellion hard and deadly
+               /* case AgentMission.InciteRebellion:
                     {
                         this.Mission = AgentMission.Defending;
                         this.MissionNameIndex = 2183;
@@ -1337,12 +1365,8 @@ namespace Ship_Game
                         target = EmpireManager.GetEmpireByName(this.TargetEmpire).GetPlanets()[HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(this.TargetEmpire).GetPlanets().Count)];
                         if (DiceRoll >= 70f)
                         {
-                            Agent level5 = this;
-                            level5.Level = level5.Level + 1;
-                            if (this.Level > 10)
-                            {
-                                this.Level = 10;
-                            }
+                            //Added by McShooterz
+                            this.AddExperience(8, Owner);
                             if (!EmpireManager.GetEmpireByName(this.TargetEmpire).data.RebellionLaunched)
                             {
                                 Empire rebels = CreatingNewGameScreen.CreateRebelsFromEmpireData(EmpireManager.GetEmpireByName(this.TargetEmpire).data, EmpireManager.GetEmpireByName(this.TargetEmpire));
@@ -1394,7 +1418,7 @@ namespace Ship_Game
                                 ///Wyvern
                                 target.AssignTroopToTile(ResourceManager.TroopsDict["Wyvern"]);
                             }
-                            if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " incited a serious rebellion on ", target.Name, "\nThe Agent was not detected and gains +1 level"), Owner);
+                            if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " incited a serious rebellion on ", target.Name, "\nThe Agent was not detected"), Owner);
                             break;
                         }
                         //else if (DiceRoll > 70f)
@@ -1431,7 +1455,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            if (this.Level < 10) this.Level++;
+                            this.AddExperience(4, Owner);
                             if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                             {
                                 if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat("We foiled an enemy plot to incite rebellion on ", target.Name, "\nThe Agent was sent by ", Owner.data.Traits.Name), Target);
@@ -1440,10 +1464,11 @@ namespace Ship_Game
                             if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " escaped after being detected while trying to incite rebellion on ", target.Name), Owner);
                             break;
                         }
-                    }
+                    }*/
                 #endregion
             }
             #region AutoTrain
+            /*
             if (Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && Mission == AgentMission.Defending && Owner.Money > 500 && AgentComponent.AutoTrain == true)
             {
                 //if (startingmission == AgentMission.Training && this.Level >= 10)
@@ -1463,66 +1488,68 @@ namespace Ship_Game
                 }
                 return;
             }
+             */
             #endregion
             this.TargetEmpire = "";
         }
+
 		public void Initialize(AgentMission TheMission, Empire Owner)
 		{
 			switch (TheMission)
 			{
 				case AgentMission.Training:
 				{
-					this.TurnsRemaining = 25;
+					this.TurnsRemaining = ResourceManager.AgentMissionData.TrainingTurns;
 					Empire owner = Owner;
-					owner.Money = owner.Money - 50f;
+                    owner.Money = owner.Money - ResourceManager.AgentMissionData.TrainingCost;
 					this.MissionNameIndex = 2196;
 					return;
 				}
 				case AgentMission.Infiltrate:
 				{
-					this.TurnsRemaining = 30;
+                    this.TurnsRemaining = ResourceManager.AgentMissionData.InfiltrateTurns;
 					Empire money = Owner;
-					money.Money = money.Money - 75f;
+                    money.Money = money.Money - ResourceManager.AgentMissionData.InfiltrateCost;
 					this.MissionNameIndex = 2188;
 					return;
 				}
 				case AgentMission.Assassinate:
 				{
-					this.TurnsRemaining = 50;
+                    this.TurnsRemaining = ResourceManager.AgentMissionData.AssassinateTurns;
 					Empire empire = Owner;
-					empire.Money = empire.Money - 75f;
+                    empire.Money = empire.Money - ResourceManager.AgentMissionData.AssassinateCost;
 					this.MissionNameIndex = 2184;
 					return;
 				}
 				case AgentMission.Sabotage:
 				{
-					this.TurnsRemaining = 30;
+                    this.TurnsRemaining = ResourceManager.AgentMissionData.SabotageTurns;
 					Empire owner1 = Owner;
-					owner1.Money = owner1.Money - 75f;
+                    owner1.Money = owner1.Money - ResourceManager.AgentMissionData.SabotageCost;
 					this.MissionNameIndex = 2190;
 					return;
 				}
 				case AgentMission.StealTech:
 				{
-					this.TurnsRemaining = 50;
+                    this.TurnsRemaining = ResourceManager.AgentMissionData.StealTechTurns;
 					Empire money1 = Owner;
-					money1.Money = money1.Money - 250f;
+                    money1.Money = money1.Money - ResourceManager.AgentMissionData.StealTechCost;
 					this.MissionNameIndex = 2194;
 					return;
 				}
 				case AgentMission.Robbery:
 				{
-					this.TurnsRemaining = 30;
+                    this.TurnsRemaining = ResourceManager.AgentMissionData.RobberyTurns;
 					Empire empire1 = Owner;
-					empire1.Money = empire1.Money - 50f;
+                    empire1.Money = empire1.Money - ResourceManager.AgentMissionData.RobberyCost;
 					this.MissionNameIndex = 2192;
 					return;
 				}
 				case AgentMission.InciteRebellion:
 				{
-					this.TurnsRemaining = 100;
+                    this.TurnsRemaining = ResourceManager.AgentMissionData.RebellionTurns;
 					Empire owner2 = Owner;
-					owner2.Money = owner2.Money - 250f;
+                    owner2.Money = owner2.Money - ResourceManager.AgentMissionData.RebellionCost;
 					this.MissionNameIndex = 2186;
 					return;
 				}
@@ -1534,16 +1561,18 @@ namespace Ship_Game
 		}
 
         //Added by McShooterz: add experience to the agent and determine if level up.
-        private void AddExperience(int exp)
+        private void AddExperience(int exp, Empire Owner)
         {
             this.Experience += exp;
-            while(this.Experience >= 4 + (4 * this.Level))
+            while(this.Experience >=  2 * this.Level)
             {
-                this.Experience -= 4 + (4 * this.Level);
-                this.Level++;
+                this.Experience -=  2 * this.Level;
+                if (this.Level < 10)
+                {
+                    this.Level++;
+                    if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " has been promoted, and gains +1 Level"), Owner);
+                }
             }
-            if (this.Level > 10)
-                this.Level = 10;
         }
 	}
 }
