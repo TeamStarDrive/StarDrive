@@ -775,7 +775,7 @@ namespace Ship_Game
                             pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
                             pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
                             play = true;
-                            ResourceManager.CreateTroopShipAtPoint(pgs.TroopsHere[0].GetOwner().data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+                            ResourceManager.CreateTroopShipAtPoint(pgs.TroopsHere[0].GetOwner().data.DefaultSmallTransport, pgs.TroopsHere[0].GetOwner(), this.p.Position, pgs.TroopsHere[0]);
                             this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                             pgs.TroopsHere[0].SetPlanet(null);
                             pgs.TroopsHere.Clear();
