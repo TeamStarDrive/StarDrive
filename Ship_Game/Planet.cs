@@ -314,8 +314,10 @@ namespace Ship_Game
                         {
                             if (this.TroopsHere[index].GetOwner() == EmpireManager.GetEmpireByName("Cordrazine Collective") && this.TroopsHere[index].TargetType == "Soft")
                             {
-                                /*if (SteamManager.SetAchievement("Owlwoks_Freed"))
-                                    SteamManager.SaveAllStatAndAchievementChanges();*/
+#if STEAM
+                                if (SteamManager.SetAchievement("Owlwoks_Freed"))
+                                    SteamManager.SaveAllStatAndAchievementChanges();
+#endif
                                 this.TroopsHere[index].SetOwner(bomb.owner);
                                 this.TroopsHere[index].Name = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopNameIndex);
                                 this.TroopsHere[index].Description = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopDescriptionIndex);
@@ -4031,7 +4033,7 @@ namespace Ship_Game
                 }
             }
             //Added by McShooterz: Colony build troops
-            if (this.CanBuildInfantry() && this.ConstructionQueue.Count == 0 && this.ps == Planet.GoodState.EXPORT && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+            if (this.CanBuildInfantry() && this.ConstructionQueue.Count == 0 && this.ProductionHere > this.MAX_STORAGE*.75f && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
             {
                 bool addTroop = false;
                 foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -4054,6 +4056,7 @@ namespace Ship_Game
                             qi.Cost = troop.Value.Cost;
                             qi.productionTowards = 0f;
                             this.ConstructionQueue.Add(qi);
+                            this.queueEmptySent = true;
                             break;
                         }
                     }
@@ -4099,15 +4102,19 @@ namespace Ship_Game
             }
         }
 
-        public void ApplyStoredProduction()
+        public bool ApplyStoredProduction()
         {
-            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null))
-                return;
+            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null || this.Owner.Money <=0))
+                return false;
 
             float amount = this.ProductionHere * .25f;
+            if (amount < 1)
+            {
+                return false;
+            }
                 this.ProductionHere -= amount;
                 this.ApplyProductiontoQueue(amount, 0);
-
+                return true;
        }
 
         private void ApplyProductionTowardsConstruction()

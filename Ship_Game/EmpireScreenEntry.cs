@@ -531,40 +531,30 @@ namespace Ship_Game
 				this.eScreen.ClickTimer = 0.25f;
 				if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
 				{
-					if (this.p.ProductionHere < this.p.ConstructionQueue[0].Cost - this.p.ConstructionQueue[0].productionTowards || this.p.Owner.Money < this.p.ConstructionQueue[0].Cost - this.p.ConstructionQueue[0].productionTowards)
-					{
+                    bool flag=true;
+                    while (this.p.ApplyStoredProduction())
+                    {
+                        AudioManager.PlayCue("sd_ui_accept_alt3");
+                        if(flag)
+                        flag = false;
+
+                    }
+                    
+                    if(flag)
 						AudioManager.PlayCue("UI_Misc20");
-					}
-					else
-					{
-						Planet productionHere = this.p;
-						productionHere.ProductionHere = productionHere.ProductionHere - (this.p.ConstructionQueue[0].Cost - this.p.ConstructionQueue[0].productionTowards);
-						Empire owner = this.p.Owner;
-						owner.Money = owner.Money - (this.p.ConstructionQueue[0].Cost - this.p.ConstructionQueue[0].productionTowards);
-						this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[0].Cost - this.p.ConstructionQueue[0].productionTowards, 0);
-						AudioManager.PlayCue("sd_ui_accept_alt3");
-					}
+
+
 				}
-				else if (this.p.ProductionHere >= 10f && this.p.Owner.Money >= 10f)
+				else if (this.p.ApplyStoredProduction())
 				{
-					Empire money = this.p.Owner;
-					money.Money = money.Money - 10f;
-					Planet planet = this.p;
-					planet.ProductionHere = planet.ProductionHere - 10f;
-					this.p.ApplyProductiontoQueue(10f, 0);
+
 					AudioManager.PlayCue("sd_ui_accept_alt3");
 				}
-				else if (this.p.ProductionHere <= 0f || this.p.Owner.Money < this.p.ProductionHere)
+				else 
 				{
 					AudioManager.PlayCue("UI_Misc20");
 				}
-				else
-				{
-					Empire empire = this.p.Owner;
-					empire.Money = empire.Money - this.p.ProductionHere;
-					this.p.ApplyProductiontoQueue(this.p.ProductionHere, 0);
-					this.p.ProductionHere = 0f;
-				}
+
 			}
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{
