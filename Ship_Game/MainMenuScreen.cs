@@ -753,13 +753,21 @@ namespace Ship_Game
 			};
 			base.ScreenManager.inter.ObjectManager.Submit(this.planetSO);
             //Added by McShooterz: random ship in main menu
+            this.ShipPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 1200), (float)(this.LogoRect.Y + 400 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
             if (GlobalStats.ActiveMod != null && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
             {
                 int shipIndex = rd.Next(0, ResourceManager.MainMenuShipList.ModelPaths.Count);
                 this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel(ResourceManager.MainMenuShipList.ModelPaths[shipIndex]).Meshes)[0]);
                 this.shipSO.ObjectType = ObjectType.Dynamic;
-                this.ShipPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 1200), (float)(this.LogoRect.Y + 400 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-                this.shipSO.World = this.worldMatrix;//(((((Matrix.Identity * Matrix.CreateScale(this.scale * 1.75f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(-15f))) * Matrix.CreateRotationY(MathHelper.ToRadians(75f))) * Matrix.CreateRotationZ(1f)) * Matrix.CreateTranslation(new Vector3(this.ShipPosition, this.zshift));
+                this.shipSO.World = this.worldMatrix;
+                this.shipSO.Visibility = ObjectVisibility.Rendered;
+                base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+            }
+            else
+            {
+                this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel("Model/Ships/speeder/ship07").Meshes)[0]);
+                this.shipSO.ObjectType = ObjectType.Dynamic;
+                this.shipSO.World = this.worldMatrix;
                 this.shipSO.Visibility = ObjectVisibility.Rendered;
                 base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
             }
