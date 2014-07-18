@@ -175,7 +175,7 @@ namespace Ship_Game
             Rectangle MoneyRect = new Rectangle(this.RecruitButton.r.X, this.RecruitButton.r.Y + 30, 21, 20);
             this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_money"], MoneyRect, Color.White);
             Vector2 costPos = new Vector2((float)(MoneyRect.X + 25), (float)(MoneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2));
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "250", costPos, Color.White);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost).ToString(), costPos, Color.White);
 
             //aeRef = new Ref<bool>(() => this.HideUninhab, (bool x) =>
             //{
@@ -196,11 +196,12 @@ namespace Ship_Game
             Rectangle spyLimit = new Rectangle((int)MoneyRect.X + 65, (int)MoneyRect.Y, 21, 20);
             this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_lock"], spyLimit, Color.White);
             Vector2 spyLimitPos = new Vector2((float)(spyLimit.X + 25), (float)(spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
-            empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
-            if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
+            //empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
+            //if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
+            empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count() + 2;
             spyLimitCount = (empirePlanetSpys - EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count);
             if (empirePlanetSpys < 0) empirePlanetSpys = 0;
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "For Hire : " + spyLimitCount.ToString(), spyLimitPos, Color.White);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("For Hire : ", spyLimitCount.ToString(), " / ", empirePlanetSpys.ToString()), spyLimitPos, Color.White);
 
             //Rectangle spyDefense = new Rectangle(spyLimitPos.Y, spyLimitPos, 21, 20);
             //this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_planetshield"], spyDefense, Color.White);
@@ -278,6 +279,7 @@ namespace Ship_Game
                 }
             }
         }
+
 		public static string GetName(string[] Tokens)
 		{
 			string ret = "";
@@ -400,14 +402,14 @@ namespace Ship_Game
             }
             if (this.RecruitButton.HandleInput(input))
             {
-                if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).Money < 250f || spyLimitCount <= 0)//EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count >= EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count)
+                if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) || spyLimitCount <= 0)//EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count >= EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count)
                 {
                     AudioManager.PlayCue("UI_Misc20");
                 }
                 else
                 {
                     Empire empireByName = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty);
-                    empireByName.Money = empireByName.Money - 250f;
+                    empireByName.Money -= ResourceManager.AgentMissionData.AgentCost;
                     Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.Traits.ShipType, ".txt")));
                     string[] Tokens = Names.Split(new char[] { ',' });
                     Agent a = new Agent();
