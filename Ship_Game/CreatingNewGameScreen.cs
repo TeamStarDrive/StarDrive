@@ -465,6 +465,9 @@ namespace Ship_Game
                                 ship1.Position = planet1.Position + new Vector2(-2000f, -2000f);
                                 ship1.loyalty = index;
                                 ship1.Initialize();
+                                //Added by McShooterz: Starting ship support for automatic naming
+                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship1.loyalty.data.Traits.ShipType, ship1.Role))
+                                    ship1.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship1.loyalty.data.Traits.ShipType, ship1.Role);
                                 ship1.SetHome(planet1);
                                 ship1.DoOrbit(planet1);
                                 ship1.GetSO().World = Matrix.CreateTranslation(new Vector3(ship1.Position, 0.0f));
@@ -487,6 +490,9 @@ namespace Ship_Game
                                 ship2.Position = planet1.Position + new Vector2(-2500f, -2000f);
                                 ship2.loyalty = index;
                                 ship2.Initialize();
+                                //Added by McShooterz: Starting ship support for automatic naming
+                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship2.loyalty.data.Traits.ShipType, ship2.Role))
+                                    ship2.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship2.loyalty.data.Traits.ShipType, ship2.Role);
                                 ship2.SetHome(planet1);
                                 ship2.DoOrbit(planet1);
                                 ship2.GetSO().World = Matrix.CreateTranslation(new Vector3(ship2.Position, 0.0f));
@@ -512,7 +518,11 @@ namespace Ship_Game
                                     this.playerShip.loyalty.AddShip(this.playerShip);
                                     this.playerShip.Initialize();
                                     this.playerShip.GetAI().State = AIState.ManualControl;
-                                    this.playerShip.VanityName = "Perseverance";
+                                    //Added by McShooterz: Starting ship support for automatic naming
+                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
+                                        this.playerShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role);
+                                    else
+                                        this.playerShip.VanityName = "Perseverance";
                                     this.playerShip.GetSO().World = Matrix.CreateRotationY(this.playerShip.yBankAmount) * Matrix.CreateRotationZ(this.playerShip.Rotation) * Matrix.CreateTranslation(new Vector3(this.playerShip.Center, 0.0f));
                                     this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)this.playerShip.GetSO());
                                     planet1.system.spatialManager.CollidableObjects.Add((GameplayObject)this.playerShip);
@@ -539,6 +549,9 @@ namespace Ship_Game
                                     ship3.Position = planet1.Position + new Vector2(-2500f, -2000f);
                                     ship3.loyalty = index;
                                     ship3.Initialize();
+                                    //Added by McShooterz: Starting ship support for automatic naming
+                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
+                                        ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.Role);
                                     ship3.SetHome(planet1);
                                     ship3.DoOrbit(planet1);
                                     ship3.GetSO().World = Matrix.CreateTranslation(new Vector3(ship3.Position, 0.0f));
