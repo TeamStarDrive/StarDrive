@@ -4017,16 +4017,10 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-            lock (GlobalStats.WayPointLock)
-            {
-                this.ActiveWayPoints.Clear();
-            }
-            this.OrderQueue.Clear();
 
 
-          //if system all systems in combat... OMG no trade.
-            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer <1).Count() == 0)
-                return;
+
+
             //if starting or ending system in combat... clear order...
             if ( this.Owner.CargoSpace_Used>0 && (
                 (this.start != null && this.start.ParentSystem.combatTimer >0) 
@@ -4038,6 +4032,14 @@ namespace Ship_Game.Gameplay
                 this.State = AIState.AwaitingOrders;
                 
             }
+            //if system all systems in combat... OMG no trade.
+            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
+                return;
+            lock (GlobalStats.WayPointLock)
+            {
+                this.ActiveWayPoints.Clear();
+            }
+            this.OrderQueue.Clear();
             if (this.Owner.CargoSpace_Used > 0f && this.Owner.GetCargo()["Colonists_1000"] == 0f)
             {
                 #region Deliver Food if already have food
@@ -6601,7 +6603,7 @@ namespace Ship_Game.Gameplay
 
 
             if ((this.BadGuysNear || this.Owner.InCombatTimer > 0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
-                && (this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State!=AIState.Rebase) &&( this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
+                && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State!=AIState.Rebase) &&( this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
             {
                 if (this.State != AIState.Flee )//&& !this.HasPriorityOrder)
                 {
