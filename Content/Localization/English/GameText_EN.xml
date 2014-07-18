@@ -7348,6 +7348,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7011</Index>
       <Text>Prevents AI empires from merging into Federations at the first site of a powerful opponent.</Text>
     </Token>
+    <Token>
+      <Index>7012</Index>
+      <Text>Seconds until out of power or INFinite</Text>
+    </Token>
+    <Token>
+      <Index>7013</Index>
+      <Text>Seconds until out of ordnance or INFinite</Text>
+    </Token>
+    <Token>
+      <Index>7014</Index>
+      <Text>Ordance recovered per sec.</Text>
+    </Token>
   </TokenList>
   
 </LocalizationFile>
