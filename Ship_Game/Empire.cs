@@ -2005,7 +2005,7 @@ namespace Ship_Game
                         unusedFreighters.Add(ship);
                 }
             }
-            int freighterLimit = this.OwnedPlanets.Count / 3;
+            int freighterLimit = this.OwnedPlanets.Where(combat=> combat.ParentSystem.combatTimer <1).Count() ;
             
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
@@ -2016,7 +2016,7 @@ namespace Ship_Game
             List<Ship> assignedShips = new List<Ship>();
             foreach (Ship ship in unusedFreighters)
             {
-                if (tradeShips >= freighterLimit)
+                if (tradeShips >= freighterLimit*.8f)
                     break;
                 if (ship.GetAI().State != AIState.Flee)
                 {
@@ -2029,7 +2029,7 @@ namespace Ship_Game
             foreach (Ship ship in assignedShips)
                 unusedFreighters.Remove(ship);
             assignedShips.Clear();
-            for (; tradeShips < freighterLimit; ++tradeShips)
+            for (; tradeShips < freighterLimit*.8f; ++tradeShips)
                 this.GSAI.Goals.Add(new Goal(this)
                 {
                     GoalName = "IncreaseFreighters",
@@ -2044,7 +2044,7 @@ namespace Ship_Game
             
             foreach (Ship ship in unusedFreighters)
             {
-                if (passengerShips >= freighterLimit)
+                if (passengerShips >= freighterLimit*.2f)
                     break;
                 ship.GetAI().OrderTransportPassengers();
                 assignedShips.Add(ship);
@@ -2053,7 +2053,7 @@ namespace Ship_Game
             foreach (Ship ship in assignedShips)
                 unusedFreighters.Remove(ship);
             assignedShips.Clear();
-            for (; passengerShips < freighterLimit; ++passengerShips)
+            for (; passengerShips < freighterLimit * .2f; ++passengerShips)
                 this.GSAI.Goals.Add(new Goal(this)
                 {
                     type = GoalType.BuildShips,
