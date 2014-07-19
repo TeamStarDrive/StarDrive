@@ -4055,8 +4055,9 @@ namespace Ship_Game
                             qi.troop = troop.Value;
                             qi.Cost = troop.Value.Cost;
                             qi.productionTowards = 0f;
+                            qi.NotifyOnEmpty = false;
                             this.ConstructionQueue.Add(qi);
-                            this.queueEmptySent = true;
+                           
                             break;
                         }
                     }
@@ -4199,6 +4200,11 @@ namespace Ship_Game
                         }
                     }
                 }
+                if ((double)queueItem.productionTowards >= (double)queueItem.Cost && queueItem.NotifyOnEmpty == false)
+                    this.queueEmptySent = true;
+                else if ((double)queueItem.productionTowards >= (double)queueItem.Cost)
+                    this.queueEmptySent = false;
+
                 if (queueItem.isBuilding && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
                     Building building = ResourceManager.GetBuilding(queueItem.Building.Name);
@@ -4298,15 +4304,6 @@ namespace Ship_Game
                 }
                 else if (queueItem.isTroop && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
-                    //added by gremlim fix to prevent AI stuck building troops.
-                    //Troop troop = ResourceManager.CreateTroop(queueItem.troop, this.Owner);
-                    //if (this.AssignTroopToTile(troop))
-                    //{
-                    //    this.ConstructionQueue.QueuePendingRemoval(queueItem);
-                    //    troop.SetOwner(this.Owner);
-                    //    if (queueItem.Goal != null)
-                    //        ++queueItem.Goal.Step;
-                    //}
                     Troop troop = ResourceManager.CreateTroop(queueItem.troop, this.Owner);
                     if (this.AssignTroopToTile(troop))
                     {
