@@ -385,7 +385,7 @@ namespace Ship_Game
                 techEntry.UID = keyValuePair.Key;
 
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
-                if (GlobalStats.ActiveMod != null &&GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
                 {
                     techEntry.Discovered = false;
                     techEntry.GetTech().Secret = true;
@@ -395,6 +395,8 @@ namespace Ship_Game
                         {
                             techEntry.Discovered = true;
                             techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
+                            if (GlobalStats.ActiveMod.mi.useAlternateTech && techEntry.GetTech().Militaristic)
+                                techEntry.Unlocked = true;
                             break;
                         }
                     }
@@ -411,7 +413,7 @@ namespace Ship_Game
                 if (this.data.Traits.Militaristic == 1)
                 {
                     //added by McShooterz: alternate way to unlock militaristic techs
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useAlternateTech && techEntry.GetTech().Militaristic)
+                    if (GlobalStats.ActiveMod != null && techEntry.GetTech().RaceRestrictions.Count == 0 && GlobalStats.ActiveMod.mi.useAlternateTech && techEntry.GetTech().Militaristic)
                         techEntry.Unlocked = true;
 
                     if (techEntry.UID == "HeavyFighterHull")
