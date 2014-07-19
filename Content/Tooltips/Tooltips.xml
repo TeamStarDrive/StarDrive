@@ -809,5 +809,20 @@
       <Title>New Experience</Title>
       <Data>7007</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>162</TIP_ID>
+      <Title>Ordance recovered per sec.</Title>
+      <Data>7014</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>163</TIP_ID>
+      <Title>Seconds until out of power or INFinite</Title>
+      <Data>7012</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>164</TIP_ID>
+      <Title>Seconds until out of ordnance or INFinite</Title>
+      <Data>7013</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

@@ -137,9 +137,17 @@ namespace Ship_Game.Gameplay
             this.Pins[ship.guid].Position = ship.Center;
             this.Pins[ship.guid].InBorders = ShipinBorders;
         }
-        public void ScrubMatrix()
+        public void ClearBorders ()
         {
-            if (Empire.universeScreen.MasterShipList.Count >= this.Pins.Count)
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+                if (pin.Value.InBorders)
+                    pin.Value.InBorders = false;
+            }
+        }
+        public void ScrubMatrix(bool scrubborders)
+        {
+            if (!scrubborders && Empire.universeScreen.MasterShipList.Count >= this.Pins.Count)
                 return;
             List<Guid> guids = new List<Guid>();
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
@@ -148,6 +156,7 @@ namespace Ship_Game.Gameplay
                 
                 if(Empire.universeScreen.MasterShipList.Select(guid=>guid.guid).Contains(pin.Key))
                 {
+                    pin.Value.InBorders =false;
                     continue;
                 }
                 guids.Add(pin.Key);
