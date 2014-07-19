@@ -630,7 +630,7 @@ namespace Ship_Game
 
         private void ClearSlotNoStack(SlotStruct slot)
         {   //this function might never be called, see if anyone triggers this
-            System.Diagnostics.Debug.Assert(false); 
+            //System.Diagnostics.Debug.Assert(false);  Appears to part of teh ctrl-Z functionality
             if (slot.isDummy)
             {
                 if (slot.parent.module == null)
@@ -2045,6 +2045,8 @@ namespace Ship_Game
 							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 							this.DrawStat(ref modTitlePos, "Pwr / Sec", (float)mod.InstalledWeapon.BeamPowerCostPerSecond, 87);
 							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                            //this.DrawStat(ref modTitlePos, "Pwr / Sec", this.ActiveHull. (float)mod.InstalledWeapon.BeamPowerCostPerSecond, 87);
+                            //modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						}
 						else if (mod.InstalledWeapon.explodes && mod.InstalledWeapon.OrdinanceRequiredToFire > 0f)
 						{
@@ -2963,6 +2965,11 @@ namespace Ship_Game
 			float FTLSpeed = 0f;
             float RepairRate = 0f;
             float sensorRange = 0f;
+            float BeamPowerUsed =0f;
+            float BeamLongestDuration = 0f;
+            float OrdnanceUsed=0f;
+            float OrdnanceRecoverd = 0f;
+            float WeaponPowerNeeded = 0f;
 			foreach (SlotStruct slot in this.Slots)
 			{
 				Size = Size + 1f;
@@ -2999,10 +3006,31 @@ namespace Ship_Game
 					TurnThrust = TurnThrust + (float)slot.module.TurnThrust;
 					AfterThrust = AfterThrust + slot.module.AfterburnerThrust;
                     RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.RepairBonus != 0 ? (1 + (float)this.ActiveHull.RepairBonus / 100f) : 1));
+                    OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
                     if (slot.module.SensorRange > sensorRange)
                     {
                         sensorRange = slot.module.SensorRange;
                     }
+                    
+                    //added by gremlin collect weapon stats
+                    
+
+                        if (slot.module.isWeapon || slot.module.BombType != null)
+                    {
+                        Weapon weapon;
+                        if (slot.module.BombType == null)
+                            weapon = slot.module.InstalledWeapon;
+                        else
+                            weapon = ResourceManager.WeaponsDict[slot.module.BombType];
+
+                        BeamPowerUsed += weapon.BeamPowerCostPerSecond * weapon.BeamDuration;
+                        OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay;
+                        WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay;
+                        if(BeamLongestDuration <weapon.BeamDuration)
+                            BeamLongestDuration =weapon.BeamDuration; 
+                        
+                    }
+                    //end
 				}
 				Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
 				CargoSpace = CargoSpace + slot.module.Cargo_Capacity;
@@ -3174,8 +3202,41 @@ namespace Ship_Game
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(118), ":"), (int)OrdnanceCap, 108);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            this.DrawStat(ref Cursor, "Ordance Added(S) :", (int)OrdnanceRecoverd, 162);
+            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             this.DrawStat(ref Cursor, string.Concat(Localizer.Token(119), ":"), (int)(CargoSpace * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.CargoBonus != 0 ? (1 + (float)this.ActiveHull.CargoBonus / 100f) : 1)), 109);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+//added by gremlin ShipYard Stats
+            float powerconsumed = (BeamPowerUsed + WeaponPowerNeeded) -PowerFlow ;
+            float beamduration =0f;
+            if (powerconsumed > 0)
+            {
+
+                beamduration = BeamPowerUsed + WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
+
+                if (beamduration >= BeamLongestDuration)
+                    this.DrawStat60(ref Cursor, "Power Time(S) :", beamduration, 163);
+                else
+                    this.DrawStatBad(ref Cursor, "Power Time(S) :", beamduration.ToString("N1"), 163);
+              
+            }
+            else
+            {
+                this.DrawStat(ref Cursor, "Power Time(S) :", "INF", 163);
+            }
+            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            float AmmoTime = 0f;
+            if (OrdnanceUsed - OrdnanceRecoverd > 0)
+            {
+                AmmoTime = OrdnanceCap / (OrdnanceUsed - OrdnanceRecoverd);
+                this.DrawStat60(ref Cursor, "Ammo Time(S) :", AmmoTime, 164);
+            }
+            else
+                this.DrawStat(ref Cursor, "Ammo Time(S) :", "INF", 164);
+            
+            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+
+//end
             if (sensorRange != 0)
             {
                 this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6000), ":"), (int)(sensorRange * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SensorBonus != 0 ? (1 + (float)this.ActiveHull.SensorBonus / 100f) : 1)), 159);

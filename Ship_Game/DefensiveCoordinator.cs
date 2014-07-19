@@ -120,7 +120,7 @@ namespace Ship_Game
 						SystemCommander value1 = entry.Value;
 						//added by gremlin commodities increase defense desire
                         value1.ValueToUs = value1.ValueToUs + p.MineralRichness;
-                        value.ValueToUs += p.BuildingList.Where(commodity=> commodity.IsCommodity).Count() *2f;
+                        value.ValueToUs += p.BuildingList.Where(commodity=> commodity.IsCommodity).Count() ;
                         if(this.us.data.Traits.Cybernetic >0)
                         {
                             value1.ValueToUs += p.MineralRichness;

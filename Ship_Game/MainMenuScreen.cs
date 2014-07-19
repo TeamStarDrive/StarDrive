@@ -752,14 +752,22 @@ namespace Ship_Game
 				World = (((((Matrix.Identity * Matrix.CreateScale(25f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 30000f, this.ShipPosition.Y - 500f, 80000f)
 			};
 			base.ScreenManager.inter.ObjectManager.Submit(this.planetSO);
-            //Added by McShooterz
+            //Added by McShooterz: random ship in main menu
+            this.ShipPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 1200), (float)(this.LogoRect.Y + 400 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
             if (GlobalStats.ActiveMod != null && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
             {
                 int shipIndex = rd.Next(0, ResourceManager.MainMenuShipList.ModelPaths.Count);
                 this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel(ResourceManager.MainMenuShipList.ModelPaths[shipIndex]).Meshes)[0]);
                 this.shipSO.ObjectType = ObjectType.Dynamic;
-                this.ShipPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 1200), (float)(this.LogoRect.Y + 500 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-                this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale * 1.75f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(-15f))) * Matrix.CreateRotationY(MathHelper.ToRadians(75f))) * Matrix.CreateRotationZ(1.00079637f)) * Matrix.CreateTranslation(new Vector3(this.ShipPosition, this.zshift + 50000));
+                this.shipSO.World = this.worldMatrix;
+                this.shipSO.Visibility = ObjectVisibility.Rendered;
+                base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+            }
+            else
+            {
+                this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel("Model/Ships/speeder/ship07").Meshes)[0]);
+                this.shipSO.ObjectType = ObjectType.Dynamic;
+                this.shipSO.World = this.worldMatrix;
                 this.shipSO.Visibility = ObjectVisibility.Rendered;
                 base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
             }
@@ -886,6 +894,13 @@ namespace Ship_Game
 			TimeSpan timeSpan = gameTime.ElapsedGameTime;
 			this.MoonPosition.X = x + (float)timeSpan.Milliseconds / 400f;
 			this.planetSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(new Vector3(this.MoonPosition, this.zshift));
+            //Added by McShooterz: slow moves the ship across the screen
+            if (this.shipSO != null)
+            {
+                this.ShipPosition.X += (float)timeSpan.Milliseconds / 800f;
+                this.ShipPosition.Y += (float)timeSpan.Milliseconds / 1200f;
+                this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale * 1.75f)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(-15f))) * Matrix.CreateRotationY(MathHelper.ToRadians(60f))) * Matrix.CreateRotationZ(1f)) * Matrix.CreateTranslation(new Vector3(this.ShipPosition, this.zshift));
+            }
 			base.ScreenManager.inter.Update(gameTime);
 			if (base.IsExiting && base.TransitionPosition >= 0.99f && base.ScreenManager.Music != null)
 			{
