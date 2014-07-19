@@ -45,6 +45,8 @@ namespace Ship_Game
 		public Color PromoteColor = Color.White;
 
 		public Color DemoteColor = Color.White;
+        public bool NotifyOnEmpty =true;
+        public bool notifyWhenBuilt =false;
 
 		public QueueItem()
 		{

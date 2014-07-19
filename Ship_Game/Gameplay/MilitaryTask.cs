@@ -330,7 +330,7 @@ namespace Ship_Game.Gameplay
             List<Troop> Troops = new List<Troop>();
             foreach (AO area in sorted)
             {
-                foreach (Ship ship in this.empire.GetShips())
+                foreach (Ship ship in this.empire.GetShips().OrderBy(str=> str.BaseStrength))
                 {
                     if ((ship.Role == "station" || ship.Role == "platform") || ship.GetStrength() == 0f || Vector2.Distance(ship.Center, area.Position) >= area.Radius || ship.InCombat || ship.fleet != null && ship.fleet != null & ship.fleet.Task == null)
                     {
@@ -1064,7 +1064,7 @@ namespace Ship_Game.Gameplay
 			List<Ship> PotentialAssaultShips = new List<Ship>();
 			List<Troop> PotentialTroops = new List<Troop>();
 			List<Ship> PotentialBombers = new List<Ship>();
-			foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
+			foreach (Ship ship in ClosestAO.GetOffensiveForcePool().OrderBy(str=>str.BaseStrength))
 			{
 				if ((!ship.HasTroopBay || ship.TroopList.Count <= 0) && !(ship.Role == "troop"  || ship.fleet != null))
 				{
