@@ -2099,16 +2099,20 @@ namespace Ship_Game
 			ResourceManager.WhichModPath = "Content";
 			if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
 			{
-				ResourceManager.LoadEmpires();
+                //ResourceManager.WhichModPath = string.Concat("Mods/", GlobalStats.ActiveMod.ModPath);
+               
+                ResourceManager.LoadEmpires();
+                //ResourceManager.LoadSubsetEmpires();
 			}
 			else if (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
 			{
 				ResourceManager.LoadEmpires();
+                //ResourceManager.LoadSubsetEmpires();
 			}
-			else
-			{
-				ResourceManager.LoadSubsetEmpires();
-			}
+            else
+            {
+                ResourceManager.LoadSubsetEmpires();
+            }
 			if (GlobalStats.ActiveMod != null)
 			{
 				ResourceManager.WhichModPath = string.Concat("Mods/", GlobalStats.ActiveMod.ModPath);
