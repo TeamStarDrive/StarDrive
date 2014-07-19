@@ -1932,7 +1932,7 @@ namespace Ship_Game
             if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips")))
             {
                 Ship_Game.ResourceManager.ShipsDict.Clear();
-                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(GlobalStats.ActiveMod.ModPath, "/StarterShips/"));
+                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips/"));
             }
             else
             {
@@ -2448,6 +2448,35 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.TechTree.Clear();
 			Ship_Game.ResourceManager.ArtifactsDict.Clear();
 			Ship_Game.ResourceManager.ShipsDict.Clear();
+            Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
+            Ship_Game.ResourceManager.HostileFleets = new HostileFleets(); ;
+            Ship_Game.ResourceManager.ShipNames = new ShipNames(); ;
+            Ship_Game.ResourceManager.SoundEffectDict.Clear();
+
+
+
+            Ship_Game.ResourceManager.TextureDict.Clear();
+            Ship_Game.ResourceManager.ToolTips.Clear();
+            Ship_Game.ResourceManager.GoodsDict.Clear();         
+            //Ship_Game.ResourceManager.LoadDialogs();
+            Ship_Game.ResourceManager.Encounters.Clear();
+            Ship_Game.ResourceManager.EventsDict.Clear();
+            
+            //Ship_Game.ResourceManager.LoadLanguage();
+
+            Ship_Game.ResourceManager.RandomItemsList.Clear();
+            Ship_Game.ResourceManager.ProjectileMeshDict.Clear();
+            Ship_Game.ResourceManager.ProjTextDict.Clear();
+            //if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
+            //{
+            //    Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);
+            //}
+            //if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video")))
+            //{
+            //    Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video"), "Content/ModVideo", true);
+            //}
+          
+
 		}
 
 		public static void Start()
