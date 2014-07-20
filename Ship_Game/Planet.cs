@@ -2298,6 +2298,7 @@ namespace Ship_Game
                     foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                         planetGridSquare.TroopsHere.Remove(troop);
                 }
+                troop.Launchtimer -= elapsedTime;
                 troop.MoveTimer -= elapsedTime;
                 troop.MovingTimer -= elapsedTime;
                 if ((double)troop.MoveTimer < 0.0)

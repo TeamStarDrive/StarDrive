@@ -111,6 +111,7 @@ namespace Ship_Game
 		public float Range;
 
 		private string fmt = "00";
+        public float Launchtimer = 10f;
 
 		public Troop()
 		{
