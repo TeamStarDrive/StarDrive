@@ -1,4 +1,12 @@
 # Stardrive BlackBox#
+So what is black box? its a decompiled recompiled version of stardrive. 
+It contains fixes and enhancements to the basic game while trying to keep the game as close to vanilla as possible. 
+Ideally you would be hard pressed to tell the difference between regular stardrive and balckbox stardrive but... things might work better in black. Might have more controls. freighters might behave more like expected. might experience less crashes. might have better game performance. And there might not be any "might" about it. it does a lot of these things and more.
+Mods can be run all from the mod directory. ( some assembly required as most mods are distrubted with vanilla in mind)
+right click enemy planets to land troops, from troop carriers too.
+Fighters will return to carriers when out of ammo or badly damaged.
+and more.
+
 #feature list#
 [Version 1](http://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Code+Project+Not+game.&component=%21Mod+Issue&status=closed&status=resolved&version=0.1+Gravity)
 
