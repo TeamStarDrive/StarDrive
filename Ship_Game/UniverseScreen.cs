@@ -1206,7 +1206,8 @@ namespace Ship_Game
                         this.garbageCollector = 100;
                         if(GC.GetTotalMemory(false) > GlobalStats.MemoryLimiter)
                         {
-                            GC.GetTotalMemory(true);
+                            GC.Collect();
+                            
                             //GlobalStats.MemoryLimiter=(GC.GetTotalMemory(true)/1000) +500;
                         }
                     }
