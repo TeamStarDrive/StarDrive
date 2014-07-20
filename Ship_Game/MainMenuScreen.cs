@@ -127,7 +127,8 @@ namespace Ship_Game
 
 		public MainMenuScreen()
 		{
-			base.TransitionOnTime = TimeSpan.FromSeconds(1);
+            GC.Collect();
+            base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
 		}
 
@@ -593,9 +594,9 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			if (ConfigurationSettings.AppSettings["ActiveMod"] != "")
+			if (ConfigurationManager.AppSettings["ActiveMod"] != "")
 			{
-				if (!File.Exists(string.Concat("Mods/", ConfigurationSettings.AppSettings["ActiveMod"], ".xml")))
+				if (!File.Exists(string.Concat("Mods/", ConfigurationManager.AppSettings["ActiveMod"], ".xml")))
 				{
 					Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 					config.AppSettings.Settings["ActiveMod"].Value = "";
@@ -606,14 +607,15 @@ namespace Ship_Game
 				}
 				else
 				{
-					FileInfo FI = new FileInfo(string.Concat("Mods/", ConfigurationSettings.AppSettings["ActiveMod"], ".xml"));
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    FileInfo FI = new FileInfo(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value, ".xml"));
 					Stream file = FI.OpenRead();
 					ModInformation data = (ModInformation)Ship_Game.ResourceManager.ModSerializer.Deserialize(file);
 					file.Close();
 					file.Dispose();
 					ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
 					GlobalStats.ActiveMod = me;
-					Ship_Game.ResourceManager.LoadMods(string.Concat("Mods/", ConfigurationSettings.AppSettings["ActiveMod"]));
+					Ship_Game.ResourceManager.LoadMods(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value));
 				}
 			}
 			base.ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
