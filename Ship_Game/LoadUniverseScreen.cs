@@ -64,7 +64,8 @@ namespace Ship_Game
 
 		public LoadUniverseScreen(FileInfo activeFile)
 		{
-			GlobalStats.RemnantKills = 0;
+            GC.Collect();
+            GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
 			BackgroundWorker bgw = new BackgroundWorker();
