@@ -863,6 +863,7 @@ namespace Ship_Game
 		public void Dispose()
 		{
 			this.Dispose(true);
+            this.ScreenManager.RemoveScreen(this);
 			GC.SuppressFinalize(this);
 		}
 
