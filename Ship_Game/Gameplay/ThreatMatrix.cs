@@ -147,7 +147,7 @@ namespace Ship_Game.Gameplay
         }
         public void ScrubMatrix(bool scrubborders)
         {
-            if (!scrubborders && Empire.universeScreen.MasterShipList.Count >= this.Pins.Count)
+            if (!scrubborders && Empire.universeScreen.MasterShipList.Count > this.Pins.Count + 10f)
                 return;
             List<Guid> guids = new List<Guid>();
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
@@ -166,6 +166,7 @@ namespace Ship_Game.Gameplay
             {
                 this.Pins.Remove(kill);
             }
+            guids.Clear();
         }
 
         public bool ShipInOurBorders(Ship ship)

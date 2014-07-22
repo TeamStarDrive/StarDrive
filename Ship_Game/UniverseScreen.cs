@@ -244,6 +244,7 @@ namespace Ship_Game
         private float radlast;
         private int SelectorFrame;
         private float garbageCollector;
+        private float garbargeCollectorBase = 10;
         private bool doubleclicked;
         public static bool debug;
 
@@ -1203,10 +1204,11 @@ namespace Ship_Game
                     this.garbageCollector -= 0.01666667f;
                     if (this.garbageCollector <= 0.0f)
                     {
-                        this.garbageCollector = 100;
+                        this.garbageCollector = this.garbargeCollectorBase;
                         if(GC.GetTotalMemory(false) > GlobalStats.MemoryLimiter)
                         {
-                            GC.Collect();
+                            GC.Collect(GC.MaxGeneration,GCCollectionMode.Optimized);
+                            //GC.Collect();
                             
                             //GlobalStats.MemoryLimiter=(GC.GetTotalMemory(true)/1000) +500;
                         }
