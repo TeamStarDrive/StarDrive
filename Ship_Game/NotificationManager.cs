@@ -610,9 +610,10 @@ namespace Ship_Game
 		public void Update(float elapsedTime)
 		{
 
-            int date = (int)this.screen.StarDate;
-            if (ResourceManager.EventsDict.ContainsKey(date.ToString()))
+            float date = this.screen.StarDate;
+            if (Timer< date && ResourceManager.EventsDict.ContainsKey(date.ToString()))
             {
+                Timer = date;
                 ExplorationEvent ReferencedItem1 = ResourceManager.EventsDict[date.ToString()];
                 this.screen.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), ReferencedItem1 as ExplorationEvent, (ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]));
                 (ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), (ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]);
