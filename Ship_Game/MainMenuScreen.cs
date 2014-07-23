@@ -122,7 +122,7 @@ namespace Ship_Game
 
 		static MainMenuScreen()
 		{
-			MainMenuScreen.Version = "BlackBox Gravity : " + GlobalStats.ExtendedVersion;
+			MainMenuScreen.Version = "BlackBox " + GlobalStats.ExtendedVersion;
 		}
 
 		public MainMenuScreen()
