@@ -4117,7 +4117,7 @@ namespace Ship_Game
                 return false;
             }
                 this.ProductionHere -= amount;
-                this.ApplyProductiontoQueue(amount, 0);
+                this.ApplyProductiontoQueue(amount, Index);
                 return true;
        }
 
