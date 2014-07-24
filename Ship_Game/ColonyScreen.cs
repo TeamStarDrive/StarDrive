@@ -2290,7 +2290,7 @@ namespace Ship_Game
                                // if (this.p.ProductionHere <= 0f)
 
 
-                                if (this.p.ApplyStoredProduction())
+                                if (this.p.ApplyStoredProduction(i))
                                 {
                                     AudioManager.PlayCue("sd_ui_accept_alt3");
                                 }
