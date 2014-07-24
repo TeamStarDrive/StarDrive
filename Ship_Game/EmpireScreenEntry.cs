@@ -532,7 +532,7 @@ namespace Ship_Game
 				if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
 				{
                     bool flag=true;
-                    while (this.p.ApplyStoredProduction())
+                    while (this.p.ApplyStoredProduction(0))
                     {
                         AudioManager.PlayCue("sd_ui_accept_alt3");
                         if(flag)
@@ -545,7 +545,7 @@ namespace Ship_Game
 
 
 				}
-				else if (this.p.ApplyStoredProduction())
+				else if (this.p.ApplyStoredProduction(0))
 				{
 
 					AudioManager.PlayCue("sd_ui_accept_alt3");
