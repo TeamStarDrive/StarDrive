@@ -1828,6 +1828,7 @@ namespace Ship_Game
                         qi.productionTowards = 0.0f;
                         planetGridSquare2.QItem = qi;
                         qi.pgs = planetGridSquare2;
+                        qi.NotifyOnEmpty = false;
                         this.ConstructionQueue.Add(qi);
                         return true;
                     }
@@ -3108,6 +3109,7 @@ namespace Ship_Game
             qi.Building = b;
             qi.Cost = ResourceManager.GetBuilding(b.Name).Cost;
             qi.productionTowards = 0.0f;
+            qi.NotifyOnEmpty = false;
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
             else if (this.Owner.GetTDict()["Terraforming"].Unlocked && (double)this.Fertility < 1.0)
@@ -3310,7 +3312,7 @@ namespace Ship_Game
                     }
                 }
                 if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                    this.ApplyStoredProduction();
+                    this.ApplyStoredProduction(0);
                 for (int index = 0; index < this.ConstructionQueue.Count; ++index)
                 {
                     QueueItem queueItem1 = this.ConstructionQueue[index];
@@ -3318,7 +3320,7 @@ namespace Ship_Game
                     {
                         if (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -3533,7 +3535,7 @@ namespace Ship_Game
                             {
                                 if (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0)
                                 {
-                                    this.ApplyStoredProduction();
+                                    this.ApplyStoredProduction(0);
                                     break;
                                 }
                                 else
@@ -3550,13 +3552,14 @@ namespace Ship_Game
                                 foreach (QueueItem queueItem2 in linkedList)
                                     this.ConstructionQueue.Add(queueItem2);
                             }
+
+                            if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
+                            {
+                                this.ApplyStoredProduction(0);
+                                break;
+                            }
                         }
-                        if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                        {
-                            this.ApplyStoredProduction();
-                            break;
-                        }
-                        else
+                        
                             break;
                     case Planet.ColonyType.Industrial:
                         this.fs = Planet.GoodState.IMPORT;
@@ -3717,7 +3720,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -3804,7 +3807,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -3900,7 +3903,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -4025,7 +4028,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -4103,7 +4106,7 @@ namespace Ship_Game
             }
         }
 
-        public bool ApplyStoredProduction()
+        public bool ApplyStoredProduction(int Index)
         {
             if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null || this.Owner.Money <=0))
                 return false;
