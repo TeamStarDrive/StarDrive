@@ -36,7 +36,7 @@ You don't have to do this as you can just go to the steam and reverify steam con
 * if the mod has a "starter ships" folder and crashes on load copy the contents of the starterships folder into the mods ship designs folder and delete the mods starterships folder.
 
 #Future Features#
-[Future Features](http://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Code+Project+Not+game.&component=%21Mod+Issue&status=%21resolved&status=%21closed&version=%210.1+Gravity)
+[Future Features](https://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Mod+Issue&status=%21closed&status=%21resolved&version=%210.1+Gravity)
 
 ### Yeah thats great but i want to add my own features or change some issue that bugs me###
 * even better!!!
