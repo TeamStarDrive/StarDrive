@@ -449,9 +449,15 @@ namespace Ship_Game
                 if (keyValuePair.Value.Unlocked)
                 {
                     foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[keyValuePair.Key].BuildingsUnlocked)
-                        this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
+                    {
+                        if (unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null)
+                            this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
+                    }
                     foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[keyValuePair.Key].ModulesUnlocked)
-                        this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+                    {
+                        if (unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null)
+                            this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+                    }
                     foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[keyValuePair.Key].HullsUnlocked)
                     {
                         if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null)
@@ -495,7 +501,10 @@ namespace Ship_Game
             this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
             this.TechnologyDict[techID].Unlocked = true;
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
-                this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
+            {
+                if (unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null)
+                    this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
+            }
             if (ResourceManager.TechTree[techID].RootNode == 0)
             {
                 foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[techID].LeadsTo)
@@ -508,10 +517,13 @@ namespace Ship_Game
                 }
             }
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
-                this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+            {
+                if(unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null)
+                    this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+            }
             foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
             {
-                if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL")
+                if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null)
                     this.UnlockedTroopDict[unlockedTroop.Name] = true;
             }
             foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
@@ -677,17 +689,23 @@ namespace Ship_Game
             this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
             this.TechnologyDict[techID].Unlocked = true;
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
-                this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
+            {
+                if(unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null)
+                    this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
+            }
             if (ResourceManager.TechTree[techID].RootNode == 0)
             {
                 foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[techID].LeadsTo)
                     this.TechnologyDict[leadsToTech.UID].Discovered = true;
             }
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
-                this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+            {
+                if (unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null)
+                    this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+            }
             foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
             {
-                if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL")
+                if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null)
                     this.UnlockedTroopDict[unlockedTroop.Name] = true;
             }
             foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
@@ -702,13 +720,23 @@ namespace Ship_Game
         {
             foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
             {
-                if (unlockedTroop.Type == AbsorbedShipType || unlockedTroop.Type == "ALL")
+                if (unlockedTroop.Type == AbsorbedShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null)
                     this.UnlockedTroopDict[unlockedTroop.Name] = true;
             }
             foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
             {
                 if (unlockedHull.ShipType == AbsorbedShipType || unlockedHull.ShipType == null)
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
+            }
+            foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
+            {
+                if (unlockedMod.Type == AbsorbedShipType || unlockedMod.Type == null)
+                    this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+            }
+            foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
+            {
+                if (unlockedBuilding.Type == AbsorbedShipType || unlockedBuilding.Type == null)
+                    this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
             }
             this.UpdateShipsWeCanBuild();
         }
