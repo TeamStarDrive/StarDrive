@@ -62,7 +62,8 @@ namespace Ship_Game
 
 		public LoadSaveScreen(MainMenuScreen mmscreen)
 		{
-			this.mmscreen = mmscreen;
+            
+            this.mmscreen = mmscreen;
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
