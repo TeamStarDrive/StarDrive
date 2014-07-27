@@ -3132,7 +3132,7 @@ namespace Ship_Game
             else
             {
                 //if (!this.Owner.GetTDict()["Biospheres"].Unlocked)
-                if (!this.Owner.GetBDict().ContainsKey("Biospheres"))
+                if (!this.Owner.GetBDict()["Biospheres"])
                     return;
                 this.TryBiosphereBuild(ResourceManager.GetBuilding("Biospheres"), qi);
             }
@@ -3302,7 +3302,7 @@ namespace Ship_Game
                             this.AddBuildingToCQ(b);
                     }
                     //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0)
-                    else if (this.Owner.GetBDict().ContainsKey("Biospheres") && (double)this.MineralRichness >= 1.0)
+                    else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0)
                     {
                         if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                         {
@@ -3574,7 +3574,7 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                             //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
-                            else if (this.Owner.GetBDict().ContainsKey("Biospheres") && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
+                            else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
                             {
                                 if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                                 {
@@ -4134,8 +4134,7 @@ namespace Ship_Game
                             qi.Cost = troop.Value.Cost;
                             qi.productionTowards = 0f;
                             qi.NotifyOnEmpty = false;
-                            this.ConstructionQueue.Add(qi);
-                           
+                            this.ConstructionQueue.Add(qi);                         
                             break;
                         }
                     }
