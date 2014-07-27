@@ -2044,7 +2044,9 @@ namespace Ship_Game
                 }
             }
             int freighterLimit = this.OwnedPlanets.Where(combat=> combat.ParentSystem.combatTimer <1).Count() ;
-            
+
+            if (tradeShips + passengerShips > GlobalStats.ShipCountLimit * GlobalStats.freighterlimit)
+                freighterLimit = tradeShips + passengerShips;
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
