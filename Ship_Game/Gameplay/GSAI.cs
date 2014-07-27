@@ -6067,7 +6067,7 @@ namespace Ship_Game.Gameplay
 							}
 							//if (planetList.Type == "Barren" && this.empire.GetTDict()["Biospheres"].Unlocked)
                             //Added by McShooterz: changed the requirement from having research to having the building
-                            if (planetList.Type == "Barren" && this.empire.GetBDict().ContainsKey("Biospheres"))
+                            if (planetList.Type == "Barren" && this.empire.GetBDict()["Biospheres"])
 							{
 								ranker.Add(r);
 							}
@@ -6099,7 +6099,7 @@ namespace Ship_Game.Gameplay
 							r0.PV = (planetList.MineralRichness + planetList.Fertility + planetList.MaxPopulation / 1000f) / DistanceInJumps0;
 						}
 						//if (!(planetList.Type == "Barren") || !this.empire.GetTDict()["Biospheres"].Unlocked)
-                        if (!(planetList.Type == "Barren") || !this.empire.GetBDict().ContainsKey("Biospheres"))
+                        if (!(planetList.Type == "Barren") || !this.empire.GetBDict()["Biospheres"])
 						{
 							if (!(planetList.Type != "Barren") || (double)planetList.Fertility < 1 && !this.empire.GetTDict()["Aeroponics"].Unlocked && this.empire.data.Traits.Cybernetic == 0)
 							{
@@ -6331,7 +6331,7 @@ namespace Ship_Game.Gameplay
                             }
 
                             //if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetTDict()["Biospheres"].Unlocked || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
-                            if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict().ContainsKey("Biospheres") || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
+                            if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict()["Biospheres"] || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
                             {
                                 ranker.Add(r2);
                             }
@@ -6377,7 +6377,7 @@ namespace Ship_Game.Gameplay
                         }
                         //if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetTDict()["Biospheres"].Unlocked || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
                         //if (!(planetList.Type == "Barren") || !this.empire.GetTDict()["Biospheres"].Unlocked)
-                        if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict().ContainsKey("Biospheres") || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
+                        if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict()["Biospheres"] || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
                         {
                             if (!(planetList.Type != "Barren") || (double)planetList.Fertility < .5 && !this.empire.GetTDict()["Aeroponics"].Unlocked && this.empire.data.Traits.Cybernetic == 0)
                             {
