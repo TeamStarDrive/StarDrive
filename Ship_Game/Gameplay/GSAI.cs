@@ -6067,7 +6067,7 @@ namespace Ship_Game.Gameplay
 							}
 							//if (planetList.Type == "Barren" && this.empire.GetTDict()["Biospheres"].Unlocked)
                             //Added by McShooterz: changed the requirement from having research to having the building
-                            if (planetList.Type == "Barren" && this.empire.GetBDict().ContainsKey("Biospheres"))
+                            if (planetList.Type == "Barren" && this.empire.GetBDict()["Biospheres"])
 							{
 								ranker.Add(r);
 							}
@@ -6099,7 +6099,7 @@ namespace Ship_Game.Gameplay
 							r0.PV = (planetList.MineralRichness + planetList.Fertility + planetList.MaxPopulation / 1000f) / DistanceInJumps0;
 						}
 						//if (!(planetList.Type == "Barren") || !this.empire.GetTDict()["Biospheres"].Unlocked)
-                        if (!(planetList.Type == "Barren") || !this.empire.GetBDict().ContainsKey("Biospheres"))
+                        if (!(planetList.Type == "Barren") || !this.empire.GetBDict()["Biospheres"])
 						{
 							if (!(planetList.Type != "Barren") || (double)planetList.Fertility < 1 && !this.empire.GetTDict()["Aeroponics"].Unlocked && this.empire.data.Traits.Cybernetic == 0)
 							{
@@ -6331,7 +6331,7 @@ namespace Ship_Game.Gameplay
                             }
 
                             //if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetTDict()["Biospheres"].Unlocked || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
-                            if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict().ContainsKey("Biospheres") || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
+                            if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict()["Biospheres"] || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
                             {
                                 ranker.Add(r2);
                             }
@@ -6377,7 +6377,7 @@ namespace Ship_Game.Gameplay
                         }
                         //if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetTDict()["Biospheres"].Unlocked || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
                         //if (!(planetList.Type == "Barren") || !this.empire.GetTDict()["Biospheres"].Unlocked)
-                        if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict().ContainsKey("Biospheres") || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
+                        if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict()["Biospheres"] || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
                         {
                             if (!(planetList.Type != "Barren") || (double)planetList.Fertility < .5 && !this.empire.GetTDict()["Aeroponics"].Unlocked && this.empire.data.Traits.Cybernetic == 0)
                             {
@@ -7587,16 +7587,6 @@ namespace Ship_Game.Gameplay
 		{
 			if (this.empire.ResearchTopic == "")
 			{
-				bool InAWar = false;
-				foreach (KeyValuePair<Empire, Relationship> relationship in this.empire.GetRelations())
-				{
-					if (relationship.Key.isFaction || !relationship.Value.AtWar)
-					{
-						continue;
-					}
-					InAWar = true;
-					break;
-				}
 				switch (this.res_strat)
 				{
 					case GSAI.ResearchStrategy.Random:
@@ -7626,38 +7616,15 @@ namespace Ship_Game.Gameplay
 					{
 						if (this.empire.getResStrat() != null)
 						{
-							if (InAWar && this.empire.GetTDict().ContainsKey("MissileTheory") && !this.empire.GetTDict()["MissileTheory"].Unlocked)
-							{
-								this.empire.ResearchTopic = "MissileTheory";
-								return;
-							}
 							foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
 							{
-								if (this.empire.GetTDict()[tech.id].Unlocked)
+                                if (!this.empire.GetTDict().ContainsKey(tech.id) || this.empire.GetTDict()[tech.id].Unlocked || !this.empire.HavePreReq(tech.id))
 								{
 									continue;
 								}
 								this.empire.ResearchTopic = tech.id;
-								break;
+								return;
 							}
-						}
-						if (this.empire.ResearchTopic == "ArmorTheory" && this.empire.GetTDict()[this.empire.ResearchTopic].Unlocked && !this.empire.GetTDict()["Point Defense"].Unlocked)
-						{
-							this.empire.ResearchTopic = "Point Defense";
-						}
-						if (this.empire.getResStrat() == null || this.empire.ResearchTopic == "")
-						{
-							this.res_strat = GSAI.ResearchStrategy.Random;
-							return;
-						}
-						if (this.empire.ResearchTopic != "" && !this.empire.GetTDict().ContainsKey(this.empire.ResearchTopic))
-						{
-							this.res_strat = GSAI.ResearchStrategy.Random;
-							return;
-						}
-						if (!(this.empire.ResearchTopic != "") || this.empire.HavePreReq(this.empire.ResearchTopic))
-						{
-							break;
 						}
 						this.res_strat = GSAI.ResearchStrategy.Random;
 						return;
