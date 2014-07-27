@@ -3351,8 +3351,17 @@ namespace Ship_Game
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
                             float num = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = (float)((double)num * 2.0 / 5.0);
-                            this.ResearcherPercentage = (float)((double)num * 3.0 / 5.0);
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = (float)(num * 2.0 / 5.0);
+                                this.ResearcherPercentage = (float)(num * 3.0 / 5.0);
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         else
                             this.fs = (double)this.FoodHere >= (double)this.MAX_STORAGE * 0.25 ? Planet.GoodState.EXPORT : Planet.GoodState.STORE;
@@ -3362,8 +3371,17 @@ namespace Ship_Game
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(-0.5f);
                             float num = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = num / 2f;
-                            this.ResearcherPercentage = num / 2f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = num / 2f;
+                                this.ResearcherPercentage = num / 2f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                             this.fs = Planet.GoodState.IMPORT;
                         }
                         else if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.75)
@@ -3372,28 +3390,64 @@ namespace Ship_Game
                             {
                                 this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
                                 float num = 1f - this.FarmerPercentage;
-                                this.WorkerPercentage = num / 2f;
-                                this.ResearcherPercentage = num / 2f;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    this.WorkerPercentage = num / 2f;
+                                    this.ResearcherPercentage = num / 2f;
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = num;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
                             }
                             else
                             {
                                 this.FarmerPercentage = 0.0f;
-                                this.WorkerPercentage = 0.5f;
-                                this.ResearcherPercentage = 0.5f;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    this.WorkerPercentage = 0.5f;
+                                    this.ResearcherPercentage = 0.5f;
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = 1.0f;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
                             }
                         }
                         else if ((double)this.FoodHere / (double)this.MAX_STORAGE > 0.75)
                         {
                             this.FarmerPercentage = 0.0f;
-                            this.WorkerPercentage = 0.7f;
-                            this.ResearcherPercentage = 0.3f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = 0.7f;
+                                this.ResearcherPercentage = 0.3f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = 1.0f;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         else
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
                             float num = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
-                            this.ResearcherPercentage = num / 4f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
+                                this.ResearcherPercentage = num / 4f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         if ((double)this.GrossMoneyPT - (double)this.TotalMaintenanceCostsPerTurn < 0.0 && ((double)this.MineralRichness >= 0.75 || (double)this.PlusProductionPerColonist >= 1.0) && (double)this.ResearcherPercentage > 0.0)
                         {
@@ -3825,14 +3879,32 @@ namespace Ship_Game
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
                             float num1 = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = num1 / 2f;
-                            this.ResearcherPercentage = num1 / 2f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = num1 / 2f;
+                                this.ResearcherPercentage = num1 / 2f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num1;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.850000023841858)
                         {
                             float num1 = 1f - this.FarmerPercentage;
                             this.WorkerPercentage = 0.0f;
-                            this.ResearcherPercentage = num1;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.ResearcherPercentage = num1;
+                            }
+                            else
+                            {
+                                this.FarmerPercentage = 1f;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         float num9 = 0.0f;
                         bool flag11 = false;
