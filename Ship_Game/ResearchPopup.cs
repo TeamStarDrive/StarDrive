@@ -170,20 +170,24 @@ namespace Ship_Game
 			Submenu UnlocksSubMenu = new Submenu(base.ScreenManager, this.UnlocksRect);
 			this.UnlockSL = new ScrollList(UnlocksSubMenu, 100);
 			Technology unlockedTech = ResourceManager.TechTree[this.TechUID];
-			foreach (Technology.UnlockedMod unlockMod in unlockedTech.ModulesUnlocked)
+            foreach (Technology.UnlockedMod UnlockedMod in unlockedTech.ModulesUnlocked)
 			{
+                if (!(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == UnlockedMod.Type) && UnlockedMod.Type != null)
+                {
+                    continue;
+                }
 				UnlockItem unlock = new UnlockItem()
 				{
 					Type = "SHIPMODULE",
-					module = ResourceManager.ShipModulesDict[unlockMod.ModuleUID],
-					Description = Localizer.Token(ResourceManager.ShipModulesDict[unlockMod.ModuleUID].DescriptionIndex),
-					privateName = Localizer.Token(ResourceManager.ShipModulesDict[unlockMod.ModuleUID].NameIndex)
+                    module = ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID],
+                    Description = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].DescriptionIndex),
+                    privateName = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].NameIndex)
 				};
 				this.UnlockSL.AddItem(unlock);
 			}
 			foreach (Technology.UnlockedTroop troop in unlockedTech.TroopsUnlocked)
 			{
-				if (!(troop.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType) && !(troop.Type == "ALL"))
+				if (troop.Type != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType && troop.Type != "ALL" && troop.Type != null)
 				{
 					continue;
 				}
@@ -214,17 +218,25 @@ namespace Ship_Game
 				unlock.Description = string.Concat(Localizer.Token(4042), " ", ResourceManager.HullsDict[hull.Name].Role);
 				this.UnlockSL.AddItem(unlock);
 			}
-			foreach (Technology.UnlockedBuilding unlockedB in unlockedTech.BuildingsUnlocked)
+            foreach (Technology.UnlockedBuilding UnlockedBuilding in unlockedTech.BuildingsUnlocked)
 			{
+                if (!(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == UnlockedBuilding.Type) && UnlockedBuilding.Type != null)
+                {
+                    continue;
+                }
 				UnlockItem unlock = new UnlockItem()
 				{
 					Type = "BUILDING",
-					building = ResourceManager.BuildingsDict[unlockedB.Name]
+                    building = ResourceManager.BuildingsDict[UnlockedBuilding.Name]
 				};
 				this.UnlockSL.AddItem(unlock);
 			}
 			foreach (Technology.UnlockedBonus ub in unlockedTech.BonusUnlocked)
 			{
+                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType != ub.Type && ub.Type != null)
+                {
+                    continue;
+                }
 				UnlockItem unlock = new UnlockItem()
 				{
 					Type = "ADVANCE",
