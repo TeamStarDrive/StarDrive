@@ -7587,16 +7587,6 @@ namespace Ship_Game.Gameplay
 		{
 			if (this.empire.ResearchTopic == "")
 			{
-				//bool InAWar = false;
-				//foreach (KeyValuePair<Empire, Relationship> relationship in this.empire.GetRelations())
-				//{
-					//if (relationship.Key.isFaction || !relationship.Value.AtWar)
-					//{
-						//continue;
-					//}
-					//InAWar = true;
-					//break;
-				//}
 				switch (this.res_strat)
 				{
 					case GSAI.ResearchStrategy.Random:
@@ -7626,39 +7616,15 @@ namespace Ship_Game.Gameplay
 					{
 						if (this.empire.getResStrat() != null)
 						{
-							//if (InAWar && this.empire.GetTDict().ContainsKey("MissileTheory") && !this.empire.GetTDict()["MissileTheory"].Unlocked)
-							//{
-								//this.empire.ResearchTopic = "MissileTheory";
-								//return;
-							//}
 							foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
 							{
-								if (this.empire.GetTDict()[tech.id].Unlocked)
+                                if (!this.empire.GetTDict().ContainsKey(tech.id) || this.empire.GetTDict()[tech.id].Unlocked || !this.empire.HavePreReq(tech.id))
 								{
 									continue;
 								}
 								this.empire.ResearchTopic = tech.id;
-								break;
+								return;
 							}
-						}
-						//if (this.empire.ResearchTopic == "ArmorTheory" && this.empire.GetTDict()[this.empire.ResearchTopic].Unlocked && !this.empire.GetTDict()["Point Defense"].Unlocked)
-						//{
-							//this.empire.ResearchTopic = "Point Defense";
-						//}
-						if (this.empire.getResStrat() == null || this.empire.ResearchTopic == "")
-						{
-							this.res_strat = GSAI.ResearchStrategy.Random;
-							return;
-						}
-						//if (this.empire.ResearchTopic != "" && !this.empire.GetTDict().ContainsKey(this.empire.ResearchTopic))
-						//{
-							//this.res_strat = GSAI.ResearchStrategy.Random;
-							//return;
-						//}
-						//if (!(this.empire.ResearchTopic != "") || this.empire.HavePreReq(this.empire.ResearchTopic))
-                        if ((this.empire.ResearchTopic != "") && this.empire.HavePreReq(this.empire.ResearchTopic))
-						{
-							return;
 						}
 						this.res_strat = GSAI.ResearchStrategy.Random;
 						return;
