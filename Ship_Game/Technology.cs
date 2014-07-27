@@ -63,6 +63,8 @@ namespace Ship_Game
 		{
 			public string Name;
 
+            public string Type;
+
 			public string BonusType;
 
 			public List<string> Tags;
@@ -83,6 +85,8 @@ namespace Ship_Game
 		public struct UnlockedBuilding
 		{
 			public string Name;
+
+            public string Type;
 		}
 
 		public struct UnlockedHull
@@ -95,6 +99,8 @@ namespace Ship_Game
 		public struct UnlockedMod
 		{
 			public string ModuleUID;
+
+            public string Type;
 		}
 
 		public struct UnlockedTroop

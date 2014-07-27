@@ -735,6 +735,10 @@ namespace Ship_Game
 			this.DetailUnlocks.Clear();
 			foreach (Technology.UnlockedMod unlockMod in unlockedTech.ModulesUnlocked)
 			{
+                if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.Traits.ShipType != unlockMod.Type && unlockMod.Type != null)
+                {
+                    continue;
+                }
 				ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
 				{
 					Type = "SHIPMODULE",
@@ -777,6 +781,10 @@ namespace Ship_Game
 			}
 			foreach (Technology.UnlockedBuilding unlockedB in unlockedTech.BuildingsUnlocked)
 			{
+                if (!(EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.Traits.ShipType == unlockedB.Type) && unlockedB.Type != null)
+                {
+                    continue;
+                }
 				ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
 				{
 					Type = "BUILDING",
@@ -786,6 +794,10 @@ namespace Ship_Game
 			}
 			foreach (Technology.UnlockedBonus ub in unlockedTech.BonusUnlocked)
 			{
+                if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.Traits.ShipType != ub.Type && ub.Type != null)
+                {
+                    continue;
+                }
 				ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
 				{
 					Type = "ADVANCE",
