@@ -3131,7 +3131,8 @@ namespace Ship_Game
             }
             else
             {
-                if (!this.Owner.GetTDict()["Biospheres"].Unlocked)
+                //if (!this.Owner.GetTDict()["Biospheres"].Unlocked)
+                if (!this.Owner.GetBDict().ContainsKey("Biospheres"))
                     return;
                 this.TryBiosphereBuild(ResourceManager.GetBuilding("Biospheres"), qi);
             }
@@ -3300,7 +3301,8 @@ namespace Ship_Game
                         if (flag2)
                             this.AddBuildingToCQ(b);
                     }
-                    else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0)
+                    //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0)
+                    else if (this.Owner.GetBDict().ContainsKey("Biospheres") && (double)this.MineralRichness >= 1.0)
                     {
                         if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                         {
@@ -3517,7 +3519,8 @@ namespace Ship_Game
                                 if (flag1)
                                     this.AddBuildingToCQ(b);
                             }
-                            else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
+                            //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
+                            else if (this.Owner.GetBDict().ContainsKey("Biospheres") && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
                             {
                                 if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                                 {
