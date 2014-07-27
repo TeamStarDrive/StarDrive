@@ -64,7 +64,8 @@ namespace Ship_Game
 
 		public LoadUniverseScreen(FileInfo activeFile)
 		{
-			GlobalStats.RemnantKills = 0;
+            GC.Collect();
+            GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
 			BackgroundWorker bgw = new BackgroundWorker();
@@ -982,6 +983,7 @@ namespace Ship_Game
 							qi.isBuilding = true;
 							qi.Building = Ship_Game.ResourceManager.BuildingsDict[qisave.UID];
 							qi.Cost = qi.Building.Cost * this.savedData.GamePacing;
+                            qi.NotifyOnEmpty = false;
 							foreach (PlanetGridSquare pgs in p.TilesList)
 							{
 								if ((float)pgs.x != qisave.pgsVector.X || (float)pgs.y != qisave.pgsVector.Y)
@@ -998,6 +1000,7 @@ namespace Ship_Game
 							qi.isTroop = true;
 							qi.troop = Ship_Game.ResourceManager.TroopsDict[qisave.UID];
 							qi.Cost = qi.troop.Cost;
+                            qi.NotifyOnEmpty = false;
 						}
 						if (qisave.isShip)
 						{
@@ -1037,6 +1040,7 @@ namespace Ship_Game
 								continue;
 							}
 							qi.Goal = g;
+                            qi.NotifyOnEmpty = false;
 						}
 						if (qisave.isShip && qi.Goal != null)
 						{

@@ -840,7 +840,7 @@ namespace Ship_Game
         }
         public void UpdateKnownShips()
         {
-            this.GetGSAI().ThreatMatrix.ScrubMatrix();
+            this.GetGSAI().ThreatMatrix.ScrubMatrix(true);
             lock (GlobalStats.KnownShipsLock)
             {
                 if (this.isPlayer && Empire.universeScreen.Debug)
@@ -863,17 +863,18 @@ namespace Ship_Game
                 if (nearby.loyalty != this)
                 {
                     List<Ship> toadd = new List<Ship>();
+                    bool flag = false;
+                    bool border = false;
                     lock (GlobalStats.SensorNodeLocker)
                     {
 
-                        bool flag = false;
-                        bool border = false;
+   
                         foreach (Empire.InfluenceNode node in this.SensorNodes)
                         //Parallel.ForEach<Empire.InfluenceNode>(this.SensorNodes, (node, status) =>
                         {
                             if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
                             {
-                                this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
+                               // this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
                                 continue;
                                 //return;
                             }
@@ -915,6 +916,8 @@ namespace Ship_Game
 
                             nearby.GetSystem().DangerTimer = 120f;
                             break;
+                            //status.Stop();
+                            //return;
 
 
                             //status.Stop();
@@ -942,8 +945,9 @@ namespace Ship_Game
 
 
                         }
-                        toadd.Clear();
+                       
                     }
+                    toadd.Clear();
                 }
                 else
                 {

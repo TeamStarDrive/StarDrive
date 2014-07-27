@@ -3747,9 +3747,9 @@ namespace Ship_Game.Gameplay
 
 		public void OrderRebaseToNearest()
 		{
-            //added by gremlin if rebasing dont rebase.
-            if (this.State == AIState.Rebase && this.OrbitTarget.Owner == this.Owner.loyalty)
-                return;
+            ////added by gremlin if rebasing dont rebase.
+            //if (this.State == AIState.Rebase && this.OrbitTarget.Owner == this.Owner.loyalty)
+            //    return;
             lock (GlobalStats.WayPointLock)
 			{
 				this.ActiveWayPoints.Clear();
