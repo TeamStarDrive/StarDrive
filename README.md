@@ -22,7 +22,7 @@ You don't have to do this as you can just go to the steam and reverify steam con
 * Overwrite files when asked.
 
 #### Mod Super Pack ####
-This is a blackbox download that includes these mods:
+This is a blackbox download that includes these mods reformatted to work with black box:
 
 * BlackBox : http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=9910
 
