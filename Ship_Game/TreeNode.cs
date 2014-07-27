@@ -67,14 +67,17 @@ namespace Ship_Game
 			}
 			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].BonusUnlocked.Count; i++)
 			{
-				UnlockItem unlock = new UnlockItem()
-				{
-					privateName = ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Name,
-					Description = Localizer.Token(ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].BonusIndex),
-					Type = "ADVANCE"
-				};
-				numUnlocks++;
-				this.Unlocks.Add(unlock);
+                if (ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Type == null)
+                {
+                    UnlockItem unlock = new UnlockItem()
+                    {
+                        privateName = ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Name,
+                        Description = Localizer.Token(ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].BonusIndex),
+                        Type = "ADVANCE"
+                    };
+                    numUnlocks++;
+                    this.Unlocks.Add(unlock);
+                }
 			}
 			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked.Count; i++)
 			{
