@@ -102,7 +102,7 @@ namespace Ship_Game
 			this.CombatField = new Menu2(sm, ColonyGrid);
 			Rectangle OrbitalRect = new Rectangle(5, ColonyGrid.Y, (screenWidth - ColonyGrid.Width) / 2 - 20, ColonyGrid.Height+20);
 			this.OrbitalResources = new Menu1(this.ScreenManager, OrbitalRect);
-			Rectangle psubRect = new Rectangle(this.AssetsRect.X + 225, this.AssetsRect.Y, 185, this.AssetsRect.Height);
+			Rectangle psubRect = new Rectangle(this.AssetsRect.X + 225, this.AssetsRect.Y+23, 185, this.AssetsRect.Height);
 			this.orbitalResourcesSub = new Submenu(this.ScreenManager, psubRect);
 			this.orbitalResourcesSub.AddTab("In Orbit");
 			this.OrbitSL = new ScrollList(this.orbitalResourcesSub);
@@ -117,7 +117,7 @@ namespace Ship_Game
 			};
             this.LaunchAll = new UIButton()
             {
-                Rect = new Rectangle(this.orbitalResourcesSub.Menu.X + 20, this.orbitalResourcesSub.Menu.Y +18, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
+                Rect = new Rectangle(this.orbitalResourcesSub.Menu.X + 20, this.LandAll.Rect.Y -2- this.LandAll.Rect.Height, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
                 NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
                 HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
                 PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
@@ -376,7 +376,7 @@ namespace Ship_Game
 					this.LandAll.Draw(this.ScreenManager.SpriteBatch);
                     
 				}
-                if (p.TroopsHere.Where(mytroops => mytroops.GetOwner() == universeScreen.player).Count() > 0)
+                if (p.TroopsHere.Where(mytroops => mytroops.GetOwner() == universeScreen.player && mytroops.Launchtimer<=0).Count() > 0)
                 {
                     this.LaunchAll.Draw(this.ScreenManager.SpriteBatch);
                 }
@@ -764,14 +764,15 @@ namespace Ship_Game
                         bool play = false;
                         foreach (PlanetGridSquare pgs in this.p.TilesList)
                         {
-                            if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty) && (pgs.TroopsHere[0].AvailableMoveActions<1 || pgs.TroopsHere[0].AvailableAttackActions < 1))
+                            if (pgs.TroopsHere.Count <= 0 ||(pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty) || pgs.TroopsHere[0].Launchtimer >=0))
                             {
                                 continue;
-                            }
+                            }        
        
    
                             pgs.TroopsHere[0].AvailableAttackActions = 0;
                             pgs.TroopsHere[0].AvailableMoveActions = 0;
+                            pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
                             pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
                             pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
                             play = true;
@@ -828,8 +829,10 @@ namespace Ship_Game
 						pgs.TroopsHere.Add(this.draggedTroop.item as Troop);
 						pgs.TroopsHere[0].AvailableAttackActions = 0;
 						pgs.TroopsHere[0].AvailableMoveActions = 0;
+                        pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
 						pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
 						pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
+                        
 						this.p.TroopsHere.Add(this.draggedTroop.item as Troop);
 						(this.draggedTroop.item as Troop).SetPlanet(this.p);
 						this.OrbitSL.Entries.Remove(this.draggedTroop);
@@ -847,6 +850,7 @@ namespace Ship_Game
 						pgs.TroopsHere.Add((this.draggedTroop.item as Ship).TroopList[0]);
 						pgs.TroopsHere[0].AvailableAttackActions = 0;
 						pgs.TroopsHere[0].AvailableMoveActions = 0;
+                        pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
 						pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
 						pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
 						this.p.TroopsHere.Add((this.draggedTroop.item as Ship).TroopList[0]);

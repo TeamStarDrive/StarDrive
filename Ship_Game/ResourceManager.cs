@@ -1675,7 +1675,15 @@ namespace Ship_Game
 				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				Ship_Game.ResourceManager.Empires.Add(data);
+
+                
+                //ResourceManager.Empires.RemoveAll(x => x.PortraitName == data.PortraitName);
+                EmpireData remove = ResourceManager.Empires.Find(x => x.PortraitName == data.PortraitName);
+                if(remove != null)
+                ResourceManager.Empires.Remove(remove);
+                
+                    
+                Ship_Game.ResourceManager.Empires.Add(data);
 			}
 			textList = null;
 		}
@@ -1920,10 +1928,11 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.ShipsDict.Clear();
             //Added by McShooterz: Changed how StarterShips loads from mod if folder exists
             XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
-            FileInfo[] textList;
+            FileInfo[] textList; //"Mods/", 
             if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips")))
             {
-                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/StarterShips/"));
+                Ship_Game.ResourceManager.ShipsDict.Clear();
+                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips/"));
             }
             else
             {
@@ -2160,7 +2169,7 @@ namespace Ship_Game
 
 		public static void LoadSubsetEmpires()
 		{
-			Ship_Game.ResourceManager.Empires.Clear();
+			//Ship_Game.ResourceManager.Empires.Clear();
 			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Races"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(EmpireData));
 			FileInfo[] fileInfoArray = textList;
@@ -2439,6 +2448,35 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.TechTree.Clear();
 			Ship_Game.ResourceManager.ArtifactsDict.Clear();
 			Ship_Game.ResourceManager.ShipsDict.Clear();
+            Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
+            Ship_Game.ResourceManager.HostileFleets = new HostileFleets(); ;
+            Ship_Game.ResourceManager.ShipNames = new ShipNames(); ;
+            Ship_Game.ResourceManager.SoundEffectDict.Clear();
+
+
+
+            Ship_Game.ResourceManager.TextureDict.Clear();
+            Ship_Game.ResourceManager.ToolTips.Clear();
+            Ship_Game.ResourceManager.GoodsDict.Clear();         
+            //Ship_Game.ResourceManager.LoadDialogs();
+            Ship_Game.ResourceManager.Encounters.Clear();
+            Ship_Game.ResourceManager.EventsDict.Clear();
+            
+            //Ship_Game.ResourceManager.LoadLanguage();
+
+            Ship_Game.ResourceManager.RandomItemsList.Clear();
+            Ship_Game.ResourceManager.ProjectileMeshDict.Clear();
+            Ship_Game.ResourceManager.ProjTextDict.Clear();
+            //if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
+            //{
+            //    Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);
+            //}
+            //if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video")))
+            //{
+            //    Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video"), "Content/ModVideo", true);
+            //}
+          
+
 		}
 
 		public static void Start()

@@ -2287,27 +2287,35 @@ namespace Ship_Game
 						{
 							if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 							{
-								if (this.p.ProductionHere <= 0f)
-								{
-									AudioManager.PlayCue("UI_Misc20");
-								}
-								else if (this.p.ProductionHere >= 10f)
-								{
-									this.p.ApplyProductiontoQueue(10f, i);
-									Planet productionHere = this.p;
-									productionHere.ProductionHere = productionHere.ProductionHere - 10f;
-									AudioManager.PlayCue("sd_ui_accept_alt3");
-								}
-								else if (this.p.ProductionHere > 10f || this.p.ProductionHere <= 0f)
-								{
-									AudioManager.PlayCue("UI_Misc20");
-								}
-								else
-								{
-									this.p.ApplyProductiontoQueue(this.p.ProductionHere, i);
-									this.p.ProductionHere = 0f;
-									AudioManager.PlayCue("sd_ui_accept_alt3");
-								}
+                               // if (this.p.ProductionHere <= 0f)
+
+
+                                if (this.p.ApplyStoredProduction(i))
+                                {
+                                    AudioManager.PlayCue("sd_ui_accept_alt3");
+                                }
+                                else
+                                {
+                                    AudioManager.PlayCue("UI_Misc20");
+                                }
+                                //if (this.p.ProductionHere >= 10f) 
+                                //{
+
+                            //    this.p.ApplyProductiontoQueue(10f, i);
+                                //    Planet productionHere = this.p;
+                                //    productionHere.ProductionHere = productionHere.ProductionHere - 10f;
+                                //    AudioManager.PlayCue("sd_ui_accept_alt3");
+                                //}
+                                //else if (this.p.ProductionHere > 10f || this.p.ProductionHere <= 0f)
+                                //{
+                                //    AudioManager.PlayCue("UI_Misc20");
+                                //}
+                                //else
+                                //{
+                                //    this.p.ApplyProductiontoQueue(this.p.ProductionHere, i);
+                                //    this.p.ProductionHere = 0f;
+                                //    AudioManager.PlayCue("sd_ui_accept_alt3");
+                                //}
 							}
 						}
 						else if (PlanetScreen.screen.Debug)
