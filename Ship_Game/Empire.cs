@@ -440,10 +440,7 @@ namespace Ship_Game
             foreach (KeyValuePair<string, Building> keyValuePair in ResourceManager.BuildingsDict)
                 this.UnlockedBuildingsDict.Add(keyValuePair.Key, false);
             foreach (KeyValuePair<string, ShipModule> keyValuePair in ResourceManager.ShipModulesDict)
-            {
-                if (!this.UnlockedBuildingsDict.ContainsKey(keyValuePair.Key))
-                    this.UnlockedModulesDict.Add(keyValuePair.Key, false);
-            }
+                this.UnlockedModulesDict.Add(keyValuePair.Key, false);
             foreach (KeyValuePair<string, TechEntry> keyValuePair in this.TechnologyDict)
             {
                 if (keyValuePair.Value.Unlocked)
@@ -465,7 +462,7 @@ namespace Ship_Game
                     }
                     foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[keyValuePair.Key].TroopsUnlocked)
                     {
-                        if (unlockedTroop.Type == this.data.Traits.ShipType)
+                        if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null)
                             this.UnlockedTroopDict[unlockedTroop.Name] = true;
                     }
                 }
@@ -500,6 +497,7 @@ namespace Ship_Game
                 return;
             this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
             this.TechnologyDict[techID].Unlocked = true;
+            //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {
                 if (unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null)
@@ -516,6 +514,7 @@ namespace Ship_Game
                     }
                 }
             }
+            //Added by McShooterz: Race Specific modules
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
             {
                 if(unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null)
@@ -533,155 +532,159 @@ namespace Ship_Game
             }
             foreach (Technology.UnlockedBonus unlockedBonus in ResourceManager.TechTree[techID].BonusUnlocked)
             {
-                string str = unlockedBonus.BonusType;
-                if (string.IsNullOrEmpty(str))
-                    str = unlockedBonus.Name;
-                if (unlockedBonus.Tags.Count > 0)
+                //Added by McShooterz: Race Specific bonus
+                if (unlockedBonus.Type == null || unlockedBonus.Type == this.data.Traits.ShipType)
                 {
-                    foreach (string index in unlockedBonus.Tags)
+                    string str = unlockedBonus.BonusType;
+                    if (string.IsNullOrEmpty(str))
+                        str = unlockedBonus.Name;
+                    if (unlockedBonus.Tags.Count > 0)
                     {
-                        switch (unlockedBonus.BonusType)
+                        foreach (string index in unlockedBonus.Tags)
                         {
-                            case "Weapon_Speed":
-                                this.data.WeaponTags[index].Speed += unlockedBonus.Bonus;
-                                continue;
-                            case "Weapon_Damage":
-                                this.data.WeaponTags[index].Damage += unlockedBonus.Bonus;
-                                continue;
-                            case "Weapon_ExplosionRadius":
-                                this.data.WeaponTags[index].ExplosionRadius += unlockedBonus.Bonus;
-                                continue;
-                            case "Weapon_TurnSpeed":
-                                this.data.WeaponTags[index].Turn += unlockedBonus.Bonus;
-                                continue;
-                            case "Weapon_Rate":
-                                this.data.WeaponTags[index].Rate += unlockedBonus.Bonus;
-                                continue;
-                            case "Weapon_Range":
-                                this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
-                                continue;
-                            case "Weapon_ShieldDamage":
-                                this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
-                                continue;
-                            case "Weapon_ArmorDamage":
-                                this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
-                                continue;
-                            case "Weapon_HP":
-                                this.data.WeaponTags[index].HitPoints += unlockedBonus.Bonus;
-                                continue;
-                            default:
-                                continue;
+                            switch (unlockedBonus.BonusType)
+                            {
+                                case "Weapon_Speed":
+                                    this.data.WeaponTags[index].Speed += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_Damage":
+                                    this.data.WeaponTags[index].Damage += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_ExplosionRadius":
+                                    this.data.WeaponTags[index].ExplosionRadius += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_TurnSpeed":
+                                    this.data.WeaponTags[index].Turn += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_Rate":
+                                    this.data.WeaponTags[index].Rate += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_Range":
+                                    this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_ShieldDamage":
+                                    this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_ArmorDamage":
+                                    this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_HP":
+                                    this.data.WeaponTags[index].HitPoints += unlockedBonus.Bonus;
+                                    continue;
+                                default:
+                                    continue;
+                            }
                         }
                     }
-                }
-                if (str == "Xeno Compilers" || str == "Research Bonus")
-                    this.data.Traits.ResearchMod += unlockedBonus.Bonus;
-                if (str == "Afterburner Bonus")
-                    this.data.AfterBurnerSpeedModifier += unlockedBonus.Bonus;
-                if (str == "FTL Spool Bonus")
-                {
-                    if (unlockedBonus.Bonus < 1)
-                        this.data.SpoolTimeModifier *= 1.0f - unlockedBonus.Bonus; // i.e. if there is a 0.2 (20%) bonus unlocked, the spool modifier is 1-0.2 = 0.8* existing spool modifier...
-                    else if (unlockedBonus.Bonus >= 1)
-                        this.data.SpoolTimeModifier = 0f; // insta-warp by modifier
-                }
-                if (str == "Top Guns" || str == "Bonus Fighter Levels")
-                {
-                    this.data.BonusFighterLevels += (int)unlockedBonus.Bonus;
-                    foreach (Ship ship in (List<Ship>)this.OwnedShips)
+                    if (str == "Xeno Compilers" || str == "Research Bonus")
+                        this.data.Traits.ResearchMod += unlockedBonus.Bonus;
+                    if (str == "Afterburner Bonus")
+                        this.data.AfterBurnerSpeedModifier += unlockedBonus.Bonus;
+                    if (str == "FTL Spool Bonus")
                     {
-                        if (ship.Role == "fighter")
+                        if (unlockedBonus.Bonus < 1)
+                            this.data.SpoolTimeModifier *= 1.0f - unlockedBonus.Bonus; // i.e. if there is a 0.2 (20%) bonus unlocked, the spool modifier is 1-0.2 = 0.8* existing spool modifier...
+                        else if (unlockedBonus.Bonus >= 1)
+                            this.data.SpoolTimeModifier = 0f; // insta-warp by modifier
+                    }
+                    if (str == "Top Guns" || str == "Bonus Fighter Levels")
+                    {
+                        this.data.BonusFighterLevels += (int)unlockedBonus.Bonus;
+                        foreach (Ship ship in (List<Ship>)this.OwnedShips)
                         {
-                            ship.Level += (int)unlockedBonus.Bonus;
-                            if (ship.Level > 5)
-                                ship.Level = 5;
+                            if (ship.Role == "fighter")
+                            {
+                                ship.Level += (int)unlockedBonus.Bonus;
+                                if (ship.Level > 5)
+                                    ship.Level = 5;
+                            }
                         }
                     }
+                    if (str == "Mass Reduction" || str == "Percent Mass Adjustment")
+                        this.data.MassModifier += unlockedBonus.Bonus;
+                    if (str == "Resistance is Futile" || str == "Allow Assimilation")
+                        this.data.Traits.Assimilators = true;
+                    if (str == "Cryogenic Suspension" || str == "Passenger Modifier")
+                        this.data.Traits.PassengerModifier += (int)unlockedBonus.Bonus;
+                    if (str == "ECM Bonus" || str == "Missile Dodge Change Bonus")
+                        this.data.MissileDodgeChance += unlockedBonus.Bonus;
+                    if (str == "Set FTL Speed")
+                        this.data.FTLSpeed = unlockedBonus.Bonus;
+                    if (str == "Set FTL Drain Modifier")
+                        this.data.FTLPowerDrainModifier = unlockedBonus.Bonus;
+                    if (str == "Super Soldiers" || str == "Troop Strength Modifier Bonus")
+                        this.data.Traits.GroundCombatModifier += unlockedBonus.Bonus;
+                    if (str == "Fuel Cell Upgrade" || str == "Fuel Cell Bonus")
+                        this.data.FuelCellModifier += unlockedBonus.Bonus;
+                    if (str == "Trade Tariff" || str == "Bonus Money Per Trade")
+                        this.data.Traits.Mercantile += (float)(int)unlockedBonus.Bonus;
+                    if (str == "Missile Armor" || str == "Missile HP Bonus")
+                        this.data.MissileHPModifier += unlockedBonus.Bonus;
+                    if (str == "Hull Strengthening" || str == "Module HP Bonus")
+                        this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
+                    if (str == "Kinetic Shield Penetration Chance Bonus")
+                        this.data.KineticShieldPenBonusChance += unlockedBonus.Bonus;
+                    if (str == "Reaction Drive Upgrade" || str == "STL Speed Bonus")
+                        this.data.SubLightModifier += unlockedBonus.Bonus;
+                    if (str == "Reactive Armor" || str == "Armor Explosion Reduction")
+                        this.data.ExplosiveRadiusReduction += unlockedBonus.Bonus;
+                    if (str == "Slipstreams" || str == "In Borders FTL Bonus")
+                        this.data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus;
+                    if (str == "StarDrive Enhancement" || str == "FTL Speed Bonus")
+                        this.data.FTLModifier = (float)(int)((double)this.data.FTLModifier + (double)unlockedBonus.Bonus * (double)this.data.FTLModifier);
+                    if (str == "Warp Efficiency")
+                        this.data.WarpEfficiencyBonus += unlockedBonus.Bonus;
+                    if (str == "Burner Efficiency")
+                        this.data.BurnerEfficiencyBonus += unlockedBonus.Bonus;
+                    if (str == "FTL Efficiency" || str == "FTL Efficiency Bonus")
+                        this.data.FTLPowerDrainModifier = this.data.FTLPowerDrainModifier - unlockedBonus.Bonus * this.data.FTLPowerDrainModifier;
+                    if (str == "Spy Offense" || str == "Spy Offense Roll Bonus")
+                        this.data.OffensiveSpyBonus += unlockedBonus.Bonus;
+                    if (str == "Spy Defense" || str == "Spy Defense Roll Bonus")
+                        this.data.DefensiveSpyBonus += unlockedBonus.Bonus;
+                    if (str == "Increased Lifespans" || str == "Population Growth Bonus")
+                        this.data.Traits.ReproductionMod += unlockedBonus.Bonus;
+                    if (str == "Set Population Growth Min")
+                        this.data.Traits.PopGrowthMin = unlockedBonus.Bonus;
+                    if (str == "Set Population Growth Max")
+                        this.data.Traits.PopGrowthMax = unlockedBonus.Bonus;
+                    if (str == "Xenolinguistic Nuance" || str == "Diplomacy Bonus")
+                        this.data.Traits.DiplomacyMod += unlockedBonus.Bonus;
+                    if (str == "Ordnance Effectiveness" || str == "Ordnance Effectiveness Bonus")
+                        this.data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus;
+                    if (str == "Tachyons" || str == "Sensor Range Bonus")
+                        this.data.SensorModifier += unlockedBonus.Bonus;
+                    if (str == "Privatization")
+                        this.data.Privatization = true;
+                    if (str == "Armor Piercing" || str == "Armor Phasing")
+                        this.data.ArmorPiercingBonus += (int)unlockedBonus.Bonus;
+                    if (str == "Kulrathi Might")
+                        this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
+                    if (str == "Subspace Inhibition")
+                        this.data.Inhibitors = true;
+                    //added by McShooterz: New Bonuses
+                    if (str == "Production Bonus")
+                        this.data.Traits.ProductionMod += unlockedBonus.Bonus;
+                    if (str == "Construction Bonus")
+                        this.data.Traits.ShipCostMod -= unlockedBonus.Bonus;
+                    if (str == "Consumption Bonus")
+                        this.data.Traits.ConsumptionModifier -= unlockedBonus.Bonus;
+                    if (str == "Tax Bonus")
+                        this.data.Traits.TaxMod += unlockedBonus.Bonus;
+                    if (str == "Repair Bonus")
+                        this.data.Traits.RepairMod += unlockedBonus.Bonus;
+                    if (str == "Maintenance Bonus")
+                        this.data.Traits.MaintMod -= unlockedBonus.Bonus;
+                    if (str == "Power Flow Bonus")
+                        this.data.PowerFlowMod += unlockedBonus.Bonus;
                 }
-                if (str == "Mass Reduction" || str == "Percent Mass Adjustment")
-                    this.data.MassModifier += unlockedBonus.Bonus;
-                if (str == "Resistance is Futile" || str == "Allow Assimilation")
-                    this.data.Traits.Assimilators = true;
-                if (str == "Cryogenic Suspension" || str == "Passenger Modifier")
-                    this.data.Traits.PassengerModifier += (int)unlockedBonus.Bonus;
-                if (str == "ECM Bonus" || str == "Missile Dodge Change Bonus")
-                    this.data.MissileDodgeChance += unlockedBonus.Bonus;
-                if (str == "Set FTL Speed")
-                    this.data.FTLSpeed = unlockedBonus.Bonus;
-                if (str == "Set FTL Drain Modifier")
-                    this.data.FTLPowerDrainModifier = unlockedBonus.Bonus;
-                if (str == "Super Soldiers" || str == "Troop Strength Modifier Bonus")
-                    this.data.Traits.GroundCombatModifier += unlockedBonus.Bonus;
-                if (str == "Fuel Cell Upgrade" || str == "Fuel Cell Bonus")
-                    this.data.FuelCellModifier += unlockedBonus.Bonus;
-                if (str == "Trade Tariff" || str == "Bonus Money Per Trade")
-                    this.data.Traits.Mercantile += (float)(int)unlockedBonus.Bonus;
-                if (str == "Missile Armor" || str == "Missile HP Bonus")
-                    this.data.MissileHPModifier += unlockedBonus.Bonus;
-                if (str == "Hull Strengthening" || str == "Module HP Bonus")
-                    this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                if (str == "Kinetic Shield Penetration Chance Bonus")
-                    this.data.KineticShieldPenBonusChance += unlockedBonus.Bonus;
-                if (str == "Reaction Drive Upgrade" || str == "STL Speed Bonus")
-                    this.data.SubLightModifier += unlockedBonus.Bonus;
-                if (str == "Reactive Armor" || str == "Armor Explosion Reduction")
-                    this.data.ExplosiveRadiusReduction += unlockedBonus.Bonus;
-                if (str == "Slipstreams" || str == "In Borders FTL Bonus")
-                    this.data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus;
-                if (str == "StarDrive Enhancement" || str == "FTL Speed Bonus")
-                    this.data.FTLModifier = (float)(int)((double)this.data.FTLModifier + (double)unlockedBonus.Bonus * (double)this.data.FTLModifier);
-                if (str == "Warp Efficiency")
-                    this.data.WarpEfficiencyBonus += unlockedBonus.Bonus;
-                if (str == "Burner Efficiency")
-                    this.data.BurnerEfficiencyBonus += unlockedBonus.Bonus;
-                if (str == "FTL Efficiency" || str == "FTL Efficiency Bonus")
-                    this.data.FTLPowerDrainModifier = this.data.FTLPowerDrainModifier - unlockedBonus.Bonus * this.data.FTLPowerDrainModifier;
-                if (str == "Spy Offense" || str == "Spy Offense Roll Bonus")
-                    this.data.OffensiveSpyBonus += unlockedBonus.Bonus;
-                if (str == "Spy Defense" || str == "Spy Defense Roll Bonus")
-                    this.data.DefensiveSpyBonus += unlockedBonus.Bonus;
-                if (str == "Increased Lifespans" || str == "Population Growth Bonus")
-                    this.data.Traits.ReproductionMod += unlockedBonus.Bonus;
-                if (str == "Set Population Growth Min")
-                    this.data.Traits.PopGrowthMin = unlockedBonus.Bonus;
-                if (str == "Set Population Growth Max")
-                    this.data.Traits.PopGrowthMax = unlockedBonus.Bonus;
-                if (str == "Xenolinguistic Nuance" || str == "Diplomacy Bonus")
-                    this.data.Traits.DiplomacyMod += unlockedBonus.Bonus;
-                if (str == "Ordnance Effectiveness" || str == "Ordnance Effectiveness Bonus")
-                    this.data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus;
-                if (str == "Tachyons" || str == "Sensor Range Bonus")
-                    this.data.SensorModifier += unlockedBonus.Bonus;
-                if (str == "Privatization")
-                    this.data.Privatization = true;
-                if (str == "Armor Piercing" || str == "Armor Phasing")
-                    this.data.ArmorPiercingBonus += (int)unlockedBonus.Bonus;
-                if (str == "Kulrathi Might")
-                    this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                if (str == "Subspace Inhibition")
-                    this.data.Inhibitors = true;
-                //added by McShooterz: New Bonuses
-                if (str == "Production Bonus")
-                    this.data.Traits.ProductionMod += unlockedBonus.Bonus;
-                if (str == "Construction Bonus")
-                    this.data.Traits.ShipCostMod -= unlockedBonus.Bonus;
-                if (str == "Consumption Bonus")
-                    this.data.Traits.ConsumptionModifier -= unlockedBonus.Bonus;
-                if (str == "Tax Bonus")
-                    this.data.Traits.TaxMod += unlockedBonus.Bonus;
-                if(str == "Repair Bonus")
-                    this.data.Traits.RepairMod += unlockedBonus.Bonus;
-                if(str == "Maintenance Bonus")
-                    this.data.Traits.MaintMod -= unlockedBonus.Bonus;
-                if(str == "Power Flow Bonus")
-                    this.data.PowerFlowMod += unlockedBonus.Bonus;
+                this.UpdateShipsWeCanBuild();
+                if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                    this.GSAI.TriggerRefit();
+                if (!this.data.ResearchQueue.Contains(techID))
+                    return;
+                this.data.ResearchQueue.Remove(techID);
             }
-            this.UpdateShipsWeCanBuild();
-            if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
-                this.GSAI.TriggerRefit();
-            if (!this.data.ResearchQueue.Contains(techID))
-                return;
-            this.data.ResearchQueue.Remove(techID);
         }
 
         public void UnlockTechFromSave(string techID)
@@ -696,7 +699,8 @@ namespace Ship_Game
             if (ResourceManager.TechTree[techID].RootNode == 0)
             {
                 foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[techID].LeadsTo)
-                    this.TechnologyDict[leadsToTech.UID].Discovered = true;
+                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0)
+                        this.TechnologyDict[leadsToTech.UID].Discovered = true;
             }
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
             {

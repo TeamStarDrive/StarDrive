@@ -63,6 +63,8 @@ namespace Ship_Game
 		{
 			public string Name;
 
+            public string Type;
+
 			public string BonusType;
 
 			public List<string> Tags;
