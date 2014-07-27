@@ -187,7 +187,7 @@ namespace Ship_Game
 			}
 			foreach (Technology.UnlockedTroop troop in unlockedTech.TroopsUnlocked)
 			{
-				if (!(troop.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType) && !(troop.Type == "ALL"))
+				if (troop.Type != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType && troop.Type != "ALL" && troop.Type != null)
 				{
 					continue;
 				}
@@ -233,6 +233,10 @@ namespace Ship_Game
 			}
 			foreach (Technology.UnlockedBonus ub in unlockedTech.BonusUnlocked)
 			{
+                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType != ub.Type && ub.Type != null)
+                {
+                    continue;
+                }
 				UnlockItem unlock = new UnlockItem()
 				{
 					Type = "ADVANCE",
