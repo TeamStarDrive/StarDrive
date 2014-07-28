@@ -9,6 +9,7 @@ namespace Ship_Game
     public class AgentMissionData
     {
         public short AgentCost = 200;
+        public short ExpPerLevel = 2;
 
         //Training
         public short TrainingCost = 50;
@@ -31,7 +32,7 @@ namespace Ship_Game
         public short AssassinatePerfect = 85;
         public short AssassinateGood = 70;
         public short AssassinateBad = 25;
-        public short AssassinateWorst = 25;
+        public short AssassinateWorst = 15;
 
         //Sabotage
         public short SabotageCost = 75;
@@ -47,7 +48,7 @@ namespace Ship_Game
         public short StealTechPerfect = 85;
         public short StealTechGood = 75;
         public short StealTechBad = 20;
-        public short StealTechWorst = 15;
+        public short StealTechWorst = 10;
 
         //Robbery
         public short RobberyCost = 50;
