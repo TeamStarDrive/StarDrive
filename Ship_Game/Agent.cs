@@ -65,9 +65,9 @@ namespace Ship_Game
             }
             #endregion
             #region New DiceRoll
-            float DiceRoll = RandomMath.RandomBetween(this.Level * 3f, 90f);
+            float DiceRoll = RandomMath.RandomBetween(this.Level * ResourceManager.AgentMissionData.MinRollPerLevel, ResourceManager.AgentMissionData.MaxRoll);
             float DefensiveRoll = 0f;
-            DiceRoll += (float)this.Level * RandomMath.RandomBetween(1f, 5f);
+            DiceRoll += (float)this.Level * RandomMath.RandomBetween(1f, ResourceManager.AgentMissionData.RandomLevelBonus);
             DiceRoll += Owner.data.SpyModifier;
             DiceRoll += Owner.data.OffensiveSpyBonus;
             if (Target != null)
@@ -76,7 +76,7 @@ namespace Ship_Game
                 {
                     if (Target.data.AgentList[i].Mission == AgentMission.Defending)
                     {
-                        DefensiveRoll += (float)Target.data.AgentList[i].Level * RandomMath.RandomBetween(1f, 3f);
+                        DefensiveRoll += (float)Target.data.AgentList[i].Level * RandomMath.RandomBetween(1f, ResourceManager.AgentMissionData.RandomDefenceLevelBonus);
                     }
                 }
                 DefensiveRoll /= Owner.GetPlanets().Count;
