@@ -113,6 +113,9 @@ namespace Ship_Game
 
         public static bool preventFederations;
 
+        public static int ShipCountLimit;
+        public static float spaceroadlimit = .05f;
+        public static float freighterlimit = .05f;
 		static GlobalStats()
 		{       
 			GlobalStats.ComparisonCounter = 1;
@@ -168,6 +171,8 @@ namespace Ship_Game
             GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
             GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
+            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
+            
 		}
         public static void Statreset()
         {
@@ -182,6 +187,7 @@ namespace Ship_Game
             GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
             GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
+            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
         }
 		public GlobalStats()
 		{

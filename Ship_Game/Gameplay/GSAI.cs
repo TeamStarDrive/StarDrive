@@ -63,6 +63,7 @@ namespace Ship_Game.Gameplay
         float minimumWarpRange = GlobalStats.MinimumWarpRange;
         //SizeLimiter
         float SizeLimiter = GlobalStats.MemoryLimiter;
+        int ShipCountLimit = GlobalStats.ShipCountLimit;
 
 		public GSAI(Empire e)
 		{
@@ -6590,15 +6591,17 @@ namespace Ship_Game.Gameplay
 
 		private void RunInfrastructurePlanner()
 		{
-			foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
+            if (this.empire.SpaceRoadsList.Count < ShipCountLimit * GlobalStats.spaceroadlimit)
+            foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
 			{
-				IOrderedEnumerable<SolarSystem> sortedList = 
+				
+                IOrderedEnumerable<SolarSystem> sortedList = 
 					from otherSystem in this.empire.GetOwnedSystems()
 					orderby Vector2.Distance(otherSystem.Position, ownedSystem.Position)
 					select otherSystem;
 				foreach (SolarSystem Origin in sortedList)
 				{
-					if (Origin == ownedSystem)
+                    if (Origin == ownedSystem )
 					{
 						continue;
 					}
@@ -7295,7 +7298,7 @@ namespace Ship_Game.Gameplay
             Memory = Memory / 1000;
             //added by gremlin shipsize limit
             //i think this could be made dynamic to reduce when memory constraints come into play
-            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals && Memory < SizeLimiter) //shipsize < SizeLimiter)
+            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals && Memory < SizeLimiter && Empire.universeScreen.MasterShipList.Count < ShipCountLimit) //shipsize < SizeLimiter)
             {
                 /*string s = null;
                 if (Properties.Settings.Default.OptionTestBits || Properties.Settings.Default.ModSupport)
