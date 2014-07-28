@@ -784,6 +784,8 @@ namespace Ship_Game
                 data.EconomicPersonality = this.dtraits.EconomicTraitsList[index2];
             }
             empire.data = data;
+            //Added by McShooterz: set values for alternate race file structure
+            data.Traits.SetValues();
             empire.dd = ResourceManager.DDDict[data.DiplomacyDialogPath];
             empire.data.SpyModifier = data.Traits.SpyMultiplier;
             empire.data.Traits.Spiritual = data.Traits.Spiritual;
