@@ -18,57 +18,76 @@ namespace Ship_Game
         //Training
         public short TrainingCost = 50;
         public short TrainingTurns = 25;
-        public short TrainingPerfect = 95;
-        public short TrainingGood = 25;
-        public short TrainingBad = 10;
-        public short TrainingWorst = 5;
+        public short TrainingRollPerfect = 95;
+        public short TrainingRollGood = 25;
+        public short TrainingRollBad = 10;
+        public short TrainingRollWorst = 5;
+        public short TrainingExpPerfect = 2;
+        public short TrainingExpGood = 1;
 
         //Infiltrate
         public short InfiltrateCost = 75;
         public short InfiltrateTurns = 30;
-        public short InfiltrateGood = 50;
-        public short InfiltrateBad = 25;
-        public short InfiltrateWorst = 15;
+        public short InfiltrateRollGood = 50;
+        public short InfiltrateRollBad = 25;
+        public short InfiltrateRollWorst = 15;
+        public short InfiltrateExpGood = 3;
+        public short InfiltrateExp = 2;
 
         //Assassinate
         public short AssassinateCost = 75;
         public short AssassinateTurns = 50;
-        public short AssassinatePerfect = 85;
-        public short AssassinateGood = 70;
-        public short AssassinateBad = 25;
-        public short AssassinateWorst = 15;
+        public short AssassinateRollPerfect = 85;
+        public short AssassinateRollGood = 70;
+        public short AssassinateRollBad = 25;
+        public short AssassinateRollWorst = 15;
+        public short AssassinateExpPerfect = 6;
+        public short AssassinateExpGood = 5;
+        public short AssassinateExp = 3;
 
         //Sabotage
         public short SabotageCost = 75;
         public short SabotageTurns = 30;
-        public short SabotagePerfect = 80;
-        public short SabotageGood = 50;
-        public short SabotageBad = 25;
-        public short SabotageWorst = 15;
+        public short SabotageRollPerfect = 80;
+        public short SabotageRollGood = 50;
+        public short SabotageRollBad = 25;
+        public short SabotageRollWorst = 15;
+        public short SabotageExpPerfect = 4;
+        public short SabotageExpGood = 3;
+        public short SabotageExp = 2;
 
         //StealTech
         public short StealTechCost = 250;
         public short StealTechTurns = 50;
-        public short StealTechPerfect = 85;
-        public short StealTechGood = 75;
-        public short StealTechBad = 20;
-        public short StealTechWorst = 10;
+        public short StealTechRollPerfect = 85;
+        public short StealTechRollGood = 75;
+        public short StealTechRollBad = 20;
+        public short StealTechRollWorst = 10;
+        public short StealTechExpPerfect = 6;
+        public short StealTechExpGood = 5;
+        public short StealTechExp = 3;
 
         //Robbery
         public short RobberyCost = 50;
         public short RobberyTurns = 30;
-        public short RobberyPerfect = 85;
-        public short RobberyGood = 60;
-        public short RobberyBad = 20;
-        public short RobberyWorst = 10;
+        public short RobberyRollPerfect = 85;
+        public short RobberyRollGood = 60;
+        public short RobberyRollBad = 20;
+        public short RobberyRollWorst = 10;
+        public short RobberyExpPerfect = 4;
+        public short RobberyExpGood = 3;
+        public short RobberyExp = 2;
 
         //InciteRebellion
         public short RebellionCost = 250;
         public short RebellionTurns = 100;
-        public short RebellionPerfect = 85;
-        public short RebellionGood = 70;
-        public short RebellionBad = 40;
-        public short RebellionWorst = 30;
+        public short RebellionRollPerfect = 85;
+        public short RebellionRollGood = 70;
+        public short RebellionRollBad = 40;
+        public short RebellionRollWorst = 30;
+        public short RebellionExpPerfect = 7;
+        public short RebellionExpGood = 5;
+        public short RebellionExp = 3;
 
         //Recovering
         public short RecoveringTurns = 20;
