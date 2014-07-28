@@ -2524,65 +2524,6 @@ namespace Ship_Game
                 this.RaceSummary.SpyMultiplier += t.trait.SpyMultiplier;
                 this.RaceSummary.Pack = t.trait.Pack;
                 this.RaceSummary.RepairMod += t.trait.RepairMod; 
-                /*
-				RacialTrait prototype1 = this.RaceSummary;
-				prototype1.Prototype = prototype1.Prototype + t.trait.Prototype;
-				RacialTrait consumptionModifier1 = this.RaceSummary;
-				consumptionModifier1.ConsumptionModifier = consumptionModifier1.ConsumptionModifier + t.trait.ConsumptionModifier;
-				RacialTrait diplomacyMod1 = this.RaceSummary;
-				diplomacyMod1.DiplomacyMod = diplomacyMod1.DiplomacyMod + t.trait.DiplomacyMod;
-				RacialTrait racialTrait1 = this.RaceSummary;
-				racialTrait1.EnergyDamageMod = racialTrait1.EnergyDamageMod + t.trait.EnergyDamageMod;
-				RacialTrait raceSummary2 = this.RaceSummary;
-				raceSummary2.MaintMod = raceSummary2.MaintMod + t.trait.MaintMod;
-				RacialTrait reproductionMod2 = this.RaceSummary;
-				reproductionMod2.ReproductionMod = reproductionMod2.ReproductionMod + t.trait.ReproductionMod;
-				RacialTrait researchMod2 = this.RaceSummary;
-				researchMod2.ResearchMod = researchMod2.ResearchMod + t.trait.ResearchMod;
-				RacialTrait shipCostMod2 = this.RaceSummary;
-				shipCostMod2.ShipCostMod = shipCostMod2.ShipCostMod + t.trait.ShipCostMod;
-				RacialTrait taxMod2 = this.RaceSummary;
-				taxMod2.TaxMod = taxMod2.TaxMod + t.trait.TaxMod;
-				RacialTrait productionMod2 = this.RaceSummary;
-				productionMod2.ProductionMod = productionMod2.ProductionMod + t.trait.ProductionMod;
-				RacialTrait modHpModifier2 = this.RaceSummary;
-				modHpModifier2.ModHpModifier = modHpModifier2.ModHpModifier + t.trait.ModHpModifier;
-				RacialTrait mercantile2 = this.RaceSummary;
-				mercantile2.Mercantile = mercantile2.Mercantile + t.trait.Mercantile;
-				RacialTrait groundCombatModifier2 = this.RaceSummary;
-				groundCombatModifier2.GroundCombatModifier = groundCombatModifier2.GroundCombatModifier + t.trait.GroundCombatModifier;
-				RacialTrait cybernetic2 = this.RaceSummary;
-				cybernetic2.Cybernetic = cybernetic2.Cybernetic + t.trait.Cybernetic;
-				RacialTrait blind2 = this.RaceSummary;
-				blind2.Blind = blind2.Blind + t.trait.Blind;
-				RacialTrait dodgeMod2 = this.RaceSummary;
-				dodgeMod2.DodgeMod = dodgeMod2.DodgeMod + t.trait.DodgeMod;
-				RacialTrait burrowers2 = this.RaceSummary;
-				burrowers2.Burrowers = burrowers2.Burrowers + t.trait.Burrowers;
-				RacialTrait aquatic2 = this.RaceSummary;
-				aquatic2.Aquatic = aquatic2.Aquatic + t.trait.Aquatic;
-				RacialTrait homeworldFertMod2 = this.RaceSummary;
-				homeworldFertMod2.HomeworldFertMod = homeworldFertMod2.HomeworldFertMod + t.trait.HomeworldFertMod;
-				RacialTrait homeworldRichMod2 = this.RaceSummary;
-				homeworldRichMod2.HomeworldRichMod = homeworldRichMod2.HomeworldRichMod + t.trait.HomeworldRichMod;
-				RacialTrait homeworldSizeMod2 = this.RaceSummary;
-				homeworldSizeMod2.HomeworldSizeMod = homeworldSizeMod2.HomeworldSizeMod + t.trait.HomeworldSizeMod;
-				RacialTrait militaristic2 = this.RaceSummary;
-				militaristic2.Militaristic = militaristic2.Militaristic + t.trait.Militaristic;
-				RacialTrait passengerModifier2 = this.RaceSummary;
-				passengerModifier2.PassengerModifier = passengerModifier2.PassengerModifier + t.trait.PassengerBonus;
-				RacialTrait bonusExplored2 = this.RaceSummary;
-				bonusExplored2.BonusExplored = bonusExplored2.BonusExplored + t.trait.BonusExplored;
-				RacialTrait spiritual = this.RaceSummary;
-				spiritual.Spiritual = spiritual.Spiritual + t.trait.Spiritual;
-				RacialTrait spyMultiplier = this.RaceSummary;
-				spyMultiplier.SpyMultiplier = spyMultiplier.SpyMultiplier + t.trait.SpyMultiplier;
-				if (!t.trait.Pack)
-				{
-					continue;
-				}
-				this.RaceSummary.Pack = t.trait.Pack;
-                */
 			}
 		}
 
