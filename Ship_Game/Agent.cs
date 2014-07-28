@@ -65,7 +65,7 @@ namespace Ship_Game
             }
             #endregion
             #region New DiceRoll
-            float DiceRoll = RandomMath.RandomBetween(0f, 90f);
+            float DiceRoll = RandomMath.RandomBetween(this.Level * 3f, 90f);
             float DefensiveRoll = 0f;
             DiceRoll += (float)this.Level * RandomMath.RandomBetween(1f, 5f);
             DiceRoll += Owner.data.SpyModifier;
@@ -76,7 +76,7 @@ namespace Ship_Game
                 {
                     if (Target.data.AgentList[i].Mission == AgentMission.Defending)
                     {
-                        DefensiveRoll += (float)Target.data.AgentList[i].Level * RandomMath.RandomBetween(1f, 2f);
+                        DefensiveRoll += (float)Target.data.AgentList[i].Level * RandomMath.RandomBetween(1f, 3f);
                     }
                 }
                 DefensiveRoll /= Owner.GetPlanets().Count;
@@ -652,6 +652,11 @@ namespace Ship_Game
                         }
                 #endregion
             }
+            if (Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && Mission == AgentMission.Defending && Owner.Money > 500 && AgentComponent.AutoTrain == true)
+            {
+                this.AssignMission(startingmission, Owner, this.TargetEmpire);
+                return;
+            }
             this.TargetEmpire = "";
         }
 
@@ -732,9 +737,9 @@ namespace Ship_Game
         private void AddExperience(int exp, Empire Owner)
         {
             this.Experience += exp;
-            while(this.Experience >=  2 * this.Level)
+            while (this.Experience >= ResourceManager.AgentMissionData.ExpPerLevel * this.Level)
             {
-                this.Experience -=  2 * this.Level;
+                this.Experience -=  ResourceManager.AgentMissionData.ExpPerLevel * this.Level;
                 if (this.Level < 10)
                 {
                     this.Level++;
