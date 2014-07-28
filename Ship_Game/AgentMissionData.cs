@@ -10,6 +10,10 @@ namespace Ship_Game
     {
         public short AgentCost = 200;
         public short ExpPerLevel = 2;
+        public float RandomLevelBonus = 5f;
+        public float RandomDefenceLevelBonus = 3f;
+        public float MinRollPerLevel = 3f;
+        public float MaxRoll = 90f;
 
         //Training
         public short TrainingCost = 50;
