@@ -112,6 +112,7 @@ namespace Ship_Game
         public static int IconSize;
 
         public static bool preventFederations;
+        public static bool EliminationMode;
 
         public static int ShipCountLimit;
         public static float spaceroadlimit = .05f;

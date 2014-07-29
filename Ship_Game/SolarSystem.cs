@@ -1137,6 +1137,7 @@ namespace Ship_Game
 						newOrbital.planetType = 29;
 					}
 					newOrbital.Owner = Owner;
+                    Owner.Capital = newOrbital;
 					newOrbital.InitializeSliders(Owner);
 					Owner.AddPlanet(newOrbital);
 					newOrbital.SetPlanetAttributes(26f);
@@ -1325,6 +1326,7 @@ namespace Ship_Game
 					else
 					{
 						newOrbital.Owner = Owner;
+                        Owner.Capital = newOrbital;
 						newOrbital.InitializeSliders(Owner);
 						Owner.AddPlanet(newOrbital);
 						newOrbital.SetPlanetAttributes(26f);

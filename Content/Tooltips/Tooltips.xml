@@ -824,5 +824,10 @@
       <Title>Seconds until out of ordnance or INFinite</Title>
       <Data>7013</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>165</TIP_ID>
+      <Title>Elimination Game mode</Title>
+      <Data>7015</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
