@@ -167,8 +167,6 @@ namespace Ship_Game
         //added by gremlin deveksmod spy draw
         public void Draw()
         {
-
-
             Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.SubRect, Color.Black);
             this.AgentSL.Draw(this.ScreenManager.SpriteBatch);
             this.RecruitButton.Draw(this.ScreenManager);

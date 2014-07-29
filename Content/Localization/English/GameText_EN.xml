@@ -7575,6 +7575,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6092</Index>
       <Text>Agent Dossier</Text>
     </Token>
+	<Token>
+      <Index>6093</Index>
+      <Text>Capital Elimination</Text>
+    </Token>
 	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -7634,6 +7638,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>7014</Index>
       <Text>Ordance recovered per sec.</Text>
+    </Token>
+	<Token>
+      <Index>7015</Index>
+      <Text>In the Capital Elimination game mode, empires are defeated when they lose their homeworld.</Text>
     </Token>
   </TokenList>
   
