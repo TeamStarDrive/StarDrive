@@ -701,6 +701,10 @@ namespace Ship_Game
                         }
 						return;
 					}
+                    else if (caller is FleetDesignScreen && b.launches != "Fleets")
+                    {
+                        (caller as FleetDesignScreen).ExitScreen();
+                    }
 					string str = b.launches;
 					string str1 = str;
 					if (str != null)
