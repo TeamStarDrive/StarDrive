@@ -2545,7 +2545,7 @@ namespace Ship_Game.Gameplay
 				EntireStrength = EntireStrength + ship.GetStrength();
 			}
 			//added by gremlin dont add zero strength ships to defensive force pool
-            if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct && (toAdd.BombBays.Count <= 0 || toAdd.WarpThrust <= 0f)) //&&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
+            if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct && (toAdd.BombBays.Count < toAdd.Weapons.Count|| toAdd.WarpThrust <= 0f)) //&&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
 			{
 				this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
 				toAdd.GetAI().SystemToDefend = null;
@@ -6479,6 +6479,19 @@ namespace Ship_Game.Gameplay
 
 		private void RunForcePoolManager()
 		{
+            foreach(Ship ship in this.empire.GetShips())
+            {
+                if (ship.Role != "station" && ship.Role != "platform" && ship.loyalty != Empire.universeScreen.player)// && ship.BaseStrength>0)
+
+                    if (!this.empire.GetForcePool().Contains(ship))
+                    { //this.empire.ForcePoolAdd(ship);
+
+                        int x=0;
+                        x++;
+                    }
+
+
+            }
 		}
 
 		private void RunGroundPlanner()
