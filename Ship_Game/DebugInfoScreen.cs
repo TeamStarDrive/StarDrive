@@ -44,6 +44,9 @@ namespace Ship_Game
         public static int canceledMtask3Count;
         public static int canceledMtask4Count;
 
+        private int shipsnotinforcepool;
+        private int shipsnotinDefforcepool;
+
 		public Ship itemToBuild;
 
 		private string fmt = "0.#";
@@ -57,6 +60,40 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
 			this.win = new Rectangle(30, 200, 1200, 700);
+            foreach (Empire empire in EmpireManager.EmpireList)
+            {
+                bool flag=false;
+                foreach (Ship ship in empire.GetShips())
+                {
+                    if (!empire.GetForcePool().Contains(ship))
+                    {
+
+                        foreach (AO ao in empire.GetGSAI().AreasOfOperations)
+                        {
+                            if (ao.GetOffensiveForcePool().Contains(ship))
+                                if (ship.Role != "troop" && ship.BaseStrength>0)
+
+                                    flag = true;
+                        }
+
+                        if (!flag)
+
+                            if (!empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
+                            {
+                                if (ship.Role != "troop" && ship.BaseStrength > 0)
+                                    ++this.shipsnotinDefforcepool;
+                            }
+                            else
+                            {
+                                if (ship.Role != "troop" && ship.BaseStrength > 0)
+                                ++this.shipsnotinforcepool;
+                            }
+
+                    }
+
+
+                }
+            }
 		}
 
 		public void Dispose()
@@ -102,6 +139,10 @@ namespace Ship_Game
             HalloweenCursor.Y = HalloweenCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
 
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(DebugInfoScreen.canceledMTask4Name, ": ", DebugInfoScreen.canceledMtask4Count), HalloweenCursor, Color.Red);
+
+            HalloweenCursor.Y = HalloweenCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Ships not in forcepool: ", this.shipsnotinforcepool," Not in Defenspool: ",this.shipsnotinDefforcepool), HalloweenCursor, Color.Red);
     
             
             Vector2 Cursor = new Vector2((float)(this.win.X + 10), (float)(this.win.Y + 10));

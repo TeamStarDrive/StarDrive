@@ -1580,6 +1580,7 @@
     </Content>
     <Content Include="Content\Localization\English\GameText_EN.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\NameGenerators\names.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
