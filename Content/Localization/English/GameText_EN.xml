@@ -7555,6 +7555,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6087</Index>
       <Text>has been promoted, and gains +1 Level.</Text>
     </Token>
+	<Token>
+      <Index>6088</Index>
+      <Text>Espionage</Text>
+    </Token>
+	<Token>
+      <Index>6089</Index>
+      <Text>Espionage Overview</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
