@@ -90,6 +90,7 @@ namespace Ship_Game
         public float SensorRange;
         public bool IsSensor;
         //private float desiredForceStrength;
+        public Planet Capital;
 
         static Empire()
         {
@@ -1578,6 +1579,19 @@ namespace Ship_Game
 
         private void TakeTurn()
         {
+            //Added by McShooterz: Home World Elimination game mode
+            if (GlobalStats.EliminationMode && this.Capital != null && this.Capital.Owner != this)
+            {
+                this.SetAsDefeated();
+                if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this)
+                {
+                    Empire.universeScreen.ScreenManager.AddScreen((GameScreen)new YouLoseScreen());
+                    return;
+                }
+                else
+                    Empire.universeScreen.NotificationManager.AddEmpireDiedNotification(this);
+                return;
+            }
             List<Planet> list1 = new List<Planet>();
             foreach (Planet planet in this.OwnedPlanets)
             {
