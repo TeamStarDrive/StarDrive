@@ -553,7 +553,7 @@ namespace Ship_Game
 					return;
 				}
 			}
-			if (this.ship.CargoSpace_Max > 0f)
+			if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop")
 			{
 				OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
 				{
