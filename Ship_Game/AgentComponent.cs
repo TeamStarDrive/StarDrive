@@ -26,8 +26,6 @@ namespace Ship_Game
 
 		public DanButton RecruitButton;
 
-		public MainDiplomacyScreen mdscreen;
-
         public EspionageScreen Escreen;
 
 		private MissionEntry Training;
@@ -51,43 +49,6 @@ namespace Ship_Game
         public static bool SpyMute = false;
         private static Checkbox cbSpyMute;
         public static int empirePlanetSpys = 0;
-
-		public AgentComponent(Rectangle r, MainDiplomacyScreen mdscreen)
-		{
-			this.mdscreen = mdscreen;
-			this.ComponentRect = r;
-			this.ScreenManager = Ship.universeScreen.ScreenManager;
-			this.SubRect = new Rectangle(this.ComponentRect.X, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
-			this.OpsSubRect = new Rectangle(mdscreen.OperationsRect.X + 20, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
-			Submenu sub = new Submenu(this.ScreenManager, this.ComponentRect);
-			this.AgentSL = new ScrollList(sub, 40);
-			foreach (Agent agent in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList)
-			{
-				this.AgentSL.AddItem(agent);
-			}
-			Rectangle c = this.ComponentRect;
-			c.X = this.OpsSubRect.X;
-			Submenu opssub = new Submenu(this.ScreenManager, c);
-			this.OpsSL = new ScrollList(opssub, 30);
-			this.Training = new MissionEntry(AgentMission.Training, this);
-			this.Infiltrate = new MissionEntry(AgentMission.Infiltrate, this);
-			this.Assassinate = new MissionEntry(AgentMission.Assassinate, this);
-			this.Sabotage = new MissionEntry(AgentMission.Sabotage, this);
-			this.StealTech = new MissionEntry(AgentMission.StealTech, this);
-			this.StealShip = new MissionEntry(AgentMission.Robbery, this);
-			this.InciteRebellion = new MissionEntry(AgentMission.InciteRebellion, this);
-			this.OpsSL.AddItem(this.Training);
-			this.OpsSL.AddItem(this.Infiltrate);
-			this.OpsSL.AddItem(this.Assassinate);
-			this.OpsSL.AddItem(this.Sabotage);
-			this.OpsSL.AddItem(this.StealTech);
-			this.OpsSL.AddItem(this.StealShip);
-			this.OpsSL.AddItem(this.InciteRebellion);
-			this.RecruitButton = new DanButton(new Vector2((float)(this.ComponentRect.X), (float)mdscreen.Contact.r.Y - 10), Localizer.Token(2179))
-			{
-				Toggled = true
-			};
-		}
 
         public AgentComponent(Rectangle r, EspionageScreen Escreen)
         {
