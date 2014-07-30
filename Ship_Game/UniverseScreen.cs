@@ -44,6 +44,7 @@ namespace Ship_Game
         public float StarDate = 1000f;
         public string StarDateFmt = "0000.0";
         public float StarDateTimer = 5f;
+        public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
         public bool MultiThread = true;
         public List<UniverseScreen.ClickablePlanets> ClickPlanetList = new List<UniverseScreen.ClickablePlanets>();
@@ -247,6 +248,8 @@ namespace Ship_Game
         private float garbargeCollectorBase = 10;
         private bool doubleclicked;
         public static bool debug;
+        public int globalshipCount;
+        public int empireShipCountReserve;
 
 
         static UniverseScreen()
@@ -1300,6 +1303,8 @@ namespace Ship_Game
 
         protected virtual void DoWork(float elapsedTime)
         {
+            
+            
             if (!this.IsActive)
             {
                 this.ShowingSysTooltip = false;
@@ -1536,6 +1541,13 @@ namespace Ship_Game
             this.SelectedShipList.ApplyPendingRemovals();
             this.MasterShipList.ApplyPendingRemovals();
             UniverseScreen.ShipSpatialManager.CollidableObjects.ApplyPendingRemovals();
+            if(this.perStarDateTimer<=this.StarDate )
+            {
+                this.perStarDateTimer = this.StarDate +.1f;
+                this.perStarDateTimer = (float)Math.Round((double)this.perStarDateTimer, 1);
+                this.empireShipCountReserve = EmpireManager.EmpireList.Where(empire=> empire!=this.player &&!empire.data.Defeated &&!empire.isFaction).Sum(empire => empire.EmpireShipCountReserve);
+                this.globalshipCount = this.MasterShipList.Where(ship => (ship.loyalty != null && ship.loyalty != this.player) && ship.Role != "troop" && ship.Mothership == null).Count() ;
+            }
         }
 
         public void ShipUpdater()
