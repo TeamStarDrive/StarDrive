@@ -6480,19 +6480,7 @@ namespace Ship_Game.Gameplay
 
 		private void RunForcePoolManager()
 		{
-            foreach(Ship ship in this.empire.GetShips())
-            {
-                if (ship.Role != "station" && ship.Role != "platform" && ship.loyalty != Empire.universeScreen.player)// && ship.BaseStrength>0)
 
-                    if (!this.empire.GetForcePool().Contains(ship))
-                    { //this.empire.ForcePoolAdd(ship);
-
-                        int x=0;
-                        x++;
-                    }
-
-
-            }
 		}
 
 		private void RunGroundPlanner()
@@ -6605,7 +6593,7 @@ namespace Ship_Game.Gameplay
 
 		private void RunInfrastructurePlanner()
 		{
-            if (this.empire.SpaceRoadsList.Count < ShipCountLimit * GlobalStats.spaceroadlimit)
+            if (this.empire.SpaceRoadsList.Sum(node=> node.NumberOfProjectors) < ShipCountLimit * GlobalStats.spaceroadlimit)
             foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
 			{
 				
@@ -6752,11 +6740,11 @@ namespace Ship_Game.Gameplay
 				ao.Update();
 			}
 			this.UpdateThreatMatrix();
-			if (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoColonize)
+			if (!this.empire.isFaction|| this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoColonize)
 			{
 				this.RunExpansionPlanner();
 			}
-			if (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoBuild)
+            if (!this.empire.isFaction || this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoBuild)
 			{
 				this.RunInfrastructurePlanner();
 			}
@@ -7312,7 +7300,7 @@ namespace Ship_Game.Gameplay
             Memory = Memory / 1000;
             //added by gremlin shipsize limit
             //i think this could be made dynamic to reduce when memory constraints come into play
-            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals && Memory < SizeLimiter && Empire.universeScreen.MasterShipList.Count < ShipCountLimit) //shipsize < SizeLimiter)
+            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals && Memory < SizeLimiter && (Empire.universeScreen.globalshipCount < ShipCountLimit || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
                 /*string s = null;
                 if (Properties.Settings.Default.OptionTestBits || Properties.Settings.Default.ModSupport)
