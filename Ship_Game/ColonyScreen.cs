@@ -508,10 +508,10 @@ namespace Ship_Game
           for (int index1 = 0; index1 < this.p.Owner.ShipsWeCanBuild.Count; ++index1)
           {
             string index2 = this.p.Owner.ShipsWeCanBuild[index1];
-            if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index2].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role)))
+            if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index2].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)))
             {
-              list.Add(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role));
-              this.buildSL.AddItem((object) new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role)));
+                list.Add(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner));
+                this.buildSL.AddItem((object)new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)));
             }
           }
           this.buildSL.indexAtTop = 0;
@@ -524,7 +524,7 @@ namespace Ship_Game
               for (int index2 = 0; index2 < this.p.Owner.ShipsWeCanBuild.Count; ++index2)
               {
                 string index3 = this.p.Owner.ShipsWeCanBuild[index2];
-                if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index3].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[index3].Role) == (entry.item as ModuleHeader).Text)
+                if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index3].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[index3].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
                   entry.AddItem((object) ResourceManager.ShipsDict[index3], 1, 1);
               }
             }
@@ -549,7 +549,7 @@ namespace Ship_Game
                   Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                   position.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role), position, Color.Orange);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
@@ -563,7 +563,7 @@ namespace Ship_Game
                   Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                   position.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role), position, Color.Orange);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
