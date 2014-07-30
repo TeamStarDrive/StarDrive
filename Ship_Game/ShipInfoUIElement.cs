@@ -214,7 +214,7 @@ namespace Ship_Game
 			}
 			this.ShipNameArea.Draw(TitleFont, this.ScreenManager.SpriteBatch, NamePos, gameTime, this.tColor);
             //Added by McShooterz:
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.Role)), ShipSuperName, Color.Orange);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.Role, this.ship.loyalty)), ShipSuperName, Color.Orange);
 
 			string text = HelperFunctions.parseText(Fonts.Arial12, ShipListScreenEntry.GetStatusText(this.ship), 130f);
 			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), NamePos.Y + (float)(TitleFont.LineSpacing / 2) - Fonts.Arial12.MeasureString(text).Y / 2f + 2f);

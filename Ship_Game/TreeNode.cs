@@ -331,7 +331,7 @@ namespace Ship_Game
 					}
 					else
 					{
-						ToolTip.CreateTooltip(string.Concat(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Name, " (", Localizer.GetRole(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Role), ")"), ScreenManager);
+                        ToolTip.CreateTooltip(string.Concat(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Name, " (", Localizer.GetRole(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Role, EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty)), ")"), ScreenManager);
 					}
 				}
 			}
