@@ -261,6 +261,10 @@ namespace Ship_Game.Gameplay
 				weapon = this,
 				RotationRadsPerSecond = this.RotationRadsPerSecond
 			};
+            if (this.owner.Level > 0)
+            {
+                beam.damageAmount += beam.damageAmount * (float)this.owner.Level * 0.05f;
+            }
 			this.ModifyProjectile(beam);
 			this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
@@ -411,6 +415,10 @@ namespace Ship_Game.Gameplay
 				explodes = this.explodes,
 				damageAmount = this.DamageAmount
 			};
+            if (this.owner.Level > 0)
+            {
+                projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
+            }
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
 			projectile.speed = this.ProjectileSpeed;
@@ -590,8 +598,7 @@ namespace Ship_Game.Gameplay
 			};
 			if (this.owner.Level > 0)
 			{
-				Projectile level = projectile;
-				level.damageAmount = level.damageAmount + (float)this.owner.Level * 0.05f;
+                projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
 			}
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
@@ -774,8 +781,7 @@ namespace Ship_Game.Gameplay
 			};
 			if (this.owner.Level > 0)
 			{
-				Projectile level = projectile;
-				level.damageAmount = level.damageAmount + (float)this.owner.Level * 0.05f;
+                projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
 			}
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
@@ -821,6 +827,10 @@ namespace Ship_Game.Gameplay
 				damageAmount = this.DamageAmount,
 				weapon = this
 			};
+            if (this.owner.Level > 0)
+            {
+                beam.damageAmount += beam.damageAmount * (float)this.owner.Level * 0.05f;
+            }
 			this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
 			this.ToggleSoundOn = false;
@@ -1503,7 +1513,6 @@ namespace Ship_Game.Gameplay
 			{
 				this.AddModifiers("Missile", projectile);
 			}
-            //added by McShooterz: add all weapon tags for modifying
             if (this.Tag_Energy)
             {
                 this.AddModifiers("Energy", projectile);
