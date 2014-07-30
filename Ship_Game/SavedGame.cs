@@ -845,7 +845,7 @@ namespace Ship_Game
 
 			public float InCombatTimer;
 
-			public int experience;
+			public float experience;
 
 			public int kills;
 
