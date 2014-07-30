@@ -91,6 +91,8 @@ namespace Ship_Game
         public bool IsSensor;
         //private float desiredForceStrength;
         public Planet Capital;
+        public int EmpireShipCountReserve;
+        public int empireShipTotal;
 
         static Empire()
         {
@@ -1097,6 +1099,7 @@ namespace Ship_Game
                 if (!this.isPlayer)
                     this.ForcePoolAdd(s);
             }
+            
             this.ShipsToAdd.Clear();
             this.updateContactsTimer -= elapsedTime;
             if ((double)this.updateContactsTimer <= 0.0 && !this.data.Defeated)
@@ -1155,9 +1158,34 @@ namespace Ship_Game
                     else
                         this.AssessHostilePresence();
                 }
+                //added by gremlin. empire ship reserve.
+                this.EmpireShipCountReserve = 0;
+                
+                if(!this.isPlayer)
+                    foreach (Planet planet in this.GetPlanets())
+                    {
+
+                        if (planet == this.Capital)
+                            this.EmpireShipCountReserve = +5;
+                        else
+                            this.EmpireShipCountReserve += planet.developmentLevel;
+                        if (this.EmpireShipCountReserve > 50)
+                        {
+                            this.EmpireShipCountReserve = 50;
+                            break;
+                        }
+                    }
+                this.empireShipTotal = 0;
+                foreach (Ship ship in this.OwnedShips)
+                {
+                    if (ship.Mothership != null || ship.Role == "troop" || ship.Name == "Subspace Projector" || ship.Role == "freighter")
+                        continue;
+                    this.empireShipTotal++;
+                }
                 this.UpdateTimer = 5f;
                 this.DoMoney();
                 this.TakeTurn();
+              
             }
             this.UpdateFleets(elapsedTime);
             this.OwnedShips.ApplyPendingRemovals();
