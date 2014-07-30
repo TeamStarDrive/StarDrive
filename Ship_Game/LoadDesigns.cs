@@ -352,12 +352,12 @@ namespace Ship_Game
 			{
 				foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 				{
-					if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role)))
+                    if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))))
 					{
 						continue;
 					}
-					ShipRoles.Add(Localizer.GetRole(Ship.Value.Role));
-					ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.Role));
+                    ShipRoles.Add(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
+                    ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
 					this.ShipDesigns.AddItem(mh);
 				}
 				if (WIPs.Count > 0)
@@ -370,7 +370,7 @@ namespace Ship_Game
 				{
 					foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 					{
-						if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.Role) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted)
+                        if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted)
 						{
 							continue;
 						}
@@ -467,12 +467,12 @@ namespace Ship_Game
 			{
 				foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 				{
-					if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role)))
+					if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))))
 					{
 						continue;
 					}
-					ShipRoles.Add(Localizer.GetRole(Ship.Value.Role));
-					ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.Role));
+                    ShipRoles.Add(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
+					ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
 					this.ShipDesigns.AddItem(mh);
 				}
 				if (WIPs.Count > 0)
@@ -485,7 +485,7 @@ namespace Ship_Game
 				{
 					foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 					{
-						if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.Role) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted)
+						if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || !(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)) == (e.item as ModuleHeader).Text) || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted)
 						{
 							continue;
 						}

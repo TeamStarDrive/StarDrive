@@ -32,70 +32,23 @@ namespace Ship_Game
 			}
 		}
 
-		public static string GetRole(string role)
+		public static string GetRole(string role, Empire Owner)
 		{
-			string str = role;
-			string str1 = str;
-			if (str != null)
-			{
-				switch (str1)
-				{
-					case "carrier":
-					{
-						return Localizer.Token(138);
-					}
-					case "fighter":
-					{
-						return Localizer.Token(137);
-					}
-					case "scout":
-					{
-						return Localizer.Token(139);
-					}
-					case "freighter":
-					{
-						return Localizer.Token(140);
-					}
-					case "frigate":
-					{
-						return Localizer.Token(141);
-					}
-					case "troop":
-					{
-						return Localizer.Token(142);
-					}
-					case "construction":
-					{
-						return Localizer.Token(143);
-					}
-					case "cruiser":
-					{
-						return Localizer.Token(144);
-					}
-					case "capital":
-					{
-						return Localizer.Token(145);
-					}
-					case "supply":
-					{
-						return Localizer.Token(146);
-					}
-					case "platform":
-					{
-						return Localizer.Token(147);
-					}
-                    //Added by McShooterz: add station and corvette to localization
-					case "station":
-					{
-                        return Localizer.Token(6009);
-					}
-                    case "corvette":
+            if(ResourceManager.ShipRoles.ContainsKey(role))
+            {
+                for(int i=0; i < ResourceManager.ShipRoles[role].RaceList.Count(); i++)
+                {
+                    if(ResourceManager.ShipRoles[role].RaceList[i].ShipType == Owner.data.Traits.ShipType)
                     {
-                        return Localizer.Token(6010);
+                        return Localizer.Token(ResourceManager.ShipRoles[role].RaceList[i].localization);
                     }
-				}
-			}
-			return role;
+                }
+                return Localizer.Token(ResourceManager.ShipRoles[role].Localization);
+            }
+            else
+            {
+                return role;
+            }
 		}
 
 		public static string Token(int index)

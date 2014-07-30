@@ -92,7 +92,7 @@ namespace Ship_Game.Gameplay
         public float OrbitalDefenseTimer;
         public ShipData shipData;
         public int kills;
-        public int experience;
+        public float experience;
         public bool EnginesKnockedOut;
         protected float ThrustLast;
         public float InCombatTimer;
@@ -1137,6 +1137,7 @@ namespace Ship_Game.Gameplay
             }
             return num;
         }
+
         public float GetMaintCost()
         {
             float maint = 0f;
@@ -1154,7 +1155,23 @@ namespace Ship_Game.Gameplay
             }
 
             //Get Maintanence of ship role
-            maint = ResourceManager.ShipUpkeep.GetMaintanence(this.Role, this.loyalty.data.Traits.ShipType);
+            bool foundMaint = false;
+            if (ResourceManager.ShipRoles.ContainsKey(this.Role))
+            {
+                for (int i = 0; i < ResourceManager.ShipRoles[this.Role].RaceList.Count(); i++)
+                {
+                    if (ResourceManager.ShipRoles[this.Role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
+                    {
+                        maint = ResourceManager.ShipRoles[this.Role].RaceList[i].Upkeep;
+                        foundMaint = true;
+                        break;
+                    }
+                }
+                if (!foundMaint)
+                    maint = ResourceManager.ShipRoles[this.Role].Upkeep;
+            }
+            else
+                return 0f;
 
             //Modify Maintanence by freighter size
             if(this.Role == "freighter")
@@ -3829,81 +3846,55 @@ namespace Ship_Game.Gameplay
         //Added by McShooterz: add experience for cruisers and stations, modified for dynamic system
         public void AddKill(Ship killed)
         {
-            switch (killed.Role)
-            {
-                case "scout":
-                    ++this.experience;
-                    break;
-                case "fighter":
-                    this.experience += 2 + (killed.Level / 2);
-                    break;
-                case "corvette":
-                    this.experience += 4 + (killed.Level);
-                    break;
-                case "frigate":
-                    this.experience += 6 + (2 * killed.Level);
-                    break;
-                case "freighter":
-                    ++this.experience;
-                    break;
-                case "platform":
-                    ++this.experience;
-                    break;
-                case "station":
-                    this.experience += 7 + (2 * killed.Level);
-                    break;
-                case "cruiser":
-                    this.experience += 14 + (4 * killed.Level);
-                    break;
-                case "capital":
-                    this.experience += 30 + (8 * killed.Level);
-                    break;
-                case "carrier":
-                    this.experience += 30 + (8 * killed.Level);
-                    break;
-                default:
-                    ++this.experience;
-                    break;
-            }
             ++this.kills;
             //Added by McShooterz: a way to prevent remnant story in mods
             if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory))
                 GlobalStats.IncrementRemnantKills();
             //Added by McShooterz: change level cap, dynamic experience required per level
-            int expMod = 1;//Modifier for experience requirements
-            switch (this.Role)
+            float Exp = 0;
+            float ExpLevel = 0;
+            bool ExpFound = false;
+            float ReqExp = 0;
+            if (ResourceManager.ShipRoles.ContainsKey(killed.Role))
             {
-                case "fighter":
-                    expMod = 3;
-                    break;
-                case "platform":
-                    expMod = 2;
-                    break;
-                case "corvette":
-                    expMod = 6;
-                    break;
-                case "frigate":
-                    expMod = 9;
-                    break;
-                case "station":
-                    expMod = 11;
-                    break;
-                case "cruiser":
-                    expMod = 21;
-                    break;
-                case "capital":
-                    expMod = 45;
-                    break;
-                case "carrier":
-                    expMod = 45;
-                    break;
-                default:
-                    expMod = 1;
-                    break;
+                for (int i = 0; i < ResourceManager.ShipRoles[killed.Role].RaceList.Count(); i++)
+                {
+                    if (ResourceManager.ShipRoles[killed.Role].RaceList[i].ShipType == killed.loyalty.data.Traits.ShipType)
+                    {
+                        Exp = ResourceManager.ShipRoles[killed.Role].RaceList[i].KillExp;
+                        ExpLevel = ResourceManager.ShipRoles[killed.Role].RaceList[i].KillExpPerLevel;
+                        ExpFound = true;
+                        break;
+                    }
+                }
+                if(!ExpFound)
+                {
+                    Exp = ResourceManager.ShipRoles[killed.Role].KillExp;
+                    ExpLevel = ResourceManager.ShipRoles[killed.Role].KillExpPerLevel;
+                }
             }
-            while (this.experience > expMod + (expMod * this.Level))
+            this.experience += Exp + (ExpLevel * killed.Level);
+            ExpFound = false;
+            if (ResourceManager.ShipRoles.ContainsKey(this.Role))
             {
-                this.experience -= expMod + (expMod * this.Level);
+                for (int i = 0; i < ResourceManager.ShipRoles[this.Role].RaceList.Count(); i++)
+                {
+                    if (ResourceManager.ShipRoles[this.Role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
+                    {
+                        ReqExp = ResourceManager.ShipRoles[this.Role].RaceList[i].ExpPerLevel;
+                        ExpFound = true;
+                        break;
+                    }
+                }
+                if (!ExpFound)
+                {
+                    ReqExp = ResourceManager.ShipRoles[this.Role].ExpPerLevel;
+                }
+            }
+
+            while (this.experience > ReqExp * (1 + this.Level))
+            {
+                this.experience -= ReqExp * (1 + this.Level);
                 ++this.Level;
             }
             if (this.Level > 255)
