@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShipRole xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>corvette</Name>
+  <Localization>6010</Localization>
+  <Upkeep>0.35</Upkeep>
+  <KillExp>4.0</KillExp>
+  <KillExpPerLevel>1.0</KillExpPerLevel>
+  <ExpPerLevel>2.0</ExpPerLevel>
+  <RaceList>
+    <Race>
+	  <ShipType>Human</ShipType>
+	  <Data>
+	    <Localization>6010</Localization>
+        <Upkeep>0.35</Upkeep>
+        <KillExp>4.0</KillExp>
+        <KillExpPerLevel>1.0</KillExpPerLevel>
+        <ExpPerLevel>2.0</ExpPerLevel>
+	  </Data>
+	</Race>
+  </RaceList>
+</ShipRole>
