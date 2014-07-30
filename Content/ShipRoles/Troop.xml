@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShipRole xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>troop</Name>
+  <Localization>142</Localization>
+  <Upkeep>0.0</Upkeep>
+  <KillExp>0.5</KillExp>
+  <KillExpPerLevel>0.2</KillExpPerLevel>
+  <ExpPerLevel>0.5</ExpPerLevel>
+  <RaceList>
+    <Race>
+	  <ShipType>Human</ShipType>
+	  <Data>
+	    <Localization>142</Localization>
+        <Upkeep>0.0</Upkeep>
+        <KillExp>0.5</KillExp>
+        <KillExpPerLevel>0.2</KillExpPerLevel>
+        <ExpPerLevel>0.5</ExpPerLevel>
+	  </Data>
+	</Race>
+  </RaceList>
+</ShipRole>

@@ -231,7 +231,7 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\ShipNames.cs" />
-    <Compile Include="Ship_Game\ShipUpkeep.cs" />
+    <Compile Include="Ship_Game\ShipRole.cs" />
     <Compile Include="Ship_Game\TestScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>

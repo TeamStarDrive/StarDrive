@@ -101,11 +101,11 @@ namespace Ship_Game
         public static Dictionary<string, SoundEffect> SoundEffectDict;
 
         //Added by McShooterz
-        public static ShipUpkeep ShipUpkeep;
         public static HostileFleets HostileFleets;
         public static ShipNames ShipNames;
         public static AgentMissionData AgentMissionData;
         public static MainMenuShipList MainMenuShipList;
+        public static Dictionary<string, ShipRole> ShipRoles;
 
 		static ResourceManager()
 		{
@@ -149,12 +149,12 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>();
 			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
             //Added by McShooterz
-            Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
             Ship_Game.ResourceManager.HostileFleets = new HostileFleets();
             Ship_Game.ResourceManager.ShipNames = new ShipNames();
             Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
             Ship_Game.ResourceManager.AgentMissionData = new AgentMissionData();
             Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
+            Ship_Game.ResourceManager.ShipRoles = new Dictionary<string, ShipRole>();
 		}
 
 		public ResourceManager()
@@ -1587,6 +1587,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadExpEvents();
 			Ship_Game.ResourceManager.LoadArtifacts();
 			Ship_Game.ResourceManager.LoadLanguage();
+            Ship_Game.ResourceManager.LoadShipRoles();
 		}
 
 		private static void LoadJunk()
@@ -1720,12 +1721,12 @@ namespace Ship_Game
 				Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video"), "Content/ModVideo", true);
 			}
             //Added by McShooterz
-            Ship_Game.ResourceManager.LoadShipUpkeep();
             Ship_Game.ResourceManager.LoadHostileFleets();
             Ship_Game.ResourceManager.LoadShipNames();
             Ship_Game.ResourceManager.LoadAgentMissions();
             Ship_Game.ResourceManager.LoadMainMenuShipList();
             Ship_Game.ResourceManager.LoadSoundEffects();
+            Ship_Game.ResourceManager.LoadShipRoles();
 		}
 
 		private static void LoadNebulas()
@@ -2347,17 +2348,29 @@ namespace Ship_Game
 			textList = null;
 		}
 
-        //Added by McShooterz: load the ShipUpkeep.xml
-        private static void LoadShipUpkeep()
+        //Added by McShooterz: Load ship roles
+        private static void LoadShipRoles()
         {
-            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")))
+            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipRoles"));
+            XmlSerializer serializer1 = new XmlSerializer(typeof(ShipRole));
+            FileInfo[] fileInfoArray = textList;
+            for (int i = 0; i < (int)fileInfoArray.Length; i++)
             {
-                Ship_Game.ResourceManager.ShipUpkeep = (ShipUpkeep)new XmlSerializer(typeof(ShipUpkeep)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipUpkeep/ShipUpkeep.xml")).OpenRead());
+                FileInfo FI = fileInfoArray[i];
+                FileStream stream = FI.OpenRead();
+                ShipRole data = (ShipRole)serializer1.Deserialize(stream);
+                stream.Close();
+                stream.Dispose();
+                if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
+                {
+                    Ship_Game.ResourceManager.ShipRoles[data.Name] = data;
+                }
+                else
+                {
+                    Ship_Game.ResourceManager.ShipRoles.Add(data.Name, data);
+                }
             }
-            else
-            {
-                return;
-            }
+            textList = null;
         }
 
         //Added by McShooterz: Load hostileFleets.xml
@@ -2448,11 +2461,9 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.TechTree.Clear();
 			Ship_Game.ResourceManager.ArtifactsDict.Clear();
 			Ship_Game.ResourceManager.ShipsDict.Clear();
-            Ship_Game.ResourceManager.ShipUpkeep = new ShipUpkeep();
             Ship_Game.ResourceManager.HostileFleets = new HostileFleets(); ;
             Ship_Game.ResourceManager.ShipNames = new ShipNames(); ;
             Ship_Game.ResourceManager.SoundEffectDict.Clear();
-
 
 
             Ship_Game.ResourceManager.TextureDict.Clear();
