@@ -111,6 +111,9 @@ namespace Ship_Game
 				e.dd = Ship_Game.ResourceManager.DDDict[e.data.DiplomacyDialogPath];
 				e.PortraitName = e.data.PortraitName;
 				e.EmpireColor = new Color((byte)e.data.Traits.R, (byte)e.data.Traits.G, (byte)e.data.Traits.B);
+                e.data.CurrentAutoScout = data.CurrentAutoScout;
+                e.data.CurrentAutoFreighter = data.CurrentAutoFreighter;
+                e.data.CurrentAutoColony = data.CurrentAutoColony;
 			}
 			e.Initialize();
 			e.Money = data.Money;
@@ -319,17 +322,15 @@ namespace Ship_Game
 			GlobalStats.RemnantKills = savedData.RemnantKills;
 			GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
             
-                GlobalStats.GravityWellRange = savedData.GravityWellRange;
-            
-                GlobalStats.IconSize = savedData.IconSize;
-            
-                GlobalStats.MemoryLimiter = savedData.MemoryLimiter;
-            
-                GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;
-         
-                GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;
-            
-                GlobalStats.preventFederations = savedData.preventFederations;
+            GlobalStats.GravityWellRange = savedData.GravityWellRange;            
+            GlobalStats.IconSize = savedData.IconSize;            
+            GlobalStats.MemoryLimiter = savedData.MemoryLimiter;          
+            GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;         
+            GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;            
+            GlobalStats.preventFederations = savedData.preventFederations;
+            GlobalStats.EliminationMode = savedData.EliminationMode;
+
+
 
 			this.savedData = savedData;
 			this.camPos = savedData.campos;
