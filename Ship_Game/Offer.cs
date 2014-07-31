@@ -187,7 +187,7 @@ namespace Ship_Game
 				if (this.TechnologiesOffered.Count == 1)
 				{
 					Offer offer29 = this;
-					offer29.OfferText = string.Concat(offer29.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, ". ");
+					offer29.OfferText = string.Concat(offer29.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (this.TechnologiesOffered.Count != 2)
 				{
@@ -198,21 +198,21 @@ namespace Ship_Game
 							Offer offer30 = this;
 							offer30.OfferText = string.Concat(offer30.OfferText, Localizer.Token(3013));
 							Offer offer31 = this;
-							offer31.OfferText = string.Concat(offer31.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ". ");
+							offer31.OfferText = string.Concat(offer31.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer32 = this;
-							offer32.OfferText = string.Concat(offer32.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ", ");
+							offer32.OfferText = string.Concat(offer32.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer33 = this;
-					offer33.OfferText = string.Concat(offer33.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer33.OfferText = string.Concat(offer33.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer34 = this;
-					offer34.OfferText = string.Concat(offer34.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[1]].Name, ". ");
+					offer34.OfferText = string.Concat(offer34.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 			}
 			else if (this.TechnologiesOffered.Count == 0 && TheirOffer.TechnologiesOffered.Count > 0)
@@ -222,7 +222,7 @@ namespace Ship_Game
 				if (TheirOffer.TechnologiesOffered.Count == 1)
 				{
 					Offer offer36 = this;
-					offer36.OfferText = string.Concat(offer36.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, "? ");
+					offer36.OfferText = string.Concat(offer36.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), "? ");
 				}
 				else if (TheirOffer.TechnologiesOffered.Count != 2)
 				{
@@ -233,21 +233,21 @@ namespace Ship_Game
 							Offer offer37 = this;
 							offer37.OfferText = string.Concat(offer37.OfferText, Localizer.Token(3013));
 							Offer offer38 = this;
-							offer38.OfferText = string.Concat(offer38.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, "? ");
+							offer38.OfferText = string.Concat(offer38.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), "? ");
 						}
 						else
 						{
 							Offer offer39 = this;
-							offer39.OfferText = string.Concat(offer39.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ", ");
+							offer39.OfferText = string.Concat(offer39.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer40 = this;
-					offer40.OfferText = string.Concat(offer40.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer40.OfferText = string.Concat(offer40.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer41 = this;
-					offer41.OfferText = string.Concat(offer41.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].Name, "? ");
+					offer41.OfferText = string.Concat(offer41.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].NameIndex), "? ");
 				}
 			}
 			else if (this.TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count > 0)
@@ -257,7 +257,7 @@ namespace Ship_Game
 				if (TheirOffer.TechnologiesOffered.Count == 1)
 				{
 					Offer offer43 = this;
-					offer43.OfferText = string.Concat(offer43.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, ". ");
+					offer43.OfferText = string.Concat(offer43.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (TheirOffer.TechnologiesOffered.Count != 2)
 				{
@@ -268,28 +268,28 @@ namespace Ship_Game
 							Offer offer44 = this;
 							offer44.OfferText = string.Concat(offer44.OfferText, Localizer.Token(3013));
 							Offer offer45 = this;
-							offer45.OfferText = string.Concat(offer45.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ". ");
+							offer45.OfferText = string.Concat(offer45.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer46 = this;
-							offer46.OfferText = string.Concat(offer46.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ", ");
+							offer46.OfferText = string.Concat(offer46.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer47 = this;
-					offer47.OfferText = string.Concat(offer47.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer47.OfferText = string.Concat(offer47.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer48 = this;
-					offer48.OfferText = string.Concat(offer48.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].Name, ". ");
+					offer48.OfferText = string.Concat(offer48.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 				Offer offer49 = this;
 				offer49.OfferText = string.Concat(offer49.OfferText, Localizer.Token(3038));
 				if (this.TechnologiesOffered.Count == 1)
 				{
 					Offer offer50 = this;
-					offer50.OfferText = string.Concat(offer50.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, ". ");
+					offer50.OfferText = string.Concat(offer50.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (this.TechnologiesOffered.Count != 2)
 				{
@@ -300,21 +300,21 @@ namespace Ship_Game
 							Offer offer51 = this;
 							offer51.OfferText = string.Concat(offer51.OfferText, Localizer.Token(3013));
 							Offer offer52 = this;
-							offer52.OfferText = string.Concat(offer52.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ". ");
+							offer52.OfferText = string.Concat(offer52.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer53 = this;
-							offer53.OfferText = string.Concat(offer53.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ", ");
+							offer53.OfferText = string.Concat(offer53.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer54 = this;
-					offer54.OfferText = string.Concat(offer54.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer54.OfferText = string.Concat(offer54.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer55 = this;
-					offer55.OfferText = string.Concat(offer55.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[1]].Name, ". ");
+					offer55.OfferText = string.Concat(offer55.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 			}
 			if (TheirOffer.ColoniesOffered.Count > 0 && this.ColoniesOffered.Count == 0)
@@ -708,7 +708,7 @@ namespace Ship_Game
 				if (this.TechnologiesOffered.Count == 1)
 				{
 					Offer offer29 = this;
-					offer29.OfferText = string.Concat(offer29.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, ". ");
+					offer29.OfferText = string.Concat(offer29.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (this.TechnologiesOffered.Count != 2)
 				{
@@ -719,21 +719,21 @@ namespace Ship_Game
 							Offer offer30 = this;
 							offer30.OfferText = string.Concat(offer30.OfferText, Localizer.Token(3013));
 							Offer offer31 = this;
-							offer31.OfferText = string.Concat(offer31.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ". ");
+							offer31.OfferText = string.Concat(offer31.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer32 = this;
-							offer32.OfferText = string.Concat(offer32.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ", ");
+							offer32.OfferText = string.Concat(offer32.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer33 = this;
-					offer33.OfferText = string.Concat(offer33.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer33.OfferText = string.Concat(offer33.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer34 = this;
-					offer34.OfferText = string.Concat(offer34.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[1]].Name, ". ");
+					offer34.OfferText = string.Concat(offer34.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 			}
 			else if (this.TechnologiesOffered.Count == 0 && TheirOffer.TechnologiesOffered.Count > 0)
@@ -743,7 +743,7 @@ namespace Ship_Game
 				if (TheirOffer.TechnologiesOffered.Count == 1)
 				{
 					Offer offer36 = this;
-					offer36.OfferText = string.Concat(offer36.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, ". ");
+					offer36.OfferText = string.Concat(offer36.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (TheirOffer.TechnologiesOffered.Count != 2)
 				{
@@ -754,21 +754,21 @@ namespace Ship_Game
 							Offer offer37 = this;
 							offer37.OfferText = string.Concat(offer37.OfferText, Localizer.Token(3013));
 							Offer offer38 = this;
-							offer38.OfferText = string.Concat(offer38.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ". ");
+							offer38.OfferText = string.Concat(offer38.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer39 = this;
-							offer39.OfferText = string.Concat(offer39.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ", ");
+							offer39.OfferText = string.Concat(offer39.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer40 = this;
-					offer40.OfferText = string.Concat(offer40.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer40.OfferText = string.Concat(offer40.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer41 = this;
-					offer41.OfferText = string.Concat(offer41.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].Name, ". ");
+					offer41.OfferText = string.Concat(offer41.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 			}
 			else if (this.TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count > 0)
@@ -778,7 +778,7 @@ namespace Ship_Game
 				if (TheirOffer.TechnologiesOffered.Count == 1)
 				{
 					Offer offer43 = this;
-					offer43.OfferText = string.Concat(offer43.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, ". ");
+					offer43.OfferText = string.Concat(offer43.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (TheirOffer.TechnologiesOffered.Count != 2)
 				{
@@ -789,28 +789,28 @@ namespace Ship_Game
 							Offer offer44 = this;
 							offer44.OfferText = string.Concat(offer44.OfferText, Localizer.Token(3013));
 							Offer offer45 = this;
-							offer45.OfferText = string.Concat(offer45.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ". ");
+							offer45.OfferText = string.Concat(offer45.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer46 = this;
-							offer46.OfferText = string.Concat(offer46.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ", ");
+							offer46.OfferText = string.Concat(offer46.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer47 = this;
-					offer47.OfferText = string.Concat(offer47.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer47.OfferText = string.Concat(offer47.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer48 = this;
-					offer48.OfferText = string.Concat(offer48.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].Name, ". ");
+					offer48.OfferText = string.Concat(offer48.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 				Offer offer49 = this;
 				offer49.OfferText = string.Concat(offer49.OfferText, Localizer.Token(3017));
 				if (this.TechnologiesOffered.Count == 1)
 				{
 					Offer offer50 = this;
-					offer50.OfferText = string.Concat(offer50.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, ". ");
+					offer50.OfferText = string.Concat(offer50.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (this.TechnologiesOffered.Count != 2)
 				{
@@ -821,21 +821,21 @@ namespace Ship_Game
 							Offer offer51 = this;
 							offer51.OfferText = string.Concat(offer51.OfferText, Localizer.Token(3013));
 							Offer offer52 = this;
-							offer52.OfferText = string.Concat(offer52.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ". ");
+							offer52.OfferText = string.Concat(offer52.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer53 = this;
-							offer53.OfferText = string.Concat(offer53.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ", ");
+							offer53.OfferText = string.Concat(offer53.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer54 = this;
-					offer54.OfferText = string.Concat(offer54.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer54.OfferText = string.Concat(offer54.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer55 = this;
-					offer55.OfferText = string.Concat(offer55.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[1]].Name, ". ");
+					offer55.OfferText = string.Concat(offer55.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 			}
 			if (TheirOffer.ColoniesOffered.Count > 0 && this.ColoniesOffered.Count == 0)
@@ -1229,7 +1229,7 @@ namespace Ship_Game
 				if (this.TechnologiesOffered.Count == 1)
 				{
 					Offer offer29 = this;
-					offer29.OfferText = string.Concat(offer29.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, ". ");
+					offer29.OfferText = string.Concat(offer29.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (this.TechnologiesOffered.Count != 2)
 				{
@@ -1240,21 +1240,21 @@ namespace Ship_Game
 							Offer offer30 = this;
 							offer30.OfferText = string.Concat(offer30.OfferText, Localizer.Token(3013));
 							Offer offer31 = this;
-							offer31.OfferText = string.Concat(offer31.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ". ");
+							offer31.OfferText = string.Concat(offer31.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer32 = this;
-							offer32.OfferText = string.Concat(offer32.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ", ");
+							offer32.OfferText = string.Concat(offer32.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer33 = this;
-					offer33.OfferText = string.Concat(offer33.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer33.OfferText = string.Concat(offer33.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer34 = this;
-					offer34.OfferText = string.Concat(offer34.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[1]].Name, ". ");
+					offer34.OfferText = string.Concat(offer34.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 				Offer offer35 = this;
 				offer35.OfferText = string.Concat(offer35.OfferText, Localizer.Token(3056));
@@ -1266,7 +1266,7 @@ namespace Ship_Game
 				if (TheirOffer.TechnologiesOffered.Count == 1)
 				{
 					Offer offer37 = this;
-					offer37.OfferText = string.Concat(offer37.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, ". ");
+					offer37.OfferText = string.Concat(offer37.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (TheirOffer.TechnologiesOffered.Count != 2)
 				{
@@ -1277,21 +1277,21 @@ namespace Ship_Game
 							Offer offer38 = this;
 							offer38.OfferText = string.Concat(offer38.OfferText, Localizer.Token(3013));
 							Offer offer39 = this;
-							offer39.OfferText = string.Concat(offer39.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ". ");
+							offer39.OfferText = string.Concat(offer39.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer40 = this;
-							offer40.OfferText = string.Concat(offer40.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ", ");
+							offer40.OfferText = string.Concat(offer40.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer41 = this;
-					offer41.OfferText = string.Concat(offer41.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer41.OfferText = string.Concat(offer41.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer42 = this;
-					offer42.OfferText = string.Concat(offer42.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].Name, ". ");
+					offer42.OfferText = string.Concat(offer42.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 			}
 			else if (this.TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count > 0)
@@ -1301,7 +1301,7 @@ namespace Ship_Game
 				if (TheirOffer.TechnologiesOffered.Count == 1)
 				{
 					Offer offer44 = this;
-					offer44.OfferText = string.Concat(offer44.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, ". ");
+					offer44.OfferText = string.Concat(offer44.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (TheirOffer.TechnologiesOffered.Count != 2)
 				{
@@ -1312,28 +1312,28 @@ namespace Ship_Game
 							Offer offer45 = this;
 							offer45.OfferText = string.Concat(offer45.OfferText, Localizer.Token(3013));
 							Offer offer46 = this;
-							offer46.OfferText = string.Concat(offer46.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ". ");
+							offer46.OfferText = string.Concat(offer46.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer47 = this;
-							offer47.OfferText = string.Concat(offer47.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].Name, ", ");
+							offer47.OfferText = string.Concat(offer47.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer48 = this;
-					offer48.OfferText = string.Concat(offer48.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer48.OfferText = string.Concat(offer48.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer49 = this;
-					offer49.OfferText = string.Concat(offer49.OfferText, ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].Name, ". ");
+					offer49.OfferText = string.Concat(offer49.OfferText, Localizer.Token(ResourceManager.TechTree[TheirOffer.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 				Offer offer50 = this;
 				offer50.OfferText = string.Concat(offer50.OfferText, Localizer.Token(3059));
 				if (this.TechnologiesOffered.Count == 1)
 				{
 					Offer offer51 = this;
-					offer51.OfferText = string.Concat(offer51.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, ". ");
+					offer51.OfferText = string.Concat(offer51.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), ". ");
 				}
 				else if (this.TechnologiesOffered.Count != 2)
 				{
@@ -1344,21 +1344,21 @@ namespace Ship_Game
 							Offer offer52 = this;
 							offer52.OfferText = string.Concat(offer52.OfferText, Localizer.Token(3013));
 							Offer offer53 = this;
-							offer53.OfferText = string.Concat(offer53.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ". ");
+							offer53.OfferText = string.Concat(offer53.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ". ");
 						}
 						else
 						{
 							Offer offer54 = this;
-							offer54.OfferText = string.Concat(offer54.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[i]].Name, ", ");
+							offer54.OfferText = string.Concat(offer54.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[i]].NameIndex), ", ");
 						}
 					}
 				}
 				else
 				{
 					Offer offer55 = this;
-					offer55.OfferText = string.Concat(offer55.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[0]].Name, Localizer.Token(3011));
+					offer55.OfferText = string.Concat(offer55.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[0]].NameIndex), Localizer.Token(3011));
 					Offer offer56 = this;
-					offer56.OfferText = string.Concat(offer56.OfferText, ResourceManager.TechTree[this.TechnologiesOffered[1]].Name, ". ");
+					offer56.OfferText = string.Concat(offer56.OfferText, Localizer.Token(ResourceManager.TechTree[this.TechnologiesOffered[1]].NameIndex), ". ");
 				}
 			}
 			if (TheirOffer.ColoniesOffered.Count > 0 && this.ColoniesOffered.Count == 0)
