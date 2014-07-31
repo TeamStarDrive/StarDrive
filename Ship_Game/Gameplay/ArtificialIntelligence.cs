@@ -1731,9 +1731,9 @@ namespace Ship_Game.Gameplay
                 return;
             }
             this.TryRepairsTimer = 5f;
-            foreach (Ship ship in w.GetOwner().loyalty.GetShips())
+            foreach (Ship ship in w.GetOwner().loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) <= w.Range + 500f && ship.Health < ship.HealthMax).OrderBy(ship => ship.Health))
             {
-                if (Vector2.Distance(this.Owner.Center, ship.Center) <= w.Range + 500f && ship.Health < ship.HealthMax)
+                if (ship != null)
                 {
                     Vector2 target = this.findVectorToTarget(w.Center, ship.Center);
                     target.Y = target.Y * -1f;

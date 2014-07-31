@@ -17,13 +17,9 @@ namespace Ship_Game
 
 		public int RootNode;
 
-		public string Name;
-
 		public int NameIndex;
 
 		public int DescriptionIndex;
-
-		public string LongDescription;
 
 		public List<Technology.LeadsToTech> LeadsTo = new List<Technology.LeadsToTech>();
 
