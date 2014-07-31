@@ -42,6 +42,7 @@ namespace Ship_Game
             this.data.IconSize=GlobalStats.IconSize;
             this.data.preventFederations=GlobalStats.preventFederations;
             this.data.GravityWellRange=GlobalStats.GravityWellRange;
+            this.data.EliminationMode = GlobalStats.EliminationMode;
 
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{
@@ -214,6 +215,9 @@ namespace Ship_Game
 				empireToSave.Research = e.Research;
 				empireToSave.ResearchTopic = e.ResearchTopic;
 				empireToSave.Money = e.Money;
+                empireToSave.CurrentAutoScout = e.data.CurrentAutoScout;
+                empireToSave.CurrentAutoFreighter = e.data.CurrentAutoFreighter;
+                empireToSave.CurrentAutoColony = e.data.CurrentAutoColony;
 				empireToSave.OwnedShips = new List<SavedGame.ShipSaveData>();
 				empireToSave.TechTree = new List<TechEntry>();
 				foreach (AO area in e.GetGSAI().AreasOfOperations)
@@ -551,6 +555,12 @@ namespace Ship_Game
 			public List<AO> AOs;
 
 			public List<SavedGame.FleetSave> FleetsList;
+
+            public string CurrentAutoFreighter;
+
+            public string CurrentAutoColony;
+
+            public string CurrentAutoScout;
 		}
 
 		public struct FleetSave
@@ -948,10 +958,12 @@ namespace Ship_Game
 
             public bool preventFederations;
             public float GravityWellRange=GlobalStats.GravityWellRange;
+            public bool EliminationMode;
 
 			public UniverseSaveData()
 			{
 			}
 		}
+
 	}
 }
