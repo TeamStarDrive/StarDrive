@@ -1351,6 +1351,36 @@ namespace Ship_Game
             return true;
         }
 
+        public bool WeCanUseThis(Technology tech)
+        {
+
+            //foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
+            bool flag = false;
+            Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
+            {
+
+                ShipData shipData = ship.Value.shipData;
+                if (shipData.ShipStyle == null || shipData.ShipStyle == this.data.Traits.ShipType)
+                {
+                    if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
+                        return;
+                        foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
+                        {
+
+                            if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
+                                flag = true;
+                            //return;
+                            status.Stop();
+                            return;
+
+                        }
+                    if (status.IsStopped)
+                        return;
+                }
+            });
+            return flag;
+        }
+
         public float GetTotalPop()
         {
             float num = 0.0f;
