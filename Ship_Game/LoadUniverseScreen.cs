@@ -134,12 +134,15 @@ namespace Ship_Game
 				{
 					continue;
 				}
+                if (tech.AcquiredFrom != null)
+                    e.GetTDict()[tech.UID].AcquiredFrom = tech.AcquiredFrom;
 				if (tech.Unlocked)
 				{
 					e.UnlockTechFromSave(tech.UID);
 				}
 				e.GetTDict()[tech.UID].Progress = tech.Progress;
 				e.GetTDict()[tech.UID].Discovered = tech.Discovered;
+
 			}
 			return e;
 		}

@@ -382,8 +382,8 @@ namespace Ship_Game
                         List<string> PotentialUIDs = new List<string>();
                         foreach (KeyValuePair<string, TechEntry> entry in Target.GetTDict())
                         {
-                            //Added by McShooterz: Racial tech cannot be stolen, also root nodes cannot be stolen
-                            if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked || entry.Value.GetTech().RaceRestrictions.Count != 0 || entry.Value.GetTech().RootNode != 0)
+                            //Added by McShooterz: Root nodes cannot be stolen
+                            if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked || entry.Value.GetTech().RootNode == 1)
                             {
                                 continue;
                             }
@@ -401,7 +401,9 @@ namespace Ship_Game
                                 {
                                     if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, Localizer.Token(6056), Target);
                                 }
-                                Owner.UnlockTech(theUID);
+                                //Added by McShooterz: new acquire method, unlocks targets bonuses as well
+                                //Owner.UnlockTech(theUID);
+                                Owner.AcquireTech(theUID, Target);
                                 if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6031)), Owner);
                                 break;
                             }
@@ -413,7 +415,9 @@ namespace Ship_Game
                                 {
                                     if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6058), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
                                 }
-                                Owner.UnlockTech(theUID);
+                                //Added by McShooterz: new acquire method, unlocks targets bonuses as well
+                                //Owner.UnlockTech(theUID);
+                                Owner.AcquireTech(theUID, Target);
                                 Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
                                 if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6042)), Owner);
                                 break;
