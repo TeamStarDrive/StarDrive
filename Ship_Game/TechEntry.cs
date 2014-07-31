@@ -13,6 +13,8 @@ namespace Ship_Game
 
 		public bool Unlocked;
 
+        public string AcquiredFrom = "";
+
 		public TechEntry()
 		{
 		}
