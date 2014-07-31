@@ -102,7 +102,7 @@ namespace Ship_Game
 				float roomoneitherside = (rangeforbuttons - 734f) / 2f;
                 //Added by McShooterz: Shifted buttons to add new ones, added dummy espionage button
 				Cursor.X = (float)(r4.Rect.X + r4.Rect.Width) + roomoneitherside;
-                if (GlobalStats.Config.XRES >= 1920)
+                if (this.screen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth >= 1920)
                 {
                     Cursor.X -= 250f;
                     EmpireUIOverlay.Button ShipList = new EmpireUIOverlay.Button();
@@ -255,7 +255,7 @@ namespace Ship_Game
 			this.Buttons.Add(r5n);
 			float rangeforbuttons0 = (float)(r5n.Rect.X - (r4n.Rect.X + r4n.Rect.Width));
 			float roomoneitherside0 = (rangeforbuttons0 - 607f) / 2f;
-			Cursor0.X = (float)(r4n.Rect.X + r4n.Rect.Width) + roomoneitherside0;
+			Cursor0.X = (float)(r4n.Rect.X + r4n.Rect.Width) + roomoneitherside0 - 50f;
 			EmpireUIOverlay.Button Shipyard0 = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
@@ -266,7 +266,7 @@ namespace Ship_Game
 				launches = "Shipyard"
 			};
 			this.Buttons.Add(Shipyard0);
-			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 8);
+			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
 			EmpireUIOverlay.Button Empire0 = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
@@ -277,7 +277,18 @@ namespace Ship_Game
 				Text = Localizer.Token(99)
 			};
 			this.Buttons.Add(Empire0);
-			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 8);
+            Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
+            EmpireUIOverlay.Button Espionage0 = new EmpireUIOverlay.Button()
+            {
+                Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+                launches = "Espionage",
+                Text = Localizer.Token(6088)
+            };
+            this.Buttons.Add(Espionage0);
+			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
 			EmpireUIOverlay.Button Diplomacy0 = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
@@ -288,7 +299,7 @@ namespace Ship_Game
 				Text = Localizer.Token(100)
 			};
 			this.Buttons.Add(Diplomacy0);
-			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 30);
+			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 10);
 			EmpireUIOverlay.Button MainMenu0 = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
@@ -299,7 +310,7 @@ namespace Ship_Game
 				Text = Localizer.Token(101)
 			};
 			this.Buttons.Add(MainMenu0);
-			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"].Width + 10);
+			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"].Width + 5);
 			EmpireUIOverlay.Button Help0 = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
@@ -838,7 +849,7 @@ namespace Ship_Game
 			this.Buttons.Add(r5);
 			float rangeforbuttons = (float)(r5.Rect.X - (r4.Rect.X + r4.Rect.Width));
 			float roomoneitherside = (rangeforbuttons - 607f) / 2f;
-			Cursor.X = (float)(r4.Rect.X + r4.Rect.Width) + roomoneitherside;
+			Cursor.X = (float)(r4.Rect.X + r4.Rect.Width) + roomoneitherside - 50f;
 			EmpireUIOverlay.Button Shipyard = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
@@ -849,7 +860,7 @@ namespace Ship_Game
 				launches = "Shipyard"
 			};
 			this.Buttons.Add(Shipyard);
-			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 8);
+			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
 			EmpireUIOverlay.Button Empire = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
@@ -860,7 +871,18 @@ namespace Ship_Game
 				Text = Localizer.Token(99)
 			};
 			this.Buttons.Add(Empire);
-			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 8);
+            Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
+            EmpireUIOverlay.Button Espionage = new EmpireUIOverlay.Button()
+            {
+                Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+                launches = "Espionage",
+                Text = Localizer.Token(6088)
+            };
+            this.Buttons.Add(Espionage);
+			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
 			EmpireUIOverlay.Button Diplomacy = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
@@ -871,7 +893,7 @@ namespace Ship_Game
 				Text = Localizer.Token(100)
 			};
 			this.Buttons.Add(Diplomacy);
-			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 30);
+			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 10);
 			EmpireUIOverlay.Button MainMenu = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
@@ -882,7 +904,7 @@ namespace Ship_Game
 				Text = Localizer.Token(101)
 			};
 			this.Buttons.Add(MainMenu);
-			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"].Width + 10);
+			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"].Width + 5);
 			EmpireUIOverlay.Button Help = new EmpireUIOverlay.Button()
 			{
 				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
