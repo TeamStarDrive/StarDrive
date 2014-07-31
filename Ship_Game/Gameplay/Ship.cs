@@ -1461,7 +1461,7 @@ namespace Ship_Game.Gameplay
                     ss.module.hangarShipUID = ss.SlotOptions;
                     this.Hangars.Add(ss.module);
                 }
-                if (ss.module.IsRepairModule)
+                if (ss.module.IsRepairModule || (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam))
                     this.HasRepairModule = true;
             }
             this.ShipSO.Visibility = ObjectVisibility.Rendered;
@@ -1496,7 +1496,7 @@ namespace Ship_Game.Gameplay
             {
                 if (ss.module.ModuleType == ShipModuleType.PowerConduit)
                     ss.module.IconTexturePath = this.GetConduitGraphic(ss, this);
-                if (ss.module.IsRepairModule)
+                if (ss.module.IsRepairModule || (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam))
                     this.HasRepairModule = true;
                 if (ss.module.ModuleType == ShipModuleType.Colony)
                     this.isColonyShip = true;

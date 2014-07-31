@@ -1722,6 +1722,45 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
+        private void DoRepairBeamLogic(Weapon w, float elapsedTime)
+        {
+            ArtificialIntelligence tryRepairsTimer = this;
+            tryRepairsTimer.TryRepairsTimer = tryRepairsTimer.TryRepairsTimer - elapsedTime;
+            if (this.TryRepairsTimer > 0f)
+            {
+                return;
+            }
+            this.TryRepairsTimer = 5f;
+            if (this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
+            {
+                if (ship.Health / ship.HealthMax >= 0.95f)
+                {
+                    return false;
+                }
+                return Vector2.Distance(this.Owner.Center, ship.Center) < 20000f;
+            }).Count<Ship>() == 0)
+            {
+                return;
+            }
+            using (IEnumerator<Ship> enumerator = this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
+            {
+                if (Vector2.Distance(this.Owner.Center, ship.Center) >= 20000f)
+                {
+                    return false;
+                }
+                return ship.Health / ship.HealthMax < 0.95f;
+            }).OrderBy<Ship, float>((Ship ship) => Vector2.Distance(this.Owner.Center, ship.Center)).GetEnumerator())
+            {
+                if (enumerator.MoveNext())
+                {
+                    Ship friendliesNearby = enumerator.Current;
+                    Vector2 target = this.findVectorToTarget(w.Center, friendliesNearby.Center);
+                    target.Y = target.Y * -1f;
+                    w.FireTargetedBeam(Vector2.Normalize(target), friendliesNearby);
+                }
+            }
+        }
+
 		private void DoResupply(float elapsedTime)
 		{
 			switch (this.resupplystep)
@@ -2146,6 +2185,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
+            /*
 			foreach (Weapon weapon in this.Owner.Weapons)
 			{
 				if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || !weapon.IsRepairDrone)
@@ -2153,7 +2193,7 @@ namespace Ship_Game.Gameplay
 					continue;
 				}
 				this.DoRepairDroneLogic(weapon, elapsedTime);
-			}
+			}*/
 			if (this.Target != null && !this.Target.Active)
 			{
 				this.Target = null;
@@ -2168,7 +2208,7 @@ namespace Ship_Game.Gameplay
 				{
 					foreach (Weapon weapon in this.Owner.Weapons)
 					{
-						if (weapon.IsRepairDrone || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered)
+						if (weapon.IsRepairDrone || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.isRepairBeam)
 						{
 							continue;
 						}
@@ -2398,7 +2438,7 @@ namespace Ship_Game.Gameplay
 				{
 					foreach (Weapon weapon in this.Owner.Weapons)
 					{
-						if (weapon.IsRepairDrone || !weapon.Tag_PD || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered)
+						if (weapon.IsRepairDrone || !weapon.Tag_PD || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.isRepairBeam)
 						{
 							continue;
 						}
@@ -7302,7 +7342,6 @@ namespace Ship_Game.Gameplay
                 {
                 }
             }
-
             else
             {
                 if (this.Owner.HasRepairModule)
@@ -7312,13 +7351,16 @@ namespace Ship_Game.Gameplay
                     {
                         Weapon weapon1 = weapon;
                         weapon1.timeToNextFire = weapon1.timeToNextFire - elapsedTime;
-                        if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || !weapon.IsRepairDrone || this.Owner.Ordinance < weapon.OrdinanceRequiredToFire || this.Owner.PowerCurrent < weapon.PowerRequiredToFire)
+                        if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || this.Owner.Ordinance < weapon.OrdinanceRequiredToFire || this.Owner.PowerCurrent < weapon.PowerRequiredToFire || (!weapon.IsRepairDrone && !weapon.isRepairBeam))
                         {
                             return;
                         }
                         try
                         {
-                            this.DoRepairDroneLogic(weapon, elapsedTime);
+                            if(weapon.IsRepairDrone)
+                                this.DoRepairDroneLogic(weapon, elapsedTime);
+                            if (weapon.isRepairBeam)
+                                this.DoRepairBeamLogic(weapon, elapsedTime);
                         }
                         catch
                         {
