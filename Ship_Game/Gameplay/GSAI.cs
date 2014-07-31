@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Configuration;
+using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
@@ -6745,11 +6746,11 @@ namespace Ship_Game.Gameplay
 				ao.Update();
 			}
 			this.UpdateThreatMatrix();
-			if (!this.empire.isFaction && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoColonize))
+			if (!this.empire.isFaction|| this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoColonize)
 			{
 				this.RunExpansionPlanner();
 			}
-            if (!this.empire.isFaction && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoBuild))
+            if (!this.empire.isFaction || this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoBuild)
 			{
 				this.RunInfrastructurePlanner();
 			}
@@ -7593,48 +7594,89 @@ namespace Ship_Game.Gameplay
             }
         }
 
-		private void RunResearchPlanner()
+        
+        
+        private void RunResearchPlanner()
 		{
 			if (this.empire.ResearchTopic == "")
 			{
-				switch (this.res_strat)
+				
+
+                
+                
+                switch (this.res_strat)
 				{
 					case GSAI.ResearchStrategy.Random:
 					{
-						List<string> AvailableTechs = new List<string>();
+						List<Technology> AvailableTechs = new List<Technology>();
 						foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
 						{
-							if (!this.empire.HavePreReq(Technology.Key) || ResourceManager.TechTree[Technology.Key].Secret && !this.empire.GetTDict()[Technology.Key].Discovered)
+                            if (!this.empire.GetTDict().ContainsKey(Technology.Key) || this.empire.GetTDict()[Technology.Key].Unlocked  
+                                ||!this.empire.HavePreReq(Technology.Key)  || (ResourceManager.TechTree[Technology.Key].Secret && !this.empire.GetTDict()[Technology.Key].Discovered))
 							{
 								continue;
 							}
-							AvailableTechs.Add(Technology.Key);
+                            if (Technology.Value.ModulesUnlocked.Count > 0)
+                            {
+                                if (this.empire.WeCanUseThis(Technology.Value))
+                                    AvailableTechs.Add(Technology.Value);
+
+                            }
+                            else
+                                AvailableTechs.Add(Technology.Value);
 						}
+   
+
 						if (AvailableTechs.Count <= 0)
 						{
 							break;
 						}
-						int Random = (int)RandomMath.RandomBetween(0f, (float)AvailableTechs.Count + 0.99f);
-						if (Random > AvailableTechs.Count - 1)
+						int Random = (int)RandomMath.RandomBetween(0f, (float)AvailableTechs.Count*.25f + 0.99f);
+						if (Random >  0)
 						{
-							Random = AvailableTechs.Count - 1;
+                            Random += -2;
 						}
-						this.empire.ResearchTopic = AvailableTechs[Random];
+                        if (Random < 0)
+                            Random = 0;
+						this.empire.ResearchTopic = AvailableTechs.OrderBy(cost=>cost.Cost).Skip(Random).First().UID;
 						break;
 					}
 					case GSAI.ResearchStrategy.Scripted:
 					{
 						if (this.empire.getResStrat() != null)
 						{
-							foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
-							{
+
+                            
+                            foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)// .OrderBy(cost => ResourceManager.TechTree[cost.id].Cost))
+                            {
                                 if (!this.empire.GetTDict().ContainsKey(tech.id) || this.empire.GetTDict()[tech.id].Unlocked || !this.empire.HavePreReq(tech.id))
-								{
-									continue;
-								}
-								this.empire.ResearchTopic = tech.id;
-								return;
-							}
+                                {
+
+
+                                    continue;
+                                }
+                                int X = (HelperFunctions.GetRandomIndex(5)+HelperFunctions.GetRandomIndex(5));
+
+                                foreach (TechEntry tech2 in this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && !filter.GetTech().Secret&& filter.Discovered  && filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost))
+                                {
+                                    X--;
+                                    if (tech2.UID == tech.id)
+                                        break;
+                                    if (X <= 0)
+                                    {
+                                        this.res_strat = GSAI.ResearchStrategy.Random;
+                                        this.RunResearchPlanner();
+                                        this.res_strat = GSAI.ResearchStrategy.Scripted;
+                                        return;
+                                    }
+                                }
+
+
+                      
+                                    this.empire.ResearchTopic = tech.id;
+                                    return;
+                                
+                            }
 						}
 						this.res_strat = GSAI.ResearchStrategy.Random;
 						return;
