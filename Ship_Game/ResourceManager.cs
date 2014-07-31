@@ -1328,7 +1328,8 @@ namespace Ship_Game
                 Excludes_Fighters = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Fighters,
                 Excludes_Corvettes = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Corvettes,
                 Excludes_Capitals = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Capitals,
-                Excludes_Stations = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Stations
+                Excludes_Stations = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Stations,
+                isRepairBeam = Ship_Game.ResourceManager.WeaponsDict[uid].isRepairBeam
 			};
 			return w;
 		}

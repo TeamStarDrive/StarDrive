@@ -12,9 +12,9 @@
 	  <Data>
 	    <Localization>145</Localization>
         <Upkeep>6.0</Upkeep>
-        <KillExp>0.5</KillExp>
-        <KillExpPerLevel>0.2</KillExpPerLevel>
-        <ExpPerLevel>0.5</ExpPerLevel>
+        <KillExp>28.0</KillExp>
+        <KillExpPerLevel>7.0</KillExpPerLevel>
+        <ExpPerLevel>14.0</ExpPerLevel>
 	  </Data>
 	</Race>
   </RaceList>

@@ -111,6 +111,18 @@ namespace Ship_Game
 				e.dd = Ship_Game.ResourceManager.DDDict[e.data.DiplomacyDialogPath];
 				e.PortraitName = e.data.PortraitName;
 				e.EmpireColor = new Color((byte)e.data.Traits.R, (byte)e.data.Traits.G, (byte)e.data.Traits.B);
+                if (data.CurrentAutoScout != null)
+                    e.data.CurrentAutoScout = data.CurrentAutoScout;
+                else
+                    e.data.CurrentAutoScout = e.data.StartingScout;
+                if (data.CurrentAutoFreighter != null)
+                    e.data.CurrentAutoFreighter = data.CurrentAutoFreighter;
+                else
+                    e.data.CurrentAutoFreighter = e.data.DefaultSmallTransport;
+                if (data.CurrentAutoColony != null)
+                    e.data.CurrentAutoColony = data.CurrentAutoColony;
+                else
+                    e.data.CurrentAutoColony = e.data.DefaultColonyShip;
 			}
 			e.Initialize();
 			e.Money = data.Money;
@@ -319,17 +331,15 @@ namespace Ship_Game
 			GlobalStats.RemnantKills = savedData.RemnantKills;
 			GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
             
-                GlobalStats.GravityWellRange = savedData.GravityWellRange;
-            
-                GlobalStats.IconSize = savedData.IconSize;
-            
-                GlobalStats.MemoryLimiter = savedData.MemoryLimiter;
-            
-                GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;
-         
-                GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;
-            
-                GlobalStats.preventFederations = savedData.preventFederations;
+            GlobalStats.GravityWellRange = savedData.GravityWellRange;            
+            GlobalStats.IconSize = savedData.IconSize;            
+            GlobalStats.MemoryLimiter = savedData.MemoryLimiter;          
+            GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;         
+            GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;            
+            GlobalStats.preventFederations = savedData.preventFederations;
+            GlobalStats.EliminationMode = savedData.EliminationMode;
+
+
 
 			this.savedData = savedData;
 			this.camPos = savedData.campos;
