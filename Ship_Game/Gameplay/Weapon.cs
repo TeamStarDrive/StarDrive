@@ -209,6 +209,8 @@ namespace Ship_Game.Gameplay
 
         public bool Excludes_Stations;
 
+        public bool isRepairBeam;
+
 		public static AudioListener audioListener
 		{
 			get;
