@@ -1731,32 +1731,14 @@ namespace Ship_Game.Gameplay
                 return;
             }
             this.TryRepairsTimer = 5f;
-            if (this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
+            foreach (Ship ship in w.GetOwner().loyalty.GetShips())
             {
-                if (ship.Health / ship.HealthMax >= 0.95f)
+                if (Vector2.Distance(this.Owner.Center, ship.Center) <= w.Range + 500f && ship.Health < ship.HealthMax)
                 {
-                    return false;
-                }
-                return Vector2.Distance(this.Owner.Center, ship.Center) < 20000f;
-            }).Count<Ship>() == 0)
-            {
-                return;
-            }
-            using (IEnumerator<Ship> enumerator = this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
-            {
-                if (Vector2.Distance(this.Owner.Center, ship.Center) >= 20000f)
-                {
-                    return false;
-                }
-                return ship.Health / ship.HealthMax < 0.95f;
-            }).OrderBy<Ship, float>((Ship ship) => Vector2.Distance(this.Owner.Center, ship.Center)).GetEnumerator())
-            {
-                if (enumerator.MoveNext())
-                {
-                    Ship friendliesNearby = enumerator.Current;
-                    Vector2 target = this.findVectorToTarget(w.Center, friendliesNearby.Center);
+                    Vector2 target = this.findVectorToTarget(w.Center, ship.Center);
                     target.Y = target.Y * -1f;
-                    w.FireTargetedBeam(Vector2.Normalize(target), friendliesNearby);
+                    w.FireTargetedBeam(Vector2.Normalize(target), ship);
+                    return;
                 }
             }
         }
