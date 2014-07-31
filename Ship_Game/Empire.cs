@@ -503,7 +503,7 @@ namespace Ship_Game
             //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {
-                if (unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null)
+                if (unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null || unlockedBuilding.Type == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
             }
             if (ResourceManager.TechTree[techID].RootNode == 0)
@@ -512,31 +512,29 @@ namespace Ship_Game
                 {
                     //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
                     if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0)
-                    {
                         this.TechnologyDict[leadsToTech.UID].Discovered = true;
-                    }
                 }
             }
             //Added by McShooterz: Race Specific modules
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
             {
-                if(unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null)
+                if (unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
             }
             foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
             {
-                if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null)
+                if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null || unlockedTroop.Type == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedTroopDict[unlockedTroop.Name] = true;
             }
             foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
             {
-                if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null)
+                if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
             }
             foreach (Technology.UnlockedBonus unlockedBonus in ResourceManager.TechTree[techID].BonusUnlocked)
             {
                 //Added by McShooterz: Race Specific bonus
-                if (unlockedBonus.Type == null || unlockedBonus.Type == this.data.Traits.ShipType)
+                if (unlockedBonus.Type == null || unlockedBonus.Type == this.data.Traits.ShipType || unlockedBonus.Type == this.TechnologyDict[techID].AcquiredFrom)
                 {
                     string str = unlockedBonus.BonusType;
                     if (string.IsNullOrEmpty(str))
@@ -696,7 +694,7 @@ namespace Ship_Game
             this.TechnologyDict[techID].Unlocked = true;
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {
-                if(unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null)
+                if (unlockedBuilding.Type == this.data.Traits.ShipType || unlockedBuilding.Type == null || unlockedBuilding.Type == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedBuildingsDict[unlockedBuilding.Name] = true;
             }
             if (ResourceManager.TechTree[techID].RootNode == 0)
@@ -707,20 +705,27 @@ namespace Ship_Game
             }
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
             {
-                if (unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null)
+                if (unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
             }
             foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
             {
-                if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null)
+                if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null || unlockedTroop.Type == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedTroopDict[unlockedTroop.Name] = true;
             }
             foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
             {
-                if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null)
+                if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
             }
             this.UpdateShipsWeCanBuild();
+        }
+
+        //Added by McShooterz: this is for techs obtain via espionage or diplomacy
+        public void AcquireTech(string techID, Empire target)
+        {
+            this.TechnologyDict[techID].AcquiredFrom = target.data.Traits.ShipType;
+            this.UnlockTech(techID);
         }
 
         public void UnlockHullsSave(string techID, string AbsorbedShipType)

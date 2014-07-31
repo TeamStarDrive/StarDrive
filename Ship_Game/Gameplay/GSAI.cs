@@ -289,7 +289,9 @@ namespace Ship_Game.Gameplay
 			}
 			foreach (string tech in FromUs.TechnologiesOffered)
 			{
-				Them.UnlockTech(tech);
+                //Added by McShooterz:
+				//Them.UnlockTech(tech);
+                Them.AcquireTech(tech, us);
 				if (EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) == us)
 				{
 					continue;
@@ -304,7 +306,9 @@ namespace Ship_Game.Gameplay
 			}
 			foreach (string tech in ToUs.TechnologiesOffered)
 			{
-				us.UnlockTech(tech);
+                //Added by McShooterz:
+				//us.UnlockTech(tech);
+                us.AcquireTech(tech, Them);
 				if (EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) == Them)
 				{
 					continue;
@@ -4319,7 +4323,8 @@ namespace Ship_Game.Gameplay
 							List<string> PotentialDemands = new List<string>();
 							foreach (KeyValuePair<string, TechEntry> tech in Relationship.Key.GetTDict())
 							{
-								if (!tech.Value.Unlocked || this.empire.GetTDict()[tech.Key].Unlocked)
+                                //Added by McShooterz: prevent root nodes from being demanded, and secret but not discovered
+								if (!tech.Value.Unlocked || this.empire.GetTDict()[tech.Key].Unlocked || tech.Value.GetTech().RootNode == 1 || (tech.Value.GetTech().Secret && !tech.Value.GetTech().Discovered))
 								{
 									continue;
 								}
@@ -6741,11 +6746,11 @@ namespace Ship_Game.Gameplay
 				ao.Update();
 			}
 			this.UpdateThreatMatrix();
-			if (!this.empire.isFaction|| this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoColonize)
+			if (!this.empire.isFaction && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoColonize))
 			{
 				this.RunExpansionPlanner();
 			}
-            if (!this.empire.isFaction || this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoBuild)
+            if (!this.empire.isFaction && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoBuild))
 			{
 				this.RunInfrastructurePlanner();
 			}
