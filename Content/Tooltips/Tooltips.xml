@@ -829,5 +829,10 @@
       <Title>Elimination Game mode</Title>
       <Data>7015</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>166</TIP_ID>
+      <Title>Repair Beam</Title>
+      <Data>7016</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
