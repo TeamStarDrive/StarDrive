@@ -3537,25 +3537,25 @@ namespace Ship_Game
             PresentationParameters presentationParameters = this.ScreenManager.GraphicsDevice.PresentationParameters;
             Vector2 spaceFromScreenSpace1 = this.GetWorldSpaceFromScreenSpace(new Vector2(0.0f, 0.0f));
             float num = this.GetWorldSpaceFromScreenSpace(new Vector2((float)presentationParameters.BackBufferWidth, (float)presentationParameters.BackBufferHeight)).X - spaceFromScreenSpace1.X;
-            if ((double)input.CursorPosition.X <= 1.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Left) || input.CurrentKeyboardState.IsKeyDown(Keys.A))
+            if ((double)input.CursorPosition.X <= 1.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Left) || (input.CurrentKeyboardState.IsKeyDown(Keys.A) && this.playerShip == null))
             {
                 this.transitionDestination.X -= 0.008f * num;
                 this.snappingToShip = false;
                 this.ViewingShip = false;
             }
-            if ((double)input.CursorPosition.X >= (double)(presentationParameters.BackBufferWidth - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Right) || input.CurrentKeyboardState.IsKeyDown(Keys.D))
+            if ((double)input.CursorPosition.X >= (double)(presentationParameters.BackBufferWidth - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Right) || (input.CurrentKeyboardState.IsKeyDown(Keys.D) && this.playerShip == null))
             {
                 this.transitionDestination.X += 0.008f * num;
                 this.snappingToShip = false;
                 this.ViewingShip = false;
             }
-            if ((double)input.CursorPosition.Y <= 0.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Up) || input.CurrentKeyboardState.IsKeyDown(Keys.W))
+            if ((double)input.CursorPosition.Y <= 0.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Up) || (input.CurrentKeyboardState.IsKeyDown(Keys.W) && this.playerShip == null))
             {
                 this.snappingToShip = false;
                 this.ViewingShip = false;
                 this.transitionDestination.Y -= 0.008f * num;
             }
-            if ((double)input.CursorPosition.Y >= (double)(presentationParameters.BackBufferHeight - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Down) || input.CurrentKeyboardState.IsKeyDown(Keys.S))
+            if ((double)input.CursorPosition.Y >= (double)(presentationParameters.BackBufferHeight - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Down) || (input.CurrentKeyboardState.IsKeyDown(Keys.S) && this.playerShip == null))
             {
                 this.transitionDestination.Y += 0.008f * num;
                 this.snappingToShip = false;
