@@ -7643,6 +7643,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7015</Index>
       <Text>In the Capital Elimination game mode, empires are defeated when they lose their homeworld.</Text>
     </Token>
+	<Token>
+      <Index>7016</Index>
+      <Text>Indicates the maximum amount of damage repaired by beams from this system. </Text>
+    </Token>
   </TokenList>
   
 </LocalizationFile>
