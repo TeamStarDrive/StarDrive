@@ -111,9 +111,18 @@ namespace Ship_Game
 				e.dd = Ship_Game.ResourceManager.DDDict[e.data.DiplomacyDialogPath];
 				e.PortraitName = e.data.PortraitName;
 				e.EmpireColor = new Color((byte)e.data.Traits.R, (byte)e.data.Traits.G, (byte)e.data.Traits.B);
-                e.data.CurrentAutoScout = data.CurrentAutoScout;
-                e.data.CurrentAutoFreighter = data.CurrentAutoFreighter;
-                e.data.CurrentAutoColony = data.CurrentAutoColony;
+                if (data.CurrentAutoScout != null)
+                    e.data.CurrentAutoScout = data.CurrentAutoScout;
+                else
+                    e.data.CurrentAutoScout = e.data.StartingScout;
+                if (data.CurrentAutoFreighter != null)
+                    e.data.CurrentAutoFreighter = data.CurrentAutoFreighter;
+                else
+                    e.data.CurrentAutoFreighter = e.data.DefaultSmallTransport;
+                if (data.CurrentAutoColony != null)
+                    e.data.CurrentAutoColony = data.CurrentAutoColony;
+                else
+                    e.data.CurrentAutoColony = e.data.DefaultColonyShip;
 			}
 			e.Initialize();
 			e.Money = data.Money;
