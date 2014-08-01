@@ -33,7 +33,7 @@ namespace Ship_Game
 
 		private string UIDCurrentRoot = "";
 
-		private int ColumnOffset = 200;
+		private int ColumnOffset = 175;
 
 		private int RowOffset = 100;
 
@@ -485,7 +485,7 @@ namespace Ship_Game
 					this.SetNode(tech.Value);
 				}
 			}
-			this.RowOffset = (main.Height - 40) / 6;
+            this.RowOffset = 140; //(main.Height - 40) / 6;
 			foreach (KeyValuePair<string, Node> entry in this.TechTree)
 			{
 				this.PopulateAllTechsFromRoot(entry.Value as RootNode);
@@ -702,13 +702,11 @@ namespace Ship_Game
 			}
 			this.ClaimedSpots.Add(this.Cursor);
 			Node newNode = new Node();
-			//{
-				newNode.NodePosition = this.Cursor;
-				newNode.NodeRect = new Rectangle(this.ColumnOffset * (int)this.Cursor.X, this.RowOffset * (int)this.Cursor.Y, 275, 50);
-				newNode.tech = tech;
-				newNode.preReq = preReq;
-                newNode.pb = new DanProgressBar(new Vector2((float)(newNode.NodeRect.X + 5), (float)(newNode.NodeRect.Y + 36)), ResourceManager.TechTree[tech.UID].Cost);
-			//};
+			newNode.NodePosition = this.Cursor;
+			newNode.NodeRect = new Rectangle(this.ColumnOffset * (int)this.Cursor.X, this.RowOffset * (int)this.Cursor.Y, 275, 50);
+			newNode.tech = tech;
+			newNode.preReq = preReq;
+            newNode.pb = new DanProgressBar(new Vector2((float)(newNode.NodeRect.X + 5), (float)(newNode.NodeRect.Y + 36)), ResourceManager.TechTree[tech.UID].Cost);
 			if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Unlocked)
 			{
 				newNode.isResearched = true;
