@@ -571,17 +571,19 @@ namespace Ship_Game
 			Root.nodeState = NodeState.Press;
 			this.ClaimedSpots.Clear();
 			this.Cursor = new Vector2(1f, 1f);
+            bool first = true;
 			for (int i = 0; i < ResourceManager.TechTree[Root.tech.UID].LeadsTo.Count; i++)
 			{
 				if (!ResourceManager.TechTree[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Secret || EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Discovered)
 				{
-					if (i != 0)
+					if (!first)
 					{
 						this.Cursor.Y = (float)(this.FindDeepestYSubNodes() + 1);
 					}
 					else
 					{
 						this.Cursor.Y = (float)this.FindDeepestYSubNodes();
+                        first = false;
 					}
 					this.Cursor.X = Root.NodePosition.X + 1f;
 					TechEntry te = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID];
