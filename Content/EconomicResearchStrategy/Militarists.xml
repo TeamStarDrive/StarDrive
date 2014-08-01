@@ -1,0 +1,61 @@
+﻿<EconomicResearchStrategy>
+  <!--the opening technology path for races with the militarist economic personality. Goes random when finished-->
+  <Name>Militarists</Name>
+  <MilitaryPriority>9</MilitaryPriority>
+  <ExpansionPriority>3</ExpansionPriority>
+  <ResearchPriority>5</ResearchPriority>
+  <IndustryPriority>7</IndustryPriority>
+  <TechPath>
+    <Tech>
+      <id>IndustrialFoundations</id>
+    </Tech>
+    <Tech>
+      <id>IS Government</id>
+    </Tech>
+    <Tech>
+      <id>XenoMining</id>
+    </Tech>
+    <Tech>
+      <id>MissileTheory</id>
+    </Tech>
+    <Tech>
+      <id>HeavyFighterHull</id>
+    </Tech>
+    <Tech>
+      <id>ArmorTheory</id>
+    </Tech>
+    <Tech>
+      <id>Point Defense</id>
+    </Tech>
+    <Tech>
+      <id>Military</id>
+    </Tech>
+    <Tech>
+      <id>Armor</id>
+    </Tech>
+    <Tech>
+      <id>ScientificFoundations</id>
+    </Tech>
+    <Tech>
+      <id>IS Government</id>
+    </Tech>
+    <Tech>
+      <id>EnergyShielding</id>
+    </Tech>
+    <Tech>
+      <id>FrigateConstruction</id>
+    </Tech>
+    <Tech>
+      <id>Magnetic Artillery</id>
+    </Tech>
+    <Tech>
+      <id>Shipyards</id>
+    </Tech>
+    <Tech>
+      <id>Cruisers</id>
+    </Tech>
+    <Tech>
+      <id>Guided Missiles</id>
+    </Tech>
+  </TechPath>
+</EconomicResearchStrategy>
