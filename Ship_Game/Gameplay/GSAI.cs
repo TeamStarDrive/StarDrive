@@ -7615,15 +7615,16 @@ namespace Ship_Game.Gameplay
                             if (!this.empire.GetTDict().ContainsKey(Technology.Key) || this.empire.GetTDict()[Technology.Key].Unlocked  
                                 ||!this.empire.HavePreReq(Technology.Key)  
                                 || (ResourceManager.TechTree[Technology.Key].Secret && !this.empire.GetTDict()[Technology.Key].Discovered)
-                                || !this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis)
+                                || (!this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis ))
 							{
                                 
                                 continue;
 							}
-                            if(this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis 
-                                && this.empire.GetTDict()[Technology.Key].GetTech().ModulesUnlocked.Count>0 
+                            if((this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis 
+                                && this.empire.GetTDict()[Technology.Key].GetTech().ModulesUnlocked.Count>0) 
                                 && !this.empire.WeCanUseThisNow(this.empire.GetTDict()[Technology.Key].GetTech()))
                             {
+                                //if(AvailableTechs.Count >0)
                                 continue;
                             }
                             

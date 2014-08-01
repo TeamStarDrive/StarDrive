@@ -486,7 +486,7 @@ namespace Ship_Game
             //Added by gremlin Figure out techs with modules that we have ships for.
             foreach (KeyValuePair<string,TechEntry> tech in this.TechnologyDict)
             {
-                if(tech.Value.GetTech().ModulesUnlocked.Count>0 &&  !this.WeCanUseThis(tech.Value.GetTech()))
+                if(tech.Value.GetTech().ModulesUnlocked.Count>0  &&  !this.WeCanUseThis(tech.Value.GetTech()))
                 {
                     this.TechnologyDict[tech.Key].shipDesignsCanuseThis = false;
                 }
@@ -508,6 +508,7 @@ namespace Ship_Game
         {
             //List<Technology.LeadsToTech> leadsto = new List<Technology.LeadsToTech>();
             //    leadsto =tech.GetTech().LeadsTo;
+           
             foreach (Technology.LeadsToTech leadsto in tech.GetTech().LeadsTo)
                 {
                     TechEntry entry = this.TechnologyDict[leadsto.UID];
@@ -1398,8 +1399,11 @@ namespace Ship_Game
 
             //foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
             bool flag = false;
-            Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
+            //Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
+            foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
             {
+                if (flag)
+                    break;
                 List<Technology> techtree = new List<Technology>();
 
                 ShipData shipData = ship.Value.shipData;
@@ -1411,17 +1415,19 @@ namespace Ship_Game
                     {
 
                         if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
+                        {
                             flag = true;
+                            break;
+                        }
+                        //status.Stop();
                         //return;
-                        status.Stop();
-                        return;
 
                     }
-                    if (status.IsStopped)
-                        return;
+                    //if (status.IsStopped)
+                    //    return;
                 }
 
-            });
+            }//);
 
             return flag;
         }
@@ -1444,10 +1450,12 @@ namespace Ship_Game
                     {
 
                         if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
+                        {
                             flag = true;
-                        //return;
-                        status.Stop();
-                        return;
+                            //return;
+                            status.Stop();
+                            return;
+                        }
 
                     }
                     if (status.IsStopped)
