@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>SlipstreamProjection</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>320</Cost>
+  <RootNode>0</RootNode>
+  <Name>Slipstream Projection</Name>
+  <NameIndex>658</NameIndex>
+  <DescriptionIndex>659</DescriptionIndex>
+  <LongDescription>By focusing subspace manipulations at an area in front of a nearby ship, a subspace projector can effectively "plow" subspace, if only for a moment, to increase a local ship's FTL speed.</LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Slipstreams</Name>
+      <BonusType>In Borders FTL Bonus</BonusType>
+      <Bonus>0.2</Bonus>
+      <Description>Ships traveling within your own empire's borders gain 20% bonus to their FTL speeds. </Description>
+      <BonusIndex>660</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>XenoFarming</UID>
+  <TechnologyType>Colonization</TechnologyType>
+  <Cost>750</Cost>
+  <RootNode>0</RootNode>
+  <Name>Xeno Farming</Name>
+  <NameIndex>700</NameIndex>
+  <DescriptionIndex>701</DescriptionIndex>
+  <LongDescription>Farming on many alien planets isn't as simple as planting some seeds and adding water.  In fact, many planets that are technically quite fertile are nevertheless rich with nutrients that are incompatible with or even toxic to our crops and animals.  Xeno Farming helps overcomes these problems. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Vertical Farming</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Xeno Farm</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
