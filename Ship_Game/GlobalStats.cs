@@ -117,6 +117,7 @@ namespace Ship_Game
         public static int ShipCountLimit;
         public static float spaceroadlimit = .05f;
         public static float freighterlimit = .05f;
+        public static int ScriptedTechWithin = 6;
 		static GlobalStats()
 		{       
 			GlobalStats.ComparisonCounter = 1;
