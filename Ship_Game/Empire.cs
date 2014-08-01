@@ -482,8 +482,46 @@ namespace Ship_Game
             {
                 this.economicResearchStrategy = (EconomicResearchStrategy)ResourceManager.EconSerializer.Deserialize((Stream)new FileInfo("Content/EconomicResearchStrategy/" + this.data.EconomicPersonality.Name + ".xml").OpenRead());
             }
+
+            //Added by gremlin Figure out techs with modules that we have ships for.
+            foreach (KeyValuePair<string,TechEntry> tech in this.TechnologyDict)
+            {
+                if(tech.Value.GetTech().ModulesUnlocked.Count>0  &&  !this.WeCanUseThis(tech.Value.GetTech()))
+                {
+                    this.TechnologyDict[tech.Key].shipDesignsCanuseThis = false;
+                }
+
+            }
+            foreach (KeyValuePair<string,TechEntry> tech in this.TechnologyDict)
+            {
+                if(!tech.Value.shipDesignsCanuseThis)
+                {
+                    if(WeCanUseThisLater(tech.Value))
+                    {
+                        tech.Value.shipDesignsCanuseThis = true;
+                    }
+                }
+            }
         }
 
+        private bool WeCanUseThisLater(TechEntry tech)
+        {
+            //List<Technology.LeadsToTech> leadsto = new List<Technology.LeadsToTech>();
+            //    leadsto =tech.GetTech().LeadsTo;
+           
+            foreach (Technology.LeadsToTech leadsto in tech.GetTech().LeadsTo)
+                {
+                    TechEntry entry = this.TechnologyDict[leadsto.UID];
+                    if (entry.shipDesignsCanuseThis == true)
+                        return true;
+                    else
+                        if (WeCanUseThisLater(entry))
+                            return true;
+                }
+            return false;
+
+        }
+        
         public EconomicResearchStrategy getResStrat()
         {
             return this.economicResearchStrategy;
@@ -1361,28 +1399,71 @@ namespace Ship_Game
 
             //foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
             bool flag = false;
+            //Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
+            foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
+            {
+                if (flag)
+                    break;
+                List<Technology> techtree = new List<Technology>();
+
+                ShipData shipData = ship.Value.shipData;
+                if (shipData.ShipStyle == null || shipData.ShipStyle == this.data.Traits.ShipType)
+                {
+                    //if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
+                       // continue;
+                    foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
+                    {
+
+                        if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
+                        {
+                            flag = true;
+                            break;
+                        }
+                        //status.Stop();
+                        //return;
+
+                    }
+                    //if (status.IsStopped)
+                    //    return;
+                }
+
+            }//);
+
+            return flag;
+        }
+
+        public bool WeCanUseThisNow(Technology tech)
+        {
+
+            //foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
+            bool flag = false;
             Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
             {
+                List<Technology> techtree = new List<Technology>();
 
                 ShipData shipData = ship.Value.shipData;
                 if (shipData.ShipStyle == null || shipData.ShipStyle == this.data.Traits.ShipType)
                 {
                     if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
                         return;
-                        foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
-                        {
+                    foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
+                    {
 
-                            if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
-                                flag = true;
+                        if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
+                        {
+                            flag = true;
                             //return;
                             status.Stop();
                             return;
-
                         }
+
+                    }
                     if (status.IsStopped)
                         return;
                 }
+
             });
+
             return flag;
         }
 
