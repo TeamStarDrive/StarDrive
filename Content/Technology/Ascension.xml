@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Ascension</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>3500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Ascension</Name>
+  <NameIndex>5083</NameIndex>
+  <DescriptionIndex>5084</DescriptionIndex>
+  <Secret>true</Secret>
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Ascension Array</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

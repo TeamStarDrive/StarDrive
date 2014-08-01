@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Genetic Manipulation</UID>
+  <TechnologyType>GroundCombat</TechnologyType>
+  <Cost>2500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Genetic Manipulation</Name>
+  <NameIndex>578</NameIndex>
+  <DescriptionIndex>579</DescriptionIndex>
+  <LongDescription>Our understanding of genetics is blossoming to the point where we have almos total control over our own DNA. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Assimilation</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>DeathSporeBay</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Super Soldiers</Name>
+      <BonusType>Troop Strength Modifier Bonus</BonusType>
+      <Bonus>0.25</Bonus>
+      <Description>Gain a 25% super solider bonus to all troop strengths</Description>
+      <BonusIndex>580</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

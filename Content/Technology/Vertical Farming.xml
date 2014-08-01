@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Vertical Farming</UID>
+  <TechnologyType>Colonization</TechnologyType>
+  <Cost>2500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Vertical Farming</Name>
+  <NameIndex>2293</NameIndex>
+  <DescriptionIndex>2294</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Terraforming</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Vertical Farm</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

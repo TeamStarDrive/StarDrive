@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>SubspaceTheory</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>220</Cost>
+  <RootNode>0</RootNode>
+  <Name>Subspace Theory</Name>
+  <NameIndex>672</NameIndex>
+  <DescriptionIndex>673</DescriptionIndex>
+  <LongDescription>We have known for a long time that forces beyond our observable reality have an effect on our observable reality.  With a deeper understanding of subspace theory, we can begin to benefit from practical applications of this knowledge.  </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>SubspaceCommunication</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>InertialDampers</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>StarDrive Enhancement</Name>
+      <BonusType>FTL Speed Bonus</BonusType>
+      <Bonus>0.2</Bonus>
+      <Description>Increase effective StarDrive speeds by 20% for all ships in your empire</Description>
+      <BonusIndex>674</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
