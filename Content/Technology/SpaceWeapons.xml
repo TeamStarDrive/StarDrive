@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>SpaceWeapons</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>50</Cost>
+  <RootNode>1</RootNode>
+  <Name>Space Weapons</Name>
+  <NameIndex>661</NameIndex>
+  <IconPath>icons_techroot_weapons</IconPath>
+  <DescriptionIndex>662</DescriptionIndex>
+  <LongDescription>Taking a cue from naval tradition, early spacecraft rely heavily on bullets, shells, flak, and other kinetic weapons. Their raw destructive power and relative cheapness make them an excellent value, though they do require ammunition. Research into energy weapons will provide our empire with weapons suitable for longer deployments. We can also focus our efforts on developing spaceworthy self-guided missile technologies.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Magnetic Artillery</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>MissileTheory</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Point Defense</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>OrdnanceLocker</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>OrdnanceLockerSmall</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>VulcanCannon</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>FlakTurret</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>FlakTurret3x3</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>NuclearBombBay2x2</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
