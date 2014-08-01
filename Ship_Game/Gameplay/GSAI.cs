@@ -7608,29 +7608,34 @@ namespace Ship_Game.Gameplay
 				{
 					case GSAI.ResearchStrategy.Random:
 					{
-						List<Technology> AvailableTechs = new List<Technology>();
+                      //changed by gremlin exclude module tech that we dont have any ships that use it.
+                        List<Technology> AvailableTechs = new List<Technology>();
 						foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
 						{
                             if (!this.empire.GetTDict().ContainsKey(Technology.Key) || this.empire.GetTDict()[Technology.Key].Unlocked  
-                                ||!this.empire.HavePreReq(Technology.Key)  || (ResourceManager.TechTree[Technology.Key].Secret && !this.empire.GetTDict()[Technology.Key].Discovered))
+                                ||!this.empire.HavePreReq(Technology.Key)  
+                                || (ResourceManager.TechTree[Technology.Key].Secret && !this.empire.GetTDict()[Technology.Key].Discovered)
+                                || !this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis)
 							{
-								continue;
+                                
+                                continue;
 							}
-                            if (Technology.Value.ModulesUnlocked.Count > 0)
+                            if(this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis 
+                                && this.empire.GetTDict()[Technology.Key].GetTech().ModulesUnlocked.Count>0 
+                                && !this.empire.WeCanUseThisNow(this.empire.GetTDict()[Technology.Key].GetTech()))
                             {
-                                if (this.empire.WeCanUseThis(Technology.Value))
-                                    AvailableTechs.Add(Technology.Value);
-
+                                continue;
                             }
-                            else
+                            
                                 AvailableTechs.Add(Technology.Value);
 						}
-   
-
-						if (AvailableTechs.Count <= 0)
+           
+						
+                        if (AvailableTechs.Count <= 0)
 						{
 							break;
 						}
+                        
 						int Random = (int)RandomMath.RandomBetween(0f, (float)AvailableTechs.Count*.25f + 0.99f);
 						if (Random >  0)
 						{
@@ -7638,7 +7643,9 @@ namespace Ship_Game.Gameplay
 						}
                         if (Random < 0)
                             Random = 0;
-						this.empire.ResearchTopic = AvailableTechs.OrderBy(cost=>cost.Cost).Skip(Random).First().UID;
+						if(this.empire.data.TaxRate >.30f)
+                            this.empire.ResearchTopic = AvailableTechs.OrderByDescending(econ => econ.TechnologyType == TechnologyType.Economic).ThenBy(cost => cost.Cost).Skip(Random).First().UID;
+                        else this.empire.ResearchTopic = AvailableTechs.OrderBy(cost=>cost.Cost).Skip(Random).First().UID;
 						break;
 					}
 					case GSAI.ResearchStrategy.Scripted:
@@ -7647,7 +7654,7 @@ namespace Ship_Game.Gameplay
 						{
 
                             
-                            foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)// .OrderBy(cost => ResourceManager.TechTree[cost.id].Cost))
+                            foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
                             {
                                 if (!this.empire.GetTDict().ContainsKey(tech.id) || this.empire.GetTDict()[tech.id].Unlocked || !this.empire.HavePreReq(tech.id))
                                 {
@@ -7655,12 +7662,13 @@ namespace Ship_Game.Gameplay
 
                                     continue;
                                 }
-                                int X = (HelperFunctions.GetRandomIndex(5)+HelperFunctions.GetRandomIndex(5));
-
-                                foreach (TechEntry tech2 in this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && !filter.GetTech().Secret&& filter.Discovered  && filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost))
+                                int X = GlobalStats.ScriptedTechWithin;
+                                List<TechEntry> unresearched = new List<TechEntry>();
+                                unresearched = this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && filter.shipDesignsCanuseThis && (!filter.GetTech().Secret || !filter.Discovered)  && this.empire.HavePreReq(filter.UID)&& filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost).ToList();
+                                foreach (TechEntry tech2 in unresearched)//this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && !filter.GetTech().Secret&& filter.Discovered  && filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost))
                                 {
                                     X--;
-                                    if (tech2.UID == tech.id)
+                                    if (tech2.UID == tech.id || tech2.GetTech().Cost >= ResourceManager.TechTree[tech.id].Cost*.25F)
                                         break;
                                     if (X <= 0)
                                     {
@@ -7688,6 +7696,7 @@ namespace Ship_Game.Gameplay
 				}
 			}
 		}
+        
 
         private void RunWarPlanner()
         {
