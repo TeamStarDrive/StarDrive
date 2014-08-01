@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Phasors</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>2500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Phasors</Name>
+  <NameIndex>623</NameIndex>
+  <DescriptionIndex>624</DescriptionIndex>
+  <LongDescription>Phasors are extremely efficient directed energy weapons capable of longer and more powerful firing bursts.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Polaron Cannons</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>PhasorTurret2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>PhasorBeam2x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

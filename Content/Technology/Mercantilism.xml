@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Mercantilism</UID>
+  <TechnologyType>Economic</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Mercantilism</Name>
+  <NameIndex>610</NameIndex>
+  <DescriptionIndex>611</DescriptionIndex>
+  <LongDescription>Trade is a vital component in any economy.  By investing in our private economy, we can profit by taxing trade in our empire. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Privatization</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Trade Tariff</Name>
+      <BonusType>Bonus Money Per Trade</BonusType>
+      <Bonus>1</Bonus>
+      <Description>Earn 1 credit for every unit of Food or Production moved via transport within your empire</Description>
+      <BonusIndex>612</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

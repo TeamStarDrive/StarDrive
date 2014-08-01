@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>XenoGenetics</UID>
+  <TechnologyType>Research</TechnologyType>
+  <Cost>1500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Xeno Genetics</Name>
+  <NameIndex>702</NameIndex>
+  <DescriptionIndex>703</DescriptionIndex>
+  <LongDescription>By studying alien plants, animals, and microganisms, we have learned many new genetic secrets.  By applying some of what we have learned to our own bodies, we are able to live much longer and healthier lives. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Rapid Cloning</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Genetic Manipulation</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Genetics Lab</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Increased Lifespans</Name>
+      <BonusType>Population Growth Bonus</BonusType>
+      <Bonus>0.25</Bonus>
+      <Description>Gain an empire-wide 25% bonus to population growth from increased lifespans</Description>
+      <BonusIndex>704</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

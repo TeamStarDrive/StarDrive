@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>CombatReadiness</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Combat Readiness</Name>
+  <NameIndex>534</NameIndex>
+  <DescriptionIndex>535</DescriptionIndex>
+  <LongDescription>Researching this technology will allow us to build certain armored components that can take more hits than their unarmored versons.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Integrated Systems</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>FuelCellSmallArmored</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>FuelCellMediumArmored</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
