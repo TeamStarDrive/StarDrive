@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>ArmorTheory</UID>
+  <TechnologyType>ShipDefense</TechnologyType>
+  <Cost>50</Cost>
+  <RootNode>0</RootNode>
+  <Name>Armor Theory</Name>
+  <NameIndex>515</NameIndex>
+  <DescriptionIndex>516</DescriptionIndex>
+  <LongDescription>The benefits of armoring our spaceships are self-evident. The use of steel is already common in our planetary industries, and so it is quite inexpensive to adapt this technology for use in space. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Pulse Capacitors</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Advanced Materials</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>SteelArmorSmall</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>SteelArmorMed</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>SteelArmorLarge</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

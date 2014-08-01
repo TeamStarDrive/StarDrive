@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Centralized Banking</UID>
+  <TechnologyType>Economic</TechnologyType>
+  <Cost>1500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Centralized Banking</Name>
+  <NameIndex>528</NameIndex>
+  <DescriptionIndex>529</DescriptionIndex>
+  <LongDescription>It is clear that financing a large interstellar empire is too large and too important a task to leave in the hands of non-government entities. With the government directly financing all expansion activities, we will reap the interest rewards and not private corporations.</LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Imperial Bank</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

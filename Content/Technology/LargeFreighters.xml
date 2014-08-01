@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>LargeFreighters</UID>
+  <TechnologyType>Economic</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Large Freighters</Name>
+  <NameIndex>601</NameIndex>
+  <DescriptionIndex>602</DescriptionIndex>
+  <LongDescription>Unlock the largest cargo hull possible.</LongDescription>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked>
+
+    <UnlockedHull>
+      <ShipType>Terran</ShipType>
+      <Name>Misc/CargoLong</Name>
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Kulrathi</ShipType>
+      <Name>Misc/CargoLong</Name>
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Vulfen</ShipType>
+      <Name>Misc/CargoLong</Name>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Pollops/Grower</Name>
+      <ShipType>Pollops</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Draylok/Draylok Tx Lg</Name>
+      <ShipType>Draylok</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Opteris/Trawler</Name>
+      <ShipType>Opteris</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Ralyeh/Vessel L</Name>
+      <ShipType>Ralyeh</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Cordrazine/Owl3</Name>
+      <ShipType>Cordrazine</ShipType>
+    </UnlockedHull>
+  </HullsUnlocked>
+
+</Technology>

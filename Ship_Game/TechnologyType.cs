@@ -10,8 +10,12 @@ namespace Ship_Game
         General,
         Colonization,
         Economic,
-        Combat,
         Industry,
         Research,
+        GroundCombat,
+        ShipHull,
+        ShipDefense,
+        ShipWeapons,
+        ShipGeneral,
     }
 }
