@@ -17,6 +17,8 @@ namespace Ship_Game
 
 		public int RootNode;
 
+        public TechnologyType TechnologyType = TechnologyType.General;
+
 		public int NameIndex;
 
 		public int DescriptionIndex;
