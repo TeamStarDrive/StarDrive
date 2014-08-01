@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Armor Piercing</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>1500</Cost>
+  <RootNode>0</RootNode>
+  <Name>AP Missiles</Name>
+  <NameIndex>2029</NameIndex>
+  <DescriptionIndex>2030</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Armor Phasing</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Armor Piercing</Name>
+      <Bonus>1</Bonus>
+      <BonusIndex>2031</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

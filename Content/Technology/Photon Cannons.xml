@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Photon Cannons</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>2200</Cost>
+  <RootNode>0</RootNode>
+  <Name>Photon Cannons</Name>
+  <NameIndex>625</NameIndex>
+  <DescriptionIndex>626</DescriptionIndex>
+  <LongDescription>By packing matter and anti-matter into separate magnetic compartments, the photon cannon can launch an explosive projectile a substantial distance.  Upon impact, the chambers are merged and the matter/anti-matter explosion occurs. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Quantum Torpedo Cannon</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>PhotonTurret</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>SubspatialDynamics</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>750</Cost>
+  <RootNode>0</RootNode>
+  <Name>Subspatial Dynamics</Name>
+  <NameIndex>675</NameIndex>
+  <DescriptionIndex>676</DescriptionIndex>
+  <LongDescription>We have discovered that the efficiency of traveling through subspace is affected by the shape of a ship's subspace bubble.  This technology allows for the construction of subspace "plows", which manipulate that shape to increase a ship's speed at warp. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>AntiMatter</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Warp Inhibitor</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>FTL Efficiency</Name>
+      <BonusType>FTL Efficiency Bonus</BonusType>
+      <Bonus>0.2</Bonus>
+      <Description>The power penalty incurred by ships at warp is reduced by 20%</Description>
+      <BonusIndex>677</BonusIndex>
+    </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Slipstreams</Name>
+      <BonusType>FTL Speed Bonus</BonusType>
+      <Bonus>0.5</Bonus>
+      <Description></Description>
+      <BonusIndex>678</BonusIndex>
+    </UnlockedBonus>
+
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

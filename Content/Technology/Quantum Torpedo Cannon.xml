@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Quantum Torpedo Cannon</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>4500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Quantum Torpedo Cannon</Name>
+  <NameIndex>645</NameIndex>
+  <DescriptionIndex>646</DescriptionIndex>
+  <LongDescription>The ultimate in cannon weaponry, this weapon fires extremely powerful energy torpedoes at a high energy cost. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>QTCannon</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

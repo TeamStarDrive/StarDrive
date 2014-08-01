@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Shipyards</UID>
+  <TechnologyType>Economic</TechnologyType>
+  <Cost>150</Cost>
+  <RootNode>0</RootNode>
+  <Name>Shipyards</Name>
+  <NameIndex>2035</NameIndex>
+  <DescriptionIndex>2036</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>MediumFreighters</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked>
+    <UnlockedHull>
+      <Name>Misc/Station</Name>
+    </UnlockedHull>
+  </HullsUnlocked>
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Shipyards</Name><!-- this is a boolean; its presence enables shipyards-->
+      <Description></Description>
+      <BonusIndex>2037</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+</Technology>

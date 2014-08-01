@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>FuelCell1</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>150</Cost>
+  <RootNode>0</RootNode>
+  <Name>Deuterium Power Cells</Name>
+  <NameIndex>570</NameIndex>
+  <DescriptionIndex>571</DescriptionIndex>
+  <LongDescription>This technology will switch all of your ships' power cells over to the newer Deuterium standard.  Deuterium cells can hold 20% more power than a standard cell, which translates into longer effective range for ships as well as greater energy pools available for combat systems. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>FuelCell2</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Fuel Cell Upgrade</Name>
+      <BonusType>Fuel Cell Bonus</BonusType>
+      <Bonus>0.2</Bonus>
+      <Description>Gain an empire-wide 20% bonus to the amount of power that is stored in fuel cells</Description>
+      <BonusIndex>572</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
