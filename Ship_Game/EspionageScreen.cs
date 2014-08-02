@@ -147,7 +147,37 @@ namespace Ship_Game
 			TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 4);
 			HelperFunctions.DrawDropShadowText(base.ScreenManager, Localizer.Token(6090), TextCursor, Fonts.Arial20Bold);
             TextCursor.X = this.IntelligenceRect.X + 20;
+            TextCursor.Y = TextCursor.Y - (float)(Fonts.Arial20Bold.LineSpacing + 4);
             HelperFunctions.DrawDropShadowText(base.ScreenManager, Localizer.Token(6092), TextCursor, Fonts.Arial20Bold);
+            //Agent Dossier information
+            if (this.AgentComponent.SelectedAgent != null)
+            {
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 10);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6108), this.AgentComponent.SelectedAgent.Name), TextCursor, Color.White);
+                if (this.AgentComponent.SelectedAgent.HomePlanet == "" || this.AgentComponent.SelectedAgent.HomePlanet == null) 
+                    this.AgentComponent.SelectedAgent.HomePlanet = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.HomeworldName; 
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6109), this.AgentComponent.SelectedAgent.HomePlanet), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6110), this.AgentComponent.SelectedAgent.Age.ToString("0.0"), Localizer.Token(6119)), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6111), this.AgentComponent.SelectedAgent.ServiceYears.ToString("0.0"), Localizer.Token(6119)), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6112), this.AgentComponent.SelectedAgent.Training), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6113), this.AgentComponent.SelectedAgent.Assassinations), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6114), this.AgentComponent.SelectedAgent.Infiltrations), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6115), this.AgentComponent.SelectedAgent.Sabotages), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6116), this.AgentComponent.SelectedAgent.TechStolen), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6117), this.AgentComponent.SelectedAgent.Robberies), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6118), this.AgentComponent.SelectedAgent.Rebellions), TextCursor, Color.White);
+            }
+            //End of dossier
 			this.AgentComponent.Draw();
 			if (this.AgentComponent.SelectedAgent != null)
 			{
