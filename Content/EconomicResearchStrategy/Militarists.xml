@@ -7,55 +7,59 @@
   <IndustryPriority>7</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>IndustrialFoundations</id>
+      <id>SCRIPT:Industry</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+      <id>SCRIPT:Economic</id>
     </Tech>
     <Tech>
-      <id>XenoMining</id>
+      <id>SCRIPT:Industry</id>
     </Tech>
     <Tech>
-      <id>MissileTheory</id>
+      <id>SCRIPT:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>HeavyFighterHull</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
-      <id>ArmorTheory</id>
+      <id>SCRIPT:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>Point Defense</id>
+      <id>SCRIPT:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>Military</id>
+      <id>Script:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>Armor</id>
+      <id>IFWAR:10</id>
     </Tech>
     <Tech>
-      <id>ScientificFoundations</id>
+      <id>LOOP:0</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+      <id>SCRIPT:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>EnergyShielding</id>
+      <id>IFPEACE:0</id>
     </Tech>
     <Tech>
-      <id>FrigateConstruction</id>
+      <id>SCRIPT:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>Magnetic Artillery</id>
+      <id>IFPEACE:0</id>
     </Tech>
     <Tech>
-      <id>Shipyards</id>
+      <id>SCRIPT:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>Cruisers</id>
+      <id>IFHIGHTAX:0</id>
     </Tech>
     <Tech>
-      <id>Guided Missiles</id>
+      <id>IFWAR:10</id>
     </Tech>
+    <Tech>
+      <id>LOOP:0</id>
+    </Tech>
+
   </TechPath>
 </EconomicResearchStrategy>
