@@ -7579,6 +7579,54 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6093</Index>
       <Text>Capital Elimination</Text>
     </Token>
+	<Token>
+      <Index>6094</Index>
+      <Text>Capital: </Text>
+    </Token>
+	<Token>
+      <Index>6095</Index>
+      <Text>Total Planets: </Text>
+    </Token>
+	<Token>
+      <Index>6096</Index>
+      <Text>Total Starships: </Text>
+    </Token>
+	<Token>
+      <Index>6097</Index>
+      <Text>Treasury: </Text>
+    </Token>
+	<Token>
+      <Index>6098</Index>
+      <Text>Maintenance Costs: </Text>
+    </Token>
+	<Token>
+      <Index>6099</Index>
+      <Text>Total Spies: </Text>
+    </Token>
+	<Token>
+      <Index>6100</Index>
+      <Text>Population: </Text>
+    </Token>
+	<Token>
+      <Index>6101</Index>
+      <Text>billion</Text>
+    </Token>
+	<Token>
+      <Index>6102</Index>
+      <Text>: Government Destroyed</Text>
+    </Token>
+	<Token>
+      <Index>6103</Index>
+      <Text> and Trade</Text>
+    </Token>
+	<Token>
+      <Index>6104</Index>
+      <Text>: Trade Partner</Text>
+    </Token>
+	<Token>
+      <Index>6105</Index>
+      <Text>: No Diplomatic Relations</Text>
+    </Token>
 	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
