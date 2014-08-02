@@ -543,7 +543,7 @@ namespace Ship_Game
 
             r = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 190, 270, 50);
             
-            this.memoryLimit = new FloatSlider(r, string.Concat("Memory limit. KBs In Use: ",(int)GC.GetTotalMemory(false)/1000f), 150000, 300000, GlobalStats.MemoryLimiter);
+            this.memoryLimit = new FloatSlider(r, string.Concat("Memory limit. KBs In Use: ",(int)GC.GetTotalMemory(true)/1000f), 150000, 300000, GlobalStats.MemoryLimiter);
             
             Vector2 vector2 = new Vector2((float)(this.SecondaryOptionsRect.X + 10), (float)(this.SecondaryOptionsRect.Y + 10));
             this.ResolutionDropDown = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y - 2, 105, 18));
