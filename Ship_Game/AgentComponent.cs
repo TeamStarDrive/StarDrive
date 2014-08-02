@@ -412,8 +412,10 @@ namespace Ship_Game
                     string[] Tokens = Names.Split(new char[] { ',' });
                     Agent a = new Agent();
                     a.Name = AgentComponent.GetName(Tokens);
-
-
+                    //Added new agent information
+                    a.Age = RandomMath.RandomBetween(20, 30);
+                    int RandomPlanetIndex = HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count);
+                    a.HomePlanet = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()[RandomPlanetIndex].Name;
                     EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Add(a);
                     this.AgentSL.AddItem(a);
                     a.AssignMission(AgentMission.Training, empireByName, "");

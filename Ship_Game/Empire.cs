@@ -204,6 +204,7 @@ namespace Ship_Game
                 rebelsFromEmpireData.AddShip(s);
             }
             this.OwnedShips.Clear();
+            this.data.AgentList.Clear();
         }
 
         public void SetAsMerged()
@@ -245,6 +246,7 @@ namespace Ship_Game
             foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
                 keyValuePair.Value.Reset();
             this.OwnedShips.Clear();
+            this.data.AgentList.Clear();
         }
 
         public bool IsPointInBorders(Vector2 point)
@@ -1752,6 +1754,9 @@ namespace Ship_Game
                     if (this.data.AgentList[index].TurnsRemaining == 0)
                         this.data.AgentList[index].DoMission(this);
                 }
+                //Age agents
+                this.data.AgentList[index].Age += 0.1f;
+                this.data.AgentList[index].ServiceYears += 0.1f;
             }
             this.data.AgentList.ApplyPendingRemovals();
             if ((double)this.Money < 0.0)

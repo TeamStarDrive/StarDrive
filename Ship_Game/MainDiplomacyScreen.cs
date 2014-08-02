@@ -422,10 +422,12 @@ namespace Ship_Game
 			TextCursor = new Vector2((float)(this.IntelligenceRect.X + 20), (float)(this.IntelligenceRect.Y + 10));
             HelperFunctions.DrawDropShadowText(base.ScreenManager, Localizer.Token(6091), TextCursor, Fonts.Arial20Bold);
 			TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6094), this.SelectedEmpire.data.Traits.HomeworldName), TextCursor, Color.White);
+            TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
             //Added by McShooterz:  intel report
             if (this.SelectedEmpire.Capital != null)
             {
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6094), this.SelectedEmpire.Capital.Name), TextCursor, Color.White);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6106), (this.SelectedEmpire.Capital.Owner == this.SelectedEmpire) ? Localizer.Token(6107) : Localizer.Token(1508)), TextCursor, Color.White);
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
             }
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6095), this.SelectedEmpire.GetPlanets().Count), TextCursor, Color.White);
