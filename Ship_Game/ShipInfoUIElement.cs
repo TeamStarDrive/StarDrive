@@ -263,21 +263,6 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(161, this.ScreenManager);
             }
-            /*Remove old star system for level
-            if (this.ship.Level > 0)
-            {
-                for (int i = 0; i < this.ship.Level; i++)
-                {
-                    Rectangle star = new Rectangle(this.ShipInfoRect.X + this.ShipInfoRect.Width - 13 * i, this.ShipInfoRect.Y - 4, 12, 11);
-                    if (HelperFunctions.CheckIntersection(star, MousePos))
-                    {
-                        ToolTip.CreateTooltip(68, this.ScreenManager);
-                    }
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
-                }
-               
-            }
-            */ 
 			Vector2 StatusArea = new Vector2((float)(this.Housing.X + 175), (float)(this.Housing.Y + 15));
 			int numStatus = 0;
 			if (this.ship.loyalty.data.Traits.Pack)
