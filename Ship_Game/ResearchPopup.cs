@@ -212,7 +212,7 @@ namespace Ship_Game
                     {
                         size++;
                     }
-                    unlock.Description = string.Concat(Localizer.Token(4042), " ", ResourceManager.HullsDict[hull.Name].Role);
+                    unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)));
                     this.UnlockSL.AddItem(unlock);
                 }
 			}
