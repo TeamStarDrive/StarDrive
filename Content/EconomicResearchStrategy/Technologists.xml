@@ -7,52 +7,52 @@
   <IndustryPriority>7</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>IndustrialFoundations</id>
+      <id>SCRIPT:Industry</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+      <id>SCRIPT:Economic</id>
     </Tech>
     <Tech>
-      <id>ScientificFoundations</id>
+      <id>SCRIPT:RESEARCH</id>
     </Tech>
     <Tech>
-      <id>XenoMining</id>
+      <id>SCRIPT:Industry</id>
     </Tech>
     <Tech>
-      <id>Aeroponics</id>
+      <id>SCRIPT:Colonization</id>
     </Tech>
     <Tech>
-      <id>Biospheres</id>
+      <id>SCRIPT:Colonization</id>
     </Tech>
     <Tech>
-      <id>Energy Weapons</id>
+      <id>SCRIPT:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>EnergyShielding</id>
+      <id>SCRIPT:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>Fighter Shields</id>
+      <id>SCRIPT:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>ArmorTheory</id>
+      <id>SCRIPT:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>HeavyFighterHull</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
-      <id>FrigateConstruction</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
-      <id>FuelCell1</id>
+      <id>SCRIPT:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>XenoGenetics</id>
+      <id>SCRIPT:Colonization</id>
     </Tech>
     <Tech>
-      <id>Cruisers</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
-      <id>Shipyards</id>
+      <id>SCRIPT:Economic</id>
     </Tech>
   </TechPath>
 </EconomicResearchStrategy>
