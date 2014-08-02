@@ -1,55 +1,73 @@
 ﻿<EconomicResearchStrategy>
-  <!--the opening technology path for races with the Named economic personality. Goes random when finished-->
-  <Name>Generalists</Name>
-  <MilitaryPriority>5</MilitaryPriority>
-  <ExpansionPriority>5</ExpansionPriority>
+  <!--the opening technology path for races with the militarist economic personality. Goes random when finished-->
+  <Name>Militarists</Name>
+  <MilitaryPriority>9</MilitaryPriority>
+  <ExpansionPriority>3</ExpansionPriority>
   <ResearchPriority>5</ResearchPriority>
-  <IndustryPriority>5</IndustryPriority>
+  <IndustryPriority>7</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>IndustrialFoundations</id>
+      <id>SCRIPT:Industry</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+      <id>SCRIPT:Economic</id>
     </Tech>
     <Tech>
-      <id>ScientificFoundations</id>
+      <id>SCRIPT:Research</id>
+    </Tech>
+
+    <Tech>
+      <id>SCRIPT:ShipDefense</id>
+    </Tech>
+
+    <Tech>
+      <id>SCRIPT:ShipWeapons</id>
+    </Tech>
+
+    <Tech>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
-      <id>HeavyFighterHull</id>
+      <id>IFWAR:12</id>
     </Tech>
     <Tech>
-      <id>ArmorTheory</id>
+      <id>SCRIPT:Industry</id>
+    </Tech>
+
+    <Tech>
+      <id>SCRIPT:Colonization</id>
     </Tech>
     <Tech>
-      <id>XenoMining</id>
+      <id>SCRIPT:Colonization</id>
     </Tech>
     <Tech>
-      <id>EnergyShielding</id>
+      <id>SCRIPT:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>FrigateConstruction</id>
+      <id>IFPEACE:0</id>
     </Tech>
     <Tech>
-      <id>Aeroponics</id>
+      <id>SCRIPT:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>Biospheres</id>
+      <id>SCRIPT:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>MissileTheory</id>
+      <id>SCRIPT:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>Magnetic Artillery</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
-      <id>Military</id>
+      <id>IFPEACE:0</id>
     </Tech>
     <Tech>
-      <id>Cruisers</id>
+      <id>IFHIGHTAX:0</id>
     </Tech>
     <Tech>
-      <id>Guided Missiles</id>
+      <id>LOOP:12</id>
     </Tech>
+
+
   </TechPath>
 </EconomicResearchStrategy>

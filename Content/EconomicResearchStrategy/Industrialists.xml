@@ -7,49 +7,49 @@
   <IndustryPriority>9</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>IndustrialFoundations</id>
+      <id>SCRIPT:Industry</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+      <id>SCRIPT:Economic</id>
     </Tech>
     <Tech>
-      <id>ScientificFoundations</id>
+      <id>SCRIPT:Research</id>
     </Tech>
     <Tech>
-      <id>XenoMining</id>
+      <id>SCRIPT:Industry</id>
     </Tech>
     <Tech>
-      <id>MissileTheory</id>
+      <id>SCRIPT:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>HeavyFighterHull</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
-      <id>ArmorTheory</id>
+      <id>SCRIPT:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>Deep Core Mining</id>
+      <id>SCRIPT:Industry</id>
     </Tech>
     <Tech>
-      <id>EnergyShielding</id>
+      <id>SCRIPT:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>FrigateConstruction</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
-      <id>Guided Missiles</id>
+      <id>SCRIPT:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>Cryogenics</id>
+      <id>SCRIPT:Colonization</id>
     </Tech>
     <Tech>
-      <id>Mercantilism</id>
+      <id>SCRIPT:Economic</id>
     </Tech>
     <Tech>
-      <id>Shipyards</id>
+      <id>SCRIPT:Economic</id>
     </Tech>
     <Tech>
-      <id>Cruisers</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
   </TechPath>
 </EconomicResearchStrategy>
