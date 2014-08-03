@@ -7,58 +7,64 @@
   <IndustryPriority>7</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>SCRIPT:Industry</id>
+      <id>CHEAPEST:TECH:Industry:Economic</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Industry:Economic</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:GroundCombat:Economic</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic:Research</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:ShipGeneral:Economic:Research:GroundCombat:General</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:GroundCombat:Research:Colonization:Economic:Research</id>
+    </Tech>
+    
+    <Tech>
+    <id>CHEAPEST</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
       <id>SCRIPT:Economic</id>
     </Tech>
-    <Tech>
-      <id>SCRIPT:Industry</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:ShipWeapons</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:ShipHull</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:ShipDefense</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:ShipDefense</id>
-    </Tech>
-    <Tech>
-      <id>Script:GroundCombat</id>
-    </Tech>
-    <Tech>
-      <id>IFWAR:10</id>
-    </Tech>
-    <Tech>
-      <id>LOOP:0</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:ShipWeapons</id>
-    </Tech>
+
+    <!--War Loop-->
     <Tech>
       <id>IFPEACE:0</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:ShipDefense</id>
-    </Tech>
-    <Tech>
-      <id>IFPEACE:0</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:ShipWeapons</id>
     </Tech>
     <Tech>
       <id>IFHIGHTAX:0</id>
     </Tech>
     <Tech>
-      <id>IFWAR:10</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:Economic</id>
     </Tech>
     <Tech>
-      <id>LOOP:0</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:Economic:ShipGeneral</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST</id>
+    </Tech>
+    <Tech>
+      <id>LOOP:13</id>
     </Tech>
 
   </TechPath>
