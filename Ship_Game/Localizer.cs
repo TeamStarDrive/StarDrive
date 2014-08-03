@@ -40,7 +40,7 @@ namespace Ship_Game
                 {
                     if(ResourceManager.ShipRoles[role].RaceList[i].ShipType == Owner.data.Traits.ShipType)
                     {
-                        return Localizer.Token(ResourceManager.ShipRoles[role].RaceList[i].localization);
+                        return Localizer.Token(ResourceManager.ShipRoles[role].RaceList[i].Localization);
                     }
                 }
                 return Localizer.Token(ResourceManager.ShipRoles[role].Localization);
