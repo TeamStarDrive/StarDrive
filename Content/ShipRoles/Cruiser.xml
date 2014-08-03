@@ -9,13 +9,11 @@
   <RaceList>
     <Race>
 	  <ShipType>Human</ShipType>
-	  <Data>
 	    <Localization>144</Localization>
         <Upkeep>2.5</Upkeep>
         <KillExp>16.0</KillExp>
         <KillExpPerLevel>4.0</KillExpPerLevel>
         <ExpPerLevel>8.0</ExpPerLevel>
-	  </Data>
 	</Race>
   </RaceList>
 </ShipRole>
