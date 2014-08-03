@@ -16,6 +16,9 @@
       <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat:Economic:Industry:Research:Colonization:ShipGeneral</id>
     </Tech>
     <Tech>
+      <id>CHEAPEST</id>
+    </Tech>
+    <Tech>
       <id>IFPEACE:0</id>
     </Tech>
     <Tech>
@@ -25,7 +28,7 @@
       <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>LOOP:3</id>
+      <id>LOOP:4</id>
     </Tech>
 
   </TechPath>

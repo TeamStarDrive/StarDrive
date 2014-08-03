@@ -7277,7 +7277,7 @@ namespace Ship_Game.Gameplay
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
                             if (researchtopic == "" && Testresearchtopic !=null)
                                 researchtopic=Testresearchtopic;
-                            else if(Testresearchtopic !=null && ResourceManager.TechTree[Testresearchtopic].Cost < ResourceManager.TechTree[researchtopic].Cost)
+                            else if(Testresearchtopic !=null && (int)(ResourceManager.TechTree[Testresearchtopic].Cost*.01f) < (int)(ResourceManager.TechTree[researchtopic].Cost*.01f))
                                 researchtopic = Testresearchtopic;
 
                         }
