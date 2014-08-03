@@ -7,49 +7,46 @@
   <IndustryPriority>9</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>IndustrialFoundations</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>ScientificFoundations</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull</id>
     </Tech>
     <Tech>
-      <id>XenoMining</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull</id>
     </Tech>
     <Tech>
-      <id>MissileTheory</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>HeavyFighterHull</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization</id>
     </Tech>
     <Tech>
-      <id>ArmorTheory</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>Deep Core Mining</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>EnergyShielding</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>FrigateConstruction</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization</id>
     </Tech>
     <Tech>
-      <id>Guided Missiles</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>Cryogenics</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>Mercantilism</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
-      <id>Shipyards</id>
-    </Tech>
-    <Tech>
-      <id>Cruisers</id>
+      <id>LOOP:0</id>
     </Tech>
   </TechPath>
 </EconomicResearchStrategy>

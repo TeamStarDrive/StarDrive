@@ -3899,7 +3899,9 @@ namespace Ship_Game.Gameplay
 			{
 				this.ActiveWayPoints.Clear();
 			}
-			this.HasPriorityOrder = true;
+            if (this.Owner.fleet != null)
+                this.Owner.fleet = null;
+            this.HasPriorityOrder = true;
 			this.OrderQueue.Clear();
 			IOrderedEnumerable<Ship_Game.Planet> sortedList = 
 				from planet in this.Owner.loyalty.GetPlanets()

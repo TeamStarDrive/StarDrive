@@ -488,7 +488,7 @@ namespace Ship_Game
             //Added by gremlin Figure out techs with modules that we have ships for.
             foreach (KeyValuePair<string,TechEntry> tech in this.TechnologyDict)
             {
-                if(tech.Value.GetTech().ModulesUnlocked.Count>0  &&  !this.WeCanUseThis(tech.Value.GetTech()))
+                if(tech.Value.GetTech().ModulesUnlocked.Count>0  &&  tech.Value.GetTech().HullsUnlocked.Count()==0 && !this.WeCanUseThis(tech.Value.GetTech()))
                 {
                     this.TechnologyDict[tech.Key].shipDesignsCanuseThis = false;
                 }
