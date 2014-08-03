@@ -12,9 +12,11 @@
 
 
     <Tech>
-      <id>SCRIPT:Colonization:Economic:GroundCombat:General:Research</id>
+      <id>CHEAPEST:TECH:Colonization:Economic:GroundCombat:General:Research</id>
     </Tech>
-
+    <Tech>
+      <id>CHEAPEST</id>
+    </Tech>
     <Tech>
       <id>IFPEACE:0</id>
     </Tech>
@@ -29,11 +31,6 @@
       <id>CHEAPEST</id>
     </Tech>
 
-
-
-    <Tech>
-      <id>IFPEACE:0</id>
-    </Tech>
     <Tech>
       <id>LOOP:3</id>
     </Tech>
