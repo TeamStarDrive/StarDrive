@@ -7,52 +7,29 @@
   <IndustryPriority>7</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>IndustrialFoundations</id>
+      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization:General</id>
     </Tech>
     <Tech>
-      <id>ScientificFoundations</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat:Economic:Industry:Research:Colonization:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>XenoMining</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>Aeroponics</id>
+      <id>IFPEACE:0</id>
     </Tech>
     <Tech>
-      <id>Biospheres</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>Energy Weapons</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>EnergyShielding</id>
+      <id>LOOP:4</id>
     </Tech>
-    <Tech>
-      <id>Fighter Shields</id>
-    </Tech>
-    <Tech>
-      <id>ArmorTheory</id>
-    </Tech>
-    <Tech>
-      <id>HeavyFighterHull</id>
-    </Tech>
-    <Tech>
-      <id>FrigateConstruction</id>
-    </Tech>
-    <Tech>
-      <id>FuelCell1</id>
-    </Tech>
-    <Tech>
-      <id>XenoGenetics</id>
-    </Tech>
-    <Tech>
-      <id>Cruisers</id>
-    </Tech>
-    <Tech>
-      <id>Shipyards</id>
-    </Tech>
+
   </TechPath>
 </EconomicResearchStrategy>

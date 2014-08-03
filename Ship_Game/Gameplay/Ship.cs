@@ -4082,6 +4082,7 @@ namespace Ship_Game.Gameplay
         {
             lock (GlobalStats.AddShipLocker)
                 Ship.universeScreen.ShipsToRemove.Add(this);
+
         }
 
         public void TotallyRemove()

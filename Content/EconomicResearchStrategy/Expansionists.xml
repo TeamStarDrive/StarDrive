@@ -7,55 +7,33 @@
   <IndustryPriority>5</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>IS Government</id>
+      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization</id>
+    </Tech>
+
+
+    <Tech>
+      <id>CHEAPEST:TECH:Colonization:Economic:GroundCombat:General:Research</id>
     </Tech>
     <Tech>
-      <id>IndustrialFoundations</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>ScientificFoundations</id>
+      <id>IFPEACE:0</id>
     </Tech>
     <Tech>
-      <id>HeavyFighterHull</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat</id>
+    </Tech>
+
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:Economic:Colonization:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>Cryogenics</id>
+      <id>CHEAPEST</id>
     </Tech>
+
     <Tech>
-      <id>Mercantilism</id>
+      <id>LOOP:3</id>
     </Tech>
-    <Tech>
-      <id>FrigateConstruction</id>
-    </Tech>
-    <Tech>
-      <id>Privatization</id>
-    </Tech>
-    <Tech>
-      <id>Centralized Banking</id>
-    </Tech>
-    <Tech>
-      <id>Aeroponics</id>
-    </Tech>
-    <Tech>
-      <id>Biospheres</id>
-    </Tech>
-    <Tech>
-      <id>Shipyards</id>
-    </Tech>
-    <Tech>
-      <id>Magnetic Artillery</id>
-    </Tech>
-    <Tech>
-      <id>XenoMining</id>
-    </Tech>
-    <Tech>
-      <id>SubspaceTheory</id>
-    </Tech>
-    <Tech>
-      <id>ArmorTheory</id>
-    </Tech>
-    <Tech>
-      <id>Cruisers</id>
-    </Tech>
+
   </TechPath>
 </EconomicResearchStrategy>
