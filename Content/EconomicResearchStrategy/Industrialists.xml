@@ -7,49 +7,46 @@
   <IndustryPriority>9</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>SCRIPT:Industry</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:Economic</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:Research</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:Industry</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:ShipHull</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:ShipWeapons</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:Industry</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:ShipDefense</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:ShipHull</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:ShipDefense</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:Colonization</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:Economic</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:Economic</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull:GroundCombat</id>
     </Tech>
     <Tech>
       <id>SCRIPT:ShipHull</id>
+    </Tech>
+    <Tech>
+      <id>LOOP:0</id>
     </Tech>
   </TechPath>
 </EconomicResearchStrategy>
