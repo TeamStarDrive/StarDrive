@@ -7,55 +7,65 @@
   <IndustryPriority>7</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>IndustrialFoundations</id>
+      <id>CHEAPEST:TECH:Industry:Economic</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+      <id>CHEAPEST:TECH:Industry:Economic</id>
     </Tech>
     <Tech>
-      <id>XenoMining</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>MissileTheory</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:GroundCombat:Economic</id>
     </Tech>
     <Tech>
-      <id>HeavyFighterHull</id>
+      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic</id>
     </Tech>
     <Tech>
-      <id>ArmorTheory</id>
+      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic</id>
     </Tech>
     <Tech>
-      <id>Point Defense</id>
+      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>Military</id>
+      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:ShipGeneral:Economic:Research:GroundCombat:General</id>
     </Tech>
     <Tech>
-      <id>Armor</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>ScientificFoundations</id>
+      <id>CHEAPEST:TECH:GroundCombat:Research:Colonization:Economic:Research</id>
+    </Tech>
+    
+    <Tech>
+    <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>EnergyShielding</id>
+      <id>SCRIPT:Economic</id>
+    </Tech>
+
+    <!--War Loop-->
+    <Tech>
+      <id>IFPEACE:0</id>
     </Tech>
     <Tech>
-      <id>FrigateConstruction</id>
+      <id>IFHIGHTAX:0</id>
     </Tech>
     <Tech>
-      <id>Magnetic Artillery</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:Economic</id>
     </Tech>
     <Tech>
-      <id>Shipyards</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:Economic:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>Cruisers</id>
+      <id>CHEAPEST</id>
     </Tech>
     <Tech>
-      <id>Guided Missiles</id>
+      <id>LOOP:13</id>
     </Tech>
+
   </TechPath>
 </EconomicResearchStrategy>
