@@ -244,7 +244,7 @@ namespace Ship_Game
 				pgs.TroopsHere.Clear();
 				this.p.TroopsHere.Remove(this);
 			}
-			Ship retShip = ResourceManager.CreateTroopShipAtPoint(this.Owner.data.DefaultSmallTransport, this.Owner, this.p.Position, this);
+			Ship retShip = ResourceManager.CreateTroopShipAtPoint((this.Owner.data.DefaultTroopShip != null) ? this.Owner.data.DefaultTroopShip : this.Owner.data.DefaultSmallTransport, this.Owner, this.p.Position, this);
 			this.p = null;
 			return retShip;
 		}
