@@ -50,6 +50,8 @@ namespace Ship_Game
 
 		public string DefaultSmallTransport;
 
+        public string DefaultTroopShip;
+
 		public bool Defeated;
 
 		public bool HasSecretTech;
