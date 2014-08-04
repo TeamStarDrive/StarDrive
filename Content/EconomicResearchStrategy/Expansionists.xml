@@ -21,7 +21,7 @@
       <id>IFPEACE:0</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat</id>
+      <id>CHEAPEST:TECH:Colonization:ShipHull:ShipWeapons:ShipDefense:Economic:GroundCombat</id>
     </Tech>
 
     <Tech>

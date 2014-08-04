@@ -28,7 +28,7 @@
       <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat:ShipGeneral:Economic:Industry:Research</id>
+      <id>CHEAPEST:TECH:Industry:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat:ShipGeneral:Economic:Research</id>
     </Tech>
     <Tech>
       <id>CHEAPEST</id>
