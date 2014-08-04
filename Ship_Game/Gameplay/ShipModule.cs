@@ -1571,20 +1571,18 @@ namespace Ship_Game.Gameplay
 				ShipModule shipModule1 = this;
 				shipModule1.hangarTimer = shipModule1.hangarTimer - elapsedTime;
 			}
-            //Added by McShooterz: Shields cannot recharge when off
-            if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer >= 15f && !shieldsOff)
+            if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer >= this.shield_recharge_delay)
 			{
-				ShipModule shieldPower = this;
-				shieldPower.shield_power = shieldPower.shield_power + this.shield_recharge_rate * elapsedTime;
+                this.shield_power += this.shield_recharge_rate * elapsedTime;
 				if (this.shield_power > this.shield_power_max)
 				{
 					this.shield_power = this.shield_power_max;
 				}
 			}
-			else if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer < 15f)
+            //Combat shield recharge only works until shields fail, then they only come back by normal recharge
+            else if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer < this.shield_recharge_delay && this.shield_power > 1)
 			{
-				ShipModule shieldPower1 = this;
-				shieldPower1.shield_power = shieldPower1.shield_power + this.shield_recharge_combat_rate * elapsedTime;
+                this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
 				if (this.shield_power > this.shield_power_max)
 				{
 					this.shield_power = this.shield_power_max;
