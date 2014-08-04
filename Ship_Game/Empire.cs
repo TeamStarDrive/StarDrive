@@ -2189,6 +2189,7 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: Change to freighter needs logic
+        //modfied by gremlin to try not to use 
         private void AssessFreighterNeeds()
         {
             int tradeShips = 0;
@@ -2196,7 +2197,7 @@ namespace Ship_Game
             List<Ship> unusedFreighters = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if ( ship.Role == "freighter" && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
+                if ( ship.Role == "freighter" && !ship.isColonyShip&& ship.Weapons.Count ==0 && (double)ship.CargoSpace_Max > 0.0)
                 {
                     if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
                         ++tradeShips;
@@ -2208,8 +2209,8 @@ namespace Ship_Game
             }
             int freighterLimit = this.OwnedPlanets.Where(combat=> combat.ParentSystem.combatTimer <1).Count() ;
 
-            if (tradeShips + passengerShips > GlobalStats.ShipCountLimit * GlobalStats.freighterlimit)
-                freighterLimit = tradeShips + passengerShips;
+            if (tradeShips + passengerShips + unusedFreighters.Count > GlobalStats.ShipCountLimit * GlobalStats.freighterlimit)
+                freighterLimit = (int)(GlobalStats.ShipCountLimit * GlobalStats.freighterlimit); // tradeShips + passengerShips + unusedFreighters.Count;
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
