@@ -198,7 +198,6 @@ namespace Ship_Game.Gameplay
         public float WarpThrust;
         public float TurnThrust;
         public float maxWeaponsRange;
-        public float RepairUsed;
         private float FTLSpeed;
         private int FTLCount;
         public float MoveModulesTimer;
@@ -2676,6 +2675,18 @@ namespace Ship_Game.Gameplay
                     Vector2 vector2_2 = ship3.Center + this.Velocity * elapsedTime;
                     ship3.Center = vector2_2;
                     this.UpdateShipStatus(elapsedTime);
+                    //Added by McShooterz: Priority repair
+                    if (this.Health < this.HealthMax)
+                    {
+                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).ToList())
+                        {
+                            //if destroyed do not repair in combat
+                            if (moduleSlot.module.Health <= 1 && this.LastHitTimer > 0)
+                                continue;
+                            moduleSlot.module.Health += this.RepairRate * elapsedTime;
+                            break;
+                        }
+                    }
                     if (!this.Active)
                         return;
                     if (!this.disabled && !Ship.universeScreen.Paused)
@@ -3286,7 +3297,6 @@ namespace Ship_Game.Gameplay
                     this.armor_current = 0.0;
                     this.WarpThrust = 0.0f;
                     this.TurnThrust = 0.0f;
-                    this.RepairUsed = 0.0f;
                     this.InhibitionRadius = 0.0f;
                     this.OrdAddedPerSecond = 0.0f;
                     this.AfterThrust = 0.0f;
@@ -3439,7 +3449,7 @@ namespace Ship_Game.Gameplay
                             }
                             this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                         }
-                    }
+                    }                    
                     //added by McShooterz: apply warp draw to power draw
                     if (!this.inborders && this.engineState == Ship.MoveState.Warp)
                         this.PowerDraw = (this.loyalty.data.FTLPowerDrainModifier * this.PowerDraw) + (this.WarpDraw * this.loyalty.data.FTLPowerDrainModifier / 2);
