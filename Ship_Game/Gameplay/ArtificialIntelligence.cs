@@ -6092,6 +6092,7 @@ namespace Ship_Game.Gameplay
 			Planet targetPlanet = goal.TargetPlanet;
 			targetPlanet.ProductionHere = targetPlanet.ProductionHere + this.Owner.GetCost(this.Owner.loyalty) / 2f;
 			this.Owner.QueueTotalRemoval();
+            this.Owner.loyalty.GetGSAI().recyclepool++;
 		}
 
 		private void SetCombatStatusorig(float elapsedTime)

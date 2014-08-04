@@ -65,7 +65,7 @@ namespace Ship_Game.Gameplay
         //SizeLimiter
         private float SizeLimiter = GlobalStats.MemoryLimiter;
         private int ShipCountLimit = GlobalStats.ShipCountLimit;
-        public List<Ship> recyclepool =new List<Ship>();
+        public int recyclepool =0;
 
 		public GSAI(Empire e)
 		{
@@ -4721,7 +4721,7 @@ namespace Ship_Game.Gameplay
 			return "";
 		}
 
-	
+
         //added by Gremlin Deveks Get a shio
         private string GetAShip(float Capacity)
         {
@@ -4737,7 +4737,7 @@ namespace Ship_Game.Gameplay
             float numCapitals = 0f;
             float num_Bombers = 0f;
             
-            for (int i = 0; i < this.empire.GetShips().Count; i++)
+            for (int i = 0; i < this.empire.GetShips().Where(ship=> ship.GetAI().State !=AIState.Scrap)  .Count(); i++)
             {
                 Ship item = this.empire.GetShips()[i];
                 if (item != null)
@@ -4828,19 +4828,16 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-                ratio_Fighters = 7f;
-                ratio_Frigates = 1f;
-                ratio_Cruisers = 1f;
-                ratio_Capitals = 1f;
 
-            if (canBuildCapitals&&numCapitals>0)
+
+            if (canBuildCapitals)
             {
                 ratio_Fighters = 0f;
                 ratio_Frigates = 4f;
                 ratio_Cruisers = 3f;
                 ratio_Capitals = 1f;
             }
-            else if (canBuildCruisers&numCruisers>0)
+            else if (canBuildCruisers)
             {
 
                 ratio_Fighters = 0f;
@@ -4848,7 +4845,7 @@ namespace Ship_Game.Gameplay
                 ratio_Cruisers = 2f;
                 ratio_Capitals = 1f;
             }
-            else if (canBuildFrigates&numFrigates>0)
+            else if (canBuildFrigates)
             {
                 ratio_Fighters =5.5f;
                 ratio_Frigates = 3f;
@@ -4866,6 +4863,40 @@ namespace Ship_Game.Gameplay
             int DesiredCruisers = (int)(TotalMilShipCount / 10f * ratio_Cruisers);
             int DesiredCapitals = (int)(TotalMilShipCount / 10f * ratio_Capitals);
 
+            
+            if(Capacity ==0)
+            {
+                int scrapFighters = (int)numFighters - (int)DesiredFighters;
+                int scrapFrigates = (int)numFrigates - (int)DesiredFrigates;
+                int scrapCruisers = (int)numCruisers - (int)DesiredCruisers;
+
+                foreach (Ship ship in this.empire.GetShips().Where(ship => !ship.InCombat && ship.inborders).OrderBy(ship=> ship.Level).ThenBy(ship=> ship.BaseStrength))
+                {
+
+                    if(scrapFighters >0 && ship.Role =="fighter")
+                    {
+                        ship.GetAI().OrderScrapShip();
+                        scrapFighters--;
+                    }
+                    if (scrapFighters > 0 && ship.Role == "frigate")
+                    {
+                        ship.GetAI().OrderScrapShip();
+                        scrapFrigates--;
+                    }
+                    if (scrapFighters > 0 && ship.Role == "cruiser")
+                    {
+                        ship.GetAI().OrderScrapShip();
+                        scrapCruisers--;
+                    }
+                }
+                return "";
+
+
+
+            }
+            
+            
+            
             if (!canBuildFrigates && numFighters > 50f) 
             {
 
@@ -4873,16 +4904,7 @@ namespace Ship_Game.Gameplay
                 
                 return null;
             }
-            else if (canBuildFrigates && numFighters > (float)DesiredFighters)
-            {
-                foreach (Ship ship in this.empire.GetShips().Where(ship => ship.Role == "fighter" && this.DefensiveCoordinator.DefensiveForcePool.Contains(ship) && !ship.InCombat && ship.inborders).OrderBy(ship => ship.BaseStrength))
-                {
-                    if ( (float)DesiredFighters >= --numFighters)
-                        break;
-                    this.recyclepool.Add(ship);
-                    ship.GetAI().OrderScrapShip();
-                }
-            }
+
 
 
 
@@ -4891,7 +4913,9 @@ namespace Ship_Game.Gameplay
             {
                 foreach (string shipsWeCanBuild in this.empire.ShipsWeCanBuild)
                 {
-                    if (!((ResourceManager.ShipsDict[shipsWeCanBuild].Role == "capital" || ResourceManager.ShipsDict[shipsWeCanBuild].Role == "carrier") && ResourceManager.ShipsDict[shipsWeCanBuild].BaseStrength > 0f && Capacity >= ResourceManager.ShipsDict[shipsWeCanBuild].GetMaintCost()) && !(ResourceManager.ShipsDict[shipsWeCanBuild].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild].PowerDraw * this.empire.data.FTLPowerDrainModifier >= ResourceManager.ShipsDict[shipsWeCanBuild].PowerFlowMax || ResourceManager.ShipsDict[shipsWeCanBuild].PowerStoreMax / (ResourceManager.ShipsDict[shipsWeCanBuild].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild].velocityMaximum > minimumWarpRange)))
+                    //if (!((ResourceManager.ShipsDict[shipsWeCanBuild].Role == "capital" || ResourceManager.ShipsDict[shipsWeCanBuild].Role == "carrier") && ResourceManager.ShipsDict[shipsWeCanBuild].BaseStrength > 0f && Capacity >= ResourceManager.ShipsDict[shipsWeCanBuild].GetMaintCost()) && !(ResourceManager.ShipsDict[shipsWeCanBuild].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild].PowerDraw * this.empire.data.FTLPowerDrainModifier >= ResourceManager.ShipsDict[shipsWeCanBuild].PowerFlowMax || ResourceManager.ShipsDict[shipsWeCanBuild].PowerStoreMax / (ResourceManager.ShipsDict[shipsWeCanBuild].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild].velocityMaximum > minimumWarpRange)))
+                    Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild];
+                    if (ship.Role != "capital" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
                     {
                         continue;
                     }
@@ -4926,7 +4950,8 @@ namespace Ship_Game.Gameplay
             {
                 foreach (string shipsWeCanBuild1 in this.empire.ShipsWeCanBuild)
                 {
-                    if (!(ResourceManager.ShipsDict[shipsWeCanBuild1].Role == "cruiser" && ResourceManager.ShipsDict[shipsWeCanBuild1].BaseStrength >= 0f && Capacity >= ResourceManager.ShipsDict[shipsWeCanBuild1].GetMaintCost() && (ResourceManager.ShipsDict[shipsWeCanBuild1].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild1].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild1].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild1].PowerFlowMax || ResourceManager.ShipsDict[shipsWeCanBuild1].PowerStoreMax / (ResourceManager.ShipsDict[shipsWeCanBuild1].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild1].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild1].velocityMaximum > minimumWarpRange)))))
+                    Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild1];
+                    if (ship.Role != "cruiser" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
                     {
                         continue;
                     }
@@ -4937,7 +4962,9 @@ namespace Ship_Game.Gameplay
                     this.empire.UpdateShipsWeCanBuild();
                     foreach (string str1 in this.empire.ShipsWeCanBuild)
                     {
-                        if (!(ResourceManager.ShipsDict[str1].Role == "cruiser" && ResourceManager.ShipsDict[str1].BaseStrength <= 0f && ResourceManager.ShipsDict[str1].GetMaintCost() >= Capacity && (ResourceManager.ShipsDict[str1].BaseCanWarp && (ResourceManager.ShipsDict[str1].IsWarpCapable && (ResourceManager.ShipsDict[str1].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[str1].PowerFlowMax || ResourceManager.ShipsDict[str1].PowerStoreMax / (ResourceManager.ShipsDict[str1].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[str1].PowerFlowMax) * ResourceManager.ShipsDict[str1].velocityMaximum > minimumWarpRange)))))
+                        //if (!(ResourceManager.ShipsDict[str1].Role == "cruiser" && ResourceManager.ShipsDict[str1].BaseStrength <= 0f && ResourceManager.ShipsDict[str1].GetMaintCost() >= Capacity && (ResourceManager.ShipsDict[str1].BaseCanWarp && (ResourceManager.ShipsDict[str1].IsWarpCapable && (ResourceManager.ShipsDict[str1].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[str1].PowerFlowMax || ResourceManager.ShipsDict[str1].PowerStoreMax / (ResourceManager.ShipsDict[str1].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[str1].PowerFlowMax) * ResourceManager.ShipsDict[str1].velocityMaximum > minimumWarpRange)))))
+                        Ship ship = ResourceManager.ShipsDict[str1];
+                        if (ship.Role != "cruiser" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
                         {
                             continue;
                         }
@@ -4996,7 +5023,9 @@ namespace Ship_Game.Gameplay
             {
                 foreach (string shipsWeCanBuild2 in this.empire.ShipsWeCanBuild)
                 {
-                    if (ResourceManager.ShipsDict[shipsWeCanBuild2].BombBays.Count <= 0 || ResourceManager.ShipsDict[shipsWeCanBuild2].BaseStrength <= 0f || ResourceManager.ShipsDict[shipsWeCanBuild2].GetMaintCost() >= Capacity || !(ResourceManager.ShipsDict[shipsWeCanBuild2].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild2].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild2].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild2].PowerFlowMax || ResourceManager.ShipsDict[shipsWeCanBuild2].PowerStoreMax / (ResourceManager.ShipsDict[shipsWeCanBuild2].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild2].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild2].velocityMaximum > minimumWarpRange))))
+                    //if (ResourceManager.ShipsDict[shipsWeCanBuild2].BombBays.Count <= 0 || ResourceManager.ShipsDict[shipsWeCanBuild2].BaseStrength <= 0f || ResourceManager.ShipsDict[shipsWeCanBuild2].GetMaintCost() >= Capacity || !(ResourceManager.ShipsDict[shipsWeCanBuild2].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild2].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild2].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild2].PowerFlowMax || ResourceManager.ShipsDict[shipsWeCanBuild2].PowerStoreMax / (ResourceManager.ShipsDict[shipsWeCanBuild2].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild2].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild2].velocityMaximum > minimumWarpRange))))
+                    Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild2];
+                    if (ship.BombBays.Count <= 0 || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
                     {
                         continue;
                     }
@@ -5031,7 +5060,10 @@ namespace Ship_Game.Gameplay
             {
                 foreach (string str2 in this.empire.ShipsWeCanBuild)
                 {
-                    if (!(ResourceManager.ShipsDict[str2].Role == "frigate") || ResourceManager.ShipsDict[str2].BaseStrength <= 0f || !(ResourceManager.ShipsDict[str2].BaseCanWarp && (ResourceManager.ShipsDict[str2].IsWarpCapable && (ResourceManager.ShipsDict[str2].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[str2].PowerFlowMax || (ResourceManager.ShipsDict[str2].PowerStoreMax) / (ResourceManager.ShipsDict[str2].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[str2].PowerFlowMax) * ResourceManager.ShipsDict[str2].velocityMaximum > minimumWarpRange))))
+                    //if (!(ResourceManager.ShipsDict[str2].Role == "frigate") || ResourceManager.ShipsDict[str2].BaseStrength <= 0f || !(ResourceManager.ShipsDict[str2].BaseCanWarp && (ResourceManager.ShipsDict[str2].IsWarpCapable && (ResourceManager.ShipsDict[str2].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[str2].PowerFlowMax || (ResourceManager.ShipsDict[str2].PowerStoreMax) / (ResourceManager.ShipsDict[str2].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[str2].PowerFlowMax) * ResourceManager.ShipsDict[str2].velocityMaximum > minimumWarpRange))))
+                    Ship ship = ResourceManager.ShipsDict[str2];
+                    if (ship.Role != "frigate" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+
                     {
                         continue;
                     }
@@ -5064,10 +5096,14 @@ namespace Ship_Game.Gameplay
             }
             foreach (string shipsWeCanBuild3 in this.empire.ShipsWeCanBuild)
             {
-                if (!(ResourceManager.ShipsDict[shipsWeCanBuild3].Role == "fighter") && !(ResourceManager.ShipsDict[shipsWeCanBuild3].Role == "scout") && !(ResourceManager.ShipsDict[shipsWeCanBuild3].Role == "corvette") || ResourceManager.ShipsDict[shipsWeCanBuild3].BaseStrength <= 0f || !(ResourceManager.ShipsDict[shipsWeCanBuild3].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild3].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax || (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerStoreMax) / (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild3].velocityMaximum > minimumWarpRange))))
+                //if (!(ResourceManager.ShipsDict[shipsWeCanBuild3].Role == "fighter") && !(ResourceManager.ShipsDict[shipsWeCanBuild3].Role == "scout") && !(ResourceManager.ShipsDict[shipsWeCanBuild3].Role == "corvette") || ResourceManager.ShipsDict[shipsWeCanBuild3].BaseStrength <= 0f || !(ResourceManager.ShipsDict[shipsWeCanBuild3].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild3].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax || (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerStoreMax) / (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild3].velocityMaximum > minimumWarpRange))))
+                Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild3];
+                if (!(ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "corvette") || (Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship)))
+                        
                 {
                     continue;
                 }
+
                 PotentialShips.Add(ResourceManager.ShipsDict[shipsWeCanBuild3]);
             }
             if (PotentialShips.Count > 0)
@@ -5099,7 +5135,9 @@ namespace Ship_Game.Gameplay
             //this.empire.ShipsWeCanBuild.Where(hangars => ResourceManager.ShipsDict[hangars].GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0) == true).Count() > 0;
             foreach (string shipsWeCanBuild3 in this.empire.ShipsWeCanBuild)
             {
-                if (!(ResourceManager.ShipsDict[shipsWeCanBuild3].GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0) || ResourceManager.ShipsDict[shipsWeCanBuild3].BaseStrength <= 0f || !(ResourceManager.ShipsDict[shipsWeCanBuild3].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild3].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax || (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerStoreMax) / (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild3].velocityMaximum > minimumWarpRange))))
+                //if (!(ResourceManager.ShipsDict[shipsWeCanBuild3].GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0) || ResourceManager.ShipsDict[shipsWeCanBuild3].BaseStrength <= 0f || !(ResourceManager.ShipsDict[shipsWeCanBuild3].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild3].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax || (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerStoreMax) / (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild3].velocityMaximum > minimumWarpRange))))
+                Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild3];
+                if (ship.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() == 0 || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
                 {
                     continue;
                 }
@@ -5130,6 +5168,15 @@ namespace Ship_Game.Gameplay
                 }
             }
             return null;
+        }
+
+        private bool shipIsGoodForGoals(Ship ship)
+        {
+            if (ship.BaseStrength > 0f && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
+                || (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
+                && ship.PowerStoreMax / (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum < minimumWarpRange))
+                return true;
+            return false;
         }
 
 		private float GetDistance(Empire e)
@@ -6660,7 +6707,8 @@ namespace Ship_Game.Gameplay
             Memory = Memory / 1000;
             //added by gremlin shipsize limit
             //i think this could be made dynamic to reduce when memory constraints come into play
-            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals && Memory < SizeLimiter && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool.Count || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
+
+            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals && Memory < SizeLimiter && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
 
                 string s = this.GetAShip(Capacity);
@@ -6668,11 +6716,11 @@ namespace Ship_Game.Gameplay
                 {
                     break;
                 }
-                
-                if(this.recyclepool.Count >0)
+                if(this.recyclepool>0)
                 {
-                    this.recyclepool.Remove(recyclepool[0]);
+                    this.recyclepool--;
                 }
+
                 Goal g = new Goal(s, "BuildOffensiveShips", this.empire)
                 {
                     type = GoalType.BuildShips
@@ -7312,12 +7360,18 @@ namespace Ship_Game.Gameplay
                // researchtopic = AvailableTechs.OrderBy(cost => cost.Cost).First().UID;
             }
 
-            
+
 
             if (this.empire.ResearchTopic == "")
                 return false;
-            else return true;
-
+            else
+            {
+                if (ResourceManager.TechTree[this.empire.ResearchTopic].TechnologyType == TechnologyType.ShipHull)
+                {
+                    GetAShip(0);
+                }
+                return true;
+            }
 
 
         }
