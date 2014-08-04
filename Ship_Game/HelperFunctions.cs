@@ -717,5 +717,23 @@ namespace Ship_Game
 			int rounded = (int)(((double)amount1 + 0.5 * (double)roundTo) / (double)roundTo) * roundTo;
 			return rounded;
 		}
+
+        //Added by McShooterz: module repair priority list
+        public static int ModulePriority(ShipModule ShipModule)
+        {
+            if (ShipModule.ModuleType == ShipModuleType.Command)
+                return 0;
+            if (ShipModule.ModuleType == ShipModuleType.PowerPlant)
+                return 1;
+            if (ShipModule.ModuleType == ShipModuleType.PowerConduit)
+                return 2;
+            if (ShipModule.ModuleType == ShipModuleType.Engine)
+                return 3;
+            if (ShipModule.ModuleType == ShipModuleType.Shield)
+                return 4;
+            if (ShipModule.ModuleType == ShipModuleType.Armor || ShipModule.ModuleType == ShipModuleType.Dummy)
+                return 6;
+            return 5;
+        }
 	}
 }
