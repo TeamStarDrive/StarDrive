@@ -6,6 +6,7 @@
   <KillExp>0.5</KillExp>
   <KillExpPerLevel>0.2</KillExpPerLevel>
   <ExpPerLevel>0.5</ExpPerLevel>
+  <Protected>true</Protected>
   <RaceList>
     <Race>
 	  <ShipType>Human</ShipType>

@@ -1229,8 +1229,7 @@ namespace Ship_Game
                 }
                 this.UpdateTimer = 5f;
                 this.DoMoney();
-                this.TakeTurn();
-              
+                this.TakeTurn();             
             }
             this.UpdateFleets(elapsedTime);
             this.OwnedShips.ApplyPendingRemovals();

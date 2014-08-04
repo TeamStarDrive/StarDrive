@@ -509,7 +509,7 @@ namespace Ship_Game
           for (int index1 = 0; index1 < this.p.Owner.ShipsWeCanBuild.Count; ++index1)
           {
             string index2 = this.p.Owner.ShipsWeCanBuild[index1];
-            if (ResourceManager.ShipsDict[index2].Role == "troop" || ResourceManager.ShipsDict[index2].Role == "construction" || ResourceManager.ShipsDict[index2].Role == "supply")
+            if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[index2].Role].Protected)
                 continue;
             if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index2].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)))
             {
