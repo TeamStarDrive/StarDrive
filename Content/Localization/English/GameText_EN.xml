@@ -7249,7 +7249,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6011</Index>
-      <Text>Warp Power Draw</Text>
+      <Text>Power Warp</Text>
     </Token>
 	<Token>
       <Index>6012</Index>
@@ -7682,6 +7682,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>6119</Index>
       <Text> years</Text>
+    </Token>
+	<Token>
+      <Index>6120</Index>
+      <Text>Ordnance/s</Text>
     </Token>
 	
 	
