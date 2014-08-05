@@ -41,7 +41,7 @@ This is a blackbox download that includes these mods reformatted to work with bl
 
 ##### Compatibility ####
 * This mod should be compatible with normal content mods. 
-* BlackBox is no longer compatible with DeveksMod. There is not point in using it anyway. If there is something in deveks you are missing in BlackBox make an issue for it.
+* BlackBox is no longer compatible with DeveksMod. There is nt point in using it anyway. If there is something in deveks you are missing in BlackBox make an issue for it.
 * THE SAVE GAMES FROM THIS MOD MAY NOT LOAD IN VANILLA SD.
 * Vanilla SD saves will load in this mod but saving again may break compatibility with SD vanilla.
 
