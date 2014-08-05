@@ -853,6 +853,48 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public void ProjectileExplode(GameplayObject source, float damageAmount, float damageRadius, bool damageOwner)
+        {
+            if (damageRadius <= 0.0)
+                return;
+            foreach (GameplayObject gameplayObject in this.GetNearby(source))
+            {
+                if (damageAmount <= 0)
+                    return;
+                //Check if valid target
+                if (gameplayObject != null && gameplayObject != source && gameplayObject is Ship && gameplayObject.Active && !(gameplayObject as Ship).dying && (source as Projectile).Owner.loyalty != (gameplayObject as Ship).loyalty)
+                {
+                    float DamageTracker;
+                    //if shields
+                    if ((gameplayObject as Ship).shield_max > 0.0)
+                    {
+                        foreach (ModuleSlot moduleSlot in (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.shield_power > 0.0 && Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + moduleSlot.module.shield_radius).ToList())
+                        {
+                            if (damageAmount <= 0)
+                                break;
+                            DamageTracker = damageAmount - moduleSlot.module.shield_power;
+                            moduleSlot.module.Damage(source, damageAmount);
+                            if (DamageTracker <= 0)
+                                break;
+                            else
+                                damageAmount -= DamageTracker;
+                        }
+                    }
+                    foreach (ModuleSlot moduleSlot in (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius).OrderBy(moduleSlot => Vector2.Distance(source.Center, moduleSlot.module.Center)))
+                    {
+                        if (damageAmount <= 0)
+                            break;
+                        DamageTracker = damageAmount - moduleSlot.module.Health;
+                        moduleSlot.module.Damage(source, damageAmount);
+                        if (DamageTracker <= 0)
+                            break;
+                        else
+                            damageAmount -= DamageTracker;
+                    }
+                }
+            }
+        }
+
         public void ExplodeAtModule(GameplayObject source, ShipModule HitModule, float damageAmount, Vector2 position, float damageRadius, bool damageOwner)
         {
             if ((double)damageRadius <= 0.0)
