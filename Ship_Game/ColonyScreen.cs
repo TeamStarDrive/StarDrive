@@ -335,49 +335,50 @@ namespace Ship_Game
 			this.p.ConstructionQueue.Add(qItem);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime){
-      this.ClickTimer += (float) gameTime.ElapsedGameTime.TotalSeconds;
-      if (this.p.Owner == null)
-        return;
-      this.p.UpdateIncomes();
-      Vector2 pos;
-      // ISSUE: explicit reference operation
-      // ISSUE: variable of a reference type
-      //Vector2& local1 = @pos;
-      MouseState state1 = Mouse.GetState();
-      //double num1 = (double) state1.X;
-      //state1 = Mouse.GetState();
-      //double num2 = (double) state1.Y;
-      // ISSUE: explicit reference operation
-      //^local1 = new Vector2((float) num1, (float) num2);
-      //interpreting code as:
-    //vector2 *local1 = &pos;
-    //*local1 = new vector2();
-    //equivalent to:
-      //pos=new vector2();
+		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            this.ClickTimer += (float) gameTime.ElapsedGameTime.TotalSeconds;
+            if (this.p.Owner == null)
+            return;
+            this.p.UpdateIncomes();
+            Vector2 pos;
+            // ISSUE: explicit reference operation
+            // ISSUE: variable of a reference type
+            //Vector2& local1 = @pos;
+            MouseState state1 = Mouse.GetState();
+            //double num1 = (double) state1.X;
+            //state1 = Mouse.GetState();
+            //double num2 = (double) state1.Y;
+            // ISSUE: explicit reference operation
+            //^local1 = new Vector2((float) num1, (float) num2);
+            //interpreting code as:
+            //vector2 *local1 = &pos;
+            //*local1 = new vector2();
+            //equivalent to:
+            //pos=new vector2();
             //cant be right, the value for pos is used but never set
-    //reconstructed from jd:
-      pos = new Vector2(state1.X, state1.Y);
-      this.LeftMenu.Draw();
-      this.RightMenu.Draw();
-      this.TitleBar.Draw();
-      this.LeftColony.Draw(this.ScreenManager);
-      this.RightColony.Draw(this.ScreenManager);
-      this.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(369), this.TitlePos, new Color(byte.MaxValue, (byte) 239, (byte) 208));
-      if (!GlobalStats.HardcoreRuleset)
-      {
-        this.FoodStorage.Max = this.p.MAX_STORAGE;
-        this.FoodStorage.Progress = this.p.FoodHere;
-        this.ProdStorage.Max = this.p.MAX_STORAGE;
-        this.ProdStorage.Progress = this.p.ProductionHere;
-      }
-      this.PlanetInfo.Draw();
-      this.pDescription.Draw();
-      this.pLabor.Draw();
-      this.pStorage.Draw();
-      this.subColonyGrid.Draw();
-      Rectangle destinationRectangle1 = new Rectangle(this.gridPos.X, this.gridPos.Y + 1, this.gridPos.Width - 4, this.gridPos.Height - 3);
-      this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetTiles/" + this.p.GetTile()], destinationRectangle1, Color.White);
+            //reconstructed from jd:
+            pos = new Vector2(state1.X, state1.Y);
+            this.LeftMenu.Draw();
+            this.RightMenu.Draw();
+            this.TitleBar.Draw();
+            this.LeftColony.Draw(this.ScreenManager);
+            this.RightColony.Draw(this.ScreenManager);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(369), this.TitlePos, new Color(byte.MaxValue, (byte) 239, (byte) 208));
+            if (!GlobalStats.HardcoreRuleset)
+            {
+            this.FoodStorage.Max = this.p.MAX_STORAGE;
+            this.FoodStorage.Progress = this.p.FoodHere;
+            this.ProdStorage.Max = this.p.MAX_STORAGE;
+            this.ProdStorage.Progress = this.p.ProductionHere;
+            }
+            this.PlanetInfo.Draw();
+            this.pDescription.Draw();
+            this.pLabor.Draw();
+            this.pStorage.Draw();
+            this.subColonyGrid.Draw();
+            Rectangle destinationRectangle1 = new Rectangle(this.gridPos.X, this.gridPos.Y + 1, this.gridPos.Width - 4, this.gridPos.Height - 3);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetTiles/" + this.p.GetTile()], destinationRectangle1, Color.White);
       foreach (PlanetGridSquare pgs in this.p.TilesList)
       {
         if (!pgs.Habitable)
@@ -508,6 +509,8 @@ namespace Ship_Game
           for (int index1 = 0; index1 < this.p.Owner.ShipsWeCanBuild.Count; ++index1)
           {
             string index2 = this.p.Owner.ShipsWeCanBuild[index1];
+            if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[index2].Role].Protected)
+                continue;
             if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index2].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)))
             {
                 list.Add(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner));
@@ -1915,7 +1918,7 @@ namespace Ship_Game
                         
                         play =true;
                         
-						ResourceManager.CreateTroopShipAtPoint(this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+						ResourceManager.CreateTroopShipAtPoint((this.p.Owner.data.DefaultTroopShip != null) ? this.p.Owner.data.DefaultTroopShip : this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
 						this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
 						pgs.TroopsHere[0].SetPlanet(null);
 						pgs.TroopsHere.Clear();
@@ -2135,7 +2138,7 @@ namespace Ship_Game
 				if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
 				{
 					AudioManager.PlayCue("sd_troop_takeoff");
-					ResourceManager.CreateTroopShipAtPoint(this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+                    ResourceManager.CreateTroopShipAtPoint((this.p.Owner.data.DefaultTroopShip != null) ? this.p.Owner.data.DefaultTroopShip : this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
 					this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
 					pgs.TroopsHere[0].SetPlanet(null);
 					pgs.TroopsHere.Clear();

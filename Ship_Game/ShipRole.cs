@@ -19,6 +19,8 @@ namespace Ship_Game
 
         public float ExpPerLevel;
 
+        public bool Protected;
+
         public List<Race> RaceList;
 
         public struct Race
