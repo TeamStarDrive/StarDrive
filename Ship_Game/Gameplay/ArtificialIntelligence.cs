@@ -4604,7 +4604,7 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer >0).Count() == 0)
+            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
             if (this.Owner.CargoSpace_Max >0 
                 && (this.start != null && this.start.ParentSystem.combatTimer >0)
@@ -4653,9 +4653,8 @@ namespace Ship_Game.Gameplay
 
 		public void OrderTransportPassengers()
 		{
-            //Removed due to being the reason for OrderTransportPassengers not working at all
-            //if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer >0).Count() == 0)
-                //return;
+            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
+                return;
             if (this.Owner.CargoSpace_Max >0  
                 && (this.start != null && this.start.ParentSystem.combatTimer >0)
                 || (this.end != null && this.end.ParentSystem.combatTimer>0))
@@ -4792,7 +4791,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderTransportPassengersFromSave()
 		{
-            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer > 0).Count() == 0)
+            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
             if (this.Owner.CargoSpace_Max > 0
                 && (this.start != null && this.start.ParentSystem.combatTimer > 0)
