@@ -3450,11 +3450,7 @@ namespace Ship_Game
         //added by gremlin replace redundant code with method
 
         private void RightClickship(Ship ship, Planet planet, bool audio)
-        {
-            
-
-
-           
+        {                 
             if (ship.Role == "construction")
             {
                 if(audio)
