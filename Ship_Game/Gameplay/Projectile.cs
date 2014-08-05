@@ -231,64 +231,26 @@ namespace Ship_Game.Gameplay
 				{
 					if (this.weapon.OrdinanceRequiredToFire > 0f && this.Owner != null)
 					{
-						Projectile ordnanceEffectivenessBonus = this;
-						ordnanceEffectivenessBonus.damageAmount = ordnanceEffectivenessBonus.damageAmount + this.Owner.loyalty.data.OrdnanceEffectivenessBonus * this.damageAmount;
-						Projectile projectile = this;
-						projectile.damageRadius = projectile.damageRadius + this.Owner.loyalty.data.OrdnanceEffectivenessBonus * this.damageRadius;
+                        this.damageAmount += this.Owner.loyalty.data.OrdnanceEffectivenessBonus * this.damageAmount;
+                        this.damageRadius += this.Owner.loyalty.data.OrdnanceEffectivenessBonus * this.damageRadius;
 					}
-					if (this.WeaponType != "Energy")
+					if (this.WeaponType == "Photon")
 					{
-						if (this.WeaponType == "Photon")
+						if (this.dieCueName != "")
 						{
-							if (this.dieCueName != "")
-							{
-								this.dieCue = AudioManager.GetCue(this.dieCueName);
-							}
-							if (this.dieCue != null)
-							{
-								this.dieCue.Apply3D(GameplayObject.audioListener, this.emitter);
-								this.dieCue.Play();
-							}
-							if (!cleanupOnly && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-							{
-								ExplosionManager.AddProjectileExplosion(new Vector3(base.Position, -50f), this.damageRadius * 4.5f, 2.5f, 0.2f, this.weapon.ExpColor);
-								Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
-							}
-							if (this.system == null)
-							{
-								UniverseScreen.DeepSpaceManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
-							}
-							else
-							{
-								this.system.spatialManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
-							}
+							this.dieCue = AudioManager.GetCue(this.dieCueName);
 						}
-						else if (this.dieCueName != "")
+						if (this.dieCue != null)
 						{
-							if (Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-							{
-								this.dieCue = AudioManager.GetCue(this.dieCueName);
-								if (this.dieCue != null)
-								{
-									this.dieCue.Apply3D(GameplayObject.audioListener, this.emitter);
-									this.dieCue.Play();
-								}
-							}
-							if (!cleanupOnly && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-							{
-								ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * 4.5f, 2.5f, 0.2f);
-								Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
-							}
-							if (this.system == null)
-							{
-								UniverseScreen.DeepSpaceManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
-							}
-							else
-							{
-								this.system.spatialManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
-							}
+							this.dieCue.Apply3D(GameplayObject.audioListener, this.emitter);
+							this.dieCue.Play();
 						}
-						else if (this.system == null)
+						if (!cleanupOnly && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+						{
+							ExplosionManager.AddProjectileExplosion(new Vector3(base.Position, -50f), this.damageRadius * 4.5f, 2.5f, 0.2f, this.weapon.ExpColor);
+							Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
+						}
+						if (this.system == null)
 						{
 							UniverseScreen.DeepSpaceManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
 						}
@@ -296,6 +258,39 @@ namespace Ship_Game.Gameplay
 						{
 							this.system.spatialManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
 						}
+					}
+					else if (this.dieCueName != "")
+					{
+						if (Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+						{
+							this.dieCue = AudioManager.GetCue(this.dieCueName);
+							if (this.dieCue != null)
+							{
+								this.dieCue.Apply3D(GameplayObject.audioListener, this.emitter);
+								this.dieCue.Play();
+							}
+						}
+						if (!cleanupOnly && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+						{
+							ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * 4.5f, 2.5f, 0.2f);
+							Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
+						}
+						if (this.system == null)
+						{
+                            UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+						}
+						else
+						{
+                            this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+						}
+					}
+					else if (this.system == null)
+					{
+                        UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+					}
+					else
+					{
+                        this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
 					}
 				}
 				else if (this.weapon.FakeExplode && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
@@ -795,8 +790,8 @@ namespace Ship_Game.Gameplay
 						this.HitModule = target as ShipModule;
 						if ((target as ShipModule).ModuleType == ShipModuleType.Shield)
 						{
-							Projectile projectile1 = this;
-							projectile1.damageAmount = projectile1.damageAmount / 2f;
+							//Projectile projectile1 = this;
+                            //projectile1.damageAmount = projectile1.damageAmount; // 2f;
 							this.explodes = false;
 						}
 					}
@@ -817,16 +812,10 @@ namespace Ship_Game.Gameplay
 				{
 					return false;
 				}
-				if (module != null && this.explodes)
-				{
-					ShipModuleType moduleType = module.ModuleType;
-				}
 				if (module != null)
 				{
-					if (!this.explodes)
-					{
-						target.Damage(this, this.damageAmount);
-					}
+                    if (!this.explodes)
+                        target.Damage(this, this.damageAmount);
 					base.Health = 0f;
 				}
 				if (this.WeaponEffectType == "Plasma")
