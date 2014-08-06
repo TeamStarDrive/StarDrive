@@ -4044,7 +4044,7 @@ namespace Ship_Game.Gameplay
                             break;
                     }
                     if (this.system != null)
-                        this.system.spatialManager.ShipExplode((GameplayObject)this, (float)(this.Size * 50), this.Center, this.radius, false);
+                        this.system.spatialManager.ShipExplode((GameplayObject)this, (float)(this.Size * 50), this.Center, this.radius);
                 }
                 else
                 {
@@ -4080,7 +4080,7 @@ namespace Ship_Game.Gameplay
                             break;
                     }
                     if (this.system != null)
-                        this.system.spatialManager.ShipExplode((GameplayObject)this, (float)(this.Size * 50), this.Center, this.radius, false);
+                        this.system.spatialManager.ShipExplode((GameplayObject)this, (float)(this.Size * 50), this.Center, this.radius);
                 }
             }
             if (Ship_Game.ResourceManager.ShipsDict[this.Name].GetShipData().EventOnDeath != null)

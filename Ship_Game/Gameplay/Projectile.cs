@@ -48,8 +48,6 @@ namespace Ship_Game.Gameplay
 
 		public float duration;
 
-		public bool damageOwner = true;
-
 		public bool explodes;
 
 		protected Color[] explosionColors;
@@ -252,11 +250,11 @@ namespace Ship_Game.Gameplay
 						}
 						if (this.system == null)
 						{
-							UniverseScreen.DeepSpaceManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
+                            UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 						else
 						{
-							this.system.spatialManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
+                            this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 					}
 					else if (this.dieCueName != "")
@@ -277,20 +275,20 @@ namespace Ship_Game.Gameplay
 						}
 						if (this.system == null)
 						{
-                            UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+                            UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 						else
 						{
-                            this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+                            this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 					}
 					else if (this.system == null)
 					{
-                        UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+                        UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 					}
 					else
 					{
-                        this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+                        this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 					}
 				}
 				else if (this.weapon.FakeExplode && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
@@ -711,7 +709,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (target != null)
 			{
-				if (!this.damageOwner && target == this.owner && !this.weapon.HitsFriendlies)
+				if (target == this.owner && !this.weapon.HitsFriendlies)
 				{
 					return false;
 				}
