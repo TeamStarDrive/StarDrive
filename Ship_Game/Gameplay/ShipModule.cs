@@ -131,7 +131,7 @@ namespace Ship_Game.Gameplay
 		public float shield_power;
 
         //Added by McShooterz: shields keep charge when manually turned off
-        public Boolean shieldsOff=false;
+        public bool shieldsOff=false;
 
 		public float shield_radius;
 
