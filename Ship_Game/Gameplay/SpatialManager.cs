@@ -862,7 +862,8 @@ namespace Ship_Game.Gameplay
                 if (damageAmount <= 0)
                     return;
                 //Check if valid target
-                if (gameplayObject != null && gameplayObject != source && gameplayObject is Ship && gameplayObject.Active && !(gameplayObject as Ship).dying && (source as Projectile).Owner.loyalty != (gameplayObject as Ship).loyalty)
+                //added by gremlin check that projectile owner is not null
+                if (gameplayObject != null && gameplayObject != source && gameplayObject is Ship && gameplayObject.Active && !(gameplayObject as Ship).dying && (source as Projectile).Owner !=null && (source as Projectile).Owner.loyalty != (gameplayObject as Ship).loyalty)
                 {
                     float DamageTracker;
                     //if shields

@@ -5174,7 +5174,7 @@ namespace Ship_Game.Gameplay
         {
             if (ship.BaseStrength > 0f && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
                 || (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
-                && ship.PowerStoreMax / (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum < minimumWarpRange))
+                && ship.PowerStoreMax / (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum > minimumWarpRange))
                 return true;
             return false;
         }
@@ -6272,21 +6272,22 @@ namespace Ship_Game.Gameplay
 
 		private void RunGroundPlanner()
 		{
-			float requiredStrength = (float)(this.empire.GetPlanets().Count * 50);
+			float requiredStrength =  (float)(this.empire.GetPlanets().Count * 50);
 			requiredStrength = requiredStrength + requiredStrength * this.empire.data.Traits.GroundCombatModifier;
 			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Hard)
 			{
-				requiredStrength = requiredStrength * 1.5f;
+				requiredStrength = requiredStrength * 1.25f;
 			}
 			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Brutal)
 			{
-				requiredStrength = requiredStrength * 3f;
+				requiredStrength = requiredStrength * 1.75f;
 			}
 			this.numberTroopGoals = this.AreasOfOperations.Count * 2;
 			float currentStrength = 0f;
 			foreach (Planet p in this.empire.GetPlanets())
 			{
-				foreach (Troop t in p.TroopsHere)
+				
+                foreach (Troop t in p.TroopsHere)
 				{
 					if (t.GetOwner() == null || t.GetOwner() != this.empire)
 					{
@@ -6372,7 +6373,8 @@ namespace Ship_Game.Gameplay
 							}
 							Goal g = new Goal(ResourceManager.TroopsDict[PotentialTroops[ran]], this.empire, selectedPlanet);
 							this.Goals.Add(g);
-						}
+						
+                        }
 					}
 				}
 			}
