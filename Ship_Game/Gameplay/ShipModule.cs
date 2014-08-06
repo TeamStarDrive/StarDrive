@@ -767,15 +767,16 @@ namespace Ship_Game.Gameplay
 					dieCue.Apply3D(GameplayObject.audioListener, this.Parent.emitter);
 					dieCue.Play();
 				}
-				if (this.ModuleType == ShipModuleType.PowerPlant)
+				//if (this.ModuleType == ShipModuleType.PowerPlant)
+                if (this.explodes)
 				{
 					if (this.Parent.GetSystem() == null)
 					{
-						UniverseScreen.DeepSpaceManager.Explode(this, (float)(2500 * this.XSIZE * this.YSIZE), this.Center, (float)(this.XSIZE * this.YSIZE * 64), true);
+                        UniverseScreen.DeepSpaceManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
 					}
 					else
 					{
-						this.Parent.GetSystem().spatialManager.Explode(this, (float)(2500 * this.XSIZE * this.YSIZE), this.Center, (float)(this.XSIZE * this.YSIZE * 64), true);
+                        this.Parent.GetSystem().spatialManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
 					}
 					this.Parent.NeedRecalculate = true;
 				}

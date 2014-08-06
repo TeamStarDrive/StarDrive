@@ -297,7 +297,7 @@ namespace Ship_Game
 		{
 			if (target != null)
 			{
-				if (!this.damageOwner && target == this.owner && !this.weapon.HitsFriendlies)
+				if (target == this.owner && !this.weapon.HitsFriendlies)
 				{
 					return false;
 				}
