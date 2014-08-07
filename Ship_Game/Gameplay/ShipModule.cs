@@ -237,6 +237,15 @@ namespace Ship_Game.Gameplay
 
         public float ECM;
 
+        public float SensorBonus;
+        //Transporter Values
+        public float TransporterTimerConstant = 5.0f;
+        public float TransporterTimer;
+        public float TransporterRange;
+        public float TransporterPower;
+        public float TransporterOrdnance;
+
+
 		public bool IsWeapon
 		{
 			get

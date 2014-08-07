@@ -1113,7 +1113,8 @@ namespace Ship_Game
 				IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
 				shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
                 FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime,
-                shieldsOff = Ship_Game.ResourceManager.ShipModulesDict[uid].shieldsOff
+                shieldsOff = Ship_Game.ResourceManager.ShipModulesDict[uid].shieldsOff,
+                SensorBonus = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorBonus
 			};
 			return module;
 		}

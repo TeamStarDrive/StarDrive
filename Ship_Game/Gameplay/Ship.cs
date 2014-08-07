@@ -220,7 +220,7 @@ namespace Ship_Game.Gameplay
         public bool IsIndangerousSpace;
         public bool IsInNeutralSpace;
         public bool IsInFriendlySpace;
-
+        public bool hasTransporter;
 
 
         public bool IsWarpCapable
@@ -1918,6 +1918,7 @@ namespace Ship_Game.Gameplay
             this.velocityMaximum = 0f;
             this.speed = 0f;
             this.SensorRange = 0f;
+            float sensorBonus = 0f;
             this.OrdinanceMax = 0f;
             this.OrdAddedPerSecond = 0f;
             this.rotationRadiansPerSecond = 0f;
@@ -1995,7 +1996,10 @@ namespace Ship_Game.Gameplay
                 {
                     this.SensorRange = moduleSlotList.module.SensorRange;
                 }
-
+                if (moduleSlotList.module.SensorBonus > sensorBonus)
+                {
+                    sensorBonus = moduleSlotList.module.SensorBonus;
+                }
                 if (moduleSlotList.module.ECM > this.ECMValue)
                 {
                     this.ECMValue = moduleSlotList.module.ECM;
@@ -2074,6 +2078,7 @@ namespace Ship_Game.Gameplay
             this.rotationRadiansPerSecond = this.speed / (float)this.Size;
             this.ShipMass = this.mass;
             this.shield_power = this.shield_max;
+            this.SensorRange += sensorBonus;
         }
 
         public void RenderOverlay(SpriteBatch spriteBatch, Rectangle where, bool ShowModules)
@@ -3290,6 +3295,7 @@ namespace Ship_Game.Gameplay
                     this.WarpMassCapacity = 0.0f;
                     this.CargoSpace_Max = 0.0f;
                     this.SensorRange = 0.0f;
+                    float sensorBonus = 0f;
                     this.Health = 0.0f;
                     this.HasTroopBay = false;
                     this.armor_current = 0.0;
@@ -3390,6 +3396,8 @@ namespace Ship_Game.Gameplay
                         this.BonusEMP_Protection += moduleSlot.module.EMP_Protection;
                         if ((double)moduleSlot.module.SensorRange > (double)this.SensorRange)
                             this.SensorRange = moduleSlot.module.SensorRange;
+                        if ((double)moduleSlot.module.SensorBonus > (double)sensorBonus)
+                            sensorBonus = moduleSlot.module.SensorBonus;
                         if (moduleSlot.module.Active && moduleSlot.module.Powered)
                         {
                             this.Thrust += moduleSlot.module.thrust;
@@ -3456,6 +3464,7 @@ namespace Ship_Game.Gameplay
                     ship4.Mass = (float)num4;
                     //Added by McShooterz: hull bonus cargo space and sensor range
                     this.CargoSpace_Max *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().CargoBonus != 0 ? (1 + (float)this.GetShipData().CargoBonus / 100f) : 1);
+                    this.SensorRange += sensorBonus;
                     this.SensorRange *= this.loyalty.data.SensorModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SensorBonus != 0 ? (1 + (float)this.GetShipData().SensorBonus / 100f) : 1);
                 }
                 List<Troop> OwnTroops = new List<Troop>();
