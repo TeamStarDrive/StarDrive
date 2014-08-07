@@ -786,7 +786,7 @@ namespace Ship_Game.Gameplay
                                 if (this.CheckIfInsideFireArc(w, PickedPos))
                                 {
                                     if (!w.isBeam)
-                                        w.Fire(Vector2.Normalize(this.findVectorToTarget(new Vector2(w.Center.X, w.Center.Y), new Vector2(PickedPos.X, PickedPos.Y))));
+                                        w.FireMouse(Vector2.Normalize(this.findVectorToTarget(new Vector2(w.Center.X, w.Center.Y), new Vector2(PickedPos.X, PickedPos.Y))));
                                     else if (w.isBeam)
                                         w.FireMouseBeam(new Vector2(PickedPos.X, PickedPos.Y));
                                 }
