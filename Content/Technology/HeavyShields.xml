@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>HeavyShields</UID>
+  <TechnologyType>ShipDefense</TechnologyType>
+  <Cost>1500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Heavy Shielding</Name>
+  <NameIndex>587</NameIndex>
+  <DescriptionIndex>588</DescriptionIndex>
+  <LongDescription>Heavy shields are twice as large and can take 10 times the hits than a basic 1k shield model.  However, the power cost for a shield like this is substantial. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>CanopyShields</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Shield_10KW</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

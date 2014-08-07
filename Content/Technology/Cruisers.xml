@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Cruisers</UID>
+  <TechnologyType>ShipHull</TechnologyType>
+  <Cost>750</Cost>
+  <RootNode>0</RootNode>
+  <Name>Cruiser Construction</Name>
+  <NameIndex>536</NameIndex>
+  <DescriptionIndex>537</DescriptionIndex>
+  <LongDescription>Cruisers are large, heavy ships that can serve in a number of offensive or defensive roles.  Cruisers are often seen as the command ship for fleets of smaller frigates or fighter class vessels, and are large enough to house multiple fighter bays for carrier roles.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Battleships</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>CapEngines</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>WarpEngine_3x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked>
+    <UnlockedHull>
+      <Name>Terran/Emissary</Name>
+      <ShipType>Terran</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Kulrathi/Mauler</Name>
+      <ShipType>Kulrathi</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Remnant/Xeno Cruiser</Name>
+      <ShipType>Remnant</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Vulfen/Type X</Name>
+      <ShipType>Vulfen</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Ralyeh/Acolyte</Name>
+      <ShipType>Ralyeh</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Opteris/Chitin</Name>
+      <ShipType>Opteris</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Pollops/Chrysalis</Name>
+      <ShipType>Pollops</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Cordrazine/Storving</Name>
+      <ShipType>Cordrazine</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Draylok/Bird of Prey</Name>
+      <ShipType>Draylok</ShipType>
+    </UnlockedHull>
+  </HullsUnlocked>
+</Technology>

@@ -17,6 +17,19 @@ namespace Ship_Game.Gameplay
 		{
 		}
 
+        public float StrengthOfAllEmpireShipsInBorders(Empire them)
+        {
+            float str = 0f;
+            int count = 0;
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+                if (EmpireManager.GetEmpireByName(pin.Value.EmpireName) == them  && pin.Value.InBorders)   
+                str = str + pin.Value.Strength +1;
+                count++;
+            }
+            return str*count;
+        }
+
 		public Vector2 GetPositionOfNearestEnemyWithinRadius(Vector2 Position, float Radius, Empire Us)
 		{
 			List<ThreatMatrix.Pin> Enemies = new List<ThreatMatrix.Pin>();
@@ -104,6 +117,67 @@ namespace Ship_Game.Gameplay
 			this.Pins[ship.guid].Position = ship.Center;
 		}
 
+        public void UpdatePin(Ship ship, bool ShipinBorders)
+        {
+            if (!ShipinBorders && !this.Pins.ContainsKey(ship.guid))
+                return;
+            if ( !this.Pins.ContainsKey(ship.guid))
+            {
+                ThreatMatrix.Pin pin = new ThreatMatrix.Pin()
+                {
+                    Position = ship.Center,
+                    Strength = ship.GetStrength(),
+                    EmpireName = ship.loyalty.data.Traits.Name,
+                    InBorders = ShipinBorders
+                };
+                this.Pins.Add(ship.guid, pin);
+                return;
+            }
+            this.Pins[ship.guid].Velocity = ship.Center - this.Pins[ship.guid].Position;
+            this.Pins[ship.guid].Position = ship.Center;
+            this.Pins[ship.guid].InBorders = ShipinBorders;
+        }
+        public void ClearBorders ()
+        {
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+                if (pin.Value.InBorders)
+                    pin.Value.InBorders = false;
+            }
+        }
+        public void ScrubMatrix(bool scrubborders)
+        {
+            if (!scrubborders && Empire.universeScreen.MasterShipList.Count > this.Pins.Count + 10f)
+                return;
+            List<Guid> guids = new List<Guid>();
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+                
+                
+                if(Empire.universeScreen.MasterShipList.Select(guid=>guid.guid).Contains(pin.Key))
+                {
+                    pin.Value.InBorders =false;
+                    continue;
+                }
+                guids.Add(pin.Key);
+            }
+
+            foreach (Guid kill in guids)
+            {
+                this.Pins.Remove(kill);
+            }
+            guids.Clear();
+        }
+
+        public bool ShipInOurBorders(Ship ship)
+        {
+            if(!this.Pins.Keys.Contains(ship.guid))
+                return false;
+            if(this.Pins[ship.guid].InBorders)
+            return true;
+            return false;
+        }
+
 		public class Pin
 		{
 			public Vector2 Position;
@@ -113,6 +187,8 @@ namespace Ship_Game.Gameplay
 			public Vector2 Velocity;
 
 			public string EmpireName;
+
+            public bool InBorders;
 
 			public Pin()
 			{

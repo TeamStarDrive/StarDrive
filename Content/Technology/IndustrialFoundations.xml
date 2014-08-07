@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>IndustrialFoundations</UID>
+  <TechnologyType>Industry</TechnologyType>
+  <Cost>150</Cost>
+  <RootNode>0</RootNode>
+  <Name>Industrial Foundations</Name>
+  <NameIndex>589</NameIndex>
+  <DescriptionIndex>590</DescriptionIndex>
+  <LongDescription>Building a colony literally involves a lot of heavy lifting, and a lot of raw materials.  This technology allows a colony to utilize manned and automated rovers to do the heavy lifting.  Additionally, this technology allows a colony to build a warehouse to increase its maximum possible storage of food and production. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>ScientificFoundations</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>XenoMining</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Rover Bay</Name>
+    </UnlockedBuilding>
+    <UnlockedBuilding>
+      <Name>Warehouse</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

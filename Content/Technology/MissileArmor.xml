@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>MissileArmor</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Missile Armor</Name>
+  <NameIndex>615</NameIndex>
+  <DescriptionIndex>616</DescriptionIndex>
+  <LongDescription>We can substantially increase the survivability of our missile-based weaponry by protecting our missiles with armor plating.</LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Missile Armor</Name>
+      <BonusType>Missile HP Bonus</BonusType><!--pct of health-->
+      <Bonus>0.25</Bonus>
+      <Description>Increases the hitpoints of missile-based weaponry by 25%.</Description>
+      <BonusIndex>617</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

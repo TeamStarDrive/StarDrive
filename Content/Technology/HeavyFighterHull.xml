@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>HeavyFighterHull</UID>
+  <TechnologyType>ShipHull</TechnologyType>
+  <Cost>150</Cost>
+  <RootNode>0</RootNode>
+  <Name>Heavy Fighter Hull</Name>
+  <NameIndex>585</NameIndex>
+  <DescriptionIndex>586</DescriptionIndex>
+  <LongDescription>This hull represents our first effort at a combat ready hull.  It is larger and sleeker than our shuttlecraft hull and is capable of filling the role of a heavy scout or fighter. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>FrigateConstruction</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>FighterTheory</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>engine_fighter_1x1</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked>
+    <UnlockedHull>
+      <Name>Terran/Hunter</Name>
+      <ShipType>Terran</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Corsair/Corsair Asteroid Base</Name>
+      <ShipType>Corsair</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Cordrazine/Litving</Name>
+      <ShipType>Cordrazine</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Ralyeh/Missionary</Name>
+      <ShipType>Ralyeh</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Opteris/Worker</Name>
+      <ShipType>Opteris</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Kulrathi/Razor</Name>
+      <ShipType>Kulrathi</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Vulfen/Type III</Name>
+      <ShipType>Vulfen</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Pollops/Thicket</Name>
+      <ShipType>Pollops</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Draylok/Crescent</Name>
+      <ShipType>Draylok</ShipType>
+    </UnlockedHull>
+  </HullsUnlocked>
+</Technology>
