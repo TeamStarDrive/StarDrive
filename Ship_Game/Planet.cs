@@ -314,8 +314,10 @@ namespace Ship_Game
                         {
                             if (this.TroopsHere[index].GetOwner() == EmpireManager.GetEmpireByName("Cordrazine Collective") && this.TroopsHere[index].TargetType == "Soft")
                             {
-                                /*if (SteamManager.SetAchievement("Owlwoks_Freed"))
-                                    SteamManager.SaveAllStatAndAchievementChanges();*/
+#if STEAM
+                                if (SteamManager.SetAchievement("Owlwoks_Freed"))
+                                    SteamManager.SaveAllStatAndAchievementChanges();
+#endif
                                 this.TroopsHere[index].SetOwner(bomb.owner);
                                 this.TroopsHere[index].Name = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopNameIndex);
                                 this.TroopsHere[index].Description = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopDescriptionIndex);
@@ -1617,11 +1619,14 @@ namespace Ship_Game
                         this.TroopsHere.Add(t);
                         t.SetPlanet(this);
                         return true;
+
                     }
                 }
             }
             return false;
+
         }
+        
 
         public bool AssignTroopToTile(Troop t)
         {
@@ -1823,6 +1828,7 @@ namespace Ship_Game
                         qi.productionTowards = 0.0f;
                         planetGridSquare2.QItem = qi;
                         qi.pgs = planetGridSquare2;
+                        qi.NotifyOnEmpty = false;
                         this.ConstructionQueue.Add(qi);
                         return true;
                     }
@@ -1936,8 +1942,8 @@ namespace Ship_Game
                         if (combat.Attacker.TroopsHere.Count > 0)
                         {
                             num1 = combat.Attacker.TroopsHere[0].Strength;
-                            num2 = combat.Attacker.TroopsHere[0].HardAttack;
-                            num3 = combat.Attacker.TroopsHere[0].SoftAttack;
+                            num2 = combat.Attacker.TroopsHere[0].GetHardAttack();
+                            num3 = combat.Attacker.TroopsHere[0].GetSoftAttack();
                         }
                         else
                         {
@@ -1978,8 +1984,7 @@ namespace Ship_Game
                                             });
                                         if (combat.Attacker.TroopsHere.Count > 0)
                                         {
-                                            ++combat.Attacker.TroopsHere[0].Kills;
-                                            ++combat.Attacker.TroopsHere[0].Level;
+                                            combat.Attacker.TroopsHere[0].AddKill();
                                         }
                                     }
                                 }
@@ -2055,8 +2060,8 @@ namespace Ship_Game
                         if (combat.Attacker.TroopsHere.Count > 0)
                         {
                             num1 = combat.Attacker.TroopsHere[0].Strength;
-                            num2 = combat.Attacker.TroopsHere[0].HardAttack;
-                            num3 = combat.Attacker.TroopsHere[0].SoftAttack;
+                            num2 = combat.Attacker.TroopsHere[0].GetHardAttack();
+                            num3 = combat.Attacker.TroopsHere[0].GetSoftAttack();
                         }
                         else
                         {
@@ -2086,8 +2091,7 @@ namespace Ship_Game
                                         this.ActiveCombats.QueuePendingRemoval(combat);
                                         if (combat.Attacker.TroopsHere.Count > 0)
                                         {
-                                            ++combat.Attacker.TroopsHere[0].Kills;
-                                            ++combat.Attacker.TroopsHere[0].Level;
+                                            combat.Attacker.TroopsHere[0].AddKill();
                                         }
                                     }
                                 }
@@ -2295,6 +2299,7 @@ namespace Ship_Game
                     foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                         planetGridSquare.TroopsHere.Remove(troop);
                 }
+                troop.Launchtimer -= elapsedTime;
                 troop.MoveTimer -= elapsedTime;
                 troop.MovingTimer -= elapsedTime;
                 if ((double)troop.MoveTimer < 0.0)
@@ -2319,66 +2324,132 @@ namespace Ship_Game
 
         private void MakeCombatDecisions()
         {
-            bool flag1 = false;
+            bool enemyTroopsFound = false;
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() != this.Owner)
+                if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() != this.Owner || planetGridSquare.building != null && planetGridSquare.building.EventTriggerUID != "")
                 {
-                    flag1 = true;
-                    break;
-                }
-                else if (planetGridSquare.building != null && planetGridSquare.building.EventTriggerUID != "")
-                {
-                    flag1 = true;
+                    enemyTroopsFound = true;
                     break;
                 }
             }
-            if (!flag1)
+            if (!enemyTroopsFound)
                 return;
             List<PlanetGridSquare> list = new List<PlanetGridSquare>();
             for (int index = 0; index < this.TilesList.Count; ++index)
             {
                 PlanetGridSquare pgs = this.TilesList[index];
-                bool flag2 = false;
+                bool hasAttacked = false;
                 if (pgs.TroopsHere.Count > 0)
                 {
                     if (pgs.TroopsHere[0].AvailableAttackActions > 0)
                     {
                         if (pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat)
                         {
-                            foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                             {
-                                if (CombatScreen.TroopCanAttackSquare(pgs, planetGridSquare, this))
+                                foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                                 {
-                                    flag2 = true;
-                                    if (pgs.TroopsHere[0].AvailableAttackActions > 0)
+                                    if (CombatScreen.TroopCanAttackSquare(pgs, planetGridSquare, this))
                                     {
-                                        --pgs.TroopsHere[0].AvailableAttackActions;
-                                        --pgs.TroopsHere[0].AvailableMoveActions;
-                                        if (planetGridSquare.x > pgs.x)
-                                            pgs.TroopsHere[0].facingRight = true;
-                                        else if (planetGridSquare.x < pgs.x)
-                                            pgs.TroopsHere[0].facingRight = false;
-                                        CombatScreen.StartCombat(pgs, planetGridSquare, this);
-                                        break;
+                                        hasAttacked = true;
+                                        if (pgs.TroopsHere[0].AvailableAttackActions > 0)
+                                        {
+                                            --pgs.TroopsHere[0].AvailableAttackActions;
+                                            --pgs.TroopsHere[0].AvailableMoveActions;
+                                            if (planetGridSquare.x > pgs.x)
+                                                pgs.TroopsHere[0].facingRight = true;
+                                            else if (planetGridSquare.x < pgs.x)
+                                                pgs.TroopsHere[0].facingRight = false;
+                                            CombatScreen.StartCombat(pgs, planetGridSquare, this);
+                                            break;
+                                        }
+                                        else
+                                            break;
                                     }
-                                    else
-                                        break;
                                 }
                             }
                         }
                         else
                             continue;
                     }
-                    if (!flag2 && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
+                    try
                     {
-                        foreach (PlanetGridSquare planetGridSquare in (IEnumerable<PlanetGridSquare>)Enumerable.OrderBy<PlanetGridSquare, int>((IEnumerable<PlanetGridSquare>)this.TilesList, (Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
+                        if (!hasAttacked && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
                         {
-                            if (planetGridSquare != pgs)
+                            foreach (PlanetGridSquare planetGridSquare in (IEnumerable<PlanetGridSquare>)Enumerable.OrderBy<PlanetGridSquare, int>((IEnumerable<PlanetGridSquare>)this.TilesList, (Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
                             {
-                                if (planetGridSquare.TroopsHere.Count > 0)
+                                if (planetGridSquare != pgs)
                                 {
-                                    if (planetGridSquare.TroopsHere[0].GetOwner() != pgs.TroopsHere[0].GetOwner())
+                                    if (planetGridSquare.TroopsHere.Count > 0)
+                                    {
+                                        if (planetGridSquare.TroopsHere[0].GetOwner() != pgs.TroopsHere[0].GetOwner())
+                                        {
+                                            if (planetGridSquare.x > pgs.x)
+                                            {
+                                                if (planetGridSquare.y > pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(1, 1, pgs))
+                                                        break;
+                                                }
+                                                if (planetGridSquare.y < pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(1, -1, pgs))
+                                                        break;
+                                                }
+                                                if (!this.TryTroopMove(1, 0, pgs))
+                                                {
+                                                    if (!this.TryTroopMove(1, -1, pgs))
+                                                    {
+                                                        if (this.TryTroopMove(1, 1, pgs))
+                                                            break;
+                                                    }
+                                                    else
+                                                        break;
+                                                }
+                                                else
+                                                    break;
+                                            }
+                                            else if (planetGridSquare.x < pgs.x)
+                                            {
+                                                if (planetGridSquare.y > pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(-1, 1, pgs))
+                                                        break;
+                                                }
+                                                if (planetGridSquare.y < pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(-1, -1, pgs))
+                                                        break;
+                                                }
+                                                if (!this.TryTroopMove(-1, 0, pgs))
+                                                {
+                                                    if (!this.TryTroopMove(-1, -1, pgs))
+                                                    {
+                                                        if (this.TryTroopMove(-1, 1, pgs))
+                                                            break;
+                                                    }
+                                                    else
+                                                        break;
+                                                }
+                                                else
+                                                    break;
+                                            }
+                                            else
+                                            {
+                                                if (planetGridSquare.y > pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(0, 1, pgs))
+                                                        break;
+                                                }
+                                                if (planetGridSquare.y < pgs.y)
+                                                {
+                                                    if (this.TryTroopMove(0, -1, pgs))
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (planetGridSquare.building != null && (planetGridSquare.building.CombatStrength > 0 || planetGridSquare.building.EventTriggerUID != "") && (this.Owner != pgs.TroopsHere[0].GetOwner() || planetGridSquare.building.EventTriggerUID != ""))
                                     {
                                         if (planetGridSquare.x > pgs.x)
                                         {
@@ -2434,107 +2505,44 @@ namespace Ship_Game
                                         {
                                             if (planetGridSquare.y > pgs.y)
                                             {
-                                                if (this.TryTroopMove(0, 1, pgs))
+                                                if (!this.TryTroopMove(0, 1, pgs))
+                                                {
+                                                    if (!this.TryTroopMove(1, 1, pgs))
+                                                    {
+                                                        if (this.TryTroopMove(-1, 1, pgs))
+                                                            break;
+                                                    }
+                                                    else
+                                                        break;
+                                                }
+                                                else
                                                     break;
                                             }
                                             if (planetGridSquare.y < pgs.y)
                                             {
-                                                if (this.TryTroopMove(0, -1, pgs))
-                                                    break;
-                                            }
-                                        }
-                                    }
-                                }
-                                else if (planetGridSquare.building != null && (planetGridSquare.building.CombatStrength > 0 || planetGridSquare.building.EventTriggerUID != "") && (this.Owner != pgs.TroopsHere[0].GetOwner() || planetGridSquare.building.EventTriggerUID != ""))
-                                {
-                                    if (planetGridSquare.x > pgs.x)
-                                    {
-                                        if (planetGridSquare.y > pgs.y)
-                                        {
-                                            if (this.TryTroopMove(1, 1, pgs))
-                                                break;
-                                        }
-                                        if (planetGridSquare.y < pgs.y)
-                                        {
-                                            if (this.TryTroopMove(1, -1, pgs))
-                                                break;
-                                        }
-                                        if (!this.TryTroopMove(1, 0, pgs))
-                                        {
-                                            if (!this.TryTroopMove(1, -1, pgs))
-                                            {
-                                                if (this.TryTroopMove(1, 1, pgs))
-                                                    break;
-                                            }
-                                            else
-                                                break;
-                                        }
-                                        else
-                                            break;
-                                    }
-                                    else if (planetGridSquare.x < pgs.x)
-                                    {
-                                        if (planetGridSquare.y > pgs.y)
-                                        {
-                                            if (this.TryTroopMove(-1, 1, pgs))
-                                                break;
-                                        }
-                                        if (planetGridSquare.y < pgs.y)
-                                        {
-                                            if (this.TryTroopMove(-1, -1, pgs))
-                                                break;
-                                        }
-                                        if (!this.TryTroopMove(-1, 0, pgs))
-                                        {
-                                            if (!this.TryTroopMove(-1, -1, pgs))
-                                            {
-                                                if (this.TryTroopMove(-1, 1, pgs))
-                                                    break;
-                                            }
-                                            else
-                                                break;
-                                        }
-                                        else
-                                            break;
-                                    }
-                                    else
-                                    {
-                                        if (planetGridSquare.y > pgs.y)
-                                        {
-                                            if (!this.TryTroopMove(0, 1, pgs))
-                                            {
-                                                if (!this.TryTroopMove(1, 1, pgs))
+                                                if (!this.TryTroopMove(0, -1, pgs))
                                                 {
-                                                    if (this.TryTroopMove(-1, 1, pgs))
+                                                    if (!this.TryTroopMove(1, -1, pgs))
+                                                    {
+                                                        if (this.TryTroopMove(-1, -1, pgs))
+                                                            break;
+                                                    }
+                                                    else
                                                         break;
                                                 }
                                                 else
                                                     break;
                                             }
-                                            else
-                                                break;
-                                        }
-                                        if (planetGridSquare.y < pgs.y)
-                                        {
-                                            if (!this.TryTroopMove(0, -1, pgs))
-                                            {
-                                                if (!this.TryTroopMove(1, -1, pgs))
-                                                {
-                                                    if (this.TryTroopMove(-1, -1, pgs))
-                                                        break;
-                                                }
-                                                else
-                                                    break;
-                                            }
-                                            else
-                                                break;
                                         }
                                     }
                                 }
                             }
                         }
+
                     }
+                    catch { }
                 }
+                    
                 else if (pgs.building != null && pgs.building.CombatStrength > 0 && (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat) && pgs.building.AvailableAttackActions > 0)
                 {
                     foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -2547,7 +2555,9 @@ namespace Ship_Game
                         }
                     }
                 }
+                
             }
+            
         }
 
         private bool TryTroopMove(int changex, int changey, PlanetGridSquare start)
@@ -2621,7 +2631,7 @@ namespace Ship_Game
             {
                 if (this.TroopsHere.Count > 0)
                 {
-                    try
+                    //try
                     {
                         this.DoCombats(elapsedTime);
                         if ((double)this.DecisionTimer <= 0.0)
@@ -2630,7 +2640,7 @@ namespace Ship_Game
                             this.DecisionTimer = 0.5f;
                         }
                     }
-                    catch
+                    //catch
                     {
                     }
                 }
@@ -2682,73 +2692,7 @@ namespace Ship_Game
             this.UpdatePosition(elapsedTime);
         }
 
-        private void AffectNearbyShipsORIG()
-        {
-            for (int index = 0; index < this.system.ShipList.Count; ++index)
-            {
-                Ship ship = this.system.ShipList[index];
-                if (ship != null && ship.loyalty == this.Owner && (this.HasShipyard && (double)Vector2.Distance(this.Position, ship.Position) <= 5000.0))
-                {
-                    ship.PowerCurrent = ship.PowerStoreMax;
-                    ship.Ordinance = ship.OrdinanceMax;
-                    if (GlobalStats.HardcoreRuleset)
-                    {
-                        using (Dictionary<string, float>.Enumerator enumerator = ship.GetMaxGoods().GetEnumerator())
-                        {
-                        //label_10:
-                            while (enumerator.MoveNext())
-                            {
-                                KeyValuePair<string, float> current = enumerator.Current;
-                                if ((double)ship.GetCargo()[current.Key] < (double)current.Value)
-                                {
-                                    while (true)
-                                    {
-                                        if ((double)this.ResourcesDict[current.Key] > 0.0 && (double)ship.GetCargo()[current.Key] < (double)current.Value)
-                                        {
-                                            if ((double)current.Value - (double)ship.GetCargo()[current.Key] >= 1.0)
-                                            {
-                                                Dictionary<string, float> dictionary;
-                                                string key1;
-                                                (dictionary = this.ResourcesDict)[key1 = current.Key] = dictionary[key1] - 1f;
-                                                Dictionary<string, float> cargo;
-                                                string key2;
-                                                (cargo = ship.GetCargo())[key2 = current.Key] = cargo[key2] + 1f;
-                                            }
-                                            else
-                                            {
-                                                Dictionary<string, float> dictionary;
-                                                string key1;
-                                                (dictionary = this.ResourcesDict)[key1 = current.Key] = dictionary[key1] - (current.Value - ship.GetCargo()[current.Key]);
-                                                Dictionary<string, float> cargo;
-                                                string key2;
-                                                (cargo = ship.GetCargo())[key2 = current.Key] = cargo[key2] + (current.Value - ship.GetCargo()[current.Key]);
-                                            }
-                                        }
-                                        else
-                                            break;
-                                            //goto label_10;   
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if ((double)ship.Health < (double)ship.HealthMax && (double)ship.LastHitTimer <= 0.0)
-                    {
-                        foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
-                        {
-                            if ((double)moduleSlot.module.Health / (double)moduleSlot.module.HealthMax < 1.0)
-                            {
-                                ShipModule module = moduleSlot.module;
-                                double num = (double)module.Health + 10.0;
-                                module.Health = (float)num;
-                                if ((double)moduleSlot.module.Health / (double)moduleSlot.module.HealthMax > 1.0)
-                                    moduleSlot.module.Health = moduleSlot.module.HealthMax;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+   
         //added by gremlin affectnearbyships
         private void AffectNearbyShips()
         {
@@ -2820,7 +2764,8 @@ namespace Ship_Game
 
                         foreach (var pgs in this.TilesList)
                         {
-                            if (item.TroopList.Count >= item.TroopCapacity) break;
+                            if (item.TroopCapacity ==0 || item.TroopList.Count >= item.TroopCapacity) 
+                                break;
                             if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
                             {
                                 Troop troop = pgs.TroopsHere[0];
@@ -3016,6 +2961,8 @@ namespace Ship_Game
             this.HarvestResources();
             this.ApplyProductionTowardsConstruction();
             this.GrowPopulation();
+            //Added by McShooterz         
+            this.HealBuildingsAndTroops();
             if ((double)this.FoodHere > (double)this.MAX_STORAGE)
                 this.FoodHere = this.MAX_STORAGE;
             if ((double)this.ProductionHere <= (double)this.MAX_STORAGE)
@@ -3162,6 +3109,7 @@ namespace Ship_Game
             qi.Building = b;
             qi.Cost = ResourceManager.GetBuilding(b.Name).Cost;
             qi.productionTowards = 0.0f;
+            qi.NotifyOnEmpty = false;
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
             else if (this.Owner.GetTDict()["Terraforming"].Unlocked && (double)this.Fertility < 1.0)
@@ -3183,7 +3131,8 @@ namespace Ship_Game
             }
             else
             {
-                if (!this.Owner.GetTDict()["Biospheres"].Unlocked)
+                //if (!this.Owner.GetTDict()["Biospheres"].Unlocked)
+                if (!this.Owner.GetBDict()["Biospheres"])
                     return;
                 this.TryBiosphereBuild(ResourceManager.GetBuilding("Biospheres"), qi);
             }
@@ -3352,7 +3301,8 @@ namespace Ship_Game
                         if (flag2)
                             this.AddBuildingToCQ(b);
                     }
-                    else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0)
+                    //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0)
+                    else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0)
                     {
                         if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                         {
@@ -3364,7 +3314,7 @@ namespace Ship_Game
                     }
                 }
                 if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                    this.ApplyStoredProduction();
+                    this.ApplyStoredProduction(0);
                 for (int index = 0; index < this.ConstructionQueue.Count; ++index)
                 {
                     QueueItem queueItem1 = this.ConstructionQueue[index];
@@ -3372,7 +3322,7 @@ namespace Ship_Game
                     {
                         if (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -3401,8 +3351,17 @@ namespace Ship_Game
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
                             float num = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = (float)((double)num * 2.0 / 5.0);
-                            this.ResearcherPercentage = (float)((double)num * 3.0 / 5.0);
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = (float)(num * 2.0 / 5.0);
+                                this.ResearcherPercentage = (float)(num * 3.0 / 5.0);
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         else
                             this.fs = (double)this.FoodHere >= (double)this.MAX_STORAGE * 0.25 ? Planet.GoodState.EXPORT : Planet.GoodState.STORE;
@@ -3412,8 +3371,17 @@ namespace Ship_Game
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(-0.5f);
                             float num = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = num / 2f;
-                            this.ResearcherPercentage = num / 2f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = num / 2f;
+                                this.ResearcherPercentage = num / 2f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                             this.fs = Planet.GoodState.IMPORT;
                         }
                         else if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.75)
@@ -3422,28 +3390,64 @@ namespace Ship_Game
                             {
                                 this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
                                 float num = 1f - this.FarmerPercentage;
-                                this.WorkerPercentage = num / 2f;
-                                this.ResearcherPercentage = num / 2f;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    this.WorkerPercentage = num / 2f;
+                                    this.ResearcherPercentage = num / 2f;
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = num;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
                             }
                             else
                             {
                                 this.FarmerPercentage = 0.0f;
-                                this.WorkerPercentage = 0.5f;
-                                this.ResearcherPercentage = 0.5f;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    this.WorkerPercentage = 0.5f;
+                                    this.ResearcherPercentage = 0.5f;
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = 1.0f;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
                             }
                         }
                         else if ((double)this.FoodHere / (double)this.MAX_STORAGE > 0.75)
                         {
                             this.FarmerPercentage = 0.0f;
-                            this.WorkerPercentage = 0.7f;
-                            this.ResearcherPercentage = 0.3f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = 0.7f;
+                                this.ResearcherPercentage = 0.3f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = 1.0f;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         else
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
                             float num = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
-                            this.ResearcherPercentage = num / 4f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
+                                this.ResearcherPercentage = num / 4f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         if ((double)this.GrossMoneyPT - (double)this.TotalMaintenanceCostsPerTurn < 0.0 && ((double)this.MineralRichness >= 0.75 || (double)this.PlusProductionPerColonist >= 1.0) && (double)this.ResearcherPercentage > 0.0)
                         {
@@ -3569,7 +3573,8 @@ namespace Ship_Game
                                 if (flag1)
                                     this.AddBuildingToCQ(b);
                             }
-                            else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
+                            //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
+                            else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
                             {
                                 if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                                 {
@@ -3587,7 +3592,7 @@ namespace Ship_Game
                             {
                                 if (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0)
                                 {
-                                    this.ApplyStoredProduction();
+                                    this.ApplyStoredProduction(0);
                                     break;
                                 }
                                 else
@@ -3604,13 +3609,14 @@ namespace Ship_Game
                                 foreach (QueueItem queueItem2 in linkedList)
                                     this.ConstructionQueue.Add(queueItem2);
                             }
+
+                            if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
+                            {
+                                this.ApplyStoredProduction(0);
+                                break;
+                            }
                         }
-                        if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                        {
-                            this.ApplyStoredProduction();
-                            break;
-                        }
-                        else
+                        
                             break;
                     case Planet.ColonyType.Industrial:
                         this.fs = Planet.GoodState.IMPORT;
@@ -3771,7 +3777,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -3858,7 +3864,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -3873,14 +3879,32 @@ namespace Ship_Game
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
                             float num1 = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = num1 / 2f;
-                            this.ResearcherPercentage = num1 / 2f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = num1 / 2f;
+                                this.ResearcherPercentage = num1 / 2f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num1;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.850000023841858)
                         {
                             float num1 = 1f - this.FarmerPercentage;
                             this.WorkerPercentage = 0.0f;
-                            this.ResearcherPercentage = num1;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.ResearcherPercentage = num1;
+                            }
+                            else
+                            {
+                                this.FarmerPercentage = 1f;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         float num9 = 0.0f;
                         bool flag11 = false;
@@ -3954,7 +3978,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -4079,7 +4103,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -4087,7 +4111,7 @@ namespace Ship_Game
                 }
             }
             //Added by McShooterz: Colony build troops
-            if (this.ConstructionQueue.Count == 0 && this.ps == Planet.GoodState.EXPORT && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+            if (this.CanBuildInfantry() && this.ConstructionQueue.Count == 0 && this.ProductionHere > this.MAX_STORAGE*.75f && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
             {
                 bool addTroop = false;
                 foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -4109,7 +4133,8 @@ namespace Ship_Game
                             qi.troop = troop.Value;
                             qi.Cost = troop.Value.Cost;
                             qi.productionTowards = 0f;
-                            this.ConstructionQueue.Add(qi);
+                            qi.NotifyOnEmpty = false;
+                            this.ConstructionQueue.Add(qi);                         
                             break;
                         }
                     }
@@ -4155,23 +4180,20 @@ namespace Ship_Game
             }
         }
 
-        public void ApplyStoredProduction()
+        public bool ApplyStoredProduction(int Index)
         {
-            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null))
-                return;
-            if ((double)this.ProductionHere >= 10.0 && (double)this.Owner.Money >= 10.0)
+            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null || this.Owner.Money <=0))
+                return false;
+
+            float amount = this.ProductionHere * .25f;
+            if (amount < 1)
             {
-                this.ProductionHere -= 10f;
-                this.ApplyProductiontoQueue(10f, 0);
+                return false;
             }
-            else
-            {
-                if ((double)this.Owner.Money < (double)this.ProductionHere)
-                    return;
-                this.ApplyProductiontoQueue(this.ProductionHere, 0);
-                this.ProductionHere = 0.0f;
-            }
-        }
+                this.ProductionHere -= amount;
+                this.ApplyProductiontoQueue(amount, Index);
+                return true;
+       }
 
         private void ApplyProductionTowardsConstruction()
         {
@@ -4255,6 +4277,11 @@ namespace Ship_Game
                         }
                     }
                 }
+                if ((double)queueItem.productionTowards >= (double)queueItem.Cost && queueItem.NotifyOnEmpty == false)
+                    this.queueEmptySent = true;
+                else if ((double)queueItem.productionTowards >= (double)queueItem.Cost)
+                    this.queueEmptySent = false;
+
                 if (queueItem.isBuilding && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
                     Building building = ResourceManager.GetBuilding(queueItem.Building.Name);
@@ -4354,15 +4381,6 @@ namespace Ship_Game
                 }
                 else if (queueItem.isTroop && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
-                    //added by gremlim fix to prevent AI stuck building troops.
-                    //Troop troop = ResourceManager.CreateTroop(queueItem.troop, this.Owner);
-                    //if (this.AssignTroopToTile(troop))
-                    //{
-                    //    this.ConstructionQueue.QueuePendingRemoval(queueItem);
-                    //    troop.SetOwner(this.Owner);
-                    //    if (queueItem.Goal != null)
-                    //        ++queueItem.Goal.Step;
-                    //}
                     Troop troop = ResourceManager.CreateTroop(queueItem.troop, this.Owner);
                     if (this.AssignTroopToTile(troop))
                     {
@@ -5251,8 +5269,35 @@ namespace Ship_Game
 
 
         }
+        public int GetGroundStrengthOther(Empire empire)
+        {
+            int num = 0;
+            if (this.Owner == null || this.Owner != empire)
+                num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner()==null ||empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
+            return num;
 
 
+        }
+
+        //Added by McShooterz: heal builds and troops every turn
+        public void HealBuildingsAndTroops()
+        {
+            if (this.RecentCombat)
+                return;
+            //heal troops
+            foreach (Troop troop in this.TroopsHere)
+            {
+                if(troop.StrengthMax>0)
+                    troop.Strength = troop.GetStrengthMax();
+            }
+            //Repair buildings
+            foreach (Building building in this.BuildingList)
+            {
+                building.CombatStrength = Ship_Game.ResourceManager.BuildingsDict[building.Name].CombatStrength;
+                building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
+            }
+        }
 
         private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
         {

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Reactive Armor</UID>
+  <TechnologyType>ShipDefense</TechnologyType>
+  <Cost>1500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Reactive Armor</Name>
+  <NameIndex>2004</NameIndex>
+  <DescriptionIndex>2005</DescriptionIndex>
+  <LongDescription>See localization file</LongDescription>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Reactive Armor</Name>
+      <BonusType>Armor Explosion Reduction</BonusType> <!-- reduces radius of explosions when explosives hit armor-->
+      <Bonus>.25</Bonus>
+      <Description>see localization file</Description>
+      <BonusIndex>2006</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

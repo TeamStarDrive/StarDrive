@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Logistics</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>50</Cost>
+  <RootNode>1</RootNode>
+  <Name>Socio-Logistics</Name>
+  <NameIndex>603</NameIndex>
+  <IconPath>icons_techroot_sociologistics</IconPath>
+  <DescriptionIndex>604</DescriptionIndex>
+  <LongDescription>Socio-Logistics is a broad term for studies that increase the social and economic efficiency of our empire and fleets</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>IS Government</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Xeno Linguistics</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Fleet Supply</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Scrap and Refit</Name>
+      <Bonus>1</Bonus>
+      <Description>You may scrap and refit your ships.</Description>
+      <BonusIndex>605</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

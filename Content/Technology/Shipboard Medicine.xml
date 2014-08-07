@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Shipboard Medicine</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>350</Cost>
+  <RootNode>0</RootNode>
+  <Name>Shipboard Medicine</Name>
+  <NameIndex>2038</NameIndex>
+  <DescriptionIndex>2039</DescriptionIndex>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Sickbay</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

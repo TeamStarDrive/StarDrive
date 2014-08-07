@@ -13,6 +13,11 @@ namespace Ship_Game
 
 		public bool Unlocked;
 
+        public string AcquiredFrom = "";
+        //added by gremlin
+        public bool shipDesignsCanuseThis = true;
+        public float maxOffensiveValueFromthis = 0;
+
 		public TechEntry()
 		{
 		}

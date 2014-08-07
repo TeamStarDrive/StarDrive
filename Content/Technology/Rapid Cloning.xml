@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Rapid Cloning</UID>
+  <TechnologyType>Colonization</TechnologyType>
+  <Cost>2500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Rapid Cloning</Name>
+  <NameIndex>647</NameIndex>
+  <DescriptionIndex>648</DescriptionIndex>
+  <LongDescription>We have been able to clone things for a long time but we have not been able to increase the maturation rate until now. With this technology we can raise a clone to adult maturity in weeks rather than years. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Cloning Center</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

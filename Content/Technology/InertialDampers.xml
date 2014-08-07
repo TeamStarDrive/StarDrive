@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>InertialDampers</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>750</Cost>
+  <RootNode>0</RootNode>
+  <Name>Inertial Dampers</Name>
+  <NameIndex>591</NameIndex>
+  <DescriptionIndex>592</DescriptionIndex>
+  <LongDescription>Inertial Damper systems effectively lower the mass of a ship by enveloping it in a weak subspace field.  Lower ship mass translates to higher speed and greater handling.  This process is very power-hungry, however.  </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Inertial Damper</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

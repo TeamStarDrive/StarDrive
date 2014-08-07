@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Pulse Capacitors</UID>
+  <TechnologyType>ShipDefense</TechnologyType>
+  <Cost>80</Cost>
+  <RootNode>0</RootNode>
+  <Name>Pulse Capacitors</Name>
+  <NameIndex>643</NameIndex>
+  <DescriptionIndex>644</DescriptionIndex>
+  <LongDescription>We believe that encountering Electromagnetic Pulse weaponry is distinctly possible. As a result it would be prudent to have defensive measures prepared for that eventuality. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Reactive Armor</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Pulse Capacitor</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -18,6 +18,7 @@ namespace Ship_Game
 		private UniverseScreen screen;
 
 		public BatchRemovalCollection<Notification> NotificationList = new BatchRemovalCollection<Notification>();
+        private float Timer;
 
 		public NotificationManager(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
@@ -369,7 +370,9 @@ namespace Ship_Game
 				Tech = true,
 				Message = string.Concat(Localizer.Token(ResourceManager.TechTree[unlocked].NameIndex), Localizer.Token(1514)),
 				ReferencedItem1 = unlocked,
-				IconPath = string.Concat("TechIcons/", unlocked),
+                //Added by McShooterz: Techs using Icon Path need this for notifications
+                IconPath = ResourceManager.TextureDict.ContainsKey(string.Concat("TechIcons/", ResourceManager.TechTree[unlocked].IconPath)) ? string.Concat("TechIcons/", ResourceManager.TechTree[unlocked].IconPath) : string.Concat("TechIcons/", unlocked),
+                //IconPath = string.Concat("TechIcons/", unlocked),
 				Action = "ResearchScreen",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
@@ -606,7 +609,19 @@ namespace Ship_Game
 
 		public void Update(float elapsedTime)
 		{
-			lock (GlobalStats.NotificationLocker)
+
+            float date = this.screen.StarDate;
+            if (Timer< date && ResourceManager.EventsDict.ContainsKey(date.ToString()))
+            {
+                Timer = date;
+                ExplorationEvent ReferencedItem1 = ResourceManager.EventsDict[date.ToString()];
+                this.screen.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), ReferencedItem1 as ExplorationEvent, (ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]));
+                (ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), (ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]);
+            }
+            
+
+            
+            lock (GlobalStats.NotificationLocker)
 			{
 				for (int i = 0; i < this.NotificationList.Count; i++)
 				{

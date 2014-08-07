@@ -339,6 +339,14 @@ namespace Ship_Game
 							}
 							return true;
 						}
+                        case OrderType.Scrap:
+                        {
+                            for (int i = 0; i < this.ShipList.Count; i++)
+                            {
+                                this.ShipList[i].GetAI().OrderScrapShip();
+                            }
+                            return true;
+                        }
 						default:
 						{
 							return true;

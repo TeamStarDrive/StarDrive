@@ -7249,7 +7249,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6011</Index>
-      <Text>Warp Power Draw</Text>
+      <Text>Power Warp</Text>
     </Token>
 	<Token>
       <Index>6012</Index>
@@ -7283,7 +7283,410 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6019</Index>
       <Text>Cargo Space</Text>
     </Token>
-	
+	<Token>
+      <Index>6020</Index>
+      <Text>Fire Rate</Text>
+    </Token>
+	<Token>
+      <Index>6021</Index>
+      <Text>Cost Reduction</Text>
+    </Token>
+	<Token>
+      <Index>6022</Index>
+      <Text>Prevent AI Federations</Text>
+    </Token>
+	<Token>
+      <Index>6023</Index>
+      <Text>Level</Text>
+    </Token>
+	<Token>
+      <Index>6024</Index>
+      <Text>Recovering</Text>
+    </Token>
+	<Token>
+      <Index>6025</Index>
+      <Text>has successfully complete training\nThe Agent's performance exceeded expectation.</Text>
+    </Token>
+	<Token>
+      <Index>6026</Index>
+      <Text>has successfully completed training\nand has gained valuable knowledge.</Text>
+    </Token>
+	<Token>
+      <Index>6027</Index>
+      <Text>was injured in a training accident.</Text>
+    </Token>
+	<Token>
+      <Index>6028</Index>
+      <Text>was killed in a training accident.</Text>
+    </Token>
+	<Token>
+      <Index>6029</Index>
+      <Text>has completed training, but failed to learn anything useful.</Text>
+    </Token>
+	<Token>
+      <Index>6030</Index>
+      <Text>successfully infiltrated a colony:</Text>
+    </Token>
+	<Token>
+      <Index>6031</Index>
+      <Text>\nThe Agent was not detected.</Text>
+    </Token>
+	<Token>
+      <Index>6032</Index>
+      <Text>was unable to infiltrate a colony\nand was wounded avoiding capture</Text>
+    </Token>
+	<Token>
+      <Index>6033</Index>
+      <Text>An enemy Agent was foiled trying to infiltrate a colony\nThe Agent was sent by</Text>
+    </Token>
+	<Token>
+      <Index>6034</Index>
+      <Text>was killed trying to infiltrate a colony.</Text>
+    </Token>
+	<Token>
+      <Index>6035</Index>
+      <Text>An enemy Agent was killed trying to infiltrate one of our colonies\nThe Agent was sent by</Text>
+    </Token>
+	<Token>
+      <Index>6036</Index>
+      <Text>was unable to infiltrate a colony\nand had to abort the mission to avoid capture</Text>
+    </Token>
+	<Token>
+      <Index>6037</Index>
+      <Text>One of our Agents was assassinated:</Text>
+    </Token>
+	<Token>
+      <Index>6038</Index>
+      <Text>could not assassinate an enemy Agent \nbecause target empire has no Agents</Text>
+    </Token>
+	<Token>
+      <Index>6039</Index>
+      <Text>assassinated an enemy Agent:</Text>
+    </Token>
+	<Token>
+      <Index>6040</Index>
+      <Text>\nOur agent escaped unharmed and undetected.</Text>
+    </Token>
+	<Token>
+      <Index>6041</Index>
+      <Text>\nThe Assassin was sent by</Text>
+    </Token>
+	<Token>
+      <Index>6042</Index>
+      <Text>\nOur agent was detected but escaped.</Text>
+    </Token>
+	<Token>
+      <Index>6043</Index>
+      <Text>We managed to detect an enemy Assassin before it could strike\nThe Assassin was sent by</Text>
+    </Token>
+	<Token>
+      <Index>6044</Index>
+      <Text>was wounded trying to assassinate an enemy agent, but managed to escape.</Text>
+    </Token>
+	<Token>
+      <Index>6045</Index>
+      <Text>An enemy Agent was killed during an assassination attempt\nThe Assassin was sent by</Text>
+    </Token>
+	<Token>
+      <Index>6046</Index>
+      <Text>was killed trying to assassinate an enemy agent.</Text>
+    </Token>
+	<Token>
+      <Index>6047</Index>
+      <Text>was foiled trying to assassinate an enemy agent, but managed to escape.</Text>
+    </Token>
+	<Token>
+      <Index>6048</Index>
+      <Text>An enemy Agent has sabotaged production on</Text>
+    </Token>
+	<Token>
+      <Index>6049</Index>
+      <Text>\nThe Agent was sent by</Text>
+    </Token>
+	<Token>
+      <Index>6050</Index>
+      <Text>was detected while attempting to steal a technology\nand was wounded while escaping</Text>
+    </Token>
+	<Token>
+      <Index>6051</Index>
+      <Text>We foiled an enemy Agent trying to sabotage production on</Text>
+    </Token>
+	<Token>
+      <Index>6052</Index>
+      <Text>was wounded while trying to sabotage</Text>
+    </Token>
+	<Token>
+      <Index>6053</Index>
+      <Text>We killed an enemy Agent trying to sabotage production on</Text>
+    </Token>
+	<Token>
+      <Index>6054</Index>
+      <Text>was killed trying to sabotage an enemy colony</Text>
+    </Token>
+	<Token>
+      <Index>6055</Index>
+      <Text>escaped after being detected while trying to sabotage</Text>
+    </Token>
+	<Token>
+      <Index>6056</Index>
+      <Text>An enemy spy stole some technology from us \nbut we don't know who they were working for</Text>
+    </Token>
+	<Token>
+      <Index>6057</Index>
+      <Text>stole a technology:</Text>
+    </Token>
+	<Token>
+      <Index>6058</Index>
+      <Text>An enemy Agent stole a technology from us:</Text>
+    </Token>
+	<Token>
+      <Index>6059</Index>
+      <Text>We foiled an enemy plot to steal our technology</Text>
+    </Token>
+	<Token>
+      <Index>6060</Index>
+      <Text>An enemy Agent was killed trying to steal our technology</Text>
+    </Token>
+	<Token>
+      <Index>6061</Index>
+      <Text>was killed trying to steal technology</Text>
+    </Token>
+	<Token>
+      <Index>6062</Index>
+      <Text>was detected while attempting to steal a technology\nbut managed to escape unharmed</Text>
+    </Token>
+	<Token>
+      <Index>6063</Index>
+      <Text>aborted the Steal Technology mission because\nthere is nothing to steal;</Text>
+    </Token>
+	<Token>
+      <Index>6064</Index>
+      <Text>Credits are therefore refunded.</Text>
+    </Token>
+	<Token>
+      <Index>6065</Index>
+      <Text>credits were mysteriously stolen from our treasury.\nWe have no suspects in the theft</Text>
+    </Token>
+	<Token>
+      <Index>6066</Index>
+      <Text>could not rob</Text>
+    </Token>
+	<Token>
+      <Index>6067</Index>
+      <Text>\nbecause they have no money</Text>
+    </Token>
+	<Token>
+      <Index>6068</Index>
+      <Text>stole</Text>
+    </Token>
+	<Token>
+      <Index>6069</Index>
+      <Text>credits from</Text>
+    </Token>
+	<Token>
+      <Index>6070</Index>
+      <Text>credits were stolen from our treasury by an enemy Agent.</Text>
+    </Token>
+	<Token>
+      <Index>6071</Index>
+      <Text>We foiled an enemy plot to rob our treasury</Text>
+    </Token>
+	<Token>
+      <Index>6072</Index>
+      <Text>was unable to steal any credits\nand was wounded while escaping.</Text>
+    </Token>
+	<Token>
+      <Index>6073</Index>
+      <Text>We killed an enemy Agent during an attempted robbery</Text>
+    </Token>
+	<Token>
+      <Index>6074</Index>
+      <Text>was killed trying to steal credits from</Text>
+    </Token>
+	<Token>
+      <Index>6075</Index>
+      <Text>was unable to steal any credits\nbut managed to escape unharmed.</Text>
+    </Token>
+	<Token>
+      <Index>6076</Index>
+      <Text>We foiled an enemy plot to incite rebellion on</Text>
+    </Token>
+	<Token>
+      <Index>6077</Index>
+      <Text>incited a serious rebellion on</Text>
+    </Token>
+	<Token>
+      <Index>6078</Index>
+      <Text>An enemy Agent has incited rebellion on</Text>
+    </Token>
+	<Token>
+      <Index>6079</Index>
+      <Text>\nHowever, they know we are behind it.</Text>
+    </Token>
+	<Token>
+      <Index>6080</Index>
+      <Text>was wounded while trying to incite a rebellion on</Text>
+    </Token>
+	<Token>
+      <Index>6081</Index>
+      <Text>We killed an enemy agent trying to incite rebellion on</Text>
+    </Token>
+	<Token>
+      <Index>6082</Index>
+      <Text>was killed trying to incite rebellion on</Text>
+    </Token>
+	<Token>
+      <Index>6083</Index>
+      <Text>escaped after being detected while trying to incite rebellion on</Text>
+    </Token>
+	<Token>
+      <Index>6084</Index>
+      <Text>sabotaged production for</Text>
+    </Token>
+	<Token>
+      <Index>6085</Index>
+      <Text>turns:</Text>
+    </Token>
+	<Token>
+      <Index>6086</Index>
+      <Text>has recovered from their injuries.</Text>
+    </Token>
+	<Token>
+      <Index>6087</Index>
+      <Text>has been promoted, and gains +1 Level.</Text>
+    </Token>
+	<Token>
+      <Index>6088</Index>
+      <Text>Espionage</Text>
+    </Token>
+	<Token>
+      <Index>6089</Index>
+      <Text>Espionage Overview</Text>
+    </Token>
+	<Token>
+      <Index>6090</Index>
+      <Text>Espionage Agents</Text>
+    </Token>
+	<Token>
+      <Index>6091</Index>
+      <Text>Intelligence Report</Text>
+    </Token>
+	<Token>
+      <Index>6092</Index>
+      <Text>Agent Dossier</Text>
+    </Token>
+	<Token>
+      <Index>6093</Index>
+      <Text>Capital Elimination</Text>
+    </Token>
+	<Token>
+      <Index>6094</Index>
+      <Text>Home World: </Text>
+    </Token>
+	<Token>
+      <Index>6095</Index>
+      <Text>Total Planets: </Text>
+    </Token>
+	<Token>
+      <Index>6096</Index>
+      <Text>Total Starships: </Text>
+    </Token>
+	<Token>
+      <Index>6097</Index>
+      <Text>Treasury: </Text>
+    </Token>
+	<Token>
+      <Index>6098</Index>
+      <Text>Maintenance Costs: </Text>
+    </Token>
+	<Token>
+      <Index>6099</Index>
+      <Text>Total Spies: </Text>
+    </Token>
+	<Token>
+      <Index>6100</Index>
+      <Text>Population: </Text>
+    </Token>
+	<Token>
+      <Index>6101</Index>
+      <Text>billion</Text>
+    </Token>
+	<Token>
+      <Index>6102</Index>
+      <Text>: Government Destroyed</Text>
+    </Token>
+	<Token>
+      <Index>6103</Index>
+      <Text> and Trade</Text>
+    </Token>
+	<Token>
+      <Index>6104</Index>
+      <Text>: Trade Partner</Text>
+    </Token>
+	<Token>
+      <Index>6105</Index>
+      <Text>: No Diplomatic Relations</Text>
+    </Token>
+	<Token>
+      <Index>6106</Index>
+      <Text>Controls Home World: </Text>
+    </Token>
+	<Token>
+      <Index>6107</Index>
+      <Text>Yes</Text>
+    </Token>	
+	<Token>
+      <Index>6108</Index>
+      <Text>Alias: </Text>
+    </Token>
+	<Token>
+      <Index>6109</Index>
+      <Text>Home: </Text>
+    </Token>
+	<Token>
+      <Index>6110</Index>
+      <Text>Age: </Text>
+    </Token>
+	<Token>
+      <Index>6111</Index>
+      <Text>Service: </Text>
+    </Token>
+	<Token>
+      <Index>6112</Index>
+      <Text>Training Exercises: </Text>
+    </Token>
+	<Token>
+      <Index>6113</Index>
+      <Text>Agents Assassinated: </Text>
+    </Token>
+	<Token>
+      <Index>6114</Index>
+      <Text>Colonies Infiltrated: </Text>
+    </Token>
+	<Token>
+      <Index>6115</Index>
+      <Text>Colonies Sabotaged: </Text>
+    </Token>
+	<Token>
+      <Index>6116</Index>
+      <Text>Technologies Stolen: </Text>
+    </Token>
+	<Token>
+      <Index>6117</Index>
+      <Text>Treasuries Robbed: </Text>
+    </Token>
+	<Token>
+      <Index>6118</Index>
+      <Text>Rebellions Started: </Text>
+    </Token>
+	<Token>
+      <Index>6119</Index>
+      <Text> years</Text>
+    </Token>
+	<Token>
+      <Index>6120</Index>
+      <Text>Ordnance/s</Text>
+    </Token>
 	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -7314,19 +7717,43 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>7007</Index>
-      <Text>Hull Bonus: </Text>
+      <Text>Indicates a ship's experience level. For each experience level, a ship gains a 5% bonus each to repair rate, turning speed, and weapons damage.</Text>
     </Token>
 	<Token>
       <Index>7008</Index>
-      <Text>Armor</Text>
+      <Text></Text>
     </Token>
 	<Token>
       <Index>7009</Index>
       <Text>Ship will move within maximum weapons range and present her Port broadside to the enemy for maximum coverage</Text>
     </Token>
-		<Token>
+	<Token>
       <Index>7010</Index>
       <Text>Ship will move within maximum weapons range and present her Starboard broadside to the enemy for maximum coverage</Text>
+    </Token>
+	<Token>
+      <Index>7011</Index>
+      <Text>Prevents AI empires from merging into Federations at the first site of a powerful opponent.</Text>
+    </Token>
+    <Token>
+      <Index>7012</Index>
+      <Text>Seconds until out of power or INFinite</Text>
+    </Token>
+    <Token>
+      <Index>7013</Index>
+      <Text>Seconds until out of ordnance or INFinite</Text>
+    </Token>
+    <Token>
+      <Index>7014</Index>
+      <Text>Ordance recovered per sec.</Text>
+    </Token>
+	<Token>
+      <Index>7015</Index>
+      <Text>In the Capital Elimination game mode, empires are defeated when they lose their homeworld.</Text>
+    </Token>
+	<Token>
+      <Index>7016</Index>
+      <Text>Indicates the maximum amount of damage repaired by beams from this system. </Text>
     </Token>
   </TokenList>
   
