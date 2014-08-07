@@ -24,9 +24,11 @@ namespace Ship_Game
 		public Ship playerShip;
 
 		public List<Empire> EmpireList = new List<Empire>();
+        public static float UniverseWidth;
 
 		public UniverseData()
 		{
+            UniverseWidth = this.Size.X;
 		}
 
 		public enum GameDifficulty

@@ -184,7 +184,8 @@ namespace Ship_Game
                         QueueNumber = planet1.ConstructionQueue.Count,
                         sData = this.beingBuilt.GetShipData(),
                         Goal = this,
-                        Cost = this.beingBuilt.GetCost(this.empire)
+                        Cost = this.beingBuilt.GetCost(this.empire),
+                        NotifyOnEmpty=false
                     });
                     ++this.Step;
                     break;
@@ -259,6 +260,20 @@ namespace Ship_Game
                     });
                     ++this.Step;
                     break;
+                case 1:
+                    {
+                        if (this.PlanetBuildingAt == null || this.PlanetBuildingAt.ConstructionQueue.Count==0)
+                            break;
+                        if (this.PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        {
+                            if (this.PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
+                            {
+                                this.PlanetBuildingAt.ApplyStoredProduction(0);
+                            }
+                        }
+
+                        break;
+                    }
                 case 2:
                     this.beingBuilt.GetAI().State = AIState.AwaitingOrders;
                     this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
@@ -304,6 +319,19 @@ namespace Ship_Game
                     });
                     ++this.Step;
                     break;
+                case 1:
+                    {
+                        if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        {
+                            if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
+                            {
+                                PlanetBuildingAt.ApplyStoredProduction(0);
+                            }
+                        }
+
+                        break;
+                    }
+
                 case 2:
                     this.beingBuilt.DoDefense();
                     this.empire.ForcePoolAdd(this.beingBuilt);
@@ -326,7 +354,21 @@ namespace Ship_Game
                         Cost = ResourceManager.TroopsDict[this.ToBuildUID].Cost
                     });
                     this.Step = 1;
+
                     break;
+
+                case 1:
+                    {
+                        if (PlanetBuildingAt.ConstructionQueue.Count >0 && PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        {
+                           if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.75f)
+                           {
+                               PlanetBuildingAt.ApplyStoredProduction(0);
+                           }
+                        }
+
+                        break;
+                    }
                 case 2:
                     this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
                     break;
@@ -383,6 +425,7 @@ namespace Ship_Game
                     queueItem.sData = !ResourceManager.ShipsDict.ContainsKey(this.empire.data.DefaultSmallTransport) ? ResourceManager.ShipsDict[ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport].GetShipData() : ResourceManager.ShipsDict[this.empire.data.DefaultSmallTransport].GetShipData();
                     queueItem.Goal = this;
                     queueItem.Cost = ResourceManager.ShipsDict[this.ToBuildUID].GetCost(this.empire);
+                    queueItem.NotifyOnEmpty = false;
                     if (ResourceManager.ShipsDict.ContainsKey(this.empire.data.DefaultSmallTransport))
                     {
                         this.beingBuilt = ResourceManager.ShipsDict[this.empire.data.DefaultSmallTransport];
@@ -467,6 +510,7 @@ namespace Ship_Game
                                 this.empire.data.DefaultColonyShip = ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultColonyShip;
                             }
                             queueItem.Goal = this;
+                            queueItem.NotifyOnEmpty = false;
                             queueItem.Cost = ResourceManager.ShipsDict[this.empire.data.DefaultColonyShip].GetCost(this.empire);
                             planet1.ConstructionQueue.Add(queueItem);
                             this.PlanetBuildingAt = planet1;
@@ -616,7 +660,8 @@ namespace Ship_Game
                                 QueueNumber = planet1.ConstructionQueue.Count,
                                 sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetCost(this.empire)
+                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetCost(this.empire),
+                                NotifyOnEmpty =false
                             });
                             ++this.Step;
                             break;
@@ -703,7 +748,8 @@ namespace Ship_Game
                             QueueNumber = planet1.ConstructionQueue.Count,
                             sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoScout].GetShipData(),
                             Goal = this,
-                            Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoScout].GetCost(this.empire)
+                            Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoScout].GetCost(this.empire),
+                            NotifyOnEmpty=false
                         });
                         ++this.Step;
                         break;
@@ -798,7 +844,8 @@ namespace Ship_Game
                                 QueueNumber = planet1.ConstructionQueue.Count,
                                 sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetCost(this.empire)
+                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetCost(this.empire),
+                                NotifyOnEmpty=false
                             });
                             ++this.Step;
                             break;

@@ -26,7 +26,7 @@ namespace Ship_Game
 
 		public DanButton RecruitButton;
 
-		public MainDiplomacyScreen mdscreen;
+        public EspionageScreen Escreen;
 
 		private MissionEntry Training;
 
@@ -50,42 +50,42 @@ namespace Ship_Game
         private static Checkbox cbSpyMute;
         public static int empirePlanetSpys = 0;
 
-		public AgentComponent(Rectangle r, MainDiplomacyScreen mdscreen)
-		{
-			this.mdscreen = mdscreen;
-			this.ComponentRect = r;
-			this.ScreenManager = Ship.universeScreen.ScreenManager;
-			this.SubRect = new Rectangle(this.ComponentRect.X, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
-			this.OpsSubRect = new Rectangle(mdscreen.OperationsRect.X + 20, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
-			Submenu sub = new Submenu(this.ScreenManager, this.ComponentRect);
-			this.AgentSL = new ScrollList(sub, 40);
-			foreach (Agent agent in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList)
-			{
-				this.AgentSL.AddItem(agent);
-			}
-			Rectangle c = this.ComponentRect;
-			c.X = this.OpsSubRect.X;
-			Submenu opssub = new Submenu(this.ScreenManager, c);
-			this.OpsSL = new ScrollList(opssub, 30);
-			this.Training = new MissionEntry(AgentMission.Training, this);
-			this.Infiltrate = new MissionEntry(AgentMission.Infiltrate, this);
-			this.Assassinate = new MissionEntry(AgentMission.Assassinate, this);
-			this.Sabotage = new MissionEntry(AgentMission.Sabotage, this);
-			this.StealTech = new MissionEntry(AgentMission.StealTech, this);
-			this.StealShip = new MissionEntry(AgentMission.Robbery, this);
-			this.InciteRebellion = new MissionEntry(AgentMission.InciteRebellion, this);
-			this.OpsSL.AddItem(this.Training);
-			this.OpsSL.AddItem(this.Infiltrate);
-			this.OpsSL.AddItem(this.Assassinate);
-			this.OpsSL.AddItem(this.Sabotage);
-			this.OpsSL.AddItem(this.StealTech);
-			this.OpsSL.AddItem(this.StealShip);
-			this.OpsSL.AddItem(this.InciteRebellion);
-			this.RecruitButton = new DanButton(new Vector2((float)(this.ComponentRect.X), (float)mdscreen.Contact.r.Y - 10), Localizer.Token(2179))
-			{
-				Toggled = true
-			};
-		}
+        public AgentComponent(Rectangle r, EspionageScreen Escreen)
+        {
+            this.Escreen = Escreen;
+            this.ComponentRect = r;
+            this.ScreenManager = Ship.universeScreen.ScreenManager;
+            this.SubRect = new Rectangle(this.ComponentRect.X, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
+            this.OpsSubRect = new Rectangle(Escreen.OperationsRect.X + 20, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
+            Submenu sub = new Submenu(this.ScreenManager, this.ComponentRect);
+            this.AgentSL = new ScrollList(sub, 40);
+            foreach (Agent agent in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList)
+            {
+                this.AgentSL.AddItem(agent);
+            }
+            Rectangle c = this.ComponentRect;
+            c.X = this.OpsSubRect.X;
+            Submenu opssub = new Submenu(this.ScreenManager, c);
+            this.OpsSL = new ScrollList(opssub, 30);
+            this.Training = new MissionEntry(AgentMission.Training, this);
+            this.Infiltrate = new MissionEntry(AgentMission.Infiltrate, this);
+            this.Assassinate = new MissionEntry(AgentMission.Assassinate, this);
+            this.Sabotage = new MissionEntry(AgentMission.Sabotage, this);
+            this.StealTech = new MissionEntry(AgentMission.StealTech, this);
+            this.StealShip = new MissionEntry(AgentMission.Robbery, this);
+            this.InciteRebellion = new MissionEntry(AgentMission.InciteRebellion, this);
+            this.OpsSL.AddItem(this.Training);
+            this.OpsSL.AddItem(this.Infiltrate);
+            this.OpsSL.AddItem(this.Assassinate);
+            this.OpsSL.AddItem(this.Sabotage);
+            this.OpsSL.AddItem(this.StealTech);
+            this.OpsSL.AddItem(this.StealShip);
+            this.OpsSL.AddItem(this.InciteRebellion);
+            this.RecruitButton = new DanButton(new Vector2((float)(this.ComponentRect.X), (float)Escreen.Contact.r.Y - 10), Localizer.Token(2179))
+            {
+                Toggled = true
+            };
+        }
 
 		public void Draworig()
 		{
@@ -167,15 +167,13 @@ namespace Ship_Game
         //added by gremlin deveksmod spy draw
         public void Draw()
         {
-
-
             Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.SubRect, Color.Black);
             this.AgentSL.Draw(this.ScreenManager.SpriteBatch);
             this.RecruitButton.Draw(this.ScreenManager);
             Rectangle MoneyRect = new Rectangle(this.RecruitButton.r.X, this.RecruitButton.r.Y + 30, 21, 20);
             this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_money"], MoneyRect, Color.White);
             Vector2 costPos = new Vector2((float)(MoneyRect.X + 25), (float)(MoneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2));
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "250", costPos, Color.White);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost).ToString(), costPos, Color.White);
 
             //aeRef = new Ref<bool>(() => this.HideUninhab, (bool x) =>
             //{
@@ -196,11 +194,12 @@ namespace Ship_Game
             Rectangle spyLimit = new Rectangle((int)MoneyRect.X + 65, (int)MoneyRect.Y, 21, 20);
             this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_lock"], spyLimit, Color.White);
             Vector2 spyLimitPos = new Vector2((float)(spyLimit.X + 25), (float)(spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
-            empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
-            if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
+            //empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
+            //if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
+            empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count() + 2;
             spyLimitCount = (empirePlanetSpys - EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count);
             if (empirePlanetSpys < 0) empirePlanetSpys = 0;
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "For Hire : " + spyLimitCount.ToString(), spyLimitPos, Color.White);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("For Hire : ", spyLimitCount.ToString(), " / ", empirePlanetSpys.ToString()), spyLimitPos, Color.White);
 
             //Rectangle spyDefense = new Rectangle(spyLimitPos.Y, spyLimitPos, 21, 20);
             //this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_planetshield"], spyDefense, Color.White);
@@ -278,6 +277,7 @@ namespace Ship_Game
                 }
             }
         }
+
 		public static string GetName(string[] Tokens)
 		{
 			string ret = "";
@@ -400,20 +400,22 @@ namespace Ship_Game
             }
             if (this.RecruitButton.HandleInput(input))
             {
-                if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).Money < 250f || spyLimitCount <= 0)//EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count >= EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count)
+                if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) || spyLimitCount <= 0)//EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count >= EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count)
                 {
                     AudioManager.PlayCue("UI_Misc20");
                 }
                 else
                 {
                     Empire empireByName = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty);
-                    empireByName.Money = empireByName.Money - 250f;
+                    empireByName.Money -= ResourceManager.AgentMissionData.AgentCost;
                     Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.Traits.ShipType, ".txt")));
                     string[] Tokens = Names.Split(new char[] { ',' });
                     Agent a = new Agent();
                     a.Name = AgentComponent.GetName(Tokens);
-
-
+                    //Added new agent information
+                    a.Age = RandomMath.RandomBetween(20, 30);
+                    int RandomPlanetIndex = HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count);
+                    a.HomePlanet = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()[RandomPlanetIndex].Name;
                     EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Add(a);
                     this.AgentSL.AddItem(a);
                     a.AssignMission(AgentMission.Training, empireByName, "");

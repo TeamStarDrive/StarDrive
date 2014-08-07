@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Ace Training</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>750</Cost>
+  <RootNode>0</RootNode>
+  <Name>Ace Training</Name>
+  <NameIndex>2011</NameIndex>
+  <DescriptionIndex>2012</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>BattleRaiders</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Top Guns</Name>
+      <BonusType>Bonus Fighter Levels</BonusType>
+      <Bonus>2</Bonus>
+      <Description></Description>
+      <BonusIndex>2013</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

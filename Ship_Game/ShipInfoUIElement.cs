@@ -202,15 +202,20 @@ namespace Ship_Game
 			}
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
 			this.gridbutton.Draw(this.ScreenManager);
-			Vector2 NamePos = new Vector2((float)(this.Housing.X + 41), (float)(this.Housing.Y + 65));
+			Vector2 NamePos = new Vector2((float)(this.Housing.X + 31), (float)(this.Housing.Y + 60));
 			string name = (this.ship.VanityName != "" ? this.ship.VanityName : this.ship.Name);
 			SpriteFont TitleFont = Fonts.Arial20Bold;
+            Vector2 ShipSuperName = new Vector2((float)(NamePos.X), (float)(NamePos.Y + 20));
 			if (Fonts.Arial20Bold.MeasureString(name).X > 190f)
 			{
 				TitleFont = Fonts.Arial12Bold;
 				NamePos.Y = NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2 - TitleFont.LineSpacing / 2);
+                ShipSuperName.Y = NamePos.Y + 15;
 			}
 			this.ShipNameArea.Draw(TitleFont, this.ScreenManager.SpriteBatch, NamePos, gameTime, this.tColor);
+            //Added by McShooterz:
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.Role, this.ship.loyalty)), ShipSuperName, Color.Orange);
+
 			string text = HelperFunctions.parseText(Fonts.Arial12, ShipListScreenEntry.GetStatusText(this.ship), 130f);
 			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), NamePos.Y + (float)(TitleFont.LineSpacing / 2) - Fonts.Arial12.MeasureString(text).Y / 2f + 2f);
 			text = HelperFunctions.parseText(Fonts.Arial12, ShipListScreenEntry.GetStatusText(this.ship), 130f);
@@ -249,18 +254,15 @@ namespace Ship_Game
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
-			if (this.ship.Level > 0)
-			{
-				for (int i = 0; i < this.ship.Level; i++)
-				{
-					Rectangle star = new Rectangle(this.ShipInfoRect.X + this.ShipInfoRect.Width - 13 * i, this.ShipInfoRect.Y - 4, 12, 11);
-					if (HelperFunctions.CheckIntersection(star, MousePos))
-					{
-						ToolTip.CreateTooltip(68, this.ScreenManager);
-					}
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
-				}
-			}
+            //Added by McShooterz: new experience level display
+            Rectangle star = new Rectangle(this.TroopRect.X + 6, this.TroopRect.Y + this.TroopRect.Height + 3, 12, 11);
+            Vector2 levelPos = new Vector2((float)(star.X + 13), (float)(star.Y));
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.Level.ToString(), levelPos, Color.White);
+            if (HelperFunctions.CheckIntersection(star, MousePos))
+            {
+                ToolTip.CreateTooltip(161, this.ScreenManager);
+            }
 			Vector2 StatusArea = new Vector2((float)(this.Housing.X + 175), (float)(this.Housing.Y + 15));
 			int numStatus = 0;
 			if (this.ship.loyalty.data.Traits.Pack)
@@ -536,7 +538,7 @@ namespace Ship_Game
 					return;
 				}
 			}
-			if (this.ship.CargoSpace_Max > 0f)
+			if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop")
 			{
 				OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
 				{

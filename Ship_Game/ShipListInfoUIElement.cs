@@ -281,14 +281,10 @@ namespace Ship_Game
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], this.TroopRect, Color.White);
 				Vector2 troopPos = new Vector2((float)(this.TroopRect.X + this.TroopRect.Width + 2), (float)(this.TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.HoveredShip.TroopList.Count, "/", this.HoveredShip.TroopCapacity), troopPos, Color.White);
-				if (this.HoveredShip.Level > 0)
-				{
-					for (int i = 0; i < this.HoveredShip.Level; i++)
-					{
-						Rectangle star = new Rectangle(this.ShipInfoRect.X + this.ShipInfoRect.Width - 13 * i, this.ShipInfoRect.Y - 4, 12, 11);
-						this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
-					}
-				}
+                Rectangle star = new Rectangle(this.TroopRect.X, this.TroopRect.Y + this.TroopRect.Height + 3, 12, 11);
+                Vector2 levelPos = new Vector2((float)(star.X + 13), (float)(star.Y));
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.HoveredShip.Level.ToString(), levelPos, Color.White);
 			}
 			foreach (ToggleButton button in this.CombatStatusButtons)
 			{
@@ -669,6 +665,13 @@ namespace Ship_Game
 				Active = false
 			};
 			this.Orders.Add(Explore);
+            //Added by McShooterz: fleet scrap button
+            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
+            {
+                SimpleToggle = true,
+                Active = false
+            };
+            this.Orders.Add(Scrap);
 			OrdersButton ordersButton = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15);
 			SystemDefense.SimpleToggle = true;
 			if (AllFreighters)
