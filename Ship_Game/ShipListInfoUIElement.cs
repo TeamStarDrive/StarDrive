@@ -260,12 +260,12 @@ namespace Ship_Game
 				Vector2 tpos = new Vector2((float)(this.Housing.X + 38), (float)(this.Housing.Y + 63));
 				string name = (this.HoveredShip.VanityName != "" ? this.HoveredShip.VanityName : this.HoveredShip.Name);
 				SpriteFont TitleFont = Fonts.Arial14Bold;
-                Vector2 ShipSuperName = new Vector2((float)(tpos.X + 1), (float)(tpos.Y + 16));
-				if (Fonts.Arial14Bold.MeasureString(name).X > 190f)
+                Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 39), (float)(this.Housing.Y + 79));
+				if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
 				{
 					TitleFont = Fonts.Arial12Bold;
-					tpos.Y = tpos.Y + (float)(Fonts.Arial14Bold.LineSpacing / 2 - TitleFont.LineSpacing / 2);
-                    ShipSuperName.Y = NamePos.Y + 5;
+                    tpos.Y = tpos.Y + 1;
+                    tpos.X = tpos.X - 8;
 				}
 				this.ScreenManager.SpriteBatch.DrawString(TitleFont, (this.HoveredShip.VanityName != "" ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
@@ -278,7 +278,7 @@ namespace Ship_Game
 				float mechanicalBoardingDefense = this.HoveredShip.MechanicalBoardingDefense + this.HoveredShip.TroopBoardingDefense;
 				spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(this.fmt), defPos, Color.White);
 				text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
-				Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), tpos.Y + 5);
+                Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
 				text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
 				HelperFunctions.ClampVectorToInt(ref ShipStatus);
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
