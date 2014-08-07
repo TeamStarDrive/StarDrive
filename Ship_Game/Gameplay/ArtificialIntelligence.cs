@@ -2335,77 +2335,13 @@ namespace Ship_Game.Gameplay
 							{
 								continue;
 							}
-							float distance = Vector2.Distance(weapon.Center, this.fireTarget.Center);
-							Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, this.fireTarget.Center)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
-							float timeToTarget = distance / dir.Length();
-							Vector2 projectedPosition = this.fireTarget.Center;
-							if (this.fireTarget is Projectile)
-							{
-								projectedPosition = this.fireTarget.Center + (this.fireTarget.Velocity * timeToTarget);
-								projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
-								distance = Vector2.Distance(weapon.Center, projectedPosition);
-								dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
-								timeToTarget = distance / dir.Length();
-								projectedPosition = this.fireTarget.Center + ((this.fireTarget.Velocity * timeToTarget) * 0.85f);
-								projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
-								Vector2 FireDirection = this.findVectorToTarget(weapon.Center, projectedPosition);
-								FireDirection.Y = FireDirection.Y * -1f;
-								FireDirection = Vector2.Normalize(FireDirection);
-							}
-							else if (!(this.fireTarget is Ship))
-							{
-								if (weapon.Tag_SpaceBomb && Vector2.Distance(this.Owner.Center, (this.fireTarget as ShipModule).GetParent().Center) < Vector2.Distance(this.Owner.Center + this.Owner.Velocity, (this.fireTarget as ShipModule).GetParent().Center))
-								{
-									continue;
-								}
-								projectedPosition = this.fireTarget.Center + ((this.fireTarget as ShipModule).GetParent().Velocity * timeToTarget);
-								projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
-								distance = Vector2.Distance(weapon.Center, projectedPosition);
-								dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
-								timeToTarget = distance / dir.Length();
-								projectedPosition = this.fireTarget.Center + ((this.fireTarget as ShipModule).GetParent().Velocity * timeToTarget);
-								projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
-								Vector2 FireDirection = this.findVectorToTarget(weapon.Center, projectedPosition);
-								FireDirection.Y = FireDirection.Y * -1f;
-								FireDirection = Vector2.Normalize(FireDirection);
-							}
-							else
-							{
-								if (weapon.Tag_SpaceBomb && Vector2.Distance(this.Owner.Center, this.fireTarget.Center) < Vector2.Distance(this.Owner.Center + this.Owner.Velocity, this.fireTarget.Center))
-								{
-									continue;
-								}
-								projectedPosition = this.fireTarget.Center + (this.fireTarget.Velocity * timeToTarget);
-								projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
-								distance = Vector2.Distance(weapon.Center, projectedPosition);
-								dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
-								timeToTarget = distance / dir.Length();
-								projectedPosition = this.fireTarget.Center + ((this.fireTarget.Velocity * timeToTarget) * 0.85f);
-								projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
-								Vector2 FireDirection = this.findVectorToTarget(weapon.Center, projectedPosition);
-								FireDirection.Y = FireDirection.Y * -1f;
-								FireDirection = Vector2.Normalize(FireDirection);
-							}
 							if (weapon.isBeam)
 							{
 								weapon.FireTargetedBeam(this.fireTarget.Center, this.fireTarget);
 							}
-							else if (weapon.WeaponType != "Missile")
-							{
-								Vector2 bearingToTarget = this.findVectorToTarget(weapon.Center, projectedPosition);
-								bearingToTarget.Y = bearingToTarget.Y * -1f;
-								weapon.Fire(Vector2.Normalize(bearingToTarget));
-							}
-							else if (weapon.moduleAttachedTo.facing != 0f)
-							{
-								Vector2 bearingToTarget = this.findVectorToTarget(weapon.Center, this.fireTarget.Center);
-								bearingToTarget.Y = bearingToTarget.Y * -1f;
-								weapon.FireMissile(Vector2.Normalize(bearingToTarget), this.fireTarget);
-							}
 							else
 							{
-								Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-								weapon.FireMissile(forward, this.fireTarget);
+                                weapon.Fire(this.fireTarget);
 							}
 						}
 						else
@@ -2438,25 +2374,11 @@ namespace Ship_Game.Gameplay
 						{
 							continue;
 						}
-						float distance = Vector2.Distance(weapon.Center, this.fireTarget.Center);
-						float timeToTarget = distance / weapon.ProjectileSpeed;
-						Vector2 projectedPosition = this.fireTarget.Center;
 						if (!(this.fireTarget is Projectile))
 						{
 							continue;
 						}
-						projectedPosition = this.fireTarget.Center + (this.fireTarget.Velocity * timeToTarget);
-						projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
-						distance = Vector2.Distance(weapon.Center, projectedPosition);
-						timeToTarget = distance / weapon.ProjectileSpeed;
-						projectedPosition = this.fireTarget.Center + ((this.fireTarget.Velocity * timeToTarget) * 0.85f);
-						projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
-						Vector2 FireDirection = this.findVectorToTarget(weapon.Center, projectedPosition);
-						FireDirection.Y = FireDirection.Y * -1f;
-						FireDirection = Vector2.Normalize(FireDirection);
-						Vector2 bearingToTarget = this.findVectorToTarget(weapon.Center, projectedPosition);
-						bearingToTarget.Y = bearingToTarget.Y * -1f;
-						weapon.Fire(Vector2.Normalize(bearingToTarget));
+                        weapon.Fire(this.fireTarget);
 					}
 				}
 			}
