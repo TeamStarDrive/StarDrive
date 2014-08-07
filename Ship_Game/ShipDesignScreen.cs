@@ -5189,8 +5189,8 @@ namespace Ship_Game
 			this.ShipStats = new Menu1(base.ScreenManager, ShipStatsPanel);
 			this.statsSub = new Submenu(base.ScreenManager, ShipStatsPanel);
 			this.statsSub.AddTab(Localizer.Token(108));
-			this.ArcsButton = new GenericButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 30), 44f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
-			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 25, 44, 20, 20));
+			this.ArcsButton = new GenericButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 32), 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
+			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 27, 99, 20, 20));
 			this.OriginalZ = this.cameraPosition.Z;
 		}
 
