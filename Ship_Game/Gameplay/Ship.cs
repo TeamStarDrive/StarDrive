@@ -221,6 +221,8 @@ namespace Ship_Game.Gameplay
         public bool IsInNeutralSpace;
         public bool IsInFriendlySpace;
 
+
+
         public bool IsWarpCapable
         {
             get
@@ -2002,10 +2004,8 @@ namespace Ship_Game.Gameplay
                     if (this.ECMValue < 0f)
                         this.ECMValue = 0f;
                 }
-                Ship troopCapacity = this;
-                troopCapacity.TroopCapacity = troopCapacity.TroopCapacity + moduleSlotList.module.TroopCapacity;
-                Ship mechanicalBoardingDefense = this;
-                mechanicalBoardingDefense.MechanicalBoardingDefense = mechanicalBoardingDefense.MechanicalBoardingDefense + moduleSlotList.module.MechanicalBoardingDefense;
+                this.TroopCapacity += moduleSlotList.module.TroopCapacity;
+                this.MechanicalBoardingDefense += moduleSlotList.module.MechanicalBoardingDefense;
                 if (this.MechanicalBoardingDefense < 1f)
                 {
                     this.MechanicalBoardingDefense = 1f;
@@ -2060,10 +2060,8 @@ namespace Ship_Game.Gameplay
                 troopBoardingDefense.TroopBoardingDefense = troopBoardingDefense.TroopBoardingDefense + (float)troopList.Strength;
             }
             {
-                Ship mechanicalBoardingDefense1 = this;
-
                 //mechanicalBoardingDefense1.MechanicalBoardingDefense = mechanicalBoardingDefense1.MechanicalBoardingDefense / (this.number_Internal_modules);
-                mechanicalBoardingDefense1.MechanicalBoardingDefense = mechanicalBoardingDefense1.MechanicalBoardingDefense * (1 + this.TroopList.Count() / 10);
+                this.MechanicalBoardingDefense *= (1 + this.TroopList.Count() / 10);
                 if (this.MechanicalBoardingDefense < 1f)
                 {
                     this.MechanicalBoardingDefense = 1f;
@@ -3460,21 +3458,21 @@ namespace Ship_Game.Gameplay
                     this.CargoSpace_Max *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().CargoBonus != 0 ? (1 + (float)this.GetShipData().CargoBonus / 100f) : 1);
                     this.SensorRange *= this.loyalty.data.SensorModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SensorBonus != 0 ? (1 + (float)this.GetShipData().SensorBonus / 100f) : 1);
                 }
-                List<Troop> list1 = new List<Troop>();
-                List<Troop> list2 = new List<Troop>();
+                List<Troop> OwnTroops = new List<Troop>();
+                List<Troop> EnemyTroops = new List<Troop>();
                 foreach (Troop troop in this.TroopList)
                 {
                     if (troop.GetOwner() == this.loyalty)
-                        list1.Add(troop);
+                        OwnTroops.Add(troop);
                     else
-                        list2.Add(troop);
+                        EnemyTroops.Add(troop);
                 }
                 if (this.HealPerTurn > 0)
                 {
                     int num = this.HealPerTurn;
-                    foreach (Troop troop in list1)
+                    foreach (Troop troop in OwnTroops)
                     {
-                        if (troop.Strength < troop.StrengthMax)
+                        if (troop.Strength < troop.GetStrengthMax())
                         {
                             ++troop.Strength;
                             --num;
@@ -3483,7 +3481,7 @@ namespace Ship_Game.Gameplay
                             break;
                     }
                 }
-                if (list2.Count > 0)
+                if (EnemyTroops.Count > 0)
                 {
                     int num1 = 0;
                     for (int index = 0; (double)index < (double)this.MechanicalBoardingDefense; ++index)
@@ -3491,7 +3489,7 @@ namespace Ship_Game.Gameplay
                         if ((this.system != null ? (double)this.system.RNG.RandomBetween(0.0f, 100f) : (double)Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) <= 60.0)
                             ++num1;
                     }
-                    foreach (Troop troop in list2)
+                    foreach (Troop troop in EnemyTroops)
                     {
                         int num2 = num1;
                         if (num1 > 0)
@@ -3513,12 +3511,12 @@ namespace Ship_Game.Gameplay
                         else
                             break;
                     }
-                    list2.Clear();
+                    EnemyTroops.Clear();
                     foreach (Troop troop in this.TroopList)
-                        list2.Add(troop);
-                    if (list1.Count > 0 && list2.Count > 0)
+                        EnemyTroops.Add(troop);
+                    if (OwnTroops.Count > 0 && EnemyTroops.Count > 0)
                     {
-                        foreach (Troop troop in list1)
+                        foreach (Troop troop in OwnTroops)
                         {
                             for (int index = 0; index < troop.Strength; ++index)
                             {
@@ -3526,7 +3524,7 @@ namespace Ship_Game.Gameplay
                                     ++num1;
                             }
                         }
-                        foreach (Troop troop in list2)
+                        foreach (Troop troop in EnemyTroops)
                         {
                             int num2 = num1;
                             if (num1 > 0)
@@ -3551,13 +3549,13 @@ namespace Ship_Game.Gameplay
                                 break;
                         }
                     }
-                    list2.Clear();
+                    EnemyTroops.Clear();
                     foreach (Troop troop in this.TroopList)
-                        list2.Add(troop);
-                    if (list2.Count > 0)
+                        EnemyTroops.Add(troop);
+                    if (EnemyTroops.Count > 0)
                     {
                         int num2 = 0;
-                        foreach (Troop troop in list2)
+                        foreach (Troop troop in EnemyTroops)
                         {
                             for (int index = 0; index < troop.Strength; ++index)
                             {
@@ -3565,7 +3563,7 @@ namespace Ship_Game.Gameplay
                                     ++num2;
                             }
                         }
-                        foreach (Troop troop in list1)
+                        foreach (Troop troop in OwnTroops)
                         {
                             int num3 = num2;
                             if (num2 > 0)
@@ -3594,16 +3592,16 @@ namespace Ship_Game.Gameplay
                                 this.MechanicalBoardingDefense = 0.0f;
                         }
                     }
-                    list1.Clear();
+                    OwnTroops.Clear();
                     foreach (Troop troop in this.TroopList)
                     {
                         if (troop.GetOwner() == this.loyalty)
-                            list1.Add(troop);
+                            OwnTroops.Add(troop);
                     }
-                    if (list1.Count == 0 && (double)this.MechanicalBoardingDefense <= 0.0)
+                    if (OwnTroops.Count == 0 && (double)this.MechanicalBoardingDefense <= 0.0)
                     {
                         this.loyalty.GetShips().QueuePendingRemoval(this);
-                        this.loyalty = list2[0].GetOwner();
+                        this.loyalty = EnemyTroops[0].GetOwner();
                         this.loyalty.AddShipNextFrame(this);
                         if (this.fleet != null)
                         {
