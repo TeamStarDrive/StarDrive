@@ -476,7 +476,7 @@ namespace Ship_Game.Gameplay
 		{
             if(this.Tag_Guided)
             {
-                direction = new Vector2((float)Math.Sin((double)this.owner.Rotation + this.moduleAttachedTo.facing), -(float)Math.Cos((double)this.owner.Rotation + this.moduleAttachedTo.facing));
+                direction = new Vector2((float)Math.Sin((double)this.owner.Rotation + MathHelper.ToRadians(this.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.owner.Rotation + MathHelper.ToRadians(this.moduleAttachedTo.facing)));
                 if (this.owner.GetAI().Target != null)
                     target = this.owner.GetAI().Target;
             }
