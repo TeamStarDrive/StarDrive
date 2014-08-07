@@ -854,9 +854,9 @@ namespace Ship_Game.Gameplay
         private Vector2 findVectorToMovingTarget(Vector2 OwnerPos, GameplayObject target)
         {
             float distance = Vector2.Distance(OwnerPos, target.Center);
-            Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(OwnerPos, target.Center)) * this.ProjectileSpeed) + this.owner.Velocity;
-            float timeToTarget = distance / dir.Length();
-            Vector2 projectedPosition = target.Center;
+            Vector2 projectedPosition = (Vector2.Normalize(this.findVectorToTarget(OwnerPos, target.Center)) * this.ProjectileSpeed) + this.owner.Velocity;
+            float timeToTarget = distance / projectedPosition.Length();
+            projectedPosition = target.Center;
             projectedPosition = target.Center + (target.Velocity * timeToTarget);
             projectedPosition = projectedPosition - (this.owner.Velocity * timeToTarget);
             distance = Vector2.Distance(OwnerPos, projectedPosition);
@@ -865,10 +865,7 @@ namespace Ship_Game.Gameplay
             projectedPosition = projectedPosition - (this.owner.Velocity * timeToTarget);
             Vector2 FireDirection = this.findVectorToTarget(OwnerPos, projectedPosition);
             FireDirection.Y = FireDirection.Y * -1f;
-            FireDirection = Vector2.Normalize(FireDirection);
-            Vector2 bearingToTarget = this.findVectorToTarget(OwnerPos, projectedPosition);
-            bearingToTarget.Y = bearingToTarget.Y * -1f;
-            return Vector2.Normalize(bearingToTarget);
+            return Vector2.Normalize(FireDirection);
         }
 
 		public virtual void Fire(GameplayObject target)
