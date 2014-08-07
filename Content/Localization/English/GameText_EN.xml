@@ -7687,6 +7687,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6120</Index>
       <Text>Ordnance/s</Text>
     </Token>
+	<Token>
+      <Index>6121</Index>
+      <Text>Range+</Text>
+    </Token>
 	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -7755,6 +7759,9 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7016</Index>
       <Text>Indicates the maximum amount of damage repaired by beams from this system. </Text>
     </Token>
+	<Token>
+      <Index>7017</Index>
+      <Text>Indicates sensor bonus added by this module. Sensor bonuses add onto sensor range - only the highest bonus will apply.</Text>
+    </Token>
   </TokenList>
-  
 </LocalizationFile>
