@@ -344,3 +344,133 @@ C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\S
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\SelectionBox\icon_formation_bright_active.xnb
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\StarDrive.exe
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\StarDrive.pdb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\EconomicResearchStrategy\Expansionists.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\EconomicResearchStrategy\Generalists.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\EconomicResearchStrategy\Industrialists.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\EconomicResearchStrategy\Militarists.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\EconomicResearchStrategy\Technologists.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Capital.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Carrier.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Construction.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Corvette.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Cruiser.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Fighter.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Freighter.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Frigate.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Platform.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Scout.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Station.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Supply.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\ShipRoles\Troop.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Ace Training.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Advanced Materials.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Aeroponics.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Ancient Ion Technology.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Ancient Repulsor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Ancient Repulsuor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Ancient Shield Technology.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\AntiMatter.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Armor Phasing.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Armor Piercing.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Armor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\ArmorTheory.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Ascension Schematics.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Ascension.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Assimilation.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\BattleRaiders.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Battleships.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Biospheres.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\CanopyShields.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Centralized Banking.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Colonization.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\CombatReadiness.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Cruisers.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Cryogenics.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Deep Core Mining.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Disintegrator Array.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Disruptors.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\ECM.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\EMP Cannons.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\EMPTorpedo.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Energy Cannons.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Energy Weapons.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Energy.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\EnergyShielding.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Fighter Shields.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\FighterTheory.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Fleet Supply.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\FrigateConstruction.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\FuelCell1.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\FuelCell2.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Fusion Beam.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Genetic Manipulation.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Guided Missiles.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\HeavyFighterHull.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\HeavyShields.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\IndustrialFoundations.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\InertialDampers.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Integrated Systems.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Ionic Weaponry.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\IS Government.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\LargeFreighters.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Logistics.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Magnetic Artillery.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\MediumFreighters.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Mercantilism.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Military.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\MissileArmor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\MissileTheory.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Nanoweave Metallurgy.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Owlwok Freedom.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Phased Ordnance.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Phasors.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Photon Cannons.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Physics.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Planetary Defense.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Planetary Shielding.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Plasma Ordnance.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\PlasmaThrowers.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Point Defense.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Polaron Cannons.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Privatization.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Pulse Capacitors.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Quantum Torpedo Cannon.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Rapid Cloning.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\ReactionDrive.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Reactive Armor.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Remnant Computing.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Remnant Studies.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\ScientificFoundations.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Secret.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Shipboard Medicine.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\ShipboardAssault.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Shipyards.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Siphon Beam.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\SlipstreamProjection.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\SpaceWeapons.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\StarshipConstruction.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Subspace Artillery.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\SubspaceCommunication.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\SubspaceTheory.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\SubspatialDynamics.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Tachyon Scanning.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Terraforming.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Thalaron Blaster.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Titans.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Torpedo.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Tractor Beam.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Vertical Farming.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Xeno Computing.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Xeno Intelligence.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\Xeno Linguistics.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\XenoFarming.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\XenoGenetics.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Technology\XenoMining.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc120.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc15.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc180.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc20.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc360.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc45.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc60.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc90.xnb
