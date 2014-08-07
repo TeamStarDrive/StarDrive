@@ -211,6 +211,8 @@ namespace Ship_Game.Gameplay
 
         public bool isRepairBeam;
 
+        public float ExplosionRadiusVisual = 4.5f;
+
 		public static AudioListener audioListener
 		{
 			get;
@@ -311,6 +313,7 @@ namespace Ship_Game.Gameplay
 			};
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.Health = this.HitPoints;
 			projectile.WeaponEffectType = this.WeaponEffectType;
@@ -423,6 +426,7 @@ namespace Ship_Game.Gameplay
             }
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.Health = this.HitPoints;
 			projectile.WeaponEffectType = this.WeaponEffectType;
@@ -488,6 +492,7 @@ namespace Ship_Game.Gameplay
 			};
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.Health = this.HitPoints;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.WeaponEffectType = this.WeaponEffectType;
@@ -604,6 +609,7 @@ namespace Ship_Game.Gameplay
 			}
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.Health = this.HitPoints;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.WeaponEffectType = this.WeaponEffectType;
@@ -695,6 +701,7 @@ namespace Ship_Game.Gameplay
 			};
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.WeaponEffectType = this.WeaponEffectType;
 			projectile.WeaponType = this.WeaponType;
@@ -787,6 +794,7 @@ namespace Ship_Game.Gameplay
 			}
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.Health = this.HitPoints;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.WeaponEffectType = this.WeaponEffectType;
@@ -1464,6 +1472,7 @@ namespace Ship_Game.Gameplay
 			};
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.WeaponEffectType = this.WeaponEffectType;
 			projectile.WeaponType = this.WeaponType;
