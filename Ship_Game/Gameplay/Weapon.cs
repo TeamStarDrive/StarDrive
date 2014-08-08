@@ -787,20 +787,43 @@ namespace Ship_Game.Gameplay
 			return Vec2Target;
 		}
 
-        private Vector2 findVectorToMovingTarget(Vector2 OwnerPos, GameplayObject target)
+        //Added by McShooterz: Vanilla Stardrive method for targeting
+        private Vector2 findVectorToMovingTarget2(Vector2 OwnerPos, GameplayObject target)
         {
             float distance = Vector2.Distance(OwnerPos, target.Center);
-            Vector2 projectedPosition = (Vector2.Normalize(this.findVectorToTarget(OwnerPos, target.Center)) * this.ProjectileSpeed) + this.owner.Velocity;
+            Vector2 projectedPosition = (Vector2.Normalize(this.findVectorToTarget(OwnerPos, target.Center)) * this.ProjectileSpeed) + this.GetOwner().Velocity;
             float timeToTarget = distance / projectedPosition.Length();
             projectedPosition = target.Center;
             projectedPosition = target.Center + (target.Velocity * timeToTarget);
-            projectedPosition = projectedPosition - (this.owner.Velocity * timeToTarget);
+            projectedPosition = projectedPosition - (this.GetOwner().Velocity * timeToTarget);
             distance = Vector2.Distance(OwnerPos, projectedPosition);
-            timeToTarget = distance / this.ProjectileSpeed;
+            Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(OwnerPos, projectedPosition)) * this.ProjectileSpeed) + this.GetOwner().Velocity;
+            timeToTarget = distance / dir.Length();
             projectedPosition = target.Center + ((target.Velocity * timeToTarget) * 0.85f);
-            projectedPosition = projectedPosition - (this.owner.Velocity * timeToTarget);
+            //projectedPosition -= (this.GetOwner().Velocity * timeToTarget);
             Vector2 FireDirection = this.findVectorToTarget(OwnerPos, projectedPosition);
             FireDirection.Y = FireDirection.Y * -1f;
+            return Vector2.Normalize(FireDirection);
+        }
+
+        //Added by McShootez: Quadratic based targeting algorithm
+        private Vector2 findVectorToMovingTarget(Vector2 OwnerPos, GameplayObject target)
+        {
+            Vector2 FireDirection = target.Center - OwnerPos;
+            float a = Vector2.Dot(target.Velocity, target.Velocity) - (this.ProjectileSpeed * this.ProjectileSpeed);
+            float b = 2f * Vector2.Dot(target.Velocity, FireDirection);
+            float c = Vector2.Dot(FireDirection, FireDirection);
+            float p = -b / (2f * a);
+            float q = (float)Math.Sqrt((b * b) - 4 * a * c) / (2 * a);
+            float t1 = p - q;
+            float t2 = p + q;
+            float t;
+            if (t1 > t2 && t2 > 0)
+                t = t2;
+            else
+                t = t1;
+            Vector2 ProjectedPosition = target.Center + target.Velocity * t;
+            FireDirection = ProjectedPosition - OwnerPos;
             return Vector2.Normalize(FireDirection);
         }
 
