@@ -1139,6 +1139,136 @@ namespace Ship_Game.Gameplay
             return num;
         }
 
+
+        // ModInfo activation option for Maintenance Costs:
+
+        public float GetMaintCostRealism()
+        {
+            float maint = 0f;
+            float maintModReduction = 1;
+            string role = this.Role;
+            
+            //Free upkeep ships
+            if (role == null || this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
+                || (this.Mothership != null && (this.Role == "fighter" || this.Role == "corvette" || this.Role == "scout" || this.Role == "frigate")))
+            {
+                return 0f;
+            }
+            
+            // Calculate maintenance by proportion of ship cost, Duh.
+
+            if (this.Role == "fighter" || this.Role == "scout")
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepFighter;
+            else if (this.Role == "corvette")
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepCorvette;
+            else if (this.Role == "frigate" || this.Role == "destroyer")
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepFrigate;
+            else if (this.Role == "cruiser")
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepCruiser;
+            else if (this.Role == "carrier")
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepCarrier;
+            else if (this.Role == "capital")
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepCapital;
+            else if (this.Role == "freighter")
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepFreighter;
+            else if (this.Role == "platform")
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepPlatform;
+            else if (this.Role == "station")
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepStation;
+            else if (this.Role == "drone" && GlobalStats.ActiveMod.mi.useDrones)
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepDrone;
+            else
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
+
+
+            if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
+            else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
+                maint = this.GetCost(this.loyalty) * 0.004f;
+
+            // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
+
+            if (this.GetShipData().HasFixedUpkeep && this.loyalty != null)
+            {
+                maint = GetShipData().FixedUpkeep;
+            }      
+
+            // Modifiers below here   
+
+            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
+            {
+                maint *= 0.5f;
+            }
+
+            if (GlobalStats.OptionIncreaseShipMaintenance > 1)
+            {
+                maintModReduction = GlobalStats.OptionIncreaseShipMaintenance;
+                maint *= (float)maintModReduction;
+            }
+            return maint;
+
+        }
+
+        public float GetMaintCostRealism(Empire empire)
+        {
+            float maint = 0f;
+            float maintModReduction = 1;
+            string role = this.Role;
+
+            // Calculate maintenance by proportion of ship cost, Duh.
+                if (this.Role == "fighter" || this.Role == "scout")
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepFighter;
+                else if (this.Role == "corvette")
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepCorvette;
+                else if (this.Role == "frigate" || this.Role == "destroyer")
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepFrigate;
+                else if (this.Role == "cruiser")
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepCruiser;
+                else if (this.Role == "carrier")
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepCarrier;
+                else if (this.Role == "capital")
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepCapital;
+                else if (this.Role == "freighter")
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepFreighter;
+                else if (this.Role == "platform")
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepPlatform;
+                else if (this.Role == "station")
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepStation;
+                else if (this.Role == "drone" && GlobalStats.ActiveMod.mi.useDrones)
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepDrone;
+                else
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
+
+                if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
+                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
+                else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
+                    maint = this.GetCost(empire) * 0.004f;
+
+
+            // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
+
+            if (this.GetShipData().HasFixedUpkeep && this.loyalty != null)
+            {
+                maint = GetShipData().FixedUpkeep;
+            }
+
+            // Modifiers below here   
+
+            if ((this.Role == "freighter" || this.Role == "platform") && empire != null && !empire.isFaction && empire.data.Privatization)
+            {
+                maint *= 0.5f;
+            }
+
+            if (GlobalStats.OptionIncreaseShipMaintenance > 1)
+            {
+                maintModReduction = GlobalStats.OptionIncreaseShipMaintenance;
+                maint *= (float)maintModReduction;
+            }
+            return maint;
+
+        }
+            
+
         public float GetMaintCost()
         {
             float maint = 0f;
