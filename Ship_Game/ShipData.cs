@@ -24,6 +24,10 @@ namespace Ship_Game
 
 		public short FixedCost;
 
+        public bool HasFixedUpkeep;
+
+        public float FixedUpkeep;
+
 		public bool IsShipyard;
 
 		public bool IsOrbitalDefense;
