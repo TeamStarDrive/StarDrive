@@ -121,6 +121,7 @@ namespace Ship_Game.Gameplay
         {
             if (!ShipinBorders && !this.Pins.ContainsKey(ship.guid))
                 return;
+            
             if ( !this.Pins.ContainsKey(ship.guid))
             {
                 ThreatMatrix.Pin pin = new ThreatMatrix.Pin()
@@ -135,6 +136,8 @@ namespace Ship_Game.Gameplay
             }
             this.Pins[ship.guid].Velocity = ship.Center - this.Pins[ship.guid].Position;
             this.Pins[ship.guid].Position = ship.Center;
+            if (ship.Role == "Subspace Projector" && this.Pins[ship.guid].InBorders && ship.Active)
+                return;
             this.Pins[ship.guid].InBorders = ShipinBorders;
         }
         public void ClearBorders ()
@@ -176,6 +179,25 @@ namespace Ship_Game.Gameplay
             if(this.Pins[ship.guid].InBorders)
             return true;
             return false;
+        }
+        public List<Guid> GetAllGUIDsInOurBorders()
+        {
+            if(this.Pins.Values.Where(inborder => inborder.InBorders).Count()==0)
+                return null;
+            
+            List<Guid> temp = new List<Guid>();
+            foreach(Guid guid in this.Pins.Keys)
+            {
+               if(!this.Pins[guid].InBorders)
+                   continue;
+                temp.Add(guid);
+
+            }
+
+            
+            return temp;
+
+
         }
 
 		public class Pin
