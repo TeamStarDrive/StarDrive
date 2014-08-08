@@ -67,7 +67,15 @@ namespace Ship_Game
 		{
 			foreach (Planet p in this.us.GetPlanets())
 			{
-				if (p == null || p.system == null || this.DefenseDict.ContainsKey(p.system))
+				if(p.Owner==null&&p.BuildingList.Count ==0&& p.TroopsHere.Count >0 && p.GetGroundStrengthOther(this.us)>0  )
+                {
+                    foreach(Troop troop in p.TroopsHere.Where(loyalty=> loyalty.GetOwner() == this.us))
+                    {
+                        troop.Launch();
+                    }
+                }
+                
+                if (p == null || p.system == null || this.DefenseDict.ContainsKey(p.system))
 				{
 					continue;
 				}
@@ -110,7 +118,13 @@ namespace Ship_Game
 						SystemCommander systemCommander = entry.Value;
 						systemCommander.ValueToUs = systemCommander.ValueToUs + p.Fertility;
 						SystemCommander value1 = entry.Value;
-						value1.ValueToUs = value1.ValueToUs + p.MineralRichness;
+						//added by gremlin commodities increase defense desire
+                        value1.ValueToUs = value1.ValueToUs + p.MineralRichness;
+                        value.ValueToUs += p.BuildingList.Where(commodity=> commodity.IsCommodity).Count() ;
+                        if(this.us.data.Traits.Cybernetic >0)
+                        {
+                            value1.ValueToUs += p.MineralRichness;
+                        }
 					}
 					foreach (Planet other in entry.Key.PlanetList)
 					{
@@ -300,7 +314,7 @@ namespace Ship_Game
 			{
 				for (int i = 0; i < p.TroopsHere.Count; i++)
 				{
-					if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == this.us)
+					if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == this.us )//&& !p.RecentCombat && p.ParentSystem.combatTimer <=0)
 					{
 						GroundTroops.Add(p.TroopsHere[i]);
 					}
@@ -308,16 +322,18 @@ namespace Ship_Game
 			}
 			foreach (Ship ship2 in this.us.GetShips())
 			{
-				if (!(ship2.Role == "troop") || ship2.fleet != null)
+				if (!(ship2.Role == "troop") || ship2.fleet != null || ship2.GetAI().State != AIState.AwaitingOrders)
 				{
 					continue;
 				}
 				TroopShips.Add(ship2);
+
 			}
 			float TotalTroopStrength = 0f;
 			foreach (Troop t in GroundTroops)
 			{
-				TotalTroopStrength = TotalTroopStrength + (float)t.Strength;
+				
+                TotalTroopStrength = TotalTroopStrength + (float)t.Strength;
 			}
 			foreach (Ship ship3 in TroopShips)
 			{
@@ -335,7 +351,7 @@ namespace Ship_Game
 				entry.Value.TroopStrengthNeeded = entry.Value.PercentageOfValue * TotalTroopStrength;
 				foreach (Planet p in entry.Key.PlanetList)
 				{
-					if (p.Owner != this.us)
+					if (p.Owner != this.us )
 					{
 						continue;
 					}
@@ -369,7 +385,7 @@ namespace Ship_Game
 			foreach (Ship ship4 in TroopShips)
 			{
                 //added by gremlin troop defense fix?
-				if (ship4.TroopList.Count == 0 || ship4.GetAI().State !=AIState.AwaitingOrders)
+                if (ship4.TroopList.Count == 0 || ship4.GetAI().State != AIState.AwaitingOrders )
 				{
 					continue;
 				}
@@ -412,17 +428,20 @@ namespace Ship_Game
 			}
 			foreach (Troop troop in GroundTroops)
 			{
-				if (troop.GetPlanet() == null)
+                if (troop.GetPlanet() == null || troop.GetPlanet().CombatTimer > 0 || troop.GetPlanet().ParentSystem.combatTimer>0)
 				{
 					continue;
 				}
 				IOrderedEnumerable<SolarSystem> sortedSystems = 
 					from system in systems
-					orderby Vector2.Distance(system.Position, troop.GetPlanet().Position)
+                    orderby (int)(Vector2.Distance(system.Position, troop.GetPlanet().Position) / (UniverseData.UniverseWidth /5f))
+                    orderby system.combatTimer descending
+                    
 					select system;
 				foreach (SolarSystem solarSystem3 in sortedSystems)
 				{
-					if ((float)troop.Strength >= this.DefenseDict[solarSystem3].TroopStrengthNeeded)
+                    //added by gremlin Dont take troops from system that have combat. and prevent troop loop
+                    if (solarSystem3.combatTimer > 0 || (float)troop.Strength < this.DefenseDict[solarSystem3].TroopStrengthNeeded + (float)troop.Strength)
 					{
 						continue;
 					}
@@ -432,7 +451,8 @@ namespace Ship_Game
 						continue;
 					}
 					SystemCommander item1 = this.DefenseDict[solarSystem3];
-					item1.TroopStrengthNeeded = item1.TroopStrengthNeeded - (float)troop.Strength;
+                    //added by gremlin... Instead of lowering needed strength when removing a strength. increase it.
+					item1.TroopStrengthNeeded = item1.TroopStrengthNeeded + (float)troop.Strength;
 					if (solarSystem3.PlanetList.Count <= 0)
 					{
 						continue;

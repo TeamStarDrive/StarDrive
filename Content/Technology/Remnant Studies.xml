@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Remnant Studies</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>650</Cost>
+  <RootNode>0</RootNode>
+  <Name>Remnant Studies</Name>
+  <NameIndex>2144</NameIndex>
+  <DescriptionIndex>2145</DescriptionIndex>
+  <Secret>true</Secret>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Remnant Computing</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>AncientShield2kw</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>RemnantSmallReactor</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>RemnantSmallFuelCell</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

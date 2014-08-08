@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Armor Phasing</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>2500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Armor Phasing</Name>
+  <NameIndex>2032</NameIndex>
+  <DescriptionIndex>2033</DescriptionIndex>
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Armor Phasing</Name>
+      <Bonus>2</Bonus>
+      <BonusIndex>2034</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

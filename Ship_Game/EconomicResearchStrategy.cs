@@ -9,6 +9,11 @@ namespace Ship_Game
 
 		public List<EconomicResearchStrategy.Tech> TechPath = new List<EconomicResearchStrategy.Tech>();
 
+        public byte MilitaryPriority = 5;
+        public byte ExpansionPriority = 5;
+        public byte ResearchPriority = 5;
+        public byte IndustryPriority = 5;
+
 		public EconomicResearchStrategy()
 		{
 		}

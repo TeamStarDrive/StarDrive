@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Guided Missiles</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Anti-Frigate Missiles</Name>
+  <NameIndex>581</NameIndex>
+  <DescriptionIndex>582</DescriptionIndex>
+  <LongDescription>To engage larger enemy threats we need to upgrade our current missile technology to have longer ranges and increased payloads</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Torpedo</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>ECM</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>MissileLauncher1x3</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>MissileLauncher3x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Missile Silo</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

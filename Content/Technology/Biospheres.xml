@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Biospheres</UID>
+  <TechnologyType>Colonization</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Biospheres</Name>
+  <NameIndex>524</NameIndex>
+  <DescriptionIndex>525</DescriptionIndex>
+  <LongDescription>Biospheres are large geodesic dome structures capable of supporting many colonists in an artificial environment. For a barren planet to house a large population, biospheres are absolutely necessary. Build biospheres on uninhabitable land to make that land habitable. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>XenoFarming</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Biospheres</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

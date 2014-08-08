@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Xeno Linguistics</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>150</Cost>
+  <RootNode>0</RootNode>
+  <Name>Xeno Linguistics</Name>
+  <NameIndex>696</NameIndex>
+  <DescriptionIndex>697</DescriptionIndex>
+  <LongDescription>Spacefaring races typically possess sufficient computing and linguistic sciences to "shake hands" on a workable trade speech in a matter of minutes. But the nuance of language can be lost in this translation and there are also those rare occasions where a language is so foreign that our computers cannot decipher it at all. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Xeno Computing</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Xeno Intelligence</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Alien Language Studies</Name>
+      <Bonus>0.2</Bonus>
+      <Description>Unlocks the ability to understand truly foreign creatures that you might encounter</Description>
+      <BonusIndex>698</BonusIndex>
+    </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Xenolinguistic Nuance</Name>
+      <Bonus>0.1</Bonus>
+      <BonusType>Diplomacy Bonus</BonusType>
+      <Description>A more nuanced understanding of alien languages provides a 10% bonus to diplomatic efforts</Description>
+      <BonusIndex>699</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

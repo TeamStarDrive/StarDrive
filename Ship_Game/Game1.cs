@@ -16,6 +16,7 @@ using System.Reflection;
 using Fasterflect;
 using System.Linq;
 using System.Threading;
+using System.Configuration;
 
 
 
@@ -61,7 +62,7 @@ namespace Ship_Game
 			this.graphics = new GraphicsDeviceManager(this)
 			{
 				MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
-				MinimumVertexShaderProfile = ShaderProfile.VS_2_0
+				MinimumVertexShaderProfile = ShaderProfile. VS_2_0
 			};
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive"));
@@ -215,8 +216,19 @@ namespace Ship_Game
 			else
 			{
 				e.GraphicsDeviceInformation.PresentationParameters.MultiSampleQuality = (quality == 1 ? 0 : 1);
-				e.GraphicsDeviceInformation.PresentationParameters.MultiSampleType = MultiSampleType.TwoSamples;
+                // added by gremlin video
+                e.GraphicsDeviceInformation.PresentationParameters.MultiSampleType = MultiSampleType.FourSamples;
+              
 			}
+
+            if (bool.Parse(ConfigurationManager.AppSettings["8XAntiAliasing"]) && adapter.CheckDeviceMultiSampleType(DeviceType.Hardware, adapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out quality))
+            {
+                // even if a greater quality is returned, we only want quality 0
+               e.GraphicsDeviceInformation.PresentationParameters.MultiSampleQuality = 0;
+                e.GraphicsDeviceInformation.PresentationParameters.MultiSampleType = MultiSampleType.EightSamples;
+                    
+            }
+
 			e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
 		}
 
@@ -228,8 +240,10 @@ namespace Ship_Game
                 height = 600;
             }
 			Form form = (Form)Control.FromHandle(base.Window.Handle);
+#if DEBUG
             if (mode == WindowMode.Fullscreen)
-                mode = WindowMode.Borderless;
+                mode = WindowMode.Borderless; 
+#endif
             switch (mode)
 			{
 				case Game1.WindowMode.Fullscreen:

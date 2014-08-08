@@ -166,6 +166,7 @@ namespace Ship_Game
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            GlobalStats.Statreset();
 		}
 
 		public RaceDesignScreen(GraphicsDevice device, MainMenuScreen mmscreen)
@@ -183,6 +184,7 @@ namespace Ship_Game
 				};
 				AllTraits.Add(te);
 			}
+            GlobalStats.Statreset();
 		}
 
 		private void AddKeyToText(ref string text, Keys key)
@@ -1197,6 +1199,26 @@ namespace Ship_Game
 					ToolTip.CreateTooltip(tip, base.ScreenManager);
 				}
 			}
+            else if (this.mode == RaceDesignScreen.GameMode.Elimination)
+            {
+                txt = Localizer.Token(6093);
+                tip = 165;
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
+                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                {
+                    ToolTip.CreateTooltip(tip, base.ScreenManager);
+                }
+            }
+            else if (this.mode == RaceDesignScreen.GameMode.Warlords)
+            {
+                txt = "War Lords";//Localizer.Token(2103);
+                tip = 112;
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
+                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                {
+                    ToolTip.CreateTooltip(tip, base.ScreenManager);
+                }
+            }
 			if (HelperFunctions.CheckIntersection(this.ScaleRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 			{
 				ToolTip.CreateTooltip(125, base.ScreenManager);
@@ -1861,7 +1883,7 @@ namespace Ship_Game
                     AudioManager.GetCue("blip_click").Play();
                     RaceDesignScreen gamemode = this;
                     gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Warlords);
-                    if (this.mode > RaceDesignScreen.GameMode.PreWarp)
+                    if (this.mode > RaceDesignScreen.GameMode.Elimination)
                     {
                         this.mode = RaceDesignScreen.GameMode.Sandbox;
                     }
@@ -2097,16 +2119,20 @@ namespace Ship_Game
 			ResourceManager.WhichModPath = "Content";
 			if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
 			{
-				ResourceManager.LoadEmpires();
+                //ResourceManager.WhichModPath = string.Concat("Mods/", GlobalStats.ActiveMod.ModPath);
+               
+                ResourceManager.LoadEmpires();
+                //ResourceManager.LoadSubsetEmpires();
 			}
 			else if (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
 			{
 				ResourceManager.LoadEmpires();
+                //ResourceManager.LoadSubsetEmpires();
 			}
-			else
-			{
-				ResourceManager.LoadSubsetEmpires();
-			}
+            else
+            {
+                ResourceManager.LoadSubsetEmpires();
+            }
 			if (GlobalStats.ActiveMod != null)
 			{
 				ResourceManager.WhichModPath = string.Concat("Mods/", GlobalStats.ActiveMod.ModPath);
@@ -2201,6 +2227,10 @@ namespace Ship_Game
 				ResourceManager.LoadHardcoreTechTree();
 				GlobalStats.HardcoreRuleset = true;
 			}
+            else if (this.mode == RaceDesignScreen.GameMode.Elimination)
+            {
+                GlobalStats.EliminationMode = true;
+            }
 			this.Singular = this.SingEntry.Text;
 			this.Plural = this.PlurEntry.Text;
 			this.HomeSystemName = this.HomeSystemEntry.Text;
@@ -2518,65 +2548,6 @@ namespace Ship_Game
                 this.RaceSummary.SpyMultiplier += t.trait.SpyMultiplier;
                 this.RaceSummary.Pack = t.trait.Pack;
                 this.RaceSummary.RepairMod += t.trait.RepairMod; 
-                /*
-				RacialTrait prototype1 = this.RaceSummary;
-				prototype1.Prototype = prototype1.Prototype + t.trait.Prototype;
-				RacialTrait consumptionModifier1 = this.RaceSummary;
-				consumptionModifier1.ConsumptionModifier = consumptionModifier1.ConsumptionModifier + t.trait.ConsumptionModifier;
-				RacialTrait diplomacyMod1 = this.RaceSummary;
-				diplomacyMod1.DiplomacyMod = diplomacyMod1.DiplomacyMod + t.trait.DiplomacyMod;
-				RacialTrait racialTrait1 = this.RaceSummary;
-				racialTrait1.EnergyDamageMod = racialTrait1.EnergyDamageMod + t.trait.EnergyDamageMod;
-				RacialTrait raceSummary2 = this.RaceSummary;
-				raceSummary2.MaintMod = raceSummary2.MaintMod + t.trait.MaintMod;
-				RacialTrait reproductionMod2 = this.RaceSummary;
-				reproductionMod2.ReproductionMod = reproductionMod2.ReproductionMod + t.trait.ReproductionMod;
-				RacialTrait researchMod2 = this.RaceSummary;
-				researchMod2.ResearchMod = researchMod2.ResearchMod + t.trait.ResearchMod;
-				RacialTrait shipCostMod2 = this.RaceSummary;
-				shipCostMod2.ShipCostMod = shipCostMod2.ShipCostMod + t.trait.ShipCostMod;
-				RacialTrait taxMod2 = this.RaceSummary;
-				taxMod2.TaxMod = taxMod2.TaxMod + t.trait.TaxMod;
-				RacialTrait productionMod2 = this.RaceSummary;
-				productionMod2.ProductionMod = productionMod2.ProductionMod + t.trait.ProductionMod;
-				RacialTrait modHpModifier2 = this.RaceSummary;
-				modHpModifier2.ModHpModifier = modHpModifier2.ModHpModifier + t.trait.ModHpModifier;
-				RacialTrait mercantile2 = this.RaceSummary;
-				mercantile2.Mercantile = mercantile2.Mercantile + t.trait.Mercantile;
-				RacialTrait groundCombatModifier2 = this.RaceSummary;
-				groundCombatModifier2.GroundCombatModifier = groundCombatModifier2.GroundCombatModifier + t.trait.GroundCombatModifier;
-				RacialTrait cybernetic2 = this.RaceSummary;
-				cybernetic2.Cybernetic = cybernetic2.Cybernetic + t.trait.Cybernetic;
-				RacialTrait blind2 = this.RaceSummary;
-				blind2.Blind = blind2.Blind + t.trait.Blind;
-				RacialTrait dodgeMod2 = this.RaceSummary;
-				dodgeMod2.DodgeMod = dodgeMod2.DodgeMod + t.trait.DodgeMod;
-				RacialTrait burrowers2 = this.RaceSummary;
-				burrowers2.Burrowers = burrowers2.Burrowers + t.trait.Burrowers;
-				RacialTrait aquatic2 = this.RaceSummary;
-				aquatic2.Aquatic = aquatic2.Aquatic + t.trait.Aquatic;
-				RacialTrait homeworldFertMod2 = this.RaceSummary;
-				homeworldFertMod2.HomeworldFertMod = homeworldFertMod2.HomeworldFertMod + t.trait.HomeworldFertMod;
-				RacialTrait homeworldRichMod2 = this.RaceSummary;
-				homeworldRichMod2.HomeworldRichMod = homeworldRichMod2.HomeworldRichMod + t.trait.HomeworldRichMod;
-				RacialTrait homeworldSizeMod2 = this.RaceSummary;
-				homeworldSizeMod2.HomeworldSizeMod = homeworldSizeMod2.HomeworldSizeMod + t.trait.HomeworldSizeMod;
-				RacialTrait militaristic2 = this.RaceSummary;
-				militaristic2.Militaristic = militaristic2.Militaristic + t.trait.Militaristic;
-				RacialTrait passengerModifier2 = this.RaceSummary;
-				passengerModifier2.PassengerModifier = passengerModifier2.PassengerModifier + t.trait.PassengerBonus;
-				RacialTrait bonusExplored2 = this.RaceSummary;
-				bonusExplored2.BonusExplored = bonusExplored2.BonusExplored + t.trait.BonusExplored;
-				RacialTrait spiritual = this.RaceSummary;
-				spiritual.Spiritual = spiritual.Spiritual + t.trait.Spiritual;
-				RacialTrait spyMultiplier = this.RaceSummary;
-				spyMultiplier.SpyMultiplier = spyMultiplier.SpyMultiplier + t.trait.SpyMultiplier;
-				if (!t.trait.Pack)
-				{
-					continue;
-				}
-				this.RaceSummary.Pack = t.trait.Pack;
-                */
 			}
 		}
 
@@ -2636,7 +2607,8 @@ namespace Ship_Game
         {
             Sandbox,
             Warlords,
-            PreWarp
+            PreWarp,
+            Elimination
         }
 
         public enum StarNum
