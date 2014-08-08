@@ -1291,7 +1291,10 @@ namespace Ship_Game.Gameplay
 					continue;
 				}
                 //this.FireSalvo(salvo.Direction, this.SalvoTarget);
-                this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
+                if (this.SalvoTarget != null)
+                    this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
+                else
+                    this.FireSalvo(salvo.Direction, null);
 				this.SalvoList.QueuePendingRemoval(salvo);
 			}
 			this.SalvoList.ApplyPendingRemovals();
