@@ -46,6 +46,8 @@ namespace Ship_Game.Gameplay
 
 		public float damageRadius;
 
+        public float explosionradiusmod;
+
 		public float duration;
 
 		public bool explodes;
@@ -270,7 +272,7 @@ namespace Ship_Game.Gameplay
 						}
 						if (!cleanupOnly && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 						{
-							ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * 4.5f, 2.5f, 0.2f);
+							ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * this.explosionradiusmod, 2.5f, 0.2f);
 							Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
 						}
 						if (this.system == null)
@@ -293,7 +295,7 @@ namespace Ship_Game.Gameplay
 				}
 				else if (this.weapon.FakeExplode && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 				{
-					ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * 4.5f, 2.5f, 0.2f);
+					ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * this.explosionradiusmod, 2.5f, 0.2f);
 					Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
 				}
 			}
