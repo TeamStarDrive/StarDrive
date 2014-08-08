@@ -212,6 +212,7 @@ namespace Ship_Game.Gameplay
         public bool isRepairBeam;
 
         public GameplayObject SalvoTarget = null;
+        public float ExplosionRadiusVisual = 4.5f;
 
 		public static AudioListener audioListener
 		{
@@ -263,6 +264,7 @@ namespace Ship_Game.Gameplay
 			};
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.Health = this.HitPoints;
 			projectile.WeaponEffectType = this.WeaponEffectType;
@@ -360,6 +362,144 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
+		protected virtual void CreateMissile(Vector2 direction, GameplayObject Target)
+		{
+			Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+			{
+				range = this.Range,
+				weapon = this,
+				explodes = this.explodes,
+				damageAmount = this.DamageAmount
+			};
+            if (this.owner.Level > 0)
+            {
+                projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
+            }
+			projectile.explodes = this.explodes;
+			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
+			projectile.speed = this.ProjectileSpeed;
+			projectile.Health = this.HitPoints;
+			projectile.WeaponEffectType = this.WeaponEffectType;
+			projectile.WeaponType = this.WeaponType;
+			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
+			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
+			this.ModifyProjectile(projectile);
+			projectile.InitializeMissile(projectile.speed, direction, Target);
+			projectile.Radius = this.ProjectileRadius;
+			this.owner.Projectiles.Add(projectile);
+			if (this.owner.InFrustum && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+			{
+				projectile.DieSound = true;
+				if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+				{
+					this.ToggleSoundOn = true;
+					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
+					this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+					this.ToggleCue.Play();
+					this.fireCue = AudioManager.GetCue(this.fireCueName);
+					if (!this.owner.isPlayerShip())
+					{
+						this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+					}
+					this.lastFireSound = 0f;
+					if (this.fireCue != null)
+					{
+						this.fireCue.Play();
+					}
+				}
+				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
+				{
+					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
+				}
+				if (this.InFlightCue != "")
+				{
+					projectile.InFlightCue = this.InFlightCue;
+				}
+				if (this.ToggleCue == null)
+				{
+					this.fireCue = AudioManager.GetCue(this.fireCueName);
+					if (!this.owner.isPlayerShip())
+					{
+						this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+					}
+					this.lastFireSound = 0f;
+					if (this.fireCue != null)
+					{
+						this.fireCue.Play();
+					}
+				}
+			}
+		}
+
+		protected virtual void CreateMissileFromPlanet(Vector2 direction, Planet p, GameplayObject Target)
+		{
+			Projectile projectile = new Projectile(p, direction)
+			{
+				range = this.Range,
+				weapon = this,
+				explodes = this.explodes,
+				damageAmount = this.DamageAmount
+			};
+			projectile.explodes = this.explodes;
+			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
+			projectile.Health = this.HitPoints;
+			projectile.speed = this.ProjectileSpeed;
+			projectile.WeaponEffectType = this.WeaponEffectType;
+			projectile.WeaponType = this.WeaponType;
+			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
+			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
+			this.ModifyProjectile(projectile);
+			projectile.InitializeMissilePlanet(projectile.speed, direction, Target, p);
+			projectile.Radius = this.ProjectileRadius;
+			p.Projectiles.Add(projectile);
+			this.planetEmitter = new AudioEmitter()
+			{
+				Position = new Vector3(p.Position, 2500f)
+			};
+			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && Vector2.Distance(projectile.Center, new Vector2(Weapon.universeScreen.camPos.X, Weapon.universeScreen.camPos.Y)) < 50000f)
+			{
+				projectile.DieSound = true;
+				if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+				{
+					this.ToggleSoundOn = true;
+					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
+					this.ToggleCue.Apply3D(Weapon.audioListener, this.planetEmitter);
+					this.ToggleCue.Play();
+					this.fireCue = AudioManager.GetCue(this.fireCueName);
+					if (!this.owner.isPlayerShip())
+					{
+						this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
+					}
+					this.lastFireSound = 0f;
+					if (this.fireCue != null)
+					{
+						this.fireCue.Play();
+					}
+				}
+				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
+				{
+					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
+				}
+				if (this.InFlightCue != "")
+				{
+					projectile.InFlightCue = this.InFlightCue;
+				}
+				if (this.ToggleCue == null)
+				{
+					this.fireCue = AudioManager.GetCue(this.fireCueName);
+					this.planetEmitter.Position = new Vector3(p.Position, -2500f);
+					this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
+					this.lastFireSound = 0f;
+					if (this.fireCue != null)
+					{
+						this.fireCue.Play();
+					}
+				}
+			}
+		}
+
 		protected virtual void CreateMouseBeam(Vector2 destination)
 		{
 			Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent())
@@ -426,6 +566,7 @@ namespace Ship_Game.Gameplay
 			}
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.Health = this.HitPoints;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.WeaponEffectType = this.WeaponEffectType;
@@ -520,6 +661,7 @@ namespace Ship_Game.Gameplay
 			};
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.WeaponEffectType = this.WeaponEffectType;
 			projectile.WeaponType = this.WeaponType;
@@ -598,6 +740,52 @@ namespace Ship_Game.Gameplay
 				{
 				}
 			}
+		}
+
+		protected virtual void CreateProjectilesNoSound(Vector2 direction)
+		{
+			Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+			{
+				range = this.Range,
+				weapon = this,
+				explodes = this.explodes,
+				damageAmount = this.DamageAmount
+			};
+			if (this.owner.Level > 0)
+			{
+                projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
+			}
+			projectile.explodes = this.explodes;
+			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
+			projectile.Health = this.HitPoints;
+			projectile.speed = this.ProjectileSpeed;
+			projectile.WeaponEffectType = this.WeaponEffectType;
+			projectile.WeaponType = this.WeaponType;
+			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
+			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
+			this.ModifyProjectile(projectile);
+			projectile.Initialize(projectile.speed, direction, this.moduleAttachedTo.Center);
+			projectile.Radius = this.ProjectileRadius;
+			if (this.Animated == 1)
+			{
+				string remainder = 0.ToString("00000.##");
+				projectile.texturePath = string.Concat(this.AnimationPath, remainder);
+			}
+			if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView)
+			{
+				projectile.DieSound = true;
+				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
+				{
+					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
+				}
+				if (this.InFlightCue != "")
+				{
+					projectile.InFlightCue = this.InFlightCue;
+				}
+			}
+			this.owner.Projectiles.Add(projectile);
+			projectile = null;
 		}
 
 		protected virtual void CreateTargetedBeam(Vector2 destination, GameplayObject target)
@@ -1175,6 +1363,7 @@ namespace Ship_Game.Gameplay
 			};
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
+            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.WeaponEffectType = this.WeaponEffectType;
 			projectile.WeaponType = this.WeaponType;
