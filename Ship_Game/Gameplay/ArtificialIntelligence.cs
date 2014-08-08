@@ -2182,15 +2182,6 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-            /*
-			foreach (Weapon weapon in this.Owner.Weapons)
-			{
-				if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || !weapon.IsRepairDrone)
-				{
-					continue;
-				}
-				this.DoRepairDroneLogic(weapon, elapsedTime);
-			}*/
 			if (this.Target != null && !this.Target.Active)
 			{
 				this.Target = null;
@@ -2350,14 +2341,10 @@ namespace Ship_Game.Gameplay
 							{
 								continue;
 							}
-							if (weapon.isBeam)
-							{
-								weapon.FireTargetedBeam(this.fireTarget.Center, this.fireTarget);
-							}
-							else
-							{
-                                weapon.Fire(this.fireTarget);
-							}
+                            if (weapon.isBeam)
+                                weapon.FireTargetedBeam(this.fireTarget.Center, this.fireTarget);
+                            else
+                                CalculateAndFire(weapon, this.fireTarget, false);
 						}
 						else
 						{
@@ -2389,15 +2376,56 @@ namespace Ship_Game.Gameplay
 						{
 							continue;
 						}
-						if (!(this.fireTarget is Projectile))
-						{
-							continue;
-						}
-                        weapon.Fire(this.fireTarget);
+                        CalculateAndFire(weapon, this.fireTarget, false);
 					}
 				}
 			}
-		}   
+		}
+
+        public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
+        {
+            float distance = Vector2.Distance(weapon.Center, target.Center);
+            Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
+            float timeToTarget = distance / dir.Length();
+            Vector2 projectedPosition = target.Center;
+            if (target is Projectile)
+            {
+                projectedPosition = target.Center + (target.Velocity * timeToTarget);
+                projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
+                distance = Vector2.Distance(weapon.Center, projectedPosition);
+                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
+                timeToTarget = distance / dir.Length();
+                projectedPosition = target.Center + ((target.Velocity * timeToTarget) * 0.85f);
+                projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
+            }
+            else if (!(target is Ship))
+            {
+                projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
+                projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
+                distance = Vector2.Distance(weapon.Center, projectedPosition);
+                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
+                timeToTarget = distance / dir.Length();
+                projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
+                projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
+            }
+            else
+            {
+                projectedPosition = target.Center + (target.Velocity * timeToTarget);
+                projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
+                distance = Vector2.Distance(weapon.Center, projectedPosition);
+                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
+                timeToTarget = distance / dir.Length();
+                projectedPosition = target.Center + ((target.Velocity * timeToTarget) * 0.85f);
+                projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
+            }
+            Vector2 FireDirection = this.findVectorToTarget(weapon.Center, projectedPosition);
+            FireDirection.Y = FireDirection.Y * -1f;
+            FireDirection = Vector2.Normalize(FireDirection);
+            if (SalvoFire)
+                weapon.FireSalvo(FireDirection, target);
+            else
+                weapon.Fire(FireDirection, target);
+        }
 
 		private void FireOnTargetNonVisible(Weapon w, GameplayObject fireTarget)
 		{
