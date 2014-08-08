@@ -356,7 +356,7 @@ namespace Ship_Game.Gameplay
 		{
 			DebugInfoScreen.ProjCreated = DebugInfoScreen.ProjCreated + 1;
 			this.direction = direction;
-			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
+            this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			if (this.moduleAttachedTo == null)
 			{
 				this.Center = pos;
@@ -370,9 +370,7 @@ namespace Ship_Game.Gameplay
 			this.radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
 			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
-			this.duration = this.range / initialSpeed;
-			Projectile projectile = this;
-			projectile.duration = projectile.duration + this.duration * 0.25f;
+            this.duration = this.range / initialSpeed * 1.5f;
 			if (this.weapon.Tag_SpaceBomb)
 			{
 				this.duration = 5f;
@@ -504,9 +502,7 @@ namespace Ship_Game.Gameplay
 			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			this.radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
-			this.duration = this.range / initialSpeed;
-			Projectile projectile = this;
-			projectile.duration = projectile.duration + this.duration * 0.25f;
+            this.duration = this.range / initialSpeed * 1.5f;
 			if (this.weapon.Tag_SpaceBomb)
 			{
 				this.duration = 5f;

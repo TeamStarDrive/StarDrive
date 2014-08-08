@@ -237,6 +237,15 @@ namespace Ship_Game.Gameplay
 
         public float ECM;
 
+        public float SensorBonus;
+        //Transporter Values
+        public float TransporterTimerConstant = 5.0f;
+        public float TransporterTimer;
+        public float TransporterRange;
+        public float TransporterPower;
+        public float TransporterOrdnance;
+
+
 		public bool IsWeapon
 		{
 			get
@@ -343,8 +352,7 @@ namespace Ship_Game.Gameplay
 						}
 						else if (this.Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
 						{
-							Ship mechanicalBoardingDefense = this.Parent;
-							mechanicalBoardingDefense.MechanicalBoardingDefense = mechanicalBoardingDefense.MechanicalBoardingDefense - 1f;
+                            this.Parent.MechanicalBoardingDefense -= 1f;
 						}
 					}
 					if ((source as Beam).weapon.SiphonDamage > 0f)
@@ -573,8 +581,7 @@ namespace Ship_Game.Gameplay
 						}
 						else if (this.Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
 						{
-							Ship mechanicalBoardingDefense = this.Parent;
-							mechanicalBoardingDefense.MechanicalBoardingDefense = mechanicalBoardingDefense.MechanicalBoardingDefense - 1f;
+                            this.Parent.MechanicalBoardingDefense -= 1f;
 						}
 					}
 					if ((source as Beam).weapon.MassDamage > 0f)
