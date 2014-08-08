@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
+using System.Collections.Concurrent;
 
 namespace Ship_Game
 {
@@ -817,7 +819,8 @@ namespace Ship_Game
 
         public List<Ship> GetShipsInOurBorders()
         {
-            return this.UnownedShipsInOurBorders;
+            //return this.UnownedShipsInOurBorders;
+            return ShipsInOurBorders();
         }
 
         public void UpdateKnownShipsORIG()
@@ -937,140 +940,150 @@ namespace Ship_Game
             }
             //added by gremlin ships in border search
             //for (int i = 0; i < Empire.universeScreen.MasterShipList.Count; i++)
-            Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>
-            {
-                Ship nearby = Empire.universeScreen.MasterShipList[i];
-                if (nearby.loyalty != this)
-                {
-                    List<Ship> toadd = new List<Ship>();
-                    bool flag = false;
-                    bool border = false;
-                    lock (GlobalStats.SensorNodeLocker)
-                    {
+            var source = Empire.universeScreen.MasterShipList.ToArray();
+            var rangePartitioner = Partitioner.Create(0, source.Length);
+            
+            //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>  
+            Parallel.ForEach(rangePartitioner, (range, loopState) =>
+       {
+           for (int i = range.Item1; i < range.Item2; i++)
+           {
+               Ship nearby = Empire.universeScreen.MasterShipList[i];
+               if (nearby.loyalty != this)
+               {
+                   List<Ship> toadd = new List<Ship>();
+                   bool flag = false;
+                   bool border = false;
+                   lock (GlobalStats.SensorNodeLocker)
+                   {
 
-   
-                        foreach (Empire.InfluenceNode node in this.SensorNodes)
-                        //Parallel.ForEach<Empire.InfluenceNode>(this.SensorNodes, (node, status) =>
-                        {
-                            if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
-                            {
+
+                       foreach (Empire.InfluenceNode node in this.SensorNodes)
+                       //Parallel.ForEach<Empire.InfluenceNode>(this.SensorNodes, (node, status) =>
+                       {
+                           if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
+                           {
                                // this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
-                                continue;
-                                //return;
-                            }
-                            if (!this.Relationships[nearby.loyalty].Known)
-                            {
-                                this.DoFirstContact(nearby.loyalty);
-                            }
-                            //toadd.Add(nearby);
-                            flag = true;
-                            if ((node.KeyedObject is Ship && ((node.KeyedObject as Ship).inborders || (node.KeyedObject as Ship).Name == "Subspace Projector")) || node.KeyedObject is SolarSystem)
-                            {
-                                border = true;
-                                if (this.Relationships[nearby.loyalty].AtWar)
-                                    nearby.IsIndangerousSpace = true;
-                                else if (this.Relationships[nearby.loyalty].Treaty_Alliance)
-                                    nearby.IsInFriendlySpace = true;
-                                else if (this.Relationships[nearby.loyalty].Treaty_OpenBorders || this.Relationships[nearby.loyalty].Treaty_NAPact)
-                                    nearby.IsInNeutralSpace = true;
-                            }
-                            //this.GSAI.ThreatMatrix.UpdatePin(nearby);
-                            if (!this.isPlayer)
-                            {
-                                break;
+                               continue;
+                               //return;
+                           }
+                           if (!this.Relationships[nearby.loyalty].Known)
+                           {
+                               this.DoFirstContact(nearby.loyalty);
+                           }
+                           //toadd.Add(nearby);
+                           flag = true;
+                           if ((node.KeyedObject is Ship 
+                               && ((node.KeyedObject as Ship).inborders //&& Vector2.Distance(nearby.Position,(node.KeyedObject as Ship).Position ) <300000)
+                               || (node.KeyedObject as Ship).Name == "Subspace Projector" || (node.KeyedObject as Ship).GetAI().State == AIState.SystemTrader)) || node.KeyedObject is SolarSystem)
+                           {
+                               border = true;
+                               if (this.Relationships[nearby.loyalty].AtWar)
+                                   nearby.IsIndangerousSpace = true;
+                               else if (this.Relationships[nearby.loyalty].Treaty_Alliance)
+                                   nearby.IsInFriendlySpace = true;
+                               else if (this.Relationships[nearby.loyalty].Treaty_OpenBorders || this.Relationships[nearby.loyalty].Treaty_NAPact)
+                                   nearby.IsInNeutralSpace = true;
+                           }
+                           //this.GSAI.ThreatMatrix.UpdatePin(nearby);
+                           if (!this.isPlayer)
+                           {
+                               break;
 
-                                //status.Stop();
-                                //return;
-                            }
-                            nearby.inSensorRange = true;
-                            if (nearby.GetSystem() == null || !this.isFaction && !nearby.loyalty.isFaction && !this.Relationships[nearby.loyalty].AtWar)
-                            {
-                                break;
+                               //status.Stop();
+                               //return;
+                           }
+                           nearby.inSensorRange = true;
+                           if (nearby.GetSystem() == null || !this.isFaction && !nearby.loyalty.isFaction && !this.Relationships[nearby.loyalty].AtWar)
+                           {
+                               break;
 
-                                //status.Stop();
-                                //return;
-
-
-
-                            }
-
-                            nearby.GetSystem().DangerTimer = 120f;
-                            break;
-                            //status.Stop();
-                            //return;
+                               //status.Stop();
+                               //return;
 
 
-                            //status.Stop();
-                        }//);
-                        if (flag)
-                        {
-                            toadd.Add(nearby);
-                            this.GSAI.ThreatMatrix.UpdatePin(nearby,border);
-                            //if (border)
-                            //{
-                            //   this.GSAI.ThreatMatrix.Pins. 
-                            //    //lock (this.UnownedShipsInOurBorders)
-                            //    //    this.UnownedShipsInOurBorders.Add(nearby);
-                            //}
-                            
-                        }
-                    }
-                    lock (GlobalStats.KnownShipsLock)
-                    {
-                        foreach (Ship ship in toadd)
-                        {
 
-                            lock (this.KnownShips)
-                                this.KnownShips.Add(ship);
+                           }
+
+                           nearby.GetSystem().DangerTimer = 120f;
+                           break;
+                           //status.Stop();
+                           //return;
 
 
-                        }
-                       
-                    }
-                    toadd.Clear();
-                }
-                else
-                {
-                    nearby.inborders = false;
-                    lock (GlobalStats.KnownShipsLock)
-                    {
-                        lock (this.KnownShips)
-                            this.KnownShips.Add(nearby);
-                    }
-                    if (this.isPlayer)
-                    {
-                        nearby.inSensorRange = true;
-                    }
-                    lock (GlobalStats.BorderNodeLocker)
-                    {
-                        foreach (Empire.InfluenceNode node in this.BorderNodes)
-                        {
-                            if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
-                            {
-                                continue;
-                            }
-                            nearby.inborders = true;
-                            break;
-                        }
-                        foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.Relationships)
-                        {
-                            if (Relationship.Key != this || !Relationship.Value.Treaty_OpenBorders)
-                            {
-                                continue;
-                            }
-                            foreach (Empire.InfluenceNode node in Relationship.Key.BorderNodes)
-                            {
-                                if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
-                                {
-                                    continue;
-                                }
-                                nearby.inborders = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            });
+                           //status.Stop();
+                       }//);
+                       if (flag)
+                       {
+                           toadd.Add(nearby);
+                           
+                           this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
+                           //if (border)
+                           //{
+                           //   this.GSAI.ThreatMatrix.Pins. 
+                           //    //lock (this.UnownedShipsInOurBorders)
+                           //    //    this.UnownedShipsInOurBorders.Add(nearby);
+                           //}
+
+                       }
+                   }
+                   lock (GlobalStats.KnownShipsLock)
+                   {
+                       foreach (Ship ship in toadd)
+                       {
+
+                           lock (this.KnownShips)
+                               this.KnownShips.Add(ship);
+
+
+                       }
+
+                   }
+                   toadd.Clear();
+               }
+               else
+               {
+                   nearby.inborders = false;
+                   lock (GlobalStats.KnownShipsLock)
+                   {
+                       lock (this.KnownShips)
+                           this.KnownShips.Add(nearby);
+                   }
+                   if (this.isPlayer)
+                   {
+                       nearby.inSensorRange = true;
+                   }
+                   lock (GlobalStats.BorderNodeLocker)
+                   {
+                       foreach (Empire.InfluenceNode node in this.BorderNodes)
+                       {
+                           if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
+                           {
+                               continue;
+                           }
+                           nearby.inborders = true;
+                           break;
+                       }
+                       foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.Relationships)
+                       {
+                           if (Relationship.Key != this || !Relationship.Value.Treaty_OpenBorders)
+                           {
+                               continue;
+                           }
+                           foreach (Empire.InfluenceNode node in Relationship.Key.BorderNodes)
+                           {
+                               if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
+                               {
+                                   continue;
+                               }
+                               nearby.inborders = true;
+                               break;
+                           }
+                       }
+                   }
+               }
+           }
+       });
         }
         public Dictionary<Empire, Relationship> GetRelations()
         {
@@ -2394,6 +2407,23 @@ namespace Ship_Game
             this.OwnedShips.ApplyPendingRemovals();
         }
 
+        private List<Ship> ShipsInOurBorders()
+        {
+            List<Guid> guid = new List<Guid>();
+            List<Ship> ships = new List<Ship>();
+            guid = this.GetGSAI().ThreatMatrix.GetAllGUIDsInOurBorders();
+            if (guid==null)
+                return ships;
+            
+            foreach(Guid shipGuid in guid)
+            
+            {
+               Ship ship = Empire.universeScreen.MasterShipList.Where(Guid => Guid.guid == shipGuid).First();
+               if (ship != null)
+                   ships.Add(ship);
+            }
+            return ships;
+        }
         public class InfluenceNode
         {
             public Vector2 Position;
@@ -2401,5 +2431,7 @@ namespace Ship_Game
             public bool DrewThisTurn;
             public float Radius;
         }
+
+        
     }
 }
