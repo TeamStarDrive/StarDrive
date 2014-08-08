@@ -27,8 +27,6 @@ namespace Ship_Game
 
 		private DropOptions ScoutDropDown;
 
-		public Ship itemToBuild;
-
 		public AutomationWindow(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
 			this.screen = screen;
@@ -156,11 +154,11 @@ namespace Ship_Game
 
 		public void SetDropDowns()
 		{
-			string Current = this.screen.player.data.DefaultSmallTransport;
-			if (this.AutoFreighterDropDown.Options.Count > 0)
-			{
-				Current = this.AutoFreighterDropDown.Options[this.AutoFreighterDropDown.ActiveIndex].Name;
-			}
+			string Current;
+            if (this.screen.player.data.CurrentAutoFreighter != "")
+                Current = this.screen.player.data.CurrentAutoFreighter;
+            else
+                Current = this.screen.player.data.DefaultSmallTransport;
 			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 160 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
@@ -179,11 +177,11 @@ namespace Ship_Game
 				this.AutoFreighterDropDown.ActiveIndex = this.AutoFreighterDropDown.Options.IndexOf(e);
 				EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoFreighter = this.AutoFreighterDropDown.Options[this.AutoFreighterDropDown.ActiveIndex].Name;
 			}
-			string CurrentColony = this.screen.player.data.DefaultColonyShip;
-			if (this.ColonyShipDropDown.Options.Count > 0)
-			{
-				CurrentColony = this.ColonyShipDropDown.Options[this.ColonyShipDropDown.ActiveIndex].Name;
-			}
+			string CurrentColony;
+            if (this.screen.player.data.CurrentAutoColony != "")
+                CurrentColony = this.screen.player.data.CurrentAutoColony;
+            else
+                CurrentColony = this.screen.player.data.DefaultColonyShip;
 			this.ColonyShipDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 80 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
@@ -209,7 +207,11 @@ namespace Ship_Game
 					EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoColony = this.ColonyShipDropDown.Options[this.ColonyShipDropDown.ActiveIndex].Name;
 				}
 			}
-			string CurrentScout = this.screen.player.data.StartingScout;
+			string CurrentScout;
+            if(this.screen.player.data.CurrentAutoScout != "")
+                CurrentScout = this.screen.player.data.CurrentAutoScout;
+            else
+                CurrentScout = this.screen.player.data.StartingScout;
 			if (this.ScoutDropDown.Options.Count > 0)
 			{
 				CurrentScout = this.ScoutDropDown.Options[this.ScoutDropDown.ActiveIndex].Name;

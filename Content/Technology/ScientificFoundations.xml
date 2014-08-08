@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>ScientificFoundations</UID>
+  <TechnologyType>Research</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Scientific Foundations</Name>
+  <NameIndex>652</NameIndex>
+  <DescriptionIndex>653</DescriptionIndex>
+  <LongDescription>Each new colony presents a fresh opportunity for scientific discovery, be it biological, geological, archeological, or otherwise.  Basic scientific facilities are critical to understanding our new homes and increasing our knowledge of the universe.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>XenoGenetics</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Research Lab</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

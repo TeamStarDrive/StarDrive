@@ -153,7 +153,7 @@ namespace Ship_Game
 				if (!this.outcome.WeHadIt)
 				{
 					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					string theirText = string.Concat("Technology Acquired: ", ResourceManager.TechTree[this.outcome.UnlockTech].Name);
+					string theirText = string.Concat("Technology Acquired: ", Localizer.Token(ResourceManager.TechTree[this.outcome.UnlockTech].NameIndex));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
 					TheirTextPos.Y = TheirTextPos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 					if (ResourceManager.TechTree[this.outcome.UnlockTech].ModulesUnlocked.Count > 0)

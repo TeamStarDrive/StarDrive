@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Audio;
 using System.Runtime.CompilerServices;
 
 namespace Ship_Game
@@ -334,49 +335,50 @@ namespace Ship_Game
 			this.p.ConstructionQueue.Add(qItem);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime){
-      this.ClickTimer += (float) gameTime.ElapsedGameTime.TotalSeconds;
-      if (this.p.Owner == null)
-        return;
-      this.p.UpdateIncomes();
-      Vector2 pos;
-      // ISSUE: explicit reference operation
-      // ISSUE: variable of a reference type
-      //Vector2& local1 = @pos;
-      MouseState state1 = Mouse.GetState();
-      //double num1 = (double) state1.X;
-      //state1 = Mouse.GetState();
-      //double num2 = (double) state1.Y;
-      // ISSUE: explicit reference operation
-      //^local1 = new Vector2((float) num1, (float) num2);
-      //interpreting code as:
-    //vector2 *local1 = &pos;
-    //*local1 = new vector2();
-    //equivalent to:
-      //pos=new vector2();
+		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            this.ClickTimer += (float) gameTime.ElapsedGameTime.TotalSeconds;
+            if (this.p.Owner == null)
+            return;
+            this.p.UpdateIncomes();
+            Vector2 pos;
+            // ISSUE: explicit reference operation
+            // ISSUE: variable of a reference type
+            //Vector2& local1 = @pos;
+            MouseState state1 = Mouse.GetState();
+            //double num1 = (double) state1.X;
+            //state1 = Mouse.GetState();
+            //double num2 = (double) state1.Y;
+            // ISSUE: explicit reference operation
+            //^local1 = new Vector2((float) num1, (float) num2);
+            //interpreting code as:
+            //vector2 *local1 = &pos;
+            //*local1 = new vector2();
+            //equivalent to:
+            //pos=new vector2();
             //cant be right, the value for pos is used but never set
-    //reconstructed from jd:
-      pos = new Vector2(state1.X, state1.Y);
-      this.LeftMenu.Draw();
-      this.RightMenu.Draw();
-      this.TitleBar.Draw();
-      this.LeftColony.Draw(this.ScreenManager);
-      this.RightColony.Draw(this.ScreenManager);
-      this.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(369), this.TitlePos, new Color(byte.MaxValue, (byte) 239, (byte) 208));
-      if (!GlobalStats.HardcoreRuleset)
-      {
-        this.FoodStorage.Max = this.p.MAX_STORAGE;
-        this.FoodStorage.Progress = this.p.FoodHere;
-        this.ProdStorage.Max = this.p.MAX_STORAGE;
-        this.ProdStorage.Progress = this.p.ProductionHere;
-      }
-      this.PlanetInfo.Draw();
-      this.pDescription.Draw();
-      this.pLabor.Draw();
-      this.pStorage.Draw();
-      this.subColonyGrid.Draw();
-      Rectangle destinationRectangle1 = new Rectangle(this.gridPos.X, this.gridPos.Y + 1, this.gridPos.Width - 4, this.gridPos.Height - 3);
-      this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetTiles/" + this.p.GetTile()], destinationRectangle1, Color.White);
+            //reconstructed from jd:
+            pos = new Vector2(state1.X, state1.Y);
+            this.LeftMenu.Draw();
+            this.RightMenu.Draw();
+            this.TitleBar.Draw();
+            this.LeftColony.Draw(this.ScreenManager);
+            this.RightColony.Draw(this.ScreenManager);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(369), this.TitlePos, new Color(byte.MaxValue, (byte) 239, (byte) 208));
+            if (!GlobalStats.HardcoreRuleset)
+            {
+            this.FoodStorage.Max = this.p.MAX_STORAGE;
+            this.FoodStorage.Progress = this.p.FoodHere;
+            this.ProdStorage.Max = this.p.MAX_STORAGE;
+            this.ProdStorage.Progress = this.p.ProductionHere;
+            }
+            this.PlanetInfo.Draw();
+            this.pDescription.Draw();
+            this.pLabor.Draw();
+            this.pStorage.Draw();
+            this.subColonyGrid.Draw();
+            Rectangle destinationRectangle1 = new Rectangle(this.gridPos.X, this.gridPos.Y + 1, this.gridPos.Width - 4, this.gridPos.Height - 3);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetTiles/" + this.p.GetTile()], destinationRectangle1, Color.White);
       foreach (PlanetGridSquare pgs in this.p.TilesList)
       {
         if (!pgs.Habitable)
@@ -507,10 +509,12 @@ namespace Ship_Game
           for (int index1 = 0; index1 < this.p.Owner.ShipsWeCanBuild.Count; ++index1)
           {
             string index2 = this.p.Owner.ShipsWeCanBuild[index1];
-            if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index2].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role)))
+            if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[index2].Role].Protected)
+                continue;
+            if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index2].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)))
             {
-              list.Add(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role));
-              this.buildSL.AddItem((object) new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role)));
+                list.Add(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner));
+                this.buildSL.AddItem((object)new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)));
             }
           }
           this.buildSL.indexAtTop = 0;
@@ -523,7 +527,7 @@ namespace Ship_Game
               for (int index2 = 0; index2 < this.p.Owner.ShipsWeCanBuild.Count; ++index2)
               {
                 string index3 = this.p.Owner.ShipsWeCanBuild[index2];
-                if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index3].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[index3].Role) == (entry.item as ModuleHeader).Text)
+                if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index3].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[index3].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
                   entry.AddItem((object) ResourceManager.ShipsDict[index3], 1, 1);
               }
             }
@@ -548,7 +552,7 @@ namespace Ship_Game
                   Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                   position.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role), position, Color.Orange);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
@@ -562,7 +566,7 @@ namespace Ship_Game
                   Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                   position.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role), position, Color.Orange);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
@@ -1229,19 +1233,25 @@ namespace Ship_Game
 				tCursor.Y = bCursor.Y;
 				desc = string.Concat(Localizer.Token(2218), ": ");
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.HardAttack.ToString(), tCursor, new Color(255, 239, 208));
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.GetHardAttack().ToString(), tCursor, new Color(255, 239, 208));
 				bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				tCursor.Y = bCursor.Y;
 				desc = string.Concat(Localizer.Token(2219), ": ");
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
                 //added by McShooterz: bug fix where hard attack value was used in place of soft attack value
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.SoftAttack.ToString(), tCursor, new Color(255, 239, 208));
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.GetSoftAttack().ToString(), tCursor, new Color(255, 239, 208));
 				bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 //added by McShooterz: adds boarding strength to troop info in colony screen
                 tCursor.Y = bCursor.Y;
                 desc = string.Concat(Localizer.Token(6008), ": ");
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.BoardingStrength.ToString(), tCursor, new Color(255, 239, 208));
+                bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                //Added by McShooterz: display troop level
+                tCursor.Y = bCursor.Y;
+                desc = string.Concat(Localizer.Token(6023), ": ");
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Level.ToString(), tCursor, new Color(255, 239, 208));
                 bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 			}
 			if (this.detailInfo is string)
@@ -1898,20 +1908,28 @@ namespace Ship_Game
 				this.launchTroops.State = UIButton.PressState.Hover;
 				if (input.InGameSelect)
 				{
-					foreach (PlanetGridSquare pgs in this.p.TilesList)
+					bool play =false;
+                    foreach (PlanetGridSquare pgs in this.p.TilesList)
 					{
 						if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
 						{
 							continue;
 						}
-						AudioManager.PlayCue("sd_troop_takeoff");
-						ResourceManager.CreateTroopShipAtPoint(this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+                        
+                        play =true;
+                        
+						ResourceManager.CreateTroopShipAtPoint((this.p.Owner.data.DefaultTroopShip != null) ? this.p.Owner.data.DefaultTroopShip : this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
 						this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
 						pgs.TroopsHere[0].SetPlanet(null);
 						pgs.TroopsHere.Clear();
 						this.ClickedTroop = true;
 						this.detailInfo = null;
 					}
+                    if(play)
+                    {
+                            
+                        AudioManager.PlayCue("sd_troop_takeoff");
+                        }
 				}
 			}
 			if (!HelperFunctions.CheckIntersection(this.edit_name_button, MousePos))
@@ -2120,7 +2138,7 @@ namespace Ship_Game
 				if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
 				{
 					AudioManager.PlayCue("sd_troop_takeoff");
-					ResourceManager.CreateTroopShipAtPoint(this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+                    ResourceManager.CreateTroopShipAtPoint((this.p.Owner.data.DefaultTroopShip != null) ? this.p.Owner.data.DefaultTroopShip : this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
 					this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
 					pgs.TroopsHere[0].SetPlanet(null);
 					pgs.TroopsHere.Clear();
@@ -2272,27 +2290,35 @@ namespace Ship_Game
 						{
 							if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 							{
-								if (this.p.ProductionHere <= 0f)
-								{
-									AudioManager.PlayCue("UI_Misc20");
-								}
-								else if (this.p.ProductionHere >= 10f)
-								{
-									this.p.ApplyProductiontoQueue(10f, i);
-									Planet productionHere = this.p;
-									productionHere.ProductionHere = productionHere.ProductionHere - 10f;
-									AudioManager.PlayCue("sd_ui_accept_alt3");
-								}
-								else if (this.p.ProductionHere > 10f || this.p.ProductionHere <= 0f)
-								{
-									AudioManager.PlayCue("UI_Misc20");
-								}
-								else
-								{
-									this.p.ApplyProductiontoQueue(this.p.ProductionHere, i);
-									this.p.ProductionHere = 0f;
-									AudioManager.PlayCue("sd_ui_accept_alt3");
-								}
+                               // if (this.p.ProductionHere <= 0f)
+
+
+                                if (this.p.ApplyStoredProduction(i))
+                                {
+                                    AudioManager.PlayCue("sd_ui_accept_alt3");
+                                }
+                                else
+                                {
+                                    AudioManager.PlayCue("UI_Misc20");
+                                }
+                                //if (this.p.ProductionHere >= 10f) 
+                                //{
+
+                            //    this.p.ApplyProductiontoQueue(10f, i);
+                                //    Planet productionHere = this.p;
+                                //    productionHere.ProductionHere = productionHere.ProductionHere - 10f;
+                                //    AudioManager.PlayCue("sd_ui_accept_alt3");
+                                //}
+                                //else if (this.p.ProductionHere > 10f || this.p.ProductionHere <= 0f)
+                                //{
+                                //    AudioManager.PlayCue("UI_Misc20");
+                                //}
+                                //else
+                                //{
+                                //    this.p.ApplyProductiontoQueue(this.p.ProductionHere, i);
+                                //    this.p.ProductionHere = 0f;
+                                //    AudioManager.PlayCue("sd_ui_accept_alt3");
+                                //}
 							}
 						}
 						else if (PlanetScreen.screen.Debug)

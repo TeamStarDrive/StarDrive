@@ -109,7 +109,15 @@ namespace Ship_Game
 
         public static float StartingPlanetRichness;
         public static string ExtendedVersion;
+        public static int IconSize;
 
+        public static bool preventFederations;
+        public static bool EliminationMode;
+
+        public static int ShipCountLimit;
+        public static float spaceroadlimit = .05f;
+        public static float freighterlimit = .05f;
+        public static int ScriptedTechWithin = 6;
 		static GlobalStats()
 		{       
 			GlobalStats.ComparisonCounter = 1;
@@ -163,8 +171,27 @@ namespace Ship_Game
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
             GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
             GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
+            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
+            GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
+            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
+            
 		}
+        public static void Statreset()
+        {
+            GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
+            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
+            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
 
+            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
+            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
+            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
+            GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
+            GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
+            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
+            GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
+            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
+            GlobalStats.EliminationMode = bool.Parse(ConfigurationManager.AppSettings["EliminationMode"]);
+        }
 		public GlobalStats()
 		{
 		}

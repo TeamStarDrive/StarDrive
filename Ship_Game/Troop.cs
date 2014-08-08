@@ -111,6 +111,7 @@ namespace Ship_Game
 		public float Range;
 
 		private string fmt = "00";
+        public float Launchtimer = 10f;
 
 		public Troop()
 		{
@@ -243,7 +244,7 @@ namespace Ship_Game
 				pgs.TroopsHere.Clear();
 				this.p.TroopsHere.Remove(this);
 			}
-			Ship retShip = ResourceManager.CreateTroopShipAtPoint(this.Owner.data.DefaultSmallTransport, this.Owner, this.p.Position, this);
+			Ship retShip = ResourceManager.CreateTroopShipAtPoint((this.Owner.data.DefaultTroopShip != null) ? this.Owner.data.DefaultTroopShip : this.Owner.data.DefaultSmallTransport, this.Owner, this.p.Position, this);
 			this.p = null;
 			return retShip;
 		}
@@ -289,14 +290,19 @@ namespace Ship_Game
 			{
 				if (!this.Idle)
 				{
-					this.updateTimer = 0.75f / (float)this.num_attack_frames;
-					Troop whichFrame = this;
-					whichFrame.WhichFrame = whichFrame.WhichFrame + 1;
-					if (this.WhichFrame > this.num_attack_frames - (this.first_frame == 1 ? 0 : 1))
-					{
-						this.WhichFrame = this.first_frame;
-						this.Idle = true;
-					}
+                    try //added by gremlin hot fix to stop troop crashing.
+                    {
+                        this.updateTimer = 0.75f / (float)this.num_attack_frames;
+                        Troop whichFrame = this;
+                        whichFrame.WhichFrame = whichFrame.WhichFrame + 1;
+
+                        if (this.WhichFrame > this.num_attack_frames - (this.first_frame == 1 ? 0 : 1))
+                        {
+                            this.WhichFrame = this.first_frame;
+                            this.Idle = true;
+                        }
+                    }
+                    catch { }
 				}
 				else
 				{
@@ -311,5 +317,25 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        //Added by McShooterz
+        public void AddKill()
+        {
+            this.Kills++;
+            this.Experience++;
+            if (this.Experience == 1 + this.Level)
+            {
+                this.Experience -= 1 + this.Level;
+                this.Level++;
+            }
+        }
+
+        //Added by McShooterz
+        public int GetStrengthMax()
+        {
+            if (this.StrengthMax <= 0)
+                this.StrengthMax = Ship_Game.ResourceManager.TroopsDict[this.Name].Strength;
+            return this.StrengthMax + this.Level / 2 + (int)(this.StrengthMax * this.Owner.data.Traits.GroundCombatModifier);
+        }
 	}
 }

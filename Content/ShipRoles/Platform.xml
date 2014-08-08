@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShipRole xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>platform</Name>
+  <Localization>147</Localization>
+  <Upkeep>0.2</Upkeep>
+  <KillExp>0.5</KillExp>
+  <KillExpPerLevel>0.125</KillExpPerLevel>
+  <ExpPerLevel>0.25</ExpPerLevel>
+  <RaceList>
+    <Race>
+	  <ShipType>Human</ShipType>
+	    <Localization>147</Localization>
+        <Upkeep>0.2</Upkeep>
+        <KillExp>0.5</KillExp>
+        <KillExpPerLevel>0.125</KillExpPerLevel>
+        <ExpPerLevel>0.25</ExpPerLevel>
+	</Race>
+  </RaceList>
+</ShipRole>
