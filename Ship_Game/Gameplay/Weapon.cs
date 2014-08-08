@@ -815,14 +815,13 @@ namespace Ship_Game.Gameplay
             float c = Vector2.Dot(FireDirection, FireDirection);
             float p = -b / (2f * a);
             float q = (float)Math.Sqrt((b * b) - 4 * a * c) / (2 * a);
-            float t1 = p - q;
-            float t2 = p + q;
-            float t;
-            if (t1 > t2 && t2 > 0)
-                t = t2;
+            a = p - q;
+            b = p + q;
+            if (a > b && b > 0)
+                c = b;
             else
-                t = t1;
-            Vector2 ProjectedPosition = target.Center + target.Velocity * t;
+                c = a;
+            Vector2 ProjectedPosition = target.Center + target.Velocity * c;
             FireDirection = ProjectedPosition - OwnerPos;
             return Vector2.Normalize(FireDirection);
         }
