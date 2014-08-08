@@ -1724,8 +1724,7 @@ namespace Ship_Game.Gameplay
 
         private void DoRepairBeamLogic(Weapon w, float elapsedTime)
         {
-            ArtificialIntelligence tryRepairsTimer = this;
-            tryRepairsTimer.TryRepairsTimer = tryRepairsTimer.TryRepairsTimer - elapsedTime;
+            this.TryRepairsTimer -= elapsedTime;
             if (this.TryRepairsTimer > 0f)
             {
                 return;
@@ -1742,6 +1741,22 @@ namespace Ship_Game.Gameplay
                 }
             }
         }
+
+        private void DoOrdinanceTransporterLogic(ShipModule module, float elapsedTime)
+        {
+            module.TransporterTimer -= elapsedTime;
+            if (module.TransporterTimer > 0f)
+            {
+                return;
+            }
+            module.TransporterTimer = module.TransporterTimerConstant;
+            foreach (Ship ship in module.GetParent().loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) <= module.TransporterRange + 500f && ship.Ordinance < ship.OrdinanceMax).OrderBy(ship => ship.Ordinance / ship.OrdinanceMax))
+            {
+
+            }
+        }
+
+
 
 		private void DoResupply(float elapsedTime)
 		{
@@ -5237,45 +5252,26 @@ namespace Ship_Game.Gameplay
                 }
                 return this.Target;
             }
-
-
-
-
-
-
-
-
-
             if (this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay).Count() > 0 && this.Owner.engineState != Ship.MoveState.Warp && !this.Owner.isSpooling)
             {
-
-
-
                 //IOrderedEnumerable<Ship> sortedList = null;
                 IOrderedEnumerable<Ship> sortedList = null;
                 if (this.Owner.Role == "station" || this.Owner.Role == "platform")
                 {
                     sortedList = this.Owner.loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) < 10 * this.Owner.SensorRange && ship != this.Owner && ship.engineState != Ship.MoveState.Warp && ship.Mothership == null && ship.OrdinanceMax > 0 && ship.Ordinance / ship.OrdinanceMax < .5 && !ship.IsTethered()).OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 9999)) / 10000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
                 }
-
-
-
                 else
                 {
                     sortedList = FriendliesNearby.Where(ship => ship != this.Owner && ship.engineState != Ship.MoveState.Warp && ship.Mothership == null && ship.OrdinanceMax > 0 && ship.Ordinance / ship.OrdinanceMax < .5 && !ship.IsTethered()).OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
                 }
                 if (sortedList.Count() > 0)
                 {
-
                     int skip = 0;
                     float inboundOrdinance = 0f;
                     foreach (ShipModule hangar in this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay))
                     {
-
                         if (hangar.GetHangarShip() != null)
                         {
-
-
                             if (hangar.GetHangarShip().GetAI().State != AIState.Ferrying)
                             {
                                 if (sortedList.Skip(skip).Count() > 0)
@@ -5354,22 +5350,11 @@ namespace Ship_Game.Gameplay
             }
             if (this.Owner.VanityName == "Resupply Shuttle" && this.Owner.Mothership == null)
             {
-
-
                 {
                     this.Owner.QueueTotalRemoval();
                 }
-            }
-
-
-
-
-           
-            
-
-
-            //}
-            
+            }   
+            //}           
             foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips)
             //Parallel.ForEach(this.NearbyShips, nearbyShip =>
             {
@@ -5467,13 +5452,8 @@ namespace Ship_Game.Gameplay
             return null;
         }
 
-  
-
-
         private void SetCombatStatus(float elapsedTime)
         {
-
-
             #region NOWarpinUncontrolledSystems
             //deprecated no warp in system code.
             //if (WarpRestriction && !universeScreen.Debug && !this.Owner.inborders && !this.Owner.loyalty.isFaction)

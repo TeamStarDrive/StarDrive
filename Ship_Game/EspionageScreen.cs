@@ -14,8 +14,6 @@ namespace Ship_Game
     {
         private UniverseScreen screen;
 
-		public DanButton Contact;
-
 		private Menu2 TitleBar;
 
 		private Vector2 TitlePos;
@@ -395,10 +393,6 @@ namespace Ship_Game
 			}
 			this.AgentComponent.HandleInput(input);
 			//this.showExecuteButton = false;
-			if (this.SelectedEmpire != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) && !this.SelectedEmpire.data.Defeated && this.Contact.HandleInput(input))
-			{
-				base.ScreenManager.AddScreen(new DiplomacyScreen(this.SelectedEmpire, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), "Greeting"));
-			}
 			bool GotRace = false;
 			foreach (RaceEntry race in this.Races)
 			{
@@ -459,10 +453,6 @@ namespace Ship_Game
 			this.SelectedInfoRect = new Rectangle(leftRect.X + 60, leftRect.Y + 250, 368, 376);
 			this.IntelligenceRect = new Rectangle(this.SelectedInfoRect.X + this.SelectedInfoRect.Width + 30, this.SelectedInfoRect.Y, 368, 376);
 			this.OperationsRect = new Rectangle(this.IntelligenceRect.X + this.IntelligenceRect.Width + 30, this.SelectedInfoRect.Y, 368, 376);
-			this.Contact = new DanButton(new Vector2((float)(this.SelectedInfoRect.X + this.SelectedInfoRect.Width / 2 - 91), (float)(this.SelectedInfoRect.Y + this.SelectedInfoRect.Height - 45)), Localizer.Token(1644))
-			{
-				Toggled = true
-			};
 			this.OpSLRect = new Rectangle(this.OperationsRect.X + 20, this.OperationsRect.Y + 20, this.OperationsRect.Width - 40, this.OperationsRect.Height - 45);
 			Submenu OpSub = new Submenu(base.ScreenManager, this.OpSLRect);
 			this.OperationsSL = new ScrollList(OpSub, Fonts.Arial12Bold.LineSpacing + 5);

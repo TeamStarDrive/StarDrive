@@ -1730,7 +1730,7 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 40, 20, 20));
+			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
 			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -1751,7 +1751,7 @@ namespace Ship_Game
 				this.FleetsRects.Add(Fleet.Key, new Rectangle(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
 				i++;
 			}
-			Rectangle shipRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 282, 44, 280, 80);
+			Rectangle shipRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 282, 140, 280, 80);
 			this.ShipDesigns = new Menu2(base.ScreenManager, shipRect);
 			this.ShipDesignsTitlePos = new Vector2((float)(shipRect.X + shipRect.Width / 2) - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, (float)(shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			Rectangle shipDesignsRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);

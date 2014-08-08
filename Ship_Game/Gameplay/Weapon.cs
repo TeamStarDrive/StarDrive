@@ -360,73 +360,6 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		protected virtual void CreateMissileFromPlanet(Vector2 direction, Planet p, GameplayObject Target)
-		{
-			Projectile projectile = new Projectile(p, direction)
-			{
-				range = this.Range,
-				weapon = this,
-				explodes = this.explodes,
-				damageAmount = this.DamageAmount
-			};
-			projectile.explodes = this.explodes;
-			projectile.damageRadius = this.DamageRadius;
-			projectile.Health = this.HitPoints;
-			projectile.speed = this.ProjectileSpeed;
-			projectile.WeaponEffectType = this.WeaponEffectType;
-			projectile.WeaponType = this.WeaponType;
-			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
-			this.ModifyProjectile(projectile);
-			projectile.InitializeMissilePlanet(projectile.speed, direction, Target, p);
-			projectile.Radius = this.ProjectileRadius;
-			p.Projectiles.Add(projectile);
-			this.planetEmitter = new AudioEmitter()
-			{
-				Position = new Vector3(p.Position, 2500f)
-			};
-			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && Vector2.Distance(projectile.Center, new Vector2(Weapon.universeScreen.camPos.X, Weapon.universeScreen.camPos.Y)) < 50000f)
-			{
-				projectile.DieSound = true;
-				if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
-				{
-					this.ToggleSoundOn = true;
-					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-					this.ToggleCue.Apply3D(Weapon.audioListener, this.planetEmitter);
-					this.ToggleCue.Play();
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					if (!this.owner.isPlayerShip())
-					{
-						this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
-					}
-					this.lastFireSound = 0f;
-					if (this.fireCue != null)
-					{
-						this.fireCue.Play();
-					}
-				}
-				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
-				{
-					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
-				}
-				if (this.InFlightCue != "")
-				{
-					projectile.InFlightCue = this.InFlightCue;
-				}
-				if (this.ToggleCue == null)
-				{
-					this.fireCue = AudioManager.GetCue(this.fireCueName);
-					this.planetEmitter.Position = new Vector3(p.Position, -2500f);
-					this.fireCue.Apply3D(Weapon.audioListener, this.planetEmitter);
-					this.lastFireSound = 0f;
-					if (this.fireCue != null)
-					{
-						this.fireCue.Play();
-					}
-				}
-			}
-		}
-
 		protected virtual void CreateMouseBeam(Vector2 destination)
 		{
 			Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent())
@@ -576,7 +509,7 @@ namespace Ship_Game.Gameplay
 			projectile = null;
 		}
 
-		protected virtual void CreateProjectilesFromPlanet(Vector2 direction, Planet p)
+		protected virtual void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
 		{
 			Projectile projectile = new Projectile(p, direction)
 			{
@@ -593,7 +526,10 @@ namespace Ship_Game.Gameplay
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
 			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
 			this.ModifyProjectile(projectile);
-			projectile.InitializePlanet(projectile.speed, direction, p.Position);
+            if(this.Tag_Guided)
+                projectile.InitializeMissilePlanet(projectile.speed, direction, target, p);
+            else
+			    projectile.InitializePlanet(projectile.speed, direction, p.Position);
 			projectile.Radius = this.ProjectileRadius;
 			p.Projectiles.Add(projectile);
 			this.planetEmitter = new AudioEmitter()
@@ -851,24 +787,43 @@ namespace Ship_Game.Gameplay
 			return Vec2Target;
 		}
 
-        private Vector2 findVectorToMovingTarget(Vector2 OwnerPos, GameplayObject target)
+        //Added by McShooterz: Vanilla Stardrive method for targeting
+        private Vector2 findVectorToMovingTarget2(Vector2 OwnerPos, GameplayObject target)
         {
             float distance = Vector2.Distance(OwnerPos, target.Center);
-            Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(OwnerPos, target.Center)) * this.ProjectileSpeed) + this.owner.Velocity;
-            float timeToTarget = distance / dir.Length();
-            Vector2 projectedPosition = target.Center;
+            Vector2 projectedPosition = (Vector2.Normalize(this.findVectorToTarget(OwnerPos, target.Center)) * this.ProjectileSpeed) + this.GetOwner().Velocity;
+            float timeToTarget = distance / projectedPosition.Length();
+            projectedPosition = target.Center;
             projectedPosition = target.Center + (target.Velocity * timeToTarget);
-            projectedPosition = projectedPosition - (this.owner.Velocity * timeToTarget);
+            projectedPosition = projectedPosition - (this.GetOwner().Velocity * timeToTarget);
             distance = Vector2.Distance(OwnerPos, projectedPosition);
-            timeToTarget = distance / this.ProjectileSpeed;
+            Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(OwnerPos, projectedPosition)) * this.ProjectileSpeed) + this.GetOwner().Velocity;
+            timeToTarget = distance / dir.Length();
             projectedPosition = target.Center + ((target.Velocity * timeToTarget) * 0.85f);
-            projectedPosition = projectedPosition - (this.owner.Velocity * timeToTarget);
+            //projectedPosition -= (this.GetOwner().Velocity * timeToTarget);
             Vector2 FireDirection = this.findVectorToTarget(OwnerPos, projectedPosition);
             FireDirection.Y = FireDirection.Y * -1f;
-            FireDirection = Vector2.Normalize(FireDirection);
-            Vector2 bearingToTarget = this.findVectorToTarget(OwnerPos, projectedPosition);
-            bearingToTarget.Y = bearingToTarget.Y * -1f;
-            return Vector2.Normalize(bearingToTarget);
+            return Vector2.Normalize(FireDirection);
+        }
+
+        //Added by McShootez: Quadratic based targeting algorithm
+        private Vector2 findVectorToMovingTarget(Vector2 OwnerPos, GameplayObject target)
+        {
+            Vector2 FireDirection = target.Center - OwnerPos;
+            float a = Vector2.Dot(target.Velocity, target.Velocity) - (this.ProjectileSpeed * this.ProjectileSpeed);
+            float b = 2f * Vector2.Dot(target.Velocity, FireDirection);
+            float c = Vector2.Dot(FireDirection, FireDirection);
+            float p = -b / (2f * a);
+            float q = (float)Math.Sqrt((b * b) - 4 * a * c) / (2 * a);
+            a = p - q;
+            b = p + q;
+            if (a > b && b > 0)
+                c = b;
+            else
+                c = a;
+            Vector2 ProjectedPosition = target.Center + target.Velocity * c;
+            FireDirection = ProjectedPosition - OwnerPos;
+            return Vector2.Normalize(FireDirection);
         }
 
 		public virtual void Fire(GameplayObject target)
@@ -1000,25 +955,15 @@ namespace Ship_Game.Gameplay
 					Vector2 newTarget = this.findTargetFromAngleAndDistance(StartPos, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
 					Vector2 fireDirection = this.findVectorToTarget(StartPos, newTarget);
 					fireDirection.Y = fireDirection.Y * -1f;
-					this.CreateProjectilesFromPlanet(Vector2.Normalize(fireDirection), p);
+                    this.CreateProjectilesFromPlanet(Vector2.Normalize(fireDirection), p, target);
 				}
 				return;
 			}
 			if (this.FireCone <= 0)
 			{
-				if (!this.isBeam)
+				for (int i = 0; i < this.ProjectileCount; i++)
 				{
-					for (int i = 0; i < this.ProjectileCount; i++)
-					{
-						if (!this.Tag_Guided)
-						{
-							this.CreateProjectilesFromPlanet(direction, p);
-						}
-						else
-						{
-							this.CreateMissileFromPlanet(Vector2.Normalize(direction), p, target);
-						}
-					}
+                    this.CreateProjectilesFromPlanet(direction, p, target);
 				}
 				return;
 			}
@@ -1027,7 +972,7 @@ namespace Ship_Game.Gameplay
 			Vector2 newTarget2 = this.findTargetFromAngleAndDistance(StartPos, angleToTarget2 + spread, this.Range);
 			Vector2 fireDirection2 = this.findVectorToTarget(StartPos, newTarget2);
 			fireDirection2.Y = fireDirection2.Y * -1f;
-			this.CreateProjectilesFromPlanet(Vector2.Normalize(fireDirection2), p);
+            this.CreateProjectilesFromPlanet(Vector2.Normalize(fireDirection2), p, target);
 		}
 
 		public virtual void FireSalvo(Vector2 direction, GameplayObject target)
