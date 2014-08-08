@@ -834,5 +834,10 @@
       <Title>Repair Beam</Title>
       <Data>7016</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>167</TIP_ID>
+      <Title>Repair Beam</Title>
+      <Data>7017</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
