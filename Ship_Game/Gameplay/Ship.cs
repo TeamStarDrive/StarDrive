@@ -1274,14 +1274,6 @@ namespace Ship_Game.Gameplay
             //bool nonCombat = false;
             //added by gremlin: Maintenance changes
             float maintModReduction = 1;
-            this.loyalty = empire;
-
-            //Ships without upkeep. The Doctor - Remnant designs REMOVED from this, as mods may choose to unlock Remnant hulls for construction.
-            if (role == null || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
-                || (this.Mothership != null && (this.Role == "fighter" || this.Role == "corvette" || this.Role == "scout" || this.Role == "frigate")))
-            {
-                return 0f;
-            }
 
             //Get Maintanence of ship role
             bool foundMaint = false;
@@ -1289,7 +1281,7 @@ namespace Ship_Game.Gameplay
             {
                 for (int i = 0; i < ResourceManager.ShipRoles[this.Role].RaceList.Count(); i++)
                 {
-                    if (ResourceManager.ShipRoles[this.Role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
+                    if (ResourceManager.ShipRoles[this.Role].RaceList[i].ShipType == empire.data.Traits.ShipType)
                     {
                         maint = ResourceManager.ShipRoles[this.Role].RaceList[i].Upkeep;
                         foundMaint = true;
@@ -1334,15 +1326,10 @@ namespace Ship_Game.Gameplay
             }
 
             //Apply Privatization
-            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
+            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty.data.Privatization)
             {
                 maint *= 0.5f;
             }
-
-            //added by gremlin shipyard exploit fix
-            if (this.Name == "Shipyard" && this.IsTethered())
-                if (this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() > 3)
-                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() - 3;
 
             //Subspace Projectors do not get any more modifiers
             if (this.Name == "Subspace Projector")
