@@ -124,8 +124,19 @@ namespace Ship_Game
 					ship.GetAI().OrderAttackSpecificTarget(AssignedShips[0].GetAI().Target as Ship);
 				}
 			}
-			else
-			{
+            //else if(this.us.GetShipsInOurBorders().Count >0)
+            else 
+            {
+                if (this.us.GetShipsInOurBorders().Count() > 0)
+                {
+                    foreach (Ship ship in this.ShipsDict.Values)
+                    {
+                        if (ship.GetAI().Target != null || ship.GetAI().Intercepting || (ship.GetAI().State != AIState.AwaitingOrders && ship.GetAI().State != AIState.SystemDefender))
+                            continue;
+                        ship.GetAI().OrderAttackSpecificTarget(this.us.GetShipsInOurBorders().OrderBy(distance => Vector2.Distance(ship.Position, distance.Position)).First());
+                    }
+                }  
+                else
 				foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
 				{
 					if (ship.Value.GetAI().State == AIState.Resupply)
