@@ -1326,7 +1326,7 @@ namespace Ship_Game.Gameplay
             }
 
             //Apply Privatization
-            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty.data.Privatization)
+            if ((this.Role == "freighter" || this.Role == "platform") && empire.data.Privatization)
             {
                 maint *= 0.5f;
             }
