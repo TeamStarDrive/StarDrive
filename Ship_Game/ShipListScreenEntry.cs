@@ -115,7 +115,15 @@ namespace Ship_Game
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Status_Text, StatusPos, TextColor);
 			Vector2 MainPos = new Vector2((float)(this.MaintRect.X + this.MaintRect.Width - 2), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
 			Empire e = EmpireManager.GetEmpireByName(this.screen.empUI.screen.PlayerLoyalty);
-			float Maint = this.ship.GetMaintCost();
+            float Maint = 1f;
+            if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+            {
+                Maint = this.ship.GetMaintCostRealism();
+            }
+            else
+            {
+                Maint = this.ship.GetMaintCost();
+            }
 			Maint = Maint + e.data.Traits.MaintMod * Maint;
 			MainPos.X = MainPos.X - Fonts.Arial12.MeasureString(Maint.ToString("#.0")).X;
 			HelperFunctions.ClampVectorToInt(ref MainPos);

@@ -367,27 +367,51 @@ namespace Ship_Game
 			if (HelperFunctions.CheckIntersection(this.MaintRect, input.CursorPosition))
 			{
 				ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable", base.ScreenManager);
-				if (input.InGameSelect)
-				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.StrSorted = !this.StrSorted;
-					if (!this.StrSorted)
-					{
-						IOrderedEnumerable<ScrollList.Entry> sortedList = 
-							from theship in this.ShipSL.Entries
-							orderby (theship.item as ShipListScreenEntry).ship.GetMaintCost() descending
-							select theship;
-						this.ResetListSorted(sortedList);
-					}
-					else
-					{
-						IOrderedEnumerable<ScrollList.Entry> sortedList = 
-							from theship in this.ShipSL.Entries
-							orderby (theship.item as ShipListScreenEntry).ship.GetMaintCost()
-							select theship;
-						this.ResetListSorted(sortedList);
-					}
-				}
+                if (input.InGameSelect)
+                {
+                    if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+                    {
+                        AudioManager.PlayCue("sd_ui_accept_alt3");
+                        this.StrSorted = !this.StrSorted;
+                        if (!this.StrSorted)
+                        {
+                            IOrderedEnumerable<ScrollList.Entry> sortedList =
+                                from theship in this.ShipSL.Entries
+                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCostRealism() descending
+                                select theship;
+                            this.ResetListSorted(sortedList);
+                        }
+                        else
+                        {
+                            IOrderedEnumerable<ScrollList.Entry> sortedList =
+                                from theship in this.ShipSL.Entries
+                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCostRealism()
+                                select theship;
+                            this.ResetListSorted(sortedList);
+                        }
+                    }
+                    else
+                    {
+                        AudioManager.PlayCue("sd_ui_accept_alt3");
+                        this.StrSorted = !this.StrSorted;
+                        if (!this.StrSorted)
+                        {
+                            IOrderedEnumerable<ScrollList.Entry> sortedList =
+                                from theship in this.ShipSL.Entries
+                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCost() descending
+                                select theship;
+                            this.ResetListSorted(sortedList);
+                        }
+                        else
+                        {
+                            IOrderedEnumerable<ScrollList.Entry> sortedList =
+                                from theship in this.ShipSL.Entries
+                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCost()
+                                select theship;
+                            this.ResetListSorted(sortedList);
+                        }
+                    }
+                }
 			}
 			if (HelperFunctions.CheckIntersection(this.TroopRect, input.CursorPosition))
 			{
