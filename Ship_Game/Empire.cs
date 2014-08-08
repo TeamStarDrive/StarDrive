@@ -1725,7 +1725,7 @@ namespace Ship_Game
         private void TakeTurn()
         {
             //Added by McShooterz: Home World Elimination game mode
-            if (GlobalStats.EliminationMode && this.Capital != null && this.Capital.Owner != this)
+            if (GlobalStats.EliminationMode && !this.data.Defeated && this.Capital != null && this.Capital.Owner != this)
             {
                 this.SetAsDefeated();
                 if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this)

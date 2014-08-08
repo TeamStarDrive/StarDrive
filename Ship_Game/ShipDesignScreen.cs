@@ -1872,8 +1872,16 @@ namespace Ship_Game
 						modTitlePos.Y = starty;
 						this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        if (mod.SensorRange > 0)
+                        {
+                            this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        if (mod.SensorBonus > 0)
+                        {
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6121), (float)mod.SensorBonus, 167);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
                         //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
                         if (mod.PowerDrawAtWarp != 0f)
                         {
@@ -2981,6 +2989,7 @@ namespace Ship_Game
 			float FTLSpeed = 0f;
             float RepairRate = 0f;
             float sensorRange = 0f;
+            float sensorBonus = 0f;
             float BeamPowerUsed =0f;
             float BeamLongestDuration = 0f;
             float OrdnanceUsed=0f;
@@ -3027,6 +3036,8 @@ namespace Ship_Game
                     {
                         sensorRange = slot.module.SensorRange;
                     }
+                    if (slot.module.SensorBonus > sensorBonus)
+                        sensorBonus = slot.module.SensorBonus;
                     
                     //added by gremlin collect weapon stats
                     
@@ -3264,7 +3275,7 @@ namespace Ship_Game
 //end
             if (sensorRange != 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6000), ":"), (int)(sensorRange * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SensorBonus != 0 ? (1 + (float)this.ActiveHull.SensorBonus / 100f) : 1)), 159);
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6000), ":"), (int)((sensorRange + sensorBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SensorBonus != 0 ? (1 + (float)this.ActiveHull.SensorBonus / 100f) : 1)), 159);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
@@ -5189,8 +5200,8 @@ namespace Ship_Game
 			this.ShipStats = new Menu1(base.ScreenManager, ShipStatsPanel);
 			this.statsSub = new Submenu(base.ScreenManager, ShipStatsPanel);
 			this.statsSub.AddTab(Localizer.Token(108));
-			this.ArcsButton = new GenericButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 30), 44f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
-			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 25, 44, 20, 20));
+			this.ArcsButton = new GenericButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 32), 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
+			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 27, 99, 20, 20));
 			this.OriginalZ = this.cameraPosition.Z;
 		}
 
