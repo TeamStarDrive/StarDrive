@@ -94,8 +94,6 @@ namespace Ship_Game
 
 		private SceneObject shipSO;
 
-		private SceneObject shipSO2;
-
 		private MouseState currentMouse;
 
 		private MouseState previousMouse;
@@ -124,12 +122,13 @@ namespace Ship_Game
 
 		static MainMenuScreen()
 		{
-			MainMenuScreen.Version = "++G : " + GlobalStats.ExtendedVersion;
+			MainMenuScreen.Version = "BlackBox " + GlobalStats.ExtendedVersion;
 		}
 
 		public MainMenuScreen()
 		{
-			base.TransitionOnTime = TimeSpan.FromSeconds(1);
+            GC.Collect();
+            base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
 		}
 
@@ -433,7 +432,12 @@ namespace Ship_Game
 				Rectangle Version = new Rectangle(205, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 37, 318, 12);
 				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
 				Vector2 TextPos = new Vector2(20f, (float)(Version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, string.Concat("StarDrive ", MainMenuScreen.Version), TextPos, Color.White);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, string.Concat("StarDrive"," 15B"), TextPos, Color.White);
+
+                 Version = new Rectangle(20+ (int)Fonts.Pirulen12.MeasureString(MainMenuScreen.Version).X , base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 85, 318, 12);
+                base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
+                 TextPos = new Vector2(20f, (float)(Version.Y  +6 - Fonts.Pirulen12.LineSpacing / 2 - 1));
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, string.Concat(MainMenuScreen.Version), TextPos, Color.White);
 			}
 			if (this.AnimationFrame > 300)
 			{
@@ -590,9 +594,9 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			if (ConfigurationSettings.AppSettings["ActiveMod"] != "")
+			if (ConfigurationManager.AppSettings["ActiveMod"] != "")
 			{
-				if (!File.Exists(string.Concat("Mods/", ConfigurationSettings.AppSettings["ActiveMod"], ".xml")))
+				if (!File.Exists(string.Concat("Mods/", ConfigurationManager.AppSettings["ActiveMod"], ".xml")))
 				{
 					Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 					config.AppSettings.Settings["ActiveMod"].Value = "";
@@ -603,14 +607,15 @@ namespace Ship_Game
 				}
 				else
 				{
-					FileInfo FI = new FileInfo(string.Concat("Mods/", ConfigurationSettings.AppSettings["ActiveMod"], ".xml"));
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    FileInfo FI = new FileInfo(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value, ".xml"));
 					Stream file = FI.OpenRead();
 					ModInformation data = (ModInformation)Ship_Game.ResourceManager.ModSerializer.Deserialize(file);
 					file.Close();
 					file.Dispose();
 					ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
 					GlobalStats.ActiveMod = me;
-					Ship_Game.ResourceManager.LoadMods(string.Concat("Mods/", ConfigurationSettings.AppSettings["ActiveMod"]));
+					Ship_Game.ResourceManager.LoadMods(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value));
 				}
 			}
 			base.ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
@@ -737,31 +742,37 @@ namespace Ship_Game
 				base.ScreenManager.Music = AudioManager.GetCue("SD_Theme_Reprise_06");
 				base.ScreenManager.Music.Play();
 			}
-			this.model = base.ScreenManager.Content.Load<Model>("Model/Stations/spacestation01_inner");
-			ModelMesh mesh = this.model.Meshes[0];
-			this.shipSO = new SceneObject(mesh)
-			{
-				ObjectType = ObjectType.Dynamic,
-				World = this.worldMatrix
-			};
 			//this.whichPlanet = 1;
-			Model planetModel = base.ScreenManager.Content.Load<Model>(string.Concat("Model/SpaceObjects/planet_", 18));
-			mesh = planetModel.Meshes[0];
+            //Added by McShooterz: Random Main menu planet
+            Random rd = new Random();
+            int planetIndex = rd.Next(1,30);
+            Model planetModel = base.ScreenManager.Content.Load<Model>(string.Concat("Model/SpaceObjects/planet_", planetIndex));
+            ModelMesh mesh = planetModel.Meshes[0];
 			this.planetSO = new SceneObject(mesh)
 			{
 				ObjectType = ObjectType.Dynamic,
 				World = (((((Matrix.Identity * Matrix.CreateScale(25f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 30000f, this.ShipPosition.Y - 500f, 80000f)
 			};
 			base.ScreenManager.inter.ObjectManager.Submit(this.planetSO);
-			this.model = base.ScreenManager.Content.Load<Model>("Model/Stations/spacestation01_outer");
-			ModelMesh mesh1 = this.model.Meshes[0];
-			this.shipSO2 = new SceneObject(mesh1)
-			{
-				ObjectType = ObjectType.Dynamic,
-				World = this.worldMatrix
-			};
-			this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 40000f);
-			this.shipSO2.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) * Matrix.CreateRotationZ(1.57079637f + this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 40000f);
+            //Added by McShooterz: random ship in main menu
+            this.ShipPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 1200), (float)(this.LogoRect.Y + 400 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
+            if (GlobalStats.ActiveMod != null && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
+            {
+                int shipIndex = rd.Next(0, ResourceManager.MainMenuShipList.ModelPaths.Count);
+                this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel(ResourceManager.MainMenuShipList.ModelPaths[shipIndex]).Meshes)[0]);
+                this.shipSO.ObjectType = ObjectType.Dynamic;
+                this.shipSO.World = this.worldMatrix;
+                this.shipSO.Visibility = ObjectVisibility.Rendered;
+                base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+            }
+            else
+            {
+                this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel("Model/Ships/speeder/ship07").Meshes)[0]);
+                this.shipSO.ObjectType = ObjectType.Dynamic;
+                this.shipSO.World = this.worldMatrix;
+                this.shipSO.Visibility = ObjectVisibility.Rendered;
+                base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
+            }
 			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/MM_light_rig");
 			base.ScreenManager.inter.LightManager.Submit(rig);
 			base.ScreenManager.environment = base.ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
@@ -881,12 +892,17 @@ namespace Ship_Game
 			float zrotate = milliseconds.Zrotate;
 			TimeSpan elapsedGameTime = gameTime.ElapsedGameTime;
 			milliseconds.Zrotate = zrotate + (float)elapsedGameTime.Milliseconds / 20000f;
-			this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 40000f);
-			this.shipSO2.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) * Matrix.CreateRotationZ(1.57079637f + this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 40000f);
 			float x = this.MoonPosition.X;
 			TimeSpan timeSpan = gameTime.ElapsedGameTime;
 			this.MoonPosition.X = x + (float)timeSpan.Milliseconds / 400f;
 			this.planetSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(new Vector3(this.MoonPosition, this.zshift));
+            //Added by McShooterz: slow moves the ship across the screen
+            if (this.shipSO != null)
+            {
+                this.ShipPosition.X += (float)timeSpan.Milliseconds / 800f;
+                this.ShipPosition.Y += (float)timeSpan.Milliseconds / 1200f;
+                this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale * 1.75f)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(-15f))) * Matrix.CreateRotationY(MathHelper.ToRadians(60f))) * Matrix.CreateRotationZ(1f)) * Matrix.CreateTranslation(new Vector3(this.ShipPosition, this.zshift));
+            }
 			base.ScreenManager.inter.Update(gameTime);
 			if (base.IsExiting && base.TransitionPosition >= 0.99f && base.ScreenManager.Music != null)
 			{

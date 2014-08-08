@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Siphon Beam</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Energy Siphon Beam</Name>
+  <NameIndex>656</NameIndex>
+  <DescriptionIndex>657</DescriptionIndex>
+  <LongDescription>Siphon beams create a connection between the firing ship and the target ship's energy shields. The beam depletes the shield energy and transfers is into the firing ship's power stores. The weapon is ineffective otherwise.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>EMP Cannons</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>SiphonBeamTurret2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>SiphonBeam2x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

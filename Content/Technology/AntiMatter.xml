@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>AntiMatter</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>3500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Anti-Matter Reactor</Name>
+  <NameIndex>513</NameIndex>
+  <DescriptionIndex>514</DescriptionIndex>
+  <LongDescription>By stabilizing a matter / anti-matter reaction, we can harness the energy output for a massive increase to our power levels. For now, we require a large reaction chamber, but future advances may miniaturize this process. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>AntiMatterReactor</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

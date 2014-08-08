@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>MissileTheory</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>80</Cost>
+  <RootNode>0</RootNode>
+  <Name>Missile Theory</Name>
+  <NameIndex>618</NameIndex>
+  <DescriptionIndex>619</DescriptionIndex>
+  <LongDescription>Adapting missile technology to the rigors of space travel is not overly difficult. We can pursue further advances to missile propulsion, payload, and durability. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Guided Missiles</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>RocketLauncher</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>MRLS</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Phased Ordnance</Name>
+      <BonusType>Weapon_Rate</BonusType>
+      <Tags>
+        <string>Missile</string>
+      </Tags>
+      <Bonus>.8</Bonus>
+      <Description>see localization file</Description>
+      <BonusIndex>2009</BonusIndex>
+    </UnlockedBonus>
+
+
+  </BonusUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

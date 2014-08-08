@@ -28,6 +28,24 @@ namespace Ship_Game
 		public static int ModulesCreated;
 
 		public static int ModulesDied;
+        public static string canceledMTaskName;
+        public static int canceledMtasksCount;
+        public static int canceledExplorationT;
+        public static int canceledclear;
+        public static int canceledCohesive;
+        public static string OtherTask;
+
+        public static string canceledMTask1Name;
+        public static string canceledMTask2Name;
+        public static string canceledMTask3Name;
+        public static string canceledMTask4Name;
+        public static int canceledMtask1Count;
+        public static int canceledMtask2Count;
+        public static int canceledMtask3Count;
+        public static int canceledMtask4Count;
+
+        private int shipsnotinforcepool;
+        private int shipsnotinDefforcepool;
 
 		public Ship itemToBuild;
 
@@ -42,6 +60,40 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
 			this.win = new Rectangle(30, 200, 1200, 700);
+            foreach (Empire empire in EmpireManager.EmpireList)
+            {
+                bool flag=false;
+                foreach (Ship ship in empire.GetShips())
+                {
+                    if (!empire.GetForcePool().Contains(ship))
+                    {
+
+                        foreach (AO ao in empire.GetGSAI().AreasOfOperations)
+                        {
+                            if (ao.GetOffensiveForcePool().Contains(ship))
+                                if (ship.Role != "troop" && ship.BaseStrength>0)
+
+                                    flag = true;
+                        }
+
+                        if (!flag)
+
+                            if (!empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
+                            {
+                                if (ship.Role != "troop" && ship.BaseStrength > 0)
+                                    ++this.shipsnotinDefforcepool;
+                            }
+                            else
+                            {
+                                if (ship.Role != "troop" && ship.BaseStrength > 0)
+                                ++this.shipsnotinforcepool;
+                            }
+
+                    }
+
+
+                }
+            }
 		}
 
 		public void Dispose()
@@ -72,7 +124,29 @@ namespace Ship_Game
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Mods Created: ", DebugInfoScreen.ModulesCreated), HalloweenCursor, Color.Red);
 			HalloweenCursor.Y = HalloweenCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Mods Died: ", DebugInfoScreen.ModulesDied), HalloweenCursor, Color.Red);
-			Vector2 Cursor = new Vector2((float)(this.win.X + 10), (float)(this.win.Y + 10));
+            HalloweenCursor.Y = HalloweenCursor.Y - (float)(Fonts.Arial20Bold.LineSpacing + 2)*4;
+            HalloweenCursor.X = HalloweenCursor.X + (Fonts.Arial20Bold.MeasureString("XXXXXXXXXXXXXXXXXXXX").X);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("LastMTaskCanceled: ", DebugInfoScreen.canceledMTaskName), HalloweenCursor, Color.Red);
+            HalloweenCursor.Y = HalloweenCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+            
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(DebugInfoScreen.canceledMTask1Name,": ", DebugInfoScreen.canceledMtask1Count), HalloweenCursor, Color.Red);
+            HalloweenCursor.Y = HalloweenCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(DebugInfoScreen.canceledMTask2Name, ": ", DebugInfoScreen.canceledMtask2Count), HalloweenCursor, Color.Red);
+            HalloweenCursor.Y = HalloweenCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(DebugInfoScreen.canceledMTask3Name, ": ", DebugInfoScreen.canceledMtask3Count), HalloweenCursor, Color.Red);
+            HalloweenCursor.Y = HalloweenCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(DebugInfoScreen.canceledMTask4Name, ": ", DebugInfoScreen.canceledMtask4Count), HalloweenCursor, Color.Red);
+
+            HalloweenCursor.Y = HalloweenCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Ships not in forcepool: ", this.shipsnotinforcepool," Not in Defenspool: ",this.shipsnotinDefforcepool), HalloweenCursor, Color.Red);
+    
+            
+            Vector2 Cursor = new Vector2((float)(this.win.X + 10), (float)(this.win.Y + 10));
+
 			int column = 0;
 			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.win, Color.Black);
 			foreach (Empire e in EmpireManager.EmpireList)
