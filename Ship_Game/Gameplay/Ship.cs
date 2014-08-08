@@ -1260,6 +1260,107 @@ namespace Ship_Game.Gameplay
             return maint;
         }
 
+
+        // The Doctor - This function is an overload which is used for the Ship Build menu.
+        // It will calculate the maintenance cost in exactly the same way as the normal function, except as the ship build list elements have no loyalty data, this variable is called by the function
+
+        public float GetMaintCost(Empire empire)
+        {
+            float maint = 0f;
+            string role = this.Role;
+            string str = role;
+            //bool nonCombat = false;
+            //added by gremlin: Maintenance changes
+            float maintModReduction = 1;
+            this.loyalty = empire;
+
+            //Ships without upkeep. The Doctor - Remnant designs REMOVED from this, as mods may choose to unlock Remnant hulls for construction.
+            if (role == null || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
+                || (this.Mothership != null && (this.Role == "fighter" || this.Role == "corvette" || this.Role == "scout" || this.Role == "frigate")))
+            {
+                return 0f;
+            }
+
+            //Get Maintanence of ship role
+            bool foundMaint = false;
+            if (ResourceManager.ShipRoles.ContainsKey(this.Role))
+            {
+                for (int i = 0; i < ResourceManager.ShipRoles[this.Role].RaceList.Count(); i++)
+                {
+                    if (ResourceManager.ShipRoles[this.Role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
+                    {
+                        maint = ResourceManager.ShipRoles[this.Role].RaceList[i].Upkeep;
+                        foundMaint = true;
+                        break;
+                    }
+                }
+                if (!foundMaint)
+                    maint = ResourceManager.ShipRoles[this.Role].Upkeep;
+            }
+            else
+                return 0f;
+
+            //Modify Maintanence by freighter size
+            if (this.Role == "freighter")
+            {
+                switch ((int)this.Size / 50)
+                {
+                    case 0:
+                        {
+                            break;
+                        }
+
+                    case 1:
+                        {
+                            maint *= 1.5f;
+                            break;
+                        }
+
+                    case 2:
+                    case 3:
+                    case 4:
+                        {
+                            maint *= 2f;
+                            break;
+                        }
+                    default:
+                        {
+                            maint *= (int)this.Size / 50;
+                            break;
+                        }
+                }
+            }
+
+            //Apply Privatization
+            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
+            {
+                maint *= 0.5f;
+            }
+
+            //added by gremlin shipyard exploit fix
+            if (this.Name == "Shipyard" && this.IsTethered())
+                if (this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() > 3)
+                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() - 3;
+
+            //Subspace Projectors do not get any more modifiers
+            if (this.Name == "Subspace Projector")
+            {
+                return maint;
+            }
+
+            //Maintenance fluctuator
+            //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
+            float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+            if (OptionIncreaseShipMaintenance > 1)
+            {
+                maintModReduction = OptionIncreaseShipMaintenance;
+                maint *= maintModReduction;
+            }
+            return maint;
+        }
+
+
+
         public int GetTechScore()
         {
             int num1 = 0;

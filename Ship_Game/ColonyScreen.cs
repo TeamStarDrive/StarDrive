@@ -578,7 +578,7 @@ namespace Ship_Game
                   // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
 
                   position = new Vector2((float) (destinationRectangle2.X - 50), (float) (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                  string upkeep = (entry.item as Ship).GetMaintCost().ToString();
+                  string upkeep = (entry.item as Ship).GetMaintCost(this.p.Owner).ToString();
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
 
                   // ~~~
@@ -601,7 +601,7 @@ namespace Ship_Game
                   // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
 
                   position = new Vector2((float)(destinationRectangle2.X - 50), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                  string upkeep = (entry.item as Ship).GetMaintCost().ToString();
+                  string upkeep = (entry.item as Ship).GetMaintCost(this.p.Owner).ToString();
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
 
                   // ~~~
