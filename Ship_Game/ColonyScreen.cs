@@ -580,7 +580,7 @@ namespace Ship_Game
                   position = new Vector2((float) (destinationRectangle2.X - 60), (float) (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                     // Use correct upkeep method depending on mod settings
                   string upkeep = "Doctor rocks";
-                  if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+                  if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
                   {
                       upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
                   }
@@ -612,7 +612,7 @@ namespace Ship_Game
                   position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                   // Use correct upkeep method depending on mod settings
                   string upkeep = "Doctor rocks";
-                  if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+                  if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
                   {
                       upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
                   }
