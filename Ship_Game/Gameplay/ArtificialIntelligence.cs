@@ -1749,7 +1749,10 @@ namespace Ship_Game.Gameplay
                     module.GetParent().Ordinance -= TransferAmount;
                     module.GetParent().PowerCurrent -= module.TransporterPower * (TransferAmount / module.TransporterOrdnance);
                     if(ResourceManager.SoundEffectDict.ContainsKey("transporter"))
-                        AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict["transporter"], 0.2f);
+                    {
+                        GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
+                        AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
+                    }
                     return;
                 }
             }
