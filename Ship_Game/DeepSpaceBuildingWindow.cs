@@ -97,7 +97,7 @@ namespace Ship_Game
                     string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
 
                     string upkeep = "Doctor rocks";
-                    if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
                     {
                         upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
                     }
@@ -159,7 +159,7 @@ namespace Ship_Game
                     string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
 
                     string upkeep = "Doctor rocks";
-                    if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
                     {
                         upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
                     }
