@@ -244,6 +244,7 @@ namespace Ship_Game.Gameplay
         public float TransporterRange;
         public float TransporterPower;
         public float TransporterOrdnance;
+        public byte TransporterTroopLanding;
 
 
 		public bool IsWeapon
