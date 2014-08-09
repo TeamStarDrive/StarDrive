@@ -79,14 +79,43 @@ namespace Ship_Game
 			{
 				ScrollList.Entry e = this.SL.Entries[i];
 				bCursor.Y = (float)e.clickRect.Y;
+                bCursor.X = (float)e.clickRect.X - 9;
 				if (e.clickRectHover != 0)
 				{
-					bCursor.Y = (float)e.clickRect.Y;
 					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
+                    string name = (e.item as Ship).Name;
+                    SpriteFont nameFont = Fonts.Arial12Bold;
+                    if (Fonts.Arial12Bold.MeasureString(name).X > 120f)
+                        nameFont = Fonts.Arial10;
+					this.ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).Role, tCursor, Color.Orange);
+
+                    // Costs and Upkeeps for the deep space build menu - The Doctor
+                    
+                    string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
+
+                    string upkeep = "Doctor rocks";
+                    if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+                    {
+                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                    }
+                    else
+                    {
+                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                    }
+
+                    Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], prodiconRect, Color.White);
+
+                    tCursor = new Vector2((float)(prodiconRect.X - 60), (float)(prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), tCursor, Color.Salmon);
+
+                    tCursor = new Vector2((float)(prodiconRect.X + 26), (float)(prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost, tCursor, Color.White);
+
+
 					if (e.Plus != 0)
 					{
 						if (e.PlusHover != 0)
@@ -117,9 +146,37 @@ namespace Ship_Game
 				{
 					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
+                    string name = (e.item as Ship).Name;
+                    SpriteFont nameFont = Fonts.Arial12Bold;
+                    if (Fonts.Arial12Bold.MeasureString(name).X > 120f)
+                        nameFont = Fonts.Arial10;
+                    this.ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).Role, tCursor, Color.Orange);
+
+                    // Costs and Upkeeps for the deep space build menu - The Doctor
+
+                    string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
+
+                    string upkeep = "Doctor rocks";
+                    if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+                    {
+                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                    }
+                    else
+                    {
+                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                    }
+
+                    Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], prodiconRect, Color.White);
+
+                    tCursor = new Vector2((float)(prodiconRect.X - 60), (float)(prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), tCursor, Color.Salmon);
+
+                    tCursor = new Vector2((float)(prodiconRect.X + 26), (float)(prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost, tCursor, Color.White);
+
 					if (e.Plus != 0)
 					{
 						if (e.PlusHover != 0)
