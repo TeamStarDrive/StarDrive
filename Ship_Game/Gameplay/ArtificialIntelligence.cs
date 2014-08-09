@@ -1730,9 +1730,9 @@ namespace Ship_Game.Gameplay
 
         private void DoOrdinanceTransporterLogic(ShipModule module)
         {
-            foreach (Ship ship in module.GetParent().loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) <= module.TransporterRange + 500f && ship.Ordinance < ship.OrdinanceMax).OrderBy(ship => ship.Ordinance).ToList())
+            foreach (Ship ship in module.GetParent().loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) <= module.TransporterRange + 500f && ship.Ordinance < ship.OrdinanceMax && !ship.hasTransporter).OrderBy(ship => ship.Ordinance).ToList())
             {
-                if (ship != null && ship != module.GetParent())
+                if (ship != null)
                 {
                     module.TransporterTimer = module.TransporterTimerConstant;
                     float TransferAmount = 0f;
