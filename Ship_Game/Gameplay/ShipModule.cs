@@ -239,8 +239,8 @@ namespace Ship_Game.Gameplay
 
         public float SensorBonus;
         //Transporter Values
-        public float TransporterTimerConstant = 5.0f;
-        public float TransporterTimer;
+        public float TransporterTimerConstant;
+        public float TransporterTimer = 0f;
         public float TransporterRange;
         public float TransporterPower;
         public float TransporterOrdnance;

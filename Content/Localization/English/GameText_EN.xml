@@ -7691,6 +7691,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6121</Index>
       <Text>Range+</Text>
     </Token>
+	<Token>
+      <Index>6122</Index>
+      <Text>Delay</Text>
+    </Token>
+	<Token>
+      <Index>6123</Index>
+      <Text>Trans Pw</Text>
+    </Token>
+	<Token>
+      <Index>6124</Index>
+      <Text>Trans Ord</Text>
+    </Token>
 	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -7762,6 +7774,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7017</Index>
       <Text>Indicates sensor bonus added by this module. Sensor bonuses add onto sensor range - only the highest bonus will apply.</Text>
+    </Token>
+	<Token>
+      <Index>7018</Index>
+      <Text>Indicates the range of this transporter.</Text>
+    </Token>
+	<Token>
+      <Index>7019</Index>
+      <Text>Indicates the power used by this when transporting.</Text>
+    </Token>
+	<Token>
+      <Index>7020</Index>
+      <Text>Indicates the delay between transports.</Text>
+    </Token>
+	<Token>
+      <Index>7021</Index>
+      <Text>Indicates the amount of ordnance that can be transported.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
