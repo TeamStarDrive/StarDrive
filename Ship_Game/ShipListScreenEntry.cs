@@ -116,7 +116,7 @@ namespace Ship_Game
 			Vector2 MainPos = new Vector2((float)(this.MaintRect.X + this.MaintRect.Width - 2), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
 			Empire e = EmpireManager.GetEmpireByName(this.screen.empUI.screen.PlayerLoyalty);
             float Maint = 1f;
-            if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+            if (GlobalStats.ActiveMod != null&& GlobalStats.ActiveMod.mi.useProportionalUpkeep )
             {
                 Maint = this.ship.GetMaintCostRealism();
             }
