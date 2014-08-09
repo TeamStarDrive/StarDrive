@@ -1321,7 +1321,7 @@ namespace Ship_Game
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
                 //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
-                if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+                if (GlobalStats.ActiveMod != null&&GlobalStats.ActiveMod.mi.useProportionalUpkeep  )
                 {
                     this.totalShipMaintenance += ship.GetMaintCostRealism();
                 }
