@@ -7703,6 +7703,19 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6124</Index>
       <Text>Trans Ord</Text>
     </Token>
+    <Token>
+      <Index>6125</Index>
+      <Text>Gross Income</Text>
+    </Token>
+	<Token>
+      <Index>6126</Index>
+      <Text>Expenditure</Text>
+    </Token>
+	<Token>
+      <Index>6127</Index>
+      <Text>Net Income</Text>
+    </Token>
+	
 	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
