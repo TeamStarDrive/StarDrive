@@ -1118,7 +1118,8 @@ namespace Ship_Game
                 TransporterOrdnance = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterOrdnance,
                 TransporterPower = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterPower,
                 TransporterRange = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterRange,
-                TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant
+                TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant,
+                TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding
 			};
 			return module;
 		}

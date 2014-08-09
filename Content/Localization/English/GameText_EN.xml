@@ -7715,6 +7715,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6127</Index>
       <Text>Net Income</Text>
     </Token>
+	<Token>
+      <Index>6128</Index>
+      <Text>Land</Text>
+    </Token>
+	
 	
 	
 	
@@ -7803,6 +7808,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7021</Index>
       <Text>Indicates the amount of ordnance that can be transported.</Text>
+    </Token>
+	<Token>
+      <Index>7022</Index>
+      <Text>Indicates the number of troops that can be beamed down to a planet at a time.</Text>
+    </Token>
+	<Token>
+      <Index>7023</Index>
+      <Text>Indicates the number of troops that this module can hold.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
