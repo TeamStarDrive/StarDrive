@@ -3346,8 +3346,6 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-
-
         public virtual void UpdateShipStatus(float elapsedTime)
         {
             if ((double)elapsedTime == 0.0)
