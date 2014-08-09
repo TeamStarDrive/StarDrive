@@ -913,37 +913,47 @@ namespace Ship_Game.Gameplay
 			this.CreateDroneBeam(direction, target, source);
 		}
 
-		public virtual void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
-		{
-			Vector2 StartPos = p.Position;
-			if (this.FireArc != 0)
-			{
-				float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-				float angleToTarget = this.findAngleToTarget(direction);
-				for (int i = 0; i < this.ProjectileCount; i++)
-				{
-					Vector2 newTarget = this.findTargetFromAngleAndDistance(StartPos, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
-					Vector2 fireDirection = this.findVectorToTarget(StartPos, newTarget);
-					fireDirection.Y = fireDirection.Y * -1f;
+        public virtual void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
+        {
+            Vector2 StartPos = p.Position;
+            if (this.FireArc != 0)
+            {
+                float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
+                float angleToTarget = this.findAngleToTarget(direction);
+                for (int i = 0; i < this.ProjectileCount; i++)
+                {
+                    Vector2 newTarget = this.findTargetFromAngleAndDistance(StartPos, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
+                    Vector2 fireDirection = this.findVectorToTarget(StartPos, newTarget);
+                    fireDirection.Y = fireDirection.Y * -1f;
                     this.CreateProjectilesFromPlanet(Vector2.Normalize(fireDirection), p, target);
-				}
-				return;
-			}
-			if (this.FireCone <= 0)
-			{
-				for (int i = 0; i < this.ProjectileCount; i++)
-				{
-                    this.CreateProjectilesFromPlanet(direction, p, target);
-				}
-				return;
-			}
-			float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-			float angleToTarget2 = this.findAngleToTarget(direction);
-			Vector2 newTarget2 = this.findTargetFromAngleAndDistance(StartPos, angleToTarget2 + spread, this.Range);
-			Vector2 fireDirection2 = this.findVectorToTarget(StartPos, newTarget2);
-			fireDirection2.Y = fireDirection2.Y * -1f;
+                }
+                return;
+            }
+            if (this.FireCone <= 0)
+            {
+                if (!this.isBeam)
+                {
+                    for (int i = 0; i < this.ProjectileCount; i++)
+                    {
+                        if (this.WeaponType != "Missile")
+                        {
+                            this.CreateProjectilesFromPlanet(direction, p, target);
+                        }
+                        else
+                        {
+                            this.CreateProjectilesFromPlanet(Vector2.Normalize(direction), p, target);
+                        }
+                    }
+                }
+                return;
+            }
+            float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
+            float angleToTarget2 = this.findAngleToTarget(direction);
+            Vector2 newTarget2 = this.findTargetFromAngleAndDistance(StartPos, angleToTarget2 + spread, this.Range);
+            Vector2 fireDirection2 = this.findVectorToTarget(StartPos, newTarget2);
+            fireDirection2.Y = fireDirection2.Y * -1f;
             this.CreateProjectilesFromPlanet(Vector2.Normalize(fireDirection2), p, target);
-		}
+        }
 
 		public virtual void FireSalvo(Vector2 direction, GameplayObject target)
 		{
