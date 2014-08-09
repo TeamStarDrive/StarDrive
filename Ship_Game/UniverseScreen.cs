@@ -3468,9 +3468,9 @@ namespace Ship_Game
                     else
                         ship.GetAI().OrderToOrbit(planet, true);
                 }
-                else if (ship.Role == "troop" || (ship.HasTroopBay &&ship.TroopList.Count >0 ))
+                else if (ship.Role == "troop" || (ship.TroopList.Count > 0 && (ship.HasTroopBay || ship.hasTransporter)))
                 {
-                    if (planet.Owner != null && planet.Owner == this.player && !ship.HasTroopBay)
+                    if (planet.Owner != null && planet.Owner == this.player && !ship.HasTroopBay && !ship.hasTransporter)
                     {
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                             ship.GetAI().OrderRebase(planet, false);
