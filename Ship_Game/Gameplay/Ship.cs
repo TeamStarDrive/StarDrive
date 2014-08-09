@@ -32,6 +32,7 @@ namespace Ship_Game.Gameplay
         private Dictionary<Vector2, ModuleSlot> ModulesDictionary = new Dictionary<Vector2, ModuleSlot>();
         public float DefaultFTLSpeed = 1000f;
         public float RepairRate = 1f;
+        public float RepairUsed = 0f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
         public float maxBank = 0.5235988f;
@@ -2908,7 +2909,7 @@ namespace Ship_Game.Gameplay
                     ship3.Center = vector2_2;
                     this.UpdateShipStatus(elapsedTime);
                     //Added by McShooterz: Priority repair
-                    if (this.Health < this.HealthMax)
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
                     {
                         foreach (ModuleSlot moduleSlot in this.ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).ToList())
                         {
@@ -3522,6 +3523,7 @@ namespace Ship_Game.Gameplay
                     this.OrdinanceMax = 0.0f;
                     this.PowerDraw = 0.0f;
                     this.RepairRate = 1f;
+                    this.RepairUsed = 0.0f;
                     this.WarpMassCapacity = 0.0f;
                     this.CargoSpace_Max = 0.0f;
                     this.SensorRange = 0.0f;
