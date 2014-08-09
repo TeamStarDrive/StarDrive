@@ -839,5 +839,25 @@
       <Title>Repair Beam</Title>
       <Data>7017</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>168</TIP_ID>
+      <Title>Transporter Range</Title>
+      <Data>7018</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>169</TIP_ID>
+      <Title>Transporter Power</Title>
+      <Data>7019</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>170</TIP_ID>
+      <Title>Transporter Time</Title>
+      <Data>7020</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>171</TIP_ID>
+      <Title>Transporter Ordnance</Title>
+      <Data>7021</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
