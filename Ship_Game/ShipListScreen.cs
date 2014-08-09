@@ -369,7 +369,7 @@ namespace Ship_Game
 				ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable", base.ScreenManager);
                 if (input.InGameSelect)
                 {
-                    if (GlobalStats.ActiveMod.mi.useProportionalUpkeep && GlobalStats.ActiveMod != null)
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
                     {
                         AudioManager.PlayCue("sd_ui_accept_alt3");
                         this.StrSorted = !this.StrSorted;
