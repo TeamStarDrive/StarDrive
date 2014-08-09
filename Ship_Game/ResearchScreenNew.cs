@@ -755,11 +755,14 @@ namespace Ship_Game
 
 		private void UnlockTree(string key)
 		{
-			EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UnlockTech(key);
-			foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[key].LeadsTo)
-			{
-				this.UnlockTree(tech.UID);
-			}
+            if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).HavePreReq(key) && (!ResourceManager.TechTree[key].Secret || (ResourceManager.TechTree[key].Secret && EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[key].Discovered)))
+            {
+                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UnlockTech(key);
+                foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[key].LeadsTo)
+                {
+                    this.UnlockTree(tech.UID);
+                }
+            }
 		}
 
         //Added by McShooterz: find size of tech tree before it is built
