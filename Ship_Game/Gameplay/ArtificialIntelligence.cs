@@ -1253,7 +1253,7 @@ namespace Ship_Game.Gameplay
 			else
 			{
 				List<Troop> ToRemove = new List<Troop>();
-                if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f  )
+                if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f)
 				{
                     int i = 0;
                     foreach(ShipModule hangar in this.Owner.GetHangars().Where(hangar=> hangar.hangarTimer<=0 && hangar.IsTroopBay))
@@ -1272,12 +1272,29 @@ namespace Ship_Game.Gameplay
                                     ToRemove.Add(troop);
                                     i++;
                                 }
+                                else
+                                    break;
                             }
                             else
                                 i++;
                         }
                         
 					}
+                    foreach (ShipModule module in this.Owner.Transporters.Where(module => module.TransporterTimer <= 0 && module.TransporterTroopLanding > 0))
+                    {
+                        if (i > this.Owner.TroopList.Count)
+                            break;
+                        for (int j = 0; j < module.TransporterTroopLanding; j++)
+                        {
+                            Troop troop = this.Owner.TroopList[i];
+                            if (troop != null && troop.GetOwner() == this.Owner.loyalty && goal.TargetPlanet.AssignTroopToTile(troop))
+                            {
+                                module.TransporterTimer = module.TransporterTimerConstant;
+                                ToRemove.Add(troop);
+                            }
+                            i++;
+                        }
+                    }
                     foreach (Troop to in ToRemove)
                     {
                         this.Owner.TroopList.Remove(to);
@@ -6923,7 +6940,7 @@ namespace Ship_Game.Gameplay
                                 else
                                     break;
                             }
-                            else if (this.Owner.HasTroopBay)
+                            else if (this.Owner.HasTroopBay || (this.Owner.hasTransporter))
                             {
                                 this.State = AIState.AssaultPlanet;
                                 this.OrderAssaultPlanet(target);
