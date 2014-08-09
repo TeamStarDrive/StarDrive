@@ -1561,6 +1561,13 @@ namespace Ship_Game.Gameplay
 					this.Parent.Ordinance = this.Parent.OrdinanceMax;
 				}
 			}
+            if ((GlobalStats.ActiveMod == null || GlobalStats.ActiveMod.mi.useCombatRepair) && this.Parent.LastHitTimer <= 0f && base.Health / this.HealthMax < 1f && this.Parent.RepairUsed * elapsedTime < this.Parent.RepairRate)
+            {
+                ShipModule health = this;
+                health.Health = health.Health + this.Parent.RepairRate * elapsedTime;
+                Ship repairUsed = this.Parent;
+                repairUsed.RepairUsed = repairUsed.RepairUsed + this.Parent.RepairRate * elapsedTime;
+            }
 			if (base.Health >= this.HealthMax)
 			{
 				base.Health = this.HealthMax;
