@@ -220,6 +220,8 @@ namespace Ship_Game.Gameplay
         public bool IsIndangerousSpace;
         public bool IsInNeutralSpace;
         public bool IsInFriendlySpace;
+
+        public List<ShipModule> Transporters = new List<ShipModule>();
         public bool hasTransporter;
 
 
@@ -1680,6 +1682,11 @@ namespace Ship_Game.Gameplay
                     ss.module.hangarShipUID = ss.SlotOptions;
                     this.Hangars.Add(ss.module);
                 }
+                if (ss.module.ModuleType == ShipModuleType.Transporter)
+                {
+                    this.Transporters.Add(ss.module);
+                    this.hasTransporter = true;
+                }
                 if (ss.module.IsRepairModule || (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam))
                     this.HasRepairModule = true;
             }
@@ -1719,6 +1726,8 @@ namespace Ship_Game.Gameplay
                     this.HasRepairModule = true;
                 if (ss.module.ModuleType == ShipModuleType.Colony)
                     this.isColonyShip = true;
+                if (ss.module.ModuleType == ShipModuleType.Transporter)
+                    this.hasTransporter = true;
             }
             this.RecalculatePower();
         }
@@ -2240,6 +2249,8 @@ namespace Ship_Game.Gameplay
                         this.HasTroopBay = true;
                     }
                 }
+                if (moduleSlotList.module.ModuleType == ShipModuleType.Transporter)
+                    this.Transporters.Add(moduleSlotList.module);
                 Ship ship = this;
                 ship.mass += moduleSlotList.module.Mass;
                 ship.WarpMassCapacity += moduleSlotList.module.WarpMassCapacity;
@@ -3495,6 +3506,7 @@ namespace Ship_Game.Gameplay
                 {
                     this.Hangars.Clear();
                     this.Shields.Clear();
+                    this.Transporters.Clear();
                     this.Thrust = 0.0f;
                     this.Mass = 0.0f;
                     Ship ship1 = this;
@@ -3649,6 +3661,10 @@ namespace Ship_Game.Gameplay
                             this.Hangars.Add(moduleSlot.module);
                             if (moduleSlot.module.IsTroopBay)
                                 this.HasTroopBay = true;
+                        }
+                        if (moduleSlot.module.ModuleType == ShipModuleType.Transporter && moduleSlot.module.Active && moduleSlot.module.Powered)
+                        {
+                            this.Transporters.Add(moduleSlot.module);
                         }
                         if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                             this.armor_current += (double)moduleSlot.module.Health;
