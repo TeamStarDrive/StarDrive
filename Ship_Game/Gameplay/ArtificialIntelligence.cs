@@ -6555,8 +6555,9 @@ namespace Ship_Game.Gameplay
                 foreach(ShipModule module in this.Owner.Transporters)
                 {
                     module.TransporterTimer -= elapsedTime;
-                    if (module.TransporterTimer <= 0f && module.TransporterPower < this.Owner.PowerCurrent)
+                    if (module.TransporterTimer <= 0f && module.Active && module.Powered && module.TransporterPower < this.Owner.PowerCurrent)
                     {
+                        module.TransporterTimer = 0f;
                         if (module.TransporterOrdnance > 0 && this.Owner.Ordinance > 0)
                             this.DoOrdinanceTransporterLogic(module);
                     }

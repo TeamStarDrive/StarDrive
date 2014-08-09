@@ -524,6 +524,7 @@ namespace Ship_Game.Gameplay
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
             projectile.explosionradiusmod = this.ExplosionRadiusVisual;
+            projectile.Health = this.HitPoints;
 			projectile.speed = this.ProjectileSpeed;
 			projectile.WeaponEffectType = this.WeaponEffectType;
 			projectile.WeaponType = this.WeaponType;
