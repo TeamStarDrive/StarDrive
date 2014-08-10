@@ -3935,7 +3935,9 @@ namespace Ship_Game.Gameplay
 		{
 			if (this.SystemToDefend != system || this.State != AIState.SystemDefender)
 			{
-				this.HasPriorityOrder = false;
+                if (this.Target !=null &&(this.Target as Ship).Name == "Subspace Projector")
+                    System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", (this.Target as Ship).Name));
+                this.HasPriorityOrder = false;
 				this.SystemToDefend = system;
 				this.OrderQueue.Clear();
 				if (this.SystemToDefend.PlanetList.Count > 0)
@@ -5212,7 +5214,7 @@ namespace Ship_Game.Gameplay
                     this.Target = null;
                     this.hasPriorityTarget = false;
                 }
-                else if (((!this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(this.Target as Ship) && (Vector2.Distance(Position, this.Target.Center) > Radius )&& !this.Intercepting)))
+                else if (!this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(this.Target as Ship) && (Vector2.Distance(Position, this.Target.Center) > Radius )&& !this.Intercepting)
                 {
                     this.Target = null;
                     this.Owner.InCombat = false;
@@ -5535,6 +5537,7 @@ namespace Ship_Game.Gameplay
 
             float radius = 30000f;
             Vector2 senseCenter = this.Owner.Center;
+
             if (UseSensorsForTargets)
             {
                 if (this.Owner.Mothership != null)
@@ -5579,6 +5582,8 @@ namespace Ship_Game.Gameplay
             }
             else if (!this.hasPriorityTarget)
             {
+                if (this.State == AIState.Intercept && this.Target !=null)
+                    System.Diagnostics.Debug.WriteLine(this.Target);
                 this.Target = this.ScanForCombatTargets(senseCenter, radius);
             }
             else
@@ -6543,9 +6548,13 @@ namespace Ship_Game.Gameplay
                     this.HasPriorityOrder = false;
                 }
             }
-            if (this.State == AIState.Flee && this.inOrbit && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000)
+            if (this.State == AIState.Flee && !this.BadGuysNear)// Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000)
             {
-                this.OrderQueue.Clear();
+                if(this.OrderQueue.Count >0)
+                this.OrderQueue.Remove(this.OrderQueue.Last);
+                if (this.Owner.CargoSpace_Used > 0)
+                    this.State = AIState.SystemTrader;
+                else
                 this.State = this.DefaultAIState;
             }
             this.ScanForThreatTimer -= elapsedTime;
@@ -6596,14 +6605,15 @@ namespace Ship_Game.Gameplay
             {
                 if (this.State != AIState.Flee )//&& !this.HasPriorityOrder)
                 {
-                    this.OrderQueue.Clear();
+                    //this.OrderQueue.Clear();
                     //if (this.CombatState == CombatState.Evade)
                     //    this.State = AIState.AwaitingOrders;
                     this.HasPriorityOrder = true;
                     this.State = AIState.Flee;
                     if (this.State == AIState.Flee)
                     {
-                        this.OrderFlee(true);
+ 
+                        this.OrderFlee(false);
                         this.Owner.InCombatTimer = 15f;
 
                     }
@@ -6742,6 +6752,9 @@ namespace Ship_Game.Gameplay
                             {
                                 case AIState.SystemDefender:
                                     {
+                                        if (this.Target != null)
+                                        System.Diagnostics.Debug.WriteLine(this.Target);
+                                        if(this.Target == null)
                                         this.AwaitOrders(elapsedTime);
                                         break;
                                     }
@@ -7094,6 +7107,8 @@ namespace Ship_Game.Gameplay
                             }
                         case ArtificialIntelligence.Plan.DefendSystem:
                             {
+                                if(this.Target!=null)
+                                System.Diagnostics.Debug.WriteLine(this.Target);
                                 this.DoSystemDefense(elapsedTime);
                                 break;
                             }
@@ -7276,17 +7291,21 @@ namespace Ship_Game.Gameplay
             if ( (this.Owner.InCombat || this.Owner.LastHitTimer > 0f))
             {
                 if((this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0))
-                try
+#if !DEBUG
+                    try
                 {
+#endif
                     if ( !this.HasPriorityOrder && (this.OrderQueue.Count == 0 || this.OrderQueue.Count > 0 && this.OrderQueue.First<ArtificialIntelligence.ShipGoal>().Plan != ArtificialIntelligence.Plan.DoCombat))
                     {
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }
                     this.FireOnTarget(elapsedTime);
-                }
+#if !DEBUG
+                    }
                 catch
                 {
                 }
+#endif
             }
             else
             {
@@ -7296,14 +7315,15 @@ namespace Ship_Game.Gameplay
                     if (this.TryRepairsTimer <= 0f)
                     {
                         this.TryRepairsTimer = 5f;
-                        //foreach (Weapon weapon in this.Owner.Weapons)
-                        Parallel.ForEach(this.Owner.Weapons, weapon =>
+                        foreach (Weapon weapon in this.Owner.Weapons)
+                        //Parallel.ForEach(this.Owner.Weapons, weapon =>
                         {
                             Weapon weapon1 = weapon;
                             weapon1.timeToNextFire = weapon1.timeToNextFire - elapsedTime;
                             if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || this.Owner.Ordinance < weapon.OrdinanceRequiredToFire || this.Owner.PowerCurrent < weapon.PowerRequiredToFire || (!weapon.IsRepairDrone && !weapon.isRepairBeam))
                             {
-                                return;
+                                //return;
+                                continue;
                             }
                             try
                             {
@@ -7315,7 +7335,7 @@ namespace Ship_Game.Gameplay
                             catch
                             {
                             }
-                        });
+                        }//);
                     }
                 }
                 if (this.Owner.GetHangars().Count > 0 && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)

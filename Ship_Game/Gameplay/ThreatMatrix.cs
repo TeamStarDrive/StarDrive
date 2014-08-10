@@ -180,8 +180,13 @@ namespace Ship_Game.Gameplay
                 if (scrubborders && pin.Value.InBorders)
                 {
                     if ((pin.Value.ship != null && pin.Value.ship.Active) && pin.Value.ship.Name == "Subspace Projector")
+                    {
+                        //System.Diagnostics.Debug.WriteLine(string.Concat("Skipped", pin.Value.ship.Name));
                         continue;
+                    }
                     pin.Value.InBorders = false;
+                    if(pin.Value.ship.Name == "Subspace Projector")
+                    System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", pin.Value.ship.Name));
 
 
                 }
