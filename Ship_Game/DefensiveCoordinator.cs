@@ -298,7 +298,7 @@ namespace Ship_Game
 			this.DefensiveForcePool.ApplyPendingRemovals();
 			foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
 			{
-				if (entry.Key == null)
+				if (entry.Key == null )
 				{
 					continue;
 				}
