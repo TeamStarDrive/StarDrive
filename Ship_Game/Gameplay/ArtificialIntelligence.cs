@@ -1889,12 +1889,14 @@ namespace Ship_Game.Gameplay
 
 		private void DoSystemDefense(float elapsedTime)
 		{
-			if (this.SystemToDefend == null)
+            //if (this.Target != null )//|| this.Owner.InCombat && this.Target != null && !this.Owner.inborders))
+            //    return;
+            if (this.SystemToDefend == null)
 			{
 				this.SystemToDefend = this.Owner.GetSystem();
 			}
 			//added by gremlin Prevent constant switching to await orders while defending.
-            if(this.Target ==null || (!this.Owner.InCombat && this.Target!=null && !this.Owner.inborders))
+            if (this.Target == null)
                 this.AwaitOrders(elapsedTime);
 		}
 
