@@ -691,12 +691,14 @@ namespace Ship_Game
                         }
                 #endregion
             }
-            if (Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && Mission == AgentMission.Defending && Owner.Money > 500 && AgentComponent.AutoTrain == true)
+            #region Mission Repeat
+            if (Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && Mission == AgentMission.Defending && Owner.Money > 500 && AgentComponent.AutoTrain == true && (startingmission != AgentMission.Training || (startingmission == AgentMission.Training && this.Level < 10)))
             {
                 this.AssignMission(startingmission, Owner, this.TargetEmpire);
                 return;
             }
             this.TargetEmpire = "";
+            #endregion
         }
 
 		public void Initialize(AgentMission TheMission, Empire Owner)
