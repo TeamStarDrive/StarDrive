@@ -15,6 +15,7 @@ namespace Ship_Game
         public int Experience = 0;
 
 		public AgentMission Mission;
+        public AgentMission PrevisousMission = AgentMission.Training;
 
 		public int TurnsRemaining;
 
@@ -126,6 +127,7 @@ namespace Ship_Game
                         {
                             if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " ", Localizer.Token(6027)), Owner);
                             this.AssignMission(AgentMission.Recovering, Owner, "");
+                            this.PrevisousMission = AgentMission.Training;
                             break;
                         }
                         if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " ", Localizer.Token(6028)), Owner);
@@ -172,6 +174,7 @@ namespace Ship_Game
                                     if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6033), " ", Owner.data.Traits.Name), Target);
                                 }
                                 this.AssignMission(AgentMission.Recovering, Owner, "");
+                                this.PrevisousMission = AgentMission.Infiltrate;
                                 break;
                             }
                             this.Mission = AgentMission.Defending;
@@ -277,6 +280,7 @@ namespace Ship_Game
                                 }
                                 if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " ", Localizer.Token(6044)), Owner);
                                 this.AssignMission(AgentMission.Recovering, Owner, "");
+                                this.PrevisousMission = AgentMission.Assassinate;
                                 break;
                             }
                             this.Mission = AgentMission.Defending;
@@ -367,6 +371,7 @@ namespace Ship_Game
                                 Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
                                 if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " ", Localizer.Token(6052), " ", target.Name), Owner);
                                 this.AssignMission(AgentMission.Recovering, Owner, "");
+                                this.PrevisousMission = AgentMission.Sabotage;
                                 break;
                             }
                             if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
@@ -453,6 +458,7 @@ namespace Ship_Game
                                     Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
                                     if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " ", Localizer.Token(6050)), Owner);
                                     this.AssignMission(AgentMission.Recovering, Owner, "");
+                                    this.PrevisousMission = AgentMission.StealTech;
                                     break;
                                 }
                                 if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
@@ -549,6 +555,7 @@ namespace Ship_Game
                                 Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
                                 if (!spyMute) if (!AgentComponent.AutoTrain) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " ", Localizer.Token(6072)), Owner);
                                 this.AssignMission(AgentMission.Recovering, Owner, "");
+                                this.PrevisousMission = AgentMission.Robbery;
                                 break;
                             }
                             if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
@@ -648,6 +655,7 @@ namespace Ship_Game
                                 Target.GetRelations()[Owner].DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
                                 if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " ", Localizer.Token(6080), " ", target.Name), Owner);
                                 this.AssignMission(AgentMission.Recovering, Owner, "");
+                                this.PrevisousMission = AgentMission.InciteRebellion;
                                 break;
                             }
                             if (Target == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
@@ -676,6 +684,7 @@ namespace Ship_Game
                 case AgentMission.Recovering :
                         {
                             this.Mission = AgentMission.Defending;
+                            startingmission = this.PrevisousMission;
                             this.MissionNameIndex = 2183;
                             if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(true, string.Concat(this.Name, " ", Localizer.Token(6086)), Owner);
                             break;
