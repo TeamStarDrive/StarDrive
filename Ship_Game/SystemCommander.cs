@@ -35,12 +35,17 @@ namespace Ship_Game
 
 		public void AssignTargets()
 		{
-			this.EnemyClumpsDict.Clear();
+			
+            this.EnemyClumpsDict.Clear();
+            if (this.ShipsDict.Count == 0)
+                return;
 			List<Ship> ShipsAlreadyConsidered = new List<Ship>();
+
 			foreach (KeyValuePair<Guid, Ship> entry in this.ShipsDict)
 			{
 				Ship ship = entry.Value;
-                if (ship == null || ship.GetAI().Target == null  || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
+                if (ship == null || ship.GetAI().Target != null && ship.GetAI().Target.GetSystem() != null
+                    && ship.GetAI().Target.GetSystem() == this.system)//(ship.GetAI().Target.GetSystem() == null ||) ship.GetAI().Target == null  ||
 				{
 					continue;
 				}
@@ -55,7 +60,9 @@ namespace Ship_Game
 			{
 				//Ship ship = this.system.ShipList[i];
                 Ship ship = this.us.GetShipsInOurBorders()[i];
-                if (ship != null && ship.loyalty != this.us && (ship.loyalty.isFaction || (this.us.GetRelations()[ship.loyalty].AtWar || !this.us.GetRelations()[ship.loyalty].Treaty_OpenBorders)) && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
+                if (ship != null && ship.loyalty != this.us 
+                    && (ship.loyalty.isFaction || this.us.GetRelations()[ship.loyalty].AtWar || !this.us.GetRelations()[ship.loyalty].Treaty_OpenBorders) 
+                    && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
 				{
 					this.EnemyClumpsDict.Add(ship, new List<Ship>());
 					this.EnemyClumpsDict[ship].Add(ship);
@@ -71,10 +78,10 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (this.EnemyClumpsDict.Count != 0)
+			if (this.EnemyClumpsDict.Count != 0 && this.ShipsDict.Count !=0)
 			{
 				List<Ship> ClumpsList = new List<Ship>();
-				foreach (KeyValuePair<Ship, List<Ship>> entry in this.EnemyClumpsDict)
+				foreach (KeyValuePair<Ship, List<Ship>> entry in this.EnemyClumpsDict)//.OrderBy(entry => Vector2.Distance(entry.Key.Position,this.system.Position)))
 				{
 					ClumpsList.Add(entry.Key);
 				}
@@ -86,11 +93,14 @@ namespace Ship_Game
 				foreach (Ship enemy in this.EnemyClumpsDict[distanceSorted.First<Ship>()])
 				{
 					float AssignedStr = 0f;
+                    float strMod = 1;
+                    strMod += (int)Empire.universeScreen.GameDifficulty *.10f;
+                    float enemystrength = this.EnemyClumpsDict[enemy].Sum(str => str.GetStrength()) * strMod;
 					foreach (KeyValuePair<Guid, Ship> friendly in this.ShipsDict)
 					{
 						if (!friendly.Value.InCombat)
 						{
-							if (AssignedShips.Contains(friendly.Value) || AssignedStr != 0f && AssignedStr >= enemy.GetStrength() || friendly.Value.GetAI().State == AIState.Resupply)
+                            if (AssignedShips.Contains(friendly.Value) || AssignedStr != 0f && AssignedStr >= enemystrength || friendly.Value.GetAI().State == AIState.Resupply)
 							{
 								continue;
 							}
@@ -143,7 +153,7 @@ namespace Ship_Game
                 //else
 				foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
 				{
-					if (ship.Value.GetAI().State == AIState.Resupply)
+                    if (ship.Value.GetAI().State == AIState.Resupply || ship.Value.InCombat || ship.Value.GetAI().Target!=null)
 					{
 						continue;
 					}

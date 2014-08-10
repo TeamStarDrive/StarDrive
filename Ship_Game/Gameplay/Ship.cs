@@ -416,8 +416,19 @@ namespace Ship_Game.Gameplay
             }
             set
             {
+                //added by gremlin Toggle Ship System Defense.
                 if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
+                {
+                    EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Remove(this);
+                    this.GetAI().OrderQueue.Clear();
+                    this.GetAI().HasPriorityOrder = false;
+                    this.GetAI().SystemToDefend = (SolarSystem)null;
+                    this.GetAI().SystemToDefendGuid = Guid.Empty;
+                    this.GetAI().State = AIState.AwaitingOrders; 
+                    
                     return;
+                }
+                    
                 EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(this);
                 this.GetAI().OrderQueue.Clear();
                 this.GetAI().HasPriorityOrder = false;
@@ -3041,7 +3052,7 @@ namespace Ship_Game.Gameplay
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
                     //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
                 {
-                    if (projectile.Active)
+                    if (projectile !=null && projectile.Active)
                         projectile.Update(elapsedTime);
                     else
                         this.Projectiles.QueuePendingRemoval(projectile);
