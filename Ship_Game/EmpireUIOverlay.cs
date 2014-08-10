@@ -336,9 +336,9 @@ namespace Ship_Game
 			foreach (EmpireUIOverlay.Button b in this.Buttons)
 			{
                 //make sure b.Text!=null
-                System.Diagnostics.Debug.Write(b.launches);
-                System.Diagnostics.Debug.Assert(b != null);
-                System.Diagnostics.Debug.Assert(b.Text != null);
+                //System.Diagnostics.Debug.Write(b.launches);
+                //System.Diagnostics.Debug.Assert(b != null);
+                //System.Diagnostics.Debug.Assert(b.Text != null);
                  
 				if (b.Text != "" )//&& b.Text != null)
 				{
