@@ -111,19 +111,15 @@ namespace Ship_Game
 				{
 					if (p.Owner != null && p.Owner == this.us)
 					{
-						SystemCommander value = entry.Value;
-						value.ValueToUs = value.ValueToUs + p.Population / 1000f;
-						SystemCommander valueToUs = entry.Value;
-						valueToUs.ValueToUs = valueToUs.ValueToUs + (p.MaxPopulation / 1000f - p.Population / 1000f);
-						SystemCommander systemCommander = entry.Value;
-						systemCommander.ValueToUs = systemCommander.ValueToUs + p.Fertility;
-						SystemCommander value1 = entry.Value;
-						//added by gremlin commodities increase defense desire
-                        value1.ValueToUs = value1.ValueToUs + p.MineralRichness;
-                        value.ValueToUs += p.BuildingList.Where(commodity=> commodity.IsCommodity).Count() ;
+                        SystemCommander value = entry.Value;
+                        value.ValueToUs = value.ValueToUs + p.Population / 10000f;                        
+                        value.ValueToUs = value.ValueToUs + p.MaxPopulation / 10000f ;//- p.Population / 1000f);						
+                        value.ValueToUs = value.ValueToUs + p.Fertility;
+                        value.ValueToUs = value.ValueToUs + p.MineralRichness;
+                        value.ValueToUs += p.BuildingList.Where(commodity=> commodity.IsCommodity).Count()  ;
                         if(this.us.data.Traits.Cybernetic >0)
                         {
-                            value1.ValueToUs += p.MineralRichness;
+                            value.ValueToUs += p.MineralRichness*10;
                         }
 					}
 					foreach (Planet other in entry.Key.PlanetList)
