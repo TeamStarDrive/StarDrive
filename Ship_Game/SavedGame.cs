@@ -291,7 +291,8 @@ namespace Ship_Game
 				};
 				foreach (KeyValuePair<Guid, ThreatMatrix.Pin> guid in e.GetGSAI().ThreatMatrix.Pins)
 				{
-					gsaidata.PinGuids.Add(guid.Key);
+					
+                    gsaidata.PinGuids.Add(guid.Key);
 					gsaidata.PinList.Add(guid.Value);
 				}
 				gsaidata.MilitaryTaskList = new List<MilitaryTask>();
@@ -616,7 +617,7 @@ namespace Ship_Game
 			public Guid GoalGuid;
 		}
 
-		public struct GSAISAVE
+		public class GSAISAVE
 		{
 			public List<int> UsedFleets;
 
@@ -626,7 +627,8 @@ namespace Ship_Game
 
 			public List<Guid> PinGuids;
 
-			public List<ThreatMatrix.Pin> PinList;
+            //[XmlIgnore]
+			public List<ThreatMatrix.Pin>   PinList ;//= new List<ThreatMatrix.Pin>();
 		}
 
 		public struct PGSData
