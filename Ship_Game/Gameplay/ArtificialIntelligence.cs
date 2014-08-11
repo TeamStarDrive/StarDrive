@@ -5214,17 +5214,17 @@ namespace Ship_Game.Gameplay
                     this.Target = null;
                     this.hasPriorityTarget = false;
                 }
-                else if (!this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(this.Target as Ship) && (Vector2.Distance(Position, this.Target.Center) > Radius )&& !this.Intercepting)
-                {
-                    this.Target = null;
-                    this.Owner.InCombat = false;
-                    this.Owner.InCombatTimer = 0f;
-                    if (!this.HasPriorityOrder && Owner.loyalty != ArtificialIntelligence.universeScreen.player)
-                    {
-                        this.State = AIState.AwaitingOrders;
-                    }
-                    return null;
-                }
+                //else if (!this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(this.Target as Ship) && (Vector2.Distance(Position, this.Target.Center) > Radius )&& !this.Intercepting)
+                //{
+                //    this.Target = null;
+                //    this.Owner.InCombat = false;
+                //    this.Owner.InCombatTimer = 0f;
+                //    if (!this.HasPriorityOrder && Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+                //    {
+                //        this.State = AIState.AwaitingOrders;
+                //    }
+                //    return null;
+                //}
             }
             //List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
             this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.66f;
@@ -5582,8 +5582,10 @@ namespace Ship_Game.Gameplay
             }
             else if (!this.hasPriorityTarget)
             {
-                if (this.State == AIState.Intercept && this.Target !=null)
-                    System.Diagnostics.Debug.WriteLine(this.Target);
+#if DEBUG
+                if (this.State == AIState.Intercept && this.Target != null)
+                    System.Diagnostics.Debug.WriteLine(this.Target); 
+#endif
                 this.Target = this.ScanForCombatTargets(senseCenter, radius);
             }
             else
