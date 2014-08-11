@@ -185,8 +185,7 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     pin.Value.InBorders = false;
-                    if(pin.Value.ship.Name == "Subspace Projector")
-                    System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", pin.Value.ship.Name));
+
 
 
                 }
