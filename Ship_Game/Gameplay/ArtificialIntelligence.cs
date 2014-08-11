@@ -1747,7 +1747,7 @@ namespace Ship_Game.Gameplay
 
         private void DoOrdinanceTransporterLogic(ShipModule module)
         {
-            foreach (Ship ship in module.GetParent().loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) <= module.TransporterRange + 500f && ship.Ordinance < ship.OrdinanceMax && !ship.hasTransporter).OrderBy(ship => ship.Ordinance).ToList())
+            foreach (Ship ship in module.GetParent().loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) <= module.TransporterRange + 500f && ship.Ordinance < ship.OrdinanceMax && !ship.hasOrdnanceTransporter).OrderBy(ship => ship.Ordinance).ToList())
             {
                 if (ship != null)
                 {
@@ -6587,7 +6587,7 @@ namespace Ship_Game.Gameplay
                     module.TransporterTimer -= elapsedTime;
                     if (module.TransporterTimer <= 0f && module.Active && module.Powered && module.TransporterPower < this.Owner.PowerCurrent)
                     {
-                        module.TransporterTimer = 0f;
+                        module.TransporterTimer = 1f;
                         if (module.TransporterOrdnance > 0 && this.Owner.Ordinance > 0)
                             this.DoOrdinanceTransporterLogic(module);
                     }
