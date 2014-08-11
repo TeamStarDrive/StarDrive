@@ -224,6 +224,7 @@ namespace Ship_Game.Gameplay
 
         public List<ShipModule> Transporters = new List<ShipModule>();
         public bool hasTransporter;
+        public bool hasOrdnanceTransporter;
 
 
         public bool IsWarpCapable
@@ -1687,6 +1688,8 @@ namespace Ship_Game.Gameplay
                 {
                     this.Transporters.Add(ss.module);
                     this.hasTransporter = true;
+                    if (ss.module.TransporterOrdnance > 0)
+                        this.hasOrdnanceTransporter = true;
                 }
                 if (ss.module.IsRepairModule || (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam))
                     this.HasRepairModule = true;
@@ -1728,7 +1731,11 @@ namespace Ship_Game.Gameplay
                 if (ss.module.ModuleType == ShipModuleType.Colony)
                     this.isColonyShip = true;
                 if (ss.module.ModuleType == ShipModuleType.Transporter)
+                {
                     this.hasTransporter = true;
+                    if (ss.module.TransporterOrdnance > 0)
+                        this.hasOrdnanceTransporter = true;
+                }
             }
             this.RecalculatePower();
         }
