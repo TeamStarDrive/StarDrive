@@ -6341,15 +6341,21 @@ namespace Ship_Game.Gameplay
 
 		private void RunGroundPlanner()
 		{
-			float requiredStrength =  (float)(this.empire.GetPlanets().Count * 50);
+			//float requiredStrength =  (float)(this.empire.GetPlanets().Count * 50);
+            float requiredStrength = (float)(this.empire.GetPlanets().Sum(planet =>planet.GetPotentialGroundTroops(this.empire)));
+            float developmentlevel = (float)this.empire.GetPlanets().Average(planet => planet.developmentLevel) *.5f;
+            requiredStrength *= developmentlevel;
+            requiredStrength *= 10;
+
 			requiredStrength = requiredStrength + requiredStrength * this.empire.data.Traits.GroundCombatModifier;
-			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Hard)
+
+			if (Ship.universeScreen.GameDifficulty < UniverseData.GameDifficulty.Hard)
 			{
-				requiredStrength = requiredStrength * 1.25f;
+				requiredStrength = requiredStrength * .5f;
 			}
-			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Brutal)
+			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Easy)
 			{
-				requiredStrength = requiredStrength * 1.75f;
+				requiredStrength = requiredStrength * .5f;
 			}
 			this.numberTroopGoals = this.AreasOfOperations.Count * 2;
 			float currentStrength = 0f;
@@ -6381,15 +6387,19 @@ namespace Ship_Game.Gameplay
 				}
 			}
 			int currentgoals = 0;
+            int goalStrength =0;
 			for (int i = 0; i < this.Goals.Count; i++)
 			{
 				Goal g = this.Goals[i];
 				if (g != null && g.GoalName == "Build Troop")
 				{
 					currentgoals++;
+                    goalStrength += ResourceManager.TroopsDict[g.ToBuildUID].Strength;
 				}
 			}
-			if (currentStrength < requiredStrength && currentgoals < this.numberTroopGoals)
+            int wantedStrength = (int)(requiredStrength - (currentStrength + goalStrength));
+			//if (currentStrength < requiredStrength || currentgoals < this.numberTroopGoals)
+            //if(wantedStrength >0 || )
 			{
 				List<Planet> Potentials = new List<Planet>();
 				float totalProduction = 0f;
@@ -6404,47 +6414,59 @@ namespace Ship_Game.Gameplay
 				}
 				if (Potentials.Count > 0)
 				{
-					float random = RandomMath.RandomBetween(0f, totalProduction);
-					Planet selectedPlanet = null;
-					float prodPick = 0f;
-					foreach (Planet p in Potentials)
-					{
-						if (random <= prodPick || random >= prodPick + p.GetNetProductionPerTurn())
-						{
-							prodPick = prodPick + p.GetNetProductionPerTurn();
-						}
-						else
-						{
-							selectedPlanet = p;
-						}
-					}
-					if (selectedPlanet != null)
-					{
-						List<string> PotentialTroops = new List<string>();
-						foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
-						{
-							if (!this.empire.WeCanBuildTroop(troop.Key))
-							{
-								continue;
-							}
-							PotentialTroops.Add(troop.Key);
-						}
-						if (PotentialTroops.Count > 0)
-						{
-							int ran = (int)RandomMath.RandomBetween(0f, (float)PotentialTroops.Count + 0.75f);
-							if (ran > PotentialTroops.Count - 1)
-							{
-								ran = PotentialTroops.Count - 1;
-							}
-							if (ran < 0)
-							{
-								ran = 0;
-							}
-							Goal g = new Goal(ResourceManager.TroopsDict[PotentialTroops[ran]], this.empire, selectedPlanet);
-							this.Goals.Add(g);
-						
+
+                    //for (int i = 0; i < (int)wantedStrength * .1f; i++)
+                    float prodPick = 0f;
+                    while(wantedStrength >0 &&  currentgoals <= this.empire.GetPlanets().Count*3)//  this.Goals.Where(goal=>goal.type == GoalType.BuildTroop).Count() <= Potentials.Count*5)
+
+                    {
+                        Planet selectedPlanet = null;
+       
+                        foreach (Planet p in Potentials.OrderByDescending(queue=> queue.Owner.GetGSAI().Goals.Where(goals=> goals.GetPlanetWhereBuilding() ==queue).Count()).ThenBy(production=> production.GetNetProductionPerTurn()))
+                        {
+
+                            //float random = RandomMath.RandomBetween(0f, totalProduction);
+ 
+                            //if (random <= prodPick || random >= prodPick + p.GetNetProductionPerTurn())
+                            //{
+                            //    prodPick = prodPick + p.GetNetProductionPerTurn();
+                            //}
+                            //else
+                            //{
+                            //    selectedPlanet = p;
+                            //}
+                            selectedPlanet = p;
+                            if (selectedPlanet != null)
+                            {
+                                List<string> PotentialTroops = new List<string>();
+                                foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
+                                {
+                                    if (!this.empire.WeCanBuildTroop(troop.Key))
+                                    {
+                                        continue;
+                                    }
+                                    PotentialTroops.Add(troop.Key);
+                                }
+                                if (PotentialTroops.Count > 0)
+                                {
+                                    int ran = (int)RandomMath.RandomBetween(0f, (float)PotentialTroops.Count + 0.75f);
+                                    if (ran > PotentialTroops.Count - 1)
+                                    {
+                                        ran = PotentialTroops.Count - 1;
+                                    }
+                                    if (ran < 0)
+                                    {
+                                        ran = 0;
+                                    }
+                                    Troop troop = ResourceManager.TroopsDict[PotentialTroops[ran]];
+                                    wantedStrength -= troop.Strength;
+                                    Goal g = new Goal(troop, this.empire, selectedPlanet);
+                                    this.Goals.Add(g);
+
+                                }
+                            }
                         }
-					}
+                    }
 				}
 			}
 		}

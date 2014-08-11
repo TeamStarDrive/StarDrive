@@ -5269,6 +5269,17 @@ namespace Ship_Game
 
 
         }
+        public int GetPotentialGroundTroops(Empire empire)
+        {
+            //int num = 0;
+            //if (this.Owner == empire)
+            //    num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            //return num;
+            return  (int)(this.TilesList.Sum(spots => spots.number_allowed_troops));// * (.25f + this.developmentLevel*.2f));
+
+
+        }
         public int GetGroundStrengthOther(Empire empire)
         {
             int num = 0;
