@@ -179,7 +179,7 @@ namespace Ship_Game
 				float Predicted = solarSystem.GetPredictedEnemyPresence(120f, this.us);
 				if (Predicted <= 0f)
 				{
-					this.DefenseDict[solarSystem].IdealShipStrength = 0f;
+					this.DefenseDict[solarSystem].IdealShipStrength = StrToAssign / (this.us.GetPlanets().Count *5);
 				}
 				else
 				{
@@ -282,7 +282,7 @@ namespace Ship_Game
 							}
 							this.DefenseDict[solarSystem1].ShipsDict.Add(ship1.guid, ship1);
 							StartingStr = StartingStr - ship1.GetStrength();
-							if (ship1.InCombat || ship1.GetAI().State == AIState.Resupply)
+							if (ship1.GetAI().Target !=null || ship1.GetAI().State == AIState.Resupply)
 							{
 								continue;
 							}
@@ -322,7 +322,7 @@ namespace Ship_Game
 			}
 			foreach (Ship ship2 in this.us.GetShips())
 			{
-				if (!(ship2.Role == "troop") || ship2.fleet != null || ship2.GetAI().State != AIState.AwaitingOrders)
+				if (ship2.Role != "troop" || ship2.fleet != null ) //|| ship2.GetAI().State != AIState.AwaitingOrders)
 				{
 					continue;
 				}
@@ -337,9 +337,11 @@ namespace Ship_Game
 			}
 			foreach (Ship ship3 in TroopShips)
 			{
-				for (int i = 0; i < ship3.TroopList.Count; i++)
+				
+                for (int i = 0; i < ship3.TroopList.Count; i++)
 				{
-					if (ship3.TroopList[i].GetOwner() == this.us)
+					
+                    if (ship3.TroopList[i].GetOwner() == this.us )
 					{
 						TotalTroopStrength = TotalTroopStrength + (float)ship3.TroopList[i].Strength;
 					}
@@ -347,8 +349,9 @@ namespace Ship_Game
 			}
 			foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
 			{
-				entry.Value.IdealTroopStr = entry.Value.PercentageOfValue * TotalTroopStrength;
-				entry.Value.TroopStrengthNeeded = entry.Value.PercentageOfValue * TotalTroopStrength;
+				entry.Value.IdealTroopStr = entry.Value.PercentageOfValue * TotalTroopStrength;              
+                entry.Value.TroopStrengthNeeded = entry.Value.PercentageOfValue * TotalTroopStrength;
+ 
 				foreach (Planet p in entry.Key.PlanetList)
 				{
 					if (p.Owner != this.us )
@@ -361,15 +364,17 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						SystemCommander troopStrengthNeeded = entry.Value;
-						troopStrengthNeeded.TroopStrengthNeeded = troopStrengthNeeded.TroopStrengthNeeded - (float)t.Strength;
+
+                        entry.Value.TroopStrengthNeeded = entry.Value.TroopStrengthNeeded - (float)t.Strength;
 						GroundTroops.QueuePendingRemoval(t);
 					}
+
 				}
 				GroundTroops.ApplyPendingRemovals();
 				foreach (Ship troopship in TroopShips)
 				{
 					if (troopship.GetAI().OrderQueue.Count <= 0 || troopship.GetAI().OrderQueue.Last.Value.TargetPlanet == null || troopship.GetAI().OrderQueue.Last.Value.TargetPlanet.system != entry.Key)
+              
 					{
 						continue;
 					}
@@ -387,7 +392,9 @@ namespace Ship_Game
                 //added by gremlin troop defense fix?
                 if (ship4.TroopList.Count == 0 || ship4.GetAI().State != AIState.AwaitingOrders )
 				{
-					continue;
+                    
+                    continue;
+                    
 				}
 				IOrderedEnumerable<SolarSystem> sortedSystems = 
 					from system in systems
@@ -441,7 +448,7 @@ namespace Ship_Game
 				foreach (SolarSystem solarSystem3 in sortedSystems)
 				{
                     //added by gremlin Dont take troops from system that have combat. and prevent troop loop
-                    if (solarSystem3.combatTimer > 0 || (float)troop.Strength < this.DefenseDict[solarSystem3].TroopStrengthNeeded + (float)troop.Strength)
+                    if (solarSystem3.combatTimer > 0 ) //|| 0 <= this.DefenseDict[solarSystem3].TroopStrengthNeeded+ (float)troop.Strength)
 					{
 						continue;
 					}
