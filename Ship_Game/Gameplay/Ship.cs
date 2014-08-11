@@ -224,6 +224,7 @@ namespace Ship_Game.Gameplay
 
         public List<ShipModule> Transporters = new List<ShipModule>();
         public bool hasTransporter;
+        public bool hasOrdnanceTransporter;
 
 
         public bool IsWarpCapable
@@ -416,8 +417,19 @@ namespace Ship_Game.Gameplay
             }
             set
             {
+                //added by gremlin Toggle Ship System Defense.
                 if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
+                {
+                    EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Remove(this);
+                    this.GetAI().OrderQueue.Clear();
+                    this.GetAI().HasPriorityOrder = false;
+                    this.GetAI().SystemToDefend = (SolarSystem)null;
+                    this.GetAI().SystemToDefendGuid = Guid.Empty;
+                    this.GetAI().State = AIState.AwaitingOrders; 
+                    
                     return;
+                }
+                    
                 EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(this);
                 this.GetAI().OrderQueue.Clear();
                 this.GetAI().HasPriorityOrder = false;
@@ -1687,6 +1699,8 @@ namespace Ship_Game.Gameplay
                 {
                     this.Transporters.Add(ss.module);
                     this.hasTransporter = true;
+                    if (ss.module.TransporterOrdnance > 0)
+                        this.hasOrdnanceTransporter = true;
                 }
                 if (ss.module.IsRepairModule || (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam))
                     this.HasRepairModule = true;
@@ -1728,7 +1742,11 @@ namespace Ship_Game.Gameplay
                 if (ss.module.ModuleType == ShipModuleType.Colony)
                     this.isColonyShip = true;
                 if (ss.module.ModuleType == ShipModuleType.Transporter)
+                {
                     this.hasTransporter = true;
+                    if (ss.module.TransporterOrdnance > 0)
+                        this.hasOrdnanceTransporter = true;
+                }
             }
             this.RecalculatePower();
         }
@@ -2852,7 +2870,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
-                    if (this.InCombat)
+                    if (this.InCombat && this.GetAI().Target != null && this.GetAI().Target.GetSystem() != null && this.GetAI().Target.GetSystem() == this.GetSystem())
                     {
                         this.system.CombatInSystem = true;
                         this.system.combatTimer = 15f;
@@ -3041,7 +3059,7 @@ namespace Ship_Game.Gameplay
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
                     //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
                 {
-                    if (projectile.Active)
+                    if (projectile !=null && projectile.Active)
                         projectile.Update(elapsedTime);
                     else
                         this.Projectiles.QueuePendingRemoval(projectile);
