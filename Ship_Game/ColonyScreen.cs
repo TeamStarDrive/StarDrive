@@ -1133,6 +1133,7 @@ namespace Ship_Game
       string gIncome = Localizer.Token(6125);
       string gUpkeep = Localizer.Token(6126);
       string nIncome = Localizer.Token(6127);
+      string nLosses = Localizer.Token(6129);
 
       float grossIncome = (float)((double)this.p.GrossMoneyPT + (double)this.p.Owner.data.Traits.TaxMod * (double)this.p.GrossMoneyPT);
       float grossUpkeep = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn * (double)this.p.Owner.data.Traits.MaintMod);
@@ -1163,8 +1164,8 @@ namespace Ship_Game
       positionNetIncome.X = positionGrossUpkeep.X - 1;
       positionNetIncome.Y = positionGrossUpkeep.Y + (Fonts.Arial12.LineSpacing + 2);
 
-      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, nIncome + ":", positionNIncome, netIncome > 0.0 ? Color.LightGreen : Color.LightPink);
-      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, netIncome.ToString("F2") + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.LightPink);
+      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, (netIncome > 0.0 ? nIncome : nLosses) + ":", positionNIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
+      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, netIncome.ToString("F2") + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
       
       
       
@@ -1282,17 +1283,18 @@ namespace Ship_Game
         }
       }
       this.close.Draw(this.ScreenManager);
-      this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MoneyRect, Color.White);
+      /* Should no longer be needed.
+this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MoneyRect, Color.White);
 
 
-            /* Should no longer be needed.
-       float num6 = (float) ((double) this.p.GrossMoneyPT + (double) this.p.Owner.data.Traits.TaxMod * (double) this.p.GrossMoneyPT - ((double) this.p.TotalMaintenanceCostsPerTurn + (double) this.p.TotalMaintenanceCostsPerTurn * (double) this.p.Owner.data.Traits.MaintMod));
+            
+ float num6 = (float) ((double) this.p.GrossMoneyPT + (double) this.p.Owner.data.Traits.TaxMod * (double) this.p.GrossMoneyPT - ((double) this.p.TotalMaintenanceCostsPerTurn + (double) this.p.TotalMaintenanceCostsPerTurn * (double) this.p.Owner.data.Traits.MaintMod));
           
      
-      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, num6.ToString("#.00"), new Vector2((float) (this.MoneyRect.X + this.MoneyRect.Width + 5), (float) (this.MoneyRect.Y + this.MoneyRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), (double) num6 > 0.0 ? Color.LightGreen : Color.LightPink);
-      if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
-        ToolTip.CreateTooltip(142, this.ScreenManager);
-           */
+this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, num6.ToString("#.00"), new Vector2((float) (this.MoneyRect.X + this.MoneyRect.Width + 5), (float) (this.MoneyRect.Y + this.MoneyRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), (double) num6 > 0.0 ? Color.LightGreen : Color.LightPink);
+if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
+  ToolTip.CreateTooltip(142, this.ScreenManager);
+     */
       if (HelperFunctions.CheckIntersection(this.foodStorageIcon, pos) && PlanetScreen.screen.IsActive)
         ToolTip.CreateTooltip(73, this.ScreenManager);
       if (!HelperFunctions.CheckIntersection(this.profStorageIcon, pos) || !PlanetScreen.screen.IsActive)
