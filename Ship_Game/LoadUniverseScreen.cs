@@ -325,7 +325,18 @@ namespace Ship_Game
 			FileInfo activeFile = (FileInfo)e.Argument;
 			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(activeFile));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+
+            //XmlAttributes saveCompatibility = new XmlAttributes();
+            XmlSerializer serializer1=null;// = new XmlSerializer();
+            try
+            {
+                //XmlSerializer 
+                    serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+            }
+            catch
+            {
+                serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+            }
 			FileStream stream = decompressed.OpenRead();
 			SavedGame.UniverseSaveData savedData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
 			stream.Close();
