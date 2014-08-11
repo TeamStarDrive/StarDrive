@@ -6343,19 +6343,19 @@ namespace Ship_Game.Gameplay
 		{
 			//float requiredStrength =  (float)(this.empire.GetPlanets().Count * 50);
             float requiredStrength = (float)(this.empire.GetPlanets().Sum(planet =>planet.GetPotentialGroundTroops(this.empire)));
-            float developmentlevel = (float)this.empire.GetPlanets().Average(planet => planet.developmentLevel) *.1f;
+            float developmentlevel = (float)this.empire.GetPlanets().Average(planet => planet.developmentLevel) *.5f;
             requiredStrength *= developmentlevel;
             requiredStrength *= 10;
 
 			requiredStrength = requiredStrength + requiredStrength * this.empire.data.Traits.GroundCombatModifier;
 
-			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Hard)
+			if (Ship.universeScreen.GameDifficulty < UniverseData.GameDifficulty.Hard)
 			{
-				requiredStrength = requiredStrength * 1.2f;
+				requiredStrength = requiredStrength * .5f;
 			}
-			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Brutal)
+			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Easy)
 			{
-				requiredStrength = requiredStrength * 1.5f;
+				requiredStrength = requiredStrength * .5f;
 			}
 			this.numberTroopGoals = this.AreasOfOperations.Count * 2;
 			float currentStrength = 0f;
@@ -6398,7 +6398,8 @@ namespace Ship_Game.Gameplay
 				}
 			}
             int wantedStrength = (int)(requiredStrength - (currentStrength + goalStrength));
-			if (currentStrength < requiredStrength || currentgoals < this.numberTroopGoals)
+			//if (currentStrength < requiredStrength || currentgoals < this.numberTroopGoals)
+            //if(wantedStrength >0 || )
 			{
 				List<Planet> Potentials = new List<Planet>();
 				float totalProduction = 0f;
@@ -6414,25 +6415,27 @@ namespace Ship_Game.Gameplay
 				if (Potentials.Count > 0)
 				{
 
-                    for (int i = 0; i < (int)wantedStrength * .1f; i++)
+                    //for (int i = 0; i < (int)wantedStrength * .1f; i++)
+                    float prodPick = 0f;
+                    while(wantedStrength >0 &&  currentgoals <= this.empire.GetPlanets().Count*3)//  this.Goals.Where(goal=>goal.type == GoalType.BuildTroop).Count() <= Potentials.Count*5)
+
                     {
                         Planet selectedPlanet = null;
-                        float prodPick = 0f;
-                        foreach (Planet p in Potentials)
+       
+                        foreach (Planet p in Potentials.OrderByDescending(queue=> queue.Owner.GetGSAI().Goals.Where(goals=> goals.GetPlanetWhereBuilding() ==queue).Count()).ThenBy(production=> production.GetNetProductionPerTurn()))
                         {
-                            if (wantedStrength <= 0)
-                                break;
-                            float random = RandomMath.RandomBetween(0f, totalProduction);
- 
-                            if (random <= prodPick || random >= prodPick + p.GetNetProductionPerTurn())
-                            {
-                                prodPick = prodPick + p.GetNetProductionPerTurn();
-                            }
-                            else
-                            {
-                                selectedPlanet = p;
-                            }
 
+                            //float random = RandomMath.RandomBetween(0f, totalProduction);
+ 
+                            //if (random <= prodPick || random >= prodPick + p.GetNetProductionPerTurn())
+                            //{
+                            //    prodPick = prodPick + p.GetNetProductionPerTurn();
+                            //}
+                            //else
+                            //{
+                            //    selectedPlanet = p;
+                            //}
+                            selectedPlanet = p;
                             if (selectedPlanet != null)
                             {
                                 List<string> PotentialTroops = new List<string>();

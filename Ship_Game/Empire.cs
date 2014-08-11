@@ -920,7 +920,8 @@ namespace Ship_Game
                        {
                            toadd.Add(nearby);
                            
-                           this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
+                           if(!this.isFaction)
+                               this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
                            //if (border)
                            //{
                            //   this.GSAI.ThreatMatrix.Pins. 
