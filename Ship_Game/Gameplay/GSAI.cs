@@ -6398,7 +6398,7 @@ namespace Ship_Game.Gameplay
 				}
 			}
             int wantedStrength = (int)(requiredStrength - (currentStrength + goalStrength));
-			if (currentStrength < requiredStrength && currentgoals < this.numberTroopGoals)
+			if (currentStrength < requiredStrength || currentgoals < this.numberTroopGoals)
 			{
 				List<Planet> Potentials = new List<Planet>();
 				float totalProduction = 0f;
@@ -6416,13 +6416,14 @@ namespace Ship_Game.Gameplay
 
                     for (int i = 0; i < (int)wantedStrength * .1f; i++)
                     {
+                        Planet selectedPlanet = null;
+                        float prodPick = 0f;
                         foreach (Planet p in Potentials)
                         {
                             if (wantedStrength <= 0)
                                 break;
                             float random = RandomMath.RandomBetween(0f, totalProduction);
-                            Planet selectedPlanet = null;
-                            float prodPick = 0f;
+ 
                             if (random <= prodPick || random >= prodPick + p.GetNetProductionPerTurn())
                             {
                                 prodPick = prodPick + p.GetNetProductionPerTurn();
