@@ -282,9 +282,11 @@ namespace Ship_Game
             this.moneyRect = new Rectangle((int)this.popRect.X - 70, (int)this.popRect.Y, 22, 22);
             Vector2 TextCursorMoney = new Vector2((float)this.moneyRect.X + 24, (float)TextCursor3.Y);
 
+            float taxRate = this.p.Owner.data.TaxRate;
+            float grossIncome = this.p.EstimateTaxes(taxRate);
             float grossIncomePI = (float)((double)this.p.GrossMoneyPT + (double)this.p.Owner.data.Traits.TaxMod * (double)this.p.GrossMoneyPT);
             float grossUpkeepPI = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn * (double)this.p.Owner.data.Traits.MaintMod);
-            float netIncomePI = (float)(grossIncomePI - grossUpkeepPI);
+            float netIncomePI = (float)(grossIncome - grossUpkeepPI);
 
             if (p.Owner == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
             {
