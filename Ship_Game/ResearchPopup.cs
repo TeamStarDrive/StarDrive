@@ -90,7 +90,7 @@ namespace Ship_Game
                     Pos.X = (float)(int)Pos.X;
                     Pos.Y = (float)(int)Pos.Y;
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, unlockItem.privateName, Pos, Fonts.Arial14Bold, Color.Orange);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
                 if (unlockItem.Type == "TROOP")
                 {
@@ -103,7 +103,7 @@ namespace Ship_Game
                     Pos.X = (float)(int)Pos.X;
                     Pos.Y = (float)(int)Pos.Y;
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, Text, Pos, Fonts.Arial14Bold, Color.Orange);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
                 if (unlockItem.Type == "BUILDING")
                 {
@@ -119,7 +119,7 @@ namespace Ship_Game
                     //name of unlocked building
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, Text, Pos, Fonts.Arial14Bold, Color.Orange);
                     //description of unlocked building
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
                 if (unlockItem.Type == "HULL")
                 {
@@ -131,7 +131,7 @@ namespace Ship_Game
                     Pos.X = (float)(int)Pos.X;
                     Pos.Y = (float)(int)Pos.Y;
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, Text, Pos, Fonts.Arial14Bold, Color.Orange);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, unlockItem.Description, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, unlockItem.Description, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
                 if (unlockItem.Type == "ADVANCE")
                 {
@@ -141,7 +141,7 @@ namespace Ship_Game
                     Pos.X = (float)(int)Pos.X;
                     Pos.Y = (float)(int)Pos.Y;
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, unlockItem.privateName, Pos, Fonts.Arial14Bold, Color.Orange);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
             }
             this.ScreenManager.SpriteBatch.End();
