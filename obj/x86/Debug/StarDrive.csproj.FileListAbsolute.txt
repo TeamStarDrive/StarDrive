@@ -488,3 +488,5 @@ C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\E
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_68px_menu_pressed.xnb
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_experience_shipUI.xnb
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_troop_shipUI.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_money_22.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_pop_22.xnb

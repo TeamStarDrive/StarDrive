@@ -89,7 +89,7 @@ namespace Ship_Game.Gameplay
         public float RotationalVelocity;
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
-        public float ECMValue;
+        public float ECMValue = 0f;
         public float OrbitalDefenseTimer;
         public ShipData shipData;
         public int kills;
