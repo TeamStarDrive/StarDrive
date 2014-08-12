@@ -2448,7 +2448,6 @@ namespace Ship_Game
 					RaceDesignScreen raceDesignScreen12 = this;
 					this.TotalPointsUsed -= t.trait.Cost;
 				}
-
 				if (!t.Selected)
 				{
 					continue;
@@ -2546,8 +2545,9 @@ namespace Ship_Game
                 this.RaceSummary.Prototype += t.trait.Prototype;
                 this.RaceSummary.Spiritual += t.trait.Spiritual;
                 this.RaceSummary.SpyMultiplier += t.trait.SpyMultiplier;
-                this.RaceSummary.Pack = t.trait.Pack;
-                this.RaceSummary.RepairMod += t.trait.RepairMod; 
+                this.RaceSummary.RepairMod += t.trait.RepairMod;
+                if(t.trait.Pack)
+                    this.RaceSummary.Pack = t.trait.Pack;
 			}
 		}
 
