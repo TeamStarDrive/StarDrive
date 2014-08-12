@@ -1419,23 +1419,38 @@ namespace Ship_Game
 		public float GetPredictedEnemyPresence(float time, Empire us)
 		{
 			float prediction = 0f;
-			foreach (Ship ship in this.ShipList)
-			{
-				if (ship == null || ship.loyalty == us || !ship.loyalty.isFaction && !us.GetRelations()[ship.loyalty].AtWar)
-				{
-					continue;
-				}
-				prediction = prediction + ship.GetStrength();
-			}
-			List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-			for (int i = 0; i < nearby.Count; i++)
-			{
-				Ship ship = nearby[i] as Ship;
-				if (ship != null && ship.loyalty != us && !this.ShipList.Contains(ship) && (ship.loyalty.isFaction || us.GetRelations()[ship.loyalty].AtWar) && HelperFunctions.IntersectCircleSegment(this.Position, 100000f * UniverseScreen.GameScaleStatic, ship.Center, ship.Center + (ship.Velocity * 60f)))
-				{
-					prediction = prediction + ship.GetStrength();
-				}
-			}
+            //foreach (Ship ship in this.ShipList)
+            //{
+            //    if (ship == null || ship.loyalty == us || !ship.loyalty.isFaction && !us.GetRelations()[ship.loyalty].AtWar)
+            //    {
+            //        continue;
+            //    }
+            //    prediction = prediction + ship.GetStrength();
+            //}
+            float universescale =Empire.universeScreen.Size.X /50;
+            foreach (Ship ship in us.KnownShips)
+            {
+                if (ship == null || ship.loyalty == us 
+                    || (!ship.loyalty.isFaction && (!us.GetRelations()[ship.loyalty].AtWar || !us.GetRelations()[ship.loyalty].Treaty_OpenBorders))
+                    ||Vector2.Distance(this.Position, ship.Position) > universescale)
+                {
+                    continue;
+                }
+                prediction = prediction + ship.BaseStrength;
+
+            }
+            
+
+
+            //List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+            //for (int i = 0; i < nearby.Count; i++)
+            //{
+            //    Ship ship = nearby[i] as Ship;
+            //    if (ship != null && ship.loyalty != us && !this.ShipList.Contains(ship) && (ship.loyalty.isFaction || us.GetRelations()[ship.loyalty].AtWar) && HelperFunctions.IntersectCircleSegment(this.Position, 100000f * UniverseScreen.GameScaleStatic, ship.Center, ship.Center + (ship.Velocity * 60f)))
+            //    {
+            //        prediction = prediction + ship.GetStrength();
+            //    }
+            //}
 			return prediction;
 		}
 
