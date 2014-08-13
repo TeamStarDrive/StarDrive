@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Ancient Repulsor</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>50</Cost>
+  <RootNode>0</RootNode>
+  <Name>Ancient Repulsor</Name>
+  <NameIndex>509</NameIndex>
+  <DescriptionIndex>510</DescriptionIndex>
+  <LongDescription>This technology was recovered from an ancient ship.</LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>AncientRepulsor</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

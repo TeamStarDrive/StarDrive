@@ -44,6 +44,7 @@ namespace Ship_Game
         public float StarDate = 1000f;
         public string StarDateFmt = "0000.0";
         public float StarDateTimer = 5f;
+        public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
         public bool MultiThread = true;
         public List<UniverseScreen.ClickablePlanets> ClickPlanetList = new List<UniverseScreen.ClickablePlanets>();
@@ -247,6 +248,8 @@ namespace Ship_Game
         private float garbargeCollectorBase = 10;
         private bool doubleclicked;
         public static bool debug;
+        public int globalshipCount;
+        public int empireShipCountReserve;
 
 
         static UniverseScreen()
@@ -1300,6 +1303,8 @@ namespace Ship_Game
 
         protected virtual void DoWork(float elapsedTime)
         {
+            
+            
             if (!this.IsActive)
             {
                 this.ShowingSysTooltip = false;
@@ -1536,6 +1541,13 @@ namespace Ship_Game
             this.SelectedShipList.ApplyPendingRemovals();
             this.MasterShipList.ApplyPendingRemovals();
             UniverseScreen.ShipSpatialManager.CollidableObjects.ApplyPendingRemovals();
+            if(this.perStarDateTimer<=this.StarDate )
+            {
+                this.perStarDateTimer = this.StarDate +.1f;
+                this.perStarDateTimer = (float)Math.Round((double)this.perStarDateTimer, 1);
+                this.empireShipCountReserve = EmpireManager.EmpireList.Where(empire=> empire!=this.player &&!empire.data.Defeated &&!empire.isFaction).Sum(empire => empire.EmpireShipCountReserve);
+                this.globalshipCount = this.MasterShipList.Where(ship => (ship.loyalty != null && ship.loyalty != this.player) && ship.Role != "troop" && ship.Mothership == null).Count() ;
+            }
         }
 
         public void ShipUpdater()
@@ -3438,11 +3450,7 @@ namespace Ship_Game
         //added by gremlin replace redundant code with method
 
         private void RightClickship(Ship ship, Planet planet, bool audio)
-        {
-            
-
-
-           
+        {                 
             if (ship.Role == "construction")
             {
                 if(audio)
@@ -3460,9 +3468,9 @@ namespace Ship_Game
                     else
                         ship.GetAI().OrderToOrbit(planet, true);
                 }
-                else if (ship.Role == "troop" || (ship.HasTroopBay &&ship.TroopList.Count >0 ))
+                else if (ship.Role == "troop" || (ship.TroopList.Count > 0 && (ship.HasTroopBay || ship.hasTransporter)))
                 {
-                    if (planet.Owner != null && planet.Owner == this.player && !ship.HasTroopBay)
+                    if (planet.Owner != null && planet.Owner == this.player && !ship.HasTroopBay && !ship.hasTransporter)
                     {
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                             ship.GetAI().OrderRebase(planet, false);
@@ -3525,25 +3533,25 @@ namespace Ship_Game
             PresentationParameters presentationParameters = this.ScreenManager.GraphicsDevice.PresentationParameters;
             Vector2 spaceFromScreenSpace1 = this.GetWorldSpaceFromScreenSpace(new Vector2(0.0f, 0.0f));
             float num = this.GetWorldSpaceFromScreenSpace(new Vector2((float)presentationParameters.BackBufferWidth, (float)presentationParameters.BackBufferHeight)).X - spaceFromScreenSpace1.X;
-            if ((double)input.CursorPosition.X <= 1.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Left))
+            if ((double)input.CursorPosition.X <= 1.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Left) || (input.CurrentKeyboardState.IsKeyDown(Keys.A) && !this.ViewingShip))
             {
                 this.transitionDestination.X -= 0.008f * num;
                 this.snappingToShip = false;
                 this.ViewingShip = false;
             }
-            if ((double)input.CursorPosition.X >= (double)(presentationParameters.BackBufferWidth - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Right))
+            if ((double)input.CursorPosition.X >= (double)(presentationParameters.BackBufferWidth - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Right) || (input.CurrentKeyboardState.IsKeyDown(Keys.D) && !this.ViewingShip))
             {
                 this.transitionDestination.X += 0.008f * num;
                 this.snappingToShip = false;
                 this.ViewingShip = false;
             }
-            if ((double)input.CursorPosition.Y <= 0.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Up))
+            if ((double)input.CursorPosition.Y <= 0.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Up) || (input.CurrentKeyboardState.IsKeyDown(Keys.W) && !this.ViewingShip))
             {
                 this.snappingToShip = false;
                 this.ViewingShip = false;
                 this.transitionDestination.Y -= 0.008f * num;
             }
-            if ((double)input.CursorPosition.Y >= (double)(presentationParameters.BackBufferHeight - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Down))
+            if ((double)input.CursorPosition.Y >= (double)(presentationParameters.BackBufferHeight - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Down) || (input.CurrentKeyboardState.IsKeyDown(Keys.S) && !this.ViewingShip))
             {
                 this.transitionDestination.Y += 0.008f * num;
                 this.snappingToShip = false;

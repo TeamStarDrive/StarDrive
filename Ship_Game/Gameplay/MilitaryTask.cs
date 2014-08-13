@@ -319,6 +319,8 @@ namespace Ship_Game.Gameplay
             float EnemyShipStr = this.GetEnemyStrAtTarget();
             IOrderedEnumerable<AO> sorted =
                 from ao in this.empire.GetGSAI().AreasOfOperations
+                orderby ao.GetOffensiveForcePool().Sum(bombs => bombs.BombBays.Count) > 0 descending
+                orderby ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength descending
                 orderby Vector2.Distance(this.AO, ao.Position)
                 select ao;
             if (sorted.Count<AO>() == 0)
@@ -596,10 +598,15 @@ namespace Ship_Game.Gameplay
 			}
 			IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = 
 				from ao in this.empire.GetGSAI().AreasOfOperations
-				orderby Vector2.Distance(this.AO, ao.Position)
+                orderby Vector2.Distance(this.AO, ao.Position) 
 				select ao;
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
 			{
+                if (!this.IsCoreFleetTask && this.WhichFleet != -1)
+                    foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
+                    {
+                        this.empire.ForcePoolAdd(ship);
+                    }
 				return;
 			}
 			Ship_Game.Gameplay.AO ClosestAO = sorted.First<Ship_Game.Gameplay.AO>();
@@ -615,7 +622,12 @@ namespace Ship_Game.Gameplay
 				{
 					if (!this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
 					{
-						return;
+                        if (!this.IsCoreFleetTask && this.WhichFleet != -1)
+                            foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
+                            {
+                                this.empire.ForcePoolAdd(ship);
+                            }
+                        return;
 					}
 					foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
 					{
@@ -685,7 +697,12 @@ namespace Ship_Game.Gameplay
 				select ao;
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
 			{
-				return;
+				if(!this.IsCoreFleetTask && this.WhichFleet !=-1 )
+                    foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
+                    {
+                        this.empire.ForcePoolAdd(ship);
+                    }
+                return;
 			}
 			Ship_Game.Gameplay.AO ClosestAO = sorted.First<Ship_Game.Gameplay.AO>();
 			if (this.WhichFleet != -1)
@@ -1003,7 +1020,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (EnemyTroopStrength < 20f)
 			{
-				EnemyTroopStrength = 25f;
+				EnemyTroopStrength = 50f;
 			}
 			return EnemyTroopStrength;
 		}
@@ -1023,6 +1040,8 @@ namespace Ship_Game.Gameplay
 			}
 			IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = 
 				from ao in this.empire.GetGSAI().AreasOfOperations
+                orderby ao.GetOffensiveForcePool().Sum(bombs => bombs.BombBays.Count) > 0 descending
+                orderby ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength descending
 				orderby Vector2.Distance(this.AO, ao.Position)
 				select ao;
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
@@ -1064,9 +1083,9 @@ namespace Ship_Game.Gameplay
 			List<Ship> PotentialAssaultShips = new List<Ship>();
 			List<Troop> PotentialTroops = new List<Troop>();
 			List<Ship> PotentialBombers = new List<Ship>();
-			foreach (Ship ship in ClosestAO.GetOffensiveForcePool().OrderBy(str=>str.BaseStrength))
+            foreach (Ship ship in this.empire.GetShips().OrderBy(troops => Vector2.Distance(this.AO, troops.Position))) //ClosestAO.GetOffensiveForcePool().OrderBy(str=>str.BaseStrength))
 			{
-				if ((!ship.HasTroopBay || ship.TroopList.Count <= 0) && !(ship.Role == "troop"  || ship.fleet != null))
+				if ((ship.TroopList.Count<=0 ||ship.fleet!=null) || (!ship.HasTroopBay && ship.Role!="troop") )//|| (ship.HasTroopBay && ship.TroopList.Count <= 0)) || !(ship.Role == "troop"  || ship.fleet != null))
 				{
 					continue;
 				}
@@ -1800,6 +1819,7 @@ namespace Ship_Game.Gameplay
 		{
 			IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = 
 				from ao in this.empire.GetGSAI().AreasOfOperations
+                orderby ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength
 				orderby Vector2.Distance(this.AO, ao.Position)
 				select ao;
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
@@ -1875,6 +1895,7 @@ namespace Ship_Game.Gameplay
         {
             IOrderedEnumerable<AO> sorted =
                 from ao in this.empire.GetGSAI().AreasOfOperations
+                orderby ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength
                 orderby Vector2.Distance(this.AO, ao.Position)
                 select ao;
             if (sorted.Count<AO>() == 0)
@@ -1885,7 +1906,7 @@ namespace Ship_Game.Gameplay
             float tfstrength = 0f;
             BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
             int shipCount = 0;
-            foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
+            foreach (Ship ship in ClosestAO.GetOffensiveForcePool().OrderBy(str=>str.GetStrength()))
             {
                 if (shipCount >= 3 && tfstrength >= this.empire.MilitaryScore*.1)
                 {
@@ -1954,7 +1975,7 @@ namespace Ship_Game.Gameplay
 			{
 				forcePoolStr = forcePoolStr + ship.GetStrength();
 			}
-			foreach (Ship ship in this.empire.GetForcePool())
+			foreach (Ship ship in this.empire.GetForcePool().OrderBy(strength=> strength.GetStrength()))
 			{
 				if (ship.fleet != null)
 				{
@@ -2246,7 +2267,10 @@ namespace Ship_Game.Gameplay
             List<Troop> PotentialTroops = new List<Troop>();
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
             {
-                if (ship.fleet != null || (!ship.HasTroopBay || ship.TroopList.Count <= 0) && !(ship.Role == "troop") || ship.fleet != null)
+                if (ship.fleet != null 
+                    || (!ship.HasTroopBay && ship.Role!="troop")
+                    || (ship.HasTroopBay && ship.TroopList.Count ==0) )
+                    
                 {
                     continue;
                 }
@@ -2405,7 +2429,8 @@ namespace Ship_Game.Gameplay
 		{
 			IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = 
 				from ao in this.empire.GetGSAI().AreasOfOperations
-				orderby Vector2.Distance(this.AO, ao.Position)
+                orderby ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength descending
+                orderby Vector2.Distance(this.AO, ao.Position)
 				select ao;
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
 			{

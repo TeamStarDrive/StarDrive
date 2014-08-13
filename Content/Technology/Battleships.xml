@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Battleships</UID>
+  <TechnologyType>ShipHull</TechnologyType>
+  <Cost>3500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Battleship Construction</Name>
+  <NameIndex>522</NameIndex>
+  <DescriptionIndex>523</DescriptionIndex>
+  <LongDescription>These massive ships are unrivaled for their size and cost.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Titans</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked>
+    <UnlockedHull>
+      <Name>Terran/LightCarrier</Name>
+      <ShipType>Terran</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Kulrathi/Ravager</Name>
+      <ShipType>Kulrathi</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Ralyeh/Sceptre</Name>
+      <ShipType>Ralyeh</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Opteris/Hiver</Name>
+      <ShipType>Opteris</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Vulfen/Type XIII</Name>
+      <ShipType>Vulfen</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Cordrazine/Dodaving</Name>
+      <ShipType>Cordrazine</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Pollops/Corpse Flower</Name>
+      <ShipType>Pollops</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Draylok/Warbird</Name>
+      <ShipType>Draylok</ShipType>
+    </UnlockedHull>
+  </HullsUnlocked>
+</Technology>

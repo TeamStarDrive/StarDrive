@@ -42,6 +42,7 @@ namespace Ship_Game
             this.data.IconSize=GlobalStats.IconSize;
             this.data.preventFederations=GlobalStats.preventFederations;
             this.data.GravityWellRange=GlobalStats.GravityWellRange;
+            this.data.EliminationMode = GlobalStats.EliminationMode;
 
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{
@@ -214,6 +215,9 @@ namespace Ship_Game
 				empireToSave.Research = e.Research;
 				empireToSave.ResearchTopic = e.ResearchTopic;
 				empireToSave.Money = e.Money;
+                empireToSave.CurrentAutoScout = e.data.CurrentAutoScout;
+                empireToSave.CurrentAutoFreighter = e.data.CurrentAutoFreighter;
+                empireToSave.CurrentAutoColony = e.data.CurrentAutoColony;
 				empireToSave.OwnedShips = new List<SavedGame.ShipSaveData>();
 				empireToSave.TechTree = new List<TechEntry>();
 				foreach (AO area in e.GetGSAI().AreasOfOperations)
@@ -287,7 +291,8 @@ namespace Ship_Game
 				};
 				foreach (KeyValuePair<Guid, ThreatMatrix.Pin> guid in e.GetGSAI().ThreatMatrix.Pins)
 				{
-					gsaidata.PinGuids.Add(guid.Key);
+					
+                    gsaidata.PinGuids.Add(guid.Key);
 					gsaidata.PinList.Add(guid.Value);
 				}
 				gsaidata.MilitaryTaskList = new List<MilitaryTask>();
@@ -551,6 +556,12 @@ namespace Ship_Game
 			public List<AO> AOs;
 
 			public List<SavedGame.FleetSave> FleetsList;
+
+            public string CurrentAutoFreighter;
+
+            public string CurrentAutoColony;
+
+            public string CurrentAutoScout;
 		}
 
 		public struct FleetSave
@@ -606,7 +617,7 @@ namespace Ship_Game
 			public Guid GoalGuid;
 		}
 
-		public struct GSAISAVE
+		public class GSAISAVE
 		{
 			public List<int> UsedFleets;
 
@@ -616,7 +627,8 @@ namespace Ship_Game
 
 			public List<Guid> PinGuids;
 
-			public List<ThreatMatrix.Pin> PinList;
+            //[XmlIgnore]
+			public List<ThreatMatrix.Pin>   PinList ;//= new List<ThreatMatrix.Pin>();
 		}
 
 		public struct PGSData
@@ -845,7 +857,7 @@ namespace Ship_Game
 
 			public float InCombatTimer;
 
-			public int experience;
+			public float experience;
 
 			public int kills;
 
@@ -948,10 +960,12 @@ namespace Ship_Game
 
             public bool preventFederations;
             public float GravityWellRange=GlobalStats.GravityWellRange;
+            public bool EliminationMode;
 
 			public UniverseSaveData()
 			{
 			}
 		}
+
 	}
 }

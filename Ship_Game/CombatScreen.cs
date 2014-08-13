@@ -132,14 +132,13 @@ namespace Ship_Game
 				}
 				if (s.Role != "troop")
 				{
-					if (!s.HasTroopBay || s.TroopList.Count <=0)
+					if ((!s.HasTroopBay && !s.hasTransporter) || s.TroopList.Count <=0)
 					{
 						continue;
 					}
                     int i = 0;
                     foreach (ShipModule hangar in s.GetHangars().Where(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0))
                     {
-
                         Troop troop = s.TroopList[i];
                         if (troop != null)
                         {
@@ -151,6 +150,17 @@ namespace Ship_Game
                             }
                             else
                                 i++;
+                        }
+                    }
+                    foreach (ShipModule module in s.Transporters.Where(module => module.TransporterTimer <= 0 && module.TransporterTroopLanding > 0))
+                    {
+                        if (i > s.TroopList.Count)
+                            break;
+                        for (int j = 0; j < module.TransporterTroopLanding; j++)
+                        {
+                            if (s.TroopList[i] != null && s.TroopList[i].GetOwner() == s.loyalty)
+                                this.OrbitSL.AddItem(s.TroopList[i]);
+                            i++;
                         }
                     }
 				}
@@ -776,7 +786,7 @@ namespace Ship_Game
                             pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
                             pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
                             play = true;
-                            ResourceManager.CreateTroopShipAtPoint(pgs.TroopsHere[0].GetOwner().data.DefaultSmallTransport, pgs.TroopsHere[0].GetOwner(), this.p.Position, pgs.TroopsHere[0]);
+                            ResourceManager.CreateTroopShipAtPoint((pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip != null) ? pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip : pgs.TroopsHere[0].GetOwner().data.DefaultSmallTransport, pgs.TroopsHere[0].GetOwner(), this.p.Position, pgs.TroopsHere[0]);
                             this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                             pgs.TroopsHere[0].SetPlanet(null);
                             pgs.TroopsHere.Clear();
@@ -1048,6 +1058,13 @@ namespace Ship_Game
 							this.OrbitSL.AddItem(t);
 						}
 					}
+                    else if (s.hasTransporter)
+                    {
+                        foreach (Troop troop in s.TroopList.Where(troop => troop.GetOwner() == s.loyalty))
+                        {
+                            this.OrbitSL.AddItem(troop);
+                        }
+                    }
 				}
 			}
 		}
