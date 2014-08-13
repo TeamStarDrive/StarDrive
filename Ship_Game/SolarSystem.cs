@@ -1418,40 +1418,45 @@ namespace Ship_Game
 
 		public float GetPredictedEnemyPresence(float time, Empire us)
 		{
-			float prediction = 0f;
-            //foreach (Ship ship in this.ShipList)
-            //{
-            //    if (ship == null || ship.loyalty == us || !ship.loyalty.isFaction && !us.GetRelations()[ship.loyalty].AtWar)
-            //    {
-            //        continue;
-            //    }
-            //    prediction = prediction + ship.GetStrength();
-            //}
-            float universescale =Empire.universeScreen.Size.X /50;
-            foreach (Ship ship in us.KnownShips)
+			//added by gremlin massive rewrite or prediction code.
+            float prediction = 0f;
+
+
+            for (int x = 0; x < us.KnownShips.Count; x++)
             {
-                if (ship == null || ship.loyalty == us 
-                    || (!ship.loyalty.isFaction && (!us.GetRelations()[ship.loyalty].AtWar || !us.GetRelations()[ship.loyalty].Treaty_OpenBorders))
-                    ||Vector2.Distance(this.Position, ship.Position) > universescale)
+                Ship ship = us.KnownShips[x];
+                if (ship==null || ship.loyalty == us)
+                    continue;
+                
+                Relationship war = null;
+                if (ship.GetAI().OrderQueue.Count==0|| !us.GetRelations().TryGetValue(ship.loyalty, out war))
                 {
+                    if (ship.GetAI().Target != null && ship.GetAI().Target.GetSystem() != null && ship.GetAI().Target.GetSystem() == this)
+                        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
                     continue;
                 }
-                prediction = prediction + ship.BaseStrength;
+                Ship_Game.Gameplay.ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.Last.Value;
+                if (war.Treaty_OpenBorders || war.AtWar || ship.loyalty.isFaction)
+                {
+                    if (this.PlanetList.Contains(goal.TargetPlanet))
+                    {
+                        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
+                        continue;
+                    }
+                    if (goal.MovePosition != null && Vector2.Distance(goal.MovePosition, this.Position) < 150000)
+                    {
+                        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
+                        continue;
+                    }
+
+                }
+                if (ship.GetSystem() == this)
+                    prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
 
             }
-            
 
 
-            //List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-            //for (int i = 0; i < nearby.Count; i++)
-            //{
-            //    Ship ship = nearby[i] as Ship;
-            //    if (ship != null && ship.loyalty != us && !this.ShipList.Contains(ship) && (ship.loyalty.isFaction || us.GetRelations()[ship.loyalty].AtWar) && HelperFunctions.IntersectCircleSegment(this.Position, 100000f * UniverseScreen.GameScaleStatic, ship.Center, ship.Center + (ship.Velocity * 60f)))
-            //    {
-            //        prediction = prediction + ship.GetStrength();
-            //    }
-            //}
-			return prediction;
+                return prediction;
 		}
 
 		private bool RoidPosOK(Vector3 roidPos)
