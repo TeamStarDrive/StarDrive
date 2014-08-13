@@ -268,7 +268,7 @@ namespace Ship_Game
 				orderby this.DefenseDict[system].IdealShipStrength - this.DefenseDict[system].GetOurStrength() descending
 				select system;
             this.refreshclumps();
-            if (DefensiveForcePool.Count > 0)
+            if (ShipsAvailableForAssignment.Count > 0)
             {
 
                 
@@ -284,31 +284,39 @@ namespace Ship_Game
                     }
 
 
-
+                    List<Ship> defensiveCombatships = ShipsAvailableForAssignment.Where(str => str.BaseStrength > 0).OrderByDescending(str => str.BaseStrength).ToList();// as List<Ship>;
                     //foreach (Ship enemy in EnemyClumpsDict.Keys)                       
-                    while (fillclumps.Values.Sum(str => str) >= 0 && DefensiveForcePool.Count > 0)
+                    while (fillclumps.Values.Sum(str => str) >= 0 && defensiveCombatships.Count > 0)
                     {
                         Ship enemy = null;
                         Ship friendly = null;
                         float distance = Ship.universeScreen.Size.X;
                         //foreach(Ship ship in ShipsAvailableForAssignment)
-                        for (int x = 0; x < DefensiveForcePool.Count; x++)
+                        for (int x = 0; x < defensiveCombatships.Count; x++)
                         {
 
-                            Ship ship = DefensiveForcePool[x];
+                            Ship ship = defensiveCombatships[x];
+                            
                             Ship TempShip = ship.GetAI().Target as Ship;
-                            if (ship.GetAI().Target != null && fillclumps.ContainsKey(TempShip) )
+                            if (ship.GetAI().Target != null && fillclumps.ContainsKey(TempShip))
                             {
-                                DefensiveForcePool.Remove(ship);
+                                ShipsAvailableForAssignment.Remove(ship);
+                                defensiveCombatships.Remove(ship);
                                 fillclumps[TempShip] -= ship.GetStrength();
                                 ship.GetAI().OrderAttackSpecificTarget(TempShip);
+                                continue;
+                            }
+                            else if (ship.GetAI().Target != null)
+                            {
+                                ShipsAvailableForAssignment.Remove(ship);
+                                defensiveCombatships.Remove(ship);
                                 continue;
                             }
 
 
                             foreach (Ship ship2 in fillclumps.Keys.Where(key => fillclumps[key] >= 0))
                             {
-                                float tempdist = Vector2.Distance(ship.Position, ship2.Position);
+                                float tempdist = Vector2.Distance(ship.Position, ship2.Position)/150000;
                                 if (distance <= tempdist)
                                 {
                                     continue;
@@ -320,12 +328,14 @@ namespace Ship_Game
                             }
                         }
                         if (friendly == null || enemy == null)
-                            break;
+                            continue;
 
                         fillclumps[enemy] -= friendly.GetStrength();
 
                         friendly.GetAI().OrderAttackSpecificTarget(enemy);
-                        DefensiveForcePool.Remove(friendly);
+                        ShipsAvailableForAssignment.Remove(friendly);
+                        
+                        defensiveCombatships.Remove(friendly);
 
                     }
                 }
