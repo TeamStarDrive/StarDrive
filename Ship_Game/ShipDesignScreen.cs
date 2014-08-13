@@ -3333,7 +3333,7 @@ namespace Ship_Game
 
         private void DrawHullBonus(ref Vector2 Cursor, string words, byte stat)
         {
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(6015), stat.ToString(), "% ", words), Cursor, Color.Green);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat(Localizer.Token(6015), stat.ToString(), "% ", words), Cursor, Color.Orange);
         }
 
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, string tip)
