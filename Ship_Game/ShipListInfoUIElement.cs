@@ -187,6 +187,8 @@ namespace Ship_Game
 		public void ClearShipList()
 		{
 			this.ShipList.Clear();
+            this.SelectedShipsSL.indexAtTop = 0;
+            this.SelectedShipsSL.ScrollBar.Y = this.SelectedShipsSL.ScrollBarHousing.Y;
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -581,9 +583,34 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							this.screen.SelectedFleet = null;
-							this.screen.SelectedShipList.Clear();
-							this.screen.SelectedShip = this.HoveredShip;
+                            //added by gremlin filter by selected ship in shiplist.
+                            if (input.CurrentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
+                            {
+                               
+                                foreach(Ship filter in this.screen.SelectedShipList)
+
+                                {
+                                    if(filter.Role != this.HoveredShip.Role)
+                                    {
+                                        this.screen.SelectedShipList.QueuePendingRemoval(filter);
+                                        
+                                    }
+                                    
+                                }
+                                this.screen.SelectedShipList.ApplyPendingRemovals();
+                                this.SetShipList(this.screen.SelectedShipList, false);
+                                this.SelectedShipsSL.indexAtTop = 0;
+                                this.SelectedShipsSL.ScrollBar.Y = this.SelectedShipsSL.ScrollBarHousing.Y;
+                                
+                               
+                                continue;
+                            }
+                            else
+                            {
+                                this.screen.SelectedFleet = null;
+                                this.screen.SelectedShipList.Clear();
+                                this.screen.SelectedShip = this.HoveredShip;
+                            }
 							return true;
 						}
 					}

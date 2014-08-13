@@ -135,7 +135,7 @@ namespace Ship_Game
 			}
 			if (this.MiddleText != null)
 			{   //draw description test
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12Bold, this.MiddleText, this.MiddleTextPos, Color.White);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.MiddleText, this.MiddleTextPos, Color.White);
 			}
 			this.close.Draw(base.ScreenManager);
 			base.ScreenManager.SpriteBatch.End();
@@ -214,8 +214,8 @@ namespace Ship_Game
 			}
 			if (this.MiddleText != null)
 			{
-				this.MiddleText = HelperFunctions.parseText(Fonts.Verdana12Bold, this.MiddleText, (float)(this.MidContainer.Width - 50));
-                this.MiddleTextPos = new Vector2((float)(this.MidContainer.X + this.MidContainer.Width / 2) - Fonts.Verdana12Bold.MeasureString(this.MiddleText).X / 2f, (float)(this.MidContainer.Y + this.MidContainer.Height / 2) - Fonts.Verdana12Bold.MeasureString(this.MiddleText).Y / 2f);
+				this.MiddleText = HelperFunctions.parseText(Fonts.Arial12, this.MiddleText, (float)(this.MidContainer.Width - 50));
+                this.MiddleTextPos = new Vector2((float)(this.MidContainer.X + this.MidContainer.Width / 2) - Fonts.Arial12.MeasureString(this.MiddleText).X / 2f, (float)(this.MidContainer.Y + this.MidContainer.Height / 2) - Fonts.Arial12.MeasureString(this.MiddleText).Y / 2f);
 				
 					this.MiddleTextPos.X = (float)((int)this.MiddleTextPos.X);
 					this.MiddleTextPos.Y = (float)((int)this.MiddleTextPos.Y);
