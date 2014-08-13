@@ -168,6 +168,8 @@ namespace Ship_Game.Gameplay
         public static bool WarpRestrictionInNuetral = false;
         public float OrbitTimer=0;
 
+        private float RepairBeamTimer;
+
 		public ArtificialIntelligence()
 		{
 		}
@@ -6596,6 +6598,22 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
+            //Added by McShooterz: logic for repair beams
+            if (this.Owner.hasRepairBeam)
+            {
+                this.RepairBeamTimer -= elapsedTime;
+                if (this.RepairBeamTimer <= 0f)
+                {
+                    this.RepairBeamTimer = 2f;
+                    foreach (ShipModule module in this.Owner.RepairBeams)
+                    {
+                        if (module.InstalledWeapon.timeToNextFire <= 0f && module.InstalledWeapon.moduleAttachedTo.Powered && this.Owner.Ordinance >= module.InstalledWeapon.OrdinanceRequiredToFire && this.Owner.PowerCurrent >= module.InstalledWeapon.PowerRequiredToFire)
+                        {
+                            this.DoRepairBeamLogic(module.InstalledWeapon);
+                        }
+                    }
+                }
+            }
             if (this.State == AIState.ManualControl)
             {
                 return;
@@ -7325,17 +7343,14 @@ namespace Ship_Game.Gameplay
                         {
                             Weapon weapon1 = weapon;
                             weapon1.timeToNextFire = weapon1.timeToNextFire - elapsedTime;
-                            if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || this.Owner.Ordinance < weapon.OrdinanceRequiredToFire || this.Owner.PowerCurrent < weapon.PowerRequiredToFire || (!weapon.IsRepairDrone && !weapon.isRepairBeam))
+                            if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || this.Owner.Ordinance < weapon.OrdinanceRequiredToFire || this.Owner.PowerCurrent < weapon.PowerRequiredToFire || !weapon.IsRepairDrone)
                             {
                                 //return;
                                 continue;
                             }
                             try
                             {
-                                if (weapon.IsRepairDrone)
                                     this.DoRepairDroneLogic(weapon);
-                                if (weapon.isRepairBeam)
-                                    this.DoRepairBeamLogic(weapon);
                             }
                             catch
                             {
