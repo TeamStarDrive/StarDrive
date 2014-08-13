@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>ShipboardAssault</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>220</Cost>
+  <RootNode>0</RootNode>
+  <Name>Ship Assault</Name>
+  <NameIndex>654</NameIndex>
+  <DescriptionIndex>655</DescriptionIndex>
+  <LongDescription>Feeding, housing, and equipping marines in deep space requires precise logistical planning. Marines can carry assaults out on enemy vessels if their ship is equipped with an assault shuttle bay.  </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Shipboard Medicine</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>TroopAssaultBay</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>MarineBarracks2x2</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

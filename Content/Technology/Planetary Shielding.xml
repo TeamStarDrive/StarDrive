@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Planetary Shielding</UID>
+  <TechnologyType>GroundCombat</TechnologyType>
+  <Cost>4500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Planetary Shielding</Name>
+  <NameIndex>634</NameIndex>
+  <DescriptionIndex>635</DescriptionIndex>
+  <LongDescription>Surprisingly, shielding an entire planet is easier than shielding an entire ship because we needn't worry about mass, size, and power restrictions when building on terra firma. The result is a massive and powerful shield that provides protection from bombardment. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Planetary Shield</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

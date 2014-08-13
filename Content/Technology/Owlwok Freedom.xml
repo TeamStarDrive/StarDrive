@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Owlwok Freedom</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>1500</Cost>
+  <RootNode>0</RootNode>
+  <Secret>true</Secret>
+  <Name>Owlwok Freedom</Name>
+  <NameIndex>2160</NameIndex>
+  <DescriptionIndex>2161</DescriptionIndex>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Owlwok Liberator</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

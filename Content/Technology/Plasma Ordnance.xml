@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Plasma Ordnance</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>1500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Plasma Ordnance</Name>
+  <NameIndex>2001</NameIndex>
+  <DescriptionIndex>2002</DescriptionIndex>
+  <LongDescription>See localization file</LongDescription>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Ordnance Effectiveness</Name>
+      <BonusType>Ordnance Effectiveness Bonus</BonusType>
+      <Bonus>.25</Bonus>
+      <Description></Description>
+      <BonusIndex>2003</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

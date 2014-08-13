@@ -1,0 +1,39 @@
+﻿<EconomicResearchStrategy>
+  <!--the opening technology path for races with the Named economic personality. Goes random when finished-->
+  <Name>Expansionists</Name>
+  <MilitaryPriority>7</MilitaryPriority>
+  <ExpansionPriority>9</ExpansionPriority>
+  <ResearchPriority>3</ResearchPriority>
+  <IndustryPriority>5</IndustryPriority>
+  <TechPath>
+    <Tech>
+      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization</id>
+    </Tech>
+
+
+    <Tech>
+      <id>CHEAPEST:TECH:Colonization:Economic:GroundCombat:General:Research</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST</id>
+    </Tech>
+    <Tech>
+      <id>IFPEACE:0</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Colonization:ShipHull:ShipWeapons:ShipDefense:Economic:GroundCombat</id>
+    </Tech>
+
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:Economic:Colonization:GroundCombat</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST</id>
+    </Tech>
+
+    <Tech>
+      <id>LOOP:3</id>
+    </Tech>
+
+  </TechPath>
+</EconomicResearchStrategy>
