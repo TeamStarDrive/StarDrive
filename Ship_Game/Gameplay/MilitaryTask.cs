@@ -602,7 +602,7 @@ namespace Ship_Game.Gameplay
 				select ao;
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
 			{
-                if (!this.IsCoreFleetTask && this.WhichFleet != -1)
+                if (!this.IsCoreFleetTask && this.WhichFleet != -1 && this.empire != Ship.universeScreen.player)
                     foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
                     {
                         this.empire.ForcePoolAdd(ship);
@@ -622,7 +622,7 @@ namespace Ship_Game.Gameplay
 				{
 					if (!this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
 					{
-                        if (!this.IsCoreFleetTask && this.WhichFleet != -1)
+                        if (!this.IsCoreFleetTask && this.WhichFleet != -1 && this.empire != Ship.universeScreen.player)
                             foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
                             {
                                 this.empire.ForcePoolAdd(ship);
@@ -697,7 +697,7 @@ namespace Ship_Game.Gameplay
 				select ao;
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
 			{
-				if(!this.IsCoreFleetTask && this.WhichFleet !=-1 )
+				if(!this.IsCoreFleetTask && this.WhichFleet !=-1 && this.empire != Ship.universeScreen.player)
                     foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
                     {
                         this.empire.ForcePoolAdd(ship);
@@ -1812,6 +1812,7 @@ namespace Ship_Game.Gameplay
             if (!GoodToGo)
             {
                 this.NeededTroopStrength = (int)(EnemyTroopStrength + EnemyTroopStrength * 0.3f - ourAvailableStrength);
+                
             }
         }
 
