@@ -155,8 +155,16 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						GlobalStats.ActiveMod = this.ActiveEntry;
+
+                        ResourceManager.Reset();
+                        ResourceManager.Initialize(base.ScreenManager.Content);
+                        ResourceManager.LoadEmpires();
+                        GlobalStats.ActiveMod = this.ActiveEntry;
+                        
+                        ResourceManager.WhichModPath = this.ActiveEntry.ModPath;
+                        
 						ResourceManager.LoadMods(string.Concat("Mods/", this.ActiveEntry.ModPath));
+
 						Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 						config.AppSettings.Settings["ActiveMod"].Value = this.ActiveEntry.ModPath;
 						config.Save();

@@ -49,7 +49,7 @@ namespace Ship_Game
 				Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, this.NodeRect, Color.White, 3f);
 			}
 			Vector2 cursor = new Vector2((float)(this.NodeRect.X + 10), (float)(this.NodeRect.Y + 4));
-			HelperFunctions.DrawDropShadowText(ScreenManager, ResourceManager.TechTree[this.tech.UID].Name, cursor, Fonts.Arial12Bold);
+			HelperFunctions.DrawDropShadowText(ScreenManager, Localizer.Token(ResourceManager.TechTree[this.tech.UID].NameIndex), cursor, Fonts.Arial12Bold);
 			Rectangle BlackBar = new Rectangle(this.NodeRect.X + 215, this.NodeRect.Y + 1, 1, this.NodeRect.Height - 2);
 			Primitives2D.FillRectangle(ScreenManager.SpriteBatch, BlackBar, Color.Black);
 			Rectangle rIconRect = new Rectangle(BlackBar.X + 4, BlackBar.Y + 4, 19, 20);

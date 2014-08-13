@@ -138,6 +138,18 @@ namespace Ship_Game
 						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], iconRect, Color.White);
 						return;
 					}
+                    case OrderType.Scrap:
+                    {
+                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_planetslist"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_planetslist"].Height / 2, ResourceManager.TextureDict["UI/icon_planetslist"].Width, ResourceManager.TextureDict["UI/icon_planetslist"].Height);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_planetslist"], iconRect, Color.White);
+                        return;
+                    }
+                    case OrderType.Refit:
+                    {
+                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_dsbw"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_dsbw"].Height / 2, ResourceManager.TextureDict["UI/icon_dsbw"].Width, ResourceManager.TextureDict["UI/icon_dsbw"].Height);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_dsbw"], iconRect, Color.White);
+                        return;
+                    }
 					default:
 					{
 						return;
@@ -228,6 +240,18 @@ namespace Ship_Game
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], iconRect, Color.White);
 					return;
 				}
+                case OrderType.Scrap:
+                {
+                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_planetslist"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_planetslist"].Height / 2, ResourceManager.TextureDict["UI/icon_planetslist"].Width, ResourceManager.TextureDict["UI/icon_planetslist"].Height);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_planetslist"], iconRect, Color.White);
+                    return;
+                }
+                case OrderType.Refit:
+                {
+                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_dsbw"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_dsbw"].Height / 2, ResourceManager.TextureDict["UI/icon_dsbw"].Width, ResourceManager.TextureDict["UI/icon_dsbw"].Height);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_dsbw"], iconRect, Color.White);
+                    return;
+                }
 				default:
 				{
 					return;
@@ -311,10 +335,27 @@ namespace Ship_Game
 										ship.GetAI().SystemToDefendGuid = Guid.Empty;
 										ship.GetAI().State = AIState.SystemDefender;
 									}
+                                    else
+                                    {
+                                        EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Remove(ship);
+                                        ship.GetAI().OrderQueue.Clear();
+                                        ship.GetAI().HasPriorityOrder = false;
+                                        ship.GetAI().SystemToDefend = null;
+                                        ship.GetAI().SystemToDefendGuid = Guid.Empty;
+                                        ship.GetAI().State = AIState.AwaitingOrders;
+                                    }
 								}
 							}
 							return true;
 						}
+                        case OrderType.Scrap:
+                        {
+                            for (int i = 0; i < this.ShipList.Count; i++)
+                            {
+                                this.ShipList[i].GetAI().OrderScrapShip();
+                            }
+                            return true;
+                        }
 						default:
 						{
 							return true;

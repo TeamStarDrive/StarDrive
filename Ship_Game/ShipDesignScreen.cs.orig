@@ -300,6 +300,51 @@ namespace Ship_Game
 						button.Active = true;
 					}
 				}
+                else if (str == "broadside_left")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideLeft)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
+                else if (str == "broadside_left")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideLeft)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
+                else if (str == "broadside_left")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideLeft)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
+                else if (str == "broadside_left")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideLeft)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
+                else if (str == "broadside_left")
 				else if (str != "orbit_right")
 				{
 					if (str == "evade")
@@ -314,6 +359,17 @@ namespace Ship_Game
 						}
 					}
 				}
+                else if (str == "broadside_right")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideRight)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
 				else if (this.CombatState != Ship_Game.Gameplay.CombatState.OrbitRight)
 				{
 					button.Active = false;

@@ -64,8 +64,10 @@ namespace Ship_Game
 
 		public LoadUniverseScreen(FileInfo activeFile)
 		{
-			GlobalStats.RemnantKills = 0;
+            GC.Collect();
+            GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
+            GlobalStats.Statreset();
 			BackgroundWorker bgw = new BackgroundWorker();
 			bgw.DoWork += new DoWorkEventHandler(this.DecompressFile);
 			bgw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.LoadEverything);
@@ -109,6 +111,18 @@ namespace Ship_Game
 				e.dd = Ship_Game.ResourceManager.DDDict[e.data.DiplomacyDialogPath];
 				e.PortraitName = e.data.PortraitName;
 				e.EmpireColor = new Color((byte)e.data.Traits.R, (byte)e.data.Traits.G, (byte)e.data.Traits.B);
+                if (data.CurrentAutoScout != null)
+                    e.data.CurrentAutoScout = data.CurrentAutoScout;
+                else
+                    e.data.CurrentAutoScout = e.data.StartingScout;
+                if (data.CurrentAutoFreighter != null)
+                    e.data.CurrentAutoFreighter = data.CurrentAutoFreighter;
+                else
+                    e.data.CurrentAutoFreighter = e.data.DefaultSmallTransport;
+                if (data.CurrentAutoColony != null)
+                    e.data.CurrentAutoColony = data.CurrentAutoColony;
+                else
+                    e.data.CurrentAutoColony = e.data.DefaultColonyShip;
 			}
 			e.Initialize();
 			e.Money = data.Money;
@@ -120,12 +134,15 @@ namespace Ship_Game
 				{
 					continue;
 				}
+                if (tech.AcquiredFrom != null)
+                    e.GetTDict()[tech.UID].AcquiredFrom = tech.AcquiredFrom;
 				if (tech.Unlocked)
 				{
 					e.UnlockTechFromSave(tech.UID);
 				}
 				e.GetTDict()[tech.UID].Progress = tech.Progress;
 				e.GetTDict()[tech.UID].Discovered = tech.Discovered;
+
 			}
 			return e;
 		}
@@ -308,7 +325,18 @@ namespace Ship_Game
 			FileInfo activeFile = (FileInfo)e.Argument;
 			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(activeFile));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+
+            //XmlAttributes saveCompatibility = new XmlAttributes();
+            XmlSerializer serializer1=null;// = new XmlSerializer();
+            try
+            {
+                //XmlSerializer 
+                    serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+            }
+            catch
+            {
+                serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+            }
 			FileStream stream = decompressed.OpenRead();
 			SavedGame.UniverseSaveData savedData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
 			stream.Close();
@@ -316,6 +344,17 @@ namespace Ship_Game
 			decompressed.Delete();
 			GlobalStats.RemnantKills = savedData.RemnantKills;
 			GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
+            
+            GlobalStats.GravityWellRange = savedData.GravityWellRange;            
+            GlobalStats.IconSize = savedData.IconSize;            
+            GlobalStats.MemoryLimiter = savedData.MemoryLimiter;          
+            GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;         
+            GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;            
+            GlobalStats.preventFederations = savedData.preventFederations;
+            GlobalStats.EliminationMode = savedData.EliminationMode;
+
+
+
 			this.savedData = savedData;
 			this.camPos = savedData.campos;
 			this.camHeight = savedData.camheight;
@@ -436,12 +475,25 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			this.ScreenCenter = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-			this.textList = HelperFunctions.GetFilesFromDirectory("Content/LoadingScreen");
+			this.textList = HelperFunctions.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen") : "Content/LoadingScreen");
 			XmlSerializer serializer2 = new XmlSerializer(typeof(List<string>));
-			this.AdviceList = (List<string>)serializer2.Deserialize((new FileInfo(string.Concat("Content/Advice/", GlobalStats.Config.Language, "/Advice.xml"))).OpenRead());
-			for (int i = 1; i < (int)this.textList.Length; i++)
+            //Added by McShooterz: mod folder support of Advice folder
+            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/", GlobalStats.Config.Language, "/Advice.xml")))
+            {
+                this.AdviceList = (List<string>)serializer2.Deserialize((new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/", GlobalStats.Config.Language, "/Advice.xml"))).OpenRead());
+            }
+            else
+            {
+                this.AdviceList = (List<string>)serializer2.Deserialize((new FileInfo(string.Concat("Content/Advice/", GlobalStats.Config.Language, "/Advice.xml"))).OpenRead());
+            }
+            //Added by McShooterz: fix to load game crash, not finding loading screen
+			for (int i = 0; i < (int)this.textList.Length; i++)
 			{
-				Texture2D what = base.ScreenManager.Content.Load<Texture2D>(string.Concat("LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[i].Name)));
+                Texture2D what;
+                if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")))
+                    what = base.ScreenManager.Content.Load<Texture2D>(string.Concat("../",Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[i].Name)));
+                else
+                    what = base.ScreenManager.Content.Load<Texture2D>(string.Concat("LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[i].Name)));
 				this.TextureList.Add(what);
 			}
 			this.whichAdvice = (int)RandomMath.RandomBetween(0f, (float)this.AdviceList.Count);
@@ -955,6 +1007,7 @@ namespace Ship_Game
 							qi.isBuilding = true;
 							qi.Building = Ship_Game.ResourceManager.BuildingsDict[qisave.UID];
 							qi.Cost = qi.Building.Cost * this.savedData.GamePacing;
+                            qi.NotifyOnEmpty = false;
 							foreach (PlanetGridSquare pgs in p.TilesList)
 							{
 								if ((float)pgs.x != qisave.pgsVector.X || (float)pgs.y != qisave.pgsVector.Y)
@@ -971,6 +1024,7 @@ namespace Ship_Game
 							qi.isTroop = true;
 							qi.troop = Ship_Game.ResourceManager.TroopsDict[qisave.UID];
 							qi.Cost = qi.troop.Cost;
+                            qi.NotifyOnEmpty = false;
 						}
 						if (qisave.isShip)
 						{
@@ -992,7 +1046,8 @@ namespace Ship_Game
 								cost.Cost = cost.Cost + Ship_Game.ResourceManager.GetModule(slot.InstalledModuleUID).Cost * this.savedData.GamePacing;
 							}
 							QueueItem queueItem = qi;
-							queueItem.Cost = queueItem.Cost + qi.Cost * p.Owner.data.Traits.ShipCostMod;
+                            queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;
+                            queueItem.Cost *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().CostBonus != 0 ? (1f - (float)Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().CostBonus / 100f) : 1);
 							if (qi.sData.HasFixedCost)
 							{
 								qi.Cost = (float)qi.sData.FixedCost;
@@ -1010,6 +1065,7 @@ namespace Ship_Game
 								continue;
 							}
 							qi.Goal = g;
+                            qi.NotifyOnEmpty = false;
 						}
 						if (qisave.isShip && qi.Goal != null)
 						{

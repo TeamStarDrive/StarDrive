@@ -22,6 +22,8 @@ namespace Ship_Game
 		Bomb,
 		Special,
 		Drone,
-		Spacebomb
+		Spacebomb,
+        Countermeasure,
+        Transporter
 	}
 }

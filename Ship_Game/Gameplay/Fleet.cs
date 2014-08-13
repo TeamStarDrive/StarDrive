@@ -102,7 +102,7 @@ namespace Ship_Game.Gameplay
             return this.GoalStack;
         }
 
-        public void AddShip(Ship shiptoadd)
+        public void AddShipORIG(Ship shiptoadd)
         {
             this.Ships.Add(shiptoadd);
             shiptoadd.fleet = this;
@@ -111,14 +111,45 @@ namespace Ship_Game.Gameplay
             Vector2 vector2 = shiptoadd.RelativeFleetOffset;
             this.AssignPositions(this.facing);
         }
+        public void AddShip(Ship shiptoadd)
+        {
+            if (shiptoadd.Role == "station")
+            {
+                //dotoughnutrequisition is the actual cause I found
+                return;
+            }
+            this.Ships.Add(shiptoadd);
+            shiptoadd.fleet = this;
+            IOrderedEnumerable<Ship> speedSorted =
+                from ship in this.Ships
+                orderby ship.speed
+                select ship;
+            this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
+            Vector2 relativeFleetOffset = shiptoadd.RelativeFleetOffset;
+            this.AssignPositions(this.facing);
+        }
 
-        public void SetSpeed()
+        public void SetSpeedORIG()
         {
             IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
             this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable, 0).speed : 200f;
             if ((double)this.speed != 0.0)
                 return;
             this.speed = 200f;
+        }
+        //added by gremlin make fleet speed average not include warpless ships.
+        public void SetSpeed()
+        {//Vector2.Distance(this.findAveragePosition(),ship.Center) <10000 
+            IOrderedEnumerable<Ship> speedSorted =
+                from ship in this.Ships
+                where !ship.EnginesKnockedOut && ship.IsWarpCapable && !ship.InCombat && !ship.Inhibited && ship.Active
+                orderby ship.speed
+                select ship;
+            this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
+            if (this.speed == 0f)
+            {
+                this.speed = 200f;
+            }
         }
 
         public void IncrementFCS()
@@ -732,12 +763,29 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public Vector2 findAveragePosition()
+        public Vector2 findAveragePositionORIG()
         {
             Vector2 zero = Vector2.Zero;
             foreach (Ship ship in (List<Ship>)this.Ships)
                 zero += ship.Position;
             return zero / (float)this.Ships.Count;
+        }
+        //added by gremlin. make fleet center not count warpless ships.
+        public Vector2 findAveragePosition()
+        {
+            Vector2 pos = Vector2.Zero;
+            foreach (Ship ship in this.Ships)
+            //Parallel.ForEach(this.Ships, ship =>
+            {
+                if (!ship.EnginesKnockedOut && ship.IsWarpCapable && !ship.Inhibited && ship.Active)
+
+                    pos = pos + ship.Position;
+            }
+            if (pos == Vector2.Zero && this.Ships.Count>0) 
+                pos = this.Ships[0].Position;
+            float count = (float)this.Ships.Where(ship => !ship.EnginesKnockedOut && ship.IsWarpCapable && !ship.Inhibited && ship.Active).Count();
+            if (count < 1) count = 1;
+            return pos / count;
         }
 
         public void TrackEnemies()
@@ -2006,7 +2054,7 @@ namespace Ship_Game.Gameplay
                             while (enumerator.MoveNext())
                             {
                                 Ship current = enumerator.Current;
-                                if (current.GetAI().State != AIState.Orbit)
+                                if (!(current.GetAI().State == AIState.Orbit ))
                                     current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());
                                 else if (current.GetAI().State == AIState.Orbit && (current.GetAI().OrbitTarget == null || current.GetAI().OrbitTarget != null && current.GetAI().OrbitTarget != Task.GetTargetPlanet()))
                                     current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());

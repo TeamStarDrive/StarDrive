@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Aeroponics</UID>
+  <TechnologyType>Colonization</TechnologyType>
+  <Cost>150</Cost>
+  <RootNode>0</RootNode>
+  <Name>Aeroponics</Name>
+  <NameIndex>503</NameIndex>
+  <DescriptionIndex>504</DescriptionIndex>
+  <LongDescription>Colonizing barren planets or planets with a low fertility score means that food production will be critical to that colony's survival.  Aeroponic farming techniques provide a basic level of sustenance to support a small colony. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Biospheres</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Aeroponic Farm</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

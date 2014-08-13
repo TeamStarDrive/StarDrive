@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Colonization</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>50</Cost>
+  <RootNode>1</RootNode>
+  <Name>Colonization</Name>
+  <NameIndex>530</NameIndex>
+  <IconPath>icons_techroot_colonization</IconPath>
+  <DescriptionIndex>531</DescriptionIndex>
+  <LongDescription>Boldly going to strange new worlds is just the first step. What to do when we get there is quite a bit more important. This technology branch explores various scientific, industrial, and military enhancements we can make to our colonies. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Aeroponics</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>IndustrialFoundations</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Military</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>ColonyModule</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <TroopsUnlocked>
+    <UnlockedTroop>
+      <Name>Space Marine</Name>
+      <Type>Terran</Type>
+    </UnlockedTroop>
+    <UnlockedTroop>
+      <Name>Draylok Infiltrator</Name>
+      <Type>Draylok</Type>
+    </UnlockedTroop>
+    <UnlockedTroop>
+      <Name>Opteris Warrior</Name>
+      <Type>Opteris</Type>
+    </UnlockedTroop>
+    <UnlockedTroop>
+      <Name>Ralyeh Cleric</Name>
+      <Type>Ralyeh</Type>
+    </UnlockedTroop>
+    <UnlockedTroop>
+      <Name>Owlwok Infantry</Name>
+      <Type>Cordrazine</Type>
+    </UnlockedTroop>
+    <UnlockedTroop>
+      <Name>Vulfar Grunt</Name>
+      <Type>Vulfen</Type>
+    </UnlockedTroop>
+    <UnlockedTroop>
+      <Name>Kulrathi Swordsbear</Name>
+      <Type>Kulrathi</Type>
+    </UnlockedTroop>
+    <UnlockedTroop>
+      <Name>Pollop Skroderiders</Name>
+      <Type>Pollops</Type>
+    </UnlockedTroop>
+  </TroopsUnlocked>
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Space Port</Name>
+    </UnlockedBuilding>
+    <UnlockedBuilding>
+      <Name>Outpost</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

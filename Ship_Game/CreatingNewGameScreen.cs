@@ -68,56 +68,7 @@ namespace Ship_Game
 
         public CreatingNewGameScreen(Empire empire, string size, float StarNumModifier, string EmpireToRemoveName, int numOpponents, RaceDesignScreen.GameMode gamemode, int GameScale, UniverseData.GameDifficulty difficulty, MainMenuScreen mmscreen)
         {
-            //GlobalStats.RemnantArmageddon = false;
-            //GlobalStats.RemnantKills = 0;
-            //this.mmscreen = mmscreen;
-            //foreach (KeyValuePair<string, Artifact> keyValuePair in ResourceManager.ArtifactsDict)
-            //    keyValuePair.Value.Discovered = false;
-            //RandomEventManager.ActiveEvent = (RandomEvent)null;
-            //this.difficulty = difficulty;
-            //this.scale = (float)GameScale;
-            //this.mode = gamemode;
-            //this.numOpponents = numOpponents;
-            //this.EmpireToRemoveName = EmpireToRemoveName;
-            //EmpireManager.EmpireList.Clear();
-            //this.dtraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo("Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
-            //ResourceManager.LoadEncounters();
-            //this.playerEmpire = empire;
-            //empire.Initialize();
-            //empire.data.CurrentAutoColony = empire.data.DefaultColonyShip;
-            //empire.data.CurrentAutoFreighter = empire.data.DefaultSmallTransport;
-            //empire.data.CurrentAutoScout = empire.data.StartingScout;
-            //this.data = new UniverseData();
-            //this.data.FTLSpeedModifier = GlobalStats.FTLInSystemModifier;
-            //this.data.GravityWells = GlobalStats.PlanetaryGravityWells;
-            //switch (size)
-            //{
-            //    case "Tiny":
-            //        this.numSystems = (int)(16.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(3500000f, 3500000f);
-            //        break;
-            //    case "Small":
-            //        this.numSystems = (int)(30.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(7300000f, 7300000f);
-            //        break;
-            //    case "Medium":
-            //        this.numSystems = (int)(50.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(9350000f, 9350000f);
-            //        break;
-            //    case "Large":
-            //        this.numSystems = (int)(75.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
-            //        break;
-            //    case "Epic":
-            //        this.numSystems = (int)(100.0 * (double)StarNumModifier);
-            //        this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
-            //        break;
-            //}
-            //this.data.Size *= this.scale;
-            //this.data.EmpireList.Add(empire);
-            //EmpireManager.EmpireList.Add(empire);
-            //this.GalacticCenter = new Vector2(this.data.Size.X / 2f, this.data.Size.Y / 2f);
-            //StatTracker.SnapshotsDict.Clear();
+            
             {
                 GlobalStats.RemnantArmageddon = false;
                 GlobalStats.RemnantKills = 0;
@@ -136,7 +87,8 @@ namespace Ship_Game
                 this.EmpireToRemoveName = EmpireToRemoveName;
                 EmpireManager.EmpireList.Clear();
                 XmlSerializer serializer2 = new XmlSerializer(typeof(DiplomaticTraits));
-                this.dtraits = (DiplomaticTraits)serializer2.Deserialize((new FileInfo("Content/Diplomacy/DiplomaticTraits.xml")).OpenRead());
+                //Added by McShooterz: mod folder support
+                this.dtraits = (DiplomaticTraits)serializer2.Deserialize((new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml") : "Content/Diplomacy/DiplomaticTraits.xml")).OpenRead());
                 Ship_Game.ResourceManager.LoadEncounters();
                 this.playerEmpire = empire;
                 empire.Initialize();
@@ -263,12 +215,19 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            this.textList = HelperFunctions.GetFilesFromDirectory("Content/LoadingScreen");
-            this.AdviceList = (List<string>)new XmlSerializer(typeof(List<string>)).Deserialize((Stream)new FileInfo("Content/Advice/" + GlobalStats.Config.Language + "/Advice.xml").OpenRead());
+            //Added by McShooterz: Enable LoadingScreen folder for mods
+            this.textList = HelperFunctions.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen") : "Content/LoadingScreen");
+            //Added by McShooterz: mod support for Advice folder
+            this.AdviceList = (List<string>)new XmlSerializer(typeof(List<string>)).Deserialize((Stream)new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/" + GlobalStats.Config.Language + "/Advice.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/" + GlobalStats.Config.Language + "/Advice.xml") : "Content/Advice/" + GlobalStats.Config.Language + "/Advice.xml").OpenRead());
             this.ScreenManager.inter.ObjectManager.Clear();
             this.ScreenManager.inter.LightManager.Clear();
-            for (int index = 1; index < this.textList.Length; ++index)
-                this.TextureList.Add(this.ScreenManager.Content.Load<Texture2D>("LoadingScreen/" + Path.GetFileNameWithoutExtension(this.textList[index].Name)));
+            for (int index = 0; index < this.textList.Length; ++index)
+            {
+                if(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")))
+                    this.TextureList.Add(this.ScreenManager.Content.Load<Texture2D>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[index].Name))));
+                else
+                    this.TextureList.Add(this.ScreenManager.Content.Load<Texture2D>("LoadingScreen/" + Path.GetFileNameWithoutExtension(this.textList[index].Name)));
+            }
             this.whichAdvice = (int)RandomMath.RandomBetween(0.0f, (float)this.AdviceList.Count);
             this.whichTexture = (int)RandomMath.RandomBetween(0.0f, (float)this.TextureList.Count);
             this.text = HelperFunctions.parseText(Fonts.Arial12Bold, this.AdviceList[this.whichAdvice], 500f);
@@ -351,7 +310,12 @@ namespace Ship_Game
                         if (!Owner.isFaction)
                         {
                             SolarSystem solarSystem = new SolarSystem();
-                            if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
+                            //Added by McShooterz: support for SolarSystems folder for mods
+                            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")))
+                            {
+                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
+                            }
+                            else if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
                             {
                                 solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
@@ -364,6 +328,7 @@ namespace Ship_Game
                             this.data.SolarSystemsList.Add(solarSystem);
                             if (Owner == this.playerEmpire)
                                 this.PlayerSystem = solarSystem;
+
                         }
                     }
                     MarkovNameGenerator markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
@@ -474,6 +439,7 @@ namespace Ship_Game
                         {
                             foreach (Planet planet1 in index.GetPlanets())
                             {
+                                planet1.MineralRichness += GlobalStats.StartingPlanetRichness;
                                 planet1.system.ExploredDict[index] = true;
                                 planet1.ExploredDict[index] = true;
                                 foreach (Planet planet2 in planet1.system.PlanetList)
@@ -499,6 +465,9 @@ namespace Ship_Game
                                 ship1.Position = planet1.Position + new Vector2(-2000f, -2000f);
                                 ship1.loyalty = index;
                                 ship1.Initialize();
+                                //Added by McShooterz: Starting ship support for automatic naming
+                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship1.loyalty.data.Traits.ShipType, ship1.Role))
+                                    ship1.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship1.loyalty.data.Traits.ShipType, ship1.Role);
                                 ship1.SetHome(planet1);
                                 ship1.DoOrbit(planet1);
                                 ship1.GetSO().World = Matrix.CreateTranslation(new Vector3(ship1.Position, 0.0f));
@@ -521,6 +490,9 @@ namespace Ship_Game
                                 ship2.Position = planet1.Position + new Vector2(-2500f, -2000f);
                                 ship2.loyalty = index;
                                 ship2.Initialize();
+                                //Added by McShooterz: Starting ship support for automatic naming
+                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship2.loyalty.data.Traits.ShipType, ship2.Role))
+                                    ship2.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship2.loyalty.data.Traits.ShipType, ship2.Role);
                                 ship2.SetHome(planet1);
                                 ship2.DoOrbit(planet1);
                                 ship2.GetSO().World = Matrix.CreateTranslation(new Vector3(ship2.Position, 0.0f));
@@ -546,7 +518,11 @@ namespace Ship_Game
                                     this.playerShip.loyalty.AddShip(this.playerShip);
                                     this.playerShip.Initialize();
                                     this.playerShip.GetAI().State = AIState.ManualControl;
-                                    this.playerShip.VanityName = "Perseverance";
+                                    //Added by McShooterz: Starting ship support for automatic naming
+                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
+                                        this.playerShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role);
+                                    else
+                                        this.playerShip.VanityName = "Perseverance";
                                     this.playerShip.GetSO().World = Matrix.CreateRotationY(this.playerShip.yBankAmount) * Matrix.CreateRotationZ(this.playerShip.Rotation) * Matrix.CreateTranslation(new Vector3(this.playerShip.Center, 0.0f));
                                     this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)this.playerShip.GetSO());
                                     planet1.system.spatialManager.CollidableObjects.Add((GameplayObject)this.playerShip);
@@ -573,6 +549,9 @@ namespace Ship_Game
                                     ship3.Position = planet1.Position + new Vector2(-2500f, -2000f);
                                     ship3.loyalty = index;
                                     ship3.Initialize();
+                                    //Added by McShooterz: Starting ship support for automatic naming
+                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
+                                        ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.Role);
                                     ship3.SetHome(planet1);
                                     ship3.DoOrbit(planet1);
                                     ship3.GetSO().World = Matrix.CreateTranslation(new Vector3(ship3.Position, 0.0f));
@@ -694,6 +673,7 @@ namespace Ship_Game
             empireData.CounterIntelligenceBudget = 0.0f;
             empireData.DefaultColonyShip = data.DefaultColonyShip;
             empireData.DefaultSmallTransport = data.DefaultSmallTransport;
+            empireData.DefaultTroopShip = data.DefaultTroopShip;
             empireData.DiplomacyDialogPath = data.DiplomacyDialogPath;
             empireData.DiplomaticPersonality = data.DiplomaticPersonality;
             empireData.EconomicPersonality = data.EconomicPersonality;
@@ -747,7 +727,7 @@ namespace Ship_Game
             empireData.Traits.PassengerModifier = data.Traits.PassengerModifier;
             empireData.Traits.ProductionMod = data.Traits.ProductionMod;
             empireData.Traits.R = 128f;
-            empireData.Traits.RepairRateMod = data.Traits.RepairRateMod;
+            empireData.Traits.RepairMod = data.Traits.RepairMod;
             empireData.Traits.ReproductionMod = data.Traits.ReproductionMod;
             empireData.Traits.PopGrowthMax = data.Traits.PopGrowthMax;
             empireData.Traits.PopGrowthMin = data.Traits.PopGrowthMin;
@@ -768,7 +748,8 @@ namespace Ship_Game
             Empire empire = new Empire();
             empire.isFaction = true;
             empire.data = CreatingNewGameScreen.CopyEmpireData(data);
-            DiplomaticTraits diplomaticTraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo("Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
+            //Added by McShooterz: mod folder support
+            DiplomaticTraits diplomaticTraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml") : "Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
             int index1 = (int)RandomMath.RandomBetween(0.0f, (float)diplomaticTraits.DiplomaticTraitsList.Count);
             empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index1];
             int index2 = (int)RandomMath.RandomBetween(0.0f, (float)diplomaticTraits.DiplomaticTraitsList.Count);
@@ -804,6 +785,8 @@ namespace Ship_Game
                 data.EconomicPersonality = this.dtraits.EconomicTraitsList[index2];
             }
             empire.data = data;
+            //Added by McShooterz: set values for alternate race file structure
+            data.Traits.SetValues();
             empire.dd = ResourceManager.DDDict[data.DiplomacyDialogPath];
             empire.data.SpyModifier = data.Traits.SpyMultiplier;
             empire.data.Traits.Spiritual = data.Traits.Spiritual;
