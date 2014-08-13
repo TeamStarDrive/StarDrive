@@ -120,6 +120,7 @@ namespace Ship_Game
 			this.ShowRoles = new DropOptions(new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
 			this.ShowRoles.AddOption("All Ships", 1);
 			this.ShowRoles.AddOption("Fighters", 2);
+            this.ShowRoles.AddOption("Corvettes", 10);
 			this.ShowRoles.AddOption("Frigates", 3);
 			this.ShowRoles.AddOption("Cruisers", 4);
 			this.ShowRoles.AddOption("Capitals", 5);
@@ -669,6 +670,16 @@ namespace Ship_Game
                         case 9:
                         {
                             if ((ship.Role != "platform") && (ship.Role != "station") && (ship.Role != "construction"))
+                            {
+                                continue;
+                            }
+                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                            this.ShipSL.AddItem(entry);
+                            continue;
+                        }
+                        case 10:
+                        {
+                            if ((ship.Role != "corvette"))
                             {
                                 continue;
                             }
