@@ -187,6 +187,8 @@ namespace Ship_Game
 		public void ClearShipList()
 		{
 			this.ShipList.Clear();
+            this.SelectedShipsSL.indexAtTop = 0;
+            this.SelectedShipsSL.ScrollBar.Y = this.SelectedShipsSL.ScrollBarHousing.Y;
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -581,10 +583,12 @@ namespace Ship_Game
 							{
 								continue;
 							}
+                            //added by gremlin filter by selected ship in shiplist.
                             if (input.CurrentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
                             {
-                                //
+                               
                                 foreach(Ship filter in this.screen.SelectedShipList)
+
                                 {
                                     if(filter.Role != this.HoveredShip.Role)
                                     {
@@ -596,8 +600,9 @@ namespace Ship_Game
                                 this.screen.SelectedShipList.ApplyPendingRemovals();
                                 this.SetShipList(this.screen.SelectedShipList, false);
                                 this.SelectedShipsSL.indexAtTop = 0;
+                                this.SelectedShipsSL.ScrollBar.Y = this.SelectedShipsSL.ScrollBarHousing.Y;
                                 
-                                //this.screen.SelectedShipList = this.screen.SelectedShipList.Where(role => role.Role == this.HoveredShip.Role) as Ship_Game.BatchRemovalCollection<Ship>;
+                               
                                 continue;
                             }
                             else
