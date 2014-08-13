@@ -223,8 +223,10 @@ namespace Ship_Game.Gameplay
         public bool IsInFriendlySpace;
 
         public List<ShipModule> Transporters = new List<ShipModule>();
+        public List<ShipModule> RepairBeams = new List<ShipModule>();
         public bool hasTransporter;
         public bool hasOrdnanceTransporter;
+        public bool hasRepairBeam;
 
 
         public bool IsWarpCapable
@@ -1702,8 +1704,13 @@ namespace Ship_Game.Gameplay
                     if (ss.module.TransporterOrdnance > 0)
                         this.hasOrdnanceTransporter = true;
                 }
-                if (ss.module.IsRepairModule || (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam))
+                if (ss.module.IsRepairModule)
                     this.HasRepairModule = true;
+                if (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam)
+                {
+                    this.RepairBeams.Add(ss.module);
+                    this.hasRepairBeam = true;
+                }
             }
             this.ShipSO.Visibility = ObjectVisibility.Rendered;
             this.radius = this.ShipSO.WorldBoundingSphere.Radius * 2f;
@@ -1737,7 +1744,7 @@ namespace Ship_Game.Gameplay
             {
                 if (ss.module.ModuleType == ShipModuleType.PowerConduit)
                     ss.module.IconTexturePath = this.GetConduitGraphic(ss, this);
-                if (ss.module.IsRepairModule || (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam))
+                if (ss.module.IsRepairModule)
                     this.HasRepairModule = true;
                 if (ss.module.ModuleType == ShipModuleType.Colony)
                     this.isColonyShip = true;
@@ -1747,6 +1754,8 @@ namespace Ship_Game.Gameplay
                     if (ss.module.TransporterOrdnance > 0)
                         this.hasOrdnanceTransporter = true;
                 }
+                if (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam)
+                    this.hasRepairBeam = true;
             }
             this.RecalculatePower();
         }
@@ -2270,6 +2279,8 @@ namespace Ship_Game.Gameplay
                 }
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Transporter)
                     this.Transporters.Add(moduleSlotList.module);
+                if (moduleSlotList.module.InstalledWeapon != null && moduleSlotList.module.InstalledWeapon.isRepairBeam)
+                    this.RepairBeams.Add(moduleSlotList.module);
                 Ship ship = this;
                 ship.mass += moduleSlotList.module.Mass;
                 ship.WarpMassCapacity += moduleSlotList.module.WarpMassCapacity;
@@ -3681,9 +3692,9 @@ namespace Ship_Game.Gameplay
                                 this.HasTroopBay = true;
                         }
                         if (moduleSlot.module.ModuleType == ShipModuleType.Transporter && moduleSlot.module.Active && moduleSlot.module.Powered)
-                        {
                             this.Transporters.Add(moduleSlot.module);
-                        }
+                        if (moduleSlot.module.InstalledWeapon != null && moduleSlot.module.InstalledWeapon.isRepairBeam && moduleSlot.module.Active && moduleSlot.module.Powered)
+                            this.RepairBeams.Add(moduleSlot.module);
                         if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                             this.armor_current += (double)moduleSlot.module.Health;
                         if ((double)moduleSlot.module.shield_power_max > 0.0)
