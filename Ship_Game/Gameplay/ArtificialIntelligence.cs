@@ -2386,15 +2386,18 @@ namespace Ship_Game.Gameplay
 							continue;
 						}
 						this.fireTarget = null;
-						foreach (Projectile p in ship.Projectiles)
-						{
-							if (!p.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, p.Center))
-							{
-								continue;
-							}
-							this.fireTarget = p;
-							break;
-						}
+						
+                        //foreach (Projectile p in ship.Projectiles)
+                        for (int x = 0; x< ship.Projectiles.Count;x++ )
+                        {
+                            Projectile p = ship.Projectiles[x];
+                            if (!p.Active|| !p.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, p.Center))
+                            {
+                                continue;
+                            }
+                            this.fireTarget = p;
+                            break;
+                        }
 						if (this.fireTarget == null)
 						{
 							continue;
@@ -5216,17 +5219,17 @@ namespace Ship_Game.Gameplay
                     this.Target = null;
                     this.hasPriorityTarget = false;
                 }
-                //else if (!this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(this.Target as Ship) && (Vector2.Distance(Position, this.Target.Center) > Radius )&& !this.Intercepting)
-                //{
-                //    this.Target = null;
-                //    this.Owner.InCombat = false;
-                //    this.Owner.InCombatTimer = 0f;
-                //    if (!this.HasPriorityOrder && Owner.loyalty != ArtificialIntelligence.universeScreen.player)
-                //    {
-                //        this.State = AIState.AwaitingOrders;
-                //    }
-                //    return null;
-                //}
+
+
+                else if ((double)Vector2.Distance(Position, this.Target.Center) > (double)Radius && !this.Intercepting)
+                {
+                    this.Target = (GameplayObject)null;
+                    this.Owner.InCombat = false;
+                    this.Owner.InCombatTimer = 0.0f;
+                    if (!this.HasPriorityOrder && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+                        this.State = AIState.AwaitingOrders;
+                    return (GameplayObject)null;
+                }
             }
             //List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
             this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.66f;
