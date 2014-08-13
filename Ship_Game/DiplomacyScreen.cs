@@ -785,7 +785,8 @@ namespace Ship_Game
 			newCurs.X = newCurs.X + 10f;
 			foreach (KeyValuePair<string, TechEntry> Technology in this.playerEmpire.GetTDict())
 			{
-				if (!Technology.Value.Unlocked || this.them.GetTDict()[Technology.Key].Unlocked || !this.them.HavePreReq(Technology.Key))
+                //Added by McShooterz: prevent root nodes from being traded
+				if (!Technology.Value.Unlocked || this.them.GetTDict()[Technology.Key].Unlocked || !this.them.HavePreReq(Technology.Key) || Technology.Value.GetTech().RootNode == 1)
 				{
 					continue;
 				}
@@ -879,7 +880,8 @@ namespace Ship_Game
 			newCurs.X = newCurs.X + 10f;
 			foreach (KeyValuePair<string, TechEntry> Technology in this.them.GetTDict())
 			{
-				if (!Technology.Value.Unlocked || this.playerEmpire.GetTDict()[Technology.Key].Unlocked || !this.playerEmpire.HavePreReq(Technology.Key))
+                //added by McShooterz: Prevents Racial techs from being traded
+                if (!Technology.Value.Unlocked || this.playerEmpire.GetTDict()[Technology.Key].Unlocked || !this.playerEmpire.HavePreReq(Technology.Key) || Technology.Value.GetTech().RootNode == 1)
 				{
 					continue;
 				}

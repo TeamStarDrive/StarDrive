@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Military</UID>
+  <TechnologyType>GroundCombat</TechnologyType>
+  <Cost>150</Cost>
+  <RootNode>0</RootNode>
+  <Name>Military Outpost</Name>
+  <NameIndex>613</NameIndex>
+  <DescriptionIndex>614</DescriptionIndex>
+  <LongDescription>A military presence is a crucial first step on a colony's journey to relevance. This building allows you to train infantry-class troops at your colony. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Planetary Defense</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>ShipboardAssault</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Military Outpost</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

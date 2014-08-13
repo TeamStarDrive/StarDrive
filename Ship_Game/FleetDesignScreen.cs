@@ -1085,14 +1085,22 @@ namespace Ship_Game
 								{
 									this.SelectedNodeList[0].CombatState = CombatState.OrbitLeft;
 								}
-								else if (str == "orbit_right")
-								{
-									this.SelectedNodeList[0].CombatState = CombatState.OrbitRight;
-								}
-								else if (str == "evade")
-								{
-									this.SelectedNodeList[0].CombatState = CombatState.Evade;
-								}
+                                else if (str == "broadside_left")
+                                {
+                                    this.SelectedNodeList[0].CombatState = CombatState.BroadsideLeft;
+                                }
+                                else if (str == "orbit_right")
+                                {
+                                    this.SelectedNodeList[0].CombatState = CombatState.OrbitRight;
+                                }
+                                else if (str == "broadside_right")
+                                {
+                                    this.SelectedNodeList[0].CombatState = CombatState.BroadsideRight;
+                                }
+                                else if (str == "evade")
+                                {
+                                    this.SelectedNodeList[0].CombatState = CombatState.Evade;
+                                }
 							}
 							if (this.SelectedNodeList[0].GetShip() == null)
 							{
@@ -1179,14 +1187,22 @@ namespace Ship_Game
 									{
 										node.CombatState = CombatState.OrbitLeft;
 									}
-									else if (str1 == "orbit_right")
-									{
-										node.CombatState = CombatState.OrbitRight;
-									}
-									else if (str1 == "evade")
-									{
-										node.CombatState = CombatState.Evade;
-									}
+                                    else if (str1 == "broadside_left")
+                                    {
+                                        node.CombatState = CombatState.BroadsideLeft;
+                                    }
+                                    else if (str1 == "orbit_right")
+                                    {
+                                        node.CombatState = CombatState.OrbitRight;
+                                    }
+                                    else if (str1 == "broadside_right")
+                                    {
+                                        node.CombatState = CombatState.BroadsideRight;
+                                    }
+                                    else if (str1 == "evade")
+                                    {
+                                        node.CombatState = CombatState.Evade;
+                                    }
 								}
 								if (node.GetShip() == null)
 								{
@@ -1500,14 +1516,22 @@ namespace Ship_Game
 							{
 								toset = CombatState.OrbitLeft;
 							}
-							else if (str == "orbit_right")
-							{
-								toset = CombatState.OrbitRight;
-							}
-							else if (str == "evade")
-							{
-								toset = CombatState.Evade;
-							}
+                            else if (str == "broadside_left")
+                            {
+                                toset = CombatState.BroadsideLeft;
+                            }
+                            else if (str == "orbit_right")
+                            {
+                                toset = CombatState.OrbitRight;
+                            }
+                            else if (str == "broadside_right")
+                            {
+                                toset = CombatState.BroadsideRight;
+                            }
+                            else if (str == "evade")
+                            {
+                                toset = CombatState.Evade;
+                            }
 						}
 						if (node.nodeToClick.CombatState != toset)
 						{
@@ -1706,7 +1730,7 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 40, 20, 20));
+			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
 			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -1727,7 +1751,7 @@ namespace Ship_Game
 				this.FleetsRects.Add(Fleet.Key, new Rectangle(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
 				i++;
 			}
-			Rectangle shipRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 282, 44, 280, 80);
+			Rectangle shipRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 282, 140, 280, 80);
 			this.ShipDesigns = new Menu2(base.ScreenManager, shipRect);
 			this.ShipDesignsTitlePos = new Vector2((float)(shipRect.X + shipRect.Width / 2) - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, (float)(shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
 			Rectangle shipDesignsRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
@@ -1774,6 +1798,14 @@ namespace Ship_Game
 				HasToolTip = true,
 				WhichToolTip = 3
 			};
+            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bleft")
+            {
+                Action = "broadside_left",
+                HasToolTip = true,
+                WhichToolTip = 159
+            };
+            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
 			OrdersBarPos.X = OrdersBarPos.X + 29f;
 			ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_right")
 			{
@@ -1781,7 +1813,15 @@ namespace Ship_Game
 				HasToolTip = true,
 				WhichToolTip = 4
 			};
-			OrdersBarPos.X = OrdersBarPos.X + 29f;
+            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
+            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_bright")
+            {
+                Action = "broadside_right",
+                HasToolTip = true,
+                WhichToolTip = 160
+            };
+            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
+            OrdersBarPos.X = OrdersBarPos.X + 29f;
 			ToggleButton Evade = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_stop")
 			{
 				Action = "evade",
@@ -1791,7 +1831,9 @@ namespace Ship_Game
 			this.OrdersButtons.Add(Artillery);
 			this.OrdersButtons.Add(HoldPos);
 			this.OrdersButtons.Add(OrbitLeft);
+            this.OrdersButtons.Add(BroadsideLeft);
 			this.OrdersButtons.Add(OrbitRight);
+            this.OrdersButtons.Add(BroadsideRight);
 			this.OrdersButtons.Add(Evade);
 			this.OrdersButtons.Add(AttackRuns);
 			this.RequisitionForces = new BlueButton(new Vector2((float)(this.SelectedStuffRect.X + 240), (float)(this.SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20)), "Requisition...");

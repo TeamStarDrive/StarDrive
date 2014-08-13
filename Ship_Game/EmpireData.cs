@@ -50,6 +50,8 @@ namespace Ship_Game
 
 		public string DefaultSmallTransport;
 
+        public string DefaultTroopShip;
+
 		public bool Defeated;
 
 		public bool HasSecretTech;
@@ -149,6 +151,9 @@ namespace Ship_Game
 		public bool Inhibitors;
 
 		public float BaseReproductiveRate = 0.01f;
+
+        //Added by McShooterz: power bonus
+        public float PowerFlowMod = 0.0f;
 
 		public EmpireData()
 		{

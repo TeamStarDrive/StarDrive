@@ -90,7 +90,7 @@ namespace Ship_Game
                     Pos.X = (float)(int)Pos.X;
                     Pos.Y = (float)(int)Pos.Y;
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, unlockItem.privateName, Pos, Fonts.Arial14Bold, Color.Orange);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
                 if (unlockItem.Type == "TROOP")
                 {
@@ -103,7 +103,7 @@ namespace Ship_Game
                     Pos.X = (float)(int)Pos.X;
                     Pos.Y = (float)(int)Pos.Y;
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, Text, Pos, Fonts.Arial14Bold, Color.Orange);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
                 if (unlockItem.Type == "BUILDING")
                 {
@@ -119,7 +119,7 @@ namespace Ship_Game
                     //name of unlocked building
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, Text, Pos, Fonts.Arial14Bold, Color.Orange);
                     //description of unlocked building
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
                 if (unlockItem.Type == "HULL")
                 {
@@ -131,7 +131,7 @@ namespace Ship_Game
                     Pos.X = (float)(int)Pos.X;
                     Pos.Y = (float)(int)Pos.Y;
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, Text, Pos, Fonts.Arial14Bold, Color.Orange);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, unlockItem.Description, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, unlockItem.Description, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
                 if (unlockItem.Type == "ADVANCE")
                 {
@@ -141,7 +141,7 @@ namespace Ship_Game
                     Pos.X = (float)(int)Pos.X;
                     Pos.Y = (float)(int)Pos.Y;
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, unlockItem.privateName, Pos, Fonts.Arial14Bold, Color.Orange);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
             }
             this.ScreenManager.SpriteBatch.End();
@@ -170,68 +170,76 @@ namespace Ship_Game
 			Submenu UnlocksSubMenu = new Submenu(base.ScreenManager, this.UnlocksRect);
 			this.UnlockSL = new ScrollList(UnlocksSubMenu, 100);
 			Technology unlockedTech = ResourceManager.TechTree[this.TechUID];
-			foreach (Technology.UnlockedMod unlockMod in unlockedTech.ModulesUnlocked)
+            foreach (Technology.UnlockedMod UnlockedMod in unlockedTech.ModulesUnlocked)
 			{
-				UnlockItem unlock = new UnlockItem()
-				{
-					Type = "SHIPMODULE",
-					module = ResourceManager.ShipModulesDict[unlockMod.ModuleUID],
-					Description = Localizer.Token(ResourceManager.ShipModulesDict[unlockMod.ModuleUID].DescriptionIndex),
-					privateName = Localizer.Token(ResourceManager.ShipModulesDict[unlockMod.ModuleUID].NameIndex)
-				};
-				this.UnlockSL.AddItem(unlock);
+                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == UnlockedMod.Type || UnlockedMod.Type == null || UnlockedMod.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                {
+                    UnlockItem unlock = new UnlockItem()
+                    {
+                        Type = "SHIPMODULE",
+                        module = ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID],
+                        Description = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].DescriptionIndex),
+                        privateName = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].NameIndex)
+                    };
+                    this.UnlockSL.AddItem(unlock);
+                }
 			}
 			foreach (Technology.UnlockedTroop troop in unlockedTech.TroopsUnlocked)
 			{
-				if (!(troop.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType) && !(troop.Type == "ALL"))
-				{
-					continue;
-				}
-				UnlockItem unlock = new UnlockItem()
-				{
-					Type = "TROOP",
-					troop = ResourceManager.TroopsDict[troop.Name]
-				};
-				this.UnlockSL.AddItem(unlock);
+                if (troop.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType || troop.Type == "ALL" || troop.Type == null || troop.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                {
+                    UnlockItem unlock = new UnlockItem()
+                    {
+                        Type = "TROOP",
+                        troop = ResourceManager.TroopsDict[troop.Name]
+                    };
+                    this.UnlockSL.AddItem(unlock);
+                }
 			}
 			foreach (Technology.UnlockedHull hull in unlockedTech.HullsUnlocked)
 			{
-				if (!(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == hull.ShipType) && hull.ShipType != null)
-				{
-					continue;
-				}
-				UnlockItem unlock = new UnlockItem()
-				{
-					Type = "HULL",
-					privateName = hull.Name,
-					HullUnlocked = ResourceManager.HullsDict[hull.Name].Name
-				};
-				int size = 0;
-				foreach (ModuleSlotData moduleSlotList in ResourceManager.HullsDict[hull.Name].ModuleSlotList)
-				{
-					size++;
-				}
-				unlock.Description = string.Concat(Localizer.Token(4042), " ", ResourceManager.HullsDict[hull.Name].Role);
-				this.UnlockSL.AddItem(unlock);
+                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == hull.ShipType || hull.ShipType == null || hull.ShipType == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                {
+
+                    UnlockItem unlock = new UnlockItem()
+                    {
+                        Type = "HULL",
+                        privateName = hull.Name,
+                        HullUnlocked = ResourceManager.HullsDict[hull.Name].Name
+                    };
+                    int size = 0;
+                    foreach (ModuleSlotData moduleSlotList in ResourceManager.HullsDict[hull.Name].ModuleSlotList)
+                    {
+                        size++;
+                    }
+                    unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)));
+                    this.UnlockSL.AddItem(unlock);
+                }
 			}
-			foreach (Technology.UnlockedBuilding unlockedB in unlockedTech.BuildingsUnlocked)
+            foreach (Technology.UnlockedBuilding UnlockedBuilding in unlockedTech.BuildingsUnlocked)
 			{
-				UnlockItem unlock = new UnlockItem()
-				{
-					Type = "BUILDING",
-					building = ResourceManager.BuildingsDict[unlockedB.Name]
-				};
-				this.UnlockSL.AddItem(unlock);
+                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == UnlockedBuilding.Type || UnlockedBuilding.Type == null || UnlockedBuilding.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                {
+                    UnlockItem unlock = new UnlockItem()
+                    {
+                        Type = "BUILDING",
+                        building = ResourceManager.BuildingsDict[UnlockedBuilding.Name]
+                    };
+                    this.UnlockSL.AddItem(unlock);
+                }
 			}
-			foreach (Technology.UnlockedBonus ub in unlockedTech.BonusUnlocked)
+            foreach (Technology.UnlockedBonus UnlockedBonus in unlockedTech.BonusUnlocked)
 			{
-				UnlockItem unlock = new UnlockItem()
-				{
-					Type = "ADVANCE",
-					privateName = ub.Name,
-					Description = Localizer.Token(ub.BonusIndex)
-				};
-				this.UnlockSL.AddItem(unlock);
+                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == UnlockedBonus.Type || UnlockedBonus.Type == null || UnlockedBonus.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                {
+                    UnlockItem unlock = new UnlockItem()
+                    {
+                        Type = "ADVANCE",
+                        privateName = UnlockedBonus.Name,
+                        Description = Localizer.Token(UnlockedBonus.BonusIndex)
+                    };
+                    this.UnlockSL.AddItem(unlock);
+                }
 			}
 		}
 

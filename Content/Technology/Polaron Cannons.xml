@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Polaron Cannons</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>3500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Phased Polaron Cannons</Name>
+  <NameIndex>638</NameIndex>
+  <DescriptionIndex>639</DescriptionIndex>
+  <LongDescription>Phased polaron cannons encapsulate their payloads in a phased energy shell rather than an ionized magnetic shell, granting the projectile a high chance to phase directly through shields. The unstable phased energy shell results in a lower effective range on these weapons. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Disintegrator Array</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>PolaronTurret2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>PolaronTurret3x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

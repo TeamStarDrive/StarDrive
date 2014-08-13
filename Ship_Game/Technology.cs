@@ -17,13 +17,11 @@ namespace Ship_Game
 
 		public int RootNode;
 
-		public string Name;
+        public TechnologyType TechnologyType = TechnologyType.General;
 
 		public int NameIndex;
 
 		public int DescriptionIndex;
-
-		public string LongDescription;
 
 		public List<Technology.LeadsToTech> LeadsTo = new List<Technology.LeadsToTech>();
 
@@ -44,7 +42,7 @@ namespace Ship_Game
             public string ShipType;
         }
 
-        //added by McShooterz
+        //added by McShooterz: Alternate Tach variables
         public bool Militaristic;
         public bool unlockFrigates;
         public bool unlockCruisers;
@@ -62,6 +60,8 @@ namespace Ship_Game
 		public class UnlockedBonus
 		{
 			public string Name;
+
+            public string Type;
 
 			public string BonusType;
 
@@ -83,6 +83,8 @@ namespace Ship_Game
 		public struct UnlockedBuilding
 		{
 			public string Name;
+
+            public string Type;
 		}
 
 		public struct UnlockedHull
@@ -95,6 +97,8 @@ namespace Ship_Game
 		public struct UnlockedMod
 		{
 			public string ModuleUID;
+
+            public string Type;
 		}
 
 		public struct UnlockedTroop
