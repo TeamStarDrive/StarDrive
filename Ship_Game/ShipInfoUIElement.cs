@@ -112,14 +112,14 @@ namespace Ship_Game
 				TIP_ID = 29
 			};
 			this.ToolTipItems.Add(ti);
-			this.DefenseRect = new Rectangle(this.Housing.X + 11, this.Housing.Y + 110, 22, 22);
+			this.DefenseRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 112, 22, 22);
 			ti = new ShipInfoUIElement.TippedItem()
 			{
 				r = this.DefenseRect,
 				TIP_ID = 30
 			};
 			this.ToolTipItems.Add(ti);
-			this.TroopRect = new Rectangle(this.Housing.X + 11, this.Housing.Y + 132, 23, 28);
+			this.TroopRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 137, 22, 22);
 			ti = new ShipInfoUIElement.TippedItem()
 			{
 				r = this.TroopRect,
@@ -202,25 +202,25 @@ namespace Ship_Game
 			}
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
 			this.gridbutton.Draw(this.ScreenManager);
-			Vector2 NamePos = new Vector2((float)(this.Housing.X + 31), (float)(this.Housing.Y + 60));
+			Vector2 NamePos = new Vector2((float)(this.Housing.X + 38), (float)(this.Housing.Y + 63));
 			string name = (this.ship.VanityName != "" ? this.ship.VanityName : this.ship.Name);
-			SpriteFont TitleFont = Fonts.Arial20Bold;
-            Vector2 ShipSuperName = new Vector2((float)(NamePos.X), (float)(NamePos.Y + 20));
-			if (Fonts.Arial20Bold.MeasureString(name).X > 190f)
+			SpriteFont TitleFont = Fonts.Arial14Bold;
+            Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 39), (float)(this.Housing.Y + 79));
+			if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
 			{
 				TitleFont = Fonts.Arial12Bold;
-				NamePos.Y = NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2 - TitleFont.LineSpacing / 2);
-                ShipSuperName.Y = NamePos.Y + 15;
+                NamePos.X = NamePos.X - 8;
+				NamePos.Y = NamePos.Y + 1;
 			}
 			this.ShipNameArea.Draw(TitleFont, this.ScreenManager.SpriteBatch, NamePos, gameTime, this.tColor);
             //Added by McShooterz:
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.Role)), ShipSuperName, Color.Orange);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.Role, this.ship.loyalty)), ShipSuperName, Color.Orange);
 
-			string text = HelperFunctions.parseText(Fonts.Arial12, ShipListScreenEntry.GetStatusText(this.ship), 130f);
-			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), NamePos.Y + (float)(TitleFont.LineSpacing / 2) - Fonts.Arial12.MeasureString(text).Y / 2f + 2f);
-			text = HelperFunctions.parseText(Fonts.Arial12, ShipListScreenEntry.GetStatusText(this.ship), 130f);
+			string text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
+			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
+			text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
 			HelperFunctions.ClampVectorToInt(ref ShipStatus);
-			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, ShipStatus, this.tColor);
+			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
 			ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
 			this.ship.RenderOverlay(this.ScreenManager.SpriteBatch, this.ShipInfoRect, this.ShowModules);
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/NuclearReactorMedium"], this.Power, Color.White);
@@ -241,7 +241,7 @@ namespace Ship_Game
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			float mechanicalBoardingDefense = this.ship.MechanicalBoardingDefense + this.ship.TroopBoardingDefense;
 			spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(this.fmt), defPos, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], this.TroopRect, Color.White);
+			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop_shipUI"], this.TroopRect, Color.White);
 			Vector2 troopPos = new Vector2((float)(this.TroopRect.X + this.TroopRect.Width + 2), (float)(this.TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.ship.TroopList.Count, "/", this.ship.TroopCapacity), troopPos, Color.White);
 			if (this.ship.loyalty == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
@@ -255,29 +255,14 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
             //Added by McShooterz: new experience level display
-            Rectangle star = new Rectangle(this.TroopRect.X + 6, this.TroopRect.Y + this.TroopRect.Height + 3, 12, 11);
-            Vector2 levelPos = new Vector2((float)(star.X + 13), (float)(star.Y));
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
+            Rectangle star = new Rectangle(this.TroopRect.X, this.TroopRect.Y + 25, 22, 22);
+            Vector2 levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_experience_shipUI"], star, Color.White);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.Level.ToString(), levelPos, Color.White);
             if (HelperFunctions.CheckIntersection(star, MousePos))
             {
                 ToolTip.CreateTooltip(161, this.ScreenManager);
             }
-            /*Remove old star system for level
-            if (this.ship.Level > 0)
-            {
-                for (int i = 0; i < this.ship.Level; i++)
-                {
-                    Rectangle star = new Rectangle(this.ShipInfoRect.X + this.ShipInfoRect.Width - 13 * i, this.ShipInfoRect.Y - 4, 12, 11);
-                    if (HelperFunctions.CheckIntersection(star, MousePos))
-                    {
-                        ToolTip.CreateTooltip(68, this.ScreenManager);
-                    }
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
-                }
-               
-            }
-            */ 
 			Vector2 StatusArea = new Vector2((float)(this.Housing.X + 175), (float)(this.Housing.Y + 15));
 			int numStatus = 0;
 			if (this.ship.loyalty.data.Traits.Pack)
@@ -553,7 +538,7 @@ namespace Ship_Game
 					return;
 				}
 			}
-			if (this.ship.CargoSpace_Max > 0f)
+			if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop")
 			{
 				OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
 				{

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>FuelCell2</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>220</Cost>
+  <RootNode>0</RootNode>
+  <Name>Iridium Power Cells</Name>
+  <NameIndex>573</NameIndex>
+  <DescriptionIndex>574</DescriptionIndex>
+  <LongDescription>Iridium has proven itself the superior element for power storage purposes.  This technology switches all of your empire's fuel cells to the Iridium standard, increasing fuel cell efficiency by a total of 50%. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Fuel Cell Upgrade</Name>
+      <BonusType>Fuel Cell Bonus</BonusType>
+      <Bonus>0.5</Bonus>
+      <Description>Increase empire-wide bonus to fuel cell capacity to 50% </Description>
+      <BonusIndex>575</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

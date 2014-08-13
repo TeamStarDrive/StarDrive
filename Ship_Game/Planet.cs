@@ -1828,6 +1828,7 @@ namespace Ship_Game
                         qi.productionTowards = 0.0f;
                         planetGridSquare2.QItem = qi;
                         qi.pgs = planetGridSquare2;
+                        qi.NotifyOnEmpty = false;
                         this.ConstructionQueue.Add(qi);
                         return true;
                     }
@@ -3108,6 +3109,7 @@ namespace Ship_Game
             qi.Building = b;
             qi.Cost = ResourceManager.GetBuilding(b.Name).Cost;
             qi.productionTowards = 0.0f;
+            qi.NotifyOnEmpty = false;
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
             else if (this.Owner.GetTDict()["Terraforming"].Unlocked && (double)this.Fertility < 1.0)
@@ -3129,7 +3131,8 @@ namespace Ship_Game
             }
             else
             {
-                if (!this.Owner.GetTDict()["Biospheres"].Unlocked)
+                //if (!this.Owner.GetTDict()["Biospheres"].Unlocked)
+                if (!this.Owner.GetBDict()["Biospheres"])
                     return;
                 this.TryBiosphereBuild(ResourceManager.GetBuilding("Biospheres"), qi);
             }
@@ -3298,7 +3301,8 @@ namespace Ship_Game
                         if (flag2)
                             this.AddBuildingToCQ(b);
                     }
-                    else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0)
+                    //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0)
+                    else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0)
                     {
                         if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                         {
@@ -3310,7 +3314,7 @@ namespace Ship_Game
                     }
                 }
                 if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                    this.ApplyStoredProduction();
+                    this.ApplyStoredProduction(0);
                 for (int index = 0; index < this.ConstructionQueue.Count; ++index)
                 {
                     QueueItem queueItem1 = this.ConstructionQueue[index];
@@ -3318,7 +3322,7 @@ namespace Ship_Game
                     {
                         if (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -3347,8 +3351,17 @@ namespace Ship_Game
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
                             float num = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = (float)((double)num * 2.0 / 5.0);
-                            this.ResearcherPercentage = (float)((double)num * 3.0 / 5.0);
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = (float)(num * 2.0 / 5.0);
+                                this.ResearcherPercentage = (float)(num * 3.0 / 5.0);
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         else
                             this.fs = (double)this.FoodHere >= (double)this.MAX_STORAGE * 0.25 ? Planet.GoodState.EXPORT : Planet.GoodState.STORE;
@@ -3358,8 +3371,17 @@ namespace Ship_Game
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(-0.5f);
                             float num = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = num / 2f;
-                            this.ResearcherPercentage = num / 2f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = num / 2f;
+                                this.ResearcherPercentage = num / 2f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                             this.fs = Planet.GoodState.IMPORT;
                         }
                         else if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.75)
@@ -3368,28 +3390,64 @@ namespace Ship_Game
                             {
                                 this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
                                 float num = 1f - this.FarmerPercentage;
-                                this.WorkerPercentage = num / 2f;
-                                this.ResearcherPercentage = num / 2f;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    this.WorkerPercentage = num / 2f;
+                                    this.ResearcherPercentage = num / 2f;
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = num;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
                             }
                             else
                             {
                                 this.FarmerPercentage = 0.0f;
-                                this.WorkerPercentage = 0.5f;
-                                this.ResearcherPercentage = 0.5f;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    this.WorkerPercentage = 0.5f;
+                                    this.ResearcherPercentage = 0.5f;
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = 1.0f;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
                             }
                         }
                         else if ((double)this.FoodHere / (double)this.MAX_STORAGE > 0.75)
                         {
                             this.FarmerPercentage = 0.0f;
-                            this.WorkerPercentage = 0.7f;
-                            this.ResearcherPercentage = 0.3f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = 0.7f;
+                                this.ResearcherPercentage = 0.3f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = 1.0f;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         else
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
                             float num = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
-                            this.ResearcherPercentage = num / 4f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
+                                this.ResearcherPercentage = num / 4f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         if ((double)this.GrossMoneyPT - (double)this.TotalMaintenanceCostsPerTurn < 0.0 && ((double)this.MineralRichness >= 0.75 || (double)this.PlusProductionPerColonist >= 1.0) && (double)this.ResearcherPercentage > 0.0)
                         {
@@ -3515,7 +3573,8 @@ namespace Ship_Game
                                 if (flag1)
                                     this.AddBuildingToCQ(b);
                             }
-                            else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
+                            //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
+                            else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
                             {
                                 if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                                 {
@@ -3533,7 +3592,7 @@ namespace Ship_Game
                             {
                                 if (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0)
                                 {
-                                    this.ApplyStoredProduction();
+                                    this.ApplyStoredProduction(0);
                                     break;
                                 }
                                 else
@@ -3550,13 +3609,14 @@ namespace Ship_Game
                                 foreach (QueueItem queueItem2 in linkedList)
                                     this.ConstructionQueue.Add(queueItem2);
                             }
+
+                            if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
+                            {
+                                this.ApplyStoredProduction(0);
+                                break;
+                            }
                         }
-                        if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                        {
-                            this.ApplyStoredProduction();
-                            break;
-                        }
-                        else
+                        
                             break;
                     case Planet.ColonyType.Industrial:
                         this.fs = Planet.GoodState.IMPORT;
@@ -3717,7 +3777,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -3804,7 +3864,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -3819,14 +3879,32 @@ namespace Ship_Game
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
                             float num1 = 1f - this.FarmerPercentage;
-                            this.WorkerPercentage = num1 / 2f;
-                            this.ResearcherPercentage = num1 / 2f;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.WorkerPercentage = num1 / 2f;
+                                this.ResearcherPercentage = num1 / 2f;
+                            }
+                            else
+                            {
+                                this.WorkerPercentage = num1;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.850000023841858)
                         {
                             float num1 = 1f - this.FarmerPercentage;
                             this.WorkerPercentage = 0.0f;
-                            this.ResearcherPercentage = num1;
+                            //Added by McShooterz: No research percentage if not researching
+                            if (this.Owner.ResearchTopic != "")
+                            {
+                                this.ResearcherPercentage = num1;
+                            }
+                            else
+                            {
+                                this.FarmerPercentage = 1f;
+                                this.ResearcherPercentage = 0.0f;
+                            }
                         }
                         float num9 = 0.0f;
                         bool flag11 = false;
@@ -3900,7 +3978,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -4025,7 +4103,7 @@ namespace Ship_Game
                         }
                         if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
                         {
-                            this.ApplyStoredProduction();
+                            this.ApplyStoredProduction(0);
                             break;
                         }
                         else
@@ -4056,8 +4134,7 @@ namespace Ship_Game
                             qi.Cost = troop.Value.Cost;
                             qi.productionTowards = 0f;
                             qi.NotifyOnEmpty = false;
-                            this.ConstructionQueue.Add(qi);
-                           
+                            this.ConstructionQueue.Add(qi);                         
                             break;
                         }
                     }
@@ -4103,7 +4180,7 @@ namespace Ship_Game
             }
         }
 
-        public bool ApplyStoredProduction()
+        public bool ApplyStoredProduction(int Index)
         {
             if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null || this.Owner.Money <=0))
                 return false;
@@ -4114,7 +4191,7 @@ namespace Ship_Game
                 return false;
             }
                 this.ProductionHere -= amount;
-                this.ApplyProductiontoQueue(amount, 0);
+                this.ApplyProductiontoQueue(amount, Index);
                 return true;
        }
 
@@ -5189,6 +5266,17 @@ namespace Ship_Game
                 num += this.BuildingList.Sum(offense => offense.CombatStrength);
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
             return num;
+
+
+        }
+        public int GetPotentialGroundTroops(Empire empire)
+        {
+            //int num = 0;
+            //if (this.Owner == empire)
+            //    num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            //return num;
+            return  (int)(this.TilesList.Sum(spots => spots.number_allowed_troops));// * (.25f + this.developmentLevel*.2f));
 
 
         }

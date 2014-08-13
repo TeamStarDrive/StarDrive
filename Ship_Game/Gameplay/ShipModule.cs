@@ -131,7 +131,7 @@ namespace Ship_Game.Gameplay
 		public float shield_power;
 
         //Added by McShooterz: shields keep charge when manually turned off
-        public Boolean shieldsOff=false;
+        public bool shieldsOff=false;
 
 		public float shield_radius;
 
@@ -236,6 +236,16 @@ namespace Ship_Game.Gameplay
         public float FTLSpoolTime;
 
         public float ECM;
+
+        public float SensorBonus;
+        //Transporter Values
+        public float TransporterTimerConstant;
+        public float TransporterTimer = 0f;
+        public float TransporterRange;
+        public float TransporterPower;
+        public float TransporterOrdnance;
+        public byte TransporterTroopLanding;
+
 
 		public bool IsWeapon
 		{
@@ -343,8 +353,7 @@ namespace Ship_Game.Gameplay
 						}
 						else if (this.Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
 						{
-							Ship mechanicalBoardingDefense = this.Parent;
-							mechanicalBoardingDefense.MechanicalBoardingDefense = mechanicalBoardingDefense.MechanicalBoardingDefense - 1f;
+                            this.Parent.MechanicalBoardingDefense -= 1f;
 						}
 					}
 					if ((source as Beam).weapon.SiphonDamage > 0f)
@@ -573,8 +582,7 @@ namespace Ship_Game.Gameplay
 						}
 						else if (this.Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
 						{
-							Ship mechanicalBoardingDefense = this.Parent;
-							mechanicalBoardingDefense.MechanicalBoardingDefense = mechanicalBoardingDefense.MechanicalBoardingDefense - 1f;
+                            this.Parent.MechanicalBoardingDefense -= 1f;
 						}
 					}
 					if ((source as Beam).weapon.MassDamage > 0f)
@@ -767,15 +775,16 @@ namespace Ship_Game.Gameplay
 					dieCue.Apply3D(GameplayObject.audioListener, this.Parent.emitter);
 					dieCue.Play();
 				}
-				if (this.ModuleType == ShipModuleType.PowerPlant)
+				//if (this.ModuleType == ShipModuleType.PowerPlant)
+                if (this.explodes)
 				{
 					if (this.Parent.GetSystem() == null)
 					{
-						UniverseScreen.DeepSpaceManager.Explode(this, (float)(2500 * this.XSIZE * this.YSIZE), this.Center, (float)(this.XSIZE * this.YSIZE * 64), true);
+                        UniverseScreen.DeepSpaceManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
 					}
 					else
 					{
-						this.Parent.GetSystem().spatialManager.Explode(this, (float)(2500 * this.XSIZE * this.YSIZE), this.Center, (float)(this.XSIZE * this.YSIZE * 64), true);
+                        this.Parent.GetSystem().spatialManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
 					}
 					this.Parent.NeedRecalculate = true;
 				}
@@ -1552,13 +1561,13 @@ namespace Ship_Game.Gameplay
 					this.Parent.Ordinance = this.Parent.OrdinanceMax;
 				}
 			}
-			if (this.Parent.LastHitTimer <= 0f && base.Health / this.HealthMax < 1f && this.Parent.RepairUsed * elapsedTime < this.Parent.RepairRate)
-			{
-				ShipModule health = this;
-				health.Health = health.Health + this.Parent.RepairRate * elapsedTime;
-				Ship repairUsed = this.Parent;
-				repairUsed.RepairUsed = repairUsed.RepairUsed + this.Parent.RepairRate * elapsedTime;
-			}
+            if ((GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useCombatRepair) && this.Parent.LastHitTimer <= 0f && base.Health / this.HealthMax < 1f && this.Parent.RepairUsed * elapsedTime < this.Parent.RepairRate)
+            {
+                ShipModule health = this;
+                health.Health = health.Health + this.Parent.RepairRate * elapsedTime;
+                Ship repairUsed = this.Parent;
+                repairUsed.RepairUsed = repairUsed.RepairUsed + this.Parent.RepairRate * elapsedTime;
+            }
 			if (base.Health >= this.HealthMax)
 			{
 				base.Health = this.HealthMax;
@@ -1578,20 +1587,18 @@ namespace Ship_Game.Gameplay
 				ShipModule shipModule1 = this;
 				shipModule1.hangarTimer = shipModule1.hangarTimer - elapsedTime;
 			}
-            //Added by McShooterz: Shields cannot recharge when off
-            if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer >= 15f && !shieldsOff)
+            if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer >= this.shield_recharge_delay)
 			{
-				ShipModule shieldPower = this;
-				shieldPower.shield_power = shieldPower.shield_power + this.shield_recharge_rate * elapsedTime;
+                this.shield_power += this.shield_recharge_rate * elapsedTime;
 				if (this.shield_power > this.shield_power_max)
 				{
 					this.shield_power = this.shield_power_max;
 				}
 			}
-			else if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer < 15f)
+            //Combat shield recharge only works until shields fail, then they only come back by normal recharge
+            else if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer < this.shield_recharge_delay && this.shield_power > 1)
 			{
-				ShipModule shieldPower1 = this;
-				shieldPower1.shield_power = shieldPower1.shield_power + this.shield_recharge_combat_rate * elapsedTime;
+                this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
 				if (this.shield_power > this.shield_power_max)
 				{
 					this.shield_power = this.shield_power_max;

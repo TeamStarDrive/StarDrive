@@ -54,42 +54,51 @@ namespace Ship_Game
 			int numUnlocks = 0;
 			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].ModulesUnlocked.Count; i++)
 			{
-				UnlockItem unlock = new UnlockItem();
-				//{
-                unlock.module = ResourceManager.ShipModulesDict[ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].ModuleUID];
-					unlock.privateName = Localizer.Token(unlock.module.NameIndex);
-					unlock.Description = Localizer.Token(unlock.module.DescriptionIndex);
-					unlock.Type = "SHIPMODULE";
-				//};
-				this.Unlocks.Add(unlock);
-				numUnlocks++;
+                if (numUnlocks > 3) break;
+                if (ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].Type == null || ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].AcquiredFrom)
+                {
+                    UnlockItem unlock = new UnlockItem();
+                    unlock.module = ResourceManager.ShipModulesDict[ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].ModuleUID];
+                    unlock.privateName = Localizer.Token(unlock.module.NameIndex);
+                    unlock.Description = Localizer.Token(unlock.module.DescriptionIndex);
+                    unlock.Type = "SHIPMODULE";
+                    this.Unlocks.Add(unlock);
+                    numUnlocks++;
+                }
 			}
 			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].BonusUnlocked.Count; i++)
 			{
-				UnlockItem unlock = new UnlockItem()
-				{
-					privateName = ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Name,
-					Description = Localizer.Token(ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].BonusIndex),
-					Type = "ADVANCE"
-				};
-				numUnlocks++;
-				this.Unlocks.Add(unlock);
+                if (numUnlocks > 3) break;
+                if (ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Type == null || ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].AcquiredFrom)
+                {
+                    UnlockItem unlock = new UnlockItem()
+                    {
+                        privateName = ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Name,
+                        Description = Localizer.Token(ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].BonusIndex),
+                        Type = "ADVANCE"
+                    };
+                    numUnlocks++;
+                    this.Unlocks.Add(unlock);
+                }
 			}
 			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked.Count; i++)
 			{
-				UnlockItem unlock = new UnlockItem();
-				//{
-					unlock.building = ResourceManager.BuildingsDict[ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Name];
-					unlock.privateName = Localizer.Token(unlock.building.NameTranslationIndex);
-					unlock.Description = Localizer.Token(unlock.building.DescriptionIndex);
+                if (numUnlocks > 3) break;
+                if (ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Type == null || ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].AcquiredFrom)
+                {
+                    UnlockItem unlock = new UnlockItem();
+                    unlock.building = ResourceManager.BuildingsDict[ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Name];
+                    unlock.privateName = Localizer.Token(unlock.building.NameTranslationIndex);
+                    unlock.Description = Localizer.Token(unlock.building.DescriptionIndex);
                     unlock.Type = "BUILDING";
-				//};
-				numUnlocks++;
-				this.Unlocks.Add(unlock);
+                    numUnlocks++;
+                    this.Unlocks.Add(unlock);
+                }
 			}
 			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].HullsUnlocked.Count; i++)
 			{
-				if (ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].ShipType == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].ShipType == null)
+                if (numUnlocks > 3) break;
+				if (ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].ShipType == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].ShipType == null || ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].ShipType == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].AcquiredFrom)
 				{
 					UnlockItem unlock = new UnlockItem()
 					{
@@ -104,7 +113,8 @@ namespace Ship_Game
 			}
 			for (int i = 0; i < ResourceManager.TechTree[this.tech.UID].TroopsUnlocked.Count; i++)
 			{
-				if (ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == "ALL")
+                if (numUnlocks > 3) break;
+                if (ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).data.Traits.ShipType || ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == "ALL" || ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == null || ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Type == EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].AcquiredFrom)
 				{
 					UnlockItem unlock = new UnlockItem();
 					//{
@@ -326,7 +336,7 @@ namespace Ship_Game
 					}
 					else
 					{
-						ToolTip.CreateTooltip(string.Concat(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Name, " (", Localizer.GetRole(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Role), ")"), ScreenManager);
+                        ToolTip.CreateTooltip(string.Concat(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Name, " (", Localizer.GetRole(ResourceManager.HullsDict[gridItem.item.HullUnlocked].Role, EmpireManager.GetEmpireByName(screen.empireUI.screen.PlayerLoyalty)), ")"), ScreenManager);
 					}
 				}
 			}

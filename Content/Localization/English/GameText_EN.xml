@@ -7249,7 +7249,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6011</Index>
-      <Text>Warp Power Draw</Text>
+      <Text>Power Warp</Text>
     </Token>
 	<Token>
       <Index>6012</Index>
@@ -7555,6 +7555,173 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6087</Index>
       <Text>has been promoted, and gains +1 Level.</Text>
     </Token>
+	<Token>
+      <Index>6088</Index>
+      <Text>Espionage</Text>
+    </Token>
+	<Token>
+      <Index>6089</Index>
+      <Text>Espionage Overview</Text>
+    </Token>
+	<Token>
+      <Index>6090</Index>
+      <Text>Espionage Agents</Text>
+    </Token>
+	<Token>
+      <Index>6091</Index>
+      <Text>Intelligence Report</Text>
+    </Token>
+	<Token>
+      <Index>6092</Index>
+      <Text>Agent Dossier</Text>
+    </Token>
+	<Token>
+      <Index>6093</Index>
+      <Text>Capital Elimination</Text>
+    </Token>
+	<Token>
+      <Index>6094</Index>
+      <Text>Home World: </Text>
+    </Token>
+	<Token>
+      <Index>6095</Index>
+      <Text>Total Planets: </Text>
+    </Token>
+	<Token>
+      <Index>6096</Index>
+      <Text>Total Starships: </Text>
+    </Token>
+	<Token>
+      <Index>6097</Index>
+      <Text>Treasury: </Text>
+    </Token>
+	<Token>
+      <Index>6098</Index>
+      <Text>Maintenance Costs: </Text>
+    </Token>
+	<Token>
+      <Index>6099</Index>
+      <Text>Total Spies: </Text>
+    </Token>
+	<Token>
+      <Index>6100</Index>
+      <Text>Population: </Text>
+    </Token>
+	<Token>
+      <Index>6101</Index>
+      <Text>billion</Text>
+    </Token>
+	<Token>
+      <Index>6102</Index>
+      <Text>: Government Destroyed</Text>
+    </Token>
+	<Token>
+      <Index>6103</Index>
+      <Text> and Trade</Text>
+    </Token>
+	<Token>
+      <Index>6104</Index>
+      <Text>: Trade Partner</Text>
+    </Token>
+	<Token>
+      <Index>6105</Index>
+      <Text>: No Diplomatic Relations</Text>
+    </Token>
+	<Token>
+      <Index>6106</Index>
+      <Text>Controls Home World: </Text>
+    </Token>
+	<Token>
+      <Index>6107</Index>
+      <Text>Yes</Text>
+    </Token>	
+	<Token>
+      <Index>6108</Index>
+      <Text>Alias: </Text>
+    </Token>
+	<Token>
+      <Index>6109</Index>
+      <Text>Home: </Text>
+    </Token>
+	<Token>
+      <Index>6110</Index>
+      <Text>Age: </Text>
+    </Token>
+	<Token>
+      <Index>6111</Index>
+      <Text>Service: </Text>
+    </Token>
+	<Token>
+      <Index>6112</Index>
+      <Text>Training Exercises: </Text>
+    </Token>
+	<Token>
+      <Index>6113</Index>
+      <Text>Agents Assassinated: </Text>
+    </Token>
+	<Token>
+      <Index>6114</Index>
+      <Text>Colonies Infiltrated: </Text>
+    </Token>
+	<Token>
+      <Index>6115</Index>
+      <Text>Colonies Sabotaged: </Text>
+    </Token>
+	<Token>
+      <Index>6116</Index>
+      <Text>Technologies Stolen: </Text>
+    </Token>
+	<Token>
+      <Index>6117</Index>
+      <Text>Treasuries Robbed: </Text>
+    </Token>
+	<Token>
+      <Index>6118</Index>
+      <Text>Rebellions Started: </Text>
+    </Token>
+	<Token>
+      <Index>6119</Index>
+      <Text> years</Text>
+    </Token>
+	<Token>
+      <Index>6120</Index>
+      <Text>Ordnance/s</Text>
+    </Token>
+	<Token>
+      <Index>6121</Index>
+      <Text>Range+</Text>
+    </Token>
+	<Token>
+      <Index>6122</Index>
+      <Text>Delay</Text>
+    </Token>
+	<Token>
+      <Index>6123</Index>
+      <Text>Trans Pw</Text>
+    </Token>
+	<Token>
+      <Index>6124</Index>
+      <Text>Trans Ord</Text>
+    </Token>
+    <Token>
+      <Index>6125</Index>
+      <Text>Gross Income</Text>
+    </Token>
+	<Token>
+      <Index>6126</Index>
+      <Text>Expenditure</Text>
+    </Token>
+	<Token>
+      <Index>6127</Index>
+      <Text>Net Income</Text>
+    </Token>
+	<Token>
+      <Index>6128</Index>
+      <Text>Land</Text>
+    </Token>
+	
+	
+	
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -7614,6 +7781,41 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7014</Index>
       <Text>Ordance recovered per sec.</Text>
     </Token>
+	<Token>
+      <Index>7015</Index>
+      <Text>In the Capital Elimination game mode, empires are defeated when they lose their homeworld.</Text>
+    </Token>
+	<Token>
+      <Index>7016</Index>
+      <Text>Indicates the maximum amount of damage repaired by beams from this system. </Text>
+    </Token>
+	<Token>
+      <Index>7017</Index>
+      <Text>Indicates sensor bonus added by this module. Sensor bonuses add onto sensor range - only the highest bonus will apply.</Text>
+    </Token>
+	<Token>
+      <Index>7018</Index>
+      <Text>Indicates the range of this transporter.</Text>
+    </Token>
+	<Token>
+      <Index>7019</Index>
+      <Text>Indicates the power used by this when transporting.</Text>
+    </Token>
+	<Token>
+      <Index>7020</Index>
+      <Text>Indicates the delay between transports.</Text>
+    </Token>
+	<Token>
+      <Index>7021</Index>
+      <Text>Indicates the amount of ordnance that can be transported.</Text>
+    </Token>
+	<Token>
+      <Index>7022</Index>
+      <Text>Indicates the number of troops that can be beamed down to a planet at a time.</Text>
+    </Token>
+	<Token>
+      <Index>7023</Index>
+      <Text>Indicates the number of troops that this module can hold.</Text>
+    </Token>
   </TokenList>
-  
 </LocalizationFile>
