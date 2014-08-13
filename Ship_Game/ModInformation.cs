@@ -19,6 +19,27 @@ namespace Ship_Game
         //added by McShooterz
         public bool useRacialTech;
         public bool useAlternateTech;
+        public bool useHullBonuses;
+        public bool useWeaponModifiers;
+        public bool removeRemnantStory;
+        public bool useCombatRepair;
+
+        //added by The Doctor
+        public bool useDestroyers;
+        public bool useDrones;
+        public bool enableECM;
+        public bool useProportionalUpkeep;
+        public float UpkeepBaseline;
+        public float UpkeepFighter;
+        public float UpkeepCorvette;
+        public float UpkeepFrigate;
+        public float UpkeepCruiser;
+        public float UpkeepCarrier;
+        public float UpkeepCapital;
+        public float UpkeepFreighter;
+        public float UpkeepPlatform;
+        public float UpkeepStation;
+        public float UpkeepDrone;
 
 
 		public ModInformation()

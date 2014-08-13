@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>ReactionDrive</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>220</Cost>
+  <RootNode>0</RootNode>
+  <Name>Reaction Drive</Name>
+  <NameIndex>649</NameIndex>
+  <DescriptionIndex>650</DescriptionIndex>
+  <LongDescription>The reaction drive channels strongly ionized plasma through a subspace field which excites and unleashes the potential energy held within.  The resulting torrent can be harnessed and redicted for propulsion purposes.   </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>SubspatialDynamics</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Reaction Drive Upgrade</Name>
+      <BonusType>STL Speed Bonus</BonusType><!-- pct of ship base speed; stacks-->
+      <Bonus>0.2</Bonus>
+      <Description>By converting all of our engines to the reaction drive standard, we can achieve 20% faster sub-light speeds and maneuverability.</Description>
+      <BonusIndex>651</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

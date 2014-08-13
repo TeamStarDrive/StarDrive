@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Disintegrator Array</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>6500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Disintegrator Array</Name>
+  <NameIndex>543</NameIndex>
+  <DescriptionIndex>544</DescriptionIndex>
+  <LongDescription>The Disintegrator Array is a massively powerful beam weapon suitable only for a fixed spinal mount.</LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>DisintegratorArray</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -25,7 +25,19 @@ namespace Ship_Game
 
         private FloatSlider extraPlanets;
 
+        private FloatSlider OptionIncreaseShipMaintenance;
+        private FloatSlider MinimumWarpRange;
+        private FloatSlider MemoryLimiter;
+        private FloatSlider StartingPlanetRichness;
+
 		public Ship itemToBuild;
+
+        //        public static float OptionIncreaseShipMaintenance;
+        //public static float MinimumWarpRange;
+
+        //public static float MemoryLimiter;
+
+        //public static float StartingPlanetRichness;
 
 		public RuleOptionsScreen()
 		{
@@ -36,7 +48,8 @@ namespace Ship_Game
 
 		public void Dispose()
 		{
-			this.Dispose(true);
+            System.Configuration.ConfigurationManager.AppSettings.Set("OptionIncreaseShipMaintenance", GlobalStats.OptionIncreaseShipMaintenance.ToString());
+            this.Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
@@ -64,6 +77,10 @@ namespace Ship_Game
 			this.FTLPenaltySlider.DrawDecimal(base.ScreenManager);
             this.GravityWellSize.Draw(base.ScreenManager);
             this.extraPlanets.Draw(base.ScreenManager);
+            this.OptionIncreaseShipMaintenance.Draw(base.ScreenManager);
+            this.MinimumWarpRange.Draw(base.ScreenManager);
+            this.MemoryLimiter.Draw(base.ScreenManager);
+            this.StartingPlanetRichness.Draw(base.ScreenManager);
 			this.close.Draw(base.ScreenManager);
 			foreach (Checkbox cb in this.Checkboxes)
 			{
@@ -118,6 +135,35 @@ namespace Ship_Game
             }
             this.extraPlanets.HandleInput(input);
             GlobalStats.ExtraPlanets = (int)this.extraPlanets.amountRange;
+//new options
+            if (HelperFunctions.CheckIntersection(this.MemoryLimiter.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("Constrain the AI to only build offensive ships when this memory *10 is not exceeded", base.ScreenManager);
+            }
+            this.MemoryLimiter.HandleInput(input);
+            GlobalStats.MemoryLimiter = this.MemoryLimiter.amountRange;
+
+            if (HelperFunctions.CheckIntersection(this.MinimumWarpRange.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("Minumum warp range a ship must have before it needs to recharge for the AI to build it", base.ScreenManager);
+            }
+            this.MinimumWarpRange.HandleInput(input);
+            GlobalStats.MinimumWarpRange = this.MinimumWarpRange.amountRange;
+            
+            if (HelperFunctions.CheckIntersection(this.OptionIncreaseShipMaintenance.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("Multiply Global Maintenance Cost By This. SSP's Are Not Affected", base.ScreenManager);
+            }
+            this.OptionIncreaseShipMaintenance.HandleInput(input);
+            GlobalStats.OptionIncreaseShipMaintenance = this.OptionIncreaseShipMaintenance.amountRange;
+            
+            if (HelperFunctions.CheckIntersection(this.StartingPlanetRichness.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("Add to all Stating Empire Planets this Value", base.ScreenManager);
+            }
+            this.StartingPlanetRichness.HandleInput(input);
+            GlobalStats.StartingPlanetRichness = this.StartingPlanetRichness.amountRange;
+
 		}
 
 		public override void LoadContent()
@@ -142,15 +188,29 @@ namespace Ship_Game
 			Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 85)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2288;
-            Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
+            //Added by McShooterz: new checkbox to prevent AI federations
+            Ref<bool> pfRef = new Ref<bool>(() => GlobalStats.preventFederations, (bool x) => GlobalStats.preventFederations = x);
+            Checkbox cb2 = new Checkbox(new Vector2((float)(ftlRect.X + 500), (float)(ftlRect.Y)), Localizer.Token(6022), pfRef, Fonts.Arial12Bold);
+            this.Checkboxes.Add(cb2);
+            cb2.Tip_Token = 7011;
 
+            Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
             this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002),0,20000,GlobalStats.GravityWellRange);
             //this.GravityWellSize.SetAmountGW(GlobalStats.GravityWellRange);
             //this.GravityWellSize.amount = GlobalStats.GravityWellRange;
             
             //added by gremlin init extra planets slider
-            Rectangle epRect = new Rectangle(leftRect.X + 60, leftRect.Y + 340, 270, 50);
+            Rectangle epRect = new Rectangle(leftRect.X + 60, leftRect.Y + 280, 270, 50);
             this.extraPlanets = new FloatSlider(epRect, "Extra Planets",0,6f,(float)GlobalStats.ExtraPlanets);
+
+            Rectangle StartingPlanetRichness = new Rectangle(leftRect.X  + 60, leftRect.Y + 340, 270, 50);
+            this.StartingPlanetRichness = new FloatSlider(StartingPlanetRichness, "Starting Planet Richness Bonus", 0, 5f, GlobalStats.StartingPlanetRichness);
+            Rectangle MinimumWarpRange = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 340, 270, 50);
+            this.MinimumWarpRange = new FloatSlider(MinimumWarpRange, "Minimum Warp Range", 0, 1200000f, GlobalStats.MinimumWarpRange);
+            Rectangle MemoryLimiter = new Rectangle(leftRect.X + 60, leftRect.Y + 400, 270, 50);
+            this.MemoryLimiter = new FloatSlider(MemoryLimiter, "Memory Limit", 150000, 300000f, GlobalStats.MemoryLimiter);
+            Rectangle OptionIncreaseShipMaintenance = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 400, 270, 50);
+            this.OptionIncreaseShipMaintenance = new FloatSlider(OptionIncreaseShipMaintenance, "Increase Maintenance", 1, 10f, GlobalStats.OptionIncreaseShipMaintenance);
            
 			this.MainMenu = new Menu2(base.ScreenManager, leftRect);
 		}

@@ -12,6 +12,7 @@ namespace Ship_Game
 		StealTech,
 		Robbery,
 		InciteRebellion,
-		Undercover
+		Undercover,
+        Recovering
 	}
 }

@@ -46,7 +46,8 @@ namespace Ship_Game
 
 		public bool followMouse;
 
-		public float Duration;
+        //added by McShooterz: changed back to default
+		public float Duration = 2f;
 
 		public float BeamOffsetAngle;
 
@@ -296,7 +297,7 @@ namespace Ship_Game
 		{
 			if (target != null)
 			{
-				if (!this.damageOwner && target == this.owner && !this.weapon.HitsFriendlies)
+				if (target == this.owner && !this.weapon.HitsFriendlies)
 				{
 					return false;
 				}
@@ -326,7 +327,7 @@ namespace Ship_Game
 					{
 					}
 				}
-				if (!this.InFrustumWhenFired && !GlobalStats.ForceFullSim)
+				if (!this.InFrustumWhenFired )
 				{
 					target.Damage(this, this.damageAmount * 90f);
 					this.Die(null, true);
