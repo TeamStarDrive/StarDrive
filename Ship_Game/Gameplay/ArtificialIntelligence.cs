@@ -7313,12 +7313,24 @@ namespace Ship_Game.Gameplay
             }
             if ( (this.Owner.InCombat || this.Owner.LastHitTimer > 0f))
             {
+                int oqc = this.OrderQueue.Count;
+                bool docombat = false;
+
                 if((this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0))
 #if !DEBUG
                     try
                 {
 #endif
-                    if ( !this.HasPriorityOrder && (this.OrderQueue.Count == 0 || this.OrderQueue.Count > 0 && this.OrderQueue.First<ArtificialIntelligence.ShipGoal>().Plan != ArtificialIntelligence.Plan.DoCombat))
+
+                    try
+                    {
+                        docombat = (oqc > 0 && this.OrderQueue.First<ArtificialIntelligence.ShipGoal>().Plan != ArtificialIntelligence.Plan.DoCombat);
+                    }
+                    catch
+                    {
+                        docombat = false;
+                    }
+                    if (!this.HasPriorityOrder && (this.OrderQueue.Count ==0|| docombat))
                     {
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }
