@@ -2088,7 +2088,8 @@ namespace Ship_Game
             //added by gremlin : Base strength Calculator
             foreach (KeyValuePair<string, Ship> entry in ResourceManager.ShipsDict)
             {
-
+                if (entry.Value.BaseStrength != 0)
+                    continue;
 
                 float Str = 0f;
                 float def = 0f;
@@ -2140,7 +2141,21 @@ namespace Ship_Game
 
                         if (hangarship != null)
                         {
-                            Str += 300;
+                            if (hangarship.BaseStrength == 0)
+                            {
+                                try
+                                {
+                                    CalculateBaseStrength(hangarship);
+                                }
+                                catch
+                                {
+                                    Str += 300;
+                                }
+                                Str += hangarship.BaseStrength;
+                            }
+                            else 
+                                Str += hangarship.BaseStrength;
+                            
                         }
                     }
                     def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
@@ -2161,6 +2176,100 @@ namespace Ship_Game
 
             }
 		}
+
+        public static float CalculateBaseStrength(Ship ship)
+        {
+            
+            foreach (KeyValuePair<string, Ship> entry in ResourceManager.ShipsDict)
+            {
+                if (entry.Key != ship.Name )
+                    continue;
+                if (entry.Value.BaseStrength > 0)
+                {
+                    ship.BaseStrength = entry.Value.BaseStrength;
+                    ship.BaseCanWarp = entry.Value.BaseCanWarp;
+                    return entry.Value.BaseStrength;
+                    
+                }
+                //KeyValuePair<string, Ship> entry = ResourceManager.ShipsDict[ship.DesignUID]
+
+                float Str = 0f;
+                float def = 0f;
+                int slotCount = entry.Value.Size;
+
+
+
+                bool fighters = false;
+                bool weapons = false;
+
+                foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
+                {
+
+                    ShipModule module = ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
+                    float offRate = 0;
+                    if (module.InstalledWeapon != null)
+                    {
+                        weapons = true;
+                        Weapon w = module.InstalledWeapon;
+                        if (!w.explodes)
+                        {
+                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                        }
+                        else
+                        {
+                            offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
+
+                        }
+                        if (offRate > 0 && (w.TruePD || w.Range < 1000))
+                        {
+                            float range = 0f;
+                            if (w.Range < 1000)
+                            {
+                                range = (1000f - w.Range) * .01f;
+                            }
+                            offRate /= (2 + range);
+                        }
+                        if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
+                        Str += offRate;
+                    }
+
+
+                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
+                    {
+
+                        fighters = true;
+                        Ship hangarship;// = new Ship();
+                        ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
+
+                        if (hangarship != null)
+                        {
+                            Str += 100;
+                        }
+                    }
+                    def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
+                    //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
+                    def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
+
+                    if (ResourceManager.ShipModulesDict[module.UID].WarpThrust > 0)
+                    {
+                        entry.Value.BaseCanWarp = true;
+                        ship.BaseCanWarp = entry.Value.BaseCanWarp;
+                    }
+
+                }
+                if (!fighters && !weapons) Str = 0;
+                if (def > Str) def = Str;
+                entry.Value.BaseStrength = Str + def;
+                ship.BaseStrength = entry.Value.BaseStrength;
+                return  entry.Value.BaseStrength;
+                
+
+
+
+            }
+            return 0;
+        }
+
 
 		private static void LoadSmallStars()
 		{
