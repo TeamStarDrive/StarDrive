@@ -5415,6 +5415,10 @@ namespace Ship_Game
 			Ship_Game.Gameplay.CombatState combatState = toSave.CombatState;
 			toSave.CombatState = this.CombatState;
 			toSave.Name = name;
+
+            //For the ship categorisation later
+            // toSave.Category = sCategoryVariable;
+
 			XmlSerializer Serializer = new XmlSerializer(typeof(ShipData));
 			TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Saved Designs/", name, ".xml"));
 			Serializer.Serialize(WriteFileStream, toSave);
