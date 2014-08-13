@@ -33,51 +33,59 @@ namespace Ship_Game
 			this.us = e;
 		}
 
-		public void AssignTargets()
+		public void AssignTargets(Dictionary<Ship,List<Ship>> EnemyClumpsDict)
 		{
-			
             this.EnemyClumpsDict.Clear();
-            if (this.ShipsDict.Count == 0)
-                return;
-			List<Ship> ShipsAlreadyConsidered = new List<Ship>();
+            //this.EnemyClumpsDict = EnemyClumpsDict.Where(home => Vector2.Distance(home.Key.Position, this.system.Position) > 100000).ToDictionary(Ship,List<Ship>);
+            foreach(KeyValuePair<Ship,List<Ship>> home in EnemyClumpsDict)
+            {
+                if (Vector2.Distance(home.Key.Position, this.system.Position) > 100000)
+                    continue;
+                this.EnemyClumpsDict.Add(home.Key, home.Value);
+            }
 
-			foreach (KeyValuePair<Guid, Ship> entry in this.ShipsDict)
-			{
-				Ship ship = entry.Value;
-                if (ship == null || ship.GetAI().Target != null && ship.GetAI().Target.GetSystem() != null
-                    && ship.GetAI().Target.GetSystem() == this.system)//(ship.GetAI().Target.GetSystem() == null ||) ship.GetAI().Target == null  ||
-				{
-					continue;
-				}
-				ship.GetAI().Target = null;
-				ship.GetAI().hasPriorityTarget = false;
-				ship.GetAI().Intercepting = false;
-				ship.GetAI().SystemToDefend = null;
-			}
+            //this.EnemyClumpsDict.Clear();
+            //if (this.ShipsDict.Count == 0)
+            //    return;
+            //List<Ship> ShipsAlreadyConsidered = new List<Ship>();
 
-			//for (int i = 0; i < this.system.ShipList.Count; i++)
-            for (int i=0 ; i< this.us.GetShipsInOurBorders().Count;i++)
-			{
-				//Ship ship = this.system.ShipList[i];
-                Ship ship = this.us.GetShipsInOurBorders()[i];
-                if (ship != null && ship.loyalty != this.us 
-                    && (ship.loyalty.isFaction || this.us.GetRelations()[ship.loyalty].AtWar || !this.us.GetRelations()[ship.loyalty].Treaty_OpenBorders) 
-                    && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
-				{
-					this.EnemyClumpsDict.Add(ship, new List<Ship>());
-					this.EnemyClumpsDict[ship].Add(ship);
-					ShipsAlreadyConsidered.Add(ship);
-					//for (int j = 0; j < this.system.ShipList.Count; j++)
-                    for (int j = 0; j < this.us.GetShipsInOurBorders().Count; j++)
-					{
-                        Ship otherShip = this.us.GetShipsInOurBorders()[j];
-						if (otherShip.loyalty != this.us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f && !ShipsAlreadyConsidered.Contains(otherShip))
-						{
-							this.EnemyClumpsDict[ship].Add(otherShip);
-						}
-					}
-				}
-			}
+            //foreach (KeyValuePair<Guid, Ship> entry in this.ShipsDict)
+            //{
+            //    Ship ship = entry.Value;
+            //    if (ship == null || ship.GetAI().Target != null && ship.GetAI().Target.GetSystem() != null
+            //        && ship.GetAI().Target.GetSystem() == this.system)//(ship.GetAI().Target.GetSystem() == null ||) ship.GetAI().Target == null  ||
+            //    {
+            //        continue;
+            //    }
+            //    ship.GetAI().Target = null;
+            //    ship.GetAI().hasPriorityTarget = false;
+            //    ship.GetAI().Intercepting = false;
+            //    ship.GetAI().SystemToDefend = null;
+            //}
+
+            //for (int i = 0; i < this.system.ShipList.Count; i++)
+            ////for (int i=0 ; i< this.us.GetShipsInOurBorders().Count;i++)
+            //{
+            //    Ship ship = this.system.ShipList[i];
+            //    //Ship ship = this.us.GetShipsInOurBorders()[i];
+            //    if (ship != null && ship.loyalty != this.us 
+            //        && (ship.loyalty.isFaction || this.us.GetRelations()[ship.loyalty].AtWar || !this.us.GetRelations()[ship.loyalty].Treaty_OpenBorders) 
+            //        && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
+            //    {
+            //        this.EnemyClumpsDict.Add(ship, new List<Ship>());
+            //        this.EnemyClumpsDict[ship].Add(ship);
+            //        ShipsAlreadyConsidered.Add(ship);
+            //        for (int j = 0; j < this.system.ShipList.Count; j++)
+            //        //for (int j = 0; j < this.us.GetShipsInOurBorders().Count; j++)
+            //        {
+            //            Ship otherShip = this.system.ShipList[j];
+            //            if (otherShip.loyalty != this.us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f && !ShipsAlreadyConsidered.Contains(otherShip))
+            //            {
+            //                this.EnemyClumpsDict[ship].Add(otherShip);
+            //            }
+            //        }
+            //    }
+            //}
 			if (this.EnemyClumpsDict.Count != 0 && this.ShipsDict.Count !=0)
 			{
 				List<Ship> ClumpsList = new List<Ship>();
