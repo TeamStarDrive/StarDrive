@@ -581,9 +581,31 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							this.screen.SelectedFleet = null;
-							this.screen.SelectedShipList.Clear();
-							this.screen.SelectedShip = this.HoveredShip;
+                            if (input.CurrentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
+                            {
+                                //
+                                foreach(Ship filter in this.screen.SelectedShipList)
+                                {
+                                    if(filter.Role != this.HoveredShip.Role)
+                                    {
+                                        this.screen.SelectedShipList.QueuePendingRemoval(filter);
+                                        
+                                    }
+                                    
+                                }
+                                this.screen.SelectedShipList.ApplyPendingRemovals();
+                                this.SetShipList(this.screen.SelectedShipList, false);
+                                this.SelectedShipsSL.indexAtTop = 0;
+                                
+                                //this.screen.SelectedShipList = this.screen.SelectedShipList.Where(role => role.Role == this.HoveredShip.Role) as Ship_Game.BatchRemovalCollection<Ship>;
+                                continue;
+                            }
+                            else
+                            {
+                                this.screen.SelectedFleet = null;
+                                this.screen.SelectedShipList.Clear();
+                                this.screen.SelectedShip = this.HoveredShip;
+                            }
 							return true;
 						}
 					}
