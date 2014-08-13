@@ -45,7 +45,7 @@ namespace Ship_Game
 
 		private Checkbox cb_hide_proj;
 
-		public bool HidePlatforms;
+		public bool HidePlatforms =true;
 
 		private float ClickTimer;
 
@@ -98,7 +98,7 @@ namespace Ship_Game
 			{
 				foreach (Ship ship in EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetShips())
 				{
-					if (ship.Role == "construction")
+                    if (ship.Role == "construction" || ship.Role == "platform" && this.HidePlatforms)
 					{
 						continue;
 					}
@@ -120,6 +120,7 @@ namespace Ship_Game
 			this.ShowRoles.AddOption("Capitals Only", 5);
 			this.ShowRoles.AddOption("Fleets Only", 6);
 			this.ShowRoles.AddOption("Player Designs Only", 7);
+            this.ShowRoles.AddOption("Freighters Only", 8);
 			this.AutoButton = new Rectangle(0, 0, 243, 33);
 			this.SortSystem = new SortButton();
 			this.SortName = new SortButton();
@@ -637,6 +638,16 @@ namespace Ship_Game
 							this.ShipSL.AddItem(entry);
 							continue;
 						}
+                        case 8:
+                        {
+                            if (ship.Role != "freighter")
+                            {
+                                continue;
+                            }
+                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                            this.ShipSL.AddItem(entry);
+                            continue;
+                        }
 						default:
 						{
 							continue;
