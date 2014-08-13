@@ -98,7 +98,7 @@ namespace Ship_Game
 			{
 				foreach (Ship ship in EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetShips())
 				{
-					if (ship.Role == "construction")
+                    if (ship.Role == "construction" || ship.Role == "platform" && this.HidePlatforms)
 					{
 						continue;
 					}
