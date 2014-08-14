@@ -1369,17 +1369,18 @@ namespace Ship_Game.Gameplay
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.65f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
             {
                 Ship owner = this.Owner;
-                owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+                this.Owner.Velocity = Vector2.Zero;
+                //owner.Velocity = owner.Velocity + (Vector2.Normalize(-left) * (elapsedTime * this.Owner.velocityMaximum));
             }
             if (angleDiff <= 0.02f)
             {
                 this.DeRotate();
                 return;
             }
-            this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, forward) > 0f ? 1f : -1f));
+            this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, forward) > 0f ? -1f : 1f));
         }
 
         private void DoNonFleetBroadsideLeft(float elapsedTime)
@@ -1395,12 +1396,13 @@ namespace Ship_Game.Gameplay
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.65f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
             {
                 Ship owner = this.Owner;
-                owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+                this.Owner.Velocity = Vector2.Zero;
+                //owner.Velocity = owner.Velocity + (Vector2.Normalize(-left) * (elapsedTime * this.Owner.velocityMaximum));
             }
-            if (angleDiff <= 0.02f && angleDiff >= -0.02f)
+            if (angleDiff <= 0.02f)
             {
                 this.DeRotate();
                 return;
