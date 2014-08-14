@@ -869,5 +869,10 @@
       <Title>Troop Capacity</Title>
       <Data>7023</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>174</TIP_ID>
+      <Title>Troop Heal</Title>
+      <Data>7024</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
