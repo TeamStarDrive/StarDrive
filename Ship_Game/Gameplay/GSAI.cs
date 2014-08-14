@@ -3205,7 +3205,7 @@ namespace Ship_Game.Gameplay
             }
             GSAI desiredAgentCount1 = this;
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
-            int empirePlanetSpys = empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
+            int empirePlanetSpys = empire.GetPlanets().Count() / 3 + 3;
             int currentSpies = this.empire.data.AgentList.Count;
             if (this.empire.data.AgentList.Count < this.DesiredAgentCount && this.empire.Money >= 300f && currentSpies < empirePlanetSpys)
             {
@@ -3453,7 +3453,7 @@ namespace Ship_Game.Gameplay
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
             //int empirePlanetSpys = this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             //if (this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
-            int empireSpyLimit = this.empire.GetPlanets().Count() + 2;
+            int empireSpyLimit = this.empire.GetPlanets().Count() / 3 + 3;
             int currentSpies = this.empire.data.AgentList.Count;
             if (this.empire.data.AgentList.Count < this.DesiredAgentCount && this.empire.Money >= 300f && currentSpies < empireSpyLimit)
             {
