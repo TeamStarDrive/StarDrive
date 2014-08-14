@@ -2956,6 +2956,7 @@ namespace Ship_Game
 			float Thrust = 0f;
 			float AfterThrust = 0f;
 			float CargoSpace = 0f;
+            byte TroopCount = 0;
 			float Size = 0f;
 			float Cost = 0f;
 			float WarpThrust = 0f;
@@ -2983,12 +2984,13 @@ namespace Ship_Game
 				HitPoints = HitPoints + (slot.module.Health + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier * slot.module.Health);
 				if (slot.module.Mass < 0f && slot.Powered)
 				{
-					Mass = Mass + slot.module.Mass;
+					Mass += slot.module.Mass;
 				}
 				else if (slot.module.Mass > 0f)
 				{
-					Mass = Mass + slot.module.Mass;
+					Mass += slot.module.Mass;
 				}
+                TroopCount += slot.module.TroopCapacity;
                 PowerCapacity += slot.module.PowerStoreMax + slot.module.PowerStoreMax * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FuelCellModifier; 
 				OrdnanceCap = OrdnanceCap + (float)slot.module.OrdinanceCapacity;
 				PowerFlow += slot.module.PowerFlowMax + slot.module.PowerFlowMax * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.PowerFlowMod;
@@ -3020,7 +3022,7 @@ namespace Ship_Game
                     //added by gremlin collect weapon stats
                     
 
-                        if (slot.module.isWeapon || slot.module.BombType != null)
+                    if (slot.module.isWeapon || slot.module.BombType != null)
                     {
                         Weapon weapon;
                         if (slot.module.BombType == null)
@@ -3031,8 +3033,8 @@ namespace Ship_Game
                         BeamPowerUsed += weapon.BeamPowerCostPerSecond * weapon.BeamDuration;
                         OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay;
                         WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay;
-                        if(BeamLongestDuration <weapon.BeamDuration)
-                            BeamLongestDuration =weapon.BeamDuration; 
+                        if(BeamLongestDuration < weapon.BeamDuration)
+                            BeamLongestDuration = weapon.BeamDuration; 
                         
                     }
                     //end
@@ -3121,14 +3123,22 @@ namespace Ship_Game
                 this.DrawStat(ref Cursor, "Power with Afterburner:", (int)(PowerFlow - PowerDraw - BurnerDrain), "Power draw of the ship when the afterburner is engaged");
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-
-			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(113), ":"), (int)HitPoints, 103);
-			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            if (HitPoints > 0)
+            {
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(113), ":"), (int)HitPoints, 103);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
             //Added by McShooterz: draw total repair
-            this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6013), ":"), (int)RepairRate, 103);
-            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(114), ":"), (int)ShieldPower, 104);
-			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            if (RepairRate > 0)
+            {
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6013), ":"), (int)RepairRate, 103);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
+            if (ShieldPower > 0)
+            {
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(114), ":"), (int)ShieldPower, 104);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
 			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             #region HardcoreRule info
@@ -3212,12 +3222,17 @@ namespace Ship_Game
             }
             if (OrdnanceRecoverd > 0)
             {
-                this.DrawStat60(ref Cursor, "Ordance Added(S) :", OrdnanceRecoverd, 162);
+                this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(6131), " :"), OrdnanceRecoverd, 162);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (CargoSpace > 0)
             {
                 this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.CargoBonus != 0 ? (1 + (float)this.ActiveHull.CargoBonus / 100f) : 1)), 109);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
+            if (TroopCount > 0)
+            {
+                this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (float)TroopCount , 176);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
 //added by gremlin ShipYard Stats
