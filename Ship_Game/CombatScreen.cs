@@ -340,7 +340,7 @@ namespace Ship_Game
 							Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
 							tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString()), tCursor, Color.Orange);
+							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
 						}
 						else
 						{
@@ -349,7 +349,7 @@ namespace Ship_Game
 							Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
 							tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString()), tCursor, Color.LightGray);
+                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.LightGray);
 						}
 					}
 					else if (e.item is Troop)
@@ -362,7 +362,7 @@ namespace Ship_Game
 							Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
 							tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString()), tCursor, Color.Orange);
+                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
 						}
 						else
 						{
@@ -371,7 +371,7 @@ namespace Ship_Game
 							Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
 							tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString()), tCursor, Color.LightGray);
+                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.LightGray);
 						}
 					}
 					if (HelperFunctions.CheckIntersection(e.clickRect, new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
@@ -498,7 +498,7 @@ namespace Ship_Game
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString()), tCursor, Color.Orange);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
 				}
 				else
 				{
@@ -507,7 +507,7 @@ namespace Ship_Game
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString()), tCursor, Color.Orange);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
 				}
 				if (HelperFunctions.CheckIntersection(e.clickRect, new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
 				{
@@ -620,8 +620,8 @@ namespace Ship_Game
 				Rectangle StrengthRect = new Rectangle(TroopClickRect.X + TroopClickRect.Width + 2, TroopClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
 				Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, StrengthRect, new Color(0, 0, 0, 200));
 				Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, StrengthRect, pgs.TroopsHere[0].GetOwner().EmpireColor);
-				Vector2 cursor = new Vector2((float)(StrengthRect.X + StrengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString()).X / 2f, (float)(1 + StrengthRect.Y + StrengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Strength.ToString(), cursor, Color.White);
+                Vector2 cursor = new Vector2((float)(StrengthRect.X + StrengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f, (float)(1 + StrengthRect.Y + StrengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Strength.ToString("0."), cursor, Color.White);
 				if (this.ActiveTroop != null && this.ActiveTroop == pgs)
 				{
 					if (this.ActiveTroop.TroopsHere[0].AvailableAttackActions > 0)
