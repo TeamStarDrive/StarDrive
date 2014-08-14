@@ -1334,7 +1334,7 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 				tCursor.Y = bCursor.Y;
 				desc = string.Concat(Localizer.Token(339), ": ");
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Strength.ToString(), tCursor, new Color(255, 239, 208));
+				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Strength.ToString("0."), tCursor, new Color(255, 239, 208));
 				bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				tCursor.Y = bCursor.Y;
 				desc = string.Concat(Localizer.Token(2218), ": ");
