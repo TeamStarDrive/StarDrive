@@ -647,6 +647,8 @@ namespace Ship_Game
 			string[] wordArray = text.Split(new char[] { ' ' });
 			for (int i = 0; i < (int)wordArray.Length; i++)
 			{
+                if (wordArray[i] == null)
+                    break;
 				string word = wordArray[i];
 				if (Font.MeasureString(string.Concat(line, word)).Length() > Width)
 				{
