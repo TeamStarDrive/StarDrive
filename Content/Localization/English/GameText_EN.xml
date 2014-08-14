@@ -7825,5 +7825,9 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7024</Index>
       <Text>Indicates the amount troops are healed per second</Text>
     </Token>
+	<Token>
+      <Index>7025</Index>
+      <Text>Power draw per second when Warp engaged</Text>
+    </Token>
   </TokenList>
 </LocalizationFile>
