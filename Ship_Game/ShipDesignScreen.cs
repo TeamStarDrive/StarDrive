@@ -177,18 +177,31 @@ namespace Ship_Game
 
 		private int scrollPosition;
 
+        private DropOptions CategoryList;
+
+        private Vector2 classifCursor;
+
 		public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
+
+        private Vector2 COBoxCursor;
+
+        private Checkbox CarrierOnlyBox;
+
+        public bool CarrierOnly;
+
+        private string LoadCategory;
 
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
 			this.EmpireUI = EmpireUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            
 		}
 
 		public void ChangeHull(ShipData hull)
 		{
 			this.Reset = true;
-			this.DesignStack.Clear();
+            this.DesignStack.Clear();
 			lock (GlobalStats.ObjectManagerLocker)
 			{
 				if (this.shipSO != null)
@@ -207,6 +220,8 @@ namespace Ship_Game
 				Role = hull.Role,
 				ShipStyle = hull.ShipStyle,
 				ThrusterList = hull.ThrusterList,
+                ShipCategory = hull.ShipCategory,
+                CarrierShip = hull.CarrierShip,
 				ModuleSlotList = new List<ModuleSlotData>(),
                 //Added by McShooterz: Copy hull bonus
                 ArmoredBonus = hull.ArmoredBonus,
@@ -218,6 +233,8 @@ namespace Ship_Game
                 RepairBonus = hull.RepairBonus,
                 CostBonus = hull.CostBonus
 			};
+            this.CarrierOnly = hull.CarrierShip;
+            this.LoadCategory = hull.ShipCategory;
 			foreach (ModuleSlotData slot in hull.ModuleSlotList)
 			{
 				ModuleSlotData data = new ModuleSlotData()
@@ -3646,89 +3663,112 @@ namespace Ship_Game
 		}
 
 		private void DrawUI(GameTime gameTime)
-		{
-			this.EmpireUI.Draw(base.ScreenManager.SpriteBatch);
-			this.DrawShipInfoPanel();
-			float transitionOffset = (float)Math.Pow((double)base.TransitionPosition, 2);
-			Rectangle r = this.BlackBar;
-			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-			{
-				r.Y = r.Y + (int)(transitionOffset * 50f);
-			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, Color.Black);
-			r = this.bottom_sep;
-			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-			{
-				r.Y = r.Y + (int)(transitionOffset * 50f);
-			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(77, 55, 25));
-			r = this.SearchBar;
-			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-			{
-				r.Y = r.Y + (int)(transitionOffset * 50f);
-			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(54, 54, 54));
-			if (Fonts.Arial20Bold.MeasureString(this.ActiveHull.Name).X <= (float)(this.SearchBar.Width - 5))
-			{
-				Vector2 Cursor = new Vector2((float)(this.SearchBar.X + 3), (float)(r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.ActiveHull.Name, Cursor, Color.White);
-			}
-			else
-			{
-				Vector2 Cursor = new Vector2((float)(this.SearchBar.X + 3), (float)(r.Y + 14 - Fonts.Arial12Bold.LineSpacing / 2));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ActiveHull.Name, Cursor, Color.White);
-			}
-			r = this.SaveButton.Rect;
-			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-			{
-				r.Y = r.Y + (int)(transitionOffset * 50f);
-			}
-			this.SaveButton.Draw(base.ScreenManager.SpriteBatch, r);
-			r = this.LoadButton.Rect;
-			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-			{
-				r.Y = r.Y + (int)(transitionOffset * 50f);
-			}
-			this.LoadButton.Draw(base.ScreenManager.SpriteBatch, r);
-			r = this.ToggleOverlayButton.Rect;
-			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-			{
-				r.Y = r.Y + (int)(transitionOffset * 50f);
-			}
-			this.ToggleOverlayButton.Draw(base.ScreenManager.SpriteBatch, r);
-			r = this.Fleets.r;
-			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-			{
-				r.Y = r.Y + (int)(transitionOffset * 50f);
-			}
-			this.Fleets.Draw(base.ScreenManager, r);
-			r = this.ShipList.r;
-			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-			{
-				r.Y = r.Y + (int)(transitionOffset * 50f);
-			}
-			this.ShipList.Draw(base.ScreenManager, r);
-			r = this.Shipyard.r;
-			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-			{
-				r.Y = r.Y + (int)(transitionOffset * 50f);
-			}
-			this.Shipyard.Draw(base.ScreenManager, r);
-			this.DrawModuleSelection();
-			this.DrawHullSelection();
-			if (this.ActiveModule != null || this.HighlightedModule != null)
-			{
-				this.DrawActiveModuleData();
-			}
-			foreach (ToggleButton button in this.CombatStatusButtons)
-			{
-				button.Draw(base.ScreenManager);
-			}
-			if (base.IsActive)
-			{
-				ToolTip.Draw(base.ScreenManager);
-			}
-		}
+        {
+            this.EmpireUI.Draw(base.ScreenManager.SpriteBatch);
+            this.DrawShipInfoPanel();
+            if (this.ActiveHull.Role == "freighter")
+            {
+                this.CategoryList.ActiveIndex = 1;
+            }
+            else if (this.ActiveHull.Role == "scout")
+            {
+                this.CategoryList.ActiveIndex = 2;
+            }
+            else
+            {
+                this.CategoryList.ActiveIndex = 0;
+            }
+            foreach (Entry e in this.CategoryList.Options)
+            {
+                if (e.Name == LoadCategory)
+                {
+                    this.CategoryList.ActiveIndex = e.@value;
+                }
+            }
+            this.CategoryList.Draw(base.ScreenManager.SpriteBatch);
+            this.CarrierOnlyBox.Draw(base.ScreenManager);
+            string classifTitle = "Behaviour Presets";
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, classifTitle, classifCursor, Color.Orange);
+            float transitionOffset = (float)Math.Pow((double)base.TransitionPosition, 2);
+            Rectangle r = this.BlackBar;
+            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, Color.Black);
+            r = this.bottom_sep;
+            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(77, 55, 25));
+            r = this.SearchBar;
+            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(54, 54, 54));
+            if (Fonts.Arial20Bold.MeasureString(this.ActiveHull.Name).X <= (float)(this.SearchBar.Width - 5))
+            {
+                Vector2 Cursor = new Vector2((float)(this.SearchBar.X + 3), (float)(r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2));
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.ActiveHull.Name, Cursor, Color.White);
+            }
+            else
+            {
+                Vector2 Cursor = new Vector2((float)(this.SearchBar.X + 3), (float)(r.Y + 14 - Fonts.Arial12Bold.LineSpacing / 2));
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ActiveHull.Name, Cursor, Color.White);
+            }
+            r = this.SaveButton.Rect;
+            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            this.SaveButton.Draw(base.ScreenManager.SpriteBatch, r);
+            r = this.LoadButton.Rect;
+            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            this.LoadButton.Draw(base.ScreenManager.SpriteBatch, r);
+            r = this.ToggleOverlayButton.Rect;
+            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            this.ToggleOverlayButton.Draw(base.ScreenManager.SpriteBatch, r);
+            r = this.Fleets.r;
+            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            this.Fleets.Draw(base.ScreenManager, r);
+            r = this.ShipList.r;
+            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            this.ShipList.Draw(base.ScreenManager, r);
+            r = this.Shipyard.r;
+            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            this.Shipyard.Draw(base.ScreenManager, r);
+            this.DrawModuleSelection();
+            this.DrawHullSelection();
+            if (this.ActiveModule != null || this.HighlightedModule != null)
+            {
+                this.DrawActiveModuleData();
+            }
+            foreach (ToggleButton button in this.CombatStatusButtons)
+            {
+                button.Draw(base.ScreenManager);
+            }
+            if (base.IsActive)
+            {
+                ToolTip.Draw(base.ScreenManager);
+            }
+        }
 
 		public override void ExitScreen()
 		{
@@ -4085,6 +4125,10 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
+
+            this.CategoryList.HandleInput(input);
+            this.CarrierOnlyBox.HandleInput(input);
+
             if (this.ActiveModule != null && (this.ActiveModule.InstalledWeapon != null || this.ActiveModule.CanRotate || this.ActiveModule.XSIZE != this.ActiveModule.YSIZE))
             {
                 if (input.Left)
@@ -5173,7 +5217,12 @@ namespace Ship_Game
 			Evade.Action = "evade";
 			Evade.HasToolTip = true;
 			Evade.WhichToolTip = 6;
+
+           
+            
 			Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150), (float)this.Fleets.r.Y);
+
+            
 			this.SaveButton = new UIButton()
 			{
 				Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
@@ -5241,7 +5290,26 @@ namespace Ship_Game
 					e.AddItem(hull.Value);
 				}
 			}
-			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height + 40, 280, 320);
+			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height + 50, 280, 320);
+
+            this.classifCursor = new Vector2(ShipStatsPanel.X, ShipStatsPanel.Y + ShipStatsPanel.Height + 20);
+
+            Rectangle dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 45, 100, 18);
+            this.CategoryList = new DropOptions(dropdownRect);
+            this.CategoryList.AddOption("Unclassified", 1);
+            this.CategoryList.AddOption("Civilian", 2);
+            this.CategoryList.AddOption("Recon", 3);
+            this.CategoryList.AddOption("Fighter", 4);
+            this.CategoryList.AddOption("Bomber", 5);
+
+            this.CarrierOnly = this.ActiveHull.CarrierShip;
+            Ref<bool> CORef = new Ref<bool>(() => this.CarrierOnly, (bool x) => {
+				this.CarrierOnly = x;              
+			});
+
+            this.COBoxCursor = new Vector2(dropdownRect.X + 106, dropdownRect.Y);
+            this.CarrierOnlyBox = new Checkbox(this.COBoxCursor, "Carrier Only", CORef, Fonts.Arial12Bold); 
+
 			this.ShipStats = new Menu1(base.ScreenManager, ShipStatsPanel);
 			this.statsSub = new Submenu(base.ScreenManager, ShipStatsPanel);
 			this.statsSub.AddTab(Localizer.Token(108));
@@ -5391,7 +5459,7 @@ namespace Ship_Game
 
 		public void SaveShipDesign(string name)
 		{
-			this.ActiveHull.ModuleSlotList.Clear();
+            this.ActiveHull.ModuleSlotList.Clear();
 			this.ActiveHull.Name = name;
 			ShipData toSave = this.ActiveHull.GetClone();
 			foreach (SlotStruct slot in this.Slots)
@@ -5432,7 +5500,41 @@ namespace Ship_Game
 			toSave.Name = name;
 
             //For the ship categorisation later
-            // toSave.Category = sCategoryVariable;
+            switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
+            {
+                case 1:
+                    {
+                        this.ActiveHull.ShipCategory = "Unclassified";
+                        break;
+                    }
+                case 2:
+                    {
+                        this.ActiveHull.ShipCategory = "Civilian";
+                        break;
+                    }
+                case 3:
+                    {
+                        this.ActiveHull.ShipCategory = "Recon";
+                        break;
+                    }
+                case 4:
+                    {
+                        this.ActiveHull.ShipCategory = "Fighter";
+                        break;
+                    }
+                case 5:
+                    {
+                        this.ActiveHull.ShipCategory = "Bomber";
+                        break;
+                    }
+                default:
+                    {
+                        this.ActiveHull.ShipCategory = "Unclassified";
+                        break;
+                    }
+            }
+            toSave.ShipCategory = this.ActiveHull.ShipCategory;
+            toSave.CarrierShip = this.CarrierOnly;
 
 			XmlSerializer Serializer = new XmlSerializer(typeof(ShipData));
 			TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Saved Designs/", name, ".xml"));
