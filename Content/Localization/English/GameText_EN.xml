@@ -7719,6 +7719,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6128</Index>
       <Text>Land</Text>
     </Token>
+	<Token>
+      <Index>6129</Index>
+      <Text>Heal</Text>
+    </Token>
 	
 	
 	
@@ -7816,6 +7820,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7023</Index>
       <Text>Indicates the number of troops that this module can hold.</Text>
+    </Token>
+	<Token>
+      <Index>7024</Index>
+      <Text>Indicates the amount troops are healed per second</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
