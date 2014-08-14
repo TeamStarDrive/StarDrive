@@ -3597,21 +3597,28 @@ namespace Ship_Game
         {
             this.EmpireUI.Draw(base.ScreenManager.SpriteBatch);
             this.DrawShipInfoPanel();
+
+            //Defaults based on hull types
+            //Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
             if (this.ActiveHull.Role == "freighter" && this.fml)
             {
                 this.CategoryList.ActiveIndex = 1;
                 this.fml = false;
             }
+            //Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
             else if (this.ActiveHull.Role == "scout" && this.fml)
             {
                 this.CategoryList.ActiveIndex = 2;
                 this.fml = false;
             }
+            //All other hulls default to unclassified.
             else if (this.fml)
             {
                 this.CategoryList.ActiveIndex = 0;
                 this.fml = false;
             }
+
+            //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
             foreach (Entry e in this.CategoryList.Options)
             {
                 if (e.Name == LoadCategory && this.fmlevenmore)
@@ -5435,7 +5442,7 @@ namespace Ship_Game
 			toSave.CombatState = this.CombatState;
 			toSave.Name = name;
 
-            //For the ship categorisation later
+            //Cases correspond to the 5 options in the drop-down menu; default exists for... Propriety, mainly. The option selected when saving will always be the Category saved, pretty straightforward.
             switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
             {
                 case 1:
@@ -5469,7 +5476,11 @@ namespace Ship_Game
                         break;
                     }
             }
+
+            //Adds the category determined by the case from the dropdown to the 'toSave' ShipData.
             toSave.ShipCategory = this.ActiveHull.ShipCategory;
+
+            //Adds the boolean derived from the checkbox boolean (CarrierOnly) to the ShipData. Defaults to 'false'.
             toSave.CarrierShip = this.CarrierOnly;
 
 			XmlSerializer Serializer = new XmlSerializer(typeof(ShipData));
