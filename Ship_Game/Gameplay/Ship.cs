@@ -3748,6 +3748,8 @@ namespace Ship_Game.Gameplay
                             troop.Strength += this.HealPerTurn * elapsedTime;
                             break;
                         }
+                        else
+                            troop.Strength = troop.GetStrengthMax();
                     }
                 }
                 if (EnemyTroops.Count > 0)
