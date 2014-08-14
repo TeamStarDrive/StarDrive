@@ -203,7 +203,7 @@ namespace Ship_Game.Gameplay
         private int FTLCount;
         public float MoveModulesTimer;
         private float AfterThrust;
-        public int HealPerTurn;
+        public float HealPerTurn;
         private bool UpdatedModulesOnce;
         public float percent;
         private float xdie;
@@ -3741,21 +3741,18 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.HealPerTurn > 0)
                 {
-                    int num = this.HealPerTurn;
                     foreach (Troop troop in OwnTroops)
                     {
                         if (troop.Strength < troop.GetStrengthMax())
                         {
-                            ++troop.Strength;
-                            --num;
-                        }
-                        if (num <= 0)
+                            troop.Strength += this.HealPerTurn * elapsedTime;
                             break;
+                        }
                     }
                 }
                 if (EnemyTroops.Count > 0)
                 {
-                    int num1 = 0;
+                    float num1 = 0;
                     for (int index = 0; (double)index < (double)this.MechanicalBoardingDefense; ++index)
                     {
                         if ((this.system != null ? (double)this.system.RNG.RandomBetween(0.0f, 100f) : (double)Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) <= 60.0)
@@ -3763,12 +3760,12 @@ namespace Ship_Game.Gameplay
                     }
                     foreach (Troop troop in EnemyTroops)
                     {
-                        int num2 = num1;
+                        float num2 = num1;
                         if (num1 > 0)
                         {
                             if (num1 > troop.Strength)
                             {
-                                int num3 = troop.Strength;
+                                float num3 = troop.Strength;
                                 troop.Strength = 0;
                                 num1 -= num3;
                             }
@@ -3798,12 +3795,12 @@ namespace Ship_Game.Gameplay
                         }
                         foreach (Troop troop in EnemyTroops)
                         {
-                            int num2 = num1;
+                            float num2 = num1;
                             if (num1 > 0)
                             {
                                 if (num1 > troop.Strength)
                                 {
-                                    int num3 = troop.Strength;
+                                    float num3 = troop.Strength;
                                     troop.Strength = 0;
                                     num1 -= num3;
                                 }
@@ -3826,7 +3823,7 @@ namespace Ship_Game.Gameplay
                         EnemyTroops.Add(troop);
                     if (EnemyTroops.Count > 0)
                     {
-                        int num2 = 0;
+                        float num2 = 0;
                         foreach (Troop troop in EnemyTroops)
                         {
                             for (int index = 0; index < troop.Strength; ++index)
@@ -3837,12 +3834,12 @@ namespace Ship_Game.Gameplay
                         }
                         foreach (Troop troop in OwnTroops)
                         {
-                            int num3 = num2;
+                            float num3 = num2;
                             if (num2 > 0)
                             {
                                 if (num2 > troop.Strength)
                                 {
-                                    int num4 = troop.Strength;
+                                    float num4 = troop.Strength;
                                     troop.Strength = 0;
                                     num2 -= num4;
                                 }

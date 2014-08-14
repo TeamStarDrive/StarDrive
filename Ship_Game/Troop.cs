@@ -80,9 +80,9 @@ namespace Ship_Game
 
 		private float updateTimer;
 
-		public int Strength;
+		public float Strength;
 
-		public int StrengthMax;
+		public float StrengthMax;
 
 		public int Movement;
 
@@ -331,7 +331,7 @@ namespace Ship_Game
         }
 
         //Added by McShooterz
-        public int GetStrengthMax()
+        public float GetStrengthMax()
         {
             if (this.StrengthMax <= 0)
                 this.StrengthMax = Ship_Game.ResourceManager.TroopsDict[this.Name].Strength;
