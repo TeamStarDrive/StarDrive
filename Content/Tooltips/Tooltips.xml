@@ -874,5 +874,10 @@
       <Title>Troop Heal</Title>
       <Data>7024</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>175</TIP_ID>
+      <Title>Warp Power Draw</Title>
+      <Data>7025</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
