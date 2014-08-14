@@ -179,6 +179,8 @@ namespace Ship_Game
 
         private DropOptions CategoryList;
 
+        private Rectangle dropdownRect;
+
         private Vector2 classifCursor;
 
 		public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
@@ -186,6 +188,10 @@ namespace Ship_Game
         private Vector2 COBoxCursor;
 
         private Checkbox CarrierOnlyBox;
+
+        private bool fml = false;
+
+        private bool fmlevenmore = false;
 
         public bool CarrierOnly;
 
@@ -235,6 +241,8 @@ namespace Ship_Game
 			};
             this.CarrierOnly = hull.CarrierShip;
             this.LoadCategory = hull.ShipCategory;
+            this.fml = true;
+            this.fmlevenmore = true;
 			foreach (ModuleSlotData slot in hull.ModuleSlotList)
 			{
 				ModuleSlotData data = new ModuleSlotData()
@@ -3666,23 +3674,27 @@ namespace Ship_Game
         {
             this.EmpireUI.Draw(base.ScreenManager.SpriteBatch);
             this.DrawShipInfoPanel();
-            if (this.ActiveHull.Role == "freighter")
+            if (this.ActiveHull.Role == "freighter" && this.fml)
             {
                 this.CategoryList.ActiveIndex = 1;
+                this.fml = false;
             }
-            else if (this.ActiveHull.Role == "scout")
+            else if (this.ActiveHull.Role == "scout" && this.fml)
             {
                 this.CategoryList.ActiveIndex = 2;
+                this.fml = false;
             }
-            else
+            else if (this.fml)
             {
                 this.CategoryList.ActiveIndex = 0;
+                this.fml = false;
             }
             foreach (Entry e in this.CategoryList.Options)
             {
-                if (e.Name == LoadCategory)
+                if (e.Name == LoadCategory && this.fmlevenmore)
                 {
-                    this.CategoryList.ActiveIndex = e.@value;
+                    this.CategoryList.ActiveIndex = e.@value - 1;
+                    this.fmlevenmore = false;
                 }
             }
             this.CategoryList.Draw(base.ScreenManager.SpriteBatch);
@@ -5294,7 +5306,8 @@ namespace Ship_Game
 
             this.classifCursor = new Vector2(ShipStatsPanel.X, ShipStatsPanel.Y + ShipStatsPanel.Height + 20);
 
-            Rectangle dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 45, 100, 18);
+            dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 45, 100, 18);
+
             this.CategoryList = new DropOptions(dropdownRect);
             this.CategoryList.AddOption("Unclassified", 1);
             this.CategoryList.AddOption("Civilian", 2);
