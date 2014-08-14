@@ -7723,9 +7723,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6129</Index>
       <Text>Heal</Text>
     </Token>
-	
-	
-	
+	<Token>
+      <Index>6130</Index>
+      <Text>Troop Capacity</Text>
+    </Token>
+	<Token>
+      <Index>6131</Index>
+      <Text>Ordance Added(s)</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -7824,6 +7829,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7024</Index>
       <Text>Indicates the amount troops are healed per second</Text>
+    </Token>
+	<Token>
+      <Index>7025</Index>
+      <Text>Power draw per second when Warp engaged</Text>
+    </Token>
+	<Token>
+      <Index>7026</Index>
+      <Text>Indicates the troop capacity for this ship</Text>
+    </Token>
+	<Token>
+      <Index>7027</Index>
+      <Text>Indicates the espionage defense of the empire</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
