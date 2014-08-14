@@ -5241,7 +5241,7 @@ namespace Ship_Game.Gameplay
 
         private bool shipIsGoodForGoals(Ship ship)
         {
-            if (ship.BaseStrength > 0f && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
+            if (!ship.shipData.CarrierShip && ship.BaseStrength > 0f && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
                 || (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
                 && ship.PowerStoreMax / (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum > minimumWarpRange))
                 return true;
