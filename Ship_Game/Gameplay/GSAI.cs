@@ -6394,7 +6394,7 @@ namespace Ship_Game.Gameplay
 				if (g != null && g.GoalName == "Build Troop")
 				{
 					currentgoals++;
-                    goalStrength += ResourceManager.TroopsDict[g.ToBuildUID].Strength;
+                    goalStrength += (int)ResourceManager.TroopsDict[g.ToBuildUID].Strength;
 				}
 			}
             int wantedStrength = (int)(requiredStrength - (currentStrength + goalStrength));
@@ -6459,7 +6459,7 @@ namespace Ship_Game.Gameplay
                                         ran = 0;
                                     }
                                     Troop troop = ResourceManager.TroopsDict[PotentialTroops[ran]];
-                                    wantedStrength -= troop.Strength;
+                                    wantedStrength -= (int)troop.Strength;
                                     Goal g = new Goal(troop, this.empire, selectedPlanet);
                                     this.Goals.Add(g);
 
