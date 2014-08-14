@@ -1914,6 +1914,16 @@ namespace Ship_Game
                             this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
+                        if (mod.TroopCapacity > 0f)
+                        {
+                            this.DrawStat(ref modTitlePos, Localizer.Token(336), (float)mod.TroopCapacity, 173);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        if (mod.HealPerTurn > 0)
+                        {
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6129), mod.HealPerTurn, 174);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
 						return;
 					}
                     if (mod.ModuleType == ShipModuleType.Hangar)
@@ -1961,8 +1971,6 @@ namespace Ship_Game
                     }
 					else
 					{
-                        this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier, 80);
@@ -1985,6 +1993,13 @@ namespace Ship_Game
 						}
 						modTitlePos.X = modTitlePos.X + 152f;
 						modTitlePos.Y = starty;
+                        this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        if (mod.HealPerTurn > 0)
+                        {
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6129), mod.HealPerTurn, 174);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
                         if (mod.TransporterRange > 0)
                         {
                             this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.TransporterRange, 168);
@@ -3333,7 +3348,7 @@ namespace Ship_Game
 
         private void DrawHullBonus(ref Vector2 Cursor, string words, byte stat)
         {
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(6015), stat.ToString(), "% ", words), Cursor, Color.Green);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat(Localizer.Token(6015), stat.ToString(), "% ", words), Cursor, Color.Orange);
         }
 
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, string tip)
@@ -5415,6 +5430,10 @@ namespace Ship_Game
 			Ship_Game.Gameplay.CombatState combatState = toSave.CombatState;
 			toSave.CombatState = this.CombatState;
 			toSave.Name = name;
+
+            //For the ship categorisation later
+            // toSave.Category = sCategoryVariable;
+
 			XmlSerializer Serializer = new XmlSerializer(typeof(ShipData));
 			TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Saved Designs/", name, ".xml"));
 			Serializer.Serialize(WriteFileStream, toSave);
