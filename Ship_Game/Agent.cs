@@ -88,10 +88,10 @@ namespace Ship_Game
                 {
                     if (Target.data.AgentList[i].Mission == AgentMission.Defending)
                     {
-                        DefensiveRoll += (float)Target.data.AgentList[i].Level * RandomMath.RandomBetween(1f, ResourceManager.AgentMissionData.RandomDefenceLevelBonus);
+                        DefensiveRoll += (float)Target.data.AgentList[i].Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
                     }
                 }
-                DefensiveRoll /= Owner.GetPlanets().Count;
+                DefensiveRoll /= Owner.GetPlanets().Count / 3 + 1;
                 DefensiveRoll += Target.data.SpyModifier;
                 DefensiveRoll += Target.data.DefensiveSpyBonus;
 

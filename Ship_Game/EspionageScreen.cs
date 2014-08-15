@@ -120,6 +120,23 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", race.e.data.PortraitName)], race.container, Color.White);
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
+                    //Added by McShooterz: Display Spy Defense value
+                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.TextureDict["UI/icon_shield"].Width, ResourceManager.TextureDict["UI/icon_shield"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], EspionageDefenseIcon, Color.White);
+                    Vector2 defPos = new Vector2((float)(EspionageDefenseIcon.X + EspionageDefenseIcon.Width + 2), (float)(EspionageDefenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                    float EspionageDefense = 0f;
+                    foreach(Agent agent in race.e.data.AgentList)
+                    {
+                        if(agent.Mission == AgentMission.Defending)
+                            EspionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
+                    }
+                    EspionageDefense /= race.e.GetPlanets().Count / 3 + 1;
+                    EspionageDefense += race.e.data.SpyModifier + race.e.data.DefensiveSpyBonus;
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
+                    if (HelperFunctions.CheckIntersection(EspionageDefenseIcon, new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
+                    {
+                        ToolTip.CreateTooltip(Localizer.Token(7031), this.ScreenManager);
+                    }
 				}
 				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e)
 				{
@@ -131,6 +148,23 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
 					NameCursor = new Vector2((float)(race.container.X + 62) - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, (float)(race.container.Y + 148 + 8));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
+                    //Added by McShooterz: Display Spy Defense value
+                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.TextureDict["UI/icon_shield"].Width, ResourceManager.TextureDict["UI/icon_shield"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], EspionageDefenseIcon, Color.White);
+                    Vector2 defPos = new Vector2((float)(EspionageDefenseIcon.X + EspionageDefenseIcon.Width + 2), (float)(EspionageDefenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                    float EspionageDefense = 0f;
+                    foreach (Agent agent in race.e.data.AgentList)
+                    {
+                        if (agent.Mission == AgentMission.Defending)
+                            EspionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
+                    }
+                    EspionageDefense /= race.e.GetPlanets().Count / 3 + 1;
+                    EspionageDefense += race.e.data.SpyModifier + race.e.data.DefensiveSpyBonus;
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
+                    if (HelperFunctions.CheckIntersection(EspionageDefenseIcon, new Vector2(Mouse.GetState().X,Mouse.GetState().Y)))
+                    {
+                        ToolTip.CreateTooltip(Localizer.Token(7031), this.ScreenManager);
+                    }
 				}
 				if (race.e != this.SelectedEmpire)
 				{
