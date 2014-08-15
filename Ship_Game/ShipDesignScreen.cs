@@ -3372,7 +3372,7 @@ namespace Ship_Game
 				}
 				hasBridge = true;
 			}
-            Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + ShipStats.Menu.Height + 10));
+            Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + ShipStats.Menu.Height + 35));
 			if (this.ActiveHull.Role != "platform")
 			{
 				this.DrawRequirement(ref CursorReq, Localizer.Token(120), hasBridge);
