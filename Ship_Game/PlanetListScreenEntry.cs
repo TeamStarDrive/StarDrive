@@ -44,10 +44,10 @@ namespace Ship_Game
 			this.screen = caller;
 			this.planet = p;
 			this.TotalEntrySize = new Rectangle(x, y, width1 - 60, height);
-			this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.17f), height);
+			this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.12f), height);
 			this.PlanetNameRect = new Rectangle(x + this.SysNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.25f), height);
 			this.FertRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width, y, 100, height);
-			this.RichRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width, y, 100, height);
+			this.RichRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width, y, 120, height);
 			this.PopRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width, y, 200, height);
 			this.OwnerRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width, y, 100, height);
 			this.OrdersRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width + this.OwnerRect.Width, y, 100, height);
@@ -259,10 +259,10 @@ namespace Ship_Game
 		public void SetNewPos(int x, int y)
 		{
 			this.TotalEntrySize = new Rectangle(x, y, this.TotalEntrySize.Width, this.TotalEntrySize.Height);
-			this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.17f), this.TotalEntrySize.Height);
+			this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.12f), this.TotalEntrySize.Height);
 			this.PlanetNameRect = new Rectangle(x + this.SysNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.25f), this.TotalEntrySize.Height);
 			this.FertRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width, y, 100, this.TotalEntrySize.Height);
-			this.RichRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width, y, 100, this.TotalEntrySize.Height);
+			this.RichRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width, y, 120, this.TotalEntrySize.Height);
 			this.PopRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width, y, 200, this.TotalEntrySize.Height);
 			this.OwnerRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width, y, 100, this.TotalEntrySize.Height);
 			this.OrdersRect = new Rectangle(x + this.SysNameRect.Width + this.PlanetNameRect.Width + this.FertRect.Width + this.RichRect.Width + this.PopRect.Width + this.OwnerRect.Width, y, 100, this.TotalEntrySize.Height);

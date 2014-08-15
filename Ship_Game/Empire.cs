@@ -1514,8 +1514,8 @@ namespace Ship_Game
                     if (planet != null)
                     {
                         Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
-                        influenceNode1.KeyedObject = (object)planet;    //this used to be the entire system instead of a planet. 
-                        influenceNode1.Position = planet.Position;     
+                        influenceNode1.KeyedObject = (object)planet;
+                        influenceNode1.Position = planet.Position;
                         influenceNode1.Radius = 1f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
                         // influenceNode1.Radius = this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
                         lock (GlobalStats.SensorNodeLocker)
@@ -1562,8 +1562,16 @@ namespace Ship_Game
             foreach (Planet planet in this.OwnedPlanets)
             {   //loop over OWN planets
                 Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
-                influenceNode1.KeyedObject = (object)planet.system;
-                influenceNode1.Position = planet.system.Position;
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.usePlanetaryProjection)
+                {
+                    influenceNode1.KeyedObject = (object)planet;
+                    influenceNode1.Position = planet.Position;
+                }
+                else
+                {
+                    influenceNode1.KeyedObject = (object)planet.system;
+                    influenceNode1.Position = planet.system.Position;
+                }
                 influenceNode1.Radius = this.isFaction ? 1f : 1f;
                 for (int index = 0; index < planet.BuildingList.Count; ++index)
                 {
@@ -1574,6 +1582,7 @@ namespace Ship_Game
                 lock (GlobalStats.BorderNodeLocker)
                     this.BorderNodes.Add(influenceNode1);
                 Empire.InfluenceNode influenceNode2 = new Empire.InfluenceNode();
+
                 influenceNode2.KeyedObject = (object)planet;
                 influenceNode2.Position = planet.Position;
                 influenceNode2.Radius = 1f; //this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;

@@ -29,6 +29,7 @@ namespace Ship_Game
         public bool useDrones;
         public bool enableECM;
         public bool useProportionalUpkeep;
+        public bool usePlanetaryProjection;
         public float UpkeepBaseline;
         public float UpkeepFighter;
         public float UpkeepCorvette;
@@ -40,7 +41,7 @@ namespace Ship_Game
         public float UpkeepPlatform;
         public float UpkeepStation;
         public float UpkeepDrone;
-
+        
 
 		public ModInformation()
 		{
