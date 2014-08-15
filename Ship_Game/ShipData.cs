@@ -62,7 +62,8 @@ namespace Ship_Game
         public string ShipCategory;
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip = false;
-
+        public float BaseStrength;
+        public bool BaseCanWarp;
 		public List<ModuleSlotData> ModuleSlotList = new List<ModuleSlotData>();
 
 		public ShipData()
