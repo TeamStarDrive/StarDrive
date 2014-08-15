@@ -113,12 +113,6 @@ namespace Ship_Game
 
 		private Rectangle SideBar;
 
-		private DanButton Fleets;
-
-		private DanButton ShipList;
-
-		private DanButton Shipyard;
-
 		private Vector2 SelectedCatTextPos;
 
 		private SkinnableButton wpn;
@@ -1964,6 +1958,11 @@ namespace Ship_Game
                     if (mod.ModuleType == ShipModuleType.Hangar &&  mod.hangarTimerConstant != 0)
                     {
                         this.DrawStat(ref modTitlePos, Localizer.Token(136), (float)mod.hangarTimerConstant, 98);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.explodes)
+                    {
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Explodes", modTitlePos, Color.OrangeRed);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.PermittedHangarRoles.Count != 0)
@@ -4338,24 +4337,6 @@ namespace Ship_Game
                 r.Y = r.Y + (int)(transitionOffset * 50f);
             }
             this.ToggleOverlayButton.Draw(base.ScreenManager.SpriteBatch, r);
-            r = this.Fleets.r;
-            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-            {
-                r.Y = r.Y + (int)(transitionOffset * 50f);
-            }
-            this.Fleets.Draw(base.ScreenManager, r);
-            r = this.ShipList.r;
-            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-            {
-                r.Y = r.Y + (int)(transitionOffset * 50f);
-            }
-            this.ShipList.Draw(base.ScreenManager, r);
-            r = this.Shipyard.r;
-            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
-            {
-                r.Y = r.Y + (int)(transitionOffset * 50f);
-            }
-            this.Shipyard.Draw(base.ScreenManager, r);
             this.DrawModuleSelection();
             this.DrawHullSelection();
             if (this.ActiveModule != null || this.HighlightedModule != null)
@@ -4832,36 +4813,6 @@ namespace Ship_Game
                 Vector2 vector2 = new Vector2((float)this.mouseStateCurrent.X, (float)this.mouseStateCurrent.Y);
                 this.selector = (Selector)null;
                 this.EmpireUI.HandleInput(input, (GameScreen)this);
-                if (this.Fleets.HandleInput(input))
-                {
-                    if (!this.ShipSaved && !this.CheckDesign())
-                    {
-                        MessageBoxScreen messageBoxScreen = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
-                        messageBoxScreen.Cancelled += new EventHandler<EventArgs>(this.DoExitToFleetsList);
-                        messageBoxScreen.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenExitToFleets);
-                        this.ScreenManager.AddScreen((GameScreen)messageBoxScreen);
-                    }
-                    else
-                    {
-                        this.ScreenManager.AddScreen((GameScreen)new FleetDesignScreen(this.EmpireUI));
-                        this.ReallyExit();
-                    }
-                }
-                if (this.ShipList.HandleInput(input))
-                {
-                    if (!this.ShipSaved && !this.CheckDesign())
-                    {
-                        MessageBoxScreen messageBoxScreen = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
-                        messageBoxScreen.Cancelled += new EventHandler<EventArgs>(this.DoExitToShipsList);
-                        messageBoxScreen.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenExitToShipsList);
-                        this.ScreenManager.AddScreen((GameScreen)messageBoxScreen);
-                    }
-                    else
-                    {
-                        this.ScreenManager.AddScreen((GameScreen)new ShipListScreen(this.ScreenManager, this.EmpireUI));
-                        this.ReallyExit();
-                    }
-                }
                 this.activeModSubMenu.HandleInputNoReset((object)this);
                 this.hullSL.HandleInput(input);
                 for (int index = this.hullSL.indexAtTop; index < this.hullSL.Copied.Count && index < this.hullSL.indexAtTop + this.hullSL.entriesToDisplay; ++index)
@@ -5726,23 +5677,6 @@ namespace Ship_Game
 			}
 			this.BlackBar = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70, 3000, 70);
 			this.SideBar = new Rectangle(0, 0, 280, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-			this.Fleets = new DanButton(new Vector2(21f, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47)), Localizer.Token(103))
-			{
-				IsToggle = true,
-				Toggled = true,
-				ToggledText = Localizer.Token(103)
-			};
-			this.ShipList = new DanButton(new Vector2((float)(66 + this.Fleets.r.Width), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47)), Localizer.Token(104))
-			{
-				IsToggle = true,
-				Toggled = true,
-				ToggledText = Localizer.Token(104)
-			};
-			this.Shipyard = new DanButton(new Vector2((float)(66 + this.Fleets.r.Width + 45 + this.Fleets.r.Width), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47)), Localizer.Token(98))
-			{
-				IsToggle = true,
-				ToggledText = Localizer.Token(98)
-			};
 			Rectangle w = new Rectangle(20, this.modSel.Menu.Y - 10, 32, 32);
 			Rectangle p = new Rectangle(80, w.Y, 32, 32);
 			Rectangle df = new Rectangle(150, w.Y, 32, 32);
@@ -5765,7 +5699,7 @@ namespace Ship_Game
 				IsToggle = true
 			};
 			this.SelectedCatTextPos = new Vector2(20f, (float)(w.Y - 25 - Fonts.Arial20Bold.LineSpacing / 2));
-			this.SearchBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585, this.Fleets.r.Y, 210, 25);
+			this.SearchBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47, 210, 25);
 			Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 370), (float)(modSelR.Y + modSelR.Height + 408));
 			Vector2 OrdersBarPos = new Vector2(Cursor.X - 60f, (float)((int)Cursor.Y + 10));
 			ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
@@ -5820,11 +5754,8 @@ namespace Ship_Game
 			Evade.HasToolTip = true;
 			Evade.WhichToolTip = 6;
 
-           
-            
-			Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150), (float)this.Fleets.r.Y);
-
-            
+            Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150), (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47);      
+   
 			this.SaveButton = new UIButton()
 			{
 				Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
