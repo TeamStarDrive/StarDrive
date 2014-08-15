@@ -7731,9 +7731,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6131</Index>
       <Text>Heal</Text>
     </Token>
-	
-	
-	
+	<Token>
+      <Index>6132</Index>
+      <Text>Troop Capacity</Text>
+    </Token>
+	<Token>
+      <Index>6133</Index>
+      <Text>Ordnance Added</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -7833,7 +7838,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7024</Index>
       <Text>Indicates the amount troops are healed per second</Text>
     </Token>
-		<Token>
+	<Token>
       <Index>7025</Index>
       <Text>Indicates the credits per tick this design would cost in upkeep</Text>
     </Token>
@@ -7841,9 +7846,25 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7026</Index>
       <Text>Indicates this ship's maximum sustained FTL jump duration outside of friendly subspace projection</Text>
     </Token>
-		<Token>
+	<Token>
       <Index>7027</Index>
       <Text>Indicates the time in seconds it takes for this ship's FTL drive to charge before going to warp</Text>
+    </Token>
+	<Token>
+      <Index>7028</Index>
+      <Text>The effective power drain of this module when the ship is at FTL</Text>
+    </Token>
+		<Token>
+      <Index>7029</Index>
+      <Text>The number of troops this module can house</Text>
+    </Token>
+	<Token>
+      <Index>7030</Index>
+      <Text>Indicates the total complement of troops this ship can carry</Text>
+    </Token>
+		<Token>
+      <Index>7031</Index>
+      <Text>Indicates the counter-espionage strength of this empire</Text>
     </Token>
   </TokenList>
 </LocalizationFile>

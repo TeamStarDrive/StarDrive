@@ -1418,7 +1418,7 @@ namespace Ship_Game
 
 		public float GetPredictedEnemyPresence(float time, Empire us)
 		{
-			//added by gremlin massive rewrite or prediction code.
+			//added by gremlin massive rewrite of prediction code.
             float prediction = 0f;
 
 
@@ -1427,7 +1427,12 @@ namespace Ship_Game
                 Ship ship = us.KnownShips[x];
                 if (ship==null || ship.loyalty == us)
                     continue;
-                
+                float timeToArrive = 0;
+                if (ship.velocityMaximum > 0)
+                    timeToArrive = Vector2.Distance(ship.Position, this.Position) / ship.velocityMaximum;
+                else continue;
+                if (timeToArrive > time)
+                    continue;
                 Relationship war = null;
                 if (ship.GetAI().OrderQueue.Count==0|| !us.GetRelations().TryGetValue(ship.loyalty, out war))
                 {
@@ -1436,11 +1441,12 @@ namespace Ship_Game
                     continue;
                 }
                 Ship_Game.Gameplay.ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.Last.Value;
-                if (war.Treaty_OpenBorders || war.AtWar || ship.loyalty.isFaction)
+                if (!war.Treaty_OpenBorders || war.AtWar || ship.loyalty.isFaction)
                 {
+
                     if (this.PlanetList.Contains(goal.TargetPlanet))
                     {
-                        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
+                        prediction += ship.BaseStrength == 0 ? 10 : ship.BaseStrength;
                         continue;
                     }
                     if (goal.MovePosition != null && Vector2.Distance(goal.MovePosition, this.Position) < 150000)
