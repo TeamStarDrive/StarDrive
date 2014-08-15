@@ -88,6 +88,7 @@ namespace Ship_Game
 				}
 				this.DefenseDict.Add(p.system, new SystemCommander(this.us, p.system));
 			}
+
 			List<SolarSystem> Keystoremove = new List<SolarSystem>();
 			foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
 			{
@@ -349,7 +350,8 @@ namespace Ship_Game
 						{
 							
                             //this.us.ForcePoolAdd(ship1);
-                            ShipsAvailableForAssignment.Add(ship1);
+                            //ShipsAvailableForAssignment.Add(ship1);
+                            this.DefensiveForcePool.Remove(ship1);
 						}
 					}
 				}
@@ -380,6 +382,8 @@ namespace Ship_Game
 
                     foreach (KeyValuePair<Ship, List<Ship>> entry in this.EnemyClumpsDict)//.OrderBy(entry => Vector2.Distance(entry.Key.Position,this.system.Position)))
                     {
+                        if (entry.Key.GetSystem() != null)
+                            continue;
                         fillclumps.Add(entry.Key, entry.Value.Sum(ship => ship.BaseStrength));
 
                     }
@@ -409,14 +413,16 @@ namespace Ship_Game
                                
                                 defensiveCombatships.Remove(ship);
                                 fillclumps[TempShip] -= ship.GetStrength();
+                                ShipsAvailableForAssignment.Remove(friendly);
                                 ship.GetAI().OrderAttackSpecificTarget(TempShip);
                                
                                 continue;
                             }
-                            else if (ship.GetAI().Target != null)
+                            else if (TempShip != null)
                             {
                                
                                 defensiveCombatships.Remove(ship);
+                                ShipsAvailableForAssignment.Remove(friendly);
                                 continue;
                             }
 
@@ -446,13 +452,26 @@ namespace Ship_Game
 
                     }
                 }
-                foreach(Ship ship in ShipsAvailableForAssignment)
+                foreach (Ship ship in ShipsAvailableForAssignment)
                 {
-                    this.DefensiveForcePool.QueuePendingRemoval(ship);
-                    this.us.ForcePoolAdd(ship);
+                    if(ship.GetAI().State == AIState.AwaitingOrders)                    
+                    us.GetForcePool().Add(ship);
                 }
 
             }
+            //if(this.defenseDeficit >0)            
+            //foreach(Ship reclaim in this.us.GetShips())
+            //{
+            //    if(this.DefensiveForcePool.Contains(reclaim) || this.us.GetForcePool().Contains(reclaim));
+            //    {
+            //        continue;
+            //    }
+            //    if(reclaim.InCombatTimer <=0 && reclaim.GetAI().State == AIState.AwaitingOrders)
+            //    {
+            //        this.us.ForcePoolAdd(reclaim);
+            //    }
+
+            //}
             this.DefensiveForcePool.ApplyPendingRemovals();
 
 			if (this.us == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
