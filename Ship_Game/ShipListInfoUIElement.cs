@@ -708,7 +708,7 @@ namespace Ship_Game
 			SystemDefense.SimpleToggle = true;
 			if (AllFreighters)
 			{
-				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 151)
+				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 15)
 				{
 					SimpleToggle = true
 				};

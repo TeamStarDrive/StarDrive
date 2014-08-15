@@ -206,7 +206,10 @@ namespace Ship_Game
 			Ship newShip = new Ship()
 			{
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
-				Name = Ship_Game.ResourceManager.ShipsDict[key].Name
+				Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+                
 			};
 			newShip.LoadContent(Game1.Instance.Content);
 			SceneObject newSO = new SceneObject();
@@ -250,6 +253,7 @@ namespace Ship_Game
 			}
 			newShip.Position = p.Position;
 			newShip.loyalty = Owner;
+            
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
             if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
@@ -278,7 +282,9 @@ namespace Ship_Game
 		{
 			Ship newShip = new Ship()
 			{
-				Role = role
+				Role = role,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
 			};
 			if (role == "troop")
 			{
@@ -373,6 +379,8 @@ namespace Ship_Game
 			}
 			newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
 			newShip.LoadContent(Game1.Instance.Content);
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
@@ -445,7 +453,10 @@ namespace Ship_Game
 			{
 				Rotation = facing,
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
-				Name = Ship_Game.ResourceManager.ShipsDict[key].Name
+                Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+                
 			};
 			newShip.LoadContent(Game1.Instance.Content);
 			if (newShip.Role == "fighter")
@@ -521,6 +532,8 @@ namespace Ship_Game
 			}
 			newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
 			newShip.LoadContent(Game1.Instance.Content);
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
@@ -592,7 +605,9 @@ namespace Ship_Game
 			Ship newShip = new Ship()
 			{
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
-				Name = Ship_Game.ResourceManager.ShipsDict[key].Name
+                Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
 			};
 			newShip.LoadContent(Game1.Instance.Content);
 			SceneObject newSO = new SceneObject();
@@ -648,6 +663,7 @@ namespace Ship_Game
 			{
 				s.Mothership = Parent;
 				s.Velocity = Parent.Velocity;
+                
 			}
 			return s;
 		}
