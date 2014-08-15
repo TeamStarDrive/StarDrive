@@ -1946,7 +1946,7 @@ namespace Ship_Game
                         }
                         if (mod.HealPerTurn > 0)
                         {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(6129), mod.HealPerTurn, 174);
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6131), mod.HealPerTurn, 174);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
 						return;
@@ -2022,7 +2022,7 @@ namespace Ship_Game
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         if (mod.HealPerTurn > 0)
                         {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(6129), mod.HealPerTurn, 174);
+                            this.DrawStat(ref modTitlePos, Localizer.Token(6131), mod.HealPerTurn, 174);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         if (mod.TransporterRange > 0)
@@ -3029,7 +3029,7 @@ namespace Ship_Game
 			{
 				amount = amount + 35f;
 			}
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, (met ? Color.LightGreen : Color.LightPink));
 			string stats = (met ? "OK" : "X");
 			Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stats).X);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stats, Cursor, (met ? Color.LightGreen : Color.LightPink));
@@ -3065,6 +3065,9 @@ namespace Ship_Game
             float OrdnanceUsed=0f;
             float OrdnanceRecoverd = 0f;
             float WeaponPowerNeeded = 0f;
+            float Upkeep = 0f;
+            float FTLSpoolTimer = 0f;
+            bool bEnergyWeapons = false;
 			foreach (SlotStruct slot in this.Slots)
 			{
 				Size = Size + 1f;
@@ -3090,11 +3093,19 @@ namespace Ship_Game
                     PowerDraw = PowerDraw + slot.module.PowerDraw;
 					BurnerDrain = BurnerDrain + slot.module.PowerDrawWithAfterburner;
 					WarpDraw = WarpDraw + slot.module.PowerDrawAtWarp;
-					if (slot.module.FTLSpeed > 0f)
+                    if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.PowerRequiredToFire > 0)
+                        bEnergyWeapons = true;
+                    if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.BeamPowerCostPerSecond > 0)
+                        bEnergyWeapons = true;
+                    if (slot.module.FTLSpeed > 0f)
 					{
 						FTLCount = FTLCount + 1f;
 						FTLSpeed = FTLSpeed + slot.module.FTLSpeed;
 					}
+                    if (slot.module.FTLSpoolTime * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SpoolTimeModifier > FTLSpoolTimer)
+                    {
+                        FTLSpoolTimer = slot.module.FTLSpoolTime * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SpoolTimeModifier;
+                    }
 					ShieldPower = ShieldPower + slot.module.shield_power_max;
 					Thrust = Thrust + slot.module.thrust;
 					WarpThrust = WarpThrust + (float)slot.module.WarpThrust;
@@ -3131,7 +3142,8 @@ namespace Ship_Game
 				}
 				Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
 				CargoSpace = CargoSpace + slot.module.Cargo_Capacity;
-			}
+
+            }
 			Mass = Mass + (float)(this.ActiveHull.ModuleSlotList.Count / 2);
 			Mass = Mass * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier;
 			if (Mass < (float)(this.ActiveHull.ModuleSlotList.Count / 2))
@@ -3197,32 +3209,114 @@ namespace Ship_Game
             //Added by McShooterz: hull bonus starting cost
             this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? this.ActiveHull.StartingCost : 0)) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.CostBonus != 0 ? (1 - (float)this.ActiveHull.CostBonus / 100f) : 1)), 99);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(110), ":"), (int)PowerCapacity, 100);
-			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(111), ":"), (int)(PowerFlow - PowerDraw), 101);
-			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-	        //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
-            if(WarpDraw != 0)
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(112), ":"), (int)(PowerFlow - (WarpDraw / 2 * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier + (PowerDraw * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier))), 102);
+
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+            {
+                Upkeep = GetMaintCostShipyardProportional(this.ActiveHull, Cost, EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty));
+            }
             else
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(112), ":"), (int)(PowerFlow - PowerDraw * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier), 102);
+            {
+                Upkeep = GetMaintCostShipyard(this.ActiveHull, Size, EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty));
+            }
+
+            this.DrawStatUpkeep(ref Cursor, "Upkeep Cost:", Upkeep, 175);
+            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+
+			this.DrawStatEnergy(ref Cursor, string.Concat(Localizer.Token(110), ":"), (int)PowerCapacity, 100);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-            //added by McShooterz
+			this.DrawStatEnergy(ref Cursor, string.Concat(Localizer.Token(111), ":"), (int)(PowerFlow - PowerDraw), 101);
+			
+	        //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
+            float fDrawAtWarp = 0;
+            if (WarpDraw != 0)
+            {
+                fDrawAtWarp = (PowerFlow - (WarpDraw / 2 * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier + (PowerDraw * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier)));
+                if (WarpSpeed > 0)
+                {
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawStatEnergy(ref Cursor, string.Concat(Localizer.Token(112), ":"), (int)fDrawAtWarp, 102);
+                }
+
+            }
+            else
+            {
+                fDrawAtWarp = (PowerFlow - PowerDraw * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLPowerDrainModifier);
+                if (WarpSpeed > 0)
+                {
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawStatEnergy(ref Cursor, string.Concat(Localizer.Token(112), ":"), (int)fDrawAtWarp, 102);
+                }
+            }
+            
+
+            float fWarpTime = ((-PowerCapacity / fDrawAtWarp) * 0.9f);
+            string sWarpTime = fWarpTime.ToString("0.#");
+            if (WarpSpeed > 0)
+            {
+                if (fDrawAtWarp < 0)
+                {
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawStatEnergy(ref Cursor, "FTL Time:", sWarpTime, 176);
+                }
+                else if (fWarpTime > 900)
+                {
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
+                }
+                else
+                {
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
+                }                
+            }
+            
+
+            float powerconsumed = (BeamPowerUsed + WeaponPowerNeeded) - PowerFlow;
+            float beamduration = 0f;
+            if (powerconsumed > 0)
+            {
+                beamduration = BeamPowerUsed + WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
+                if ((beamduration >= BeamLongestDuration) && bEnergyWeapons == true)
+                {
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawStatEnergy60(ref Cursor, "Power Time:", beamduration, 163);
+                }
+                else if (bEnergyWeapons == true)
+                {
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawStatEnergyBad(ref Cursor, "Power Time:", beamduration.ToString("N1"), 163);
+                }
+
+            }
+            else
+            {
+                if (bEnergyWeapons == true)
+                {
+                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawStatEnergy(ref Cursor, "Power Time:", "INF", 163);
+                }
+            }
+            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+            
+                       //added by McShooterz
             if (BurnerDrain != 0)
             {
                 this.DrawStat(ref Cursor, "Power with Afterburner:", (int)(PowerFlow - PowerDraw - BurnerDrain), "Power draw of the ship when the afterburner is engaged");
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
 
-			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(113), ":"), (int)HitPoints, 103);
+			this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(113), ":"), (int)HitPoints, 103);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             //Added by McShooterz: draw total repair
-            this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6013), ":"), (int)RepairRate, 103);
+            this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(6013), ":"), (int)RepairRate, 103);
             Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(114), ":"), (int)ShieldPower, 104);
-			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
-			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(114), ":"), (int)ShieldPower, 104);
+			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+
+            // The Doctor: removed the mass display. It's a meaningless value to the player, and it takes up a valuable line in the limited space.
+			//this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
+			//Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+
             #region HardcoreRule info
             if (GlobalStats.HardcoreRuleset)
 			{
@@ -3279,76 +3373,64 @@ namespace Ship_Game
             #endregion
             else if (WarpSpeed <= 0f)
 			{
-				this.DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), 0, 135);
+				this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(2170), ":"), 0, 135);
 				Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			}
 			else
 			{
-				this.DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), WarpString, 135);
+				this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(2170), ":"), WarpString, 135);
 				Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			}
-            this.DrawStat(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SpeedBonus != 0 ? (1 + (float)this.ActiveHull.SpeedBonus / 100f) : 1)), 105);
+            if (WarpSpeed > 0 && FTLSpoolTimer > 0)
+            {
+                this.DrawStatPropulsion(ref Cursor, "FTL Spool:", FTLSpoolTimer, 177);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
+            this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SpeedBonus != 0 ? (1 + (float)this.ActiveHull.SpeedBonus / 100f) : 1)), 105);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             //added by McShooterz: afterburn speed
             if (AfterSpeed != 0)
             {
-                this.DrawStat(ref Cursor, "Afterburner Speed:", (int)AfterSpeed, 105);
+                this.DrawStatPropulsion(ref Cursor, "Afterburner Speed:", (int)AfterSpeed, 105);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-			this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(117), ":"), Turn, 107);
-			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			this.DrawStatPropulsion60(ref Cursor, string.Concat(Localizer.Token(117), ":"), Turn, 107);
+			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
             if (OrdnanceCap > 0)
             {
-                this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(118), ":"), OrdnanceCap, 108);
+                this.DrawStatOrdnance60(ref Cursor, string.Concat(Localizer.Token(118), ":"), OrdnanceCap, 108);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (OrdnanceRecoverd > 0)
             {
-                this.DrawStat60(ref Cursor, "Ordance Added(S) :", OrdnanceRecoverd, 162);
+                this.DrawStatOrdnance60(ref Cursor, "Ordnance Created / s:", OrdnanceRecoverd, 162);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
+            if (OrdnanceCap > 0)
+            {
+                float AmmoTime = 0f;
+                if (OrdnanceUsed - OrdnanceRecoverd > 0)
+                {
+                    AmmoTime = OrdnanceCap / (OrdnanceUsed - OrdnanceRecoverd);
+                    this.DrawStatOrdnance60(ref Cursor, "Ammo Time:", AmmoTime, 164);
+                }
+                else
+                    this.DrawStatOrdnance(ref Cursor, "Ammo Time:", "INF", 164);
+
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+            }
+
             if (CargoSpace > 0)
             {
                 this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.CargoBonus != 0 ? (1 + (float)this.ActiveHull.CargoBonus / 100f) : 1)), 109);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-//added by gremlin ShipYard Stats
-            float powerconsumed = (BeamPowerUsed + WeaponPowerNeeded) -PowerFlow ;
-            float beamduration =0f;
-            if (powerconsumed > 0)
-            {
-
-                beamduration = BeamPowerUsed + WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
-
-                if (beamduration >= BeamLongestDuration)
-                    this.DrawStat60(ref Cursor, "Power Time(S) :", beamduration, 163);
-                else
-                    this.DrawStatBad(ref Cursor, "Power Time(S) :", beamduration.ToString("N1"), 163);
-              
-            }
-            else
-            {
-                this.DrawStat(ref Cursor, "Power Time(S) :", "INF", 163);
-            }
-            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-            float AmmoTime = 0f;
-            if (OrdnanceUsed - OrdnanceRecoverd > 0)
-            {
-                AmmoTime = OrdnanceCap / (OrdnanceUsed - OrdnanceRecoverd);
-                this.DrawStat60(ref Cursor, "Ammo Time(S) :", AmmoTime, 164);
-            }
-            else
-                this.DrawStat(ref Cursor, "Ammo Time(S) :", "INF", 164);
-            
-            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-
-//end
             if (sensorRange != 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6000), ":"), (int)((sensorRange + sensorBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SensorBonus != 0 ? (1 + (float)this.ActiveHull.SensorBonus / 100f) : 1)), 159);
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SensorBonus != 0 ? (1 + (float)this.ActiveHull.SensorBonus / 100f) : 1)), 159);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);
 			bool hasBridge = false;
 			bool EmptySlots = true;
 			foreach (SlotStruct slot in this.Slots)
@@ -3363,13 +3445,149 @@ namespace Ship_Game
 				}
 				hasBridge = true;
 			}
+            Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + ShipStats.Menu.Height + 10));
 			if (this.ActiveHull.Role != "platform")
 			{
-				this.DrawRequirement(ref Cursor, Localizer.Token(120), hasBridge);
-				Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+				this.DrawRequirement(ref CursorReq, Localizer.Token(120), hasBridge);
+				CursorReq.Y = CursorReq.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			}
-			this.DrawRequirement(ref Cursor, Localizer.Token(121), EmptySlots);
+			this.DrawRequirement(ref CursorReq, Localizer.Token(121), EmptySlots);
 		}
+
+        private float GetMaintCostShipyard(ShipData ship, float Size, Empire empire)
+        {
+            float maint = 0f;
+            string role = ship.Role;
+            string str = role;
+            //bool nonCombat = false;
+            //added by gremlin: Maintenance changes
+            float maintModReduction = 1;
+
+            //Get Maintanence of ship role
+            bool foundMaint = false;
+            if (ResourceManager.ShipRoles.ContainsKey(ship.Role))
+            {
+                for (int i = 0; i < ResourceManager.ShipRoles[ship.Role].RaceList.Count; i++)
+                {
+                    if (ResourceManager.ShipRoles[ship.Role].RaceList[i].ShipType == empire.data.Traits.ShipType)
+                    {
+                        maint = ResourceManager.ShipRoles[ship.Role].RaceList[i].Upkeep;
+                        foundMaint = true;
+                        break;
+                    }
+                }
+                if (!foundMaint)
+                    maint = ResourceManager.ShipRoles[ship.Role].Upkeep;
+            }
+            else
+                return 0f;
+
+            //Modify Maintanence by freighter size
+            if (ship.Role == "freighter")
+            {
+                switch ((int)Size / 50)
+                {
+                    case 0:
+                        {
+                            break;
+                        }
+
+                    case 1:
+                        {
+                            maint *= 1.5f;
+                            break;
+                        }
+
+                    case 2:
+                    case 3:
+                    case 4:
+                        {
+                            maint *= 2f;
+                            break;
+                        }
+                    default:
+                        {
+                            maint *= (int)Size / 50;
+                            break;
+                        }
+                }
+            }
+
+            //Apply Privatization
+            if ((ship.Role == "freighter" || ship.Role == "platform") && empire.data.Privatization)
+            {
+                maint *= 0.5f;
+            }
+
+            //Subspace Projectors do not get any more modifiers
+            if (ship.Name == "Subspace Projector")
+            {
+                return maint;
+            }
+
+            //Maintenance fluctuator
+            //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
+            float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+            if (OptionIncreaseShipMaintenance > 1)
+            {
+                maintModReduction = OptionIncreaseShipMaintenance;
+                maint *= maintModReduction;
+            }
+            return maint;
+        }
+
+        private float GetMaintCostShipyardProportional(ShipData ship, float fCost, Empire empire)
+        {
+            float maint = 0f;
+            float maintModReduction = 1;
+            string role = ship.Role;
+
+            // Calculate maintenance by proportion of ship cost, Duh.
+            if (ship.Role == "fighter" || ship.Role == "scout")
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepFighter;
+            else if (ship.Role == "corvette")
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCorvette;
+            else if (ship.Role == "frigate" || ship.Role == "destroyer")
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepFrigate;
+            else if (ship.Role == "cruiser")
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCruiser;
+            else if (ship.Role == "carrier")
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCarrier;
+            else if (ship.Role == "capital")
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCapital;
+            else if (ship.Role == "freighter")
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepFreighter;
+            else if (ship.Role == "platform")
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepPlatform;
+            else if (ship.Role == "station")
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepStation;
+            else if (ship.Role == "drone" && GlobalStats.ActiveMod.mi.useDrones)
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepDrone;
+            else
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepBaseline;
+
+            if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
+                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepBaseline;
+            else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
+                maint = fCost * 0.004f;
+
+
+            // Modifiers below here   
+
+            if ((ship.Role == "freighter" || ship.Role == "platform") && empire != null && !empire.isFaction && empire.data.Privatization)
+            {
+                maint *= 0.5f;
+            }
+
+            if (GlobalStats.OptionIncreaseShipMaintenance > 1)
+            {
+                maintModReduction = GlobalStats.OptionIncreaseShipMaintenance;
+                maint *= (float)maintModReduction;
+            }
+            return maint;
+
+        }
+
 
         private void DrawHullBonus(ref Vector2 Cursor, string words, byte stat)
         {
@@ -3453,6 +3671,105 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
 			}
 		}
+
+        private void DrawStatEnergy(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 105f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
+            string numbers = "";
+            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
+            {
+                float single = (float)stat / 1000f;
+                numbers = string.Concat(single.ToString("#.#"), "k");
+            }
+            else if (stat < 10000f)
+            {
+                numbers = stat.ToString("#.#");
+            }
+            else
+            {
+                float single1 = (float)stat / 1000f;
+                numbers = string.Concat(single1.ToString("#"), "k");
+            }
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatPropulsion(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 105f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
+            string numbers = "";
+            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
+            {
+                float single = (float)stat / 1000f;
+                numbers = string.Concat(single.ToString("#.#"), "k");
+            }
+            else if (stat < 10000f)
+            {
+                numbers = stat.ToString("#.#");
+            }
+            else
+            {
+                float single1 = (float)stat / 1000f;
+                numbers = string.Concat(single1.ToString("#"), "k");
+            }
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatUpkeep(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = stat.ToString("F2");
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, Color.Salmon);
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
 
         private void DrawStatPercent(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
@@ -3551,6 +3868,147 @@ namespace Ship_Game
 			}
 		}
 
+        private void DrawStatEnergy(ref Vector2 Cursor, string words, int stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
+            string numbers = "";
+            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
+            {
+                float single = (float)stat / 1000f;
+                numbers = string.Concat(single.ToString("#.#"), "k");
+            }
+            else if (stat < 10000)
+            {
+                numbers = stat.ToString();
+            }
+            else
+            {
+                float single1 = (float)stat / 1000f;
+                numbers = string.Concat(single1.ToString("#"), "k");
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatDefence(ref Vector2 Cursor, string words, int stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.Goldenrod);
+            string numbers = "";
+            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
+            {
+                float single = (float)stat / 1000f;
+                numbers = string.Concat(single.ToString("#.#"), "k");
+            }
+            else if (stat < 10000)
+            {
+                numbers = stat.ToString();
+            }
+            else
+            {
+                float single1 = (float)stat / 1000f;
+                numbers = string.Concat(single1.ToString("#"), "k");
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatPropulsion(ref Vector2 Cursor, string words, int stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
+            string numbers = "";
+            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
+            {
+                float single = (float)stat / 1000f;
+                numbers = string.Concat(single.ToString("#.#"), "k");
+            }
+            else if (stat < 10000)
+            {
+                numbers = stat.ToString();
+            }
+            else
+            {
+                float single1 = (float)stat / 1000f;
+                numbers = string.Concat(single1.ToString("#"), "k");
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+
+        private void DrawStatOrdnance(ref Vector2 Cursor, string words, int stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.IndianRed);
+            string numbers = "";
+            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
+            {
+                float single = (float)stat / 1000f;
+                numbers = string.Concat(single.ToString("#.#"), "k");
+            }
+            else if (stat < 10000)
+            {
+                numbers = stat.ToString();
+            }
+            else
+            {
+                float single1 = (float)stat / 1000f;
+                numbers = string.Concat(single1.ToString("#"), "k");
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
 		private void DrawStat(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
 		{
 			float amount = 165f;
@@ -3570,6 +4028,66 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
 			}
 		}
+
+        private void DrawStatEnergy(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightGreen);
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatPropulsion(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightGreen);
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatOrdnance(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightGreen);
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
 
 		private void DrawStat105(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
 		{
@@ -3650,6 +4168,124 @@ namespace Ship_Game
 			}
 		}
 
+        private void DrawStatEnergy60(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
+            string numbers = "";
+            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
+            {
+                float single = (float)stat / 1000f;
+                numbers = string.Concat(single.ToString("#.#"), "k");
+            }
+            else if (stat < 10000f)
+            {
+                numbers = stat.ToString("0.#");
+            }
+            else
+            {
+                float single1 = (float)stat / 1000f;
+                numbers = string.Concat(single1.ToString("#"), "k");
+            }
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatPropulsion60(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
+            string numbers = "";
+            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
+            {
+                float single = (float)stat / 1000f;
+                numbers = string.Concat(single.ToString("#.#"), "k");
+            }
+            else if (stat < 10000f)
+            {
+                numbers = stat.ToString("0.#");
+            }
+            else
+            {
+                float single1 = (float)stat / 1000f;
+                numbers = string.Concat(single1.ToString("#"), "k");
+            }
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatOrdnance60(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.IndianRed);
+            string numbers = "";
+            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
+            {
+                float single = (float)stat / 1000f;
+                numbers = string.Concat(single.ToString("#.#"), "k");
+            }
+            else if (stat < 10000f)
+            {
+                numbers = stat.ToString("0.#");
+            }
+            else
+            {
+                float single1 = (float)stat / 1000f;
+                numbers = string.Concat(single1.ToString("#"), "k");
+            }
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+
 		private void DrawStatBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
 		{
 			float amount = 165f;
@@ -3669,6 +4305,26 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
 			}
 		}
+
+        private void DrawStatEnergyBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stat).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stat, Cursor, Color.LightPink);
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stat.ToString()).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(stat.ToString()).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
 
 		private void DrawUI(GameTime gameTime)
         {
@@ -5183,7 +5839,7 @@ namespace Ship_Game
 			};
 			this.SelectedCatTextPos = new Vector2(20f, (float)(w.Y - 25 - Fonts.Arial20Bold.LineSpacing / 2));
 			this.SearchBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585, this.Fleets.r.Y, 210, 25);
-			Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 170), (float)(modSelR.Y + modSelR.Height + 5));
+			Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 370), (float)(modSelR.Y + modSelR.Height + 408));
 			Vector2 OrdersBarPos = new Vector2(Cursor.X - 60f, (float)((int)Cursor.Y + 10));
 			ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
 			this.CombatStatusButtons.Add(AttackRuns);
@@ -5309,11 +5965,11 @@ namespace Ship_Game
 					e.AddItem(hull.Value);
 				}
 			}
-			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height + 50, 280, 320);
+			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height - 20, 280, 320);
 
-            this.classifCursor = new Vector2(ShipStatsPanel.X, ShipStatsPanel.Y + ShipStatsPanel.Height + 20);
+            this.classifCursor = new Vector2(ShipStatsPanel.X - 100, ShipStatsPanel.Y + ShipStatsPanel.Height + 92);
 
-            dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 45, 100, 18);
+            dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 118, 100, 18);
 
             this.CategoryList = new DropOptions(dropdownRect);
             this.CategoryList.AddOption("Unclassified", 1);

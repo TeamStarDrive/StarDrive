@@ -7715,12 +7715,20 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6127</Index>
       <Text>Net Income</Text>
     </Token>
-	<Token>
+		<Token>
       <Index>6128</Index>
       <Text>Land</Text>
     </Token>
 	<Token>
       <Index>6129</Index>
+      <Text>Net Losses</Text>
+    </Token>
+	<Token>
+      <Index>6130</Index>
+      <Text>Sensor Range</Text>
+    </Token>
+	<Token>
+      <Index>6131</Index>
       <Text>Heal</Text>
     </Token>
 	
@@ -7775,15 +7783,15 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>7012</Index>
-      <Text>Seconds until out of power or INFinite</Text>
+      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves</Text>
     </Token>
     <Token>
       <Index>7013</Index>
-      <Text>Seconds until out of ordnance or INFinite</Text>
+      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting ordnance supplies</Text>
     </Token>
     <Token>
       <Index>7014</Index>
-      <Text>Ordance recovered per sec.</Text>
+      <Text>Indicates the amount of ordnance this ship is capable of fabricating per second</Text>
     </Token>
 	<Token>
       <Index>7015</Index>
@@ -7824,6 +7832,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7024</Index>
       <Text>Indicates the amount troops are healed per second</Text>
+    </Token>
+		<Token>
+      <Index>7025</Index>
+      <Text>Indicates the credits per tick this design would cost in upkeep</Text>
+    </Token>
+	<Token>
+      <Index>7026</Index>
+      <Text>Indicates this ship's maximum sustained FTL jump duration outside of friendly subspace projection</Text>
+    </Token>
+		<Token>
+      <Index>7027</Index>
+      <Text>Indicates the time in seconds it takes for this ship's FTL drive to charge before going to warp</Text>
     </Token>
   </TokenList>
 </LocalizationFile>

@@ -874,5 +874,20 @@
       <Title>Troop Heal</Title>
       <Data>7024</Data>
     </ToolTip>
+		<ToolTip>
+      <TIP_ID>175</TIP_ID>
+      <Title>Shipyard Upkeep</Title>
+      <Data>7025</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>176</TIP_ID>
+      <Title>FTL Timer</Title>
+      <Data>7026</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>177</TIP_ID>
+      <Title>FTL Spool</Title>
+      <Data>7027</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
