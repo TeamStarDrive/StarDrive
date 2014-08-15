@@ -32,31 +32,36 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
 			int WindowWidth = 210;
-			this.win = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth, 44, WindowWidth, 250);
+			this.win = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 115 - WindowWidth, 490, WindowWidth, 250);
 			Rectangle rectangle = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth + 20, 225, WindowWidth - 40, 455);
 			this.ConstructionSubMenu = new Submenu(ScreenManager, this.win, true);
 			this.ConstructionSubMenu.AddTab(Localizer.Token(304));
+
 			Ref<bool> aeRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoExplore, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoExplore = x);
 			Checkbox cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 40)), Localizer.Token(305), aeRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2226;
+
 			Ref<bool> acRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoColonize, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoColonize = x);
 			this.ScoutDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 40 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
-			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 80)), Localizer.Token(306), acRef, Fonts.Arial12Bold);
+			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 85)), Localizer.Token(306), acRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2227;
-			this.ColonyShipDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 80 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
+			this.ColonyShipDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 85 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
+
 			Ref<bool> abRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoBuild, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoBuild = x);
-			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 120)), string.Concat(Localizer.Token(307), " Projectors"), abRef, Fonts.Arial12Bold);
+			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 192)), string.Concat(Localizer.Token(307), " Projectors"), abRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2228;
+
 			Ref<bool> afRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoFreighters, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoFreighters = x);
-			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 160)), Localizer.Token(308), afRef, Fonts.Arial12Bold);
+			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 130)), Localizer.Token(308), afRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2229;
-			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 160 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
+			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 130 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
+
 			Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.AutoCombat, (bool x) => GlobalStats.AutoCombat = x);
-			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 200)), Localizer.Token(2207), acomRef, Fonts.Arial12Bold);
+			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 212)), Localizer.Token(2207), acomRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2230;
 			this.SetDropDowns();
@@ -159,7 +164,7 @@ namespace Ship_Game
                 Current = this.screen.player.data.CurrentAutoFreighter;
             else
                 Current = this.screen.player.data.DefaultSmallTransport;
-			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 160 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
+			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 130 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
 				if (ResourceManager.ShipsDict[ship].isColonyShip || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f)
@@ -182,7 +187,7 @@ namespace Ship_Game
                 CurrentColony = this.screen.player.data.CurrentAutoColony;
             else
                 CurrentColony = this.screen.player.data.DefaultColonyShip;
-			this.ColonyShipDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 80 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
+			this.ColonyShipDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 85 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
 				if (!ResourceManager.ShipsDict[ship].isColonyShip || ResourceManager.ShipsDict[ship].Thrust <= 0f)
