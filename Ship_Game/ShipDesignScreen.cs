@@ -3221,7 +3221,6 @@ namespace Ship_Game
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(6013), ":"), (int)RepairRate, 103);                
             }
-            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			if (ShieldPower > 0)
             {
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
