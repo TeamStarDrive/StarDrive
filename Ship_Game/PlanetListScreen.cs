@@ -158,15 +158,15 @@ namespace Ship_Game
 			{
 				PlanetListScreenEntry e1 = this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry;
 				PlanetListScreenEntry entry = this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry;
-				Vector2 TextCursor = new Vector2((float)(entry.SysNameRect.X + entry.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 35));
+				Vector2 TextCursor = new Vector2((float)(entry.SysNameRect.X + entry.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 				this.sb_Sys.Text = Localizer.Token(192);
 				this.sb_Sys.Update(TextCursor);
 				this.sb_Sys.Draw(base.ScreenManager);
-				TextCursor = new Vector2((float)(entry.PlanetNameRect.X + entry.PlanetNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(389)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 35));
+				TextCursor = new Vector2((float)(entry.PlanetNameRect.X + entry.PlanetNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(389)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 				this.sb_Name.Text = Localizer.Token(389);
 				this.sb_Name.Update(TextCursor);
 				this.sb_Name.Draw(base.ScreenManager);
-				TextCursor = new Vector2((float)(entry.FertRect.X + entry.FertRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(386)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 35));
+				TextCursor = new Vector2((float)(entry.FertRect.X + entry.FertRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(386)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
@@ -174,7 +174,7 @@ namespace Ship_Game
 				this.sb_Fert.Text = Localizer.Token(386);
 				this.sb_Fert.Update(TextCursor);
 				this.sb_Fert.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
-				TextCursor = new Vector2((float)(entry.RichRect.X + entry.RichRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(387)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 35));
+				TextCursor = new Vector2((float)(entry.RichRect.X + entry.RichRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(387)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
@@ -182,7 +182,7 @@ namespace Ship_Game
 				this.sb_Rich.Text = Localizer.Token(387);
 				this.sb_Rich.Update(TextCursor);
 				this.sb_Rich.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
-				TextCursor = new Vector2((float)(entry.PopRect.X + entry.PopRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(1403)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 35));
+				TextCursor = new Vector2((float)(entry.PopRect.X + entry.PopRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(1403)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
 				{
 					TextCursor = TextCursor + new Vector2(15f, 10f);
@@ -190,7 +190,7 @@ namespace Ship_Game
 				this.sb_Pop.Text = Localizer.Token(1403);
 				this.sb_Pop.Update(TextCursor);
 				this.sb_Pop.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
-				TextCursor = new Vector2((float)(entry.OwnerRect.X + entry.OwnerRect.Width / 2) - Fonts.Arial20Bold.MeasureString("Owner").X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 35));
+				TextCursor = new Vector2((float)(entry.OwnerRect.X + entry.OwnerRect.Width / 2) - Fonts.Arial20Bold.MeasureString("Owner").X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
