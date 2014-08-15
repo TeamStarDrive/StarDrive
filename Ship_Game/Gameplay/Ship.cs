@@ -2591,6 +2591,7 @@ namespace Ship_Game.Gameplay
             parent.Role = data.Role;
             parent.ModelPath = data.ModelPath;
             parent.ModuleSlotList = Ship.SlotDataListToSlotList(data.ModuleSlotList, parent);
+            
             foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
                 parent.ThrusterList.Add(new Thruster()
                 {

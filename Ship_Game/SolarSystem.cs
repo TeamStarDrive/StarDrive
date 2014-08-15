@@ -1434,9 +1434,9 @@ namespace Ship_Game
                 if (timeToArrive > time)
                     continue;
                 Relationship war = null;
-                if (ship.GetAI().OrderQueue.Count==0|| !us.GetRelations().TryGetValue(ship.loyalty, out war))
+                if (ship.GetAI().OrderQueue.Count==0|| !us.GetRelations().TryGetValue(ship.loyalty, out war) ||ship.loyalty.isFaction)
                 {
-                    if (ship.GetAI().Target != null && ship.GetAI().Target.GetSystem() != null && ship.GetAI().Target.GetSystem() == this)
+                    if ((ship.GetSystem()!=null && ship.GetSystem()==this) || ship.GetAI().Target != null && ship.GetAI().Target.GetSystem() != null && ship.GetAI().Target.GetSystem() == this)
                         prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
                     continue;
                 }
