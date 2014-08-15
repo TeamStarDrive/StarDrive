@@ -104,7 +104,15 @@ namespace Ship_Game
 					float AssignedStr = 0f;
                     float strMod = 1;
                     strMod += (int)Empire.universeScreen.GameDifficulty *.10f;
-                    float enemystrength = this.EnemyClumpsDict[enemy].Sum(str => str.GetStrength()) * strMod;
+                    float enemystrength = 0;
+                    try
+                    {
+                         enemystrength = this.EnemyClumpsDict[enemy].Sum(str => str.GetStrength()) * strMod;
+                    }
+                    catch
+                    {
+                        System.Diagnostics.Debug.WriteLine("enemy not in dictionary" + enemy.GetAI().start.ToString());
+                    }
 					foreach (KeyValuePair<Guid, Ship> friendly in this.ShipsDict)
 					{
 						if (!friendly.Value.InCombat)

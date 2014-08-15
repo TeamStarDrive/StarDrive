@@ -770,27 +770,32 @@ namespace Ship_Game
                         //    trooper.Launch();
                         //}
                         //launchtroop.Clear();
-
+                        
                         bool play = false;
                         foreach (PlanetGridSquare pgs in this.p.TilesList)
                         {
-                            if (pgs.TroopsHere.Count <= 0 ||(pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty) || pgs.TroopsHere[0].Launchtimer >=0))
+                            if ( pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() !=universeScreen.player || pgs.TroopsHere[0].Launchtimer >= 0)
                             {
                                 continue;
-                            }        
-       
-   
-                            pgs.TroopsHere[0].AvailableAttackActions = 0;
-                            pgs.TroopsHere[0].AvailableMoveActions = 0;
-                            pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                            pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
-                            pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
-                            play = true;
-                            ResourceManager.CreateTroopShipAtPoint((pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip != null) ? pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip : pgs.TroopsHere[0].GetOwner().data.DefaultSmallTransport, pgs.TroopsHere[0].GetOwner(), this.p.Position, pgs.TroopsHere[0]);
-                            this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
-                            pgs.TroopsHere[0].SetPlanet(null);
-                            pgs.TroopsHere.Clear();
+                            }
 
+                            try
+                            {
+                                pgs.TroopsHere[0].AvailableAttackActions = 0;
+                                pgs.TroopsHere[0].AvailableMoveActions = 0;
+                                pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
+                                pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
+                                pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
+                                play = true;
+                                ResourceManager.CreateTroopShipAtPoint((pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip != null) ? pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip : pgs.TroopsHere[0].GetOwner().data.DefaultSmallTransport, pgs.TroopsHere[0].GetOwner(), this.p.Position, pgs.TroopsHere[0]);
+                                this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
+                                pgs.TroopsHere[0].SetPlanet(null);
+                                pgs.TroopsHere.Clear();
+                            }
+                            catch
+                            {
+                                System.Diagnostics.Debug.WriteLine("Troop Launch Crash");
+                            }
                         }
                         if (play)
                         {
