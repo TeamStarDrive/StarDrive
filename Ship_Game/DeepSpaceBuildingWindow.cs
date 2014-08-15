@@ -85,9 +85,7 @@ namespace Ship_Game
 					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     string name = (e.item as Ship).Name;
-                    SpriteFont nameFont = Fonts.Arial12Bold;
-                    if (Fonts.Arial12Bold.MeasureString(name).X > 120f)
-                        nameFont = Fonts.Arial10;
+                    SpriteFont nameFont = Fonts.Arial10;
 					this.ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).Role, tCursor, Color.Orange);
@@ -147,9 +145,7 @@ namespace Ship_Game
 					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     string name = (e.item as Ship).Name;
-                    SpriteFont nameFont = Fonts.Arial12Bold;
-                    if (Fonts.Arial12Bold.MeasureString(name).X > 120f)
-                        nameFont = Fonts.Arial10;
+                    SpriteFont nameFont = Fonts.Arial10;
                     this.ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).Role, tCursor, Color.Orange);
