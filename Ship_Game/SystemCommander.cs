@@ -20,6 +20,7 @@ namespace Ship_Game
 		public float IdealShipStrength;
 
 		public float PercentageOfValue;
+        public float incomingThreatTime;
 
 		public Dictionary<Guid, Ship> ShipsDict = new Dictionary<Guid, Ship>();
 
