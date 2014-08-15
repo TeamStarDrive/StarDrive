@@ -135,7 +135,7 @@ namespace Ship_Game
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
                     if (HelperFunctions.CheckIntersection(EspionageDefenseIcon, new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                     {
-                        ToolTip.CreateTooltip(Localizer.Token(7027), this.ScreenManager);
+                        ToolTip.CreateTooltip(Localizer.Token(7031), this.ScreenManager);
                     }
 				}
 				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e)
@@ -163,7 +163,7 @@ namespace Ship_Game
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
                     if (HelperFunctions.CheckIntersection(EspionageDefenseIcon, new Vector2(Mouse.GetState().X,Mouse.GetState().Y)))
                     {
-                        ToolTip.CreateTooltip(Localizer.Token(7027), this.ScreenManager);
+                        ToolTip.CreateTooltip(Localizer.Token(7031), this.ScreenManager);
                     }
 				}
 				if (race.e != this.SelectedEmpire)

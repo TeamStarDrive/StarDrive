@@ -1264,7 +1264,7 @@ namespace Ship_Game.Gameplay
 
             // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
 
-            if (this.GetShipData().HasFixedUpkeep && this.loyalty != null)
+            if (this.GetShipData().HasFixedUpkeep && empire != null)
             {
                 maint = GetShipData().FixedUpkeep;
             }
@@ -2591,6 +2591,7 @@ namespace Ship_Game.Gameplay
             parent.Role = data.Role;
             parent.ModelPath = data.ModelPath;
             parent.ModuleSlotList = Ship.SlotDataListToSlotList(data.ModuleSlotList, parent);
+            
             foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
                 parent.ThrusterList.Add(new Thruster()
                 {
