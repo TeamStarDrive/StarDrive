@@ -145,7 +145,7 @@ namespace Ship_Game
                 #region Infiltrate easy
                 case AgentMission.Infiltrate:
                     {
-                        if (Target.GetPlanets().Count == 0)
+                        if (Target == null || Target.GetPlanets().Count == 0)
                         {
                             this.Mission = AgentMission.Defending;
                             this.MissionNameIndex = 2183;
@@ -213,7 +213,7 @@ namespace Ship_Game
                     {
                         this.Mission = AgentMission.Defending;
                         this.MissionNameIndex = 2183;
-                        if (Target.data.AgentList.Count == 0)
+                        if (Target == null || Target.data.AgentList.Count == 0)
                         {
                             if (!spyMute) Ship.universeScreen.NotificationManager.AddAgentResultNotification(false, string.Concat(this.Name, " ", Localizer.Token(6038)), Owner);
                             return;
@@ -315,7 +315,7 @@ namespace Ship_Game
                     {
                         this.Mission = AgentMission.Defending;
                         this.MissionNameIndex = 2183;
-                        if (Target.GetPlanets().Count == 0)
+                        if (Target==null || Target.GetPlanets().Count == 0)
                         {
                             return;
                         }
@@ -406,6 +406,8 @@ namespace Ship_Game
                     {
                         this.Mission = AgentMission.Defending;
                         this.MissionNameIndex = 2183;
+                        if (Target == null)
+                            return;
                         List<string> PotentialUIDs = new List<string>();
                         foreach (KeyValuePair<string, TechEntry> entry in Target.GetTDict())
                         {
@@ -501,6 +503,8 @@ namespace Ship_Game
                     {
                         this.Mission = AgentMission.Defending;
                         this.MissionNameIndex = 2183;
+                        if (Target == null)
+                            return;
                         int amount = (int)(RandomMath.RandomBetween(1f, (float)Target.GetPlanets().Count * 10f) * (float)this.Level);
                         if ((float)amount > Target.Money && Target.Money > 0f)
                         {
@@ -591,6 +595,8 @@ namespace Ship_Game
                     {
                         this.Mission = AgentMission.Defending;
                         this.MissionNameIndex = 2183;
+                        if (Target == null)
+                            return;
                         if (Target.GetPlanets().Count == 0)
                         {
                             return;
@@ -700,7 +706,10 @@ namespace Ship_Game
                 #endregion
             }
             #region Mission Repeat
-            if (Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && Mission == AgentMission.Defending && Owner.Money > 500 && AgentComponent.AutoTrain == true && (startingmission != AgentMission.Training || (startingmission == AgentMission.Training && this.Level < 10)))
+            if (Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) 
+                && Mission == AgentMission.Defending && Owner.Money > 500 
+                && AgentComponent.AutoTrain == true 
+                && (startingmission != AgentMission.Training || (startingmission == AgentMission.Training && this.Level < 10)))
             {
                 this.AssignMission(startingmission, Owner, this.TargetEmpire);
                 return;
