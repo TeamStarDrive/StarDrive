@@ -1457,8 +1457,15 @@ namespace Ship_Game
 			//added by gremlin massive rewrite of prediction code.
             float prediction = 0f;
 
-
-            for (int x = 0; x < us.KnownShips.Count; x++)
+            List<Ship> incomingShips = new List<Ship>();
+            if (Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard)
+                incomingShips = Empire.universeScreen.MasterShipList;
+            else
+            {
+                incomingShips = us.KnownShips;
+            }
+                
+            for (int x = 0; x < incomingShips.Count; x++)
             {
                 Ship ship = us.KnownShips[x];
                 if (ship==null || ship.loyalty == us)

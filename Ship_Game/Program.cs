@@ -35,7 +35,7 @@ namespace Ship_Game
 
                 ex.Data["Mod"] = mod;
                 
-                ex.Data["Memory"] = GC.GetTotalMemory(false).ToString();
+                ex.Data["Memory"] = ((int)(GC.GetTotalMemory(false)/1000)).ToString();
                 ex.Data["Memory Limit"] = GlobalStats.MemoryLimiter;
                 ex.Data["Ship Limit"] = GlobalStats.ShipCountLimit; 
 
