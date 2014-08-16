@@ -3081,43 +3081,45 @@ namespace Ship_Game
 			Turn = (float)MathHelper.ToDegrees(Turn);
             Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
             //Added by McShooterz: Draw Hull Bonuses
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
-            {
+
+            Vector2 LCursor = new Vector2(this.HullSelectionRect.X - 190, HullSelectionRect.Y + 31);
+           if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+           {
                 if (this.ActiveHull.ArmoredBonus != 0)
                 {
-                    this.DrawHullBonus(ref Cursor, Localizer.Token(6016), this.ActiveHull.ArmoredBonus);
-                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6016), this.ActiveHull.ArmoredBonus);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (this.ActiveHull.SensorBonus != 0)
                 {
-                    this.DrawHullBonus(ref Cursor, Localizer.Token(6017), this.ActiveHull.SensorBonus);
-                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6017), this.ActiveHull.SensorBonus);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (this.ActiveHull.SpeedBonus != 0)
                 {
-                    this.DrawHullBonus(ref Cursor, Localizer.Token(6018), this.ActiveHull.SpeedBonus);
-                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6018), this.ActiveHull.SpeedBonus);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (this.ActiveHull.CargoBonus != 0)
                 {
-                    this.DrawHullBonus(ref Cursor, Localizer.Token(6019), this.ActiveHull.CargoBonus);
-                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6019), this.ActiveHull.CargoBonus);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
 
                 if (this.ActiveHull.FireRateBonus != 0)
                 {
-                    this.DrawHullBonus(ref Cursor, Localizer.Token(6020), this.ActiveHull.FireRateBonus);
-                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6020), this.ActiveHull.FireRateBonus);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (this.ActiveHull.RepairBonus != 0)
                 {
-                    this.DrawHullBonus(ref Cursor, Localizer.Token(6013), this.ActiveHull.RepairBonus);
-                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6013), this.ActiveHull.RepairBonus);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (this.ActiveHull.CostBonus != 0)
                 {
-                    this.DrawHullBonus(ref Cursor, Localizer.Token(6021), this.ActiveHull.CostBonus);
-                    Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6021), this.ActiveHull.CostBonus);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
                 }
             }
             //Added by McShooterz: hull bonus starting cost
@@ -3376,7 +3378,8 @@ namespace Ship_Game
 				}
 				hasBridge = true;
 			}
-            Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + ShipStats.Menu.Height + 35));
+
+            Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X - 180), (float)(this.ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));
 			if (this.ActiveHull.Role != "platform")
 			{
 				this.DrawRequirement(ref CursorReq, Localizer.Token(120), hasBridge);
