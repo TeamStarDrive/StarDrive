@@ -7862,9 +7862,13 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7030</Index>
       <Text>Indicates the total complement of troops this ship can carry</Text>
     </Token>
-		<Token>
+	<Token>
       <Index>7031</Index>
       <Text>Indicates the counter-espionage strength of this empire</Text>
+    </Token>
+	<Token>
+      <Index>7032</Index>
+      <Text>Random chance this weapon will fire through enemy shields</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
