@@ -325,6 +325,14 @@ namespace Ship_Game
                         EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetBDict()[Building.Key] = true;
                 }
 			}
+            //Added by McShooterz: new cheat to only unlock tech
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F2) && input.LastKeyboardState.IsKeyUp(Keys.F2))
+            {
+                foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
+                {
+                    this.UnlockTree(tech.Key);
+                }
+            }
 			this.qcomponent.HandleInput(input);
 			if (this.qcomponent.Visible && HelperFunctions.CheckIntersection(this.qcomponent.container, input.CursorPosition))
 			{

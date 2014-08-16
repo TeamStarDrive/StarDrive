@@ -2131,6 +2131,11 @@ namespace Ship_Game
                         }
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
+                    if (mod.InstalledWeapon.ShieldPenChance > 0)
+                    {
+                        this.DrawStat(ref modTitlePos, "Shield Pen", mod.InstalledWeapon.ShieldPenChance, 181);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
                     if (mod.InstalledWeapon.TruePD)
                     {
                         string fireRest = "Cannot Target Ships";
