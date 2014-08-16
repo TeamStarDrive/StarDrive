@@ -1393,20 +1393,29 @@ namespace Ship_Game
 			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Buildings"));
 			XmlSerializer serializer0 = new XmlSerializer(typeof(Building));
 			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			
+            for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				Building newB = (Building)serializer0.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				if (Ship_Game.ResourceManager.BuildingsDict.ContainsKey(newB.Name))
-				{
-					Ship_Game.ResourceManager.BuildingsDict[newB.Name] = newB;
-				}
-				else
-				{
-					Ship_Game.ResourceManager.BuildingsDict.Add(newB.Name, newB);
-				}
+                try
+                {
+                    if (Ship_Game.ResourceManager.BuildingsDict.ContainsKey(newB.Name))
+                    {
+                        Ship_Game.ResourceManager.BuildingsDict[newB.Name] = newB;
+                    }
+                    else
+                    {
+                        Ship_Game.ResourceManager.BuildingsDict.Add(newB.Name, newB);
+                    }
+                }
+                catch(NullReferenceException ex)
+                {
+                    ex.Data["Building Lookup"] = newB.Name;
+                    
+                }
 			}
 			textList = null;
 		}
