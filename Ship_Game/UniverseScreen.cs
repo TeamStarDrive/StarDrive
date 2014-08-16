@@ -5852,8 +5852,8 @@ namespace Ship_Game
                     }
                     if (this.viewState < UniverseScreen.UnivScreenState.GalaxyView)
                     {
-                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ(this.Zrotate) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 1.8f);
-                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 2.0)) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 1.8f);
+                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ(this.Zrotate) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
+                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 2.0)) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
                         if (solarSystem.ExploredDict[EmpireManager.GetEmpireByName(this.PlayerLoyalty)])
                         {
                             foreach (Planet planet in solarSystem.PlanetList)
@@ -5934,8 +5934,6 @@ namespace Ship_Game
                         Vector3 vector3_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, solarSystem.Position, 25000f), 0.0f), this.projection, this.view, Matrix.Identity);
                         float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
                         float scale = 0.05f;
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], position, new Rectangle?(), Color.White, this.Zrotate, new Vector2((float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2), (float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale, SpriteEffects.None, 0.9f);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], position, new Rectangle?(), Color.White, (float)(-(double)this.Zrotate / 2.0), new Vector2((float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2), (float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale, SpriteEffects.None, 0.9f);
                         Vector2 vector2 = new Vector2(position.X, position.Y);
                         if ((solarSystem.ExploredDict[this.player] || this.Debug) && this.SelectedSystem != solarSystem)
                         {
@@ -6095,6 +6093,15 @@ namespace Ship_Game
                         else
                             vector2.X -= SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X / 2f;
                     }
+                }
+                if (this.viewState >= UniverseScreen.UnivScreenState.GalaxyView)
+                {
+                    float scale = 0.05f;
+                    Vector3 vector3_3 = new Vector3(solarSystem.Position, 0.0f);
+                    Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(vector3_3, this.projection, this.view, Matrix.Identity);
+                    Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], position, new Rectangle?(), Color.White, this.Zrotate, new Vector2((float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2), (float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale, SpriteEffects.None, 0.9f);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], position, new Rectangle?(), Color.White, (float)(-(double)this.Zrotate / 2.0), new Vector2((float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2), (float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale, SpriteEffects.None, 0.9f);
                 }
             }
         }

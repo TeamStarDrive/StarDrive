@@ -1274,6 +1274,7 @@ namespace Ship_Game
                     this.Fertility = RandomMath.RandomBetween(1f, 3f);
                     break;
             }
+       
             if (!this.habitable)
                 this.MineralRichness = 0.0f;
             if (this.Type == "Barren")
