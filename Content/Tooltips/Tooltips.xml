@@ -904,5 +904,10 @@
       <Title>Ship troop capacity</Title>
       <Data>7030</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>181</TIP_ID>
+      <Title>Weapon Shield Pen</Title>
+      <Data>7032</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
