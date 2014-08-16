@@ -47,6 +47,16 @@ namespace Ship_Game.Gameplay
 
 		public bool Tag_PD;
 
+        // Added by The Doctor: new tags for categorisation for mods who otherwise have large numbers of items in one Shipyard menu node, also new modifiers.
+
+        public bool Tag_Flak;
+
+        public bool Tag_Array;
+
+        public bool Tag_Tractor;
+
+        // End
+
 		private Ship owner;
 
 		public GameplayObject drowner;
@@ -1281,6 +1291,18 @@ namespace Ship_Game.Gameplay
             if (this.Tag_Bomb)
             {
                 this.AddModifiers("Bomb", projectile);
+            }
+            if (this.Tag_Array)
+            {
+                this.AddModifiers("Array", projectile);
+            }
+            if (this.Tag_Flak)
+            {
+                this.AddModifiers("Flak", projectile);
+            }
+            if (this.Tag_Tractor)
+            {
+                this.AddModifiers("Tractor", projectile);
             }
 		}
 
