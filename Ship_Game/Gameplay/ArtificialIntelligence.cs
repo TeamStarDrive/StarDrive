@@ -3993,7 +3993,12 @@ namespace Ship_Game.Gameplay
 
 		public void OrderSystemDefense(SolarSystem system)
 		{
-			if (this.SystemToDefend != system || this.State != AIState.SystemDefender)
+            bool inSystem = true;
+            if (this.Owner.BaseCanWarp && Vector2.Distance(system.Position, this.Owner.Position) / this.Owner.velocityMaximum > 11)
+                inSystem = false;
+            else 
+                inSystem = this.Owner.GetSystem() == this.SystemToDefend;
+            if (!inSystem || this.State != AIState.SystemDefender)
 			{
                 if (this.Target !=null &&(this.Target as Ship).Name == "Subspace Projector")
                     System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", (this.Target as Ship).Name));

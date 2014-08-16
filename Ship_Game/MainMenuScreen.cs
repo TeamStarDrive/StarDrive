@@ -438,6 +438,14 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
                  TextPos = new Vector2(20f, (float)(Version.Y  +6 - Fonts.Pirulen12.LineSpacing / 2 - 1));
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, string.Concat(MainMenuScreen.Version), TextPos, Color.White);
+
+                if (GlobalStats.ActiveMod != null)
+                {
+                    Version = new Rectangle(20 + (int)Fonts.Pirulen12.MeasureString(GlobalStats.ActiveMod.mi.ModName).X, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 60, 318, 12);
+                    base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
+                    TextPos = new Vector2(20f, (float)(Version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1));
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, string.Concat(GlobalStats.ActiveMod.mi.ModName), TextPos, Color.White);
+                }
 			}
 			if (this.AnimationFrame > 300)
 			{
