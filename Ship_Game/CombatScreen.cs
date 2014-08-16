@@ -125,7 +125,8 @@ namespace Ship_Game
                 Text = "Launch All"
             };
 			foreach (Ship s in CombatScreen.universeScreen.MasterShipList)
-			{
+			
+            {
 				if (Vector2.Distance(p.Position, s.Center) >= 4000f || s.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
 				{
 					continue;
@@ -139,6 +140,8 @@ namespace Ship_Game
                     int i = 0;
                     foreach (ShipModule hangar in s.GetHangars().Where(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0))
                     {
+                        if (i >= s.TroopList.Count)
+                            break;
                         Troop troop = s.TroopList[i];
                         if (troop != null)
                         {
@@ -770,27 +773,32 @@ namespace Ship_Game
                         //    trooper.Launch();
                         //}
                         //launchtroop.Clear();
-
+                        
                         bool play = false;
                         foreach (PlanetGridSquare pgs in this.p.TilesList)
                         {
-                            if (pgs.TroopsHere.Count <= 0 ||(pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty) || pgs.TroopsHere[0].Launchtimer >=0))
+                            if ( pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() !=universeScreen.player || pgs.TroopsHere[0].Launchtimer >= 0)
                             {
                                 continue;
-                            }        
-       
-   
-                            pgs.TroopsHere[0].AvailableAttackActions = 0;
-                            pgs.TroopsHere[0].AvailableMoveActions = 0;
-                            pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                            pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
-                            pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
-                            play = true;
-                            ResourceManager.CreateTroopShipAtPoint((pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip != null) ? pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip : pgs.TroopsHere[0].GetOwner().data.DefaultSmallTransport, pgs.TroopsHere[0].GetOwner(), this.p.Position, pgs.TroopsHere[0]);
-                            this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
-                            pgs.TroopsHere[0].SetPlanet(null);
-                            pgs.TroopsHere.Clear();
+                            }
 
+                            try
+                            {
+                                pgs.TroopsHere[0].AvailableAttackActions = 0;
+                                pgs.TroopsHere[0].AvailableMoveActions = 0;
+                                pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
+                                pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
+                                pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
+                                play = true;
+                                ResourceManager.CreateTroopShipAtPoint((pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip != null) ? pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip : pgs.TroopsHere[0].GetOwner().data.DefaultSmallTransport, pgs.TroopsHere[0].GetOwner(), this.p.Position, pgs.TroopsHere[0]);
+                                this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
+                                pgs.TroopsHere[0].SetPlanet(null);
+                                pgs.TroopsHere.Clear();
+                            }
+                            catch
+                            {
+                                System.Diagnostics.Debug.WriteLine("Troop Launch Crash");
+                            }
                         }
                         if (play)
                         {
@@ -1039,9 +1047,10 @@ namespace Ship_Game
 			this.OrbitSL.Entries.Clear();
 			this.OrbitSL.Copied.Clear();
 			this.OrbitSL.indexAtTop = 0;
-			for (int i = 0; i < CombatScreen.universeScreen.MasterShipList.Count; i++)
+            for (int i = 0; i < this.p.ParentSystem.ShipList.Count; i++) //CombatScreen.universeScreen.MasterShipList.Count
 			{
-				Ship s = CombatScreen.universeScreen.MasterShipList[i];
+				//Ship s = CombatScreen.universeScreen.MasterShipList[i];
+                Ship s = this.p.ParentSystem.ShipList[i];
 				if (Vector2.Distance(this.p.Position, s.Center) < 15000f && s.loyalty == EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
 				{
 					if (s.Role == "troop" && !CombatScreen.universeScreen.MasterShipList.pendingRemovals.Contains(s))
@@ -1051,17 +1060,25 @@ namespace Ship_Game
 					else if (s.HasTroopBay)
 					{
 						int readyhangers = s.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <=0).Count();
-                        foreach (Troop t in s.TroopList)
-						{
+
+                        //foreach (Troop t in s.TroopList)
+                        for (int x = 0; x < s.TroopList.Count; x++)
+                        {
+                            Troop t = s.TroopList[x];
                             if (readyhangers <= 0)
                                 break;
-							this.OrbitSL.AddItem(t);
-						}
+
+                            this.OrbitSL.AddItem(t);
+                        }
 					}
                     else if (s.hasTransporter)
                     {
-                        foreach (Troop troop in s.TroopList.Where(troop => troop.GetOwner() == s.loyalty))
+                        //foreach (Troop troop in s.TroopList.Where(troop => troop.GetOwner() == s.loyalty))
+                        for (int x = 0; x < s.TroopList.Count;x++ )
                         {
+
+                            Troop troop = s.TroopList[x];
+                            if(troop!=null && troop.GetOwner()!=null&& troop.GetOwner()==s.loyalty)
                             this.OrbitSL.AddItem(troop);
                         }
                     }
