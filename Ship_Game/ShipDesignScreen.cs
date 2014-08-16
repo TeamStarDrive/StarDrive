@@ -1698,7 +1698,7 @@ namespace Ship_Game
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
-					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Explosive)
+                    if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Explosive && !Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Flak)
 					{
 						tag = string.Concat(tag, "EXPLOSIVE ");
 						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
@@ -1726,6 +1726,13 @@ namespace Ship_Game
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
+                    if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Flak)
+                    {
+                        tag = string.Concat(tag, "FLAK ");
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
+                        modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
+                        tag = "";
+                    }
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile)
 					{
 						tag = string.Concat(tag, "MISSILE ");
@@ -1733,6 +1740,13 @@ namespace Ship_Game
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
+                    if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Tractor)
+                    {
+                        tag = string.Concat(tag, "TRACTOR ");
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
+                        modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
+                        tag = "";
+                    }
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Beam)
 					{
 						tag = string.Concat(tag, "BEAM ");
@@ -1740,6 +1754,13 @@ namespace Ship_Game
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
+                    if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Array)
+                    {
+                        tag = string.Concat(tag, "ARRAY ");
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
+                        modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
+                        tag = "";
+                    }
 					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Railgun)
 					{
 						tag = string.Concat(tag, "RAILGUN ");
@@ -2371,12 +2392,48 @@ namespace Ship_Game
                             continue;
 						if (tmp.isWeapon)
 						{
-							if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
-							{
-								WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
-								ModuleHeader type = new ModuleHeader(tmp.InstalledWeapon.WeaponType, 240f);
-								this.weaponSL.AddItem(type);
-							}
+                            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats)
+                            {
+                                if (tmp.InstalledWeapon.Tag_Flak && !WeaponCategories.Contains("Flak Cannon"))
+                                {
+                                    WeaponCategories.Add("Flak Cannon");
+                                    ModuleHeader type = new ModuleHeader("Flak Cannon", 240f);
+                                    this.weaponSL.AddItem(type);
+                                }
+                                if (tmp.InstalledWeapon.Tag_Railgun && !WeaponCategories.Contains("Magnetic Cannon"))
+                                {
+                                    WeaponCategories.Add("Magnetic Cannon");
+                                    ModuleHeader type = new ModuleHeader("Magnetic Cannon", 240f);
+                                    this.weaponSL.AddItem(type);
+                                }
+                                if (tmp.InstalledWeapon.Tag_Array && !WeaponCategories.Contains("Beam Array"))
+                                {
+                                    WeaponCategories.Add("Beam Array");
+                                    ModuleHeader type = new ModuleHeader("Beam Array", 240f);
+                                    this.weaponSL.AddItem(type);
+                                }
+                                if (tmp.InstalledWeapon.Tag_Tractor && !WeaponCategories.Contains("Tractor Beam"))
+                                {
+                                    WeaponCategories.Add("Tractor Beam");
+                                    ModuleHeader type = new ModuleHeader("Tractor Beam", 240f);
+                                    this.weaponSL.AddItem(type);
+                                }
+                                else if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
+                                {
+                                    WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
+                                    ModuleHeader type = new ModuleHeader(tmp.InstalledWeapon.WeaponType, 240f);
+                                    this.weaponSL.AddItem(type);
+                                }
+                            }
+                            else
+                            {
+                                if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
+                                {
+                                    WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
+                                    ModuleHeader type = new ModuleHeader(tmp.InstalledWeapon.WeaponType, 240f);
+                                    this.weaponSL.AddItem(type);
+                                }
+                            }
 						}
 						else if (tmp.ModuleType == ShipModuleType.Bomb && !WeaponCategories.Contains("Bomb"))
 						{
@@ -2458,10 +2515,31 @@ namespace Ship_Game
                                 continue;
 							if (tmp.isWeapon)
 							{
-								if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
-								{
-									e.AddItem(module.Value);
-								}
+                                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats)
+                                {
+                                    if (tmp.InstalledWeapon.Tag_Flak || tmp.InstalledWeapon.Tag_Array || tmp.InstalledWeapon.Tag_Railgun || tmp.InstalledWeapon.Tag_Tractor)
+                                    {
+                                        if ((e.item as ModuleHeader).Text == "Flak Cannon" && tmp.InstalledWeapon.Tag_Flak)
+                                            e.AddItem(module.Value);
+                                        if ((e.item as ModuleHeader).Text == "Magnetic Cannon" && tmp.InstalledWeapon.Tag_Railgun)
+                                            e.AddItem(module.Value);
+                                        if ((e.item as ModuleHeader).Text == "Beam Array" && tmp.InstalledWeapon.Tag_Array)
+                                            e.AddItem(module.Value);
+                                        if ((e.item as ModuleHeader).Text == "Tractor Beam" && tmp.InstalledWeapon.Tag_Tractor)
+                                            e.AddItem(module.Value);
+                                    }
+                                    else if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
+                                    {
+                                        e.AddItem(module.Value);
+                                    }
+                                }
+                                else
+                                {
+                                    if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
+                                    {
+                                        e.AddItem(module.Value);
+                                    }
+                                }
 							}
 							else if (tmp.ModuleType == ShipModuleType.Bomb && (e.item as ModuleHeader).Text == "Bomb")
 							{

@@ -30,6 +30,7 @@ namespace Ship_Game
         public bool enableECM;
         public bool useProportionalUpkeep;
         public bool usePlanetaryProjection;
+        public bool expandedWeaponCats;
         public float UpkeepBaseline;
         public float UpkeepFighter;
         public float UpkeepCorvette;

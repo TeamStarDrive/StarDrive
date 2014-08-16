@@ -1071,6 +1071,19 @@ namespace Ship_Game.Gameplay
             {
                 modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Warp"].Range;
             }
+            if (w.Tag_Array)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Array"].Range;
+            }
+            if (w.Tag_Flak)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Flak"].Range;
+            }
+            if (w.Tag_Tractor)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Tractor"].Range;
+            }
+
             return modifiedRange;
         }
         public List<Thruster> GetTList()
@@ -3488,6 +3501,12 @@ namespace Ship_Game.Gameplay
                                 weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Drone"].Rate;
                             if (weapon.Tag_Warp)
                                 weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Warp"].Rate;
+                            if (weapon.Tag_Array)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Array"].Rate;
+                            if (weapon.Tag_Flak)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Flak"].Rate;
+                            if (weapon.Tag_Tractor)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Tractor"].Rate;
                         }
                         //Added by McShooterz: Hull bonus Fire Rate
                         if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().FireRateBonus != 0)
