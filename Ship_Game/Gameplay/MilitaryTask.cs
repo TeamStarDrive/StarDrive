@@ -867,7 +867,10 @@ namespace Ship_Game.Gameplay
 			}
             if( this.type == TaskType.Exploration ||this.type ==TaskType.AssaultPlanet)
             {
-                if (this.GetTargetPlanet().TroopsHere.Where(troop => troop.GetOwner() == this.empire).Count()>0)
+                float groundstrength = this.GetTargetPlanet().GetGroundStrengthOther(this.empire);
+                float ourGroundStrength = this.GetTargetPlanet().GetGroundStrength(this.empire);
+                //if (this.GetTargetPlanet().TroopsHere.Where(troop => troop.GetOwner() == this.empire).Count()>0)
+                if (ourGroundStrength > 0)
                 {
                     if(this.type==TaskType.Exploration)
                     {
@@ -879,7 +882,7 @@ namespace Ship_Game.Gameplay
                     }
                     else if (this.type == TaskType.AssaultPlanet)
                     {
-                        if (this.GetTargetPlanet().GetGroundStrengthOther(this.empire) > 0)
+                        if (groundstrength > 0)
                         return;
                     }
                 }
@@ -995,14 +998,16 @@ namespace Ship_Game.Gameplay
 				{
 					continue;
 				}
-				MinimumEscortStrength = MinimumEscortStrength + ship.GetStrength();
+                MinimumEscortStrength = MinimumEscortStrength + ship.BaseStrength;// GetStrength();
 			}
 			return MinimumEscortStrength;
 		}
 
 		private float GetEnemyTroopStr()
 		{
-			float EnemyTroopStrength = 0f;
+            return this.TargetPlanet.GetGroundStrengthOther(this.empire);
+
+            float EnemyTroopStrength = 0f;
 			foreach (PlanetGridSquare pgs in this.TargetPlanet.TilesList)
 			{
 				if (pgs.TroopsHere.Count <= 0)

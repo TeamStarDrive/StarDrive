@@ -2890,7 +2890,8 @@ namespace Ship_Game.Gameplay
 
 		private void DoAggressiveRelations()
 		{
-			int numberofWars = 0;
+			
+            int numberofWars = 0;
 			List<Empire> PotentialTargets = new List<Empire>();
 			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
 			{
