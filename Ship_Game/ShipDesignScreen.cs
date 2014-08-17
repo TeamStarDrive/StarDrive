@@ -2384,11 +2384,11 @@ namespace Ship_Game
                             }
                         }
                             // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
-                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "fighter")
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "fighter")
                             continue;
-                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "scout")
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "scout")
                             continue;
-                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "corvette")
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "corvette")
                             continue;
 						if (tmp.isWeapon)
 						{
@@ -2507,11 +2507,11 @@ namespace Ship_Game
                                 }
                             }
                             // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
-                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "fighter")
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "fighter")
                                 continue;
-                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "scout")
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "scout")
                                 continue;
-                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "corvette")
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "corvette")
                                 continue;
 							if (tmp.isWeapon)
 							{
@@ -2621,11 +2621,11 @@ namespace Ship_Game
                             }
                         }
                         // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
-                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "fighter")
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "fighter")
                             continue;
-                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "scout")
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "scout")
                             continue;
-                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role == "corvette")
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "corvette")
                             continue;
 						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
 						{
