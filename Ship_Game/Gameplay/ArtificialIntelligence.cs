@@ -2445,7 +2445,15 @@ namespace Ship_Game.Gameplay
                         //foreach (Projectile p in ship.Projectiles)
                         for (int x = 0; x< ship.Projectiles.Count;x++ )
                         {
-                            Projectile p = ship.Projectiles[x];
+                            Projectile p;
+                            try
+                            {
+                                p = ship.Projectiles[x];
+                            }
+                            catch
+                            {
+                                break;
+                            }
                             if (!p.Active|| !p.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, p.Center))
                             {
                                 continue;
