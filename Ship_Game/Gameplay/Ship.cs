@@ -1309,7 +1309,7 @@ namespace Ship_Game.Gameplay
             float maintModReduction = 1;
 
             //Ships without upkeep
-            if (role == null || this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
+            if (role == null || this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null
                 || (this.Mothership != null && (this.Role == "fighter" || this.Role == "corvette" || this.Role == "scout" || this.Role == "frigate")))
             {
                 return 0f;
