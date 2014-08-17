@@ -31,6 +31,8 @@ namespace Ship_Game
         public bool useProportionalUpkeep;
         public bool usePlanetaryProjection;
         public bool expandedWeaponCats;
+        public bool overrideSecretsTree;
+
         public float UpkeepBaseline;
         public float UpkeepFighter;
         public float UpkeepCorvette;
