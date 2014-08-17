@@ -7496,16 +7496,17 @@ namespace Ship_Game.Gameplay
                             {
                                 techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
                             }
-                            Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+                            Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                             if (ResearchTech == null)
                                 continue;
                             //if (AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).Count() == 0)
                             //    continue;
+                            float cheapCost = ResearchTech.Cost;
 
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
-                            if (researchtopic == "" && Testresearchtopic !=null)
+                            if (researchtopic == "" )
                                 researchtopic=Testresearchtopic;
-                            else if(Testresearchtopic !=null && (int)(ResourceManager.TechTree[Testresearchtopic].Cost*.01f) < (int)(ResourceManager.TechTree[researchtopic].Cost*.01f))
+                            else if ((int)ResearchTech.Cost*.01f < (int)(ResourceManager.TechTree[researchtopic].Cost * .01f))
                                 researchtopic = Testresearchtopic;
 
                         }
