@@ -290,6 +290,10 @@ namespace Ship_Game
 				SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
 				SpriteFont arial12 = Fonts.Arial12;
 				float item = this.ship.GetCargo()[entry.Key];
+                if (entry.Key == "Colonists_1000")
+                {
+                    item = this.ship.GetCargo()[entry.Key] * this.ship.loyalty.data.Traits.PassengerModifier;
+                }
 				spriteBatch1.DrawString(arial12, item.ToString("0"), TextPos, Color.White);
 				if (HelperFunctions.CheckIntersection(GoodRect, MousePos))
 				{
