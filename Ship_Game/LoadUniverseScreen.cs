@@ -519,6 +519,10 @@ namespace Ship_Game
 			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
 			this.data.GravityWells = this.savedData.GravityWells;
 			EmpireManager.EmpireList.Clear();
+            if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
+                Empire.universeScreen.MasterShipList.Clear();
+            
+            GC.Collect();
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
 			{
 				Empire e =new Empire();
@@ -609,11 +613,26 @@ namespace Ship_Game
 						newShip.FromSave = true;
 						Ship_Game.ResourceManager.ShipsDict.Add(shipData.Name, newShip);
 					}
-					else if (Ship_Game.ResourceManager.ShipsDict[shipData.Name].FromSave)
+					
+                    else if (Ship_Game.ResourceManager.ShipsDict[shipData.Name].FromSave)
 					{
 						ship.IsPlayerDesign = false;
 						ship.FromSave = true;
+
+
 					}
+                    float oldbasestr = ship.BaseStrength;
+                    float newbasestr = ResourceManager.CalculateBaseStrength(ship);
+                    if (oldbasestr==0&& (ship.Name !="Subspace Projector" &&ship.Role !="troop"&&ship.Role !="freighter"))
+                    {
+                        System.Diagnostics.Debug.WriteLine(ship.Name);
+                        System.Diagnostics.Debug.WriteLine("BaseStrength: " + oldbasestr);
+                        System.Diagnostics.Debug.WriteLine("NewStrength: " + newbasestr);
+                        System.Diagnostics.Debug.WriteLine("");
+                        
+                    }
+                    ship.BaseStrength = newbasestr;
+
 					ship.PowerCurrent = shipData.Power;
 					ship.yRotation = shipData.yRotation;
 					ship.Ordinance = shipData.Ordnance;

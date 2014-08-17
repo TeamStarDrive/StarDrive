@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
+    //Unused in game that i can see --gremlin
 	public class MilitaryResearchStrategy
 	{
 		public string Name;
