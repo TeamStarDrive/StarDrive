@@ -1616,6 +1616,8 @@ namespace Ship_Game
                         system.DangerTimer = (double)this.player.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0 ? 0.0f : 120f;
                     }
                     system.combatTimer -= elapsedTime;
+                    
+
                     if ((double)system.combatTimer <= 0.0)
                         system.CombatInSystem = false;
                     bool flag = false;
@@ -1772,6 +1774,11 @@ namespace Ship_Game
             {
                 system.DangerTimer -= elapsedTime;
                 system.DangerUpdater -= elapsedTime;
+                foreach (KeyValuePair<Empire, SolarSystem.PredictionTimeout> predict in system.predictionTimeout)
+                {
+                    predict.Value.update(elapsedTime);
+
+                }
                 if ((double)system.DangerUpdater < 0.0)
                 {
                     system.DangerUpdater = 10f;
