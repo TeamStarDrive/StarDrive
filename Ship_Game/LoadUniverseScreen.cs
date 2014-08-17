@@ -519,6 +519,10 @@ namespace Ship_Game
 			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
 			this.data.GravityWells = this.savedData.GravityWells;
 			EmpireManager.EmpireList.Clear();
+            if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
+                Empire.universeScreen.MasterShipList.Clear();
+            
+            GC.Collect();
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
 			{
 				Empire e =new Empire();
