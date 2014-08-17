@@ -18,8 +18,15 @@ namespace Ship_Game
 		{
 			if (triggeredOutcome.SecretTechDiscovered != null)
 			{
-				Triggerer.GetTDict()["Secret"].Discovered = true;
-				Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.overrideSecretsTree)
+                {
+                    Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
+                }
+                else
+                {
+                    Triggerer.GetTDict()["Secret"].Discovered = true;
+                    Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
+                }
 			}
 			if (triggeredOutcome.BeginArmageddon)
 			{
