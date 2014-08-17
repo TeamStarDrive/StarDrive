@@ -71,7 +71,7 @@ namespace Ship_Game
                     catch
                     {
                         if (enemy.GetAI() != null)
-                            System.Diagnostics.Debug.WriteLine("enemy not in dictionary" + enemy.GetAI().start.ToString());
+                            System.Diagnostics.Debug.WriteLine("enemy not in dictionary" + enemy.GetAI().State.ToString());
                         else
                             System.Diagnostics.Debug.WriteLine("enemy AI null not in dictionary: ");
 
@@ -147,7 +147,7 @@ namespace Ship_Game
 			float str = 0f;
 			foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
 			{
-				str = str + ship.Value.GetStrength();
+				str = str + ship.Value.BaseStrength;//.GetStrength();
 			}
 			return str;
 		}
