@@ -47,6 +47,16 @@ namespace Ship_Game.Gameplay
 
 		public bool Tag_PD;
 
+        // Added by The Doctor: new tags for categorisation for mods who otherwise have large numbers of items in one Shipyard menu node, also new modifiers.
+
+        public bool Tag_Flak;
+
+        public bool Tag_Array;
+
+        public bool Tag_Tractor;
+
+        // End
+
 		private Ship owner;
 
 		public GameplayObject drowner;
@@ -426,6 +436,10 @@ namespace Ship_Game.Gameplay
 			{
                 projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
 			}
+            if (this.ShieldPenChance > 0)
+            {
+                projectile.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
+            }
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
             projectile.explosionradiusmod = this.ExplosionRadiusVisual;
@@ -530,6 +544,10 @@ namespace Ship_Game.Gameplay
 			projectile.WeaponType = this.WeaponType;
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
 			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
+            if (this.ShieldPenChance > 0)
+            {
+                projectile.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
+            }
 			this.ModifyProjectile(projectile);
             if(this.Tag_Guided)
                 projectile.InitializeMissilePlanet(projectile.speed, direction, target, p);
@@ -625,6 +643,10 @@ namespace Ship_Game.Gameplay
             if (this.owner.Level > 0)
             {
                 beam.damageAmount += beam.damageAmount * (float)this.owner.Level * 0.05f;
+            }
+            if (this.ShieldPenChance > 0)
+            {
+                beam.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
             }
 			this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
@@ -1269,6 +1291,18 @@ namespace Ship_Game.Gameplay
             if (this.Tag_Bomb)
             {
                 this.AddModifiers("Bomb", projectile);
+            }
+            if (this.Tag_Array)
+            {
+                this.AddModifiers("Array", projectile);
+            }
+            if (this.Tag_Flak)
+            {
+                this.AddModifiers("Flak", projectile);
+            }
+            if (this.Tag_Tractor)
+            {
+                this.AddModifiers("Tractor", projectile);
             }
 		}
 

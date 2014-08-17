@@ -203,7 +203,7 @@ namespace Ship_Game.Gameplay
         private int FTLCount;
         public float MoveModulesTimer;
         private float AfterThrust;
-        public int HealPerTurn;
+        public float HealPerTurn;
         private bool UpdatedModulesOnce;
         public float percent;
         private float xdie;
@@ -1071,6 +1071,19 @@ namespace Ship_Game.Gameplay
             {
                 modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Warp"].Range;
             }
+            if (w.Tag_Array)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Array"].Range;
+            }
+            if (w.Tag_Flak)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Flak"].Range;
+            }
+            if (w.Tag_Tractor)
+            {
+                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Tractor"].Range;
+            }
+
             return modifiedRange;
         }
         public List<Thruster> GetTList()
@@ -1264,7 +1277,7 @@ namespace Ship_Game.Gameplay
 
             // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
 
-            if (this.GetShipData().HasFixedUpkeep && this.loyalty != null)
+            if (this.GetShipData().HasFixedUpkeep && empire != null)
             {
                 maint = GetShipData().FixedUpkeep;
             }
@@ -1296,7 +1309,7 @@ namespace Ship_Game.Gameplay
             float maintModReduction = 1;
 
             //Ships without upkeep
-            if (role == null || this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
+            if (role == null || this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null
                 || (this.Mothership != null && (this.Role == "fighter" || this.Role == "corvette" || this.Role == "scout" || this.Role == "frigate")))
             {
                 return 0f;
@@ -2591,6 +2604,7 @@ namespace Ship_Game.Gameplay
             parent.Role = data.Role;
             parent.ModelPath = data.ModelPath;
             parent.ModuleSlotList = Ship.SlotDataListToSlotList(data.ModuleSlotList, parent);
+            
             foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
                 parent.ThrusterList.Add(new Thruster()
                 {
@@ -3487,6 +3501,12 @@ namespace Ship_Game.Gameplay
                                 weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Drone"].Rate;
                             if (weapon.Tag_Warp)
                                 weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Warp"].Rate;
+                            if (weapon.Tag_Array)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Array"].Rate;
+                            if (weapon.Tag_Flak)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Flak"].Rate;
+                            if (weapon.Tag_Tractor)
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Tractor"].Rate;
                         }
                         //Added by McShooterz: Hull bonus Fire Rate
                         if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().FireRateBonus != 0)
@@ -3741,21 +3761,20 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.HealPerTurn > 0)
                 {
-                    int num = this.HealPerTurn;
                     foreach (Troop troop in OwnTroops)
                     {
                         if (troop.Strength < troop.GetStrengthMax())
                         {
-                            ++troop.Strength;
-                            --num;
-                        }
-                        if (num <= 0)
+                            troop.Strength += this.HealPerTurn * elapsedTime;
                             break;
+                        }
+                        else
+                            troop.Strength = troop.GetStrengthMax();
                     }
                 }
                 if (EnemyTroops.Count > 0)
                 {
-                    int num1 = 0;
+                    float num1 = 0;
                     for (int index = 0; (double)index < (double)this.MechanicalBoardingDefense; ++index)
                     {
                         if ((this.system != null ? (double)this.system.RNG.RandomBetween(0.0f, 100f) : (double)Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) <= 60.0)
@@ -3763,12 +3782,12 @@ namespace Ship_Game.Gameplay
                     }
                     foreach (Troop troop in EnemyTroops)
                     {
-                        int num2 = num1;
+                        float num2 = num1;
                         if (num1 > 0)
                         {
                             if (num1 > troop.Strength)
                             {
-                                int num3 = troop.Strength;
+                                float num3 = troop.Strength;
                                 troop.Strength = 0;
                                 num1 -= num3;
                             }
@@ -3798,12 +3817,12 @@ namespace Ship_Game.Gameplay
                         }
                         foreach (Troop troop in EnemyTroops)
                         {
-                            int num2 = num1;
+                            float num2 = num1;
                             if (num1 > 0)
                             {
                                 if (num1 > troop.Strength)
                                 {
-                                    int num3 = troop.Strength;
+                                    float num3 = troop.Strength;
                                     troop.Strength = 0;
                                     num1 -= num3;
                                 }
@@ -3826,7 +3845,7 @@ namespace Ship_Game.Gameplay
                         EnemyTroops.Add(troop);
                     if (EnemyTroops.Count > 0)
                     {
-                        int num2 = 0;
+                        float num2 = 0;
                         foreach (Troop troop in EnemyTroops)
                         {
                             for (int index = 0; index < troop.Strength; ++index)
@@ -3837,12 +3856,12 @@ namespace Ship_Game.Gameplay
                         }
                         foreach (Troop troop in OwnTroops)
                         {
-                            int num3 = num2;
+                            float num3 = num2;
                             if (num2 > 0)
                             {
                                 if (num2 > troop.Strength)
                                 {
-                                    int num4 = troop.Strength;
+                                    float num4 = troop.Strength;
                                     troop.Strength = 0;
                                     num2 -= num4;
                                 }

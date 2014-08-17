@@ -869,5 +869,45 @@
       <Title>Troop Capacity</Title>
       <Data>7023</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>174</TIP_ID>
+      <Title>Troop Heal</Title>
+      <Data>7024</Data>
+    </ToolTip>
+		<ToolTip>
+      <TIP_ID>175</TIP_ID>
+      <Title>Shipyard Upkeep</Title>
+      <Data>7025</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>176</TIP_ID>
+      <Title>FTL Timer</Title>
+      <Data>7026</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>177</TIP_ID>
+      <Title>FTL Spool</Title>
+      <Data>7027</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>178</TIP_ID>
+      <Title>Module power draw at warp</Title>
+      <Data>7028</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>179</TIP_ID>
+      <Title>Module troop capacity</Title>
+      <Data>7029</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>180</TIP_ID>
+      <Title>Ship troop capacity</Title>
+      <Data>7030</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>181</TIP_ID>
+      <Title>Weapon Shield Pen</Title>
+      <Data>7032</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

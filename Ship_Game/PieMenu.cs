@@ -91,7 +91,7 @@ namespace Ship_Game
 
 		public PieMenu()
 		{
-			this.t = new Transition(Direction.Ascending, TransitionCurve.Linear, 0.3f);
+			this.t = new Transition(Direction.Ascending, TransitionCurve.Linear, 0.15f);
 			this.hideDelegate = new SimpleDelegate(this.OnHide);
 			this.newMenuDelegate = new SimpleDelegate(this.NewMenu);
 		}
