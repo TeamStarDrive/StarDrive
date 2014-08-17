@@ -1369,17 +1369,18 @@ namespace Ship_Game.Gameplay
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.70f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
             {
                 Ship owner = this.Owner;
-                owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+                this.Owner.Velocity = Vector2.Zero;
+                //owner.Velocity = owner.Velocity + (Vector2.Normalize(-left) * (elapsedTime * this.Owner.velocityMaximum));
             }
             if (angleDiff <= 0.02f)
             {
                 this.DeRotate();
                 return;
             }
-            this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, forward) > 0f ? 1f : -1f));
+            this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, forward) > 0f ? -1f : 1f));
         }
 
         private void DoNonFleetBroadsideLeft(float elapsedTime)
@@ -1395,12 +1396,13 @@ namespace Ship_Game.Gameplay
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.70f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
             {
                 Ship owner = this.Owner;
-                owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+                this.Owner.Velocity = Vector2.Zero;
+                //owner.Velocity = owner.Velocity + (Vector2.Normalize(-left) * (elapsedTime * this.Owner.velocityMaximum));
             }
-            if (angleDiff <= 0.02f && angleDiff >= -0.02f)
+            if (angleDiff <= 0.02f)
             {
                 this.DeRotate();
                 return;
@@ -2227,29 +2229,11 @@ namespace Ship_Game.Gameplay
 						{
 							this.fireTarget = null;
 
-                            // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                            if (weapon.Excludes_Fighters 
-                                &&( (this.Target as Ship).Role == "fighter" || (this.Target as Ship).Role == "scout" || (this.Target as Ship).Role == "drone"))
-                                continue;
-                            if (weapon.Excludes_Corvettes 
-                                && ((this.Target as Ship).Role == "corvette"))
-                                continue;
-                            if (weapon.Excludes_Capitals 
-                                && ((this.Target as Ship).Role == "frigate" 
-                                || (this.Target as Ship).Role == "destroyer" 
-                                || (this.Target as Ship).Role == "cruiser" 
-                                || (this.Target as Ship).Role == "carrier" 
-                                || (this.Target as Ship).Role == "capital"))
-                            {
-                                continue;
-                            }
-                            if (weapon.Excludes_Stations && ((this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station"))
-                                continue;
-
 							if ((weapon.TruePD || weapon.Tag_PD) && this.Owner.GetSystem() != null)
 							{
 								foreach (Planet p in this.Owner.GetSystem().PlanetList)
 								{
+                                    // Why is this ship not checking for projectiles if the system is friendly?! The Doctor 14/08/2014
 									if (p.Owner == this.Owner.loyalty)
 									{
 										continue;
@@ -2280,17 +2264,7 @@ namespace Ship_Game.Gameplay
 										{
 											continue;
 										}
-
-                                        // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
-                                        if (weapon.Excludes_Fighters && (ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone"))
-                                            continue;
-                                        if (weapon.Excludes_Corvettes &&( ship.Role == "corvette"))
-                                            continue;
-                                        if (weapon.Excludes_Capitals && (ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital"))
-                                            continue;
-                                        if (weapon.Excludes_Stations &&( ship.Role == "platform" || ship.Role == "station"))
-                                            continue;
-                                        
+                                                                                                                
 										if (weapon.TruePD || weapon.Tag_PD)
 										{
 											foreach (Projectile p in ship.Projectiles)
@@ -2307,7 +2281,19 @@ namespace Ship_Game.Gameplay
 										{
 											continue;
 										}
+
+                                        // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
+                                        if (weapon.Excludes_Fighters && (ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone"))
+                                            continue;
+                                        if (weapon.Excludes_Corvettes && (ship.Role == "corvette"))
+                                            continue;
+                                        if (weapon.Excludes_Capitals && (ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital"))
+                                            continue;
+                                        if (weapon.Excludes_Stations && (ship.Role == "platform" || ship.Role == "station"))
+                                            continue;
+                                        
 										this.fireTarget = ship;
+
 										List<ShipModule> potMods = new List<ShipModule>();
 										foreach (ModuleSlot slot in (this.fireTarget as Ship).ModuleSlotList)
 										{
@@ -2332,7 +2318,76 @@ namespace Ship_Game.Gameplay
 								}
 								else
 								{
-									this.fireTarget = this.Target;
+
+                                    /* Whole new targeting stuff - so that weapons will find targets of opportunity if they can't fire on the directly targeted ship for whatever reason.
+                                       Reasons include fire restrictions, being TruePD, not being in range/firing arc of the target...
+                                       The Doctor */
+
+                                    bool NTFighter = (weapon.Excludes_Fighters && ((this.Target as Ship).Role == "fighter"));
+                                    bool NTCorvette = (weapon.Excludes_Corvettes && ((this.Target as Ship).Role == "corvette"));
+                                    bool NTCapital = (weapon.Excludes_Capitals && ((this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "destroyer" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "capital"));
+                                    bool NTStations = (weapon.Excludes_Stations && ((this.Target as Ship).Role == "platform" || (this.Target as Ship).Role == "station"));
+
+                                    if (NTFighter || NTCorvette || NTCapital || NTStations)
+                                    {
+                                        foreach (Ship ship in PotentialTargets)
+                                        {
+                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || (weapon.Excludes_Fighters && (ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone")))
+                                            {
+                                                continue;
+                                            }
+                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || (weapon.Excludes_Corvettes && ship.Role == "corvette"))
+                                            {
+                                                continue;
+                                            }
+                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || (weapon.Excludes_Capitals && (ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital")))
+                                            {
+                                                continue;
+                                            }
+                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || (weapon.Excludes_Stations && (ship.Role == "station" || ship.Role == "platform")))
+                                            {
+                                                continue;
+                                            }
+                                            this.fireTarget = ship;
+                                            break;
+                                        }
+                                    }
+                                    else if (weapon.TruePD && (this.Target is Ship))
+                                    {
+                                        this.fireTarget = null;
+                                        foreach (Ship ship in PotentialTargets)
+                                        {
+                                            foreach (Projectile proj in ship.Projectiles)
+                                            {
+                                                if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj.Center))
+                                                {
+                                                    continue;
+                                                }
+                                                this.fireTarget = proj;
+                                                break;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    else if (this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center))
+                                    {
+                                        this.fireTarget = this.Target;
+                                    }
+                                    else
+                                    {
+                                        foreach (Ship ship in PotentialTargets)
+                                        {
+                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center))
+                                            {
+                                                continue;
+                                            }
+                                            this.fireTarget = ship;
+                                            break;                                            
+                                        }
+                                    }
+
+                                    
+
 									if (this.fireTarget is Ship)
 									{
 										if (!(this.fireTarget as Ship).dying)
@@ -2390,7 +2445,15 @@ namespace Ship_Game.Gameplay
                         //foreach (Projectile p in ship.Projectiles)
                         for (int x = 0; x< ship.Projectiles.Count;x++ )
                         {
-                            Projectile p = ship.Projectiles[x];
+                            Projectile p;
+                            try
+                            {
+                                p = ship.Projectiles[x];
+                            }
+                            catch
+                            {
+                                break;
+                            }
                             if (!p.Active|| !p.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, p.Center))
                             {
                                 continue;
@@ -3938,7 +4001,12 @@ namespace Ship_Game.Gameplay
 
 		public void OrderSystemDefense(SolarSystem system)
 		{
-			if (this.SystemToDefend != system || this.State != AIState.SystemDefender)
+            bool inSystem = true;
+            if (this.Owner.BaseCanWarp && Vector2.Distance(system.Position, this.Owner.Position) / this.Owner.velocityMaximum > 11)
+                inSystem = false;
+            else 
+                inSystem = this.Owner.GetSystem() == this.SystemToDefend;
+            if (!inSystem || this.State != AIState.SystemDefender)
 			{
                 if (this.Target !=null &&(this.Target as Ship).Name == "Subspace Projector")
                     System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", (this.Target as Ship).Name));
@@ -7313,12 +7381,24 @@ namespace Ship_Game.Gameplay
             }
             if ( (this.Owner.InCombat || this.Owner.LastHitTimer > 0f))
             {
+                int oqc = this.OrderQueue.Count;
+                bool docombat = false;
+
                 if((this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0))
 #if !DEBUG
                     try
                 {
 #endif
-                    if ( !this.HasPriorityOrder && (this.OrderQueue.Count == 0 || this.OrderQueue.Count > 0 && this.OrderQueue.First<ArtificialIntelligence.ShipGoal>().Plan != ArtificialIntelligence.Plan.DoCombat))
+
+                    try
+                    {
+                        docombat = (oqc > 0 && this.OrderQueue.First<ArtificialIntelligence.ShipGoal>().Plan != ArtificialIntelligence.Plan.DoCombat);
+                    }
+                    catch
+                    {
+                        docombat = false;
+                    }
+                    if (!this.HasPriorityOrder && (this.OrderQueue.Count ==0|| docombat))
                     {
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }

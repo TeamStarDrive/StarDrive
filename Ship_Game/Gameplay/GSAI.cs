@@ -2890,7 +2890,8 @@ namespace Ship_Game.Gameplay
 
 		private void DoAggressiveRelations()
 		{
-			int numberofWars = 0;
+			
+            int numberofWars = 0;
 			List<Empire> PotentialTargets = new List<Empire>();
 			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
 			{
@@ -3205,7 +3206,7 @@ namespace Ship_Game.Gameplay
             }
             GSAI desiredAgentCount1 = this;
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
-            int empirePlanetSpys = empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
+            int empirePlanetSpys = empire.GetPlanets().Count() / 3 + 3;
             int currentSpies = this.empire.data.AgentList.Count;
             if (this.empire.data.AgentList.Count < this.DesiredAgentCount && this.empire.Money >= 300f && currentSpies < empirePlanetSpys)
             {
@@ -3453,7 +3454,7 @@ namespace Ship_Game.Gameplay
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
             //int empirePlanetSpys = this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             //if (this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
-            int empireSpyLimit = this.empire.GetPlanets().Count() + 2;
+            int empireSpyLimit = this.empire.GetPlanets().Count() / 3 + 3;
             int currentSpies = this.empire.data.AgentList.Count;
             if (this.empire.data.AgentList.Count < this.DesiredAgentCount && this.empire.Money >= 300f && currentSpies < empireSpyLimit)
             {
@@ -5241,7 +5242,7 @@ namespace Ship_Game.Gameplay
 
         private bool shipIsGoodForGoals(Ship ship)
         {
-            if (ship.BaseStrength > 0f && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
+            if ( ship.BaseStrength > 0f  && !ship.shipData.CarrierShip && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
                 || (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
                 && ship.PowerStoreMax / (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum > minimumWarpRange))
                 return true;
@@ -6394,7 +6395,7 @@ namespace Ship_Game.Gameplay
 				if (g != null && g.GoalName == "Build Troop")
 				{
 					currentgoals++;
-                    goalStrength += ResourceManager.TroopsDict[g.ToBuildUID].Strength;
+                    goalStrength += (int)ResourceManager.TroopsDict[g.ToBuildUID].Strength;
 				}
 			}
             int wantedStrength = (int)(requiredStrength - (currentStrength + goalStrength));
@@ -6459,9 +6460,10 @@ namespace Ship_Game.Gameplay
                                         ran = 0;
                                     }
                                     Troop troop = ResourceManager.TroopsDict[PotentialTroops[ran]];
-                                    wantedStrength -= troop.Strength;
+                                    wantedStrength -= (int)troop.Strength;
                                     Goal g = new Goal(troop, this.empire, selectedPlanet);
                                     this.Goals.Add(g);
+                                    currentgoals++;
 
                                 }
                             }
@@ -7494,16 +7496,17 @@ namespace Ship_Game.Gameplay
                             {
                                 techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
                             }
-                            Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+                            Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                             if (ResearchTech == null)
                                 continue;
                             //if (AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).Count() == 0)
                             //    continue;
+                            float cheapCost = ResearchTech.Cost;
 
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
-                            if (researchtopic == "" && Testresearchtopic !=null)
+                            if (researchtopic == "" )
                                 researchtopic=Testresearchtopic;
-                            else if(Testresearchtopic !=null && (int)(ResourceManager.TechTree[Testresearchtopic].Cost*.01f) < (int)(ResourceManager.TechTree[researchtopic].Cost*.01f))
+                            else if ((int)ResearchTech.Cost*.01f < (int)(ResourceManager.TechTree[researchtopic].Cost * .01f))
                                 researchtopic = Testresearchtopic;
 
                         }

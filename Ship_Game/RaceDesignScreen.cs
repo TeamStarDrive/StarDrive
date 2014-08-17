@@ -2540,7 +2540,6 @@ namespace Ship_Game
                 this.RaceSummary.HomeworldRichMod += t.trait.HomeworldRichMod;
                 this.RaceSummary.HomeworldSizeMod += t.trait.HomeworldSizeMod;
                 this.RaceSummary.Militaristic += t.trait.Militaristic;
-                this.RaceSummary.PassengerModifier += t.trait.PassengerModifier;
                 this.RaceSummary.BonusExplored += t.trait.BonusExplored;
                 this.RaceSummary.Prototype += t.trait.Prototype;
                 this.RaceSummary.Spiritual += t.trait.Spiritual;
