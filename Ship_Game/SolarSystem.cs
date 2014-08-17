@@ -1467,7 +1467,7 @@ namespace Ship_Game
                 
             for (int x = 0; x < incomingShips.Count; x++)
             {
-                Ship ship = us.KnownShips[x];
+                Ship ship = incomingShips[x];
                 if (ship==null || ship.loyalty == us)
                     continue;
                 float timeToArrive = 0;
