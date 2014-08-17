@@ -2219,10 +2219,7 @@ namespace Ship_Game.Gameplay
             {
                 if (moduleSlotList.Restrictions == Restrictions.I)
                 {
-                    Ship numberInternalModules = this;
-                    numberInternalModules.number_Internal_modules = numberInternalModules.number_Internal_modules + 1f;
-                    Ship numberAliveInternalModules = this;
-                    numberAliveInternalModules.number_Alive_Internal_modules = numberAliveInternalModules.number_Alive_Internal_modules + 1f;
+                    ++this.number_Internal_modules;
                 }
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Colony)
                 {
@@ -2345,6 +2342,7 @@ namespace Ship_Game.Gameplay
             }
             #endregion
             this.HealthMax = base.Health;
+            this.number_Alive_Internal_modules = this.number_Internal_modules;
             this.velocityMaximum = this.Thrust / this.mass;
             this.speed = this.velocityMaximum;
             this.rotationRadiansPerSecond = this.speed / (float)this.Size;
