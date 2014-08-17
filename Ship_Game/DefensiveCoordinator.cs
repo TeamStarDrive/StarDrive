@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading;
-
+using System.Collections.Concurrent;
 namespace Ship_Game
 {
 	public class DefensiveCoordinator
@@ -72,6 +72,7 @@ namespace Ship_Game
 
 		public void ManageForcePool()
 		{
+            this.refreshclumps();
             foreach (Planet p in this.us.GetPlanets())
             {
                 if (p.Owner == null && p.BuildingList.Count == 0 && p.TroopsHere.Count > 0 && p.GetGroundStrengthOther(this.us) > 0)
@@ -164,26 +165,50 @@ namespace Ship_Game
                 }
                 foreach (SolarSystem fiveClosestSystem in entry.Key.FiveClosestSystems)
                 {
+                    bool flag = false; ;
                     foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.us.GetRelations())
                     {
-                        if (!Relationship.Value.AtWar || !fiveClosestSystem.OwnerList.Contains(Relationship.Key))
+                        if (!flag && fiveClosestSystem.OwnerList.Count == 0)
                         {
+                            flag = true;
+                        }
+                        if (!flag && fiveClosestSystem.OwnerList.Contains(this.us))
+                            flag = false;
+
+                        if (!fiveClosestSystem.OwnerList.Contains(Relationship.Key))
+                        {
+
+
                             continue;
                         }
-                        SystemCommander systemCommander2 = entry.Value;
-                        systemCommander2.ValueToUs = systemCommander2.ValueToUs + 10f;
+
+                        if (Relationship.Value.AtWar)
+                        {
+                            entry.Value.ValueToUs += 50f;
+                            flag = true;
+                            continue;
+                        }
+                        if (!Relationship.Value.Treaty_OpenBorders)
+                        {
+                            entry.Value.ValueToUs += 5f;
+                            flag = true;
+                        }
+
                     }
+                    if (!flag)
+                        entry.Value.ValueToUs -= 10f;
                 }
+
             }
             IOrderedEnumerable<SolarSystem> sortedList =
                 from system in systems
-                orderby system.GetPredictedEnemyPresence(60f, this.us) descending
+                orderby system.GetPredictedEnemyPresence(60f, this.us,false,EnemyClumpsDict) descending
                 select system;
             float StrToAssign = this.GetForcePoolStrength();
             float StartingStr = StrToAssign;
             foreach (SolarSystem solarSystem in sortedList)
             {
-                float Predicted = solarSystem.GetPredictedEnemyPresence(120f, this.us);
+                float Predicted = solarSystem.GetPredictedEnemyPresence(120f, this.us, true, EnemyClumpsDict);
                 if (Predicted <= 0f)
                 {
                     this.DefenseDict[solarSystem].IdealShipStrength = 0f;
@@ -303,7 +328,7 @@ namespace Ship_Game
                 }
             }
             this.DefensiveForcePool.ApplyPendingRemovals();
-            this.refreshclumps();
+           
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
                 if (entry.Key == null)
@@ -509,17 +534,34 @@ namespace Ship_Game
         {
             this.EnemyClumpsDict.Clear();
      
-            List<Ship> ShipsAlreadyConsidered = new List<Ship>();
+            //List<Ship> ShipsAlreadyConsidered = new List<Ship>();
+            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
 
 
 
             //for (int i = 0; i < this.us.GetShipsInOurBorders; i++)
             //if (Empire.universeScreen.GameDifficulty < UniverseData.GameDifficulty.Hard)
+            List<Ship> incomingShips = new List<Ship>();
+            if (Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard)
+                incomingShips = Empire.universeScreen.MasterShipList.AsParallel().Where(bases=> bases.BaseStrength>0 && bases.loyalty != this.us && (bases.loyalty.isFaction|| this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList();
+            else
             {
-                for (int i = 0; i < this.us.GetShipsInOurBorders().Count; i++)
+                incomingShips = us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
+            }
+            var source = incomingShips.ToArray();
+
+
+            if (incomingShips.Count == 0)
+            {
+                
+                return;
+            }
+            // var   rangePartitioner = Partitioner.Create(0, source.Length);
+            {
+                for (int i = 0; i < incomingShips.Count; i++)
                 {
                     //Ship ship = this.system.ShipList[i];
-                    Ship ship = this.us.GetShipsInOurBorders()[i];
+                    Ship ship = incomingShips[i];
 
                     if (ship != null && ship.loyalty != this.us
                         && (ship.loyalty.isFaction || this.us.GetRelations()[ship.loyalty].AtWar || !this.us.GetRelations()[ship.loyalty].Treaty_OpenBorders)
@@ -529,15 +571,30 @@ namespace Ship_Game
                         this.EnemyClumpsDict[ship].Add(ship);
                         ShipsAlreadyConsidered.Add(ship);
                         //for (int j = 0; j < this.system.ShipList.Count; j++)
-                        for (int j = 0; j < this.us.GetShipsInOurBorders().Count; j++)
-                        {
-                            Ship otherShip = this.us.GetShipsInOurBorders()[j];
-                            if (otherShip.loyalty != this.us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f && !ShipsAlreadyConsidered.Contains(otherShip))
+       //                             var source = Empire.universeScreen.MasterShipList.ToArray();
+       //     var rangePartitioner = Partitioner.Create(0, source.Length);
+            
+       //     //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>  
+       //     Parallel.ForEach(rangePartitioner, (range, loopState) =>
+       //{
+       //    for (int i = range.Item1; i < range.Item2; i++)
+
+                        
+                        for (int j = 0; j < incomingShips.Count; j++)
+                        //Parallel.ForEach(rangePartitioner, (range, loopState) =>
                             {
-                                this.EnemyClumpsDict[ship].Add(otherShip);
-                            }
-                        }
+                                //for (int j = range.Item1; j < range.Item2; j++)
+                                {
+                                    Ship otherShip = source[j]; //incomingShips[j];
+                                    if (otherShip.loyalty != this.us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f
+                                        && !ShipsAlreadyConsidered.Contains(otherShip))
+                                    {
+                                        this.EnemyClumpsDict[ship].Add(otherShip);
+                                    }
+                                }
+                            }//);
                     }
+                    
                 }
             }
   

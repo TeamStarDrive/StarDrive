@@ -74,7 +74,23 @@ namespace Ship_Game
 		public bool isStartingSystem;
 
 		public List<string> DefensiveFleets = new List<string>();
+        
+        public Dictionary<Empire,PredictionTimeout> predictionTimeout =new Dictionary<Empire,PredictionTimeout>();
 
+            public class PredictionTimeout{
+                public float prediction;
+                public float predictionTimeout;
+                public float predictedETA;
+                public void update(float time)
+                {
+                    this.predictionTimeout -= time;
+                    this.predictedETA -= time;
+                    System.Diagnostics.Debug.WriteLine("Prediction Timeout: " + this.predictionTimeout);
+                    System.Diagnostics.Debug.WriteLine("Prediction ETA: " + this.predictedETA);
+                    System.Diagnostics.Debug.WriteLine("Prediction: " + this.prediction);
+                    
+                }
+            }
 		public SolarSystem()
 		{
 		}
@@ -1452,25 +1468,40 @@ namespace Ship_Game
 			return StrHere;
 		}
 
-		public float GetPredictedEnemyPresence(float time, Empire us)
+		public float GetPredictedEnemyPresence(float time, Empire us, bool update, Dictionary<Ship,List<Ship>> clumps)
 		{
 			//added by gremlin massive rewrite of prediction code.
+            PredictionTimeout predictor;
+            if(!this.predictionTimeout.TryGetValue(us,out predictor))
+            {
+                predictor = new PredictionTimeout();
+                predictor.predictionTimeout = 0;
+                predictor.prediction=0;
+                this.predictionTimeout.Add(us, predictor);
+            }
+
+            if (!update )
+            {
+                if(predictor.predictedETA <= time)
+                {
+                    return predictor.prediction;
+                }
+                return 0;
+            }
+             
+
+            float timeToArrive = 0;
             float prediction = 0f;
 
-            List<Ship> incomingShips = new List<Ship>();
-            if (Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard)
-                incomingShips = Empire.universeScreen.MasterShipList;
-            else
-            {
-                incomingShips = us.KnownShips;
-            }
+            List<Ship> incomingShips =  new List<Ship>(clumps.Keys);
+
                 
             for (int x = 0; x < incomingShips.Count; x++)
             {
                 Ship ship = incomingShips[x];
                 if (ship==null || ship.loyalty == us)
                     continue;
-                float timeToArrive = 0;
+                
                 if (ship.velocityMaximum > 0)
                     timeToArrive = Vector2.Distance(ship.Position, this.Position) / ship.velocityMaximum;
                 else continue;
@@ -1504,7 +1535,15 @@ namespace Ship_Game
 
             }
 
+            if(prediction >predictor.prediction)
+            {
+                predictor.prediction = prediction;
+                predictor.predictionTimeout = time;
+            }
+            if (timeToArrive < predictor.predictedETA)
+                predictor.predictedETA = timeToArrive;
 
+            
                 return prediction;
 		}
 
