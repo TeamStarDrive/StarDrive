@@ -754,9 +754,11 @@ namespace Ship_Game.Gameplay
                     {
                         float ECMResist = this.weapon.ECMResist; // check any in-built ECM resistance on the guided weapon itself
                         Ship targetShip = (target as ShipModule).GetParent(); // identify the ship to which the module belongs
-                        float rnum = RandomMath.RandomBetween(0.0f, 1.0f); // Random roll 0.0-1.0, i.e. roll 0 to 100
+                        float rnum = RandomMath.RandomBetween(0.00f, 1.00f); // Random roll 0.0-1.0, i.e. roll 0 to 100
                         if (rnum + ECMResist < targetShip.ECMValue) // Can she hit?
-                            this.Miss = true;
+                        {
+                            return false; // Weapon fails to impact if it has failed ECM check. Should make ECM actually work now.
+                        }
                     }
                     if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
 					{
