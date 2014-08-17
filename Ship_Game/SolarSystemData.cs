@@ -41,6 +41,8 @@ namespace Ship_Game
 
 			public bool HomePlanet;
 
+            public float planetScale;
+
 			public string Owner;
 
 			public string Station;
@@ -50,6 +52,8 @@ namespace Ship_Game
 			public List<SolarSystemData.Resource> ResourceList;
 
 			public int Population;
+
+            public float MaxPopDefined;
 		}
 	}
 }
