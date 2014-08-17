@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -1468,7 +1469,7 @@ namespace Ship_Game
 			return StrHere;
 		}
 
-		public float GetPredictedEnemyPresence(float time, Empire us, bool update, Dictionary<Ship,List<Ship>> clumps)
+		public float GetPredictedEnemyPresence(float time, Empire us, bool update,ConcurrentDictionary<Ship,List<Ship>> clumps)
 		{
 			//added by gremlin massive rewrite of prediction code.
             PredictionTimeout predictor;
