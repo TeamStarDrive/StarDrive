@@ -14,7 +14,8 @@ namespace Ship_Game
 
 		private LoadingScreen(Ship_Game.ScreenManager screenManager, bool loadingIsSlow, GameScreen[] screensToLoad)
 		{
-			this.loadingIsSlow = loadingIsSlow;
+            GC.Collect();
+            this.loadingIsSlow = loadingIsSlow;
 			this.screensToLoad = screensToLoad;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
