@@ -1045,7 +1045,8 @@ namespace Ship_Game
 
 		public static ShipModule GetModule(string uid)
 		{
-			ShipModule module = new ShipModule()
+			
+            ShipModule module = new ShipModule()
 			{
 				BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
 				HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
