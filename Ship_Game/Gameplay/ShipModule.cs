@@ -181,7 +181,7 @@ namespace Ship_Game.Gameplay
 
 		public float PowerStoreMax;
 
-		public int HealPerTurn;
+		public float HealPerTurn;
 
 		public bool isWeapon;
 

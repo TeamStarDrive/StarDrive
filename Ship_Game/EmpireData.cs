@@ -176,6 +176,11 @@ namespace Ship_Game
             //added by McShooterz: added missing tags
             this.WeaponTags.Add("Cannon", new WeaponTagModifier());
             this.WeaponTags.Add("Bomb", new WeaponTagModifier());
+            //added by The Doctor: New tags
+            this.WeaponTags.Add("Array", new WeaponTagModifier());
+            this.WeaponTags.Add("Flak", new WeaponTagModifier());
+            this.WeaponTags.Add("Tractor", new WeaponTagModifier());
+
 		}
 
 		public EmpireData GetClone()

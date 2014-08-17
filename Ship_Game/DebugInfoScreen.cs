@@ -60,8 +60,11 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
 			this.win = new Rectangle(30, 200, 1200, 700);
+            
             foreach (Empire empire in EmpireManager.EmpireList)
             {
+                if (empire == Empire.universeScreen.player || empire.isFaction)
+                    continue;
                 bool flag=false;
                 foreach (Ship ship in empire.GetShips())
                 {
