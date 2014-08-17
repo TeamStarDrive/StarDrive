@@ -2,8 +2,10 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -24,7 +26,7 @@ namespace Ship_Game
 
 		public Dictionary<Guid, Ship> ShipsDict = new Dictionary<Guid, Ship>();
 
-		public Dictionary<Ship, List<Ship>> EnemyClumpsDict = new Dictionary<Ship, List<Ship>>();
+		public ConcurrentDictionary<Ship, List<Ship>> EnemyClumpsDict = new ConcurrentDictionary<Ship, List<Ship>>();
 
 		private Empire us;
 
@@ -34,16 +36,19 @@ namespace Ship_Game
 			this.us = e;
 		}
 
-		public void AssignTargets(Dictionary<Ship,List<Ship>> EnemyClumpsDict)
+		public void AssignTargets(ConcurrentDictionary<Ship,List<Ship>> EnemyClumpsDict)
 		{
             this.EnemyClumpsDict.Clear();
             //this.EnemyClumpsDict = EnemyClumpsDict.Where(home => Vector2.Distance(home.Key.Position, this.system.Position) > 100000).ToDictionary(Ship,List<Ship>);
-            foreach(KeyValuePair<Ship,List<Ship>> home in EnemyClumpsDict)
+            
+            //foreach(KeyValuePair<Ship,List<Ship>> home in EnemyClumpsDict)
+            Parallel.ForEach(EnemyClumpsDict, (home,status) =>
             {
                 if (Vector2.Distance(home.Key.Position, this.system.Position) > 100000)
-                    continue;
-                this.EnemyClumpsDict.Add(home.Key, home.Value);
-            }
+                    return;
+                    //continue;
+                this.EnemyClumpsDict.TryAdd(home.Key, home.Value);
+            });
 
             
 			if (this.EnemyClumpsDict.Count != 0 && this.ShipsDict.Count !=0)
@@ -57,7 +62,7 @@ namespace Ship_Game
 					from clumpPos in ClumpsList
 					orderby Vector2.Distance(this.system.Position, clumpPos.Center)
 					select clumpPos;
-				List<Ship> AssignedShips = new List<Ship>();
+				HashSet<Ship> AssignedShips = new HashSet<Ship>();
 				foreach (Ship enemy in this.EnemyClumpsDict[distanceSorted.First<Ship>()])
 				{
 					float AssignedStr = 0f;
@@ -115,7 +120,8 @@ namespace Ship_Game
 						continue;
 					}
 					ship.GetAI().Intercepting = true;
-					ship.GetAI().OrderAttackSpecificTarget(AssignedShips[0].GetAI().Target as Ship);
+                    
+					ship.GetAI().OrderAttackSpecificTarget(AssignedShips.First().GetAI().Target as Ship);
 				}
 			}
             //else if(this.us.GetShipsInOurBorders().Count >0)
