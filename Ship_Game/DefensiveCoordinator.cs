@@ -528,14 +528,14 @@ namespace Ship_Game
 				}
 			}
 		}
-        public Dictionary<Ship, List<Ship>> EnemyClumpsDict = new Dictionary<Ship, List<Ship>>();
+        public ConcurrentDictionary<Ship, List<Ship>> EnemyClumpsDict = new ConcurrentDictionary<Ship, List<Ship>>();
 
         public void refreshclumps()
         {
             this.EnemyClumpsDict.Clear();
      
             //List<Ship> ShipsAlreadyConsidered = new List<Ship>();
-            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
+            
 
 
 
@@ -548,7 +548,7 @@ namespace Ship_Game
             {
                 incomingShips = us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
             }
-            var source = incomingShips.ToArray();
+            
 
 
             if (incomingShips.Count == 0)
@@ -556,47 +556,57 @@ namespace Ship_Game
                 
                 return;
             }
-            // var   rangePartitioner = Partitioner.Create(0, source.Length);
-            {
-                for (int i = 0; i < incomingShips.Count; i++)
+            var source = incomingShips.ToArray();
+
+
+            var   rangePartitioner = Partitioner.Create(0, source.Length);
+            Parallel.ForEach(rangePartitioner, (range, loopState) =>
                 {
-                    //Ship ship = this.system.ShipList[i];
-                    Ship ship = incomingShips[i];
-
-                    if (ship != null && ship.loyalty != this.us
-                        && (ship.loyalty.isFaction || this.us.GetRelations()[ship.loyalty].AtWar || !this.us.GetRelations()[ship.loyalty].Treaty_OpenBorders)
-                        && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
+                    HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
+                    for (int i = range.Item1; i < range.Item2; i++)
                     {
-                        this.EnemyClumpsDict.Add(ship, new List<Ship>());
-                        this.EnemyClumpsDict[ship].Add(ship);
-                        ShipsAlreadyConsidered.Add(ship);
-                        //for (int j = 0; j < this.system.ShipList.Count; j++)
-       //                             var source = Empire.universeScreen.MasterShipList.ToArray();
-       //     var rangePartitioner = Partitioner.Create(0, source.Length);
-            
-       //     //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>  
-       //     Parallel.ForEach(rangePartitioner, (range, loopState) =>
-       //{
-       //    for (int i = range.Item1; i < range.Item2; i++)
+                        //for (int i = 0; i < incomingShips.Count; i++)
+                        {
+                            //Ship ship = this.system.ShipList[i];
+                            Ship ship = incomingShips[i];
 
-                        
-                        for (int j = 0; j < incomingShips.Count; j++)
-                        //Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                            if (ship != null && ship.loyalty != this.us
+                                && (ship.loyalty.isFaction || this.us.GetRelations()[ship.loyalty].AtWar || !this.us.GetRelations()[ship.loyalty].Treaty_OpenBorders)
+                                && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
                             {
-                                //for (int j = range.Item1; j < range.Item2; j++)
+                                //lock(this.EnemyClumpsDict)
+                                this.EnemyClumpsDict.TryAdd(ship, new List<Ship>());
+                                this.EnemyClumpsDict[ship].Add(ship);
+                                ShipsAlreadyConsidered.Add(ship);
+                                //for (int j = 0; j < this.system.ShipList.Count; j++)
+                                //                             var source = Empire.universeScreen.MasterShipList.ToArray();
+                                //     var rangePartitioner = Partitioner.Create(0, source.Length);
+
+                                //     //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>  
+                                //     Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                                //{
+                                //    for (int i = range.Item1; i < range.Item2; i++)
+
+
+                                //for (int j = 0; j < incomingShips.Count; j++)
+                                for (int j = range.Item1; j < range.Item2; j++)
+                                //Parallel.ForEach(rangePartitioner, (range, loopState) =>
                                 {
-                                    Ship otherShip = source[j]; //incomingShips[j];
-                                    if (otherShip.loyalty != this.us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f
-                                        && !ShipsAlreadyConsidered.Contains(otherShip))
+                                    //for (int j = range.Item1; j < range.Item2; j++)
                                     {
-                                        this.EnemyClumpsDict[ship].Add(otherShip);
+                                        Ship otherShip = source[j]; //incomingShips[j];
+                                        if (otherShip.loyalty != this.us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f
+                                            && !ShipsAlreadyConsidered.Contains(otherShip))
+                                        {
+                                            this.EnemyClumpsDict[ship].Add(otherShip);
+                                        }
                                     }
-                                }
-                            }//);
+                                }//);
+                            }
+
+                        }
                     }
-                    
-                }
-            }
+                });
   
             
         }
