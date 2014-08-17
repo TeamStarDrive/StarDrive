@@ -27,7 +27,7 @@ namespace Ship_Game.Gameplay
 
             int galaxySizeMod = (int)((Empire.universeScreen.Size.X ) / 250);
             float offset = Empire.ProjectorRadius * 1.8f + galaxySizeMod;
-            this.NumberOfProjectors = (int)Distance / (int)(offset);
+            this.NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
 			for (int i = 0; i < this.NumberOfProjectors; i++)
 			{
 				RoadNode node = new RoadNode();
