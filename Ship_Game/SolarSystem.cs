@@ -823,7 +823,7 @@ namespace Ship_Game
 			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
 			for (int i = 1; i < this.numberOfRings + 1; i++)
 			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f));
+				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
 				ringRadius = ringRadius * systemScale;
 				if ((int)RandomMath.RandomBetween(1f, 100f) > 80)
 				{
@@ -858,8 +858,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
+
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
 					Planet newOrbital = new Planet()
@@ -873,6 +872,13 @@ namespace Ship_Game
 					{
 						newOrbital.planetType = (int)RandomMath.RandomBetween(1f, 24f);
 					}
+
+                    float scale = RandomMath.RandomBetween(0.9f, 1.8f);
+                    if (newOrbital.planetType == 2 || newOrbital.planetType == 6 || newOrbital.planetType == 10 || newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 || newOrbital.planetType == 26)
+                    {
+                        scale += 2.5f;
+                    }
+                    float planetRadius = 100f * scale;
 					newOrbital.SetPlanetAttributes();
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -1066,12 +1072,10 @@ namespace Ship_Game
 			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
 			for (int i = 1; i < this.numberOfRings + 1; i++)
 			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f));
+				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
 				ringRadius = ringRadius * systemScale;
 				if (i == 1)
 				{
-					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
 					Planet newOrbital = new Planet()
@@ -1081,6 +1085,12 @@ namespace Ship_Game
 						ParentSystem = this,
 						planetType = (int)RandomMath.RandomBetween(1f, 24f)
 					};
+                    float scale = RandomMath.RandomBetween(0.9f, 1.8f);
+                    if (newOrbital.planetType == 2 || newOrbital.planetType == 6 || newOrbital.planetType == 10 || newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 || newOrbital.planetType == 26)
+                    {
+                        scale += 2.5f;
+                    }
+                    float planetRadius = 100f * scale;
 					newOrbital.SetPlanetAttributes();
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -1220,10 +1230,10 @@ namespace Ship_Game
                     }
                     else
                     {
-                        scale = RandomMath.RandomBetween(0.8f, 1.6f);
+                        scale = RandomMath.RandomBetween(0.9f, 1.8f);
                         if (data.RingList[i - 1].WhichPlanet == 2 || data.RingList[i - 1].WhichPlanet == 7 || data.RingList[i - 1].WhichPlanet == 10 || data.RingList[i - 1].WhichPlanet == 12 || data.RingList[i - 1].WhichPlanet == 15 || data.RingList[i - 1].WhichPlanet == 20 || data.RingList[i - 1].WhichPlanet == 26)
                         {
-                            scale += 1.5f;
+                            scale += 2.5f;
                         }
                     }
 					float planetRadius = 100f * scale;
@@ -1337,10 +1347,10 @@ namespace Ship_Game
                     }
                     else
                     {
-                        scale = RandomMath.RandomBetween(0.8f, 1.6f);
+                        scale = RandomMath.RandomBetween(0.9f, 1.8f);
                         if (data.RingList[i - 1].WhichPlanet == 2 || data.RingList[i - 1].WhichPlanet == 6 || data.RingList[i - 1].WhichPlanet == 10 || data.RingList[i - 1].WhichPlanet == 12 || data.RingList[i - 1].WhichPlanet == 15 || data.RingList[i - 1].WhichPlanet == 20 || data.RingList[i - 1].WhichPlanet == 26)
                         {
-                            scale += 1.8f;
+                            scale += 2.5f;
                         }
                     }
 					float planetRadius = 100f * scale;
