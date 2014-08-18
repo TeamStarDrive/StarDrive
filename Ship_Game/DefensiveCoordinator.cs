@@ -184,7 +184,7 @@ namespace Ship_Game
 
                         if (Relationship.Value.AtWar)
                         {
-                            entry.Value.ValueToUs += 50f;
+                            entry.Value.ValueToUs += 10f;
                             flag = true;
                             continue;
                         }
@@ -196,7 +196,7 @@ namespace Ship_Game
 
                     }
                     if (!flag)
-                        entry.Value.ValueToUs -= 10f;
+                        entry.Value.ValueToUs -= 5f;
                 }
 
             }

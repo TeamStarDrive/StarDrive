@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Xml.Serialization;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -1521,28 +1522,30 @@ namespace Ship_Game
                 Relationship war = null;
                 if (ship.GetAI().OrderQueue.Count==0|| !us.GetRelations().TryGetValue(ship.loyalty, out war) ||ship.loyalty.isFaction)
                 {
-                    if ((ship.GetSystem()!=null && ship.GetSystem()==this) || ship.GetAI().Target != null && ship.GetAI().Target.GetSystem() != null && ship.GetAI().Target.GetSystem() == this)
-                        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
+                    if ((ship.GetSystem()!=null && ship.GetSystem()==this) || ship.GetAI().Target != null &&  Vector2.Distance(ship.GetAI().MovePosition,this.Position)<300000 )    
+                        //ship.GetAI().  .Target.GetSystem() != null && ship.GetAI().Target.GetSystem() == this)
+                       // prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
+                    prediction += clumps[ship].Sum(str => str.BaseStrength);
                     continue;
                 }
-                Ship_Game.Gameplay.ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.Last.Value;
-                if (!war.Treaty_OpenBorders || war.AtWar || ship.loyalty.isFaction)
-                {
+                //Ship_Game.Gameplay.ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.Last.Value;
+                //if (!war.Treaty_OpenBorders || war.AtWar || ship.loyalty.isFaction)
+                //{
 
-                    if (this.PlanetList.Contains(goal.TargetPlanet))
-                    {
-                        prediction += ship.BaseStrength == 0 ? 10 : ship.BaseStrength;
-                        continue;
-                    }
-                    if (goal.MovePosition != null && Vector2.Distance(goal.MovePosition, this.Position) < 150000)
-                    {
-                        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
-                        continue;
-                    }
+                //    if (this.PlanetList.Contains(goal.TargetPlanet))
+                //    {
+                //        prediction += ship.BaseStrength == 0 ? 10 : ship.BaseStrength;
+                //        continue;
+                //    }
+                //    if (goal.MovePosition != null && Vector2.Distance(goal.MovePosition, this.Position) < 150000)
+                //    {
+                //        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
+                //        continue;
+                //    }
 
-                }
-                if (ship.GetSystem() == this)
-                    prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
+                //}
+                //if (ship.GetSystem() == this)
+                //    prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
 
             }
 

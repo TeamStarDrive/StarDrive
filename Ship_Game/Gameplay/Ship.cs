@@ -2952,7 +2952,7 @@ namespace Ship_Game.Gameplay
                     //Added by McShooterz: Priority repair
                     if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
                     {
-                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).ToList())
+                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).ToList())
                         {
                             //if destroyed do not repair in combat
                             if (moduleSlot.module.Health <= 1 && this.LastHitTimer > 0)
