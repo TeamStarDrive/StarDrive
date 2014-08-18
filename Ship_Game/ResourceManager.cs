@@ -1247,16 +1247,18 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
-			{
-				ModuleSlot newSlot = new ModuleSlot();
-				newSlot.SetParent(newShip);
-				newSlot.Restrictions = slot.Restrictions;
-				newSlot.Position = slot.Position;
-				newSlot.facing = slot.facing;
-				newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-				newShip.ModuleSlotList.AddLast(newSlot);
-			}
+            foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+            {
+                ModuleSlot newSlot = new ModuleSlot();
+                newSlot.SetParent(newShip);
+                newSlot.SlotOptions = slot.SlotOptions;
+                newSlot.Restrictions = slot.Restrictions;
+                newSlot.Position = slot.Position;
+                newSlot.facing = slot.facing;
+                newSlot.state = slot.state;
+                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
+                newShip.ModuleSlotList.AddLast(newSlot);
+            }
 			return newShip;
 		}
 
