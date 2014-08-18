@@ -310,7 +310,7 @@ namespace Ship_Game
             {
                 //Planet planet =null;
                 //lock(this.OwnedPlanets)
-                Planet planet = planet = this.OwnedPlanets[i];
+                Planet planet = this.OwnedPlanets[i];
                 if (!list.Contains(planet.system))
                     list.Add(planet.system);
             }
