@@ -70,9 +70,8 @@ namespace Ship_Game
 			return this.DefenseDict[system].PercentageOfValue;
 		}
 
-		public void ManageForcePool()
-		{
-            this.refreshclumps();
+        public void ManageForcePool()
+        {
             foreach (Planet p in this.us.GetPlanets())
             {
                 if (p.Owner == null && p.BuildingList.Count == 0 && p.TroopsHere.Count > 0 && p.GetGroundStrengthOther(this.us) > 0)
