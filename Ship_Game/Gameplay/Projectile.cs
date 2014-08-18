@@ -46,9 +46,9 @@ namespace Ship_Game.Gameplay
 
 		public float damageRadius;
 
-		public float duration;
+        public float explosionradiusmod;
 
-		public bool damageOwner = true;
+		public float duration;
 
 		public bool explodes;
 
@@ -252,11 +252,11 @@ namespace Ship_Game.Gameplay
 						}
 						if (this.system == null)
 						{
-							UniverseScreen.DeepSpaceManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
+                            UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 						else
 						{
-							this.system.spatialManager.Explode(this, this.damageAmount, base.Position, this.damageRadius, this.damageOwner);
+                            this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 					}
 					else if (this.dieCueName != "")
@@ -272,30 +272,30 @@ namespace Ship_Game.Gameplay
 						}
 						if (!cleanupOnly && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 						{
-							ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * 4.5f, 2.5f, 0.2f);
+							ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * this.explosionradiusmod, 2.5f, 0.2f);
 							Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
 						}
 						if (this.system == null)
 						{
-                            UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+                            UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 						else
 						{
-                            this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+                            this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 					}
 					else if (this.system == null)
 					{
-                        UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+                        UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 					}
 					else
 					{
-                        this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius, this.damageOwner);
+                        this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 					}
 				}
 				else if (this.weapon.FakeExplode && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 				{
-					ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * 4.5f, 2.5f, 0.2f);
+					ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * this.explosionradiusmod, 2.5f, 0.2f);
 					Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
 				}
 			}
@@ -356,7 +356,7 @@ namespace Ship_Game.Gameplay
 		{
 			DebugInfoScreen.ProjCreated = DebugInfoScreen.ProjCreated + 1;
 			this.direction = direction;
-			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
+            this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			if (this.moduleAttachedTo == null)
 			{
 				this.Center = pos;
@@ -370,9 +370,7 @@ namespace Ship_Game.Gameplay
 			this.radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
 			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
-			this.duration = this.range / initialSpeed;
-			Projectile projectile = this;
-			projectile.duration = projectile.duration + this.duration * 0.25f;
+            this.duration = this.range / initialSpeed * 1.5f;
 			if (this.weapon.Tag_SpaceBomb)
 			{
 				this.duration = 5f;
@@ -504,9 +502,7 @@ namespace Ship_Game.Gameplay
 			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			this.radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
-			this.duration = this.range / initialSpeed;
-			Projectile projectile = this;
-			projectile.duration = projectile.duration + this.duration * 0.25f;
+            this.duration = this.range / initialSpeed * 1.5f;
 			if (this.weapon.Tag_SpaceBomb)
 			{
 				this.duration = 5f;
@@ -711,7 +707,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (target != null)
 			{
-				if (!this.damageOwner && target == this.owner && !this.weapon.HitsFriendlies)
+				if (target == this.owner && !this.weapon.HitsFriendlies)
 				{
 					return false;
 				}
@@ -758,9 +754,11 @@ namespace Ship_Game.Gameplay
                     {
                         float ECMResist = this.weapon.ECMResist; // check any in-built ECM resistance on the guided weapon itself
                         Ship targetShip = (target as ShipModule).GetParent(); // identify the ship to which the module belongs
-                        float rnum = RandomMath.RandomBetween(0.0f, 1.0f); // Random roll 0.0-1.0, i.e. roll 0 to 100
+                        float rnum = RandomMath.RandomBetween(0.00f, 1.00f); // Random roll 0.0-1.0, i.e. roll 0 to 100
                         if (rnum + ECMResist < targetShip.ECMValue) // Can she hit?
-                            this.Miss = true;
+                        {
+                            return false; // Weapon fails to impact if it has failed ECM check. Should make ECM actually work now.
+                        }
                     }
                     if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
 					{

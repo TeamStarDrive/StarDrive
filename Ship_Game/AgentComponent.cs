@@ -81,7 +81,7 @@ namespace Ship_Game
             this.OpsSL.AddItem(this.StealTech);
             this.OpsSL.AddItem(this.StealShip);
             this.OpsSL.AddItem(this.InciteRebellion);
-            this.RecruitButton = new DanButton(new Vector2((float)(this.ComponentRect.X), (float)Escreen.Contact.r.Y - 10), Localizer.Token(2179))
+            this.RecruitButton = new DanButton(new Vector2((float)(this.ComponentRect.X), (float)(this.ComponentRect.Y + this.ComponentRect.Height + 5f)), Localizer.Token(2179))
             {
                 Toggled = true
             };
@@ -196,7 +196,7 @@ namespace Ship_Game
             Vector2 spyLimitPos = new Vector2((float)(spyLimit.X + 25), (float)(spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
             //empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             //if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
-            empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count() + 2;
+            empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count() / 3 + 3;
             spyLimitCount = (empirePlanetSpys - EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Count);
             if (empirePlanetSpys < 0) empirePlanetSpys = 0;
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("For Hire : ", spyLimitCount.ToString(), " / ", empirePlanetSpys.ToString()), spyLimitPos, Color.White);
