@@ -5619,8 +5619,6 @@ namespace Ship_Game
                 }
                 if (!ship.Active || !flag)
                     return;
-                if (ship.Role == "prototype")
-                    ship.Role = "frigate";
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.Role], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
             }
             else if ((this.ShowTacticalCloseup || this.viewState > UniverseScreen.UnivScreenState.ShipView) && !this.LookingAtPlanet)
