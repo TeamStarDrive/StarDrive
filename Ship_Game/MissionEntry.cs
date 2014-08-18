@@ -218,8 +218,6 @@ namespace Ship_Game
         //added by gremlin deveks missionInit
         public void Initialize()
         {
-            if (this.Component.SelectedAgent.Mission == AgentMission.Recovering)
-                return;
             this.Available = false;
             switch (this.TheMission)
             {
@@ -308,11 +306,7 @@ namespace Ship_Game
                         break;
                     }
             }
-            if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).Money < (float)this.cost)
-            {
-                this.Available = false;
-            }
-            if (this.Component.Escreen.SelectedEmpire.data.Defeated)
+            if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).Money < (float)this.cost || this.Component.Escreen.SelectedEmpire.data.Defeated || this.Component.SelectedAgent.Mission == AgentMission.Recovering)
             {
                 this.Available = false;
             }

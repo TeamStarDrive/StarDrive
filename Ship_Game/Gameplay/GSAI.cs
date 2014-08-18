@@ -2890,7 +2890,8 @@ namespace Ship_Game.Gameplay
 
 		private void DoAggressiveRelations()
 		{
-			int numberofWars = 0;
+			
+            int numberofWars = 0;
 			List<Empire> PotentialTargets = new List<Empire>();
 			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
 			{
@@ -3205,7 +3206,7 @@ namespace Ship_Game.Gameplay
             }
             GSAI desiredAgentCount1 = this;
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
-            int empirePlanetSpys = empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
+            int empirePlanetSpys = empire.GetPlanets().Count() / 3 + 3;
             int currentSpies = this.empire.data.AgentList.Count;
             if (this.empire.data.AgentList.Count < this.DesiredAgentCount && this.empire.Money >= 300f && currentSpies < empirePlanetSpys)
             {
@@ -3453,7 +3454,7 @@ namespace Ship_Game.Gameplay
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
             //int empirePlanetSpys = this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             //if (this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
-            int empireSpyLimit = this.empire.GetPlanets().Count() + 2;
+            int empireSpyLimit = this.empire.GetPlanets().Count() / 3 + 3;
             int currentSpies = this.empire.data.AgentList.Count;
             if (this.empire.data.AgentList.Count < this.DesiredAgentCount && this.empire.Money >= 300f && currentSpies < empireSpyLimit)
             {
@@ -4915,9 +4916,19 @@ namespace Ship_Game.Gameplay
                 {
                     //if (!((ResourceManager.ShipsDict[shipsWeCanBuild].Role == "capital" || ResourceManager.ShipsDict[shipsWeCanBuild].Role == "carrier") && ResourceManager.ShipsDict[shipsWeCanBuild].BaseStrength > 0f && Capacity >= ResourceManager.ShipsDict[shipsWeCanBuild].GetMaintCost()) && !(ResourceManager.ShipsDict[shipsWeCanBuild].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild].PowerDraw * this.empire.data.FTLPowerDrainModifier >= ResourceManager.ShipsDict[shipsWeCanBuild].PowerFlowMax || ResourceManager.ShipsDict[shipsWeCanBuild].PowerStoreMax / (ResourceManager.ShipsDict[shipsWeCanBuild].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild].velocityMaximum > minimumWarpRange)))
                     Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild];
-                    if (ship.Role != "capital" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
                     {
-                        continue;
+                        if (ship.Role != "capital" || Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (ship.Role != "capital" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
                     }
                     PotentialShips.Add(ResourceManager.ShipsDict[shipsWeCanBuild]);
                 }
@@ -4951,9 +4962,20 @@ namespace Ship_Game.Gameplay
                 foreach (string shipsWeCanBuild1 in this.empire.ShipsWeCanBuild)
                 {
                     Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild1];
-                    if (ship.Role != "cruiser" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
                     {
-                        continue;
+                        if (ship.Role != "cruiser" || Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (ship.Role != "cruiser" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
                     }
                     PotentialShips.Add(ResourceManager.ShipsDict[shipsWeCanBuild1]);
                 }
@@ -4964,9 +4986,19 @@ namespace Ship_Game.Gameplay
                     {
                         //if (!(ResourceManager.ShipsDict[str1].Role == "cruiser" && ResourceManager.ShipsDict[str1].BaseStrength <= 0f && ResourceManager.ShipsDict[str1].GetMaintCost() >= Capacity && (ResourceManager.ShipsDict[str1].BaseCanWarp && (ResourceManager.ShipsDict[str1].IsWarpCapable && (ResourceManager.ShipsDict[str1].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[str1].PowerFlowMax || ResourceManager.ShipsDict[str1].PowerStoreMax / (ResourceManager.ShipsDict[str1].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[str1].PowerFlowMax) * ResourceManager.ShipsDict[str1].velocityMaximum > minimumWarpRange)))))
                         Ship ship = ResourceManager.ShipsDict[str1];
-                        if (ship.Role != "cruiser" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                        if (GlobalStats.ActiveMod != null&& GlobalStats.ActiveMod.mi.useProportionalUpkeep )
                         {
-                            continue;
+                            if (ship.Role != "cruiser" || Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship))
+                            {
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            if (ship.Role != "cruiser" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                            {
+                                continue;
+                            }
                         }
                         PotentialShips.Add(ResourceManager.ShipsDict[str1]);
                     }
@@ -5025,9 +5057,19 @@ namespace Ship_Game.Gameplay
                 {
                     //if (ResourceManager.ShipsDict[shipsWeCanBuild2].BombBays.Count <= 0 || ResourceManager.ShipsDict[shipsWeCanBuild2].BaseStrength <= 0f || ResourceManager.ShipsDict[shipsWeCanBuild2].GetMaintCost() >= Capacity || !(ResourceManager.ShipsDict[shipsWeCanBuild2].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild2].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild2].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild2].PowerFlowMax || ResourceManager.ShipsDict[shipsWeCanBuild2].PowerStoreMax / (ResourceManager.ShipsDict[shipsWeCanBuild2].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild2].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild2].velocityMaximum > minimumWarpRange))))
                     Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild2];
-                    if (ship.BombBays.Count <= 0 || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                    if (GlobalStats.ActiveMod != null&& GlobalStats.ActiveMod.mi.useProportionalUpkeep)
                     {
-                        continue;
+                        if (ship.BombBays.Count <= 0 || Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (ship.BombBays.Count <= 0 || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
                     }
                     PotentialShips.Add(ResourceManager.ShipsDict[shipsWeCanBuild2]);
                 }
@@ -5062,10 +5104,19 @@ namespace Ship_Game.Gameplay
                 {
                     //if (!(ResourceManager.ShipsDict[str2].Role == "frigate") || ResourceManager.ShipsDict[str2].BaseStrength <= 0f || !(ResourceManager.ShipsDict[str2].BaseCanWarp && (ResourceManager.ShipsDict[str2].IsWarpCapable && (ResourceManager.ShipsDict[str2].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[str2].PowerFlowMax || (ResourceManager.ShipsDict[str2].PowerStoreMax) / (ResourceManager.ShipsDict[str2].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[str2].PowerFlowMax) * ResourceManager.ShipsDict[str2].velocityMaximum > minimumWarpRange))))
                     Ship ship = ResourceManager.ShipsDict[str2];
-                    if (ship.Role != "frigate" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
-
+                    if (GlobalStats.ActiveMod != null&& GlobalStats.ActiveMod.mi.useProportionalUpkeep )
                     {
-                        continue;
+                        if (ship.Role != "frigate" || Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (ship.Role != "frigate" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
                     }
                     PotentialShips.Add(ResourceManager.ShipsDict[str2]);
                 }
@@ -5098,10 +5149,19 @@ namespace Ship_Game.Gameplay
             {
                 //if (!(ResourceManager.ShipsDict[shipsWeCanBuild3].Role == "fighter") && !(ResourceManager.ShipsDict[shipsWeCanBuild3].Role == "scout") && !(ResourceManager.ShipsDict[shipsWeCanBuild3].Role == "corvette") || ResourceManager.ShipsDict[shipsWeCanBuild3].BaseStrength <= 0f || !(ResourceManager.ShipsDict[shipsWeCanBuild3].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild3].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax || (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerStoreMax) / (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild3].velocityMaximum > minimumWarpRange))))
                 Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild3];
-                if (!(ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "corvette") || (Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship)))
-                        
+                if (GlobalStats.ActiveMod != null&& GlobalStats.ActiveMod.mi.useProportionalUpkeep )
                 {
-                    continue;
+                    if (!(ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "corvette") || (Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship)))
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (!(ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "corvette") || (Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship)))
+                    {
+                        continue;
+                    }
                 }
 
                 PotentialShips.Add(ResourceManager.ShipsDict[shipsWeCanBuild3]);
@@ -5137,9 +5197,19 @@ namespace Ship_Game.Gameplay
             {
                 //if (!(ResourceManager.ShipsDict[shipsWeCanBuild3].GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0) || ResourceManager.ShipsDict[shipsWeCanBuild3].BaseStrength <= 0f || !(ResourceManager.ShipsDict[shipsWeCanBuild3].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild3].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax || (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerStoreMax) / (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild3].velocityMaximum > minimumWarpRange))))
                 Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild3];
-                if (ship.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() == 0 || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                if (GlobalStats.ActiveMod != null&&GlobalStats.ActiveMod.mi.useProportionalUpkeep)
                 {
-                    continue;
+                    if (ship.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() == 0 || Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship))
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (ship.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() == 0 || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                    {
+                        continue;
+                    }
                 }
                 PotentialShips.Add(ResourceManager.ShipsDict[shipsWeCanBuild3]);
             }
@@ -5172,7 +5242,7 @@ namespace Ship_Game.Gameplay
 
         private bool shipIsGoodForGoals(Ship ship)
         {
-            if (ship.BaseStrength > 0f && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
+            if ( ship.BaseStrength > 0f  && !ship.shipData.CarrierShip && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
                 || (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
                 && ship.PowerStoreMax / (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum > minimumWarpRange))
                 return true;
@@ -6272,15 +6342,21 @@ namespace Ship_Game.Gameplay
 
 		private void RunGroundPlanner()
 		{
-			float requiredStrength =  (float)(this.empire.GetPlanets().Count * 50);
+			//float requiredStrength =  (float)(this.empire.GetPlanets().Count * 50);
+            float requiredStrength = (float)(this.empire.GetPlanets().Sum(planet =>planet.GetPotentialGroundTroops(this.empire)));
+            float developmentlevel = (float)this.empire.GetPlanets().Average(planet => planet.developmentLevel) *.5f;
+            requiredStrength *= developmentlevel;
+            requiredStrength *= 10;
+
 			requiredStrength = requiredStrength + requiredStrength * this.empire.data.Traits.GroundCombatModifier;
-			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Hard)
+
+			if (Ship.universeScreen.GameDifficulty < UniverseData.GameDifficulty.Hard)
 			{
-				requiredStrength = requiredStrength * 1.25f;
+				requiredStrength = requiredStrength * .5f;
 			}
-			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Brutal)
+			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Easy)
 			{
-				requiredStrength = requiredStrength * 1.75f;
+				requiredStrength = requiredStrength * .5f;
 			}
 			this.numberTroopGoals = this.AreasOfOperations.Count * 2;
 			float currentStrength = 0f;
@@ -6312,15 +6388,19 @@ namespace Ship_Game.Gameplay
 				}
 			}
 			int currentgoals = 0;
+            int goalStrength =0;
 			for (int i = 0; i < this.Goals.Count; i++)
 			{
 				Goal g = this.Goals[i];
 				if (g != null && g.GoalName == "Build Troop")
 				{
 					currentgoals++;
+                    goalStrength += (int)ResourceManager.TroopsDict[g.ToBuildUID].Strength;
 				}
 			}
-			if (currentStrength < requiredStrength && currentgoals < this.numberTroopGoals)
+            int wantedStrength = (int)(requiredStrength - (currentStrength + goalStrength));
+			//if (currentStrength < requiredStrength || currentgoals < this.numberTroopGoals)
+            //if(wantedStrength >0 || )
 			{
 				List<Planet> Potentials = new List<Planet>();
 				float totalProduction = 0f;
@@ -6335,47 +6415,60 @@ namespace Ship_Game.Gameplay
 				}
 				if (Potentials.Count > 0)
 				{
-					float random = RandomMath.RandomBetween(0f, totalProduction);
-					Planet selectedPlanet = null;
-					float prodPick = 0f;
-					foreach (Planet p in Potentials)
-					{
-						if (random <= prodPick || random >= prodPick + p.GetNetProductionPerTurn())
-						{
-							prodPick = prodPick + p.GetNetProductionPerTurn();
-						}
-						else
-						{
-							selectedPlanet = p;
-						}
-					}
-					if (selectedPlanet != null)
-					{
-						List<string> PotentialTroops = new List<string>();
-						foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
-						{
-							if (!this.empire.WeCanBuildTroop(troop.Key))
-							{
-								continue;
-							}
-							PotentialTroops.Add(troop.Key);
-						}
-						if (PotentialTroops.Count > 0)
-						{
-							int ran = (int)RandomMath.RandomBetween(0f, (float)PotentialTroops.Count + 0.75f);
-							if (ran > PotentialTroops.Count - 1)
-							{
-								ran = PotentialTroops.Count - 1;
-							}
-							if (ran < 0)
-							{
-								ran = 0;
-							}
-							Goal g = new Goal(ResourceManager.TroopsDict[PotentialTroops[ran]], this.empire, selectedPlanet);
-							this.Goals.Add(g);
-						
+
+                    //for (int i = 0; i < (int)wantedStrength * .1f; i++)
+                    float prodPick = 0f;
+                    while(wantedStrength >0 &&  currentgoals <= this.empire.GetPlanets().Count*3)//  this.Goals.Where(goal=>goal.type == GoalType.BuildTroop).Count() <= Potentials.Count*5)
+
+                    {
+                        Planet selectedPlanet = null;
+       
+                        foreach (Planet p in Potentials.OrderByDescending(queue=> queue.Owner.GetGSAI().Goals.Where(goals=> goals.GetPlanetWhereBuilding() ==queue).Count()).ThenBy(production=> production.GetNetProductionPerTurn()))
+                        {
+
+                            //float random = RandomMath.RandomBetween(0f, totalProduction);
+ 
+                            //if (random <= prodPick || random >= prodPick + p.GetNetProductionPerTurn())
+                            //{
+                            //    prodPick = prodPick + p.GetNetProductionPerTurn();
+                            //}
+                            //else
+                            //{
+                            //    selectedPlanet = p;
+                            //}
+                            selectedPlanet = p;
+                            if (selectedPlanet != null)
+                            {
+                                List<string> PotentialTroops = new List<string>();
+                                foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
+                                {
+                                    if (!this.empire.WeCanBuildTroop(troop.Key))
+                                    {
+                                        continue;
+                                    }
+                                    PotentialTroops.Add(troop.Key);
+                                }
+                                if (PotentialTroops.Count > 0)
+                                {
+                                    int ran = (int)RandomMath.RandomBetween(0f, (float)PotentialTroops.Count + 0.75f);
+                                    if (ran > PotentialTroops.Count - 1)
+                                    {
+                                        ran = PotentialTroops.Count - 1;
+                                    }
+                                    if (ran < 0)
+                                    {
+                                        ran = 0;
+                                    }
+                                    Troop troop = ResourceManager.TroopsDict[PotentialTroops[ran]];
+                                    wantedStrength -= (int)troop.Strength;
+                                    Goal g = new Goal(troop, this.empire, selectedPlanet);
+                                    this.Goals.Add(g);
+                                    currentgoals++;
+
+                                }
+                            }
                         }
-					}
+                    }
 				}
 			}
 		}
@@ -6414,14 +6507,30 @@ namespace Ship_Game.Gameplay
 					foreach (Goal g in this.Goals)
 					{
 						if (g.GoalName == "BuildOffensiveShips")
-						{
-							UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
-						}
+                            if (GlobalStats.ActiveMod != null&& GlobalStats.ActiveMod.mi.useProportionalUpkeep )
+                            {
+                                {
+                                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
+                                }
+                            }
+                            else
+                            {
+                                {
+                                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                                }
+                            }
 						if (g.GoalName != "BuildConstructionShip")
 						{
 							continue;
 						}
-						UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                        if (GlobalStats.ActiveMod != null&& GlobalStats.ActiveMod.mi.useProportionalUpkeep )
+                        {
+                            UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
+                        }
+                        else
+                        {
+                            UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                        }
 					}
 					if ((double)((this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ? this.empire.EstimateIncomeAtTaxRate(this.empire.data.TaxRate) - UnderConstruction : this.empire.EstimateIncomeAtTaxRate(0.2f) - UnderConstruction)) - 0.24 * (double)newRoad.NumberOfProjectors <= 0.5)
 					{
@@ -6575,7 +6684,14 @@ namespace Ship_Game.Gameplay
             {
                 if (g.GoalName == "BuildOffensiveShips")
                 {
-                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+                    {
+                        UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
+                    }
+                    else
+                    {
+                        UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                    }
                     offenseUnderConstruction += ResourceManager.ShipsDict[g.ToBuildUID].BaseStrength;
                     foreach (Troop t in ResourceManager.ShipsDict[g.ToBuildUID].TroopList)
                     {
@@ -6587,7 +6703,14 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-                UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+                {
+                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
+                }
+                else
+                {
+                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                }
             }
 
             float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
@@ -6615,38 +6738,77 @@ namespace Ship_Game.Gameplay
                     {
                         continue;
                     }
-                    HowMuchWeAreScrapping = HowMuchWeAreScrapping + ship1.GetMaintCost();
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+                    {
+                        HowMuchWeAreScrapping = HowMuchWeAreScrapping + ship1.GetMaintCostRealism();
+                    }
+                    else
+                    {
+                        HowMuchWeAreScrapping = HowMuchWeAreScrapping + ship1.GetMaintCost();
+                    }
                 }
                 if (HowMuchWeAreScrapping < Math.Abs(Capacity))
                 {
                     float Added = 0f;
                     
                     //added by gremlin clear out building ships before active ships.
-                    foreach (Goal g in this.Goals.Where(goal => goal.GoalName == "BuildOffensiveShips").OrderByDescending(goal => ResourceManager.ShipsDict[goal.ToBuildUID].GetMaintCost()))
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
                     {
-                        bool flag = false;
-                        if (g.GetPlanetWhereBuilding() == null)
-                            continue;
-                        foreach(QueueItem shipToRemove in g.GetPlanetWhereBuilding().ConstructionQueue)
+                        foreach (Goal g in this.Goals.Where(goal => goal.GoalName == "BuildOffensiveShips").OrderByDescending(goal => ResourceManager.ShipsDict[goal.ToBuildUID].GetMaintCostRealism()))
                         {
-                           
-                            if (shipToRemove.Goal != g)
-                            {
+                            bool flag = false;
+                            if (g.GetPlanetWhereBuilding() == null)
                                 continue;
-                                
-                            }
-                            g.GetPlanetWhereBuilding().ProductionHere += shipToRemove.productionTowards;
-                            g.GetPlanetWhereBuilding().ConstructionQueue.QueuePendingRemoval(shipToRemove);
-                            this.Goals.QueuePendingRemoval(g);
-                            Added += ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
-                            flag = true;
-                            break;
-              
-                        }
-                        if (flag)
-                            g.GetPlanetWhereBuilding().ConstructionQueue.ApplyPendingRemovals();
+                            foreach (QueueItem shipToRemove in g.GetPlanetWhereBuilding().ConstructionQueue)
+                            {
 
+                                if (shipToRemove.Goal != g)
+                                {
+                                    continue;
+
+                                }
+                                g.GetPlanetWhereBuilding().ProductionHere += shipToRemove.productionTowards;
+                                g.GetPlanetWhereBuilding().ConstructionQueue.QueuePendingRemoval(shipToRemove);
+                                this.Goals.QueuePendingRemoval(g);
+                                Added += ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
+                                flag = true;
+                                break;
+
+                            }
+                            if (flag)
+                                g.GetPlanetWhereBuilding().ConstructionQueue.ApplyPendingRemovals();
+
+                        }
                     }
+                    else
+                    {
+                        foreach (Goal g in this.Goals.Where(goal => goal.GoalName == "BuildOffensiveShips").OrderByDescending(goal => ResourceManager.ShipsDict[goal.ToBuildUID].GetMaintCost()))
+                        {
+                            bool flag = false;
+                            if (g.GetPlanetWhereBuilding() == null)
+                                continue;
+                            foreach (QueueItem shipToRemove in g.GetPlanetWhereBuilding().ConstructionQueue)
+                            {
+
+                                if (shipToRemove.Goal != g)
+                                {
+                                    continue;
+
+                                }
+                                g.GetPlanetWhereBuilding().ProductionHere += shipToRemove.productionTowards;
+                                g.GetPlanetWhereBuilding().ConstructionQueue.QueuePendingRemoval(shipToRemove);
+                                this.Goals.QueuePendingRemoval(g);
+                                Added += ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                                flag = true;
+                                break;
+
+                            }
+                            if (flag)
+                                g.GetPlanetWhereBuilding().ConstructionQueue.ApplyPendingRemovals();
+
+                        }
+                    }
+
                     this.Goals.ApplyPendingRemovals();
                     
                    
@@ -6676,7 +6838,16 @@ namespace Ship_Game.Gameplay
                             {
                                 if (current.fleet == null || (current.fleet != null && current.fleet.Task == null)) //&&current.fleet.TaskStep <1))
                                 {
-                                    float maintcost = current.GetMaintCost();
+                                    float maintcost = 1f;
+                                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+                                    {
+                                        maintcost = current.GetMaintCostRealism();
+                                    }
+                                    else
+                                    {
+                                        maintcost = current.GetMaintCost();
+                                    }
+
                                     if (maintcost > 0)
                                     {
                                         current.GetAI().OrderScrapShip();
@@ -6728,7 +6899,14 @@ namespace Ship_Game.Gameplay
                     type = GoalType.BuildShips
                 };
                 this.Goals.Add(g);
-                Capacity = Capacity - ResourceManager.ShipsDict[s].GetMaintCost();
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+                {
+                    Capacity = Capacity - ResourceManager.ShipsDict[s].GetMaintCostRealism();
+                }
+                else
+                {
+                    Capacity = Capacity - ResourceManager.ShipsDict[s].GetMaintCost();
+                }
                 numgoals = numgoals + 1f;
             }
             int numWars = 0;
@@ -6945,18 +7123,21 @@ namespace Ship_Game.Gameplay
                         TNInOurSystems.Add(task);
                     }
                 }
-                foreach (MilitaryTask task in TNInOurAOs)
+                //foreach (MilitaryTask task in TNInOurAOs)
+                Parallel.ForEach(TNInOurAOs, task =>
                 {
                     if (task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner == this.empire || this.empire.GetRelations()[task.GetTargetPlanet().Owner].ActiveWar == null || (float)this.empire.TotalScore <= (float)task.GetTargetPlanet().Owner.TotalScore * 1.5f)
                     {
-                        continue;
+                        //continue;
+                        return;
                     }
                     task.Evaluate(this.empire);
-                }
-                foreach (MilitaryTask task in TNInOurSystems)
+                });
+                //foreach (MilitaryTask task in TNInOurSystems)
+                Parallel.ForEach(TNInOurSystems, task =>
                 {
                     task.Evaluate(this.empire);
-                }
+                });
                 foreach (MilitaryTask task in TNRemainder)
                 {
                     if (task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner == this.empire || this.empire.GetRelations()[task.GetTargetPlanet().Owner].ActiveWar == null || (float)this.empire.TotalScore <= (float)task.GetTargetPlanet().Owner.TotalScore * 1.5f)
@@ -7318,16 +7499,17 @@ namespace Ship_Game.Gameplay
                             {
                                 techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
                             }
-                            Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+                            Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                             if (ResearchTech == null)
                                 continue;
                             //if (AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).Count() == 0)
                             //    continue;
+                            float cheapCost = ResearchTech.Cost;
 
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
-                            if (researchtopic == "" && Testresearchtopic !=null)
+                            if (researchtopic == "" )
                                 researchtopic=Testresearchtopic;
-                            else if(Testresearchtopic !=null && (int)(ResourceManager.TechTree[Testresearchtopic].Cost*.01f) < (int)(ResourceManager.TechTree[researchtopic].Cost*.01f))
+                            else if ((int)ResearchTech.Cost*.01f < (int)(ResourceManager.TechTree[researchtopic].Cost * .01f))
                                 researchtopic = Testresearchtopic;
 
                         }

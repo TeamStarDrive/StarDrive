@@ -174,7 +174,7 @@ namespace Ship_Game
             Rectangle theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 3 - 15, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - theMenu1.Y - 2);
             this.RightMenu = new Menu1(ScreenManager, theMenu3);
             this.MoneyRect = new Rectangle(theMenu2.X + theMenu2.Width - 75, theMenu2.Y + 20, ResourceManager.TextureDict["NewUI/icon_money"].Width, ResourceManager.TextureDict["NewUI/icon_money"].Height);
-            this.close = new CloseButton(new Rectangle(theMenu3.X + theMenu3.Width - 30, theMenu3.Y + 8, 20, 20));
+            this.close = new CloseButton(new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
             Rectangle theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
             this.PlanetInfo = new Submenu(ScreenManager, theMenu4);
             this.PlanetInfo.AddTab(Localizer.Token(326));
@@ -260,7 +260,7 @@ namespace Ship_Game
             this.build = new Submenu(ScreenManager, theMenu10);
             this.build.AddTab(Localizer.Token(334));
             this.buildSL = new ScrollList(this.build);
-            this.playerDesignsToggle = new ToggleButton(new Rectangle(this.build.Menu.X + this.build.Menu.Width - 44, this.build.Menu.Y, 29, 20), "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid");
+            this.playerDesignsToggle = new ToggleButton(new Rectangle(this.build.Menu.X + this.build.Menu.Width - 270, this.build.Menu.Y, 29, 20), "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid");
             this.playerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
             if (p.HasShipyard)
                 this.build.AddTab(Localizer.Token(335));
@@ -457,6 +457,15 @@ namespace Ship_Game
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 100);
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+
+                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
+
+                  position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                  string maintenance = (entry.item as Building).Maintenance.ToString("F2");
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+
+                    // ~~~~
+                  
                   position = new Vector2((float) (destinationRectangle2.X + 26), (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((float) (int) (entry.item as Building).Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
                   if (entry.Plus != 0)
@@ -478,6 +487,15 @@ namespace Ship_Game
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 100);
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+
+                  // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
+
+                  position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                  string maintenance = (entry.item as Building).Maintenance.ToString("F2");
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+
+                  // ~~~
+
                   position = new Vector2((float) (destinationRectangle2.X + 26), (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((float) (int) (entry.item as Building).Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
                   if (entry.Plus != 0)
@@ -556,6 +574,24 @@ namespace Ship_Game
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+
+                  // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
+
+                  position = new Vector2((float) (destinationRectangle2.X - 60), (float) (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    // Use correct upkeep method depending on mod settings
+                  string upkeep = "Doctor rocks";
+                  if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
+                  {
+                      upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
+                  }
+                  else
+                  {
+                      upkeep = (entry.item as Ship).GetMaintCost(this.p.Owner).ToString("F2");
+                  }
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+
+                  // ~~~
+
                   position = new Vector2((float) (destinationRectangle2.X + 26), (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int) (entry.item as Ship).GetCost(this.p.Owner)).ToString(), position, Color.White);
                 }
@@ -570,6 +606,24 @@ namespace Ship_Game
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+
+                  // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
+
+                  position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                  // Use correct upkeep method depending on mod settings
+                  string upkeep = "Doctor rocks";
+                  if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
+                  {
+                      upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
+                  }
+                  else
+                  {
+                      upkeep = (entry.item as Ship).GetMaintCost(this.p.Owner).ToString("F2");
+                  }
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+
+                  // ~~~
+
                   position = new Vector2((float) (destinationRectangle2.X + 26), (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int) (entry.item as Ship).GetCost(this.p.Owner)).ToString(), position, Color.White);
                   if (entry.Plus != 0)
@@ -1071,6 +1125,51 @@ namespace Ship_Game
       this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(387) + ":", vector2_2, Color.Orange);
       this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.MineralRichness.ToString(format), position3, new Color(byte.MaxValue, (byte) 239, (byte) 208));
       rect = new Rectangle((int) vector2_2.X, (int) vector2_2.Y, (int) Fonts.Arial12Bold.MeasureString(Localizer.Token(387) + ":").X, Fonts.Arial12Bold.LineSpacing);
+
+
+      // The Doctor: For planet income breakdown
+
+      Color zeroText = new Color(byte.MaxValue, (byte) 239, (byte) 208);
+      string gIncome = Localizer.Token(6125);
+      string gUpkeep = Localizer.Token(6126);
+      string nIncome = Localizer.Token(6127);
+      string nLosses = Localizer.Token(6129);
+
+      float grossIncome = (float)((double)this.p.GrossMoneyPT + (double)this.p.Owner.data.Traits.TaxMod * (double)this.p.GrossMoneyPT);
+      float grossUpkeep = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn * (double)this.p.Owner.data.Traits.MaintMod);
+      float netIncome = (float)(grossIncome - grossUpkeep);
+
+      Vector2 positionGIncome = vector2_2;
+      positionGIncome.X = vector2_2.X + 1;
+      positionGIncome.Y = vector2_2.Y + 28;
+      Vector2 positionGrossIncome = position3;
+      positionGrossIncome.Y = position3.Y + 28;
+      positionGrossIncome.X = position3.X + 1;
+
+      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, gIncome + ":", positionGIncome, Color.LightGray);
+      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, grossIncome.ToString("F2") + " BC/Y", positionGrossIncome, Color.LightGray);
+
+      Vector2 positionGUpkeep = positionGIncome;
+      positionGUpkeep.Y = positionGIncome.Y + (Fonts.Arial12.LineSpacing);
+      Vector2 positionGrossUpkeep = positionGrossIncome;
+      positionGrossUpkeep.Y = positionGrossIncome.Y + (Fonts.Arial12.LineSpacing);
+
+      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, gUpkeep + ":", positionGUpkeep, Color.LightGray);
+      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, grossUpkeep.ToString("F2") + " BC/Y", positionGrossUpkeep, Color.LightGray);
+
+      Vector2 positionNIncome = positionGUpkeep;
+      positionNIncome.X = positionGUpkeep.X - 1;
+      positionNIncome.Y = positionGUpkeep.Y + (Fonts.Arial12.LineSpacing + 2);
+      Vector2 positionNetIncome = positionGrossUpkeep;
+      positionNetIncome.X = positionGrossUpkeep.X - 1;
+      positionNetIncome.Y = positionGrossUpkeep.Y + (Fonts.Arial12.LineSpacing + 2);
+
+      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, (netIncome > 0.0 ? nIncome : nLosses) + ":", positionNIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
+      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, netIncome.ToString("F2") + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
+      
+      
+      
+    
       if (HelperFunctions.CheckIntersection(rect, pos) && PlanetScreen.screen.IsActive)
         ToolTip.CreateTooltip(21, this.ScreenManager);
       if (ResourceManager.TextureDict.ContainsKey("Portraits/" + this.p.Owner.data.PortraitName))
@@ -1184,11 +1283,18 @@ namespace Ship_Game
         }
       }
       this.close.Draw(this.ScreenManager);
-      this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MoneyRect, Color.White);
-      float num6 = (float) ((double) this.p.GrossMoneyPT + (double) this.p.Owner.data.Traits.TaxMod * (double) this.p.GrossMoneyPT - ((double) this.p.TotalMaintenanceCostsPerTurn + (double) this.p.TotalMaintenanceCostsPerTurn * (double) this.p.Owner.data.Traits.MaintMod));
-      this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, num6.ToString("#.00"), new Vector2((float) (this.MoneyRect.X + this.MoneyRect.Width + 5), (float) (this.MoneyRect.Y + this.MoneyRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), (double) num6 > 0.0 ? Color.LightGreen : Color.LightPink);
-      if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
-        ToolTip.CreateTooltip(142, this.ScreenManager);
+      /* Should no longer be needed.
+this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MoneyRect, Color.White);
+
+
+            
+ float num6 = (float) ((double) this.p.GrossMoneyPT + (double) this.p.Owner.data.Traits.TaxMod * (double) this.p.GrossMoneyPT - ((double) this.p.TotalMaintenanceCostsPerTurn + (double) this.p.TotalMaintenanceCostsPerTurn * (double) this.p.Owner.data.Traits.MaintMod));
+          
+     
+this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, num6.ToString("#.00"), new Vector2((float) (this.MoneyRect.X + this.MoneyRect.Width + 5), (float) (this.MoneyRect.Y + this.MoneyRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), (double) num6 > 0.0 ? Color.LightGreen : Color.LightPink);
+if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
+  ToolTip.CreateTooltip(142, this.ScreenManager);
+     */
       if (HelperFunctions.CheckIntersection(this.foodStorageIcon, pos) && PlanetScreen.screen.IsActive)
         ToolTip.CreateTooltip(73, this.ScreenManager);
       if (!HelperFunctions.CheckIntersection(this.profStorageIcon, pos) || !PlanetScreen.screen.IsActive)
@@ -1228,7 +1334,7 @@ namespace Ship_Game
 				tCursor.Y = bCursor.Y;
 				desc = string.Concat(Localizer.Token(339), ": ");
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, new Color(255, 239, 208));
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Strength.ToString(), tCursor, new Color(255, 239, 208));
+				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Strength.ToString("0."), tCursor, new Color(255, 239, 208));
 				bCursor.Y = bCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				tCursor.Y = bCursor.Y;
 				desc = string.Concat(Localizer.Token(2218), ": ");

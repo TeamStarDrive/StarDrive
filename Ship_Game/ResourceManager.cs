@@ -206,7 +206,10 @@ namespace Ship_Game
 			Ship newShip = new Ship()
 			{
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
-				Name = Ship_Game.ResourceManager.ShipsDict[key].Name
+				Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+                
 			};
 			newShip.LoadContent(Game1.Instance.Content);
 			SceneObject newSO = new SceneObject();
@@ -250,6 +253,7 @@ namespace Ship_Game
 			}
 			newShip.Position = p.Position;
 			newShip.loyalty = Owner;
+            
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
             if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
@@ -278,7 +282,9 @@ namespace Ship_Game
 		{
 			Ship newShip = new Ship()
 			{
-				Role = role
+				Role = role,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
 			};
 			if (role == "troop")
 			{
@@ -373,6 +379,8 @@ namespace Ship_Game
 			}
 			newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
 			newShip.LoadContent(Game1.Instance.Content);
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
@@ -445,7 +453,10 @@ namespace Ship_Game
 			{
 				Rotation = facing,
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
-				Name = Ship_Game.ResourceManager.ShipsDict[key].Name
+                Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+                
 			};
 			newShip.LoadContent(Game1.Instance.Content);
 			if (newShip.Role == "fighter")
@@ -521,6 +532,8 @@ namespace Ship_Game
 			}
 			newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
 			newShip.LoadContent(Game1.Instance.Content);
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
@@ -592,7 +605,9 @@ namespace Ship_Game
 			Ship newShip = new Ship()
 			{
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
-				Name = Ship_Game.ResourceManager.ShipsDict[key].Name
+                Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
 			};
 			newShip.LoadContent(Game1.Instance.Content);
 			SceneObject newSO = new SceneObject();
@@ -648,6 +663,7 @@ namespace Ship_Game
 			{
 				s.Mothership = Parent;
 				s.Velocity = Parent.Velocity;
+                
 			}
 			return s;
 		}
@@ -1029,7 +1045,8 @@ namespace Ship_Game
 
 		public static ShipModule GetModule(string uid)
 		{
-			ShipModule module = new ShipModule()
+			
+            ShipModule module = new ShipModule()
 			{
 				BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
 				HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
@@ -1113,7 +1130,13 @@ namespace Ship_Game
 				IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
 				shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
                 FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime,
-                shieldsOff = Ship_Game.ResourceManager.ShipModulesDict[uid].shieldsOff
+                shieldsOff = Ship_Game.ResourceManager.ShipModulesDict[uid].shieldsOff,
+                SensorBonus = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorBonus,
+                TransporterOrdnance = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterOrdnance,
+                TransporterPower = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterPower,
+                TransporterRange = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterRange,
+                TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant,
+                TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding
 			};
 			return module;
 		}
@@ -1224,16 +1247,18 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
-			{
-				ModuleSlot newSlot = new ModuleSlot();
-				newSlot.SetParent(newShip);
-				newSlot.Restrictions = slot.Restrictions;
-				newSlot.Position = slot.Position;
-				newSlot.facing = slot.facing;
-				newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-				newShip.ModuleSlotList.AddLast(newSlot);
-			}
+            foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+            {
+                ModuleSlot newSlot = new ModuleSlot();
+                newSlot.SetParent(newShip);
+                newSlot.SlotOptions = slot.SlotOptions;
+                newSlot.Restrictions = slot.Restrictions;
+                newSlot.Position = slot.Position;
+                newSlot.facing = slot.facing;
+                newSlot.state = slot.state;
+                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
+                newShip.ModuleSlotList.AddLast(newSlot);
+            }
 			return newShip;
 		}
 
@@ -1324,12 +1349,17 @@ namespace Ship_Game
 				Tag_Drone = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Drone,
 				Tag_BioWeapon = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_BioWeapon,
 				Tag_PD = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_PD,
+                Tag_Array = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Array,
+                Tag_Flak = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Flak,
+                Tag_Tractor = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Tractor,
+                Tag_SpaceBomb = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_SpaceBomb,
                 ECMResist = Ship_Game.ResourceManager.WeaponsDict[uid].ECMResist,
                 Excludes_Fighters = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Fighters,
                 Excludes_Corvettes = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Corvettes,
                 Excludes_Capitals = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Capitals,
                 Excludes_Stations = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Stations,
-                isRepairBeam = Ship_Game.ResourceManager.WeaponsDict[uid].isRepairBeam
+                isRepairBeam = Ship_Game.ResourceManager.WeaponsDict[uid].isRepairBeam,
+                ExplosionRadiusVisual = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionRadiusVisual
 			};
 			return w;
 		}
@@ -1370,20 +1400,29 @@ namespace Ship_Game
 			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Buildings"));
 			XmlSerializer serializer0 = new XmlSerializer(typeof(Building));
 			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			
+            for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				Building newB = (Building)serializer0.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				if (Ship_Game.ResourceManager.BuildingsDict.ContainsKey(newB.Name))
-				{
-					Ship_Game.ResourceManager.BuildingsDict[newB.Name] = newB;
-				}
-				else
-				{
-					Ship_Game.ResourceManager.BuildingsDict.Add(newB.Name, newB);
-				}
+                try
+                {
+                    if (Ship_Game.ResourceManager.BuildingsDict.ContainsKey(newB.Name))
+                    {
+                        Ship_Game.ResourceManager.BuildingsDict[newB.Name] = newB;
+                    }
+                    else
+                    {
+                        Ship_Game.ResourceManager.BuildingsDict.Add(newB.Name, newB);
+                    }
+                }
+                catch(NullReferenceException ex)
+                {
+                    ex.Data["Building Lookup"] = newB.Name;
+                    
+                }
 			}
 			textList = null;
 		}
@@ -2081,7 +2120,8 @@ namespace Ship_Game
             //added by gremlin : Base strength Calculator
             foreach (KeyValuePair<string, Ship> entry in ResourceManager.ShipsDict)
             {
-
+                if (entry.Value.BaseStrength != 0)
+                    continue;
 
                 float Str = 0f;
                 float def = 0f;
@@ -2133,7 +2173,21 @@ namespace Ship_Game
 
                         if (hangarship != null)
                         {
-                            Str += 300;
+                            if (hangarship.BaseStrength == 0)
+                            {
+                                try
+                                {
+                                    CalculateBaseStrength(hangarship);
+                                }
+                                catch
+                                {
+                                    Str += 300;
+                                }
+                                Str += hangarship.BaseStrength;
+                            }
+                            else 
+                                Str += hangarship.BaseStrength;
+                            
                         }
                     }
                     def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
@@ -2154,6 +2208,100 @@ namespace Ship_Game
 
             }
 		}
+
+        public static float CalculateBaseStrength(Ship ship)
+        {
+            
+            foreach (KeyValuePair<string, Ship> entry in ResourceManager.ShipsDict)
+            {
+                if (entry.Key != ship.Name )
+                    continue;
+                if (entry.Value.BaseStrength > 0)
+                {
+                    ship.BaseStrength = entry.Value.BaseStrength;
+                    ship.BaseCanWarp = entry.Value.BaseCanWarp;
+                    return entry.Value.BaseStrength;
+                    
+                }
+                //KeyValuePair<string, Ship> entry = ResourceManager.ShipsDict[ship.DesignUID]
+
+                float Str = 0f;
+                float def = 0f;
+                int slotCount = entry.Value.Size;
+
+
+
+                bool fighters = false;
+                bool weapons = false;
+
+                foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
+                {
+
+                    ShipModule module = ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
+                    float offRate = 0;
+                    if (module.InstalledWeapon != null)
+                    {
+                        weapons = true;
+                        Weapon w = module.InstalledWeapon;
+                        if (!w.explodes)
+                        {
+                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                        }
+                        else
+                        {
+                            offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
+
+                        }
+                        if (offRate > 0 && (w.TruePD || w.Range < 1000))
+                        {
+                            float range = 0f;
+                            if (w.Range < 1000)
+                            {
+                                range = (1000f - w.Range) * .01f;
+                            }
+                            offRate /= (2 + range);
+                        }
+                        if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
+                        Str += offRate;
+                    }
+
+
+                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
+                    {
+
+                        fighters = true;
+                        Ship hangarship;// = new Ship();
+                        ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
+
+                        if (hangarship != null)
+                        {
+                            Str += 100;
+                        }
+                    }
+                    def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
+                    //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
+                    def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
+
+                    if (ResourceManager.ShipModulesDict[module.UID].WarpThrust > 0)
+                    {
+                        entry.Value.BaseCanWarp = true;
+                        ship.BaseCanWarp = entry.Value.BaseCanWarp;
+                    }
+
+                }
+                if (!fighters && !weapons) Str = 0;
+                if (def > Str) def = Str;
+                entry.Value.BaseStrength = Str + def;
+                ship.BaseStrength = entry.Value.BaseStrength;
+                return  entry.Value.BaseStrength;
+                
+
+
+
+            }
+            return 0;
+        }
+
 
 		private static void LoadSmallStars()
 		{
