@@ -305,8 +305,12 @@ namespace Ship_Game
         public List<SolarSystem> GetOwnedSystems()
         {
             List<SolarSystem> list = new List<SolarSystem>();
-            foreach (Planet planet in this.OwnedPlanets)
+            //foreach (Planet planet in this.OwnedPlanets)
+            for (int i = 0; i < this.OwnedPlanets.Count;i++ )
             {
+                //Planet planet =null;
+                //lock(this.OwnedPlanets)
+                Planet planet = planet = this.OwnedPlanets[i];
                 if (!list.Contains(planet.system))
                     list.Add(planet.system);
             }
