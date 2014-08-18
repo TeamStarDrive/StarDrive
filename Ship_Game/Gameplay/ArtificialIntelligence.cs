@@ -2219,13 +2219,13 @@ namespace Ship_Game.Gameplay
 			{
 				if (Vector2.Distance(this.Owner.Center, this.Target.Center) <= this.Owner.maxWeaponsRange + 500f)
 				{
-					//foreach (Weapon weapon in this.Owner.Weapons)
-                    Parallel.ForEach(this.Owner.Weapons, weapon =>
+					foreach (Weapon weapon in this.Owner.Weapons)
+                    //Parallel.ForEach(this.Owner.Weapons, weapon =>
                     {
                         if (weapon.IsRepairDrone || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.isRepairBeam)
                         {
-                            //continue;
-                            return;
+                            continue;
+                            //return;
                         }
                         if (this.Owner.InFrustum || (this.Target as Ship).InFrustum || GlobalStats.ForceFullSim)
                         {
@@ -2419,8 +2419,8 @@ namespace Ship_Game.Gameplay
                             }
                             if (this.fireTarget == null)
                             {
-                                //continue;
-                                return;
+                                continue;
+                                //return;
                             }
                             if (weapon.isBeam)
                                 weapon.FireTargetedBeam(this.fireTarget.Center, this.fireTarget);
@@ -2432,7 +2432,7 @@ namespace Ship_Game.Gameplay
                             ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
                             this.FireOnTargetNonVisible(weapon, this.Target);
                         }
-                    });
+                    }//);
 					return;
 				}
 				foreach (Ship ship in this.PotentialTargets)
