@@ -70,9 +70,8 @@ namespace Ship_Game
 			return this.DefenseDict[system].PercentageOfValue;
 		}
 
-		public void ManageForcePool()
-		{
-            this.refreshclumps();
+        public void ManageForcePool()
+        {
             foreach (Planet p in this.us.GetPlanets())
             {
                 if (p.Owner == null && p.BuildingList.Count == 0 && p.TroopsHere.Count > 0 && p.GetGroundStrengthOther(this.us) > 0)
@@ -184,7 +183,7 @@ namespace Ship_Game
 
                         if (Relationship.Value.AtWar)
                         {
-                            entry.Value.ValueToUs += 50f;
+                            entry.Value.ValueToUs += 10f;
                             flag = true;
                             continue;
                         }
@@ -196,19 +195,19 @@ namespace Ship_Game
 
                     }
                     if (!flag)
-                        entry.Value.ValueToUs -= 10f;
+                        entry.Value.ValueToUs -= 5f;
                 }
 
             }
             IOrderedEnumerable<SolarSystem> sortedList =
                 from system in systems
-                orderby system.GetPredictedEnemyPresence(60f, this.us,false,EnemyClumpsDict) descending
+                orderby system.GetPredictedEnemyPresence(60f, this.us) descending
                 select system;
             float StrToAssign = this.GetForcePoolStrength();
             float StartingStr = StrToAssign;
             foreach (SolarSystem solarSystem in sortedList)
             {
-                float Predicted = solarSystem.GetPredictedEnemyPresence(120f, this.us, true, EnemyClumpsDict);
+                float Predicted = solarSystem.GetPredictedEnemyPresence(120f, this.us);
                 if (Predicted <= 0f)
                 {
                     this.DefenseDict[solarSystem].IdealShipStrength = 0f;
@@ -328,14 +327,13 @@ namespace Ship_Game
                 }
             }
             this.DefensiveForcePool.ApplyPendingRemovals();
-           
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
                 if (entry.Key == null)
                 {
                     continue;
                 }
-                entry.Value.AssignTargets(this.EnemyClumpsDict);
+                entry.Value.AssignTargets();
             }
 			if (this.us == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
 			{
