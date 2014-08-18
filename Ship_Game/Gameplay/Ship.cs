@@ -3396,7 +3396,7 @@ namespace Ship_Game.Gameplay
                 bool flag = false;
                 foreach (Planet planet in this.system.PlanetList)
                 {
-                    if ((double)Vector2.Distance(this.Position, planet.Position) < (double)(GlobalStats.GravityWellRange * (1 + Math.Log(planet.scale))))
+                    if ((double)Vector2.Distance(this.Position, planet.Position) < (double)(GlobalStats.GravityWellRange * (1 + ((Math.Log(planet.scale))/1.5) )))
                     {
                         flag = true;
                         this.InhibitedTimer = 1.5f;
