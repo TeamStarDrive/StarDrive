@@ -3958,15 +3958,15 @@ namespace Ship_Game.Gameplay
 
             if (this.ResourceDrawDict.Count > 0)
             {
-                foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
-                //Parallel.ForEach(Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys), index1 =>
+                //foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
+                Parallel.ForEach(Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys), index1 =>
                 {
                     Dictionary<string, float> dictionary;
                     string index2;
                     (dictionary = this.CargoDict)[index2 = index1] = dictionary[index2] - this.ResourceDrawDict[index1] * elapsedTime;
                     if ((double)this.CargoDict[index1] <= 0.0)
                         this.CargoDict[index1] = 0.0f;
-                }//);
+                });
             }
             if ((double)this.PowerCurrent <= 0.0)
             {
