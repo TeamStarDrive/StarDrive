@@ -1274,6 +1274,7 @@ namespace Ship_Game
                     this.Fertility = RandomMath.RandomBetween(1f, 3f);
                     break;
             }
+       
             if (!this.habitable)
                 this.MineralRichness = 0.0f;
             if (this.Type == "Barren")
@@ -1936,7 +1937,7 @@ namespace Ship_Game
                             this.ActiveCombats.QueuePendingRemoval(combat);
                             break;
                         }
-                        int num1;
+                        float num1;
                         int num2;
                         int num3;
                         if (combat.Attacker.TroopsHere.Count > 0)
@@ -2054,7 +2055,7 @@ namespace Ship_Game
                             this.ActiveCombats.QueuePendingRemoval(combat);
                             break;
                         }
-                        int num1;
+                        float num1;
                         int num2;
                         int num3;
                         if (combat.Attacker.TroopsHere.Count > 0)
@@ -3010,9 +3011,9 @@ namespace Ship_Game
             return (double)(num + this.FoodPercentAdded * num - this.consumption) > 0.0;
         }
 
-        public int GetDefendingTroopStrength()
+        public float GetDefendingTroopStrength()
         {
-            int num = 0;
+            float num = 0;
             foreach (Troop troop in this.TroopsHere)
             {
                 if (troop.GetOwner() == this.Owner)
@@ -4476,7 +4477,7 @@ namespace Ship_Game
             foreach (Troop troop in this.TroopsHere)
             {
                 if (troop.Strength > 0 && troop.GetOwner() == this.Owner)
-                    this.TotalDefensiveStrength += troop.Strength;
+                    this.TotalDefensiveStrength += (int)troop.Strength;
             }
             this.NetResearchPerTurn = (float)((double)this.ResearcherPercentage * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
             this.NetResearchPerTurn = this.NetResearchPerTurn + this.ResearchPercentAdded * this.NetResearchPerTurn;
@@ -4532,7 +4533,7 @@ namespace Ship_Game
             foreach (Troop troop in this.TroopsHere)
             {
                 if (troop.Strength > 0 && troop.GetOwner() == this.Owner)
-                    this.TotalDefensiveStrength += troop.Strength;
+                    this.TotalDefensiveStrength += (int)troop.Strength;
             }
             this.NetResearchPerTurn = (float)((double)respct * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
             this.NetResearchPerTurn = this.NetResearchPerTurn + this.ResearchPercentAdded * this.NetResearchPerTurn;
@@ -5259,9 +5260,9 @@ namespace Ship_Game
         }
 
         //added by gremlin: get a planets ground combat strength
-        public int GetGroundStrength(Empire empire)
+        public float GetGroundStrength(Empire empire)
         {
-            int num = 0;
+            float num = 0;
             if (this.Owner == empire)
                 num += this.BuildingList.Sum(offense => offense.CombatStrength);
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
@@ -5269,9 +5270,20 @@ namespace Ship_Game
 
 
         }
-        public int GetGroundStrengthOther(Empire empire)
+        public int GetPotentialGroundTroops(Empire empire)
         {
-            int num = 0;
+            //int num = 0;
+            //if (this.Owner == empire)
+            //    num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            //return num;
+            return  (int)(this.TilesList.Sum(spots => spots.number_allowed_troops));// * (.25f + this.developmentLevel*.2f));
+
+
+        }
+        public float GetGroundStrengthOther(Empire empire)
+        {
+            float num = 0;
             if (this.Owner == null || this.Owner != empire)
                 num += this.BuildingList.Sum(offense => offense.CombatStrength);
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner()==null ||empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);

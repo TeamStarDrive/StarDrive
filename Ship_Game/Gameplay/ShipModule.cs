@@ -50,27 +50,27 @@ namespace Ship_Game.Gameplay
 
 		public bool FightersOnly;
 
-        public bool DroneModule;
+        public bool DroneModule = false;
 
-        public bool FighterModule;
+        public bool FighterModule = true;
 
-        public bool CorvetteModule;
+        public bool CorvetteModule = true;
 
-        public bool FrigateModule;
+        public bool FrigateModule = true;
 
-        public bool DestroyerModule;
+        public bool DestroyerModule = true;
 
-        public bool CruiserModule;
+        public bool CruiserModule = true;
 
-        public bool CarrierModule;
+        public bool CarrierModule = true;
 
-        public bool CapitalModule;
+        public bool CapitalModule = true;
 
-        public bool FreighterModule;
+        public bool FreighterModule = true;
 
-        public bool PlatformModule;
+        public bool PlatformModule = true;
 
-        public bool StationModule;
+        public bool StationModule = true;
 
 		public bool explodes;
 
@@ -181,7 +181,7 @@ namespace Ship_Game.Gameplay
 
 		public float PowerStoreMax;
 
-		public int HealPerTurn;
+		public float HealPerTurn;
 
 		public bool isWeapon;
 
@@ -236,6 +236,16 @@ namespace Ship_Game.Gameplay
         public float FTLSpoolTime;
 
         public float ECM;
+
+        public float SensorBonus;
+        //Transporter Values
+        public float TransporterTimerConstant;
+        public float TransporterTimer = 0f;
+        public float TransporterRange;
+        public float TransporterPower;
+        public float TransporterOrdnance;
+        public byte TransporterTroopLanding;
+
 
 		public bool IsWeapon
 		{
@@ -343,8 +353,7 @@ namespace Ship_Game.Gameplay
 						}
 						else if (this.Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
 						{
-							Ship mechanicalBoardingDefense = this.Parent;
-							mechanicalBoardingDefense.MechanicalBoardingDefense = mechanicalBoardingDefense.MechanicalBoardingDefense - 1f;
+                            this.Parent.MechanicalBoardingDefense -= 1f;
 						}
 					}
 					if ((source as Beam).weapon.SiphonDamage > 0f)
@@ -573,8 +582,7 @@ namespace Ship_Game.Gameplay
 						}
 						else if (this.Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
 						{
-							Ship mechanicalBoardingDefense = this.Parent;
-							mechanicalBoardingDefense.MechanicalBoardingDefense = mechanicalBoardingDefense.MechanicalBoardingDefense - 1f;
+                            this.Parent.MechanicalBoardingDefense -= 1f;
 						}
 					}
 					if ((source as Beam).weapon.MassDamage > 0f)
@@ -767,15 +775,16 @@ namespace Ship_Game.Gameplay
 					dieCue.Apply3D(GameplayObject.audioListener, this.Parent.emitter);
 					dieCue.Play();
 				}
-				if (this.ModuleType == ShipModuleType.PowerPlant)
+				//if (this.ModuleType == ShipModuleType.PowerPlant)
+                if (this.explodes)
 				{
 					if (this.Parent.GetSystem() == null)
 					{
-						UniverseScreen.DeepSpaceManager.Explode(this, (float)(2500 * this.XSIZE * this.YSIZE), this.Center, (float)(this.XSIZE * this.YSIZE * 64), true);
+                        UniverseScreen.DeepSpaceManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
 					}
 					else
 					{
-						this.Parent.GetSystem().spatialManager.Explode(this, (float)(2500 * this.XSIZE * this.YSIZE), this.Center, (float)(this.XSIZE * this.YSIZE * 64), true);
+                        this.Parent.GetSystem().spatialManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
 					}
 					this.Parent.NeedRecalculate = true;
 				}
@@ -1552,6 +1561,13 @@ namespace Ship_Game.Gameplay
 					this.Parent.Ordinance = this.Parent.OrdinanceMax;
 				}
 			}
+            if ((GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useCombatRepair) && this.Parent.LastHitTimer <= 0f && base.Health / this.HealthMax < 1f && this.Parent.RepairUsed * elapsedTime < this.Parent.RepairRate)
+            {
+                ShipModule health = this;
+                health.Health = health.Health + this.Parent.RepairRate * elapsedTime;
+                Ship repairUsed = this.Parent;
+                repairUsed.RepairUsed = repairUsed.RepairUsed + this.Parent.RepairRate * elapsedTime;
+            }
 			if (base.Health >= this.HealthMax)
 			{
 				base.Health = this.HealthMax;

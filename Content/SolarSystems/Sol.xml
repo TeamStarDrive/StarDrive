@@ -1,0 +1,61 @@
+﻿<SolarSystemData>
+  <Name>Sol</Name>
+  <RingList>
+    <Ring>
+      <Planet>Mercury</Planet>
+      <SpecialDescription>Mercury is the innermost and smallest planet in the Sol system.  The mean surface temperature of Mercury is 442.5 Kelvin.  Nevertheless, water ice exists in the polar basins that are shielded from direct sunlight.  This planet is not at all suitable for colonization.  </SpecialDescription>
+      <WhichPlanet>7</WhichPlanet>
+	  <planetScale>0.6</planetScale>
+    </Ring>
+    <Ring>
+      <Planet>Venus</Planet>
+      <SpecialDescription>Venus is named for the Roman goddess of love and beauty.  After the moon, it is the brightest natural object in Earth's night sky.  Venus is covered with an opaque layer of clouds composed of sulfuric acid.  Its surface geology is also highly volcanic, and its mean temperature is in fact higher than that of Mercury.  Consequently, this planet is very ill-suited to colonization and has thus far been quite ignored by colonization efforts.  </SpecialDescription>
+      <WhichPlanet>5</WhichPlanet>
+	  <planetScale>0.7</planetScale>
+    </Ring>
+    <Ring>
+      <Planet>Earth</Planet>
+      <SpecialDescription>Earth is the birthplace of humanity and the home to many billions of people.  Many of the mightiest space-faring corporations call Earth home.  Consequently, some of the finest Shipyards and Equipment manufacturers in the galaxy can be found in Earth Orbit.  </SpecialDescription>
+      <WhichPlanet>25</WhichPlanet>
+      <HomePlanet>true</HomePlanet>
+      <Station>Yes</Station>  
+	  <planetScale>1.0</planetScale>
+	  <MaxPopDefined>14.0</MaxPopDefined>
+    </Ring>
+    <Ring>
+      <Planet>Mars</Planet>
+      <SpecialDescription>The inhabitants of Earth have looked to the Red Planet for centuries as the first logical step for extraplanetary colonization. The martian soil is comprised of a reddish-brown dust that is completely inorganic. Its methane atomsphere makes Mars fairly inhospitable. Colonization here would require extensive biodome structures or terraforming machinery. </SpecialDescription>
+      <WhichPlanet>8</WhichPlanet>
+      <Population>0</Population>
+	  <planetScale>0.85</planetScale>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Planet>Jupiter</Planet>
+      <SpecialDescription>Jupiter is the largest planet in the Sol system.  This gas giant is two and a half times the mass of all the other planets in the Sol System combined. Jupiter is primarily composed of hydrogen with a quarter of its mass being helium. It is not suitable for colonization. </SpecialDescription>
+      <WhichPlanet>28</WhichPlanet>
+	  <planetScale>4.0</planetScale>
+    </Ring>
+    <Ring>
+      <Planet>Saturn</Planet>
+      <SpecialDescription>Saturn's planetary rings are the most conspicuous in the Sol system.  The rings are mostly composed of water ice and dust particles.  As a gas giant, it is not suitable for human colonization.  </SpecialDescription>
+      <WhichPlanet>10</WhichPlanet>
+      <HasRings>Yes</HasRings>
+	  <planetScale>3.4</planetScale>
+    </Ring>
+    <Ring>
+      <Planet>Uranus</Planet>
+      <SpecialDescription>Uranus is sometimes classified as an "Ice Giant" due to the cold cloud of methane, water, and ammonia ices mixed into its hydrogen-helium atmosphere.  A unique feature of Uranus is that is axis of rotation is rotated sideways compared to the other planets in this solar system: its poles are located where the other planets' equators are located.  As a gas giant, this planet is not habitable.  </SpecialDescription>
+      <WhichPlanet>20</WhichPlanet>
+	  <planetScale>2.8</planetScale>
+    </Ring>
+	<Ring>
+      <Planet>Neptune</Planet>
+      <SpecialDescription>Neptune is the outermost of the recognised 'planets' in the Solar System, and is a gas giant of a similar composition to Uranus, albeit denser. It is named after Neptunus, the Roman god of the sea - though in modern Greece, they call it Poseidon; the Greek pantheon's equivalent.</SpecialDescription>
+      <WhichPlanet>20</WhichPlanet>
+	  <planetScale>2.6</planetScale>
+    </Ring>
+  </RingList>
+</SolarSystemData>
