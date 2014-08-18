@@ -909,5 +909,30 @@
       <Title>Weapon Shield Pen</Title>
       <Data>7032</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>182</TIP_ID>
+      <Title>Salvo Count</Title>
+      <Data>7033</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>183</TIP_ID>
+      <Title>Fire Delay</Title>
+      <Data>7034</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>184</TIP_ID>
+      <Title>Siphon Damage</Title>
+      <Data>7035</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>185</TIP_ID>
+      <Title>Mass Damage</Title>
+      <Data>7036</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>186</TIP_ID>
+      <Title>Power Damage</Title>
+      <Data>7037</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

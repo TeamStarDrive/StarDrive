@@ -1917,7 +1917,7 @@ namespace Ship_Game
                     }
                     if (mod.HealPerTurn != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6129), mod.HealPerTurn, 174);
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6131), mod.HealPerTurn, 174);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.TransporterRange != 0)
@@ -2028,6 +2028,8 @@ namespace Ship_Game
                 }
 				else
 				{
+                    this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
+                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier * mod.HealthMax, 80);
@@ -2061,62 +2063,94 @@ namespace Ship_Game
 					}
 					modTitlePos.X = modTitlePos.X + 152f;
 					modTitlePos.Y = starty;
-					this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
-					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    if (!mod.InstalledWeapon.isBeam)
+                    if (!mod.InstalledWeapon.isBeam && !mod.InstalledWeapon.isRepairBeam)
 					{
                         this.DrawStat(ref modTitlePos, Localizer.Token(129), (float)ModifiedWeaponStat(mod.InstalledWeapon, "speed"), 85);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
-					if (mod.InstalledWeapon.DamageAmount > 0f)
-					{
+                    if (mod.InstalledWeapon.DamageAmount > 0f)
+                    {
                         if (mod.InstalledWeapon.isBeam)
-						{
+                        {
                             float dps = (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 90f * mod.InstalledWeapon.BeamDuration / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f));
-							this.DrawStat(ref modTitlePos, "DPS", dps, 86);
-							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-							this.DrawStat(ref modTitlePos, "Pwr / Sec", (float)mod.InstalledWeapon.BeamPowerCostPerSecond, 87);
-							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            //this.DrawStat(ref modTitlePos, "Pwr / Sec", this.ActiveHull. (float)mod.InstalledWeapon.BeamPowerCostPerSecond, 87);
-                            //modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						}
-						else if (mod.InstalledWeapon.explodes && mod.InstalledWeapon.OrdinanceRequiredToFire > 0f)
-						{
-							if (mod.InstalledWeapon.SalvoCount <= 1)
-							{
+                            this.DrawStat(ref modTitlePos, "DPS", dps, 86);
+                            modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                            if (mod.InstalledWeapon.BeamPowerCostPerSecond > 0f)
+                            {
+                                this.DrawStat(ref modTitlePos, "Pwr/s", (float)mod.InstalledWeapon.BeamPowerCostPerSecond, 87);
+                                modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                            }
+                        }
+                        else if (mod.InstalledWeapon.explodes && mod.InstalledWeapon.OrdinanceRequiredToFire > 0f)
+                        {
+                            if (mod.InstalledWeapon.SalvoCount <= 1)
+                            {
                                 float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
-								dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
-								this.DrawStat(ref modTitlePos, "DPS", dps, 86);
-								modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-							}
-							else
-							{
+                                dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
+                                this.DrawStat(ref modTitlePos, "DPS", dps, 86);
+                                modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                            }
+                            else
+                            {
                                 float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
-								dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
-								this.DrawStat(ref modTitlePos, "DPS", dps, 86);
-								modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-							}
-						}
-						else if (mod.InstalledWeapon.SalvoCount <= 1)
-						{
+                                dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
+                                this.DrawStat(ref modTitlePos, "DPS", dps, 86);
+                                modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                                this.DrawStat(ref modTitlePos, "Salvo", (float)mod.InstalledWeapon.SalvoCount, 182);
+                                modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                            }
+                        }
+                        else if (mod.InstalledWeapon.SalvoCount <= 1)
+                        {
                             float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
-							dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
-							this.DrawStat(ref modTitlePos, "DPS", dps, 86);
-							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						}
-						else
-						{
+                            dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
+                            this.DrawStat(ref modTitlePos, "DPS", dps, 86);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                        else
+                        {
                             float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
-							dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
-							this.DrawStat(ref modTitlePos, "DPS", dps, 86);
-							modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						}
-					}
+                            dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
+                            this.DrawStat(ref modTitlePos, "DPS", dps, 86);
+                            modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                            this.DrawStat(ref modTitlePos, "Salvo", (float)mod.InstalledWeapon.SalvoCount, 182);
+                            modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                    }
+                    this.DrawStat(ref modTitlePos, "Delay", mod.InstalledWeapon.fireDelay, 183);
+                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					if (mod.InstalledWeapon.EMPDamage > 0f)
 					{
                         this.DrawStat(ref modTitlePos, "EMP", 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * (float)mod.InstalledWeapon.EMPDamage, 110);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
+                    if (mod.InstalledWeapon.SiphonDamage > 0f)
+                    {
+                        if (mod.InstalledWeapon.isBeam)
+                        {
+                            float damage = mod.InstalledWeapon.SiphonDamage * 90f * mod.InstalledWeapon.BeamDuration / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f));
+                            this.DrawStat(ref modTitlePos, "Siphon", damage, 184);
+                            modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                    }
+                    if (mod.InstalledWeapon.MassDamage > 0f)
+                    {
+                        if (mod.InstalledWeapon.isBeam)
+                        {
+                            float damage = mod.InstalledWeapon.MassDamage * 90f * mod.InstalledWeapon.BeamDuration / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f));
+                            this.DrawStat(ref modTitlePos, "Tractor", damage, 185);
+                            modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                    }
+                    if (mod.InstalledWeapon.PowerDamage > 0f)
+                    {
+                        if (mod.InstalledWeapon.isBeam)
+                        {
+                            float damage = mod.InstalledWeapon.PowerDamage * 90f * mod.InstalledWeapon.BeamDuration / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f));
+                            this.DrawStat(ref modTitlePos, "Pwr Dmg", damage, 186);
+                            modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        }
+                    }
 					this.DrawStat(ref modTitlePos, Localizer.Token(130), (float)mod.FieldOfFire, 88);
 					modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					if (mod.InstalledWeapon.OrdinanceRequiredToFire > 0f)
