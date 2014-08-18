@@ -2234,8 +2234,8 @@ namespace Ship_Game.Gameplay
                         if (GlobalStats.ForceFullSim||this.Owner.InFrustum || (this.Target as Ship).InFrustum )
                         {
                             //this.
-                            GameplayObject fireTarget;
-                            fireTarget = null;
+                            //GameplayObject fireTarget;
+                            this.fireTarget = null;
 
                             if ((weapon.TruePD || weapon.Tag_PD) && this.Owner.GetSystem() != null)
                             {
