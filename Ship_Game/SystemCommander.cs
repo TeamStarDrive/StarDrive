@@ -26,7 +26,7 @@ namespace Ship_Game
 
 		public Dictionary<Guid, Ship> ShipsDict = new Dictionary<Guid, Ship>();
 
-		public ConcurrentDictionary<Ship, List<Ship>> EnemyClumpsDict = new ConcurrentDictionary<Ship, List<Ship>>();
+		public Dictionary<Ship, List<Ship>> EnemyClumpsDict = new Dictionary<Ship, List<Ship>>();
 
 		private Empire us;
 
@@ -36,117 +36,109 @@ namespace Ship_Game
 			this.us = e;
 		}
 
-		public void AssignTargets(ConcurrentDictionary<Ship,List<Ship>> EnemyClumpsDict)
-		{
+        public void AssignTargets()
+        {
             this.EnemyClumpsDict.Clear();
-            //this.EnemyClumpsDict = EnemyClumpsDict.Where(home => Vector2.Distance(home.Key.Position, this.system.Position) > 100000).ToDictionary(Ship,List<Ship>);
-            
-            //foreach(KeyValuePair<Ship,List<Ship>> home in EnemyClumpsDict)
-            Parallel.ForEach(EnemyClumpsDict, (home,status) =>
+            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
+            foreach (KeyValuePair<Guid, Ship> entry in this.ShipsDict)
             {
-                if (Vector2.Distance(home.Key.Position, this.system.Position) > 100000)
-                    return;
-                    //continue;
-                this.EnemyClumpsDict.TryAdd(home.Key, home.Value);
-            });
-
-            
-			if (this.EnemyClumpsDict.Count != 0 && this.ShipsDict.Count !=0)
-			{
-				List<Ship> ClumpsList = new List<Ship>();
-				foreach (KeyValuePair<Ship, List<Ship>> entry in this.EnemyClumpsDict)//.OrderBy(entry => Vector2.Distance(entry.Key.Position,this.system.Position)))
-				{
-					ClumpsList.Add(entry.Key);
-				}
-				IOrderedEnumerable<Ship> distanceSorted = 
-					from clumpPos in ClumpsList
-					orderby Vector2.Distance(this.system.Position, clumpPos.Center)
-					select clumpPos;
-				HashSet<Ship> AssignedShips = new HashSet<Ship>();
-				foreach (Ship enemy in this.EnemyClumpsDict[distanceSorted.First<Ship>()])
-				{
-					float AssignedStr = 0f;
-                    float strMod = 1;
-                    strMod += (int)Empire.universeScreen.GameDifficulty *.10f;
-                    float enemystrength = 0;
-                    try
+                Ship ship = entry.Value;
+                if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
+                {
+                    continue;
+                }
+                ship.GetAI().Target = null;
+                ship.GetAI().hasPriorityTarget = false;
+                ship.GetAI().Intercepting = false;
+                ship.GetAI().SystemToDefend = null;
+            }
+            for (int i = 0; i < this.system.ShipList.Count; i++)
+            {
+                Ship ship = this.system.ShipList[i];
+                if (ship != null && ship.loyalty != this.us && (ship.loyalty.isFaction || this.us.GetRelations()[ship.loyalty].AtWar) && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
+                {
+                    this.EnemyClumpsDict.Add(ship, new List<Ship>());
+                    this.EnemyClumpsDict[ship].Add(ship);
+                    ShipsAlreadyConsidered.Add(ship);
+                    for (int j = 0; j < this.system.ShipList.Count; j++)
                     {
-                         enemystrength = this.EnemyClumpsDict[enemy].Sum(str => str.GetStrength()) * strMod;
+                        Ship otherShip = this.system.ShipList[j];
+                        if (otherShip.loyalty != this.us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f && !ShipsAlreadyConsidered.Contains(otherShip))
+                        {
+                            this.EnemyClumpsDict[ship].Add(otherShip);
+                        }
                     }
-                    catch
+                }
+            }
+            if (this.EnemyClumpsDict.Count != 0)
+            {
+                List<Ship> ClumpsList = new List<Ship>();
+                foreach (KeyValuePair<Ship, List<Ship>> entry in this.EnemyClumpsDict)
+                {
+                    ClumpsList.Add(entry.Key);
+                }
+                IOrderedEnumerable<Ship> distanceSorted =
+                    from clumpPos in ClumpsList
+                    orderby Vector2.Distance(this.system.Position, clumpPos.Center)
+                    select clumpPos;
+                HashSet<Ship> AssignedShips = new HashSet<Ship>();
+                foreach (Ship enemy in this.EnemyClumpsDict[distanceSorted.First<Ship>()])
+                {
+                    float AssignedStr = 0f;
+                    foreach (KeyValuePair<Guid, Ship> friendly in this.ShipsDict)
                     {
-                        if (enemy.GetAI() != null)
-                            System.Diagnostics.Debug.WriteLine("enemy not in dictionary" + enemy.GetAI().State.ToString());
+                        if (!friendly.Value.InCombat)
+                        {
+                            if (AssignedShips.Contains(friendly.Value) || AssignedStr != 0f && AssignedStr >= enemy.GetStrength() || friendly.Value.GetAI().State == AIState.Resupply)
+                            {
+                                continue;
+                            }
+                            friendly.Value.GetAI().Intercepting = true;
+                            friendly.Value.GetAI().OrderAttackSpecificTarget(enemy);
+                            AssignedShips.Add(friendly.Value);
+                            AssignedStr = AssignedStr + friendly.Value.GetStrength();
+                        }
                         else
-                            System.Diagnostics.Debug.WriteLine("enemy AI null not in dictionary: ");
-
+                        {
+                            if (AssignedShips.Contains(friendly.Value))
+                            {
+                                continue;
+                            }
+                            AssignedShips.Add(friendly.Value);
+                        }
                     }
-					foreach (KeyValuePair<Guid, Ship> friendly in this.ShipsDict)
-					{
-						if (!friendly.Value.InCombat && Vector2.Distance(friendly.Value.Position,enemy.Position) / (friendly.Value.velocityMaximum >0?friendly.Value.velocityMaximum:1) <10)
-						{
-                            if (AssignedShips.Contains(friendly.Value) || AssignedStr != 0f && AssignedStr >= enemystrength || friendly.Value.GetAI().State == AIState.Resupply)
-							{
-								continue;
-							}
-							friendly.Value.GetAI().Intercepting = true;
-							friendly.Value.GetAI().OrderAttackSpecificTarget(enemy);
-							AssignedShips.Add(friendly.Value);
-							AssignedStr = AssignedStr + friendly.Value.GetStrength();
-						}
-						else
-						{
-							if (AssignedShips.Contains(friendly.Value))
-							{
-								continue;
-							}
-							AssignedShips.Add(friendly.Value);
-						}
-					}
-				}
-				List<Ship> UnassignedShips = new List<Ship>();
-				foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
-				{
-					if (AssignedShips.Contains(ship.Value))
-					{
-						continue;
-					}
-					UnassignedShips.Add(ship.Value);
-				}
-				foreach (Ship ship in UnassignedShips)
-				{
-					if (ship.GetAI().State == AIState.Resupply)
-					{
-						continue;
-					}
-					ship.GetAI().Intercepting = true;
-                    
-					ship.GetAI().OrderAttackSpecificTarget(AssignedShips.First().GetAI().Target as Ship);
-				}
-			}
-            //else if(this.us.GetShipsInOurBorders().Count >0)
-            else 
+                }
+                List<Ship> UnassignedShips = new List<Ship>();
+                foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
+                {
+                    if (AssignedShips.Contains(ship.Value))
+                    {
+                        continue;
+                    }
+                    UnassignedShips.Add(ship.Value);
+                }
+                foreach (Ship ship in UnassignedShips)
+                {
+                    if (ship.GetAI().State == AIState.Resupply)
+                    {
+                        continue;
+                    }
+                    ship.GetAI().Intercepting = true;
+                    ship.GetAI().OrderAttackSpecificTarget(AssignedShips.First().GetAI().Target as Ship);
+                }
+            }
+            else
             {
-                //if (this.us.GetShipsInOurBorders().Count() > 0)
-                //{
-                //    foreach (Ship ship in this.ShipsDict.Values)
-                //    {
-                //        if (ship.GetAI().Target != null || ship.GetAI().Intercepting || (ship.GetAI().State != AIState.AwaitingOrders && ship.GetAI().State != AIState.SystemDefender))
-                //            continue;
-                //        ship.GetAI().OrderAttackSpecificTarget(this.us.GetShipsInOurBorders().OrderBy(distance => Vector2.Distance(ship.Position, distance.Position)).First());
-                //    }
-                //}  
-                //else
-				foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
-				{
-                    if (ship.Value.GetAI().State == AIState.Resupply || ship.Value.InCombat || ship.Value.GetAI().Target!=null)
-					{
-						continue;
-					}
-					ship.Value.GetAI().OrderSystemDefense(this.system);
-				}
-			}
-		}
+                foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
+                {
+                    if (ship.Value.GetAI().State == AIState.Resupply)
+                    {
+                        continue;
+                    }
+                    ship.Value.GetAI().OrderSystemDefense(this.system);
+                }
+            }
+        }
 
 		public float GetOurStrength()
 		{
