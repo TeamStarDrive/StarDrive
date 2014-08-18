@@ -539,11 +539,10 @@ namespace Ship_Game
 
 
 
-            //for (int i = 0; i < this.us.GetShipsInOurBorders; i++)
-            //if (Empire.universeScreen.GameDifficulty < UniverseData.GameDifficulty.Hard)
+  
             List<Ship> incomingShips = new List<Ship>();
             if (Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard)
-                incomingShips = Empire.universeScreen.MasterShipList.AsParallel().Where(bases=> bases.BaseStrength>0 && bases.loyalty != this.us && (bases.loyalty.isFaction|| this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList();
+                incomingShips = Empire.universeScreen.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != this.us && (bases.loyalty.isFaction || this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList();
             else
             {
                 incomingShips = us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
@@ -558,11 +557,11 @@ namespace Ship_Game
             }
             var source = incomingShips.ToArray();
 
-
+            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
             var   rangePartitioner = Partitioner.Create(0, source.Length);
             Parallel.ForEach(rangePartitioner, (range, loopState) =>
                 {
-                    HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
+                    
                     for (int i = range.Item1; i < range.Item2; i++)
                     {
                         //for (int i = 0; i < incomingShips.Count; i++)
@@ -577,6 +576,7 @@ namespace Ship_Game
                                 //lock(this.EnemyClumpsDict)
                                 this.EnemyClumpsDict.TryAdd(ship, new List<Ship>());
                                 this.EnemyClumpsDict[ship].Add(ship);
+                                lock(ShipsAlreadyConsidered)
                                 ShipsAlreadyConsidered.Add(ship);
                                 //for (int j = 0; j < this.system.ShipList.Count; j++)
                                 //                             var source = Empire.universeScreen.MasterShipList.ToArray();
