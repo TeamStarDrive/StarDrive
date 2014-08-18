@@ -3191,10 +3191,14 @@ namespace Ship_Game
 			Turn = (float)MathHelper.ToDegrees(Turn);
             Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
             //Added by McShooterz: Draw Hull Bonuses
-
-            Vector2 LCursor = new Vector2(this.HullSelectionRect.X - 190, HullSelectionRect.Y + 31);
            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
            {
+               Vector2 LCursor = new Vector2(this.HullSelectionRect.X - 145, HullSelectionRect.Y + 31);
+                if(this.ActiveHull.ArmoredBonus != 0 || this.ActiveHull.SensorBonus != 0 || this.ActiveHull.SpeedBonus != 0 || this.ActiveHull.CargoBonus != 0 || this.ActiveHull.FireRateBonus != 0 || this.ActiveHull.RepairBonus != 0 || this.ActiveHull.CostBonus != 0)
+                {
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana14Bold ,Localizer.Token(6015), LCursor, Color.Orange);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Verdana14Bold.LineSpacing + 2);
+                }
                 if (this.ActiveHull.ArmoredBonus != 0)
                 {
                     this.DrawHullBonus(ref LCursor, Localizer.Token(6016), this.ActiveHull.ArmoredBonus);
@@ -3215,7 +3219,6 @@ namespace Ship_Game
                     this.DrawHullBonus(ref LCursor, Localizer.Token(6019), this.ActiveHull.CargoBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-
                 if (this.ActiveHull.FireRateBonus != 0)
                 {
                     this.DrawHullBonus(ref LCursor, Localizer.Token(6020), this.ActiveHull.FireRateBonus);
@@ -3635,7 +3638,7 @@ namespace Ship_Game
 
         private void DrawHullBonus(ref Vector2 Cursor, string words, byte stat)
         {
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat(Localizer.Token(6015), stat.ToString(), "% ", words), Cursor, Color.Orange);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat(stat.ToString(), "% ", words), Cursor, Color.Orange);
         }
 
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, string tip)
