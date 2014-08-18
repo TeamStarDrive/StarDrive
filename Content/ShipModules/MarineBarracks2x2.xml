@@ -26,7 +26,7 @@
   <!-- common traits shared by all ship modules -->
   <XSIZE>2</XSIZE>
   <YSIZE>2</YSIZE>
-  <ModuleType>Command</ModuleType>
+  <ModuleType>Troop</ModuleType>
   <Name>Small Marine Barracks</Name>
   <Restrictions>I</Restrictions>
   <UID>MarineBarracks2x2</UID>

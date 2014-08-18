@@ -517,7 +517,9 @@ namespace Ship_Game
                                     this.playerShip.loyalty = this.playerEmpire;
                                     this.playerShip.loyalty.AddShip(this.playerShip);
                                     this.playerShip.Initialize();
-                                    this.playerShip.GetAI().State = AIState.ManualControl;
+                                    //this.playerShip.GetAI().State = AIState.ManualControl;
+                                    this.playerShip.SetHome(planet1);
+                                    this.playerShip.DoOrbit(planet1);
                                     //Added by McShooterz: Starting ship support for automatic naming
                                     if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
                                         this.playerShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role);
