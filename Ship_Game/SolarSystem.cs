@@ -1480,86 +1480,28 @@ namespace Ship_Game
 			return StrHere;
 		}
 
-		public float GetPredictedEnemyPresence(float time, Empire us, bool update,ConcurrentDictionary<Ship,List<Ship>> clumps)
-		{
-			//added by gremlin massive rewrite of prediction code.
-            PredictionTimeout predictor;
-            if(!this.predictionTimeout.TryGetValue(us,out predictor))
-            {
-                predictor = new PredictionTimeout();
-                predictor.predictionTimeout = 0;
-                predictor.prediction=0;
-                this.predictionTimeout.Add(us, predictor);
-            }
-
-            if (!update )
-            {
-                if(predictor.predictedETA <= time)
-                {
-                    return predictor.prediction;
-                }
-                return 0;
-            }
-             
-
-            float timeToArrive = 0;
+        public float GetPredictedEnemyPresence(float time, Empire us)
+        {
             float prediction = 0f;
-
-            List<Ship> incomingShips =  new List<Ship>(clumps.Keys);
-
-                
-            for (int x = 0; x < incomingShips.Count; x++)
+            foreach (Ship ship in this.ShipList)
             {
-                Ship ship = incomingShips[x];
-                if (ship==null || ship.loyalty == us)
-                    continue;
-                
-                if (ship.velocityMaximum > 0)
-                    timeToArrive = Vector2.Distance(ship.Position, this.Position) / ship.velocityMaximum;
-                else continue;
-                if (timeToArrive > time)
-                    continue;
-                Relationship war = null;
-                if (ship.GetAI().OrderQueue.Count==0|| !us.GetRelations().TryGetValue(ship.loyalty, out war) ||ship.loyalty.isFaction)
+                if (ship == null || ship.loyalty == us || !ship.loyalty.isFaction && !us.GetRelations()[ship.loyalty].AtWar)
                 {
-                    if ((ship.GetSystem()!=null && ship.GetSystem()==this) || ship.GetAI().Target != null &&  Vector2.Distance(ship.GetAI().MovePosition,this.Position)<300000 )    
-                        //ship.GetAI().  .Target.GetSystem() != null && ship.GetAI().Target.GetSystem() == this)
-                       // prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
-                    prediction += clumps[ship].Sum(str => str.BaseStrength);
                     continue;
                 }
-                //Ship_Game.Gameplay.ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.Last.Value;
-                //if (!war.Treaty_OpenBorders || war.AtWar || ship.loyalty.isFaction)
-                //{
-
-                //    if (this.PlanetList.Contains(goal.TargetPlanet))
-                //    {
-                //        prediction += ship.BaseStrength == 0 ? 10 : ship.BaseStrength;
-                //        continue;
-                //    }
-                //    if (goal.MovePosition != null && Vector2.Distance(goal.MovePosition, this.Position) < 150000)
-                //    {
-                //        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
-                //        continue;
-                //    }
-
-                //}
-                //if (ship.GetSystem() == this)
-                //    prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
-
+                prediction = prediction + ship.GetStrength();
             }
-
-            if(prediction >predictor.prediction)
+            List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+            for (int i = 0; i < nearby.Count; i++)
             {
-                predictor.prediction = prediction;
-                predictor.predictionTimeout = time;
+                Ship ship = nearby[i] as Ship;
+                if (ship != null && ship.loyalty != us && !this.ShipList.Contains(ship) && (ship.loyalty.isFaction || us.GetRelations()[ship.loyalty].AtWar) && HelperFunctions.IntersectCircleSegment(this.Position, 100000f * UniverseScreen.GameScaleStatic, ship.Center, ship.Center + (ship.Velocity * 60f)))
+                {
+                    prediction = prediction + ship.GetStrength();
+                }
             }
-            if (timeToArrive < predictor.predictedETA)
-                predictor.predictedETA = timeToArrive;
-
-            
-                return prediction;
-		}
+            return prediction;
+        }
 
 		private bool RoidPosOK(Vector3 roidPos)
         {
