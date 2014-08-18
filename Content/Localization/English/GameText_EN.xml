@@ -7874,5 +7874,25 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7032</Index>
       <Text>Random chance this weapon will fire through enemy shields</Text>
     </Token>
+	<Token>
+      <Index>7033</Index>
+      <Text>Number of projectiles fired</Text>
+    </Token>
+	<Token>
+      <Index>7034</Index>
+      <Text>Time between shots</Text>
+    </Token>
+	<Token>
+      <Index>7035</Index>
+      <Text>Indicates the amount of shields that are drain from the target and is added to this ships power store.</Text>
+    </Token>
+	<Token>
+      <Index>7036</Index>
+      <Text>Indicates the amount of drag added to target ship to slow it down.</Text>
+    </Token>
+	<Token>
+      <Index>7037</Index>
+      <Text>Indicates the amount of power that a target ship loses.</Text>
+    </Token>
   </TokenList>
 </LocalizationFile>
