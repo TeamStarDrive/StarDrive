@@ -26,7 +26,7 @@
   <!-- common traits shared by all ship modules -->
   <XSIZE>4</XSIZE>
   <YSIZE>4</YSIZE>
-  <ModuleType>Command</ModuleType>
+  <ModuleType>Troop</ModuleType>
   <Name>Sickbay</Name>
   <Restrictions>I</Restrictions>
   <UID>Sickbay</UID>

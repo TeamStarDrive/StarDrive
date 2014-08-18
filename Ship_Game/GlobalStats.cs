@@ -153,7 +153,7 @@ namespace Ship_Game
 			GlobalStats.CombatScans = 0;
 			GlobalStats.DistanceCheckTotal = 0;
 			GlobalStats.LimitSpeed = true;
-            GlobalStats.GravityWellRange = float.Parse(ConfigurationManager.AppSettings["GravityWellRange"]); ;// 8000f;
+            GlobalStats.GravityWellRange = float.Parse(ConfigurationManager.AppSettings["GravityWellRange"]); // 8000f;
 			GlobalStats.PlanetaryGravityWells = true;
 			GlobalStats.AutoCombat = true;
 			GlobalStats.TimesPlayed = 0;

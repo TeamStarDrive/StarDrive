@@ -64,12 +64,14 @@ namespace Ship_Game
 
 		public LoadUniverseScreen(FileInfo activeFile)
 		{
-            GC.Collect();
+            
             GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
 			BackgroundWorker bgw = new BackgroundWorker();
 			bgw.DoWork += new DoWorkEventHandler(this.DecompressFile);
+            
+            GC.Collect();
 			bgw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.LoadEverything);
 			bgw.RunWorkerAsync(activeFile);
 		}
@@ -522,7 +524,7 @@ namespace Ship_Game
             if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
                 Empire.universeScreen.MasterShipList.Clear();
             
-            GC.Collect();
+         
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
 			{
 				Empire e =new Empire();

@@ -2219,10 +2219,7 @@ namespace Ship_Game.Gameplay
             {
                 if (moduleSlotList.Restrictions == Restrictions.I)
                 {
-                    Ship numberInternalModules = this;
-                    numberInternalModules.number_Internal_modules = numberInternalModules.number_Internal_modules + 1f;
-                    Ship numberAliveInternalModules = this;
-                    numberAliveInternalModules.number_Alive_Internal_modules = numberAliveInternalModules.number_Alive_Internal_modules + 1f;
+                    ++this.number_Internal_modules;
                 }
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Colony)
                 {
@@ -2345,6 +2342,7 @@ namespace Ship_Game.Gameplay
             }
             #endregion
             this.HealthMax = base.Health;
+            this.number_Alive_Internal_modules = this.number_Internal_modules;
             this.velocityMaximum = this.Thrust / this.mass;
             this.speed = this.velocityMaximum;
             this.rotationRadiansPerSecond = this.speed / (float)this.Size;
@@ -2954,7 +2952,7 @@ namespace Ship_Game.Gameplay
                     //Added by McShooterz: Priority repair
                     if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
                     {
-                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).ToList())
+                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).ToList())
                         {
                             //if destroyed do not repair in combat
                             if (moduleSlot.module.Health <= 1 && this.LastHitTimer > 0)
@@ -3398,7 +3396,7 @@ namespace Ship_Game.Gameplay
                 bool flag = false;
                 foreach (Planet planet in this.system.PlanetList)
                 {
-                    if ((double)Vector2.Distance(this.Position, planet.Position) < (double)GlobalStats.GravityWellRange)
+                    if ((double)Vector2.Distance(this.Position, planet.Position) < (double)(GlobalStats.GravityWellRange * (1 + ((Math.Log(planet.scale))/1.5) )))
                     {
                         flag = true;
                         this.InhibitedTimer = 1.5f;
@@ -3960,15 +3958,15 @@ namespace Ship_Game.Gameplay
 
             if (this.ResourceDrawDict.Count > 0)
             {
-                foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
-                //Parallel.ForEach(Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys), index1 =>
+                //foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
+                Parallel.ForEach(Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys), index1 =>
                 {
                     Dictionary<string, float> dictionary;
                     string index2;
                     (dictionary = this.CargoDict)[index2 = index1] = dictionary[index2] - this.ResourceDrawDict[index1] * elapsedTime;
                     if ((double)this.CargoDict[index1] <= 0.0)
                         this.CargoDict[index1] = 0.0f;
-                }//);
+                });
             }
             if ((double)this.PowerCurrent <= 0.0)
             {
