@@ -4925,13 +4925,14 @@ namespace Ship_Game
                 {
                     foreach (Planet planet in solarSystem.PlanetList)
                     {
+                        float fIconScale = 0.1875f * (0.7f + ((float)(Math.Log(planet.scale))/2.75f));
                         if (planet.Owner != null)
                         {
                             Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int)position.X - 8, (int)position.Y - 8, 16, 16);
-                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Width / 2), (float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Height / 2));
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"], position, new Rectangle?(), Color.White, 0.0f, origin, 0.6f, SpriteEffects.None, 1f);
+                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Width / 2f), (float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Height / 2f));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)planet.planetType], position, new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                             origin = new Vector2((float)(ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value.Width / 2), (float)(ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value.Height / 2));
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value, position, new Rectangle?(), planet.Owner.EmpireColor, 0.0f, origin, 0.045f, SpriteEffects.None, 1f);
                         }
@@ -4940,8 +4941,8 @@ namespace Ship_Game
                             Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int)position.X - 8, (int)position.Y - 8, 16, 16);
-                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Width / 2), (float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Height / 2));
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"], position, new Rectangle?(), Color.White, 0.0f, origin, 0.6f, SpriteEffects.None, 1f);
+                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Width / 2), (float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Height / 2f));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)planet.planetType], position, new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                         }
                     }
                 }
