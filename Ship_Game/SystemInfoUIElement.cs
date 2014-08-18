@@ -112,12 +112,13 @@ namespace Ship_Game
 				{
 					Vector2 planetPos = HelperFunctions.findPointFromAngleAndDistance(pPos, this.s.PlanetList[i].OrbitalAngle, (float)(40 + 40 * i));
 					planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (float)(40 + 40 * i)) * transitionOffset);
-					Rectangle PlanetRect = new Rectangle((int)planetPos.X - 8, (int)planetPos.Y - 8, 16, 16);
+                    float fIconScale = 1.0f + ((float)(Math.Log(this.s.PlanetList[i].scale)));
+					Rectangle PlanetRect = new Rectangle((int)planetPos.X - (int)(16 * fIconScale / 2), (int)planetPos.Y - (int)(16 * fIconScale / 2), (int)(16 * fIconScale), (int)(16 * fIconScale));
 					if (HelperFunctions.CheckIntersection(PlanetRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 					{
 						this.Hovering = true;
 						int widthplus = (int)(4f * (this.HoverTimer / 0.2f));
-						PlanetRect = new Rectangle((int)planetPos.X - (8 + widthplus), (int)planetPos.Y - (8 + widthplus), 2 * (8 + widthplus), 2 * (8 + widthplus));
+                        PlanetRect = new Rectangle((int)planetPos.X - ((int)(16 * fIconScale / 2) + widthplus), (int)planetPos.Y - ((int)(16 * fIconScale / 2) + widthplus), 2 * ((int)(16 * fIconScale / 2) + widthplus), 2 * ((int)(16 * fIconScale / 2) + widthplus));
 						SystemInfoUIElement.ClickMe cm = new SystemInfoUIElement.ClickMe()
 						{
 							p = this.s.PlanetList[i],
@@ -125,7 +126,8 @@ namespace Ship_Game
 						};
 						this.ClickList.Add(cm);
 					}
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets 24/", this.s.PlanetList[i].planetType, " copy")], PlanetRect, Color.White);
+					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.s.PlanetList[i].planetType)], PlanetRect, Color.White);
+            
 					if (this.screen.SelectedPlanet == this.s.PlanetList[i])
 					{
 						Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, PlanetRect, (this.s.PlanetList[i].Owner != null ? this.s.PlanetList[i].Owner.EmpireColor : Color.Gray), 3);
