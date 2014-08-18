@@ -3,6 +3,7 @@ using Ship_Game;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -2200,7 +2201,7 @@ namespace Ship_Game.Gameplay
 			};
 			return Vec2Target;
 		}
-
+        List<GameplayObject> Mfiretarget = new List<GameplayObject>();
 		public void FireOnTarget(float elapsedTime)
 		{
 			if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled)
@@ -2220,67 +2221,80 @@ namespace Ship_Game.Gameplay
 				if (Vector2.Distance(this.Owner.Center, this.Target.Center) <= this.Owner.maxWeaponsRange + 500f)
 				{
 					foreach (Weapon weapon in this.Owner.Weapons)
-					{
-						if (weapon.IsRepairDrone || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.isRepairBeam)
-						{
-							continue;
-						}
-						if (this.Owner.InFrustum || (this.Target as Ship).InFrustum || GlobalStats.ForceFullSim)
-						{
-							this.fireTarget = null;
+                    //ConcurrentStack<GameplayObject> Mfiretarget=new ConcurrentStack<GameplayObject>();
+                    
+                    
+                    //Parallel.ForEach(this.Owner.Weapons, weapon =>
+                    {
+                        if (weapon.IsRepairDrone || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.isRepairBeam)
+                        {
+                            continue;
+                            //return;
+                        }
+                        if (GlobalStats.ForceFullSim||this.Owner.InFrustum || (this.Target as Ship).InFrustum )
+                        {
+                            //this.
+                            GameplayObject fireTarget;
+                            fireTarget = null;
 
-							if ((weapon.TruePD || weapon.Tag_PD) && this.Owner.GetSystem() != null)
-							{
-								foreach (Planet p in this.Owner.GetSystem().PlanetList)
-								{
+                            if ((weapon.TruePD || weapon.Tag_PD) && this.Owner.GetSystem() != null)
+                            {
+                                foreach (Planet p in this.Owner.GetSystem().PlanetList)
+                                {
                                     // Why is this ship not checking for projectiles if the system is friendly?! The Doctor 14/08/2014
-									if (p.Owner == this.Owner.loyalty)
-									{
-										continue;
-									}
-									foreach (Projectile proj in p.Projectiles)
-									{
-										if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj.Center))
-										{
-											continue;
-										}
-										this.fireTarget = proj;
-										break;
-									}
-								}
-							}
-							if (this.fireTarget == null)
-							{
-								if (this.Target == null || !this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center) || weapon.TruePD)
-								{
-									if (this.Target is Ship && !this.PotentialTargets.Contains(this.Target as Ship))
-									{
-										this.PotentialTargets.Add(this.Target as Ship);
+                                    if (p.Owner == this.Owner.loyalty)
+                                    {
+                                        continue;
+                                    }
+                                    foreach (Projectile proj in p.Projectiles)
+                                    {
+                                        if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj.Center))
+                                        {
+                                            continue;
+                                        }
+                                        this.                                        fireTarget = proj;
+                                        
+                                        break;
+                                    }
+                                }
+                            }
+                            if (this.fireTarget == null) //this.
+                            
+                            {
+                                if (this.Target == null || !this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center) || weapon.TruePD)
+                                {
+                                    if (this.Target is Ship && !this.PotentialTargets.Contains(this.Target as Ship))
+                                    {
+                                        lock (this.PotentialTargets)
+                                            this.PotentialTargets.Add(this.Target as Ship);
                                         this.BadGuysNear = Vector2.Distance(this.Owner.Center, this.Target.Position) <= this.Owner.SensorRange; //true;
-									}
-									foreach (Ship ship in this.PotentialTargets)
-									{
-										if (!ship.Active)
-										{
-											continue;
-										}
-                                                                                                                
-										if (weapon.TruePD || weapon.Tag_PD)
-										{
-											foreach (Projectile p in ship.Projectiles)
-											{
-												if (!p.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, p.Center))
-												{
-													continue;
-												}
-												this.fireTarget = p;
-												break;
-											}
-										}
-										if (this.fireTarget != null || weapon.TruePD || !this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || !ship.Active)
-										{
-											continue;
-										}
+                                    }
+                                    //foreach (Ship ship in this.PotentialTargets)
+                                    for (int i = 0; i < this.PotentialTargets.Count;i++ )
+                                    {
+                                        Ship ship= this.PotentialTargets[i];
+                                        if (!ship.Active)
+                                        {
+                                            continue;
+                                        }
+
+                                        if (weapon.TruePD || weapon.Tag_PD)
+                                        {
+                                            foreach (Projectile p in ship.Projectiles)
+                                            {
+                                                if (!p.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, p.Center))
+                                                {
+                                                    continue;
+                                                }
+                                                this.                                                fireTarget = p;
+                                     
+                                                break;
+                                            }
+                                        }
+                                        if (this.fireTarget != null || weapon.TruePD || !this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || !ship.Active) //this.
+                                        {
+                                            continue;
+                                        }
 
                                         // XML defined target type exclusions for configuring weapons that only target certain hull types. 'Capital' exclusion excludes anything frigate sized or above.
                                         if (weapon.Excludes_Fighters && (ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone"))
@@ -2291,33 +2305,35 @@ namespace Ship_Game.Gameplay
                                             continue;
                                         if (weapon.Excludes_Stations && (ship.Role == "platform" || ship.Role == "station"))
                                             continue;
-                                        
-										this.fireTarget = ship;
 
-										List<ShipModule> potMods = new List<ShipModule>();
-										foreach (ModuleSlot slot in (this.fireTarget as Ship).ModuleSlotList)
-										{
-											if (slot.Restrictions != Restrictions.I || !slot.module.Active)
-											{
-												continue;
-											}
-											potMods.Add(slot.module);
-										}
-										if (potMods.Count <= 0)
-										{
-											break;
-										}
-										int Random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)potMods.Count + 0.85f);
-										if (Random > potMods.Count - 1)
-										{
-											Random = potMods.Count - 1;
-										}
-										this.fireTarget = potMods[Random];
-										break;
-									}
-								}
-								else
-								{
+                                        this.                                        fireTarget = ship;
+                                        
+
+                                        List<ShipModule> potMods = new List<ShipModule>();
+                                        foreach (ModuleSlot slot in (fireTarget as Ship).ModuleSlotList) //this.
+                                        {
+                                            if (slot.Restrictions != Restrictions.I || !slot.module.Active)
+                                            {
+                                                continue;
+                                            }
+                                            potMods.Add(slot.module);
+                                        }
+                                        if (potMods.Count <= 0)
+                                        {
+                                            break;
+                                        }
+                                        int Random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)potMods.Count + 0.85f);
+                                        if (Random > potMods.Count - 1)
+                                        {
+                                            Random = potMods.Count - 1;
+                                        }
+                                        this.                                        fireTarget = potMods[Random];
+                                        
+                                        break;
+                                    }
+                                }
+                                else
+                                {
 
                                     /* Whole new targeting stuff - so that weapons will find targets of opportunity if they can't fire on the directly targeted ship for whatever reason.
                                        Reasons include fire restrictions, being TruePD, not being in range/firing arc of the target...
@@ -2348,13 +2364,13 @@ namespace Ship_Game.Gameplay
                                             {
                                                 continue;
                                             }
-                                            this.fireTarget = ship;
+                                            this.                                            fireTarget = ship;
                                             break;
                                         }
                                     }
                                     else if (weapon.TruePD && (this.Target is Ship))
                                     {
-                                        this.fireTarget = null;
+                                        this.                                        fireTarget = null;
                                         foreach (Ship ship in PotentialTargets)
                                         {
                                             foreach (Projectile proj in ship.Projectiles)
@@ -2363,7 +2379,7 @@ namespace Ship_Game.Gameplay
                                                 {
                                                     continue;
                                                 }
-                                                this.fireTarget = proj;
+                                                this.                                                fireTarget = proj;
                                                 break;
                                             }
                                             break;
@@ -2371,7 +2387,7 @@ namespace Ship_Game.Gameplay
                                     }
                                     else if (this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center))
                                     {
-                                        this.fireTarget = this.Target;
+                                        this.                                        fireTarget = this.Target;
                                     }
                                     else
                                     {
@@ -2381,55 +2397,58 @@ namespace Ship_Game.Gameplay
                                             {
                                                 continue;
                                             }
-                                            this.fireTarget = ship;
-                                            break;                                            
+                                            this.                                            fireTarget = ship;
+                                            break;
                                         }
                                     }
 
-                                    
 
-									if (this.fireTarget is Ship)
-									{
-										if (!(this.fireTarget as Ship).dying)
-										{
-											List<ShipModule> potMods = new List<ShipModule>();
-											foreach (ModuleSlot slot in (this.fireTarget as Ship).ModuleSlotList)
-											{
-												if (slot.Restrictions != Restrictions.I || !slot.module.Active)
-												{
-													continue;
-												}
-												potMods.Add(slot.module);
-											}
-											if (potMods.Count > 0)
-											{
-												int Random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(potMods.Count - 1));
-												this.fireTarget = potMods[Random];
-											}
-										}
-										else
-										{
-											this.Target = null;
-											return;
-										}
-									}
-								}
-							}
-							if (this.fireTarget == null)
-							{
-								continue;
-							}
+
+                                    if (this.fireTarget is Ship) //this.
+                                    {
+                                        if (!(this.fireTarget as Ship).dying) //this.
+                                        {
+                                            List<ShipModule> potMods = new List<ShipModule>();
+                                            foreach (ModuleSlot slot in (this.fireTarget as Ship).ModuleSlotList) //this.
+                                            {
+                                                if (slot.Restrictions != Restrictions.I || !slot.module.Active)
+                                                {
+                                                    continue;
+                                                }
+                                                potMods.Add(slot.module);
+                                            }
+                                            if (potMods.Count > 0)
+                                            {
+                                                int Random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(potMods.Count - 1));
+                                                this.                                                fireTarget = potMods[Random];
+                                                
+                                            }
+                                        }
+                                        else
+                                        {
+                                            this.Target = null;
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                            if (this.fireTarget == null) //this.
+                            {
+                                continue;
+                                //return;
+                            }
                             if (weapon.isBeam)
-                                weapon.FireTargetedBeam(this.fireTarget.Center, this.fireTarget);
+                                weapon.FireTargetedBeam(this.fireTarget.Center, this.fireTarget); //this. this.
                             else
-                                CalculateAndFire(weapon, this.fireTarget, false);
-						}
-						else
-						{
-							((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
-							this.FireOnTargetNonVisible(weapon, this.Target);
-						}
-					}
+                                CalculateAndFire(weapon, this.fireTarget, false); //this.
+                        }
+                        else
+                        {
+                            ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
+                            this.FireOnTargetNonVisible(weapon, this.Target);
+                        }
+                    }//);
+                    
 					return;
 				}
 				foreach (Ship ship in this.PotentialTargets)
@@ -2449,9 +2468,11 @@ namespace Ship_Game.Gameplay
                             try
                             {
                                 p = ship.Projectiles[x];
+                                
                             }
                             catch
                             {
+                                System.Diagnostics.Debug.WriteLine(x + " FAIL " + ship.Projectiles.Count);
                                 break;
                             }
                             if (!p.Active|| !p.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, p.Center))

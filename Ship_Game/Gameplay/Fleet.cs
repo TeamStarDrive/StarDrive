@@ -656,11 +656,12 @@ namespace Ship_Game.Gameplay
         public void AssignPositions(float facing)
         {
             this.facing = facing;
-            foreach (Ship ship in (List<Ship>)this.Ships)
+            //foreach (Ship ship in (List<Ship>)this.Ships)
+            for(int i=0;i<((List<Ship>)this.Ships).Count;i++)
             {
-                float angle = MathHelper.ToRadians(Math.Abs(HelperFunctions.findAngleToTarget(Vector2.Zero, ship.RelativeFleetOffset)) + MathHelper.ToDegrees(facing));
-                float distance = ship.RelativeFleetOffset.Length();
-                ship.FleetOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
+                float angle = MathHelper.ToRadians(Math.Abs(HelperFunctions.findAngleToTarget(Vector2.Zero, ((List<Ship>)this.Ships)[i].RelativeFleetOffset)) + MathHelper.ToDegrees(facing));
+                float distance = ((List<Ship>)this.Ships)[i].RelativeFleetOffset.Length();
+                ((List<Ship>)this.Ships)[i].FleetOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
             }
         }
 
