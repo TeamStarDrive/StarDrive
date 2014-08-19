@@ -33,6 +33,7 @@ namespace Ship_Game
         public bool expandedWeaponCats;
         public bool overrideSecretsTree;
 
+        public float ShipyardBonus;
         public float UpkeepBaseline;
         public float UpkeepFighter;
         public float UpkeepCorvette;
@@ -44,6 +45,8 @@ namespace Ship_Game
         public float UpkeepPlatform;
         public float UpkeepStation;
         public float UpkeepDrone;
+        
+        public int RemnantTechCount;
         
 
 		public ModInformation()

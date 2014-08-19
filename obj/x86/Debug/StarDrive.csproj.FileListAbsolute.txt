@@ -490,3 +490,13 @@ C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\U
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_troop_shipUI.xnb
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_money_22.xnb
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_pop_22.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\SolarSystems\Sol.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Cordrazine Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Kulrathi Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Opteris Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Prototype Fern.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Prototype Frigate.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Ralyeh Prototype L.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Ralyeh Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Scythe Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Type V Prototype.xml
