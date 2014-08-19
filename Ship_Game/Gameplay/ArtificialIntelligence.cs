@@ -2451,6 +2451,7 @@ namespace Ship_Game.Gameplay
                     
 					return;
 				}
+
 				foreach (Ship ship in this.PotentialTargets)
 				{
 					foreach (Weapon weapon in this.Owner.Weapons)
@@ -4124,9 +4125,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-
-
-
             //if starting or ending system in combat... clear order...
             if ( this.Owner.CargoSpace_Used>0 && (
                 (this.start != null && this.start.ParentSystem.combatTimer >0) 
@@ -4733,8 +4731,11 @@ namespace Ship_Game.Gameplay
 			this.State = AIState.SystemTrader;
 		}
 
+
+        // PLEASE FIX ME CRUNCHY I DON'T WORK ANYMORE
 		public void OrderTransportPassengers()
 		{
+            
             if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
             if (this.Owner.CargoSpace_Max >0  
@@ -6712,8 +6713,8 @@ namespace Ship_Game.Gameplay
             this.Owner.isTurning = false;
 
 
-            if ((this.BadGuysNear || this.Owner.InCombatTimer > 0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
-                && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State!=AIState.Rebase) &&( this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
+            if ((this.BadGuysNear || this.Owner.InCombatTimer > 0) && (this.Owner.shipData==null ||this.Owner.shipData.ShipCategory == null || this.Owner.shipData.ShipCategory == "civilian") && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
+                && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State!=AIState.Rebase) &&(  this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
             {
                 if (this.State != AIState.Flee )//&& !this.HasPriorityOrder)
                 {

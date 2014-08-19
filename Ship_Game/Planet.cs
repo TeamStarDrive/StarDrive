@@ -4353,8 +4353,8 @@ namespace Ship_Game
                     if (queueItem.sData.Role == "station" || queueItem.sData.Role == "platform")
                     {
                         int num = this.Shipyards.Count / 4;
-                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2500 + 2500 * num));
-                        shipAt.Center = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2500 + 2500 * num));
+                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
+                        shipAt.Center = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
                         shipAt.TetherToPlanet(this);
                         this.Shipyards.Add(shipAt.guid, shipAt);
                     }
@@ -4617,7 +4617,16 @@ namespace Ship_Game
                     if (keyValuePair.Value == null)
                         list.Add(keyValuePair.Key);
                     else if (keyValuePair.Value.Active && keyValuePair.Value.GetShipData().IsShipyard)
-                        this.ShipBuildingModifier += 0.25f;
+                    {
+                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.ShipyardBonus > 0)
+                        {
+                            this.ShipBuildingModifier += GlobalStats.ActiveMod.mi.ShipyardBonus;
+                        }
+                        else
+                        {
+                            this.ShipBuildingModifier += 0.25f;
+                        }
+                    }
                     else if (!keyValuePair.Value.Active)
                         list.Add(keyValuePair.Key);
                 }
