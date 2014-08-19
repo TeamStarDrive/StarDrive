@@ -40,7 +40,6 @@ namespace Ship_Game
 
 		private ScrollList ArtifactsSL;
 
-
 		private CloseButton close;
 
 		private float TransitionElapsedTime;
