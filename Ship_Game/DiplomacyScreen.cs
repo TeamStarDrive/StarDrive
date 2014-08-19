@@ -793,7 +793,7 @@ namespace Ship_Game
 				ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Tech";
-				item1.SpecialInquiry = Technology.Key;
+                item1.SpecialInquiry = Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex);
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -803,10 +803,10 @@ namespace Ship_Game
 			newCurs.X = newCurs.X + 10f;
 			foreach (Ship_Game.Artifact Artifact in this.playerEmpire.data.OwnedArtifacts)
 			{
-				ItemToOffer item1 = new ItemToOffer(Artifact.Name, newCurs, Fonts.Arial12Bold);
+				ItemToOffer item1 = new ItemToOffer(Localizer.Token(Artifact.NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Artifacts";
-				item1.SpecialInquiry = Artifact.Name;
+                item1.SpecialInquiry = Localizer.Token(Artifact.NameIndex);
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -888,7 +888,7 @@ namespace Ship_Game
 				ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Tech";
-				item1.SpecialInquiry = Technology.Key;
+                item1.SpecialInquiry = Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex);
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -898,10 +898,10 @@ namespace Ship_Game
 			newCurs.X = newCurs.X + 10f;
 			foreach (Ship_Game.Artifact Artifact in this.them.data.OwnedArtifacts)
 			{
-				ItemToOffer item1 = new ItemToOffer(Artifact.Name, newCurs, Fonts.Arial12Bold);
+                ItemToOffer item1 = new ItemToOffer(Localizer.Token(Artifact.NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Artifacts";
-				item1.SpecialInquiry = Artifact.Name;
+                item1.SpecialInquiry = Localizer.Token(Artifact.NameIndex);
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
