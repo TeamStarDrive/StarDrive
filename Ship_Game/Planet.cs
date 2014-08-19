@@ -4327,7 +4327,11 @@ namespace Ship_Game
                 }
                 else if (queueItem.isShip && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
-                    Ship shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
+                    Ship shipAt;
+                    if (queueItem.isRefit && queueItem.RefitName != "")
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName, queueItem.sData.Level);
+                    else
+                       shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);     
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                     using (List<string>.Enumerator enumerator = Enumerable.ToList<string>((IEnumerable<string>)shipAt.GetMaxGoods().Keys).GetEnumerator())
                     {
