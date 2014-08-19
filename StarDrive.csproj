@@ -2465,7 +2465,9 @@
     <Content Include="Icons\PipeSmoke.ico" />
     <Content Include="Icons\StarTrek-SA.ico" />
     <Content Include="StarTrek-SA.ico" />
-    <None Include="Content\Textures\TacticalIcons\symbol_prototype.xnb" />
+    <None Include="Content\Textures\TacticalIcons\symbol_prototype.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Content\Textures\UI\icon_experience_shipUI.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

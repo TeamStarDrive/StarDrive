@@ -2134,7 +2134,7 @@ namespace Ship_Game
             List<Ship> unusedFreighters = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if ( ship.Role == "freighter" && !ship.isColonyShip&& ship.Weapons.Count ==0 && (double)ship.CargoSpace_Max > 0.0)
+                if ((( ship.shipData==null || ship.shipData.ShipCategory ==null ||ship.shipData.ShipCategory=="cilvlian") && ship.Role == "freighter") && !ship.isColonyShip&& ship.Weapons.Count ==0 && (double)ship.CargoSpace_Max > 0.0)
                 {
                     if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
                         ++tradeShips;
@@ -2146,8 +2146,8 @@ namespace Ship_Game
             }
             int freighterLimit = this.OwnedPlanets.Where(combat=> combat.ParentSystem.combatTimer <1).Count() ;
 
-            if (tradeShips + passengerShips + unusedFreighters.Count > GlobalStats.ShipCountLimit * GlobalStats.freighterlimit)
-                freighterLimit = (int)(GlobalStats.ShipCountLimit * GlobalStats.freighterlimit); // tradeShips + passengerShips + unusedFreighters.Count;
+            if (tradeShips + passengerShips + unusedFreighters.Count > GlobalStats.freighterlimit)//GlobalStats.ShipCountLimit * GlobalStats.freighterlimit)
+                freighterLimit = (int)GlobalStats.freighterlimit;// (int)(GlobalStats.ShipCountLimit * GlobalStats.freighterlimit); // tradeShips + passengerShips + unusedFreighters.Count;
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
