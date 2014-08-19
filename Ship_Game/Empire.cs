@@ -2014,7 +2014,7 @@ namespace Ship_Game
             foreach (Artifact artifact in target.data.OwnedArtifacts)
             {
                 this.data.OwnedArtifacts.Add(artifact);
-                this.AddArtifact(this, artifact);
+                this.AddArtifact(artifact);
             }
             target.data.OwnedArtifacts.Clear();
             if ((double)target.Money > 0.0)
@@ -2328,62 +2328,101 @@ namespace Ship_Game
             }
         }
 
-        private void AddArtifact(Empire Triggerer, Artifact art)
+        public void AddArtifact(Artifact art)
         {
-            Triggerer.data.OwnedArtifacts.Add(art);
+            this.data.OwnedArtifacts.Add(art);
             if (art.DiplomacyMod > 0f)
             {
-                Triggerer.data.Traits.DiplomacyMod += (art.DiplomacyMod + art.DiplomacyMod * Triggerer.data.Traits.Spiritual);
+                this.data.Traits.DiplomacyMod += (art.DiplomacyMod + art.DiplomacyMod * this.data.Traits.Spiritual);
             }
             if (art.FertilityMod > 0f)
             {
-                EmpireData triggerer = Triggerer.data;
-                triggerer.EmpireFertilityBonus = triggerer.EmpireFertilityBonus + art.FertilityMod;
-                foreach (Planet planet in Triggerer.GetPlanets())
+                this.data.EmpireFertilityBonus += art.FertilityMod;
+                foreach (Planet planet in this.GetPlanets())
                 {
-                    Planet fertility = planet;
-                    fertility.Fertility = fertility.Fertility + (art.FertilityMod + art.FertilityMod * Triggerer.data.Traits.Spiritual);
+                    planet.Fertility += (art.FertilityMod + art.FertilityMod * this.data.Traits.Spiritual);
                 }
             }
             if (art.GroundCombatMod > 0f)
             {
-                RacialTrait groundCombatModifier = Triggerer.data.Traits;
-                groundCombatModifier.GroundCombatModifier = groundCombatModifier.GroundCombatModifier + (art.GroundCombatMod + art.GroundCombatMod * Triggerer.data.Traits.Spiritual);
+                this.data.Traits.GroundCombatModifier += (art.GroundCombatMod + art.GroundCombatMod * this.data.Traits.Spiritual);
             }
             if (art.ModuleHPMod > 0f)
             {
-                RacialTrait modHpModifier = Triggerer.data.Traits;
-                modHpModifier.ModHpModifier = modHpModifier.ModHpModifier + (art.ModuleHPMod + art.ModuleHPMod * Triggerer.data.Traits.Spiritual);
+                this.data.Traits.ModHpModifier += (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
             }
             if (art.PlusFlatMoney > 0f)
             {
-                EmpireData flatMoneyBonus = Triggerer.data;
-                flatMoneyBonus.FlatMoneyBonus = flatMoneyBonus.FlatMoneyBonus + (art.PlusFlatMoney + art.PlusFlatMoney * Triggerer.data.Traits.Spiritual);
+                this.data.FlatMoneyBonus += (art.PlusFlatMoney + art.PlusFlatMoney * this.data.Traits.Spiritual);
             }
             if (art.ProductionMod > 0f)
             {
-                RacialTrait productionMod = Triggerer.data.Traits;
-                productionMod.ProductionMod = productionMod.ProductionMod + (art.ProductionMod + art.ProductionMod * Triggerer.data.Traits.Spiritual);
+                this.data.Traits.ProductionMod += (art.ProductionMod + art.ProductionMod * this.data.Traits.Spiritual);
             }
             if (art.ReproductionMod > 0f)
             {
-                RacialTrait reproductionMod = Triggerer.data.Traits;
-                reproductionMod.ReproductionMod = reproductionMod.ReproductionMod + (art.ReproductionMod + art.ReproductionMod * Triggerer.data.Traits.Spiritual);
+                this.data.Traits.ReproductionMod += (art.ReproductionMod + art.ReproductionMod * this.data.Traits.Spiritual);
             }
             if (art.ResearchMod > 0f)
             {
-                RacialTrait researchMod = Triggerer.data.Traits;
-                researchMod.ResearchMod = researchMod.ResearchMod + (art.ResearchMod + art.ResearchMod * Triggerer.data.Traits.Spiritual);
+                this.data.Traits.ResearchMod += (art.ResearchMod + art.ResearchMod * this.data.Traits.Spiritual);
             }
             if (art.SensorMod > 0f)
             {
-                EmpireData sensorModifier = Triggerer.data;
-                sensorModifier.SensorModifier = sensorModifier.SensorModifier + (art.SensorMod + art.SensorMod * Triggerer.data.Traits.Spiritual);
+                this.data.SensorModifier += (art.SensorMod + art.SensorMod * this.data.Traits.Spiritual);
             }
             if (art.ShieldPenBonus > 0f)
             {
-                EmpireData shieldPenBonusChance = Triggerer.data;
-                shieldPenBonusChance.ShieldPenBonusChance = shieldPenBonusChance.ShieldPenBonusChance + (art.ShieldPenBonus + art.ShieldPenBonus * Triggerer.data.Traits.Spiritual);
+                this.data.ShieldPenBonusChance += (art.ShieldPenBonus + art.ShieldPenBonus * this.data.Traits.Spiritual);
+            }
+        }
+
+        public void RemoveArtifact(Artifact art)
+		{
+			this.data.OwnedArtifacts.Remove(art);
+            if (art.DiplomacyMod > 0f)
+            {
+                this.data.Traits.DiplomacyMod -= (art.DiplomacyMod + art.DiplomacyMod * this.data.Traits.Spiritual);
+            }
+            if (art.FertilityMod > 0f)
+            {
+                this.data.EmpireFertilityBonus -= art.FertilityMod;
+                foreach (Planet planet in this.GetPlanets())
+                {
+                    planet.Fertility -= (art.FertilityMod + art.FertilityMod * this.data.Traits.Spiritual);
+                }
+            }
+            if (art.GroundCombatMod > 0f)
+            {
+                this.data.Traits.GroundCombatModifier -= (art.GroundCombatMod + art.GroundCombatMod * this.data.Traits.Spiritual);
+            }
+            if (art.ModuleHPMod > 0f)
+            {
+                this.data.Traits.ModHpModifier -= (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
+            }
+            if (art.PlusFlatMoney > 0f)
+            {
+                this.data.FlatMoneyBonus -= (art.PlusFlatMoney + art.PlusFlatMoney * this.data.Traits.Spiritual);
+            }
+            if (art.ProductionMod > 0f)
+            {
+                this.data.Traits.ProductionMod -= (art.ProductionMod + art.ProductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ReproductionMod > 0f)
+            {
+                this.data.Traits.ReproductionMod -= (art.ReproductionMod + art.ReproductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ResearchMod > 0f)
+            {
+                this.data.Traits.ResearchMod -= (art.ResearchMod + art.ResearchMod * this.data.Traits.Spiritual);
+            }
+            if (art.SensorMod > 0f)
+            {
+                this.data.SensorModifier -= (art.SensorMod + art.SensorMod * this.data.Traits.Spiritual);
+            }
+            if (art.ShieldPenBonus > 0f)
+            {
+                this.data.ShieldPenBonusChance -= (art.ShieldPenBonus + art.ShieldPenBonus * this.data.Traits.Spiritual);
             }
         }
 
