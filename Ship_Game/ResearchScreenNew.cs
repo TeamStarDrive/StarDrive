@@ -324,6 +324,7 @@ namespace Ship_Game
                     if (ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == null || ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == "")
                         EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetBDict()[Building.Key] = true;
                 }
+                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
 			}
             //Added by McShooterz: new cheat to only unlock tech
             if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F2) && input.LastKeyboardState.IsKeyUp(Keys.F2))
@@ -332,6 +333,7 @@ namespace Ship_Game
                 {
                     this.UnlockTree(tech.Key);
                 }
+                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
             }
             //Added by McShooterz: new cheat to only unlock tech
             if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F3) && input.LastKeyboardState.IsKeyUp(Keys.F3))
@@ -340,6 +342,7 @@ namespace Ship_Game
                 {
                     this.UnlockTree(tech.Key);
                 }
+                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
             }
 			this.qcomponent.HandleInput(input);
 			if (this.qcomponent.Visible && HelperFunctions.CheckIntersection(this.qcomponent.container, input.CursorPosition))

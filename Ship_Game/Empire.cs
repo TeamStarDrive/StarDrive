@@ -510,6 +510,7 @@ namespace Ship_Game
                     }
                 }
             }
+
         }
 
         private bool WeCanUseThisLater(TechEntry tech)
@@ -772,6 +773,7 @@ namespace Ship_Game
         {
             this.TechnologyDict[techID].AcquiredFrom = target.data.Traits.ShipType;
             this.UnlockTech(techID);
+            this.UpdateShipsWeCanBuild();
         }
 
         public void UnlockHullsSave(string techID, string AbsorbedShipType)
@@ -1920,6 +1922,7 @@ namespace Ship_Game
             if (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) && !this.AutoExplore)
                 return;
             this.AssignExplorationTasks();
+
         }
 
         private void UpdateRelationships()
