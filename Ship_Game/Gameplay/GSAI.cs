@@ -332,8 +332,8 @@ namespace Ship_Game.Gameplay
 					}
 					toGive = arti;
 				}
-				this.RemoveArtifact(us, toGive);
-				this.AddArtifact(Them, toGive);
+                us.RemoveArtifact(toGive);
+                Them.AddArtifact(toGive);
 			}
 			foreach (string Art in ToUs.ArtifactsOffered)
 			{
@@ -346,8 +346,8 @@ namespace Ship_Game.Gameplay
 					}
 					toGive = arti;
 				}
-				this.RemoveArtifact(Them, toGive);
-				this.AddArtifact(us, toGive);
+                Them.RemoveArtifact(toGive);
+                us.AddArtifact(toGive);
 			}
 			foreach (string planetName in FromUs.ColoniesOffered)
 			{
@@ -700,10 +700,8 @@ namespace Ship_Game.Gameplay
 					}
 					toGive = arti;
 				}
-                this.RemoveArtifact(us, toGive);
-				//us.data.OwnedArtifacts.Remove(toGive);
-				//Them.data.OwnedArtifacts.Add(toGive);
-                this.AddArtifact(Them, toGive);
+                us.RemoveArtifact(toGive);
+                Them.AddArtifact(toGive);
 			}
 			foreach (string Art in ToUs.ArtifactsOffered)
 			{
@@ -716,10 +714,8 @@ namespace Ship_Game.Gameplay
 					}
 					toGive = arti;
 				}
-				//Them.data.OwnedArtifacts.Remove(toGive);
-				//us.data.OwnedArtifacts.Add(toGive);
-                this.RemoveArtifact(Them, toGive);
-                this.AddArtifact(us, toGive);
+                Them.RemoveArtifact(toGive);
+                us.AddArtifact(toGive);
 
 			}
 			foreach (string planetName in FromUs.ColoniesOffered)
