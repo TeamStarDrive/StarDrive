@@ -93,6 +93,8 @@ namespace Ship_Game
 
 		public static int RemnantKills;
 
+        public static int RemnantActivation;
+
 		public static bool RemnantArmageddon;
 
 		public static int CordrazinePlanetsCaptured;
@@ -160,6 +162,7 @@ namespace Ship_Game
 			GlobalStats.ResearchRootUIDToDisplay = "Colonization";
 			GlobalStats.ForceFullSim = true;
 			GlobalStats.RemnantKills = 0;
+            GlobalStats.RemnantActivation = 0;
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
             GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
@@ -208,10 +211,22 @@ namespace Ship_Game
 		public static void IncrementRemnantKills()
 		{
 			GlobalStats.RemnantKills = GlobalStats.RemnantKills + 1;
-			if (GlobalStats.RemnantKills == 5)
-			{
-				Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
-			}
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.RemnantTechCount > 0)
+            {
+                if (GlobalStats.RemnantKills == 5 && GlobalStats.RemnantActivation < GlobalStats.ActiveMod.mi.RemnantTechCount)
+                {
+                    GlobalStats.RemnantActivation += 1;
+                    Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
+                    GlobalStats.RemnantKills = 0;
+                }
+            }
+            else
+            {
+                if (GlobalStats.RemnantKills == 5)
+                {
+                    Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
+                }
+            }
 		}
 	}
 }

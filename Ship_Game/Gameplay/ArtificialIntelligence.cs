@@ -2252,7 +2252,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             continue;
                                         }
-                                        this.                                        fireTarget = proj;
+                                        this.fireTarget = proj;
                                         
                                         break;
                                     }
@@ -2306,7 +2306,7 @@ namespace Ship_Game.Gameplay
                                         if (weapon.Excludes_Stations && (ship.Role == "platform" || ship.Role == "station"))
                                             continue;
 
-                                        this.                                        fireTarget = ship;
+                                        this.fireTarget = ship;
                                         
 
                                         List<ShipModule> potMods = new List<ShipModule>();
@@ -2327,7 +2327,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             Random = potMods.Count - 1;
                                         }
-                                        this.                                        fireTarget = potMods[Random];
+                                        this.fireTarget = potMods[Random];
                                         
                                         break;
                                     }
@@ -2364,13 +2364,13 @@ namespace Ship_Game.Gameplay
                                             {
                                                 continue;
                                             }
-                                            this.                                            fireTarget = ship;
+                                            this.fireTarget = ship;
                                             break;
                                         }
                                     }
                                     else if (weapon.TruePD && (this.Target is Ship))
                                     {
-                                        this.                                        fireTarget = null;
+                                        this.fireTarget = null;
                                         foreach (Ship ship in PotentialTargets)
                                         {
                                             foreach (Projectile proj in ship.Projectiles)
@@ -2379,7 +2379,7 @@ namespace Ship_Game.Gameplay
                                                 {
                                                     continue;
                                                 }
-                                                this.                                                fireTarget = proj;
+                                                this.fireTarget = proj;
                                                 break;
                                             }
                                             break;
@@ -2387,7 +2387,7 @@ namespace Ship_Game.Gameplay
                                     }
                                     else if (this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center))
                                     {
-                                        this.                                        fireTarget = this.Target;
+                                        this.fireTarget = this.Target;
                                     }
                                     else
                                     {
@@ -2451,6 +2451,7 @@ namespace Ship_Game.Gameplay
                     
 					return;
 				}
+
 				foreach (Ship ship in this.PotentialTargets)
 				{
 					foreach (Weapon weapon in this.Owner.Weapons)
@@ -4124,9 +4125,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-
-
-
             //if starting or ending system in combat... clear order...
             if ( this.Owner.CargoSpace_Used>0 && (
                 (this.start != null && this.start.ParentSystem.combatTimer >0) 
@@ -4733,8 +4731,11 @@ namespace Ship_Game.Gameplay
 			this.State = AIState.SystemTrader;
 		}
 
+
+        // PLEASE FIX ME CRUNCHY I DON'T WORK ANYMORE
 		public void OrderTransportPassengers()
 		{
+            
             if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
             if (this.Owner.CargoSpace_Max >0  
