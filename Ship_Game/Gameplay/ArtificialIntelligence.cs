@@ -2451,6 +2451,7 @@ namespace Ship_Game.Gameplay
                     
 					return;
 				}
+
 				foreach (Ship ship in this.PotentialTargets)
 				{
 					foreach (Weapon weapon in this.Owner.Weapons)
@@ -4124,9 +4125,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-
-
-
             //if starting or ending system in combat... clear order...
             if ( this.Owner.CargoSpace_Used>0 && (
                 (this.start != null && this.start.ParentSystem.combatTimer >0) 
@@ -4733,8 +4731,11 @@ namespace Ship_Game.Gameplay
 			this.State = AIState.SystemTrader;
 		}
 
+
+        // PLEASE FIX ME CRUNCHY I DON'T WORK ANYMORE
 		public void OrderTransportPassengers()
 		{
+            
             if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
             if (this.Owner.CargoSpace_Max >0  
