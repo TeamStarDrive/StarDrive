@@ -1373,11 +1373,11 @@ namespace Ship_Game
 					newOrbital.InitializeUpdate();
 					if (!data.RingList[i - 1].HomePlanet)
 					{
+                        newOrbital.SetPlanetAttributes();
                         if (data.RingList[i - 1].MaxPopDefined > 0)
                         {
                             newOrbital.MaxPopulation = data.RingList[i - 1].MaxPopDefined * 1000f;
-                        }
-						newOrbital.SetPlanetAttributes();
+                        }						
 					}
 					else
 					{
