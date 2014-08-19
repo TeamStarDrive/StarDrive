@@ -332,8 +332,8 @@ namespace Ship_Game.Gameplay
 					}
 					toGive = arti;
 				}
-				this.RemoveArtifact(us, toGive);
-				this.AddArtifact(Them, toGive);
+                us.RemoveArtifact(toGive);
+                Them.AddArtifact(toGive);
 			}
 			foreach (string Art in ToUs.ArtifactsOffered)
 			{
@@ -346,8 +346,8 @@ namespace Ship_Game.Gameplay
 					}
 					toGive = arti;
 				}
-				this.RemoveArtifact(Them, toGive);
-				this.AddArtifact(us, toGive);
+                Them.RemoveArtifact(toGive);
+                us.AddArtifact(toGive);
 			}
 			foreach (string planetName in FromUs.ColoniesOffered)
 			{
@@ -700,8 +700,8 @@ namespace Ship_Game.Gameplay
 					}
 					toGive = arti;
 				}
-				us.data.OwnedArtifacts.Remove(toGive);
-				Them.data.OwnedArtifacts.Add(toGive);
+                us.RemoveArtifact(toGive);
+                Them.AddArtifact(toGive);
 			}
 			foreach (string Art in ToUs.ArtifactsOffered)
 			{
@@ -714,8 +714,9 @@ namespace Ship_Game.Gameplay
 					}
 					toGive = arti;
 				}
-				Them.data.OwnedArtifacts.Remove(toGive);
-				us.data.OwnedArtifacts.Add(toGive);
+                Them.RemoveArtifact(toGive);
+                us.AddArtifact(toGive);
+
 			}
 			foreach (string planetName in FromUs.ColoniesOffered)
 			{
@@ -5582,8 +5583,7 @@ namespace Ship_Game.Gameplay
 			Triggerer.data.OwnedArtifacts.Remove(art);
 			if (art.DiplomacyMod > 0f)
 			{
-				RacialTrait traits = Triggerer.data.Traits;
-				traits.DiplomacyMod = traits.DiplomacyMod - (art.DiplomacyMod + art.DiplomacyMod * Triggerer.data.Traits.Spiritual);
+                Triggerer.data.Traits.DiplomacyMod -= (art.DiplomacyMod + art.DiplomacyMod * Triggerer.data.Traits.Spiritual);
 			}
 			if (art.FertilityMod > 0f)
 			{
