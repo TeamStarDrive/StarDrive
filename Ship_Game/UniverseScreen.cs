@@ -4789,7 +4789,7 @@ namespace Ship_Game
                 {
                     foreach (UniverseScreen.ClickablePlanets item_1 in this.ClickPlanetList)
                     {
-                        float local_14 = 2500f;
+                        float local_14 = 2500f * item_1.planetToClick.scale;
                         Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
                         Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
