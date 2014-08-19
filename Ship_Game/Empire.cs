@@ -510,6 +510,7 @@ namespace Ship_Game
                     }
                 }
             }
+
         }
 
         private bool WeCanUseThisLater(TechEntry tech)
@@ -557,7 +558,7 @@ namespace Ship_Game
                 foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[techID].LeadsTo)
                 {
                     //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
-                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0)
+                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0 && !this.TechnologyDict[leadsToTech.UID].GetTech().Secret)
                         this.TechnologyDict[leadsToTech.UID].Discovered = true;
                 }
             }
@@ -746,7 +747,7 @@ namespace Ship_Game
             if (ResourceManager.TechTree[techID].RootNode == 0)
             {
                 foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[techID].LeadsTo)
-                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0)
+                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0 && !this.TechnologyDict[leadsToTech.UID].GetTech().Secret)
                         this.TechnologyDict[leadsToTech.UID].Discovered = true;
             }
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
@@ -772,6 +773,7 @@ namespace Ship_Game
         {
             this.TechnologyDict[techID].AcquiredFrom = target.data.Traits.ShipType;
             this.UnlockTech(techID);
+            this.UpdateShipsWeCanBuild();
         }
 
         public void UnlockHullsSave(string techID, string AbsorbedShipType)
@@ -1920,6 +1922,7 @@ namespace Ship_Game
             if (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) && !this.AutoExplore)
                 return;
             this.AssignExplorationTasks();
+
         }
 
         private void UpdateRelationships()
@@ -2134,7 +2137,7 @@ namespace Ship_Game
             List<Ship> unusedFreighters = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if ( ship.Role == "freighter" && !ship.isColonyShip&& ship.Weapons.Count ==0 && (double)ship.CargoSpace_Max > 0.0)
+                if ((( ship.shipData==null || ship.shipData.ShipCategory ==null ||ship.shipData.ShipCategory=="cilvlian") && ship.Role == "freighter") && !ship.isColonyShip&& ship.Weapons.Count ==0 && (double)ship.CargoSpace_Max > 0.0)
                 {
                     if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
                         ++tradeShips;
@@ -2146,8 +2149,8 @@ namespace Ship_Game
             }
             int freighterLimit = this.OwnedPlanets.Where(combat=> combat.ParentSystem.combatTimer <1).Count() ;
 
-            if (tradeShips + passengerShips + unusedFreighters.Count > GlobalStats.ShipCountLimit * GlobalStats.freighterlimit)
-                freighterLimit = (int)(GlobalStats.ShipCountLimit * GlobalStats.freighterlimit); // tradeShips + passengerShips + unusedFreighters.Count;
+            if (tradeShips + passengerShips + unusedFreighters.Count > GlobalStats.freighterlimit)//GlobalStats.ShipCountLimit * GlobalStats.freighterlimit)
+                freighterLimit = (int)GlobalStats.freighterlimit;// (int)(GlobalStats.ShipCountLimit * GlobalStats.freighterlimit); // tradeShips + passengerShips + unusedFreighters.Count;
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
