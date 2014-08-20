@@ -670,8 +670,6 @@ namespace Ship_Game
                         this.data.MissileHPModifier += unlockedBonus.Bonus;
                     if (str == "Hull Strengthening" || str == "Module HP Bonus")
                         this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                    if (str == "Kinetic Shield Penetration Chance Bonus")
-                        this.data.KineticShieldPenBonusChance += unlockedBonus.Bonus;
                     if (str == "Reaction Drive Upgrade" || str == "STL Speed Bonus")
                         this.data.SubLightModifier += unlockedBonus.Bonus;
                     if (str == "Reactive Armor" || str == "Armor Explosion Reduction")
@@ -725,6 +723,8 @@ namespace Ship_Game
                         this.data.Traits.MaintMod -= unlockedBonus.Bonus;
                     if (str == "Power Flow Bonus")
                         this.data.PowerFlowMod += unlockedBonus.Bonus;
+                    if (str == "Shield Power Bonus")
+                        this.data.ShieldPowerMod += unlockedBonus.Bonus;
                 }
                 this.UpdateShipsWeCanBuild();
                 if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
