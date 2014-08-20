@@ -1653,6 +1653,7 @@ namespace Ship_Game.Gameplay
 			this.OrbitTarget.ConstructionQueue.Add(qi);
 			this.Owner.QueueTotalRemoval();
 		}
+
         //added by gremlin refit while in fleet
         private void DoRefit(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
         {
@@ -1661,7 +1662,6 @@ namespace Ship_Game.Gameplay
                 isShip = true,
                 productionTowards = 0f,
                 sData = ResourceManager.ShipsDict[goal.VariableString].GetShipData()
-
             };
 
             if (qi.sData == null)
@@ -1677,6 +1677,9 @@ namespace Ship_Game.Gameplay
             cost = cost + 10 * (int)UniverseScreen.GamePaceStatic;
             qi.Cost = (float)cost;
             qi.isRefit = true;
+            //Added by McShooterz: refit keeps name and level
+            qi.RefitName = this.Owner.VanityName;
+            qi.sData.Level = (byte)this.Owner.Level;
             if (this.Owner.fleet != null)
             {
 
@@ -7130,7 +7133,6 @@ namespace Ship_Game.Gameplay
                                         ((IDisposable)enumerator1).Dispose();
                                     }
                                 }
-                                break;
                             }
                         case ArtificialIntelligence.Plan.RotateToFaceMovePosition:
                             {
