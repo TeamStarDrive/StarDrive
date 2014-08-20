@@ -1392,7 +1392,7 @@ namespace Ship_Game
 
                         if (data.RingList[i - 1].MaxPopDefined > 0)
                         {
-                            newOrbital.MaxPopulation = (data.RingList[i - 1].MaxPopDefined * 1000f) * (Owner.data.Traits.HomeworldSizeMod > 0 ? Owner.data.Traits.HomeworldSizeMod : 1f);
+                            newOrbital.MaxPopulation = (data.RingList[i - 1].MaxPopDefined * 1000f) + ((data.RingList[i - 1].MaxPopDefined * 1000f) *  Owner.data.Traits.HomeworldSizeMod);
                         }
                         else
                         {
