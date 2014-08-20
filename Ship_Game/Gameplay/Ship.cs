@@ -2299,8 +2299,8 @@ namespace Ship_Game.Gameplay
                 ship.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? ship.loyalty.data.FuelCellModifier : 0);
                 ship.PowerCurrent += moduleSlotList.module.PowerStoreMax;
                 ship.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                ship.shield_max += moduleSlotList.module.shield_power_max;
-                ship.shield_power += moduleSlotList.module.shield_power_max;
+                ship.shield_max += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                ship.shield_power += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
                 {
                     Ship armorMax = this;
@@ -2524,8 +2524,8 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz
                 this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
                 this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                this.shield_max += moduleSlot.module.shield_power_max;
-                this.shield_power += moduleSlot.module.shield_power;
+                this.shield_max += moduleSlot.module.shield_power_max + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                this.shield_power += moduleSlot.module.shield_power + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                     this.armor_max += moduleSlot.module.HealthMax;
                 ++this.Size;

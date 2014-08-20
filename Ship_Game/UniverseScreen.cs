@@ -4456,7 +4456,7 @@ namespace Ship_Game
                     float num3 = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X);
                     Rectangle destinationRectangle = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)num3 * 2, (int)num3 * 2);
                     Vector2 origin2 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                    float num4 = moduleSlot.module.shield_power / moduleSlot.module.shield_power_max;
+                    float num4 = moduleSlot.module.shield_power / (moduleSlot.module.shield_power_max + (ship.loyalty != null ? ship.loyalty.data.ShieldPowerMod * moduleSlot.module.shield_power_max : 0));
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], destinationRectangle, new Rectangle?(), new Color(Color.Green.R, Color.Green.G, Color.Green.B, (byte)((double)byte.MaxValue * (double)num4)), 0.0f, origin2, SpriteEffects.None, 1f);
                 }
             }

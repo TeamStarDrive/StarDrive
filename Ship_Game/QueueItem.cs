@@ -33,6 +33,7 @@ namespace Ship_Game
 		public int QueueNumber;
 
 		public bool isRefit;
+        public string RefitName = "";
 
 		public PlanetGridSquare pgs;
 
