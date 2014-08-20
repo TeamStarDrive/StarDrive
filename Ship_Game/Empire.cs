@@ -305,8 +305,12 @@ namespace Ship_Game
         public List<SolarSystem> GetOwnedSystems()
         {
             List<SolarSystem> list = new List<SolarSystem>();
-            foreach (Planet planet in this.OwnedPlanets)
+            //foreach (Planet planet in this.OwnedPlanets)
+            for (int i = 0; i < this.OwnedPlanets.Count;i++ )
             {
+                //Planet planet =null;
+                //lock(this.OwnedPlanets)
+                Planet planet = this.OwnedPlanets[i];
                 if (!list.Contains(planet.system))
                     list.Add(planet.system);
             }
@@ -506,6 +510,7 @@ namespace Ship_Game
                     }
                 }
             }
+
         }
 
         private bool WeCanUseThisLater(TechEntry tech)
@@ -553,7 +558,7 @@ namespace Ship_Game
                 foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[techID].LeadsTo)
                 {
                     //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
-                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0)
+                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0 && !this.TechnologyDict[leadsToTech.UID].GetTech().Secret)
                         this.TechnologyDict[leadsToTech.UID].Discovered = true;
                 }
             }
@@ -665,8 +670,6 @@ namespace Ship_Game
                         this.data.MissileHPModifier += unlockedBonus.Bonus;
                     if (str == "Hull Strengthening" || str == "Module HP Bonus")
                         this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                    if (str == "Kinetic Shield Penetration Chance Bonus")
-                        this.data.KineticShieldPenBonusChance += unlockedBonus.Bonus;
                     if (str == "Reaction Drive Upgrade" || str == "STL Speed Bonus")
                         this.data.SubLightModifier += unlockedBonus.Bonus;
                     if (str == "Reactive Armor" || str == "Armor Explosion Reduction")
@@ -720,6 +723,8 @@ namespace Ship_Game
                         this.data.Traits.MaintMod -= unlockedBonus.Bonus;
                     if (str == "Power Flow Bonus")
                         this.data.PowerFlowMod += unlockedBonus.Bonus;
+                    if (str == "Shield Power Bonus")
+                        this.data.ShieldPowerMod += unlockedBonus.Bonus;
                 }
                 this.UpdateShipsWeCanBuild();
                 if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
@@ -742,7 +747,7 @@ namespace Ship_Game
             if (ResourceManager.TechTree[techID].RootNode == 0)
             {
                 foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[techID].LeadsTo)
-                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0)
+                    if (this.TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0 && !this.TechnologyDict[leadsToTech.UID].GetTech().Secret)
                         this.TechnologyDict[leadsToTech.UID].Discovered = true;
             }
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
@@ -768,6 +773,7 @@ namespace Ship_Game
         {
             this.TechnologyDict[techID].AcquiredFrom = target.data.Traits.ShipType;
             this.UnlockTech(techID);
+            this.UpdateShipsWeCanBuild();
         }
 
         public void UnlockHullsSave(string techID, string AbsorbedShipType)
@@ -1916,6 +1922,7 @@ namespace Ship_Game
             if (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) && !this.AutoExplore)
                 return;
             this.AssignExplorationTasks();
+
         }
 
         private void UpdateRelationships()
@@ -2005,7 +2012,10 @@ namespace Ship_Game
                     this.UnlockedTroopDict[keyValuePair.Key] = true;
             }
             foreach (Artifact artifact in target.data.OwnedArtifacts)
+            {
                 this.data.OwnedArtifacts.Add(artifact);
+                this.AddArtifact(artifact);
+            }
             target.data.OwnedArtifacts.Clear();
             if ((double)target.Money > 0.0)
             {
@@ -2130,7 +2140,7 @@ namespace Ship_Game
             List<Ship> unusedFreighters = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if ( ship.Role == "freighter" && !ship.isColonyShip&& ship.Weapons.Count ==0 && (double)ship.CargoSpace_Max > 0.0)
+                if ((( ship.shipData==null || ship.shipData.ShipCategory ==null ||ship.shipData.ShipCategory=="cilvlian") && ship.Role == "freighter") && !ship.isColonyShip&& ship.Weapons.Count ==0 && (double)ship.CargoSpace_Max > 0.0)
                 {
                     if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
                         ++tradeShips;
@@ -2142,8 +2152,8 @@ namespace Ship_Game
             }
             int freighterLimit = this.OwnedPlanets.Where(combat=> combat.ParentSystem.combatTimer <1).Count() ;
 
-            if (tradeShips + passengerShips + unusedFreighters.Count > GlobalStats.ShipCountLimit * GlobalStats.freighterlimit)
-                freighterLimit = (int)(GlobalStats.ShipCountLimit * GlobalStats.freighterlimit); // tradeShips + passengerShips + unusedFreighters.Count;
+            if (tradeShips + passengerShips + unusedFreighters.Count > GlobalStats.freighterlimit)//GlobalStats.ShipCountLimit * GlobalStats.freighterlimit)
+                freighterLimit = (int)GlobalStats.freighterlimit;// (int)(GlobalStats.ShipCountLimit * GlobalStats.freighterlimit); // tradeShips + passengerShips + unusedFreighters.Count;
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
@@ -2315,6 +2325,104 @@ namespace Ship_Game
                     if (ship.GetAI().State == AIState.Explore)
                         ship.GetAI().OrderRebaseToNearest();
                 }
+            }
+        }
+
+        public void AddArtifact(Artifact art)
+        {
+            this.data.OwnedArtifacts.Add(art);
+            if (art.DiplomacyMod > 0f)
+            {
+                this.data.Traits.DiplomacyMod += (art.DiplomacyMod + art.DiplomacyMod * this.data.Traits.Spiritual);
+            }
+            if (art.FertilityMod > 0f)
+            {
+                this.data.EmpireFertilityBonus += art.FertilityMod;
+                foreach (Planet planet in this.GetPlanets())
+                {
+                    planet.Fertility += (art.FertilityMod + art.FertilityMod * this.data.Traits.Spiritual);
+                }
+            }
+            if (art.GroundCombatMod > 0f)
+            {
+                this.data.Traits.GroundCombatModifier += (art.GroundCombatMod + art.GroundCombatMod * this.data.Traits.Spiritual);
+            }
+            if (art.ModuleHPMod > 0f)
+            {
+                this.data.Traits.ModHpModifier += (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
+            }
+            if (art.PlusFlatMoney > 0f)
+            {
+                this.data.FlatMoneyBonus += (art.PlusFlatMoney + art.PlusFlatMoney * this.data.Traits.Spiritual);
+            }
+            if (art.ProductionMod > 0f)
+            {
+                this.data.Traits.ProductionMod += (art.ProductionMod + art.ProductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ReproductionMod > 0f)
+            {
+                this.data.Traits.ReproductionMod += (art.ReproductionMod + art.ReproductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ResearchMod > 0f)
+            {
+                this.data.Traits.ResearchMod += (art.ResearchMod + art.ResearchMod * this.data.Traits.Spiritual);
+            }
+            if (art.SensorMod > 0f)
+            {
+                this.data.SensorModifier += (art.SensorMod + art.SensorMod * this.data.Traits.Spiritual);
+            }
+            if (art.ShieldPenBonus > 0f)
+            {
+                this.data.ShieldPenBonusChance += (art.ShieldPenBonus + art.ShieldPenBonus * this.data.Traits.Spiritual);
+            }
+        }
+
+        public void RemoveArtifact(Artifact art)
+		{
+			this.data.OwnedArtifacts.Remove(art);
+            if (art.DiplomacyMod > 0f)
+            {
+                this.data.Traits.DiplomacyMod -= (art.DiplomacyMod + art.DiplomacyMod * this.data.Traits.Spiritual);
+            }
+            if (art.FertilityMod > 0f)
+            {
+                this.data.EmpireFertilityBonus -= art.FertilityMod;
+                foreach (Planet planet in this.GetPlanets())
+                {
+                    planet.Fertility -= (art.FertilityMod + art.FertilityMod * this.data.Traits.Spiritual);
+                }
+            }
+            if (art.GroundCombatMod > 0f)
+            {
+                this.data.Traits.GroundCombatModifier -= (art.GroundCombatMod + art.GroundCombatMod * this.data.Traits.Spiritual);
+            }
+            if (art.ModuleHPMod > 0f)
+            {
+                this.data.Traits.ModHpModifier -= (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
+            }
+            if (art.PlusFlatMoney > 0f)
+            {
+                this.data.FlatMoneyBonus -= (art.PlusFlatMoney + art.PlusFlatMoney * this.data.Traits.Spiritual);
+            }
+            if (art.ProductionMod > 0f)
+            {
+                this.data.Traits.ProductionMod -= (art.ProductionMod + art.ProductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ReproductionMod > 0f)
+            {
+                this.data.Traits.ReproductionMod -= (art.ReproductionMod + art.ReproductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ResearchMod > 0f)
+            {
+                this.data.Traits.ResearchMod -= (art.ResearchMod + art.ResearchMod * this.data.Traits.Spiritual);
+            }
+            if (art.SensorMod > 0f)
+            {
+                this.data.SensorModifier -= (art.SensorMod + art.SensorMod * this.data.Traits.Spiritual);
+            }
+            if (art.ShieldPenBonus > 0f)
+            {
+                this.data.ShieldPenBonusChance -= (art.ShieldPenBonus + art.ShieldPenBonus * this.data.Traits.Spiritual);
             }
         }
 
