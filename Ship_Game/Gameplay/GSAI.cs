@@ -6715,7 +6715,7 @@ namespace Ship_Game.Gameplay
                             {
                                 scrapFleet = true;
                             }
-                            if (current.Mothership == null && (current.shipData!=null || current.shipData.ShipCategory !=null || current.shipData.ShipCategory!="civilian") && !(current.Role == "freighter") && !(current.Role == "construction") && !(current.Role == "platform") && !(current.Role == "station") && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
+                            if (current.Mothership == null && (current.shipData==null || current.shipData.ShipCategory ==null || current.shipData.ShipCategory!="civilian") && !(current.Role == "freighter") && !(current.Role == "construction") && !(current.Role == "platform") && !(current.Role == "station") && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
                             {
                                 if (current.fleet == null || (current.fleet != null && current.fleet.Task == null)) //&&current.fleet.TaskStep <1))
                                 {
@@ -7216,7 +7216,7 @@ namespace Ship_Game.Gameplay
                                         }
                                 case "IFCYBERNETIC":
                                         {
-                                            if(this.empire.data.Traits.Cybernetic>0 && this.empire.GetTDict().Where(biosphereTech=> biosphereTech.Value.GetTech().BuildingsUnlocked.Where(biosphere=> ResourceManager.BuildingsDict[biosphere.Name].Name=="Biospheres").Count() >0).Count() >0)
+                                            if(this.empire.data.Traits.Cybernetic>0 && !this.empire.GetBDict()["Biospheres"]==true)//this.empire.GetTDict().Where(biosphereTech=> biosphereTech.Value.GetTech().BuildingsUnlocked.Where(biosphere=> ResourceManager.BuildingsDict[biosphere.Name].Name=="Biospheres").Count() >0).Count() >0)
                                             {
                                                 ScriptIndex = int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
                                                 loopcount++;
@@ -7380,7 +7380,8 @@ namespace Ship_Game.Gameplay
                             {
                                 techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
                             }
-                            Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
+                            Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
+                                //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                             if (ResearchTech == null)
                                 continue;
                             //if (AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).Count() == 0)
