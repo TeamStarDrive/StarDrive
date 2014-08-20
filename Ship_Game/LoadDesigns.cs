@@ -363,7 +363,7 @@ namespace Ship_Game
                     //added by gremlin HIDING ERRORS
                     try
                     {
-                        if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))))
+                        if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))) || ResourceManager.ShipRoles[Ship.Value.Role].Protected)
                         {
                             continue;
                         }
@@ -480,7 +480,7 @@ namespace Ship_Game
 			{
 				foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 				{
-                    if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))))
+                    if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))) || ResourceManager.ShipRoles[Ship.Value.Role].Protected)
 					{
 						continue;
 					}
