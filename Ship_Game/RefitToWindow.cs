@@ -205,7 +205,7 @@ namespace Ship_Game
 			this.sub_ships.AddTab("Refit to...");
 			foreach (string shipname in this.shiptorefit.loyalty.ShipsWeCanBuild)
 			{
-				if (!(ResourceManager.ShipsDict[shipname].GetShipData().Hull == this.shiptorefit.GetShipData().Hull) || !(shipname != this.shiptorefit.Name))
+				if (!(ResourceManager.ShipsDict[shipname].GetShipData().Hull == this.shiptorefit.GetShipData().Hull) || !(shipname != this.shiptorefit.Name) || ResourceManager.ShipRoles[ResourceManager.ShipsDict[shipname].Role].Protected)
 				{
 					continue;
 				}

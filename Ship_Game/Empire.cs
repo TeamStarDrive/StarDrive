@@ -670,8 +670,6 @@ namespace Ship_Game
                         this.data.MissileHPModifier += unlockedBonus.Bonus;
                     if (str == "Hull Strengthening" || str == "Module HP Bonus")
                         this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                    if (str == "Kinetic Shield Penetration Chance Bonus")
-                        this.data.KineticShieldPenBonusChance += unlockedBonus.Bonus;
                     if (str == "Reaction Drive Upgrade" || str == "STL Speed Bonus")
                         this.data.SubLightModifier += unlockedBonus.Bonus;
                     if (str == "Reactive Armor" || str == "Armor Explosion Reduction")
@@ -725,6 +723,8 @@ namespace Ship_Game
                         this.data.Traits.MaintMod -= unlockedBonus.Bonus;
                     if (str == "Power Flow Bonus")
                         this.data.PowerFlowMod += unlockedBonus.Bonus;
+                    if (str == "Shield Power Bonus")
+                        this.data.ShieldPowerMod += unlockedBonus.Bonus;
                 }
                 this.UpdateShipsWeCanBuild();
                 if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
@@ -2012,7 +2012,10 @@ namespace Ship_Game
                     this.UnlockedTroopDict[keyValuePair.Key] = true;
             }
             foreach (Artifact artifact in target.data.OwnedArtifacts)
+            {
                 this.data.OwnedArtifacts.Add(artifact);
+                this.AddArtifact(artifact);
+            }
             target.data.OwnedArtifacts.Clear();
             if ((double)target.Money > 0.0)
             {
@@ -2322,6 +2325,104 @@ namespace Ship_Game
                     if (ship.GetAI().State == AIState.Explore)
                         ship.GetAI().OrderRebaseToNearest();
                 }
+            }
+        }
+
+        public void AddArtifact(Artifact art)
+        {
+            this.data.OwnedArtifacts.Add(art);
+            if (art.DiplomacyMod > 0f)
+            {
+                this.data.Traits.DiplomacyMod += (art.DiplomacyMod + art.DiplomacyMod * this.data.Traits.Spiritual);
+            }
+            if (art.FertilityMod > 0f)
+            {
+                this.data.EmpireFertilityBonus += art.FertilityMod;
+                foreach (Planet planet in this.GetPlanets())
+                {
+                    planet.Fertility += (art.FertilityMod + art.FertilityMod * this.data.Traits.Spiritual);
+                }
+            }
+            if (art.GroundCombatMod > 0f)
+            {
+                this.data.Traits.GroundCombatModifier += (art.GroundCombatMod + art.GroundCombatMod * this.data.Traits.Spiritual);
+            }
+            if (art.ModuleHPMod > 0f)
+            {
+                this.data.Traits.ModHpModifier += (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
+            }
+            if (art.PlusFlatMoney > 0f)
+            {
+                this.data.FlatMoneyBonus += (art.PlusFlatMoney + art.PlusFlatMoney * this.data.Traits.Spiritual);
+            }
+            if (art.ProductionMod > 0f)
+            {
+                this.data.Traits.ProductionMod += (art.ProductionMod + art.ProductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ReproductionMod > 0f)
+            {
+                this.data.Traits.ReproductionMod += (art.ReproductionMod + art.ReproductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ResearchMod > 0f)
+            {
+                this.data.Traits.ResearchMod += (art.ResearchMod + art.ResearchMod * this.data.Traits.Spiritual);
+            }
+            if (art.SensorMod > 0f)
+            {
+                this.data.SensorModifier += (art.SensorMod + art.SensorMod * this.data.Traits.Spiritual);
+            }
+            if (art.ShieldPenBonus > 0f)
+            {
+                this.data.ShieldPenBonusChance += (art.ShieldPenBonus + art.ShieldPenBonus * this.data.Traits.Spiritual);
+            }
+        }
+
+        public void RemoveArtifact(Artifact art)
+		{
+			this.data.OwnedArtifacts.Remove(art);
+            if (art.DiplomacyMod > 0f)
+            {
+                this.data.Traits.DiplomacyMod -= (art.DiplomacyMod + art.DiplomacyMod * this.data.Traits.Spiritual);
+            }
+            if (art.FertilityMod > 0f)
+            {
+                this.data.EmpireFertilityBonus -= art.FertilityMod;
+                foreach (Planet planet in this.GetPlanets())
+                {
+                    planet.Fertility -= (art.FertilityMod + art.FertilityMod * this.data.Traits.Spiritual);
+                }
+            }
+            if (art.GroundCombatMod > 0f)
+            {
+                this.data.Traits.GroundCombatModifier -= (art.GroundCombatMod + art.GroundCombatMod * this.data.Traits.Spiritual);
+            }
+            if (art.ModuleHPMod > 0f)
+            {
+                this.data.Traits.ModHpModifier -= (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
+            }
+            if (art.PlusFlatMoney > 0f)
+            {
+                this.data.FlatMoneyBonus -= (art.PlusFlatMoney + art.PlusFlatMoney * this.data.Traits.Spiritual);
+            }
+            if (art.ProductionMod > 0f)
+            {
+                this.data.Traits.ProductionMod -= (art.ProductionMod + art.ProductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ReproductionMod > 0f)
+            {
+                this.data.Traits.ReproductionMod -= (art.ReproductionMod + art.ReproductionMod * this.data.Traits.Spiritual);
+            }
+            if (art.ResearchMod > 0f)
+            {
+                this.data.Traits.ResearchMod -= (art.ResearchMod + art.ResearchMod * this.data.Traits.Spiritual);
+            }
+            if (art.SensorMod > 0f)
+            {
+                this.data.SensorModifier -= (art.SensorMod + art.SensorMod * this.data.Traits.Spiritual);
+            }
+            if (art.ShieldPenBonus > 0f)
+            {
+                this.data.ShieldPenBonusChance -= (art.ShieldPenBonus + art.ShieldPenBonus * this.data.Traits.Spiritual);
             }
         }
 
