@@ -829,66 +829,6 @@ namespace Ship_Game.Gameplay
 			us.GetRelations()[Them].UpdateRelationship(us, Them);
 		}
 
-		private void AddArtifact(Empire Triggerer, Artifact art)
-		{
-			Triggerer.data.OwnedArtifacts.Add(art);
-			if (art.DiplomacyMod > 0f)
-			{
-				RacialTrait traits = Triggerer.data.Traits;
-				traits.DiplomacyMod = traits.DiplomacyMod + (art.DiplomacyMod + art.DiplomacyMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.FertilityMod > 0f)
-			{
-				EmpireData triggerer = Triggerer.data;
-				triggerer.EmpireFertilityBonus = triggerer.EmpireFertilityBonus + art.FertilityMod;
-				foreach (Planet planet in Triggerer.GetPlanets())
-				{
-					Planet fertility = planet;
-					fertility.Fertility = fertility.Fertility + (art.FertilityMod + art.FertilityMod * Triggerer.data.Traits.Spiritual);
-				}
-			}
-			if (art.GroundCombatMod > 0f)
-			{
-				RacialTrait groundCombatModifier = Triggerer.data.Traits;
-				groundCombatModifier.GroundCombatModifier = groundCombatModifier.GroundCombatModifier + (art.GroundCombatMod + art.GroundCombatMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ModuleHPMod > 0f)
-			{
-				RacialTrait modHpModifier = Triggerer.data.Traits;
-				modHpModifier.ModHpModifier = modHpModifier.ModHpModifier + (art.ModuleHPMod + art.ModuleHPMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.PlusFlatMoney > 0f)
-			{
-				EmpireData flatMoneyBonus = Triggerer.data;
-				flatMoneyBonus.FlatMoneyBonus = flatMoneyBonus.FlatMoneyBonus + (art.PlusFlatMoney + art.PlusFlatMoney * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ProductionMod > 0f)
-			{
-				RacialTrait productionMod = Triggerer.data.Traits;
-				productionMod.ProductionMod = productionMod.ProductionMod + (art.ProductionMod + art.ProductionMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ReproductionMod > 0f)
-			{
-				RacialTrait reproductionMod = Triggerer.data.Traits;
-				reproductionMod.ReproductionMod = reproductionMod.ReproductionMod + (art.ReproductionMod + art.ReproductionMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ResearchMod > 0f)
-			{
-				RacialTrait researchMod = Triggerer.data.Traits;
-				researchMod.ResearchMod = researchMod.ResearchMod + (art.ResearchMod + art.ResearchMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.SensorMod > 0f)
-			{
-				EmpireData sensorModifier = Triggerer.data;
-				sensorModifier.SensorModifier = sensorModifier.SensorModifier + (art.SensorMod + art.SensorMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ShieldPenBonus > 0f)
-			{
-				EmpireData shieldPenBonusChance = Triggerer.data;
-				shieldPenBonusChance.ShieldPenBonusChance = shieldPenBonusChance.ShieldPenBonusChance + (art.ShieldPenBonus + art.ShieldPenBonus * Triggerer.data.Traits.Spiritual);
-			}
-		}
-
 		public string AnalyzeOffer(Offer ToUs, Offer FromUs, Empire them, Offer.Attitude attitude)
 		{
 			if (ToUs.Alliance)
@@ -5575,65 +5515,6 @@ namespace Ship_Game.Gameplay
 		{
 			foreach (MilitaryTask taskList in this.TaskList)
 			{
-			}
-		}
-
-		private void RemoveArtifact(Empire Triggerer, Artifact art)
-		{
-			Triggerer.data.OwnedArtifacts.Remove(art);
-			if (art.DiplomacyMod > 0f)
-			{
-                Triggerer.data.Traits.DiplomacyMod -= (art.DiplomacyMod + art.DiplomacyMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.FertilityMod > 0f)
-			{
-				EmpireData triggerer = Triggerer.data;
-				triggerer.EmpireFertilityBonus = triggerer.EmpireFertilityBonus - art.FertilityMod;
-				foreach (Planet planet in Triggerer.GetPlanets())
-				{
-					Planet fertility = planet;
-					fertility.Fertility = fertility.Fertility - (art.FertilityMod + art.FertilityMod * Triggerer.data.Traits.Spiritual);
-				}
-			}
-			if (art.GroundCombatMod > 0f)
-			{
-				RacialTrait groundCombatModifier = Triggerer.data.Traits;
-				groundCombatModifier.GroundCombatModifier = groundCombatModifier.GroundCombatModifier - (art.GroundCombatMod + art.GroundCombatMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ModuleHPMod > 0f)
-			{
-				RacialTrait modHpModifier = Triggerer.data.Traits;
-				modHpModifier.ModHpModifier = modHpModifier.ModHpModifier - (art.ModuleHPMod + art.ModuleHPMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.PlusFlatMoney > 0f)
-			{
-				EmpireData flatMoneyBonus = Triggerer.data;
-				flatMoneyBonus.FlatMoneyBonus = flatMoneyBonus.FlatMoneyBonus - (art.PlusFlatMoney + art.PlusFlatMoney * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ProductionMod > 0f)
-			{
-				RacialTrait productionMod = Triggerer.data.Traits;
-				productionMod.ProductionMod = productionMod.ProductionMod - (art.ProductionMod + art.ProductionMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ReproductionMod > 0f)
-			{
-				RacialTrait reproductionMod = Triggerer.data.Traits;
-				reproductionMod.ReproductionMod = reproductionMod.ReproductionMod - (art.ReproductionMod + art.ReproductionMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ResearchMod > 0f)
-			{
-				RacialTrait researchMod = Triggerer.data.Traits;
-				researchMod.ResearchMod = researchMod.ResearchMod - (art.ResearchMod + art.ResearchMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.SensorMod > 0f)
-			{
-				EmpireData sensorModifier = Triggerer.data;
-				sensorModifier.SensorModifier = sensorModifier.SensorModifier - (art.SensorMod + art.SensorMod * Triggerer.data.Traits.Spiritual);
-			}
-			if (art.ShieldPenBonus > 0f)
-			{
-				EmpireData shieldPenBonusChance = Triggerer.data;
-				shieldPenBonusChance.ShieldPenBonusChance = shieldPenBonusChance.ShieldPenBonusChance - (art.ShieldPenBonus + art.ShieldPenBonus * Triggerer.data.Traits.Spiritual);
 			}
 		}
 
