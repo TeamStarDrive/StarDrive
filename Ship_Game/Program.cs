@@ -48,7 +48,7 @@ namespace Ship_Game
                 
 
                 string[] version = new string[] { "Whoops! Please post a screenshot of this to the StarDrive forums \n(", MainMenuScreen.Version,
-                    ")\n",data,":\n\n", ex.Message.ToString(), ex.StackTrace.ToString(), ex.ToString() };
+                    ")\n",data,":\n\n", ex.Message.ToString(), ex.StackTrace.ToString()};
 				MessageBox.Show(string.Concat(version), "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Hand);
 			}
             catch

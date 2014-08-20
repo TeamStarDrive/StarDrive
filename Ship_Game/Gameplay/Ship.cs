@@ -2299,8 +2299,8 @@ namespace Ship_Game.Gameplay
                 ship.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? ship.loyalty.data.FuelCellModifier : 0);
                 ship.PowerCurrent += moduleSlotList.module.PowerStoreMax;
                 ship.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                ship.shield_max += moduleSlotList.module.shield_power_max;
-                ship.shield_power += moduleSlotList.module.shield_power_max;
+                ship.shield_max += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                ship.shield_power += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
                 {
                     Ship armorMax = this;
@@ -2524,8 +2524,8 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz
                 this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
                 this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                this.shield_max += moduleSlot.module.shield_power_max;
-                this.shield_power += moduleSlot.module.shield_power;
+                this.shield_max += moduleSlot.module.shield_power_max + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                this.shield_power += moduleSlot.module.shield_power + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                     this.armor_max += moduleSlot.module.HealthMax;
                 ++this.Size;
@@ -3958,15 +3958,15 @@ namespace Ship_Game.Gameplay
 
             if (this.ResourceDrawDict.Count > 0)
             {
-                //foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
-                Parallel.ForEach(Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys), index1 =>
+                foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
+                //Parallel.ForEach(Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys), index1 =>
                 {
                     Dictionary<string, float> dictionary;
                     string index2;
                     (dictionary = this.CargoDict)[index2 = index1] = dictionary[index2] - this.ResourceDrawDict[index1] * elapsedTime;
                     if ((double)this.CargoDict[index1] <= 0.0)
                         this.CargoDict[index1] = 0.0f;
-                });
+                }//);
             }
             if ((double)this.PowerCurrent <= 0.0)
             {
@@ -4145,7 +4145,7 @@ namespace Ship_Game.Gameplay
         {
             ++this.kills;
             //Added by McShooterz: a way to prevent remnant story in mods
-            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory))
+            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory)))
                 GlobalStats.IncrementRemnantKills();
             //Added by McShooterz: change level cap, dynamic experience required per level
             float Exp = 0;
