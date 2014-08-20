@@ -1741,9 +1741,9 @@ namespace Ship_Game.Gameplay
 
         private void DoRepairBeamLogic(Weapon w)
         {
-            foreach (Ship ship in w.GetOwner().loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) <= w.Range + 500f && ship.Health < ship.HealthMax).OrderBy(ship => ship.Health))
+            foreach (Ship ship in w.GetOwner().loyalty.GetShips().Where(ship => ship != w.GetOwner() && ship.Health < ship.HealthMax && Vector2.Distance(this.Owner.Center, ship.Center) <= w.Range + 500f).OrderBy(ship => ship.Health))
             {
-                if (ship != null && ship != w.GetOwner())
+                if (ship != null)
                 {
                     Vector2 target = this.findVectorToTarget(w.Center, ship.Center);
                     target.Y = target.Y * -1f;
@@ -1779,6 +1779,37 @@ namespace Ship_Game.Gameplay
                         AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
                     }
                     return;
+                }
+            }
+        }
+
+        private void DoAssaultTransporterLogic(ShipModule module)
+        {
+            foreach (ArtificialIntelligence.ShipWeight ship in this.NearbyShips.Where(Ship => Ship.ship.loyalty != null && Ship.ship.loyalty != this.Owner.loyalty && Ship.ship.shield_power <= 0 && Vector2.Distance(this.Owner.Center, Ship.ship.Center) <= module.TransporterRange + 500f).OrderBy(Ship => Vector2.Distance(this.Owner.Center, Ship.ship.Center)))
+            {
+                if (ship != null)
+                {
+                    byte TroopCount = 0;
+                    bool Transported = false;
+                    for (byte i = 0; i < this.Owner.TroopList.Count(); i++)
+                    {
+                        if (this.Owner.TroopList[i] == null)
+                            continue;
+                        if (this.Owner.TroopList[i].GetOwner() == this.Owner.loyalty)
+                        {
+                            ship.ship.TroopList.Add(this.Owner.TroopList[i]);
+                            this.Owner.TroopList.Remove(this.Owner.TroopList[i]);
+                            TroopCount++;
+                            Transported = true;
+                        }
+                        if (TroopCount == module.TransporterTroopAssault)
+                            break;
+                    }
+                    if (Transported)
+                    {
+                        module.TransporterTimer = module.TransporterTimerConstant;
+                        return;
+                    }
                 }
             }
         }
@@ -6688,6 +6719,8 @@ namespace Ship_Game.Gameplay
                         module.TransporterTimer = 1f;
                         if (module.TransporterOrdnance > 0 && this.Owner.Ordinance > 0)
                             this.DoOrdinanceTransporterLogic(module);
+                        if (module.TransporterTroopAssault > 0 && this.Owner.TroopList.Count() > 0)
+                            this.DoAssaultTransporterLogic(module);
                     }
                 }
             }
