@@ -1653,6 +1653,7 @@ namespace Ship_Game.Gameplay
 			this.OrbitTarget.ConstructionQueue.Add(qi);
 			this.Owner.QueueTotalRemoval();
 		}
+
         //added by gremlin refit while in fleet
         private void DoRefit(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
         {
@@ -1661,7 +1662,6 @@ namespace Ship_Game.Gameplay
                 isShip = true,
                 productionTowards = 0f,
                 sData = ResourceManager.ShipsDict[goal.VariableString].GetShipData()
-
             };
 
             if (qi.sData == null)
@@ -1677,6 +1677,9 @@ namespace Ship_Game.Gameplay
             cost = cost + 10 * (int)UniverseScreen.GamePaceStatic;
             qi.Cost = (float)cost;
             qi.isRefit = true;
+            //Added by McShooterz: refit keeps name and level
+            qi.RefitName = this.Owner.VanityName;
+            qi.sData.Level = (byte)this.Owner.Level;
             if (this.Owner.fleet != null)
             {
 
@@ -2234,8 +2237,8 @@ namespace Ship_Game.Gameplay
                         if (GlobalStats.ForceFullSim||this.Owner.InFrustum || (this.Target as Ship).InFrustum )
                         {
                             //this.
-                            GameplayObject fireTarget;
-                            fireTarget = null;
+                            //GameplayObject fireTarget;
+                            this.fireTarget = null;
 
                             if ((weapon.TruePD || weapon.Tag_PD) && this.Owner.GetSystem() != null)
                             {
@@ -2252,7 +2255,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             continue;
                                         }
-                                        this.                                        fireTarget = proj;
+                                        this.fireTarget = proj;
                                         
                                         break;
                                     }
@@ -2306,7 +2309,7 @@ namespace Ship_Game.Gameplay
                                         if (weapon.Excludes_Stations && (ship.Role == "platform" || ship.Role == "station"))
                                             continue;
 
-                                        this.                                        fireTarget = ship;
+                                        this.fireTarget = ship;
                                         
 
                                         List<ShipModule> potMods = new List<ShipModule>();
@@ -2327,7 +2330,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             Random = potMods.Count - 1;
                                         }
-                                        this.                                        fireTarget = potMods[Random];
+                                        this.fireTarget = potMods[Random];
                                         
                                         break;
                                     }
@@ -2364,13 +2367,13 @@ namespace Ship_Game.Gameplay
                                             {
                                                 continue;
                                             }
-                                            this.                                            fireTarget = ship;
+                                            this.fireTarget = ship;
                                             break;
                                         }
                                     }
                                     else if (weapon.TruePD && (this.Target is Ship))
                                     {
-                                        this.                                        fireTarget = null;
+                                        this.fireTarget = null;
                                         foreach (Ship ship in PotentialTargets)
                                         {
                                             foreach (Projectile proj in ship.Projectiles)
@@ -2379,7 +2382,7 @@ namespace Ship_Game.Gameplay
                                                 {
                                                     continue;
                                                 }
-                                                this.                                                fireTarget = proj;
+                                                this.fireTarget = proj;
                                                 break;
                                             }
                                             break;
@@ -2387,7 +2390,7 @@ namespace Ship_Game.Gameplay
                                     }
                                     else if (this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center))
                                     {
-                                        this.                                        fireTarget = this.Target;
+                                        this.fireTarget = this.Target;
                                     }
                                     else
                                     {
@@ -2451,6 +2454,7 @@ namespace Ship_Game.Gameplay
                     
 					return;
 				}
+
 				foreach (Ship ship in this.PotentialTargets)
 				{
 					foreach (Weapon weapon in this.Owner.Weapons)
@@ -4124,9 +4128,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-
-
-
             //if starting or ending system in combat... clear order...
             if ( this.Owner.CargoSpace_Used>0 && (
                 (this.start != null && this.start.ParentSystem.combatTimer >0) 
@@ -4733,8 +4734,11 @@ namespace Ship_Game.Gameplay
 			this.State = AIState.SystemTrader;
 		}
 
+
+        // PLEASE FIX ME CRUNCHY I DON'T WORK ANYMORE
 		public void OrderTransportPassengers()
 		{
+            
             if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
             if (this.Owner.CargoSpace_Max >0  
@@ -6712,8 +6716,8 @@ namespace Ship_Game.Gameplay
             this.Owner.isTurning = false;
 
 
-            if ((this.BadGuysNear || this.Owner.InCombatTimer > 0) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
-                && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State!=AIState.Rebase) &&( this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
+            if ((this.BadGuysNear || this.Owner.InCombatTimer > 0) && (this.Owner.shipData==null ||this.Owner.shipData.ShipCategory == null || this.Owner.shipData.ShipCategory == "civilian") && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
+                && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State!=AIState.Rebase) &&(  this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
             {
                 if (this.State != AIState.Flee )//&& !this.HasPriorityOrder)
                 {
@@ -7129,7 +7133,6 @@ namespace Ship_Game.Gameplay
                                         ((IDisposable)enumerator1).Dispose();
                                     }
                                 }
-                                break;
                             }
                         case ArtificialIntelligence.Plan.RotateToFaceMovePosition:
                             {

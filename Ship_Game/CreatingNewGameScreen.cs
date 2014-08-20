@@ -314,6 +314,7 @@ namespace Ship_Game
                             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")))
                             {
                                 solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
+                                solarSystem.isStartingSystem = true;
                             }
                             else if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
                             {
@@ -693,7 +694,6 @@ namespace Ship_Game
             empireData.MissileDodgeChance = data.MissileDodgeChance;
             empireData.MissileHPModifier = data.MissileHPModifier;
             empireData.OrdnanceEffectivenessBonus = data.OrdnanceEffectivenessBonus;
-            empireData.OrdnanceShieldPenChance = data.OrdnanceShieldPenChance;
             empireData.Privatization = data.Privatization;
             empireData.SensorModifier = data.SensorModifier;
             empireData.SpyModifier = data.SpyModifier;
@@ -704,6 +704,8 @@ namespace Ship_Game
             empireData.TaxRate = data.TaxRate;
             empireData.TroopDescriptionIndex = data.TroopDescriptionIndex;
             empireData.TroopNameIndex = data.TroopNameIndex;
+            empireData.PowerFlowMod = data.PowerFlowMod;
+            empireData.ShieldPowerMod = data.ShieldPowerMod;
             empireData.Traits = new RacialTrait();
             empireData.Traits.Aquatic = data.Traits.Aquatic;
             empireData.Traits.Assimilators = data.Traits.Assimilators;
