@@ -226,6 +226,7 @@ namespace Ship_Game.Gameplay
         public List<ShipModule> RepairBeams = new List<ShipModule>();
         public bool hasTransporter;
         public bool hasOrdnanceTransporter;
+        public bool hasAssaultTransporter;
         public bool hasRepairBeam;
 
 
@@ -1716,6 +1717,8 @@ namespace Ship_Game.Gameplay
                     this.hasTransporter = true;
                     if (ss.module.TransporterOrdnance > 0)
                         this.hasOrdnanceTransporter = true;
+                    if (ss.module.TransporterTroopAssault > 0)
+                        this.hasAssaultTransporter = true;
                 }
                 if (ss.module.IsRepairModule)
                     this.HasRepairModule = true;
@@ -1766,6 +1769,8 @@ namespace Ship_Game.Gameplay
                     this.hasTransporter = true;
                     if (ss.module.TransporterOrdnance > 0)
                         this.hasOrdnanceTransporter = true;
+                    if (ss.module.TransporterTroopAssault > 0)
+                        this.hasAssaultTransporter = true;
                 }
                 if (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam)
                     this.hasRepairBeam = true;
