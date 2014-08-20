@@ -128,15 +128,11 @@ namespace Ship_Game
 
 		public float AfterBurnerSpeedModifier;
 
-		public float KineticShieldPenBonusChance;
-
 		public float SpyModifier;
 
 		public float DefensiveSpyBonus;
 
 		public float OffensiveSpyBonus;
-
-		public float OrdnanceShieldPenChance;
 
 		public float FTLPowerDrainModifier = 2f;
 
@@ -154,6 +150,8 @@ namespace Ship_Game
 
         //Added by McShooterz: power bonus
         public float PowerFlowMod = 0.0f;
+        public float ShieldPowerMod = 0.0f;
+
 
 		public EmpireData()
 		{

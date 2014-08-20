@@ -421,7 +421,6 @@ namespace Ship_Game.Gameplay
 				}
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
-					float single = damageAmount / this.shield_power_max;
 					base.findAngleToTarget(this.Parent.Center, source.Center);
 					this.shield.Rotation = source.Rotation - 3.14159274f;
 					this.shield.displacement = 0f;
@@ -640,7 +639,6 @@ namespace Ship_Game.Gameplay
 				shipModule.shield_power = shipModule.shield_power - damageAmount;
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
-					float single = damageAmount / this.shield_power_max;
 					base.findAngleToTarget(this.Parent.Center, source.Center);
 					this.shield.Rotation = source.Rotation - 3.14159274f;
 					this.shield.displacement = 0f;
@@ -1587,21 +1585,21 @@ namespace Ship_Game.Gameplay
 				ShipModule shipModule1 = this;
 				shipModule1.hangarTimer = shipModule1.hangarTimer - elapsedTime;
 			}
-            if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer >= this.shield_recharge_delay)
+            if (this.Active && this.Powered && this.shield_power < this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0) && this.Parent.ShieldRechargeTimer >= this.shield_recharge_delay)
 			{
                 this.shield_power += this.shield_recharge_rate * elapsedTime;
-				if (this.shield_power > this.shield_power_max)
+                if (this.shield_power > this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0))
 				{
-					this.shield_power = this.shield_power_max;
+                    this.shield_power = this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
 				}
 			}
             //Combat shield recharge only works until shields fail, then they only come back by normal recharge
-            else if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer < this.shield_recharge_delay && this.shield_power > 1)
+            else if (this.Active && this.Powered && this.shield_power < this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0) && this.Parent.ShieldRechargeTimer < this.shield_recharge_delay && this.shield_power > 1)
 			{
                 this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
-				if (this.shield_power > this.shield_power_max)
+                if (this.shield_power > this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0))
 				{
-					this.shield_power = this.shield_power_max;
+                    this.shield_power = this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
 				}
 			}
 			if (this.shield_power < 0f)
