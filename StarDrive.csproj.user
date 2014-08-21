@@ -10,4 +10,7 @@
     <FallbackCulture>en-US</FallbackCulture>
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
   </PropertyGroup>
+  <PropertyGroup>
+    <ReferencePath>d:\Steam\SteamApps\common\StarDrive\</ReferencePath>
+  </PropertyGroup>
 </Project>
