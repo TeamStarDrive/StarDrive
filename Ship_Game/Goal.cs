@@ -351,7 +351,7 @@ namespace Ship_Game
                         QueueNumber = this.PlanetBuildingAt.ConstructionQueue.Count,
                         troop = ResourceManager.CopyTroop(ResourceManager.TroopsDict[this.ToBuildUID]),
                         Goal = this,
-                        Cost = ResourceManager.TroopsDict[this.ToBuildUID].Cost
+                        Cost = ResourceManager.TroopsDict[this.ToBuildUID].GetCost()
                     });
                     this.Step = 1;
 

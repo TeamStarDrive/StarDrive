@@ -1044,7 +1044,7 @@ namespace Ship_Game
 						{
 							qi.isTroop = true;
 							qi.troop = Ship_Game.ResourceManager.TroopsDict[qisave.UID];
-							qi.Cost = qi.troop.Cost;
+                            qi.Cost = qi.troop.GetCost();
                             qi.NotifyOnEmpty = false;
 						}
 						if (qisave.isShip)

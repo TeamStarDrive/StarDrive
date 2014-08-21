@@ -70,6 +70,8 @@ namespace Ship_Game
         private Checkbox pauseOnNotification;
         private FloatSlider IconSize;
         private FloatSlider memoryLimit;
+        private FloatSlider ShipLimiter;
+        private FloatSlider FreighterLimiter;
 
 		//private float transitionElapsedTime;
 
@@ -402,7 +404,10 @@ namespace Ship_Game
 			this.EffectsVolumeSlider.DrawDecimal(base.ScreenManager);
             this.IconSize.Draw(base.ScreenManager);
             this.memoryLimit.Draw(base.ScreenManager);
+            this.AntiAliasingDD.Draw(base.ScreenManager.SpriteBatch);
 			this.ResolutionDropDown.Draw(base.ScreenManager.SpriteBatch);
+            this.FreighterLimiter.Draw(base.ScreenManager);
+            this.ShipLimiter.Draw(base.ScreenManager);
 			ToolTip.Draw(base.ScreenManager);
 			base.ScreenManager.SpriteBatch.End();
 		}
@@ -429,7 +434,10 @@ namespace Ship_Game
             GlobalStats.IconSize = (int)this.IconSize.amountRange;
             this.memoryLimit.HandleInput(input);
             GlobalStats.MemoryLimiter = this.memoryLimit.amountRange;
-            
+            this.ShipLimiter.HandleInput(input);
+            GlobalStats.ShipCountLimit = (int)this.ShipLimiter.amountRange;
+            this.FreighterLimiter.HandleInput(input);
+            GlobalStats.freighterlimit = (int)this.FreighterLimiter.amountRange;
                 
 			if (!this.ResolutionDropDown.Open && !this.AntiAliasingDD.Open)
 			{
@@ -538,13 +546,21 @@ namespace Ship_Game
             this.EffectsVolumeSlider.SetAmount(GlobalStats.Config.EffectsVolume);
             this.EffectsVolumeSlider.amount = GlobalStats.Config.EffectsVolume;
 
-            r = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 140, 270, 50);
+            
+
+            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 140, 225, 50);
             this.IconSize = new FloatSlider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
 
-            r = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 190, 270, 50);
+            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 190, 225, 50);
             
-            this.memoryLimit = new FloatSlider(r, string.Concat("Memory limit. KBs In Use: ",(int)GC.GetTotalMemory(true)/1000f), 150000, 300000, GlobalStats.MemoryLimiter);
-            
+            this.memoryLimit = new FloatSlider(r, string.Concat("Memory limit. KBs In Use: ",(int)(GC.GetTotalMemory(true)/1000f)), 150000, 300000, GlobalStats.MemoryLimiter);
+            int ships =0;
+            if (Empire.universeScreen != null )
+             ships= Empire.universeScreen.globalshipCount;
+            r = new Rectangle(this.MainOptionsRect.X - 9 + this.MainOptionsRect.Width, (int)this.FullScreen.NamePosition.Y + 190, 225, 50);
+            this.ShipLimiter = new FloatSlider(r, string.Concat("All AI Ship Limit. AI Ships: ", ships), 500, 3500, GlobalStats.ShipCountLimit);
+            r = new Rectangle(this.MainOptionsRect.X - 9 + this.MainOptionsRect.Width, (int)this.FullScreen.NamePosition.Y + 140, 225, 50);
+            this.FreighterLimiter = new FloatSlider(r, string.Concat("Per AI Freighter Limit."), 25, 125, GlobalStats.freighterlimit);
             Vector2 vector2 = new Vector2((float)(this.SecondaryOptionsRect.X + 10), (float)(this.SecondaryOptionsRect.Y + 10));
             this.ResolutionDropDown = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y - 2, 105, 18));
             foreach (DisplayMode displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
@@ -717,6 +733,8 @@ namespace Ship_Game
 			config.AppSettings.Settings["RanOnce"].Value = "true";
 			config.AppSettings.Settings["ForceFullSim"].Value = (GlobalStats.ForceFullSim ? "true" : "false");
             config.AppSettings.Settings["PauseOnNotification"].Value = (GlobalStats.PauseOnNotification ? "true" : "false");
+            config.AppSettings.Settings["freighterlimit"].Value = GlobalStats.freighterlimit.ToString();
+            config.AppSettings.Settings["shipcountlimit"].Value = GlobalStats.ShipCountLimit.ToString();
 			config.Save();
 		}
 
