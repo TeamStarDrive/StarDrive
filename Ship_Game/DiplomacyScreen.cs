@@ -793,7 +793,7 @@ namespace Ship_Game
 				ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Tech";
-                item1.SpecialInquiry = Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex);
+                item1.SpecialInquiry = Technology.Key;
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -806,7 +806,7 @@ namespace Ship_Game
 				ItemToOffer item1 = new ItemToOffer(Localizer.Token(Artifact.NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Artifacts";
-                item1.SpecialInquiry = Localizer.Token(Artifact.NameIndex);
+                item1.SpecialInquiry = Artifact.Name;
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -888,7 +888,7 @@ namespace Ship_Game
 				ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Tech";
-                item1.SpecialInquiry = Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex);
+                item1.SpecialInquiry = Technology.Key;
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -901,7 +901,7 @@ namespace Ship_Game
                 ItemToOffer item1 = new ItemToOffer(Localizer.Token(Artifact.NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Artifacts";
-                item1.SpecialInquiry = Localizer.Token(Artifact.NameIndex);
+                item1.SpecialInquiry = Artifact.Name;
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
