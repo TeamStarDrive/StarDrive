@@ -431,10 +431,8 @@ namespace Ship_Game
 			{
                 //added by gremlin troop defense fix?
                 if (ship4.TroopList.Count == 0 || ship4.GetAI().State != AIState.AwaitingOrders )
-				{
-                    
-                    continue;
-                    
+				{                 
+                    continue;                
 				}
 				IOrderedEnumerable<SolarSystem> sortedSystems = 
 					from system in systems
