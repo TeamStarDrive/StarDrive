@@ -473,7 +473,10 @@ namespace Ship_Game
 			}
 			foreach (Troop troop in GroundTroops)
 			{
-                if (troop.GetPlanet() == null || troop.GetPlanet().CombatTimer > 0 || troop.GetPlanet().ParentSystem.combatTimer>0)
+                Planet current = troop.GetPlanet();
+                
+                if (current == null || current.CombatTimer > 0 || current.ParentSystem.combatTimer>0
+                    || current.TroopsHere.Count * 10 < this.DefenseDict[current.ParentSystem].IdealTroopStr / current.ParentSystem.PlanetList.Count)
 				{
 					continue;
 				}
@@ -486,11 +489,11 @@ namespace Ship_Game
 				foreach (SolarSystem solarSystem3 in sortedSystems)
 				{
                     //added by gremlin Dont take troops from system that have combat. and prevent troop loop
-                    if (solarSystem3.combatTimer > 0 || this.DefenseDict[solarSystem3].TroopStrengthNeeded+ (float)troop.Strength >0)
+                    if (solarSystem3.combatTimer > 0 || this.DefenseDict[solarSystem3].TroopStrengthNeeded >0)
 					{
 						continue;
 					}
-                    Planet current = troop.GetPlanet();
+                    
                     
                     Ship troopship = troop.Launch();
 					if (troopship == null)
