@@ -340,7 +340,7 @@ namespace Ship_Game
             {
                 foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
                 {
-                    this.UnlockTree(tech.Key);
+                    this.UnlockTreeNoBonus(tech.Key);
                 }
                 EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
             }
