@@ -7216,7 +7216,7 @@ namespace Ship_Game.Gameplay
                                         }
                                 case "IFCYBERNETIC":
                                         {
-                                            if(this.empire.data.Traits.Cybernetic>0 && !this.empire.GetBDict()["Biospheres"]==true)//this.empire.GetTDict().Where(biosphereTech=> biosphereTech.Value.GetTech().BuildingsUnlocked.Where(biosphere=> ResourceManager.BuildingsDict[biosphere.Name].Name=="Biospheres").Count() >0).Count() >0)
+                                            if(this.empire.data.Traits.Cybernetic>0 && !this.empire.GetBDict()["Biospheres"])//==true)//this.empire.GetTDict().Where(biosphereTech=> biosphereTech.Value.GetTech().BuildingsUnlocked.Where(biosphere=> ResourceManager.BuildingsDict[biosphere.Name].Name=="Biospheres").Count() >0).Count() >0)
                                             {
                                                 ScriptIndex = int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
                                                 loopcount++;
@@ -7228,7 +7228,7 @@ namespace Ship_Game.Gameplay
                                         }
                                 case "IFLOWRESEARCH":
                                         {
-                                            if ( this.empire.GetPlanets().Where(owner => owner.Owner == this.empire).Sum(research => research.NetResearchPerTurn) < 5)
+                                            if ( this.empire.GetPlanets().Where(owner => owner.Owner == this.empire).Sum(research => research.NetResearchPerTurn) < this.empire.GetPlanets().Count /3)
                                             {
                                                 ScriptIndex = int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
                                                 loopcount++;
@@ -7241,7 +7241,7 @@ namespace Ship_Game.Gameplay
                                         }
                                 case "IFNOTLOWRESEARCH":
                                         {
-                                            if (this.empire.GetPlanets().Where(owner => owner.Owner == this.empire).Sum(research => research.NetResearchPerTurn) >= 5)
+                                            if (this.empire.GetPlanets().Where(owner => owner.Owner == this.empire).Sum(research => research.NetResearchPerTurn) >= this.empire.GetPlanets().Count / 3)
                                             {
                                                 ScriptIndex = int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
                                                 loopcount++;
