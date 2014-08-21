@@ -4156,7 +4156,7 @@ namespace Ship_Game
                             QueueItem qi = new QueueItem();
                             qi.isTroop = true;
                             qi.troop = troop.Value;
-                            qi.Cost = troop.Value.Cost;
+                            qi.Cost = troop.Value.GetCost();
                             qi.productionTowards = 0f;
                             qi.NotifyOnEmpty = false;
                             this.ConstructionQueue.Add(qi);                         
