@@ -709,7 +709,7 @@ namespace Ship_Game.Gameplay
             //}
 
             {
-                if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Where(troops => troops.IsTroopBay).Count() > 0)
+                if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Where(troops => troops.IsTroopBay).Count() > 0 || this.Owner.hasTransporter)
                 {
                     if (this.Owner.TroopList.Where(troop => troop.GetOwner() == this.Owner.loyalty).Count() > 0 && this.Owner.TroopList.Where(troop => troop.GetOwner() != this.Owner.loyalty).Count() == 0)
                     {
@@ -722,14 +722,13 @@ namespace Ship_Game.Gameplay
                                 break;
                             }
                         }
-                        if (!this.TroopsOut)
+                        if (!this.TroopsOut && !this.Owner.hasTransporter)
                         {
                             if (invadeThis != null)
                             {
                                 this.TroopsOut = true;
                                 foreach (Ship troop in this.Owner.GetHangars().Where(troop => troop.IsTroopBay && troop.GetHangarShip() != null).Select(ship => ship.GetHangarShip()))
                                 {
-
                                     troop.GetAI().OrderAssaultPlanet(invadeThis);
                                 }
                             }
@@ -1262,6 +1261,8 @@ namespace Ship_Game.Gameplay
                     foreach(ShipModule hangar in this.Owner.GetHangars().Where(hangar=> hangar.hangarTimer<=0 && hangar.IsTroopBay))
                     //for (int i = 0; i < this.Owner.TroopList.Count; i++)
 					{
+                        if (i >= this.Owner.TroopList.Count)
+                            break;
                         Troop troop = this.Owner.TroopList[i];
                         //added by gremlin: if cant place troops then dont.
                         if (troop != null )
@@ -1283,9 +1284,9 @@ namespace Ship_Game.Gameplay
                         }
                         
 					}
-                    foreach (ShipModule module in this.Owner.Transporters.Where(module => module.TransporterTimer <= 0 && module.TransporterTroopLanding > 0))
+                    foreach (ShipModule module in this.Owner.Transporters.Where(module => module.TransporterTimer <= 1f && module.TransporterTroopLanding > 0))
                     {
-                        if (i > this.Owner.TroopList.Count)
+                        if (i >= this.Owner.TroopList.Count)
                             break;
                         for (int j = 0; j < module.TransporterTroopLanding; j++)
                         {
@@ -3335,6 +3336,8 @@ namespace Ship_Game.Gameplay
                 < target.TilesList.Sum(space => space.number_allowed_troops))
             {
                 this.HasPriorityOrder = true;
+                this.State = AIState.AssaultPlanet;
+                this.OrbitTarget = target;
                 this.OrderQueue.Clear();
                 ArtificialIntelligence.ShipGoal goal = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.LandTroop, Vector2.Zero, 0f)
                 {
@@ -6749,7 +6752,7 @@ namespace Ship_Game.Gameplay
             this.Owner.isTurning = false;
 
 
-            if ((this.BadGuysNear || this.Owner.InCombatTimer > 0) && (this.Owner.shipData==null ||this.Owner.shipData.ShipCategory == null || this.Owner.shipData.ShipCategory == "civilian") && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
+            if (!this.HasPriorityOrder && (this.BadGuysNear || this.Owner.InCombatTimer > 0) && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == null || this.Owner.shipData.ShipCategory == "civilian") && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
                 && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State!=AIState.Rebase) &&(  this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
             {
                 if (this.State != AIState.Flee )//&& !this.HasPriorityOrder)
@@ -6761,7 +6764,6 @@ namespace Ship_Game.Gameplay
                     this.State = AIState.Flee;
                     if (this.State == AIState.Flee)
                     {
- 
                         this.OrderFlee(false);
                         this.Owner.InCombatTimer = 15f;
 
