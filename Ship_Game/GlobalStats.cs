@@ -177,7 +177,7 @@ namespace Ship_Game
             GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
-            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
+            GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
             
 		}
         public static void Statreset()
