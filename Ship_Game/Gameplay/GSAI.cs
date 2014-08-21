@@ -6224,10 +6224,15 @@ namespace Ship_Game.Gameplay
 		private void RunGroundPlanner()
 		{
 			//float requiredStrength =  (float)(this.empire.GetPlanets().Count * 50);
-            float requiredStrength = (float)(this.empire.GetPlanets().Sum(planet =>planet.GetPotentialGroundTroops(this.empire)));
+            float requiredStrength = 0;//(float)(this.empire.GetPlanets().Sum(planet =>planet.GetPotentialGroundTroops(this.empire)));
             float developmentlevel = (float)this.empire.GetPlanets().Average(planet => planet.developmentLevel) *.5f;
-            requiredStrength *= developmentlevel;
-            requiredStrength *= 10;
+            //requiredStrength *= developmentlevel;
+            //requiredStrength *= 10;
+            foreach(KeyValuePair<SolarSystem,SystemCommander> defensiveStrength in this.DefensiveCoordinator.DefenseDict)
+            {
+                requiredStrength += defensiveStrength.Value.IdealTroopStr ;
+            }
+            
 
 			requiredStrength = requiredStrength + requiredStrength * this.empire.data.Traits.GroundCombatModifier;
 
