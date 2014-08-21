@@ -119,9 +119,9 @@ namespace Ship_Game
                     if (p.Owner != null && p.Owner == this.us)
                     {
                         SystemCommander value = entry.Value;
-                        value.ValueToUs = value.ValueToUs + p.Population / 1000f;
+                        value.ValueToUs = value.ValueToUs + p.Population / 10000f;
                         SystemCommander valueToUs = entry.Value;
-                        valueToUs.ValueToUs = valueToUs.ValueToUs + (p.MaxPopulation / 1000f - p.Population / 1000f);
+                        valueToUs.ValueToUs = valueToUs.ValueToUs + (p.MaxPopulation / 10000f);// - p.Population / 10000f);
                         SystemCommander systemCommander = entry.Value;
                         systemCommander.ValueToUs = systemCommander.ValueToUs + p.Fertility;
                         SystemCommander value1 = entry.Value;
@@ -194,8 +194,8 @@ namespace Ship_Game
                         }
 
                     }
-                    if (!flag)
-                        entry.Value.ValueToUs -= 5f;
+                    if (!flag& entry.Value.ValueToUs>5)
+                        entry.Value.ValueToUs -= 2.5f;
                 }
 
             }
@@ -380,16 +380,18 @@ namespace Ship_Game
 			}
 			foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
 			{
-                entry.Value.IdealTroopStr = entry.Value.ValueToUs * 10; // entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us) / (6 - planet.developmentLevel));
-                int maxtroops =entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us)) *10;
-                if (entry.Value.IdealTroopStr >= maxtroops-30)
-                    entry.Value.IdealTroopStr = maxtroops -30;
+                    //entry.Value.ValueToUs ; // entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us) / (6 - planet.developmentLevel));
+                int maxtroops =entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us))*40 ;
+                //float currentTroopStrength = entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.TroopsHere.Where(troop=> troop.GetOwner()==this.us).Sum(troop=>troop.Strength));
+                
+                //if (entry.Value.IdealTroopStr >= maxtroops-30)
+                //    entry.Value.IdealTroopStr = maxtroops -30;
                     //entry.Value.PercentageOfValue * TotalTroopStrength;              
-                entry.Value.TroopStrengthNeeded = entry.Value.ValueToUs * 10;
-                if (entry.Value.TroopStrengthNeeded >= maxtroops - 30)
-                    entry.Value.TroopStrengthNeeded = maxtroops - 30;
+                entry.Value.TroopStrengthNeeded = entry.Value.ValueToUs * 40;
+                if (entry.Value.TroopStrengthNeeded >= maxtroops - 120)
+                    entry.Value.TroopStrengthNeeded = maxtroops - 120;
                     //entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us) / (6 - planet.developmentLevel)) *10; //entry.Value.PercentageOfValue * TotalTroopStrength;
- 
+                entry.Value.IdealTroopStr = entry.Value.TroopStrengthNeeded;
 				foreach (Planet p in entry.Key.PlanetList)
 				{
 					if (p.Owner != this.us )
@@ -429,10 +431,8 @@ namespace Ship_Game
 			{
                 //added by gremlin troop defense fix?
                 if (ship4.TroopList.Count == 0 || ship4.GetAI().State != AIState.AwaitingOrders )
-				{
-                    
-                    continue;
-                    
+				{                 
+                    continue;                
 				}
 				IOrderedEnumerable<SolarSystem> sortedSystems = 
 					from system in systems
@@ -473,7 +473,10 @@ namespace Ship_Game
 			}
 			foreach (Troop troop in GroundTroops)
 			{
-                if (troop.GetPlanet() == null || troop.GetPlanet().CombatTimer > 0 || troop.GetPlanet().ParentSystem.combatTimer>0)
+                Planet current = troop.GetPlanet();
+                
+                if (current == null || current.CombatTimer > 0 || current.ParentSystem.combatTimer>0
+                    || current.TroopsHere.Count * 10 < this.DefenseDict[current.ParentSystem].IdealTroopStr / current.ParentSystem.PlanetList.Count)
 				{
 					continue;
 				}
@@ -486,11 +489,11 @@ namespace Ship_Game
 				foreach (SolarSystem solarSystem3 in sortedSystems)
 				{
                     //added by gremlin Dont take troops from system that have combat. and prevent troop loop
-                    if (solarSystem3.combatTimer > 0 || this.DefenseDict[solarSystem3].TroopStrengthNeeded+ (float)troop.Strength >0)
+                    if (solarSystem3.combatTimer > 0 || this.DefenseDict[solarSystem3].TroopStrengthNeeded >0)
 					{
 						continue;
 					}
-                    Planet current = troop.GetPlanet();
+                    
                     
                     Ship troopship = troop.Launch();
 					if (troopship == null)
@@ -507,7 +510,7 @@ namespace Ship_Game
 					List<Planet> Potentials = new List<Planet>();
 					foreach (Planet p in solarSystem3.PlanetList)
 					{
-                        if (p.Owner == null || p.Owner != this.us || (current != null && p == current))
+                        if (p.Owner == null || p.Owner != this.us || (current != null && p == current) || p.TroopsHere.Count*10>= this.DefenseDict[p.ParentSystem].IdealTroopStr)
 						{
 							continue;
 						}

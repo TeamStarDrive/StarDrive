@@ -58,6 +58,12 @@
       <id>SCRIPT:ShipHull</id>
     </Tech>
     <Tech>
+      <id>IFLOWRESEARCH:0</id>
+    </Tech>
+    <Tech>
+      <id>IFHIGHTAX:0</id>
+    </Tech>
+    <Tech>
       <id>LOOP:11</id>
     </Tech>
   </TechPath>
