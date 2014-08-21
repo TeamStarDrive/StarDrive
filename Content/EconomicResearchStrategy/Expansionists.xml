@@ -35,7 +35,9 @@
     <Tech>
       <id>CHEAPEST</id>
     </Tech>
-
+    <Tech>
+      <id>IFPEACE:0</id>
+    </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipHull:ShipWeapons:Economic:GroundCombat</id>
     </Tech>
@@ -49,11 +51,15 @@
     <Tech>
       <id>CHEAPEST</id>
     </Tech>
+  
     <Tech>
-      <id>IFPEACE:0</id>
+      <id>IFLOWRESEARCH:0</id>
     </Tech>
     <Tech>
-      <id>LOOP:9</id>
+      <id>IFHIGHTAX:0</id>
+    </Tech>
+    <Tech>
+      <id>LOOP:8</id>
     </Tech>
 
   </TechPath>
