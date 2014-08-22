@@ -117,9 +117,7 @@ namespace Ship_Game
 
 		public void AddScreen(GameScreen screen)
 		{
-#if PERF
-            return;
-#endif
+
             foreach (GameScreen gs in this.screens)
 			{
 				if (!(gs is DiplomacyScreen))
