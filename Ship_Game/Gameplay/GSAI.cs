@@ -6221,7 +6221,43 @@ namespace Ship_Game.Gameplay
 
 		}
 
-		private void RunGroundPlanner()
+        private void RunGroundPlanner()
+        {
+            foreach(SolarSystem system in this.empire.GetOwnedSystems())
+            {
+                SystemCommander defenseSystem =  this.DefensiveCoordinator.DefenseDict[system];
+                if(defenseSystem.TroopStrengthNeeded <=0)
+                {
+                    continue;
+                }
+                Planet targetBuild = this.empire.GetPlanets().Where(planet => planet.ConstructionQueue.Count ==0 || planet.ConstructionQueue.Where(goal => goal.Goal !=null && goal.Goal.type == GoalType.BuildTroop).Count() <3).OrderByDescending(build => build.NetProductionPerTurn).FirstOrDefault();
+                if (targetBuild == null || targetBuild.NetProductionPerTurn <2)
+                    return;
+                Troop troop=new Troop();
+                foreach(KeyValuePair<String,Troop> troops in ResourceManager.TroopsDict.OrderByDescending(cost=> cost.Value.Cost))
+                {
+                    if (!this.empire.WeCanBuildTroop(troops.Key))
+                        continue;
+                    troop =troops.Value;
+                    if(targetBuild.NetProductionPerTurn > troop.Cost*.1 )
+                    {
+                        break;
+                    }
+
+                }
+
+                
+                
+
+                Goal g = new Goal(troop, this.empire, targetBuild);
+                this.Goals.Add(g);
+
+    
+
+            }
+        }
+
+		private void RunGroundPlanner2()
 		{
 			//float requiredStrength =  (float)(this.empire.GetPlanets().Count * 50);
             float requiredStrength = 0;//(float)(this.empire.GetPlanets().Sum(planet =>planet.GetPotentialGroundTroops(this.empire)));
@@ -7396,7 +7432,7 @@ namespace Ship_Game.Gameplay
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
                             if (researchtopic == "" )
                                 researchtopic=Testresearchtopic;
-                            else if ((int)ResearchTech.Cost*.01f < (int)(ResourceManager.TechTree[researchtopic].Cost * .01f))
+                            else if ((int)ResearchTech.Cost*.0025f < (int)(ResourceManager.TechTree[researchtopic].Cost * .0025f))
                                 researchtopic = Testresearchtopic;
 
                         }
