@@ -351,7 +351,7 @@ namespace Ship_Game
                         QueueNumber = this.PlanetBuildingAt.ConstructionQueue.Count,
                         troop = ResourceManager.CopyTroop(ResourceManager.TroopsDict[this.ToBuildUID]),
                         Goal = this,
-                        Cost = ResourceManager.TroopsDict[this.ToBuildUID].Cost
+                        Cost = ResourceManager.TroopsDict[this.ToBuildUID].GetCost()
                     });
                     this.Step = 1;
 
@@ -361,7 +361,7 @@ namespace Ship_Game
                     {
                         if (PlanetBuildingAt.ConstructionQueue.Count >0 && PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {
-                           if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.75f)
+                           if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.25f)
                            {
                                PlanetBuildingAt.ApplyStoredProduction(0);
                            }

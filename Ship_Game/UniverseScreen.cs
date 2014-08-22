@@ -1616,6 +1616,8 @@ namespace Ship_Game
                         system.DangerTimer = (double)this.player.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0 ? 0.0f : 120f;
                     }
                     system.combatTimer -= elapsedTime;
+                    
+
                     if ((double)system.combatTimer <= 0.0)
                         system.CombatInSystem = false;
                     bool flag = false;
@@ -1772,6 +1774,11 @@ namespace Ship_Game
             {
                 system.DangerTimer -= elapsedTime;
                 system.DangerUpdater -= elapsedTime;
+                foreach (KeyValuePair<Empire, SolarSystem.PredictionTimeout> predict in system.predictionTimeout)
+                {
+                    predict.Value.update(elapsedTime);
+
+                }
                 if ((double)system.DangerUpdater < 0.0)
                 {
                     system.DangerUpdater = 10f;
@@ -2859,44 +2866,7 @@ namespace Ship_Game
                             {
                                 foreach (Ship ship2 in (List<Ship>)this.SelectedFleet.Ships)
                                 {
-
                                     RightClickship(ship2, planet,false);
-                                    //if (planet.Owner != null)
-                                    //{
-
-                                    //    if (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction)
-                                    //    {
-                                    //        //add new right click troop and troop ship options on planets
-                                    //        if (ship2.Role == "troop" || (ship2.GetHangars().Where(troop => troop.IsTroopBay).Count() >0 && ship2.TroopList.Count>0))
-                                    //        {
-                                    //            //ship2.GetAI().State = AIState.AssaultPlanet;
-                                    //            ship2.GetAI().OrderLandAllTroops(planet);
-                                    //        }
-          
-                                    //        //end
-
-                                    //        if (ship2.BombBays.Count > 0 && planet.Owner != this.player && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)  || planet.TroopsHere.Where(ourtroops => ourtroops.GetOwner() == this.player).Count() == 0))
-                                    //        {
-                                                
-                                    //            ship2.GetAI().OrderBombardPlanet(planet);
-                                    //        }
-
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        if (ship2.Role == "troop")
-                                    //        {
-                                    //            ship2.GetAI().State = AIState.AssaultPlanet;
-                                    //            ship2.GetAI().OrderLandAllTroops(planet);
-                                    //        }
-                                    //        else
-                                    //        ship2.GetAI().OrderToOrbit(planet, true);
-                                    //    }
-                                    //}
-                                    //else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                    //    ship2.GetAI().OrderToOrbit(planet, false);
-                                    //else
-                                    //    ship2.GetAI().OrderToOrbit(planet, true);
                                 }
                             }
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
@@ -2928,7 +2898,7 @@ namespace Ship_Game
                                     {
                                         if (this.SelectedShip.Role == "troop")
                                         {
-                                            if (ship.HasTroopBay)
+                                            if (ship.HasTroopBay || ship.hasTransporter)
                                             {
                                                 if (ship.TroopList.Count < ship.TroopCapacity)
                                                     this.SelectedShip.GetAI().OrderTroopToShip(ship);
@@ -3067,7 +3037,7 @@ namespace Ship_Game
                                         {
                                             if (ship2.Role == "troop")
                                             {
-                                                if (ship1.HasTroopBay)
+                                                if (ship1.HasTroopBay || ship1.hasTransporter)
                                                 {
                                                     if (ship1.TroopList.Count < ship1.TroopCapacity)
                                                         ship2.GetAI().OrderTroopToShip(ship1);
@@ -3468,9 +3438,9 @@ namespace Ship_Game
                     else
                         ship.GetAI().OrderToOrbit(planet, true);
                 }
-                else if (ship.Role == "troop" || (ship.HasTroopBay &&ship.TroopList.Count >0 ))
+                else if (ship.Role == "troop" || (ship.TroopList.Count > 0 && (ship.HasTroopBay || ship.hasTransporter)))
                 {
-                    if (planet.Owner != null && planet.Owner == this.player && !ship.HasTroopBay)
+                    if (planet.Owner != null && planet.Owner == this.player && !ship.HasTroopBay && !ship.hasTransporter)
                     {
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                             ship.GetAI().OrderRebase(planet, false);
@@ -3478,20 +3448,12 @@ namespace Ship_Game
                             ship.GetAI().OrderRebase(planet, true);
                     }
                     //add new right click troop and troop ship options on planets
-
-                    if (planet.Owner == null && planet.habitable)
-                    {
-
-                        ship.GetAI().State = AIState.AssaultPlanet;
-                        ship.GetAI().OrderLandAllTroops(planet);
-                    }
-                    else if (planet.Owner!=null&& planet.Owner !=this.player &&  (ship.loyalty.GetRelations()[planet.Owner].AtWar ||planet.Owner.isFaction ||planet.Owner.data.Defeated ))
+                    if (planet.habitable && planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated))
                     {
                         ship.GetAI().State = AIState.AssaultPlanet;
                         ship.GetAI().OrderLandAllTroops(planet);
                     }
                     //end
-
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                         ship.GetAI().OrderToOrbit(planet, false);
                     else
@@ -3533,25 +3495,25 @@ namespace Ship_Game
             PresentationParameters presentationParameters = this.ScreenManager.GraphicsDevice.PresentationParameters;
             Vector2 spaceFromScreenSpace1 = this.GetWorldSpaceFromScreenSpace(new Vector2(0.0f, 0.0f));
             float num = this.GetWorldSpaceFromScreenSpace(new Vector2((float)presentationParameters.BackBufferWidth, (float)presentationParameters.BackBufferHeight)).X - spaceFromScreenSpace1.X;
-            if ((double)input.CursorPosition.X <= 1.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Left) || (input.CurrentKeyboardState.IsKeyDown(Keys.A) && this.playerShip == null))
+            if ((double)input.CursorPosition.X <= 1.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Left) || (input.CurrentKeyboardState.IsKeyDown(Keys.A) && !this.ViewingShip))
             {
                 this.transitionDestination.X -= 0.008f * num;
                 this.snappingToShip = false;
                 this.ViewingShip = false;
             }
-            if ((double)input.CursorPosition.X >= (double)(presentationParameters.BackBufferWidth - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Right) || (input.CurrentKeyboardState.IsKeyDown(Keys.D) && this.playerShip == null))
+            if ((double)input.CursorPosition.X >= (double)(presentationParameters.BackBufferWidth - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Right) || (input.CurrentKeyboardState.IsKeyDown(Keys.D) && !this.ViewingShip))
             {
                 this.transitionDestination.X += 0.008f * num;
                 this.snappingToShip = false;
                 this.ViewingShip = false;
             }
-            if ((double)input.CursorPosition.Y <= 0.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Up) || (input.CurrentKeyboardState.IsKeyDown(Keys.W) && this.playerShip == null))
+            if ((double)input.CursorPosition.Y <= 0.0 || input.CurrentKeyboardState.IsKeyDown(Keys.Up) || (input.CurrentKeyboardState.IsKeyDown(Keys.W) && !this.ViewingShip))
             {
                 this.snappingToShip = false;
                 this.ViewingShip = false;
                 this.transitionDestination.Y -= 0.008f * num;
             }
-            if ((double)input.CursorPosition.Y >= (double)(presentationParameters.BackBufferHeight - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Down) || (input.CurrentKeyboardState.IsKeyDown(Keys.S) && this.playerShip == null))
+            if ((double)input.CursorPosition.Y >= (double)(presentationParameters.BackBufferHeight - 1) || input.CurrentKeyboardState.IsKeyDown(Keys.Down) || (input.CurrentKeyboardState.IsKeyDown(Keys.S) && !this.ViewingShip))
             {
                 this.transitionDestination.Y += 0.008f * num;
                 this.snappingToShip = false;
@@ -4449,7 +4411,7 @@ namespace Ship_Game
                     float num3 = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X);
                     Rectangle destinationRectangle = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)num3 * 2, (int)num3 * 2);
                     Vector2 origin2 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                    float num4 = moduleSlot.module.shield_power / moduleSlot.module.shield_power_max;
+                    float num4 = moduleSlot.module.shield_power / (moduleSlot.module.shield_power_max + (ship.loyalty != null ? ship.loyalty.data.ShieldPowerMod * moduleSlot.module.shield_power_max : 0));
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], destinationRectangle, new Rectangle?(), new Color(Color.Green.R, Color.Green.G, Color.Green.B, (byte)((double)byte.MaxValue * (double)num4)), 0.0f, origin2, SpriteEffects.None, 1f);
                 }
             }
@@ -4782,7 +4744,7 @@ namespace Ship_Game
                 {
                     foreach (UniverseScreen.ClickablePlanets item_1 in this.ClickPlanetList)
                     {
-                        float local_14 = 2500f;
+                        float local_14 = 2500f * item_1.planetToClick.scale;
                         Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
                         Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
@@ -4918,13 +4880,14 @@ namespace Ship_Game
                 {
                     foreach (Planet planet in solarSystem.PlanetList)
                     {
+                        float fIconScale = 0.1875f * (0.7f + ((float)(Math.Log(planet.scale))/2.75f));
                         if (planet.Owner != null)
                         {
                             Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int)position.X - 8, (int)position.Y - 8, 16, 16);
-                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Width / 2), (float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Height / 2));
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"], position, new Rectangle?(), Color.White, 0.0f, origin, 0.6f, SpriteEffects.None, 1f);
+                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Width / 2f), (float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Height / 2f));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)planet.planetType], position, new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                             origin = new Vector2((float)(ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value.Width / 2), (float)(ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value.Height / 2));
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value, position, new Rectangle?(), planet.Owner.EmpireColor, 0.0f, origin, 0.045f, SpriteEffects.None, 1f);
                         }
@@ -4933,8 +4896,8 @@ namespace Ship_Game
                             Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int)position.X - 8, (int)position.Y - 8, 16, 16);
-                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Width / 2), (float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Height / 2));
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"], position, new Rectangle?(), Color.White, 0.0f, origin, 0.6f, SpriteEffects.None, 1f);
+                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Width / 2), (float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Height / 2f));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)planet.planetType], position, new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                         }
                     }
                 }
@@ -5852,8 +5815,8 @@ namespace Ship_Game
                     }
                     if (this.viewState < UniverseScreen.UnivScreenState.GalaxyView)
                     {
-                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ(this.Zrotate) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 1.8f);
-                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 2.0)) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 1.8f);
+                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ(this.Zrotate) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
+                        this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 2.0)) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
                         if (solarSystem.ExploredDict[EmpireManager.GetEmpireByName(this.PlayerLoyalty)])
                         {
                             foreach (Planet planet in solarSystem.PlanetList)
@@ -5934,8 +5897,6 @@ namespace Ship_Game
                         Vector3 vector3_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, solarSystem.Position, 25000f), 0.0f), this.projection, this.view, Matrix.Identity);
                         float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
                         float scale = 0.05f;
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], position, new Rectangle?(), Color.White, this.Zrotate, new Vector2((float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2), (float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale, SpriteEffects.None, 0.9f);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], position, new Rectangle?(), Color.White, (float)(-(double)this.Zrotate / 2.0), new Vector2((float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2), (float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale, SpriteEffects.None, 0.9f);
                         Vector2 vector2 = new Vector2(position.X, position.Y);
                         if ((solarSystem.ExploredDict[this.player] || this.Debug) && this.SelectedSystem != solarSystem)
                         {
@@ -6095,6 +6056,15 @@ namespace Ship_Game
                         else
                             vector2.X -= SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X / 2f;
                     }
+                }
+                if (this.viewState >= UniverseScreen.UnivScreenState.GalaxyView)
+                {
+                    float scale = 0.05f;
+                    Vector3 vector3_3 = new Vector3(solarSystem.Position, 0.0f);
+                    Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(vector3_3, this.projection, this.view, Matrix.Identity);
+                    Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], position, new Rectangle?(), Color.White, this.Zrotate, new Vector2((float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2), (float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale, SpriteEffects.None, 0.9f);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], position, new Rectangle?(), Color.White, (float)(-(double)this.Zrotate / 2.0), new Vector2((float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Width / 2), (float)(ResourceManager.TextureDict["Suns/" + solarSystem.SunPath].Height / 2)), scale, SpriteEffects.None, 0.9f);
                 }
             }
         }
