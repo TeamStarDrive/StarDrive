@@ -50,27 +50,27 @@ namespace Ship_Game.Gameplay
 
 		public bool FightersOnly;
 
-        public bool DroneModule;
+        public bool DroneModule = false;
 
-        public bool FighterModule;
+        public bool FighterModule = true;
 
-        public bool CorvetteModule;
+        public bool CorvetteModule = true;
 
-        public bool FrigateModule;
+        public bool FrigateModule = true;
 
-        public bool DestroyerModule;
+        public bool DestroyerModule = true;
 
-        public bool CruiserModule;
+        public bool CruiserModule = true;
 
-        public bool CarrierModule;
+        public bool CarrierModule = true;
 
-        public bool CapitalModule;
+        public bool CapitalModule = true;
 
-        public bool FreighterModule;
+        public bool FreighterModule = true;
 
-        public bool PlatformModule;
+        public bool PlatformModule = true;
 
-        public bool StationModule;
+        public bool StationModule = true;
 
 		public bool explodes;
 
@@ -181,7 +181,7 @@ namespace Ship_Game.Gameplay
 
 		public float PowerStoreMax;
 
-		public int HealPerTurn;
+		public float HealPerTurn;
 
 		public bool isWeapon;
 
@@ -239,11 +239,13 @@ namespace Ship_Game.Gameplay
 
         public float SensorBonus;
         //Transporter Values
-        public float TransporterTimerConstant = 5.0f;
-        public float TransporterTimer;
+        public float TransporterTimerConstant;
+        public float TransporterTimer = 0f;
         public float TransporterRange;
         public float TransporterPower;
         public float TransporterOrdnance;
+        public byte TransporterTroopLanding;
+        public byte TransporterTroopAssault;
 
 
 		public bool IsWeapon
@@ -420,7 +422,6 @@ namespace Ship_Game.Gameplay
 				}
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
-					float single = damageAmount / this.shield_power_max;
 					base.findAngleToTarget(this.Parent.Center, source.Center);
 					this.shield.Rotation = source.Rotation - 3.14159274f;
 					this.shield.displacement = 0f;
@@ -639,7 +640,6 @@ namespace Ship_Game.Gameplay
 				shipModule.shield_power = shipModule.shield_power - damageAmount;
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
-					float single = damageAmount / this.shield_power_max;
 					base.findAngleToTarget(this.Parent.Center, source.Center);
 					this.shield.Rotation = source.Rotation - 3.14159274f;
 					this.shield.displacement = 0f;
@@ -1560,6 +1560,13 @@ namespace Ship_Game.Gameplay
 					this.Parent.Ordinance = this.Parent.OrdinanceMax;
 				}
 			}
+            if ((GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useCombatRepair) && this.Parent.LastHitTimer <= 0f && base.Health / this.HealthMax < 1f && this.Parent.RepairUsed * elapsedTime < this.Parent.RepairRate)
+            {
+                ShipModule health = this;
+                health.Health = health.Health + this.Parent.RepairRate * elapsedTime;
+                Ship repairUsed = this.Parent;
+                repairUsed.RepairUsed = repairUsed.RepairUsed + this.Parent.RepairRate * elapsedTime;
+            }
 			if (base.Health >= this.HealthMax)
 			{
 				base.Health = this.HealthMax;
@@ -1579,21 +1586,21 @@ namespace Ship_Game.Gameplay
 				ShipModule shipModule1 = this;
 				shipModule1.hangarTimer = shipModule1.hangarTimer - elapsedTime;
 			}
-            if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer >= this.shield_recharge_delay)
+            if (this.Active && this.Powered && this.shield_power < this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0) && this.Parent.ShieldRechargeTimer >= this.shield_recharge_delay)
 			{
                 this.shield_power += this.shield_recharge_rate * elapsedTime;
-				if (this.shield_power > this.shield_power_max)
+                if (this.shield_power > this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0))
 				{
-					this.shield_power = this.shield_power_max;
+                    this.shield_power = this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
 				}
 			}
             //Combat shield recharge only works until shields fail, then they only come back by normal recharge
-            else if (this.Active && this.Powered && this.shield_power < this.shield_power_max && this.Parent.ShieldRechargeTimer < this.shield_recharge_delay && this.shield_power > 1)
+            else if (this.Active && this.Powered && this.shield_power < this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0) && this.Parent.ShieldRechargeTimer < this.shield_recharge_delay && this.shield_power > 1)
 			{
                 this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
-				if (this.shield_power > this.shield_power_max)
+                if (this.shield_power > this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0))
 				{
-					this.shield_power = this.shield_power_max;
+                    this.shield_power = this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
 				}
 			}
 			if (this.shield_power < 0f)

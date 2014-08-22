@@ -64,7 +64,7 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
-
+        
 		private void DeleteAccepted(object sender, EventArgs e)
 		{
 			AudioManager.PlayCue("echo_affirm");
@@ -111,7 +111,8 @@ namespace Ship_Game
 			this.ShipDesigns.Draw(base.ScreenManager.SpriteBatch);
 			this.EnterNameArea.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, gameTime, (this.EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
 			Vector2 bCursor = new Vector2((float)(this.SaveShips.Menu.X + 20), (float)(this.SaveShips.Menu.Y + 20));
-			for (int i = this.ShipDesigns.indexAtTop; i < this.ShipDesigns.Copied.Count && i < this.ShipDesigns.indexAtTop + this.ShipDesigns.entriesToDisplay; i++)
+			
+            for (int i = this.ShipDesigns.indexAtTop; i < this.ShipDesigns.Copied.Count && i < this.ShipDesigns.indexAtTop + this.ShipDesigns.entriesToDisplay; i++)
 			{
 				bCursor = new Vector2((float)(this.SaveShips.Menu.X + 20), (float)(this.SaveShips.Menu.Y + 20));
 				ScrollList.Entry e = this.ShipDesigns.Copied[i];
@@ -123,7 +124,14 @@ namespace Ship_Game
 				else if (!(e.item is ShipData))
 				{
 					bCursor.X = bCursor.X + 15f;
-					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    try
+                    {
+                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    }
+                    catch(KeyNotFoundException error)
+                    {
+                        error.Data.Add("key= ", e.item);
+                    }
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -352,13 +360,18 @@ namespace Ship_Game
 			{
 				foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 				{
-                    if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))))
-					{
-						continue;
-					}
-                    ShipRoles.Add(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
-                    ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
-					this.ShipDesigns.AddItem(mh);
+                    //added by gremlin HIDING ERRORS
+                    try
+                    {
+                        if (!EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))) || ResourceManager.ShipRoles[Ship.Value.Role].Protected)
+                        {
+                            continue;
+                        }
+                        ShipRoles.Add(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
+                        ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)));
+                        this.ShipDesigns.AddItem(mh);
+                    }
+                    catch { }
 				}
 				if (WIPs.Count > 0)
 				{
@@ -467,7 +480,7 @@ namespace Ship_Game
 			{
 				foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
 				{
-                    if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))))
+                    if (!this.ShowAllDesigns && !ResourceManager.ShipsDict[Ship.Key].IsPlayerDesign || !EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(Ship.Value.Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty))) || ResourceManager.ShipRoles[Ship.Value.Role].Protected)
 					{
 						continue;
 					}

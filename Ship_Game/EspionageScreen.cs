@@ -120,6 +120,23 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", race.e.data.PortraitName)], race.container, Color.White);
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
+                    //Added by McShooterz: Display Spy Defense value
+                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.TextureDict["UI/icon_shield"].Width, ResourceManager.TextureDict["UI/icon_shield"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], EspionageDefenseIcon, Color.White);
+                    Vector2 defPos = new Vector2((float)(EspionageDefenseIcon.X + EspionageDefenseIcon.Width + 2), (float)(EspionageDefenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                    float EspionageDefense = 0f;
+                    foreach(Agent agent in race.e.data.AgentList)
+                    {
+                        if(agent.Mission == AgentMission.Defending)
+                            EspionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
+                    }
+                    EspionageDefense /= race.e.GetPlanets().Count / 3 + 1;
+                    EspionageDefense += race.e.data.SpyModifier + race.e.data.DefensiveSpyBonus;
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
+                    if (HelperFunctions.CheckIntersection(EspionageDefenseIcon, new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
+                    {
+                        ToolTip.CreateTooltip(Localizer.Token(7031), this.ScreenManager);
+                    }
 				}
 				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e)
 				{
@@ -131,6 +148,23 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
 					NameCursor = new Vector2((float)(race.container.X + 62) - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, (float)(race.container.Y + 148 + 8));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
+                    //Added by McShooterz: Display Spy Defense value
+                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.TextureDict["UI/icon_shield"].Width, ResourceManager.TextureDict["UI/icon_shield"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], EspionageDefenseIcon, Color.White);
+                    Vector2 defPos = new Vector2((float)(EspionageDefenseIcon.X + EspionageDefenseIcon.Width + 2), (float)(EspionageDefenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                    float EspionageDefense = 0f;
+                    foreach (Agent agent in race.e.data.AgentList)
+                    {
+                        if (agent.Mission == AgentMission.Defending)
+                            EspionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
+                    }
+                    EspionageDefense /= race.e.GetPlanets().Count / 3 + 1;
+                    EspionageDefense += race.e.data.SpyModifier + race.e.data.DefensiveSpyBonus;
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
+                    if (HelperFunctions.CheckIntersection(EspionageDefenseIcon, new Vector2(Mouse.GetState().X,Mouse.GetState().Y)))
+                    {
+                        ToolTip.CreateTooltip(Localizer.Token(7031), this.ScreenManager);
+                    }
 				}
 				if (race.e != this.SelectedEmpire)
 				{
@@ -150,30 +184,30 @@ namespace Ship_Game
             //Agent Dossier information
             if (this.AgentComponent.SelectedAgent != null)
             {
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 10);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6108), this.AgentComponent.SelectedAgent.Name), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 25);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(6108), this.AgentComponent.SelectedAgent.Name), TextCursor, Color.Orange);
                 if (this.AgentComponent.SelectedAgent.HomePlanet == "" || this.AgentComponent.SelectedAgent.HomePlanet == null) 
                     this.AgentComponent.SelectedAgent.HomePlanet = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.HomeworldName; 
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6109), this.AgentComponent.SelectedAgent.HomePlanet), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6110), this.AgentComponent.SelectedAgent.Age.ToString("0.0"), Localizer.Token(6119)), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6111), this.AgentComponent.SelectedAgent.ServiceYears.ToString("0.0"), Localizer.Token(6119)), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6112), this.AgentComponent.SelectedAgent.Training), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6113), this.AgentComponent.SelectedAgent.Assassinations), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6114), this.AgentComponent.SelectedAgent.Infiltrations), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6115), this.AgentComponent.SelectedAgent.Sabotages), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6116), this.AgentComponent.SelectedAgent.TechStolen), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6117), this.AgentComponent.SelectedAgent.Robberies), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6118), this.AgentComponent.SelectedAgent.Rebellions), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 6);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6109), this.AgentComponent.SelectedAgent.HomePlanet), TextCursor, Color.LightGray);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 3);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6110), this.AgentComponent.SelectedAgent.Age.ToString("0.0"), Localizer.Token(6119)), TextCursor, Color.LightGray);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 3);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6111), this.AgentComponent.SelectedAgent.ServiceYears.ToString("0.0"), Localizer.Token(6119)), TextCursor, Color.LightGray);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 20);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6112), this.AgentComponent.SelectedAgent.Training), TextCursor, this.AgentComponent.SelectedAgent.Training > 0 ? Color.White : Color.LightGray);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 3);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6113), this.AgentComponent.SelectedAgent.Assassinations), TextCursor, this.AgentComponent.SelectedAgent.Assassinations > 0 ? Color.White : Color.LightGray);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 3);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6114), this.AgentComponent.SelectedAgent.Infiltrations), TextCursor, this.AgentComponent.SelectedAgent.Infiltrations > 0 ? Color.White : Color.LightGray);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 3);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6115), this.AgentComponent.SelectedAgent.Sabotages), TextCursor, this.AgentComponent.SelectedAgent.Sabotages > 0 ? Color.White : Color.LightGray);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 3);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6116), this.AgentComponent.SelectedAgent.TechStolen), TextCursor, this.AgentComponent.SelectedAgent.TechStolen > 0 ? Color.White : Color.LightGray);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 3);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6117), this.AgentComponent.SelectedAgent.Robberies), TextCursor, this.AgentComponent.SelectedAgent.Robberies > 0 ? Color.White : Color.LightGray);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 3);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6118), this.AgentComponent.SelectedAgent.Rebellions), TextCursor, this.AgentComponent.SelectedAgent.Rebellions > 0 ? Color.White : Color.LightGray);
             }
             //End of dossier
 			this.AgentComponent.Draw();

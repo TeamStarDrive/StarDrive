@@ -356,7 +356,7 @@ namespace Ship_Game.Gameplay
 		{
 			DebugInfoScreen.ProjCreated = DebugInfoScreen.ProjCreated + 1;
 			this.direction = direction;
-            this.velocity = (initialSpeed * direction); //+ (this.owner != null ? this.owner.Velocity : Vector2.Zero);
+            this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			if (this.moduleAttachedTo == null)
 			{
 				this.Center = pos;
@@ -368,8 +368,8 @@ namespace Ship_Game.Gameplay
 				this.rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.velocity));
 			}
 			this.radius = 1f;
-			//this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
-			//this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
+			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
+			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
             this.duration = this.range / initialSpeed * 1.5f;
 			if (this.weapon.Tag_SpaceBomb)
 			{
@@ -754,9 +754,11 @@ namespace Ship_Game.Gameplay
                     {
                         float ECMResist = this.weapon.ECMResist; // check any in-built ECM resistance on the guided weapon itself
                         Ship targetShip = (target as ShipModule).GetParent(); // identify the ship to which the module belongs
-                        float rnum = RandomMath.RandomBetween(0.0f, 1.0f); // Random roll 0.0-1.0, i.e. roll 0 to 100
+                        float rnum = RandomMath.RandomBetween(0.00f, 1.00f); // Random roll 0.0-1.0, i.e. roll 0 to 100
                         if (rnum + ECMResist < targetShip.ECMValue) // Can she hit?
-                            this.Miss = true;
+                        {
+                            return false; // Weapon fails to impact if it has failed ECM check. Should make ECM actually work now.
+                        }
                     }
                     if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
 					{

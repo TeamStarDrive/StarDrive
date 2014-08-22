@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Windows.Forms;
-
+using System.Collections;
 namespace Ship_Game
 {
 	internal static class Program
@@ -14,12 +14,23 @@ namespace Ship_Game
 
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			try
-			{
-				Exception ex = (Exception)e.ExceptionObject;
-				string[] version = new string[] { "Whoops! Please post a screenshot of this to the StarDrive forums (", MainMenuScreen.Version, "):\n\n", ex.Message.ToString(), ex.StackTrace.ToString() };
-				MessageBox.Show(string.Concat(version), "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-			}
+             
+            try
+            {
+                //added by CrimsonED
+                //---
+                Exception ex = (Exception)e.ExceptionObject;
+                #if RELEASE //only log exception on release build
+                  ExceptionTracker.TrackException(ex);
+                #endif
+                ExceptionTracker.DisplayException(ex);
+                //---
+            }
+            catch
+            {
+                Exception ex = (Exception)e.ExceptionObject; 
+                MessageBox.Show("BlackBox failsafe Error Trap\n\n"+e);
+            }
 			finally
 			{
 				Game1.Instance.Exit();
@@ -30,7 +41,14 @@ namespace Ship_Game
 		private static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(Program.CurrentDomain_UnhandledException);
-			if (!Program.CatchStuff)
+
+
+
+           //ExceptionTracker.TestStackTrace(0, 10);
+           // var ex = new NullReferenceException("Message");
+           //throw ex;
+
+            if (!Program.CatchStuff)
 			{
 				using (Game1 game = new Game1())
 				{

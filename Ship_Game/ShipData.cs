@@ -24,6 +24,10 @@ namespace Ship_Game
 
 		public short FixedCost;
 
+        public bool HasFixedUpkeep;
+
+        public float FixedUpkeep;
+
 		public bool IsShipyard;
 
 		public bool IsOrbitalDefense;
@@ -54,6 +58,12 @@ namespace Ship_Game
         public byte RepairBonus; // % repair rate
         public byte CostBonus;  // % cost reduction
 
+        // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
+        public string ShipCategory;
+        // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
+        public bool CarrierShip = false;
+        public float BaseStrength;
+        public bool BaseCanWarp;
 		public List<ModuleSlotData> ModuleSlotList = new List<ModuleSlotData>();
 
 		public ShipData()

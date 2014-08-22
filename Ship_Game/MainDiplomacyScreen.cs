@@ -40,7 +40,6 @@ namespace Ship_Game
 
 		private ScrollList ArtifactsSL;
 
-
 		private CloseButton close;
 
 		private float TransitionElapsedTime;
@@ -438,6 +437,11 @@ namespace Ship_Game
             TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6098), this.SelectedEmpire.totalMaint.ToString("0.0")), TextCursor, Color.White);
             TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+            if (this.SelectedEmpire.ResearchTopic != "")
+            {
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: ", Localizer.Token( ResourceManager.TechTree[this.SelectedEmpire.ResearchTopic].NameIndex)), TextCursor, Color.White);
+                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+            }
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6099), this.SelectedEmpire.data.AgentList.Count), TextCursor, Color.White);
             TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6100), this.SelectedEmpire.GetPopulation().ToString("0.0"), Localizer.Token(6101)), TextCursor, Color.White);

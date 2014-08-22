@@ -26,7 +26,7 @@
   <!-- common traits shared by all ship modules -->
   <XSIZE>8</XSIZE>
   <YSIZE>4</YSIZE>
-  <ModuleType>Command</ModuleType>
+  <ModuleType>Troop</ModuleType>
   <Name>Large Marine Barracks</Name>
   <Restrictions>I</Restrictions>
   <UID>MarineBarracks8x4</UID>
