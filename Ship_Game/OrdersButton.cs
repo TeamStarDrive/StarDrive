@@ -335,6 +335,15 @@ namespace Ship_Game
 										ship.GetAI().SystemToDefendGuid = Guid.Empty;
 										ship.GetAI().State = AIState.SystemDefender;
 									}
+                                    else
+                                    {
+                                        EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Remove(ship);
+                                        ship.GetAI().OrderQueue.Clear();
+                                        ship.GetAI().HasPriorityOrder = false;
+                                        ship.GetAI().SystemToDefend = null;
+                                        ship.GetAI().SystemToDefendGuid = Guid.Empty;
+                                        ship.GetAI().State = AIState.AwaitingOrders;
+                                    }
 								}
 							}
 							return true;

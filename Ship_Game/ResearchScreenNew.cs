@@ -324,7 +324,26 @@ namespace Ship_Game
                     if (ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == null || ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == "")
                         EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetBDict()[Building.Key] = true;
                 }
+                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
 			}
+            //Added by McShooterz: new cheat to only unlock tech
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F2) && input.LastKeyboardState.IsKeyUp(Keys.F2))
+            {
+                foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
+                {
+                    this.UnlockTree(tech.Key);
+                }
+                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
+            }
+            //Added by McShooterz: new cheat to only unlock tech
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F3) && input.LastKeyboardState.IsKeyUp(Keys.F3))
+            {
+                foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
+                {
+                    this.UnlockTreeNoBonus(tech.Key);
+                }
+                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
+            }
 			this.qcomponent.HandleInput(input);
 			if (this.qcomponent.Visible && HelperFunctions.CheckIntersection(this.qcomponent.container, input.CursorPosition))
 			{
@@ -755,12 +774,28 @@ namespace Ship_Game
 
 		private void UnlockTree(string key)
 		{
-			EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UnlockTech(key);
-			foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[key].LeadsTo)
-			{
-				this.UnlockTree(tech.UID);
-			}
+            if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).HavePreReq(key) && (!ResourceManager.TechTree[key].Secret || (ResourceManager.TechTree[key].Secret && EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[key].Discovered)))
+            {
+                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UnlockTech(key);
+                foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[key].LeadsTo)
+                {
+                    this.UnlockTree(tech.UID);
+                }
+            }
 		}
+
+        private void UnlockTreeNoBonus(string key)
+        {
+            if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).HavePreReq(key) && (!ResourceManager.TechTree[key].Secret || (ResourceManager.TechTree[key].Secret && EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[key].Discovered)))
+            {
+                if(ResourceManager.TechTree[key].BonusUnlocked.Count == 0)
+                    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UnlockTech(key);
+                foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[key].LeadsTo)
+                {
+                    this.UnlockTreeNoBonus(tech.UID);
+                }
+            }
+        }
 
         //Added by McShooterz: find size of tech tree before it is built
         private int CalculateTreeDemensionsFromRoot(string UID, ref int rows, int cols, int colmax)

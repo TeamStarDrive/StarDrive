@@ -64,12 +64,14 @@ namespace Ship_Game
 
 		public LoadUniverseScreen(FileInfo activeFile)
 		{
-            GC.Collect();
+            
             GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
 			BackgroundWorker bgw = new BackgroundWorker();
 			bgw.DoWork += new DoWorkEventHandler(this.DecompressFile);
+            
+            GC.Collect();
 			bgw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.LoadEverything);
 			bgw.RunWorkerAsync(activeFile);
 		}
@@ -325,7 +327,18 @@ namespace Ship_Game
 			FileInfo activeFile = (FileInfo)e.Argument;
 			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(activeFile));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+
+            //XmlAttributes saveCompatibility = new XmlAttributes();
+            XmlSerializer serializer1=null;// = new XmlSerializer();
+            try
+            {
+                //XmlSerializer 
+                    serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+            }
+            catch
+            {
+                serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+            }
 			FileStream stream = decompressed.OpenRead();
 			SavedGame.UniverseSaveData savedData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
 			stream.Close();
@@ -508,6 +521,10 @@ namespace Ship_Game
 			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
 			this.data.GravityWells = this.savedData.GravityWells;
 			EmpireManager.EmpireList.Clear();
+            if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
+                Empire.universeScreen.MasterShipList.Clear();
+            
+         
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
 			{
 				Empire e =new Empire();
@@ -598,11 +615,26 @@ namespace Ship_Game
 						newShip.FromSave = true;
 						Ship_Game.ResourceManager.ShipsDict.Add(shipData.Name, newShip);
 					}
-					else if (Ship_Game.ResourceManager.ShipsDict[shipData.Name].FromSave)
+					
+                    else if (Ship_Game.ResourceManager.ShipsDict[shipData.Name].FromSave)
 					{
 						ship.IsPlayerDesign = false;
 						ship.FromSave = true;
+
+
 					}
+                    float oldbasestr = ship.BaseStrength;
+                    float newbasestr = ResourceManager.CalculateBaseStrength(ship);
+                    if (oldbasestr==0&& (ship.Name !="Subspace Projector" &&ship.Role !="troop"&&ship.Role !="freighter"))
+                    {
+                        System.Diagnostics.Debug.WriteLine(ship.Name);
+                        System.Diagnostics.Debug.WriteLine("BaseStrength: " + oldbasestr);
+                        System.Diagnostics.Debug.WriteLine("NewStrength: " + newbasestr);
+                        System.Diagnostics.Debug.WriteLine("");
+                        
+                    }
+                    ship.BaseStrength = newbasestr;
+
 					ship.PowerCurrent = shipData.Power;
 					ship.yRotation = shipData.yRotation;
 					ship.Ordinance = shipData.Ordnance;
@@ -1012,7 +1044,7 @@ namespace Ship_Game
 						{
 							qi.isTroop = true;
 							qi.troop = Ship_Game.ResourceManager.TroopsDict[qisave.UID];
-							qi.Cost = qi.troop.Cost;
+                            qi.Cost = qi.troop.GetCost();
                             qi.NotifyOnEmpty = false;
 						}
 						if (qisave.isShip)

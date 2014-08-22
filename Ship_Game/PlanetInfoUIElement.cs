@@ -23,6 +23,10 @@ namespace Ship_Game
 
 		private Rectangle flagRect;
 
+        private Rectangle moneyRect;
+
+        private Rectangle popRect;
+
 		private string PlanetTypeRichness;
 
 		private Vector2 PlanetTypeCursor;
@@ -153,6 +157,10 @@ namespace Ship_Game
 					popString2 = string.Concat(popString2, " / ", maxPopulation.ToString(this.fmt));
 					TextCursor2.X = TextCursor2.X - (Fonts.Arial12Bold.MeasureString(popString2).X + 5f);
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, popString2, TextCursor2, this.tColor);
+
+                    this.popRect = new Rectangle((int)TextCursor2.X - 23, (int)TextCursor2.Y - 3, 22, 22);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_pop_22"], this.popRect, Color.White);
+
 					string text = Localizer.Token(1430);
 					Vector2 Cursor = new Vector2((float)(this.Housing.X + 20), (float)(this.Housing.Y + 115));
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, this.tColor);
@@ -168,12 +176,16 @@ namespace Ship_Game
 				}
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.p.Name, NamePos, this.tColor);
 				Vector2 TextCursor = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 65), NamePos.Y + (float)(Fonts.Arial20Bold.LineSpacing / 2) - (float)(Fonts.Arial12Bold.LineSpacing / 2) + 2f);
-				float single = this.p.Population / 1000f;
+                float single = this.p.Population / 1000f;
 				string popString = single.ToString(this.fmt);
 				float maxPopulation1 = this.p.MaxPopulation / 1000f + this.p.MaxPopBonus / 1000f;
 				popString = string.Concat(popString, " / ", maxPopulation1.ToString(this.fmt));
 				TextCursor.X = TextCursor.X - (Fonts.Arial12Bold.MeasureString(popString).X + 5f);
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, popString, TextCursor, this.tColor);
+
+                this.popRect = new Rectangle((int)TextCursor.X - 23, (int)TextCursor.Y - 3, 22, 22);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_pop_22"], this.popRect, Color.White);
+
 				this.PlanetTypeRichness = string.Concat(this.p.GetTypeTranslation(), " ", this.p.GetRichness());
 				this.PlanetTypeCursor = new Vector2((float)(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.PlanetTypeRichness).X / 2f, (float)(this.PlanetIconRect.Y + this.PlanetIconRect.Height + 5));
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.planetType)], this.PlanetIconRect, Color.White);
@@ -263,6 +275,26 @@ namespace Ship_Game
 			popString3 = string.Concat(popString3, " / ", single1.ToString(this.fmt));
 			TextCursor3.X = TextCursor3.X - (Fonts.Arial12Bold.MeasureString(popString3).X + 5f);
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, popString3, TextCursor3, this.tColor);
+
+            this.popRect = new Rectangle((int)TextCursor3.X - 23, (int)TextCursor3.Y - 3, 22, 22);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_pop_22"], this.popRect, Color.White);
+
+            this.moneyRect = new Rectangle((int)this.popRect.X - 70, (int)this.popRect.Y, 22, 22);
+            Vector2 TextCursorMoney = new Vector2((float)this.moneyRect.X + 24, (float)TextCursor3.Y);
+
+            float taxRate = this.p.Owner.data.TaxRate;
+            float grossIncome = this.p.EstimateTaxes(taxRate);
+            float grossIncomePI = (float)((double)this.p.GrossMoneyPT + (double)this.p.Owner.data.Traits.TaxMod * (double)this.p.GrossMoneyPT);
+            float grossUpkeepPI = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn * (double)this.p.Owner.data.Traits.MaintMod);
+            float netIncomePI = (float)(grossIncome - grossUpkeepPI);
+
+            if (p.Owner == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+            {
+                string sNetIncome = netIncomePI.ToString("F2");
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, sNetIncome, TextCursorMoney, netIncomePI > 0.0 ? Color.LightGreen : Color.Salmon);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_money_22"], moneyRect, Color.White);
+            }
+
 			this.PlanetTypeRichness = string.Concat(this.p.GetTypeTranslation(), " ", this.p.GetRichness());
 			this.PlanetTypeCursor = new Vector2((float)(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.PlanetTypeRichness).X / 2f, (float)(this.PlanetIconRect.Y + this.PlanetIconRect.Height + 5));
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.planetType)], this.PlanetIconRect, Color.White);

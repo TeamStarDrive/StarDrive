@@ -474,3 +474,29 @@ C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\A
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc45.xnb
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc60.xnb
 C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\Arcs\Arc90.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_132px_menu.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_132px_menu_hover.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_132px_menu_pressed.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_168px_dip.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_168px_dip_hover.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_168px_dip_pressed.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_168px_military.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_168px_military_hover.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_168px_military_pressed.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_68px_menu.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_68px_menu_hover.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\EmpireTopBar\empiretopbar_btn_68px_menu_pressed.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_experience_shipUI.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_troop_shipUI.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_money_22.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\Textures\UI\icon_pop_22.xnb
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\SolarSystems\Sol.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Cordrazine Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Kulrathi Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Opteris Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Prototype Fern.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Prototype Frigate.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Ralyeh Prototype L.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Ralyeh Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Scythe Prototype.xml
+C:\Program Files (x86)\Steam\SteamApps\common\StarDrive Redux\Content\StarterShips\Type V Prototype.xml

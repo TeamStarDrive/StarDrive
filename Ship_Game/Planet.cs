@@ -949,7 +949,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.TerranInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -964,7 +967,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.SteppeInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if(ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -979,7 +985,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.IceInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -994,7 +1003,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.BarrenInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1009,7 +1021,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.TundraInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1024,7 +1039,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.DesertInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1039,7 +1057,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.OceanicInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1054,7 +1075,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.SwampInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1274,6 +1298,7 @@ namespace Ship_Game
                     this.Fertility = RandomMath.RandomBetween(1f, 3f);
                     break;
             }
+       
             if (!this.habitable)
                 this.MineralRichness = 0.0f;
             if (this.Type == "Barren")
@@ -1936,7 +1961,7 @@ namespace Ship_Game
                             this.ActiveCombats.QueuePendingRemoval(combat);
                             break;
                         }
-                        int num1;
+                        float num1;
                         int num2;
                         int num3;
                         if (combat.Attacker.TroopsHere.Count > 0)
@@ -2054,7 +2079,7 @@ namespace Ship_Game
                             this.ActiveCombats.QueuePendingRemoval(combat);
                             break;
                         }
-                        int num1;
+                        float num1;
                         int num2;
                         int num3;
                         if (combat.Attacker.TroopsHere.Count > 0)
@@ -3010,9 +3035,9 @@ namespace Ship_Game
             return (double)(num + this.FoodPercentAdded * num - this.consumption) > 0.0;
         }
 
-        public int GetDefendingTroopStrength()
+        public float GetDefendingTroopStrength()
         {
-            int num = 0;
+            float num = 0;
             foreach (Troop troop in this.TroopsHere)
             {
                 if (troop.GetOwner() == this.Owner)
@@ -4131,7 +4156,7 @@ namespace Ship_Game
                             QueueItem qi = new QueueItem();
                             qi.isTroop = true;
                             qi.troop = troop.Value;
-                            qi.Cost = troop.Value.Cost;
+                            qi.Cost = troop.Value.GetCost();
                             qi.productionTowards = 0f;
                             qi.NotifyOnEmpty = false;
                             this.ConstructionQueue.Add(qi);                         
@@ -4326,7 +4351,11 @@ namespace Ship_Game
                 }
                 else if (queueItem.isShip && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
-                    Ship shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
+                    Ship shipAt;
+                    if (queueItem.isRefit && queueItem.RefitName != "")
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName, queueItem.sData.Level);
+                    else
+                       shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);     
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                     using (List<string>.Enumerator enumerator = Enumerable.ToList<string>((IEnumerable<string>)shipAt.GetMaxGoods().Keys).GetEnumerator())
                     {
@@ -4352,8 +4381,8 @@ namespace Ship_Game
                     if (queueItem.sData.Role == "station" || queueItem.sData.Role == "platform")
                     {
                         int num = this.Shipyards.Count / 4;
-                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2500 + 2500 * num));
-                        shipAt.Center = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2500 + 2500 * num));
+                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
+                        shipAt.Center = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
                         shipAt.TetherToPlanet(this);
                         this.Shipyards.Add(shipAt.guid, shipAt);
                     }
@@ -4476,7 +4505,7 @@ namespace Ship_Game
             foreach (Troop troop in this.TroopsHere)
             {
                 if (troop.Strength > 0 && troop.GetOwner() == this.Owner)
-                    this.TotalDefensiveStrength += troop.Strength;
+                    this.TotalDefensiveStrength += (int)troop.Strength;
             }
             this.NetResearchPerTurn = (float)((double)this.ResearcherPercentage * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
             this.NetResearchPerTurn = this.NetResearchPerTurn + this.ResearchPercentAdded * this.NetResearchPerTurn;
@@ -4532,7 +4561,7 @@ namespace Ship_Game
             foreach (Troop troop in this.TroopsHere)
             {
                 if (troop.Strength > 0 && troop.GetOwner() == this.Owner)
-                    this.TotalDefensiveStrength += troop.Strength;
+                    this.TotalDefensiveStrength += (int)troop.Strength;
             }
             this.NetResearchPerTurn = (float)((double)respct * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
             this.NetResearchPerTurn = this.NetResearchPerTurn + this.ResearchPercentAdded * this.NetResearchPerTurn;
@@ -4616,7 +4645,16 @@ namespace Ship_Game
                     if (keyValuePair.Value == null)
                         list.Add(keyValuePair.Key);
                     else if (keyValuePair.Value.Active && keyValuePair.Value.GetShipData().IsShipyard)
-                        this.ShipBuildingModifier += 0.25f;
+                    {
+                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.ShipyardBonus > 0)
+                        {
+                            this.ShipBuildingModifier += GlobalStats.ActiveMod.mi.ShipyardBonus;
+                        }
+                        else
+                        {
+                            this.ShipBuildingModifier += 0.25f;
+                        }
+                    }
                     else if (!keyValuePair.Value.Active)
                         list.Add(keyValuePair.Key);
                 }
@@ -5259,9 +5297,9 @@ namespace Ship_Game
         }
 
         //added by gremlin: get a planets ground combat strength
-        public int GetGroundStrength(Empire empire)
+        public float GetGroundStrength(Empire empire)
         {
-            int num = 0;
+            float num = 0;
             if (this.Owner == empire)
                 num += this.BuildingList.Sum(offense => offense.CombatStrength);
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
@@ -5269,9 +5307,20 @@ namespace Ship_Game
 
 
         }
-        public int GetGroundStrengthOther(Empire empire)
+        public int GetPotentialGroundTroops(Empire empire)
         {
-            int num = 0;
+            //int num = 0;
+            //if (this.Owner == empire)
+            //    num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            //return num;
+            return  (int)(this.TilesList.Sum(spots => spots.number_allowed_troops));// * (.25f + this.developmentLevel*.2f));
+
+
+        }
+        public float GetGroundStrengthOther(Empire empire)
+        {
+            float num = 0;
             if (this.Owner == null || this.Owner != empire)
                 num += this.BuildingList.Sum(offense => offense.CombatStrength);
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner()==null ||empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);

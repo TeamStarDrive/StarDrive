@@ -602,7 +602,7 @@ namespace Ship_Game.Gameplay
 				select ao;
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
 			{
-                if (!this.IsCoreFleetTask && this.WhichFleet != -1)
+                if (!this.IsCoreFleetTask && this.WhichFleet != -1 && this.empire != Ship.universeScreen.player)
                     foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
                     {
                         this.empire.ForcePoolAdd(ship);
@@ -622,7 +622,7 @@ namespace Ship_Game.Gameplay
 				{
 					if (!this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
 					{
-                        if (!this.IsCoreFleetTask && this.WhichFleet != -1)
+                        if (!this.IsCoreFleetTask && this.WhichFleet != -1 && this.empire != Ship.universeScreen.player)
                             foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
                             {
                                 this.empire.ForcePoolAdd(ship);
@@ -697,7 +697,7 @@ namespace Ship_Game.Gameplay
 				select ao;
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
 			{
-				if(!this.IsCoreFleetTask && this.WhichFleet !=-1 )
+				if(!this.IsCoreFleetTask && this.WhichFleet !=-1 && this.empire != Ship.universeScreen.player)
                     foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
                     {
                         this.empire.ForcePoolAdd(ship);
@@ -867,7 +867,10 @@ namespace Ship_Game.Gameplay
 			}
             if( this.type == TaskType.Exploration ||this.type ==TaskType.AssaultPlanet)
             {
-                if (this.GetTargetPlanet().TroopsHere.Where(troop => troop.GetOwner() == this.empire).Count()>0)
+                float groundstrength = this.GetTargetPlanet().GetGroundStrengthOther(this.empire);
+                float ourGroundStrength = this.GetTargetPlanet().GetGroundStrength(this.empire);
+                //if (this.GetTargetPlanet().TroopsHere.Where(troop => troop.GetOwner() == this.empire).Count()>0)
+                if (ourGroundStrength > 0)
                 {
                     if(this.type==TaskType.Exploration)
                     {
@@ -879,7 +882,7 @@ namespace Ship_Game.Gameplay
                     }
                     else if (this.type == TaskType.AssaultPlanet)
                     {
-                        if (this.GetTargetPlanet().GetGroundStrengthOther(this.empire) > 0)
+                        if (groundstrength > 0)
                         return;
                     }
                 }
@@ -995,14 +998,16 @@ namespace Ship_Game.Gameplay
 				{
 					continue;
 				}
-				MinimumEscortStrength = MinimumEscortStrength + ship.GetStrength();
+                MinimumEscortStrength = MinimumEscortStrength + ship.BaseStrength;// GetStrength();
 			}
 			return MinimumEscortStrength;
 		}
 
 		private float GetEnemyTroopStr()
 		{
-			float EnemyTroopStrength = 0f;
+            return this.TargetPlanet.GetGroundStrengthOther(this.empire);
+
+            float EnemyTroopStrength = 0f;
 			foreach (PlanetGridSquare pgs in this.TargetPlanet.TilesList)
 			{
 				if (pgs.TroopsHere.Count <= 0)
@@ -1085,7 +1090,7 @@ namespace Ship_Game.Gameplay
 			List<Ship> PotentialBombers = new List<Ship>();
             foreach (Ship ship in this.empire.GetShips().OrderBy(troops => Vector2.Distance(this.AO, troops.Position))) //ClosestAO.GetOffensiveForcePool().OrderBy(str=>str.BaseStrength))
 			{
-				if ((ship.TroopList.Count<=0 ||ship.fleet!=null) || (!ship.HasTroopBay && ship.Role!="troop") )//|| (ship.HasTroopBay && ship.TroopList.Count <= 0)) || !(ship.Role == "troop"  || ship.fleet != null))
+				if ((ship.TroopList.Count<=0 ||ship.fleet!=null) || (!ship.HasTroopBay && ship.Role!="troop" && !ship.hasTransporter) )//|| (ship.HasTroopBay && ship.TroopList.Count <= 0)) || !(ship.Role == "troop"  || ship.fleet != null))
 				{
 					continue;
 				}
@@ -1812,6 +1817,7 @@ namespace Ship_Game.Gameplay
             if (!GoodToGo)
             {
                 this.NeededTroopStrength = (int)(EnemyTroopStrength + EnemyTroopStrength * 0.3f - ourAvailableStrength);
+                
             }
         }
 
