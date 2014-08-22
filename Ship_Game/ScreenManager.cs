@@ -117,7 +117,10 @@ namespace Ship_Game
 
 		public void AddScreen(GameScreen screen)
 		{
-			foreach (GameScreen gs in this.screens)
+#if PERF
+            return;
+#endif
+            foreach (GameScreen gs in this.screens)
 			{
 				if (!(gs is DiplomacyScreen))
 				{
@@ -131,6 +134,7 @@ namespace Ship_Game
 				screen.LoadContent();
 			}
 			this.screens.Add(screen);
+
 		}
 
 		public void AddScreenNoLoad(GameScreen screen)
