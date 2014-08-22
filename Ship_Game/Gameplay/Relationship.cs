@@ -182,7 +182,11 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			string str = why;
+#if PERF			
+            if (EmpireManager.GetEmpireByName(Us.GetUS().PlayerLoyalty)==Them)
+                return;
+#endif
+            string str = why;
 			string str1 = str;
 			if (str != null)
 			{
@@ -524,6 +528,10 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
+#if PERF
+            if (EmpireManager.GetEmpireByName(us.GetUS().PlayerLoyalty) == them)
+                return;
+#endif
             if (this.FedQuest != null)
             {
                 if (this.FedQuest.type == QuestType.DestroyEnemy && EmpireManager.GetEmpireByName(this.FedQuest.EnemyName).data.Defeated)

@@ -853,7 +853,7 @@ namespace Ship_Game
             //for (int i = 0; i < Empire.universeScreen.MasterShipList.Count; i++)
             var source = Empire.universeScreen.MasterShipList.ToArray();
             var rangePartitioner = Partitioner.Create(0, source.Length);
-
+            ConcurrentBag<Ship> Shipbag =new ConcurrentBag<Ship>();
             //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>  
             lock (GlobalStats.SensorNodeLocker)
             {
@@ -929,6 +929,7 @@ namespace Ship_Game
                             if (flag)
                             {
                                 toadd.Add(nearby);
+                                //Shipbag.Add(nearby);
 
                                 if (!this.isFaction)
                                     this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
@@ -941,13 +942,14 @@ namespace Ship_Game
 
                             }
                             //<--
-                            lock (GlobalStats.KnownShipsLock)
+                            
+                            //lock (GlobalStats.KnownShipsLock)
                             {
                                 foreach (Ship ship in toadd)
                                 {
-
-                                    lock (this.KnownShips)
-                                        this.KnownShips.Add(ship);
+                                    Shipbag.Add(ship);
+                              //      lock (this.KnownShips)
+                                //        this.KnownShips.Add(ship);
 
 
                                 }
@@ -958,10 +960,11 @@ namespace Ship_Game
                         else
                         {
                             nearby.inborders = false;
-                            lock (GlobalStats.KnownShipsLock)
+                            //lock (GlobalStats.KnownShipsLock)
                             {
-                                lock (this.KnownShips)
-                                    this.KnownShips.Add(nearby);
+                                Shipbag.Add(nearby);
+                              //  lock (this.KnownShips)
+                                //    this.KnownShips.Add(nearby);
                             }
                             if (this.isPlayer)
                             {
@@ -998,6 +1001,21 @@ namespace Ship_Game
                         }
                     }
                 });
+
+                lock (GlobalStats.KnownShipsLock)
+                {
+
+                        foreach (Ship ship in Shipbag)
+                        {
+
+
+                            this.KnownShips.Add(ship);
+
+
+                        }
+                    
+
+                }
             }
         }
         public Dictionary<Empire, Relationship> GetRelations()
@@ -1032,11 +1050,16 @@ namespace Ship_Game
         public void DoFirstContact(Empire e)
         {
 
+            
             this.Relationships[e].SetInitialStrength(e.data.Traits.DiplomacyMod * 100f);
             this.Relationships[e].Known = true;
             if (!e.GetRelations()[this].Known)
                 e.DoFirstContact(this);
-            
+#if PERF
+            if (Empire.universeScreen.player == this)
+                return;
+#endif
+
             //Added by shahmatt Do not auto explore other empire planets.
             //foreach (Planet planet in e.OwnedPlanets)
             //{
