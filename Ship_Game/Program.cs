@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Windows.Forms;
 using System.Collections;
+
 namespace Ship_Game
 {
 	internal static class Program
@@ -15,42 +16,21 @@ namespace Ship_Game
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
              
-            try{
+
+            
+  
+            
+            try
+            {
+                //added by CrimsonED
+                //---
                 Exception ex = (Exception)e.ExceptionObject;
-                
-                ex.Data["Date"] = DateTime.Now;                
-                string mod ="Vanilla";
-                
-                string data ="No Extra Info";
-                if(GlobalStats.ActiveMod !=null)                   
-                mod=GlobalStats.ActiveMod.ModPath;
-                if (Empire.universeScreen != null)
-                {
-                    if (Empire.universeScreen.MasterShipList != null)
-                        ex.Data["ShipCount"] = Empire.universeScreen.MasterShipList.Count.ToString();
-                    
-                    ex.Data["Planet Count"] = Empire.universeScreen.PlanetsDict.Count.ToString();
-                    
-                }
-
-                ex.Data["Mod"] = mod;
-                
-                ex.Data["Memory"] = ((int)(GC.GetTotalMemory(false)/1000)).ToString();
-                ex.Data["Memory Limit"] = GlobalStats.MemoryLimiter;
-                ex.Data["Ship Limit"] = GlobalStats.ShipCountLimit; 
-
-                if(ex.Data.Count >0)
-                {
-                    data="Extra Data Recorded :";
-                    foreach(DictionaryEntry pair in ex.Data )
-                    data = string.Concat(data,"\n",pair.Key," = ",pair.Value);
-                }
-                
-
-                string[] version = new string[] { "Whoops! Please post a screenshot of this to the StarDrive forums \n(", MainMenuScreen.Version,
-                    ")\n",data,":\n\n", ex.Message.ToString(), ex.StackTrace.ToString()};
-				MessageBox.Show(string.Concat(version), "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-			}
+                #if !DEBUG //only log exception on release build
+                  ExceptionTracker.TrackException(ex);
+                #endif
+                ExceptionTracker.DisplayException(ex);
+                //---
+            }
             catch
             {
                 Exception ex = (Exception)e.ExceptionObject; 
@@ -69,10 +49,10 @@ namespace Ship_Game
 
 
 
-
-           // var ex = new NullReferenceException("Message");
-
+            //ExceptionTracker.TestStackTrace(0, 10);
+            //var ex = new NullReferenceException("Message");
             //throw ex;
+
             if (!Program.CatchStuff)
 			{
 				using (Game1 game = new Game1())
@@ -94,8 +74,11 @@ namespace Ship_Game
 				}
 				catch (Exception exception)
 				{
-					Exception e = exception;
-					MessageBox.Show(string.Concat("Whoops! Please post a screenshot of this to the StarDrive forums (", MainMenuScreen.Version, "):\n\n", e.ToString()));
+                    //var form = (Form)Form.FromHandle(Game1.Instance.Window.Handle);
+                    //form.WindowState = FormWindowState.Minimized;
+                    
+                    Exception e = exception;
+                    MessageBox.Show(string.Concat("Whoops! Please post a screenshot of this to the StarDrive forums (", MainMenuScreen.Version, "):\n\n", e.ToString()));
 				}
 			}
 		}
