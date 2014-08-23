@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Windows.Forms;
 using System.Collections;
-
 namespace Ship_Game
 {
 	internal static class Program
@@ -16,16 +15,12 @@ namespace Ship_Game
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
              
-
-            
-  
-            
             try
             {
                 //added by CrimsonED
                 //---
                 Exception ex = (Exception)e.ExceptionObject;
-                #if !DEBUG //only log exception on release build
+                #if RELEASE //only log exception on release build
                   ExceptionTracker.TrackException(ex);
                 #endif
                 ExceptionTracker.DisplayException(ex);
@@ -49,9 +44,9 @@ namespace Ship_Game
 
 
 
-            //ExceptionTracker.TestStackTrace(0, 10);
-            //var ex = new NullReferenceException("Message");
-            //throw ex;
+           //ExceptionTracker.TestStackTrace(0, 10);
+           // var ex = new NullReferenceException("Message");
+           //throw ex;
 
             if (!Program.CatchStuff)
 			{
@@ -74,11 +69,8 @@ namespace Ship_Game
 				}
 				catch (Exception exception)
 				{
-                    //var form = (Form)Form.FromHandle(Game1.Instance.Window.Handle);
-                    //form.WindowState = FormWindowState.Minimized;
-                    
-                    Exception e = exception;
-                    MessageBox.Show(string.Concat("Whoops! Please post a screenshot of this to the StarDrive forums (", MainMenuScreen.Version, "):\n\n", e.ToString()));
+					Exception e = exception;
+					MessageBox.Show(string.Concat("Whoops! Please post a screenshot of this to the StarDrive forums (", MainMenuScreen.Version, "):\n\n", e.ToString()));
 				}
 			}
 		}
