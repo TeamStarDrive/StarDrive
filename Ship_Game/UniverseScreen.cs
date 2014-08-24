@@ -5884,7 +5884,6 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.End();
                 this.ScreenManager.SpriteBatch.Begin();
             }
-            int num1 = this.Debug ? 1 : 0;
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
