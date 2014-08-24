@@ -31,6 +31,8 @@ namespace Ship_Game
 
 		private static SpriteFont tahomaBold9;
 
+        private static SpriteFont arial11Bold;
+
 		private static SpriteFont arial12Bold;
 
 		private static SpriteFont arial14Bold;
@@ -81,6 +83,14 @@ namespace Ship_Game
 				return Fonts.arial10;
 			}
 		}
+
+        public static SpriteFont Arial11Bold
+        {
+            get
+            {
+                return Fonts.arial11Bold;
+            }
+        }
 
 		public static SpriteFont Arial12
 		{
@@ -391,6 +401,7 @@ namespace Ship_Game
 			Fonts.arial12Bold = contentManager.Load<SpriteFont>("Fonts/Arial12Bold");
 			SpriteFont spriteFont = Fonts.arial12Bold;
 			spriteFont.LineSpacing = spriteFont.LineSpacing - 2;
+            Fonts.arial11Bold = contentManager.Load<SpriteFont>("Fonts/Arial11Bold");
 			Fonts.arial10 = contentManager.Load<SpriteFont>("Fonts/Arial10");
 			SpriteFont lineSpacing1 = Fonts.arial10;
 			lineSpacing1.LineSpacing = lineSpacing1.LineSpacing - 2;
