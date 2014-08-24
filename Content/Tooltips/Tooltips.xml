@@ -934,5 +934,10 @@
       <Title>Power Damage</Title>
       <Data>7037</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>187</TIP_ID>
+      <Title>Transporter Assault</Title>
+      <Data>7038</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

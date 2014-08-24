@@ -120,28 +120,42 @@ namespace Ship_Game.Gameplay
 
         public void UpdatePin(Ship ship, bool ShipinBorders)
         {
-            if (!ShipinBorders && !this.Pins.ContainsKey(ship.guid))
-                return;
-            
-            if ( !this.Pins.ContainsKey(ship.guid))
+            ThreatMatrix.Pin pin = null;
+            bool exists = this.Pins.TryGetValue(ship.guid, out pin);
+            if (pin == null)
             {
-                ThreatMatrix.Pin pin = new ThreatMatrix.Pin()
+                pin = new ThreatMatrix.Pin()
                 {
                     Position = ship.Center,
                     Strength = ship.GetStrength(),
                     EmpireName = ship.loyalty.data.Traits.Name,
-                    ship=ship,
+                    ship = ship,
                     InBorders = ShipinBorders
                 };
-                this.Pins.Add(ship.guid, pin);
+                if (exists)
+                {
+                    this.Pins[ship.guid] = pin;
+                    return;
+                }
+
+            }
+            else
+            {
+                this.Pins[ship.guid].Velocity = ship.Center - this.Pins[ship.guid].Position;
+                this.Pins[ship.guid].Position = ship.Center;
+
+                this.Pins[ship.guid].InBorders = ShipinBorders;
+                if (ShipinBorders && this.Pins[ship.guid].ship == null)
+                    this.Pins[ship.guid].ship = ship;
                 return;
             }
-            this.Pins[ship.guid].Velocity = ship.Center - this.Pins[ship.guid].Position;
-            this.Pins[ship.guid].Position = ship.Center;
 
-            this.Pins[ship.guid].InBorders = ShipinBorders;
-            if (ShipinBorders && this.Pins[ship.guid].ship == null)
-                this.Pins[ship.guid].ship = ship;
+
+            lock (this.Pins)
+                this.Pins.Add(ship.guid, pin);
+
+
+
         }
         public void ClearBorders ()
         {

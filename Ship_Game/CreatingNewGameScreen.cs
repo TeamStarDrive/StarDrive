@@ -279,6 +279,7 @@ namespace Ship_Game
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.2f;
                                 break;
                             case UniverseData.GameDifficulty.Brutal:
+                                empireFromEmpireData.data.FlatMoneyBonus += 5000;
                                 ++empireFromEmpireData.data.Traits.ProductionMod;
                                 ++empireFromEmpireData.data.Traits.ResearchMod;
                                 ++empireFromEmpireData.data.Traits.TaxMod;
@@ -539,7 +540,7 @@ namespace Ship_Game
                                         thruster.InitializeForViewing();
                                     }
                                     this.data.playerShip = this.playerShip;
-                                    this.playerShip.PlayerShip = true;
+                                    //this.playerShip.PlayerShip = true;
                                     planet1.GovernorOn = false;
                                     planet1.colonyType = Planet.ColonyType.Colony;
                                 }
