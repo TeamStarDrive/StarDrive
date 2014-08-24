@@ -1899,7 +1899,15 @@ namespace Ship_Game
                 float num2 = 0.0f;
                 foreach (Planet planet in this.OwnedPlanets)
                     num2 += planet.NetResearchPerTurn;
-                this.TechnologyDict[this.ResearchTopic].Progress += num2;
+                try
+                {
+                    this.TechnologyDict[this.ResearchTopic].Progress += num2;
+                }
+                catch (Exception e)
+                {
+                    e.Data.Add("missing Key: ", this.ResearchTopic);
+                    throw e;
+                }
                 float num3 = this.TechnologyDict[this.ResearchTopic].Progress - ResourceManager.TechTree[this.ResearchTopic].Cost * UniverseScreen.GamePaceStatic;
                 if ((double)this.TechnologyDict[this.ResearchTopic].Progress >= (double)ResourceManager.TechTree[this.ResearchTopic].Cost * (double)UniverseScreen.GamePaceStatic)
                 {
