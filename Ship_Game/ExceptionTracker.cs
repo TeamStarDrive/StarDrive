@@ -24,12 +24,21 @@ namespace Ship_Game
 
             ex.Data["Date"] = DateTime.Now;                
             string mod ="Vanilla";
+            string modVersion = null;
                 
             string data ="No Extra Info";
-            if(GlobalStats.ActiveMod !=null)                   
-                mod=GlobalStats.ActiveMod.ModPath;
+            if (GlobalStats.ActiveMod != null)
+            {
+                mod = GlobalStats.ActiveMod.ModPath;
+                if(GlobalStats.ActiveMod.mi !=null && GlobalStats.ActiveMod.mi.Version !=null && GlobalStats.ActiveMod.mi.Version !="" )
+                {
+                    modVersion = GlobalStats.ActiveMod.mi.Version;
+                }
+            }
+            
             if (Empire.universeScreen != null)
             {
+                ex.Data["StarDate"] = Empire.universeScreen.StarDate.ToString("F1");
                 if (Empire.universeScreen.MasterShipList != null)
                     ex.Data["ShipCount"] = Empire.universeScreen.MasterShipList.Count.ToString();
                     
@@ -38,7 +47,8 @@ namespace Ship_Game
             }
 
             ex.Data["Mod"] = mod;
-                
+            if (mod != null)
+                ex.Data["Mod Version"] = modVersion;    
             ex.Data["Memory"] = ((int)(GC.GetTotalMemory(false)/1000)).ToString();
             ex.Data["Memory Limit"] = GlobalStats.MemoryLimiter;
             ex.Data["Ship Limit"] = GlobalStats.ShipCountLimit; 

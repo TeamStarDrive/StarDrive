@@ -520,6 +520,8 @@ namespace Ship_Game
 
 			foreach (Troop troop in GroundTroops)
 			{
+                if (troop == null || troop.GetPlanet() == null)
+                    continue;
                 Planet current = troop.GetPlanet();
                 int troopshere = current.TroopsHere.Where(us=> us.GetOwner() == this.us).Count();
                 SystemCommander defenseSystem = this.DefenseDict[current.ParentSystem];
