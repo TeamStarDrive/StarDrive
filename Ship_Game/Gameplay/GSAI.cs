@@ -7100,6 +7100,7 @@ namespace Ship_Game.Gameplay
 
         
         private int ScriptIndex=0;
+        
         private void RunResearchPlanner()
 		{
 			if (this.empire.ResearchTopic == "")
