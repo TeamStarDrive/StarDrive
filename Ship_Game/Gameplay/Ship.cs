@@ -2957,7 +2957,9 @@ namespace Ship_Game.Gameplay
                     //Added by McShooterz: Priority repair
                     if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
                     {
-                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).ToList())
+                        IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                        //to list in this case is consuming a lot of cpu time. AS is faster but... any case this piece takes a lot of CPU time.
+                        foreach (ModuleSlot moduleSlot in repairmodule) // this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable)
                         {
                             //if destroyed do not repair in combat
                             if (moduleSlot.module.Health <= 1 && this.LastHitTimer > 0)
