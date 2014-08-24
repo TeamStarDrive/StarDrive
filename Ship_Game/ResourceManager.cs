@@ -1214,7 +1214,8 @@ namespace Ship_Game
                 TransporterPower = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterPower,
                 TransporterRange = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterRange,
                 TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant,
-                TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding
+                TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding,
+                TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault
 			};
 			return module;
 		}
@@ -2417,7 +2418,20 @@ namespace Ship_Game
 
 		private static void LoadTechTree()
 		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology"));
+			foreach(KeyValuePair<string,Technology> tech in Ship_Game.ResourceManager.TechTree)
+            {
+                         
+                    tech.Value.LeadsTo.Clear();
+                    tech.Value.ModulesUnlocked.Clear();
+                    tech.Value.HullsUnlocked.Clear();
+                    tech.Value.TroopsUnlocked.Clear();
+                    tech.Value.unlockBattleships = false;
+                    tech.Value.unlockCruisers = false;
+                    tech.Value.unlockFrigates = false;
+                    tech.Value.Cost = 0;
+                
+            }
+            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
