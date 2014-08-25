@@ -99,6 +99,7 @@ namespace Ship_Game
 		public static List<KeyValuePair<string, Texture2D>> FlagTextures;
 
         public static Dictionary<string, SoundEffect> SoundEffectDict;
+        public static int OffSet;
 
         //Added by McShooterz
         public static HostileFleets HostileFleets;
@@ -155,6 +156,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.AgentMissionData = new AgentMissionData();
             Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
             Ship_Game.ResourceManager.ShipRoles = new Dictionary<string, ShipRole>();
+            Ship_Game.ResourceManager.OffSet = 0;
 		}
 
 		public ResourceManager()
@@ -1462,7 +1464,9 @@ namespace Ship_Game
 				stream.Dispose();
 				foreach (Artifact art in data)
 				{
-					if (Ship_Game.ResourceManager.ArtifactsDict.ContainsKey(art.Name))
+                    art.DescriptionIndex += OffSet;
+                    art.NameIndex += OffSet;
+                    if (Ship_Game.ResourceManager.ArtifactsDict.ContainsKey(art.Name))
 					{
 						Ship_Game.ResourceManager.ArtifactsDict[art.Name] = art;
 					}
@@ -1488,6 +1492,9 @@ namespace Ship_Game
 				stream.Dispose();
                 try
                 {
+                    newB.DescriptionIndex += OffSet;
+                    newB.NameTranslationIndex += OffSet;
+                    newB.ShortDescriptionIndex += OffSet;
                     if (Ship_Game.ResourceManager.BuildingsDict.ContainsKey(newB.Name))
                     {
                         Ship_Game.ResourceManager.BuildingsDict[newB.Name] = newB;
@@ -1517,8 +1524,8 @@ namespace Ship_Game
 				FileStream stream = FI.OpenRead();
 				DiplomacyDialog data = (DiplomacyDialog)serializer1.Deserialize(stream);
 				stream.Close();
-				stream.Dispose();
-				if (Ship_Game.ResourceManager.DDDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
+				stream.Dispose();				
+                if (Ship_Game.ResourceManager.DDDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.DDDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
 				}
@@ -1539,7 +1546,9 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
-				stream.Close();
+                data.TroopDescriptionIndex = +OffSet;
+                data.TroopNameIndex += OffSet;
+                stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.Empires.Add(data);
 			}
@@ -1555,8 +1564,8 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				Encounter data = (Encounter)serializer1.Deserialize(stream);
-				stream.Close();
+				Encounter data = (Encounter)serializer1.Deserialize(stream);				
+                stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.Encounters.Add(data);
 			}
@@ -1573,8 +1582,8 @@ namespace Ship_Game
 				FileStream stream = FI.OpenRead();
 				ExplorationEvent data = (ExplorationEvent)serializer1.Deserialize(stream);
 				stream.Close();
-				stream.Dispose();
-				if (Ship_Game.ResourceManager.EventsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
+				stream.Dispose();				
+                if (Ship_Game.ResourceManager.EventsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.EventsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
 				}
@@ -1662,7 +1671,8 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				
+                stream.Close();
 				stream.Dispose();
 				newShipData.Hull = string.Concat(FI.Directory.Name, "/", newShipData.Hull);
 				newShipData.ShipStyle = FI.Directory.Name;
@@ -1681,7 +1691,8 @@ namespace Ship_Game
 
 		private static void LoadItAll()
 		{
-			Ship_Game.ResourceManager.LoadTroops();
+            Ship_Game.ResourceManager.LoadLanguage();
+            Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
 			Ship_Game.ResourceManager.LoadToolTips();
 			Ship_Game.ResourceManager.LoadHullData();
@@ -1704,9 +1715,9 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadDialogs();
 			Ship_Game.ResourceManager.LoadEncounters();
 			Ship_Game.ResourceManager.LoadExpEvents();
-			Ship_Game.ResourceManager.LoadArtifacts();
-			Ship_Game.ResourceManager.LoadLanguage();
+            Ship_Game.ResourceManager.LoadArtifacts();			
             Ship_Game.ResourceManager.LoadShipRoles();
+            
 		}
 
 		private static void LoadJunk()
@@ -1728,7 +1739,12 @@ namespace Ship_Game
 
 		private static void LoadLanguage()
 		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Localization/English/"));
+
+            if (Ship_Game.ResourceManager.WhichModPath != "Content")
+                ResourceManager.OffSet = 10000;
+            else
+                ResourceManager.OffSet = 0;
+            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Localization/English/"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(LocalizationFile));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
@@ -1736,8 +1752,8 @@ namespace Ship_Game
 				FileStream stream = fileInfoArray[i].OpenRead();
 				LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
 				stream.Close();
-				stream.Dispose();
-				Ship_Game.ResourceManager.LanguageFile = data;
+				stream.Dispose();				
+                Ship_Game.ResourceManager.LanguageFile = data;
 			}
 			Localizer.FillLocalizer();
 			if (GlobalStats.Config.Language != "English")
@@ -1755,6 +1771,35 @@ namespace Ship_Game
 			}
 			Localizer.FillLocalizer();
 		}
+        private static void LoadLanguageMods()
+        {
+            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Localization/English/"));
+            XmlSerializer serializer1 = new XmlSerializer(typeof(LocalizationFile));
+            FileInfo[] fileInfoArray = textList;
+            for (int i = 0; i < (int)fileInfoArray.Length; i++)
+            {
+                FileStream stream = fileInfoArray[i].OpenRead();
+                LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
+                stream.Close();
+                stream.Dispose();
+                Ship_Game.ResourceManager.LanguageFile = data;
+            }
+            Localizer.FillLocalizer();
+            if (GlobalStats.Config.Language != "English")
+            {
+                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Localization/", GlobalStats.Config.Language, "/"));
+                FileInfo[] fileInfoArray1 = textList;
+                for (int j = 0; j < (int)fileInfoArray1.Length; j++)
+                {
+                    FileStream stream = fileInfoArray1[j].OpenRead();
+                    LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
+                    stream.Close();
+                    stream.Dispose();
+                    Ship_Game.ResourceManager.LanguageFile = data;
+                }
+            }
+            Localizer.FillLocalizer();
+        }
 
 		private static void LoadLargeStars()
 		{
@@ -1810,7 +1855,9 @@ namespace Ship_Game
 
 		public static void LoadMods(string ModPath)
 		{
-			Ship_Game.ResourceManager.WhichModPath = ModPath;
+			
+            Ship_Game.ResourceManager.WhichModPath = ModPath;
+            Ship_Game.ResourceManager.LoadLanguage();
 			Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
 			Ship_Game.ResourceManager.LoadToolTips();
@@ -1826,11 +1873,12 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadEncounters();
 			Ship_Game.ResourceManager.LoadExpEvents();
 			Ship_Game.ResourceManager.LoadArtifacts();
-			Ship_Game.ResourceManager.LoadLanguage();
+			
 			Ship_Game.ResourceManager.LoadShips();
             Ship_Game.ResourceManager.LoadRandomItems();
             Ship_Game.ResourceManager.LoadProjTexts();
             Ship_Game.ResourceManager.LoadModsProjectileMeshes();
+            
 			if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
 			{
 				Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);
@@ -1992,7 +2040,8 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				RandomItem data = (RandomItem)serializer1.Deserialize(stream);
-				stream.Close();
+				
+                stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.RandomItemsList.Add(data);
 			}
@@ -2027,7 +2076,10 @@ namespace Ship_Game
 				ShipModule data = (ShipModule)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
+                data.DescriptionIndex += (short)OffSet;
+                data.NameIndex += (short)OffSet;
+                
+                if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.ShipModulesDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
 				}
@@ -2049,6 +2101,7 @@ namespace Ship_Game
             //Added by McShooterz: Changed how StarterShips loads from mod if folder exists
             XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
             FileInfo[] textList; //"Mods/", 
+            
             if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips")))
             {
                 Ship_Game.ResourceManager.ShipsDict.Clear();
@@ -2441,7 +2494,10 @@ namespace Ship_Game
 				Technology data = (Technology)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
+                data.DescriptionIndex += OffSet;
+                data.NameIndex += OffSet;
+                
+                if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
 				}
@@ -2549,7 +2605,8 @@ namespace Ship_Game
 				Troop data = (Troop)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
+				
+                if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
 				}
@@ -2557,6 +2614,7 @@ namespace Ship_Game
 				{
 					Ship_Game.ResourceManager.TroopsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
+
                 Troop troop = Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)];
                 if(troop.StrengthMax <= 0)
                 {
@@ -2577,6 +2635,7 @@ namespace Ship_Game
 				Weapon data = (Weapon)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
+                
 				if (Ship_Game.ResourceManager.WeaponsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.WeaponsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
