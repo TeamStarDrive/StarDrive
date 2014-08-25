@@ -16,6 +16,9 @@ namespace Ship_Game
 
 		public string ModImagePath_1920x1280 = "";
 
+        //added by Gremlin
+        public string Version;
+
         //added by McShooterz
         public bool useRacialTech;
         public bool useAlternateTech;

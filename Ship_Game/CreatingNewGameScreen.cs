@@ -279,6 +279,7 @@ namespace Ship_Game
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.2f;
                                 break;
                             case UniverseData.GameDifficulty.Brutal:
+                                empireFromEmpireData.data.FlatMoneyBonus += 5000;
                                 ++empireFromEmpireData.data.Traits.ProductionMod;
                                 ++empireFromEmpireData.data.Traits.ResearchMod;
                                 ++empireFromEmpireData.data.Traits.TaxMod;
@@ -539,7 +540,7 @@ namespace Ship_Game
                                         thruster.InitializeForViewing();
                                     }
                                     this.data.playerShip = this.playerShip;
-                                    this.playerShip.PlayerShip = true;
+                                    //this.playerShip.PlayerShip = true;
                                     planet1.GovernorOn = false;
                                     planet1.colonyType = Planet.ColonyType.Colony;
                                 }
@@ -694,7 +695,6 @@ namespace Ship_Game
             empireData.MissileDodgeChance = data.MissileDodgeChance;
             empireData.MissileHPModifier = data.MissileHPModifier;
             empireData.OrdnanceEffectivenessBonus = data.OrdnanceEffectivenessBonus;
-            empireData.OrdnanceShieldPenChance = data.OrdnanceShieldPenChance;
             empireData.Privatization = data.Privatization;
             empireData.SensorModifier = data.SensorModifier;
             empireData.SpyModifier = data.SpyModifier;
@@ -705,6 +705,8 @@ namespace Ship_Game
             empireData.TaxRate = data.TaxRate;
             empireData.TroopDescriptionIndex = data.TroopDescriptionIndex;
             empireData.TroopNameIndex = data.TroopNameIndex;
+            empireData.PowerFlowMod = data.PowerFlowMod;
+            empireData.ShieldPowerMod = data.ShieldPowerMod;
             empireData.Traits = new RacialTrait();
             empireData.Traits.Aquatic = data.Traits.Aquatic;
             empireData.Traits.Assimilators = data.Traits.Assimilators;

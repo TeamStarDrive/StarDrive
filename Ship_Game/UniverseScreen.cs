@@ -2866,44 +2866,7 @@ namespace Ship_Game
                             {
                                 foreach (Ship ship2 in (List<Ship>)this.SelectedFleet.Ships)
                                 {
-
                                     RightClickship(ship2, planet,false);
-                                    //if (planet.Owner != null)
-                                    //{
-
-                                    //    if (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction)
-                                    //    {
-                                    //        //add new right click troop and troop ship options on planets
-                                    //        if (ship2.Role == "troop" || (ship2.GetHangars().Where(troop => troop.IsTroopBay).Count() >0 && ship2.TroopList.Count>0))
-                                    //        {
-                                    //            //ship2.GetAI().State = AIState.AssaultPlanet;
-                                    //            ship2.GetAI().OrderLandAllTroops(planet);
-                                    //        }
-          
-                                    //        //end
-
-                                    //        if (ship2.BombBays.Count > 0 && planet.Owner != this.player && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)  || planet.TroopsHere.Where(ourtroops => ourtroops.GetOwner() == this.player).Count() == 0))
-                                    //        {
-                                                
-                                    //            ship2.GetAI().OrderBombardPlanet(planet);
-                                    //        }
-
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        if (ship2.Role == "troop")
-                                    //        {
-                                    //            ship2.GetAI().State = AIState.AssaultPlanet;
-                                    //            ship2.GetAI().OrderLandAllTroops(planet);
-                                    //        }
-                                    //        else
-                                    //        ship2.GetAI().OrderToOrbit(planet, true);
-                                    //    }
-                                    //}
-                                    //else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                    //    ship2.GetAI().OrderToOrbit(planet, false);
-                                    //else
-                                    //    ship2.GetAI().OrderToOrbit(planet, true);
                                 }
                             }
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
@@ -2935,7 +2898,7 @@ namespace Ship_Game
                                     {
                                         if (this.SelectedShip.Role == "troop")
                                         {
-                                            if (ship.HasTroopBay)
+                                            if (ship.HasTroopBay || ship.hasTransporter)
                                             {
                                                 if (ship.TroopList.Count < ship.TroopCapacity)
                                                     this.SelectedShip.GetAI().OrderTroopToShip(ship);
@@ -3074,7 +3037,7 @@ namespace Ship_Game
                                         {
                                             if (ship2.Role == "troop")
                                             {
-                                                if (ship1.HasTroopBay)
+                                                if (ship1.HasTroopBay || ship1.hasTransporter)
                                                 {
                                                     if (ship1.TroopList.Count < ship1.TroopCapacity)
                                                         ship2.GetAI().OrderTroopToShip(ship1);
@@ -3485,20 +3448,12 @@ namespace Ship_Game
                             ship.GetAI().OrderRebase(planet, true);
                     }
                     //add new right click troop and troop ship options on planets
-
-                    if (planet.Owner == null && planet.habitable)
-                    {
-
-                        ship.GetAI().State = AIState.AssaultPlanet;
-                        ship.GetAI().OrderLandAllTroops(planet);
-                    }
-                    else if (planet.Owner!=null&& planet.Owner !=this.player &&  (ship.loyalty.GetRelations()[planet.Owner].AtWar ||planet.Owner.isFaction ||planet.Owner.data.Defeated ))
+                    if (planet.habitable && planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated))
                     {
                         ship.GetAI().State = AIState.AssaultPlanet;
                         ship.GetAI().OrderLandAllTroops(planet);
                     }
                     //end
-
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                         ship.GetAI().OrderToOrbit(planet, false);
                     else
@@ -4456,7 +4411,7 @@ namespace Ship_Game
                     float num3 = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X);
                     Rectangle destinationRectangle = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)num3 * 2, (int)num3 * 2);
                     Vector2 origin2 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                    float num4 = moduleSlot.module.shield_power / moduleSlot.module.shield_power_max;
+                    float num4 = moduleSlot.module.shield_power / (moduleSlot.module.shield_power_max + (ship.loyalty != null ? ship.loyalty.data.ShieldPowerMod * moduleSlot.module.shield_power_max : 0));
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], destinationRectangle, new Rectangle?(), new Color(Color.Green.R, Color.Green.G, Color.Green.B, (byte)((double)byte.MaxValue * (double)num4)), 0.0f, origin2, SpriteEffects.None, 1f);
                 }
             }
@@ -5929,7 +5884,6 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.End();
                 this.ScreenManager.SpriteBatch.Begin();
             }
-            int num1 = this.Debug ? 1 : 0;
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
