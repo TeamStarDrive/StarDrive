@@ -2418,19 +2418,8 @@ namespace Ship_Game
 
 		private static void LoadTechTree()
 		{
-			foreach(KeyValuePair<string,Technology> tech in Ship_Game.ResourceManager.TechTree)
-            {
-                         
-                    tech.Value.LeadsTo.Clear();
-                    tech.Value.ModulesUnlocked.Clear();
-                    tech.Value.HullsUnlocked.Clear();
-                    tech.Value.TroopsUnlocked.Clear();
-                    tech.Value.unlockBattleships = false;
-                    tech.Value.unlockCruisers = false;
-                    tech.Value.unlockFrigates = false;
-                    tech.Value.Cost = 0;
-                
-            }
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.clearVanillaTechs)
+                Ship_Game.ResourceManager.TechTree.Clear();
             FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
 			FileInfo[] fileInfoArray = textList;
