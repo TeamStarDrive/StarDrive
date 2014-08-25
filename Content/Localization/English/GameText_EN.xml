@@ -7743,6 +7743,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6134</Index>
       <Text>Prototype</Text>
     </Token>
+	<Token>
+      <Index>6135</Index>
+      <Text>Assault</Text>
+    </Token>
+	<Token>
+      <Index>6136</Index>
+      <Text>Auto Research</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -7893,6 +7901,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7037</Index>
       <Text>Indicates the amount of power that a target ship loses.</Text>
+    </Token>
+	<Token>
+      <Index>7038</Index>
+      <Text>Indicates the number of troops that can be transporter onto enemy ships with shields down.</Text>
+    </Token>
+	<Token>
+      <Index>7039</Index>
+      <Text>Your Empire will automatically select technologies to research.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>

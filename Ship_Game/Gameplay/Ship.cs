@@ -226,6 +226,7 @@ namespace Ship_Game.Gameplay
         public List<ShipModule> RepairBeams = new List<ShipModule>();
         public bool hasTransporter;
         public bool hasOrdnanceTransporter;
+        public bool hasAssaultTransporter;
         public bool hasRepairBeam;
 
 
@@ -1716,6 +1717,8 @@ namespace Ship_Game.Gameplay
                     this.hasTransporter = true;
                     if (ss.module.TransporterOrdnance > 0)
                         this.hasOrdnanceTransporter = true;
+                    if (ss.module.TransporterTroopAssault > 0)
+                        this.hasAssaultTransporter = true;
                 }
                 if (ss.module.IsRepairModule)
                     this.HasRepairModule = true;
@@ -1766,6 +1769,8 @@ namespace Ship_Game.Gameplay
                     this.hasTransporter = true;
                     if (ss.module.TransporterOrdnance > 0)
                         this.hasOrdnanceTransporter = true;
+                    if (ss.module.TransporterTroopAssault > 0)
+                        this.hasAssaultTransporter = true;
                 }
                 if (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam)
                     this.hasRepairBeam = true;
@@ -2299,8 +2304,8 @@ namespace Ship_Game.Gameplay
                 ship.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? ship.loyalty.data.FuelCellModifier : 0);
                 ship.PowerCurrent += moduleSlotList.module.PowerStoreMax;
                 ship.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                ship.shield_max += moduleSlotList.module.shield_power_max;
-                ship.shield_power += moduleSlotList.module.shield_power_max;
+                ship.shield_max += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                ship.shield_power += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
                 {
                     Ship armorMax = this;
@@ -2524,8 +2529,8 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz
                 this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
                 this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                this.shield_max += moduleSlot.module.shield_power_max;
-                this.shield_power += moduleSlot.module.shield_power;
+                this.shield_max += moduleSlot.module.shield_power_max + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                this.shield_power += moduleSlot.module.shield_power + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                     this.armor_max += moduleSlot.module.HealthMax;
                 ++this.Size;
@@ -2952,7 +2957,9 @@ namespace Ship_Game.Gameplay
                     //Added by McShooterz: Priority repair
                     if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
                     {
-                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).ToList())
+                        IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                        //to list in this case is consuming a lot of cpu time. AS is faster but... any case this piece takes a lot of CPU time.
+                        foreach (ModuleSlot moduleSlot in repairmodule) // this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable)
                         {
                             //if destroyed do not repair in combat
                             if (moduleSlot.module.Health <= 1 && this.LastHitTimer > 0)

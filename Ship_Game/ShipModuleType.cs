@@ -26,5 +26,6 @@ namespace Ship_Game
         Countermeasure,
         Transporter,
         Troop,
+        Ordnance,
 	}
 }

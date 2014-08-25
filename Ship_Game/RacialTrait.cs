@@ -40,8 +40,6 @@ namespace Ship_Game
 
 		public int Description;
 
-		public string RaceDescription;
-
 		public string Category;
 
 		public int Cost;

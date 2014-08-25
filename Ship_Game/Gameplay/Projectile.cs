@@ -778,20 +778,16 @@ namespace Ship_Game.Gameplay
 						Projectile effectVsArmor = this;
 						effectVsArmor.damageAmount = effectVsArmor.damageAmount * (this.weapon.EffectVsArmor + this.ArmorDamageBonus);
 					}
-					if ((target as ShipModule).ModuleType == ShipModuleType.Shield)
+					if ((target as ShipModule).ModuleType == ShipModuleType.Shield && (target as ShipModule).shield_power > 0)
 					{
-						Projectile effectVSShields = this;
-						effectVSShields.damageAmount = effectVSShields.damageAmount * (this.weapon.EffectVSShields + this.ShieldDamageBonus);
-					}
-					if (this.explodes || this.weapon.Tag_Explosive)
-					{
-						this.HitModule = target as ShipModule;
-						if ((target as ShipModule).ModuleType == ShipModuleType.Shield)
-						{
-							//Projectile projectile1 = this;
-                            //projectile1.damageAmount = projectile1.damageAmount; // 2f;
-							this.explodes = false;
-						}
+                        this.damageAmount *= (this.weapon.EffectVSShields + this.ShieldDamageBonus);
+                        //Added by McShooterz: projectiles should penetrate shields weaker than their damage, but lose damage from passing through shields 
+                        if ((target as ShipModule).shield_power < this.damageAmount)
+                        {
+                            this.damageAmount -= (target as ShipModule).shield_power;
+                            (target as ShipModule).Damage(this, (target as ShipModule).shield_power);
+                            return false;
+                        }
 					}
 					if (this.owner != null && this.owner.loyalty != (target as ShipModule).GetParent().loyalty && (target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
 					{

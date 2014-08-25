@@ -949,7 +949,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.TerranInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -964,7 +967,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.SteppeInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if(ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -979,7 +985,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.IceInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -994,7 +1003,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.BarrenInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1009,7 +1021,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.TundraInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1024,7 +1039,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.DesertInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1039,7 +1057,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.OceanicInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1054,7 +1075,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.SwampInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -4132,7 +4156,7 @@ namespace Ship_Game
                             QueueItem qi = new QueueItem();
                             qi.isTroop = true;
                             qi.troop = troop.Value;
-                            qi.Cost = troop.Value.Cost;
+                            qi.Cost = troop.Value.GetCost();
                             qi.productionTowards = 0f;
                             qi.NotifyOnEmpty = false;
                             this.ConstructionQueue.Add(qi);                         
@@ -4327,7 +4351,11 @@ namespace Ship_Game
                 }
                 else if (queueItem.isShip && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
-                    Ship shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
+                    Ship shipAt;
+                    if (queueItem.isRefit && queueItem.RefitName != "")
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName, queueItem.sData.Level);
+                    else
+                       shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);     
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                     using (List<string>.Enumerator enumerator = Enumerable.ToList<string>((IEnumerable<string>)shipAt.GetMaxGoods().Keys).GetEnumerator())
                     {
