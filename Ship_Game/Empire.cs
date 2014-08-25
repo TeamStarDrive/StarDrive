@@ -84,6 +84,7 @@ namespace Ship_Game
         public bool AutoExplore;
         public bool AutoColonize;
         public bool AutoFreighters;
+        public bool AutoResearch;
         public int TotalScore;
         public float TechScore;
         public float ExpansionScore;
@@ -480,7 +481,10 @@ namespace Ship_Game
             }
             this.UpdateShipsWeCanBuild();
             if (this.data.EconomicPersonality == null)
-                return;
+                this.data.EconomicPersonality = new ETrait
+                {
+                    Name = "Generalists"
+                };
             //Added by McShooterz: mod support for EconomicResearchStrategy folder
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/EconomicResearchStrategy/" , this.data.EconomicPersonality.Name , ".xml")))
             {
