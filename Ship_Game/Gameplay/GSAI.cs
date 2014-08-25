@@ -6579,6 +6579,11 @@ namespace Ship_Game.Gameplay
 				this.RunAgentManager();
 				this.RunWarPlanner();
 			}
+            //Added by McShooterz: automating research
+            else if (this.empire.AutoResearch)
+            {
+                this.RunResearchPlanner();
+            }
 		}
 
 		
