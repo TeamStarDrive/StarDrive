@@ -1,23 +1,36 @@
 ﻿<EconomicResearchStrategy>
   <!--the opening technology path for races with the militarist economic personality. Goes random when finished-->
   <Name>Militarists</Name>
-  <MilitaryPriority>9</MilitaryPriority>
-  <ExpansionPriority>3</ExpansionPriority>
-  <ResearchPriority>5</ResearchPriority>
-  <IndustryPriority>7</IndustryPriority>
+  <MilitaryPriority>4</MilitaryPriority>
+  <ExpansionPriority>1</ExpansionPriority>
+  <ResearchPriority>2</ResearchPriority>
+  <IndustryPriority>3</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense</id>
+      <id>CHEAPEST:TECH:Research:Industry</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:GroundCombat:Economic</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:GroundCombat:Economic:Research</id>
     </Tech>
+    <Tech>
+      <id>IFCYBERNETIC:6</id>
+    </Tech>
+    <Tech>
+      <id>LOOP:8</id>
+    </Tech>
+    <Tech>
+      <id>SCRIPT:Colonization</id>
+    </Tech>
+    <Tech>
+      <id>LOOP:4</id>
+    </Tech>
+    
     <Tech>
       <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic</id>
     </Tech>
@@ -30,9 +43,7 @@
     <Tech>
       <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:ShipGeneral:Economic:Research:GroundCombat:General</id>
     </Tech>
-    <Tech>
-      <id>CHEAPEST</id>
-    </Tech>
+
     <Tech>
       <id>CHEAPEST:TECH:GroundCombat:Research:Colonization:Economic:Research</id>
     </Tech>
@@ -40,9 +51,7 @@
     <Tech>
     <id>CHEAPEST</id>
     </Tech>
-    <Tech>
-      <id>CHEAPEST</id>
-    </Tech>
+   
     <Tech>
       <id>SCRIPT:Economic</id>
     </Tech>
@@ -55,16 +64,19 @@
       <id>IFHIGHTAX:0</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:Economic</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipHull:Industry:Economic</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:Economic:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipDefense:ShipHull:Economic:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST</id>
+      <id>IFLOWRESEARCH:0</id>
     </Tech>
     <Tech>
-      <id>LOOP:13</id>
+      <id>IFHIGHTAX:0</id>
+    </Tech>
+    <Tech>
+      <id>LOOP:15</id>
     </Tech>
 
   </TechPath>
