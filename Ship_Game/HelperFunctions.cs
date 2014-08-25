@@ -733,8 +733,10 @@ namespace Ship_Game
                 return 3;
             if (ShipModule.ModuleType == ShipModuleType.Shield)
                 return 4;
-            if (ShipModule.ModuleType == ShipModuleType.Armor || ShipModule.ModuleType == ShipModuleType.Dummy)
+            if (ShipModule.ModuleType == ShipModuleType.Armor)
                 return 6;
+            if (ShipModule.ModuleType == ShipModuleType.Dummy)
+                return 7;
             return 5;
         }
 	}
