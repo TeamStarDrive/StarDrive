@@ -21,7 +21,8 @@ namespace Ship_Game
 		{
 			foreach (Token t in ResourceManager.LanguageFile.TokenList)
 			{
-				if (Localizer.LocalizerDict.ContainsKey(t.Index))
+                t.Index += ResourceManager.OffSet;
+                if (Localizer.LocalizerDict.ContainsKey(t.Index))
 				{
 					Localizer.LocalizerDict[t.Index] = t.Text;
 				}
