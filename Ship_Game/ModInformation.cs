@@ -35,6 +35,7 @@ namespace Ship_Game
         public bool usePlanetaryProjection;
         public bool expandedWeaponCats;
         public bool overrideSecretsTree;
+        public bool customMilTraitTechs;
 
         public float ShipyardBonus;
         public float UpkeepBaseline;
