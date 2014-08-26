@@ -407,7 +407,12 @@ namespace Ship_Game
                         {
                             techEntry.Discovered = true;
                             techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
-                            if (GlobalStats.ActiveMod.mi.useAlternateTech && this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
+
+                            /* Changed by The Doctor: no foreseeable need for the custom Militaristic tech selection should also require the 'Alternative Teching' system to be in use. 
+                             * Implemented a 'customMilTraitTechs', and left an 'OR' for the alternative teching to ensure back-compatibility. Allows mods to define their own militaristic trait techs...
+                             * Without being forced to use the 'Alternate Tech' system. */
+
+                            if ((GlobalStats.ActiveMod.mi.useAlternateTech || GlobalStats.ActiveMod.mi.customMilTraitTechs) && this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
                                 techEntry.Unlocked = true;
                             break;
                         }
