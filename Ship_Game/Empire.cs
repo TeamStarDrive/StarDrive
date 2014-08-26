@@ -407,7 +407,12 @@ namespace Ship_Game
                         {
                             techEntry.Discovered = true;
                             techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
-                            if (GlobalStats.ActiveMod.mi.useAlternateTech && this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
+
+                            /* Changed by The Doctor: no foreseeable need for the custom Militaristic tech selection should also require the 'Alternative Teching' system to be in use. 
+                             * Implemented a 'customMilTraitTechs', and left an 'OR' for the alternative teching to ensure back-compatibility. Allows mods to define their own militaristic trait techs...
+                             * Without being forced to use the 'Alternate Tech' system. */
+
+                            if ((GlobalStats.ActiveMod.mi.useAlternateTech || GlobalStats.ActiveMod.mi.customMilTraitTechs) && this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
                                 techEntry.Unlocked = true;
                             break;
                         }
@@ -425,20 +430,24 @@ namespace Ship_Game
                 if (this.data.Traits.Militaristic == 1)
                 {
                     //added by McShooterz: alternate way to unlock militaristic techs
-                    if (GlobalStats.ActiveMod != null && techEntry.GetTech().RaceRestrictions.Count == 0 && GlobalStats.ActiveMod.mi.useAlternateTech && techEntry.GetTech().Militaristic)
+                    if (GlobalStats.ActiveMod != null && techEntry.GetTech().RaceRestrictions.Count == 0 && (GlobalStats.ActiveMod.mi.useAlternateTech || GlobalStats.ActiveMod.mi.customMilTraitTechs) && techEntry.GetTech().Militaristic)
                         techEntry.Unlocked = true;
 
-                    if (techEntry.UID == "HeavyFighterHull")
+                    // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
+                    if (GlobalStats.ActiveMod == null || (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.customMilTraitTechs))
                     {
-                        techEntry.Unlocked = true;
-                    }
-                    if (techEntry.UID == "Military")
-                    {
-                        techEntry.Unlocked = true;
-                    }
-                    if (techEntry.UID == "ArmorTheory")
-                    {
-                        techEntry.Unlocked = true;
+                        if (techEntry.UID == "HeavyFighterHull")
+                        {
+                            techEntry.Unlocked = true;
+                        }
+                        if (techEntry.UID == "Military")
+                        {
+                            techEntry.Unlocked = true;
+                        }
+                        if (techEntry.UID == "ArmorTheory")
+                        {
+                            techEntry.Unlocked = true;
+                        }
                     }
                 }
                 if (techEntry.Unlocked)
@@ -584,10 +593,18 @@ namespace Ship_Game
             }
             foreach (Technology.TriggeredEvent triggeredEvent in ResourceManager.TechTree[techID].EventsTriggered)
             {
-                if (triggeredEvent.Type == this.data.Traits.ShipType || triggeredEvent.Type == null || triggeredEvent.Type == this.TechnologyDict[techID].AcquiredFrom)
+                if ((triggeredEvent.Type == this.data.Traits.ShipType || triggeredEvent.Type == null || triggeredEvent.Type == this.TechnologyDict[techID].AcquiredFrom) && this.isPlayer)
                 {
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict[triggeredEvent.EventUID]);
                 }
+            }
+            foreach (Technology.RevealedTech revealedTech in ResourceManager.TechTree[techID].TechsRevealed)
+            {
+                if (revealedTech.Type == this.data.Traits.ShipType || revealedTech.Type == null || revealedTech.Type == this.TechnologyDict[techID].AcquiredFrom)
+                {
+                    this.GetTDict()[revealedTech.RevUID].Discovered = true;
+                }
+
             }
             foreach (Technology.UnlockedBonus unlockedBonus in ResourceManager.TechTree[techID].BonusUnlocked)
             {
