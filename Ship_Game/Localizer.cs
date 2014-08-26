@@ -48,6 +48,8 @@ namespace Ship_Game
                 {
                     if (ResourceManager.ShipRoles[role].RaceList[i].ShipType == Owner.data.Traits.ShipType)
                     {
+                        //int localization = ResourceManager.ShipRoles[role].RaceList[i].Localization;
+                        
                         return Localizer.Token(ResourceManager.ShipRoles[role].RaceList[i].Localization);
                     }
                 }
@@ -90,6 +92,8 @@ namespace Ship_Game
                     continue;
                 foreach (KeyValuePair<int, bool> inuse in used)
                 {
+                    if (inuse.Value == true)
+                        continue;
                     string replace = null;
 
                     int clear = inuse.Key - ResourceManager.OffSet;
