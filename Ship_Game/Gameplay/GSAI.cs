@@ -4735,9 +4735,15 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            bool canBuildCapitals = this.empire.GetTDict()["Battleships"].Unlocked;
-            bool canBuildCruisers = this.empire.GetTDict()["Cruisers"].Unlocked;
-            bool canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
+            bool canBuildCapitals = false;
+            bool canBuildCruisers = false;
+            bool canBuildFrigates = false;
+            if (Ship_Game.ResourceManager.TechTree.ContainsKey("Battleships") && Ship_Game.ResourceManager.TechTree.ContainsKey("Cruisers") && Ship_Game.ResourceManager.TechTree.ContainsKey("FrigateConstruction"))
+            {
+                canBuildCapitals = this.empire.GetTDict()["Battleships"].Unlocked;
+                canBuildCruisers = this.empire.GetTDict()["Cruisers"].Unlocked;
+                canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
+            }
 
             //Added by McShooterz: Used to find alternate techs that allow roles to be used by AI.
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useAlternateTech)
@@ -4753,18 +4759,14 @@ namespace Ship_Game.Gameplay
                         if (!canBuildCapitals && techEntry.Value.GetTech().unlockBattleships)
                         {
                             canBuildCapitals = true;
-                            this.empire.GetTDict()["Battleships"].Unlocked = true;
-
                         }
                         else if (!canBuildCruisers && techEntry.Value.GetTech().unlockCruisers)
                         {
                             canBuildCruisers = true;
-                            this.empire.GetTDict()["Cruisers"].Unlocked = true;
                         }
                         else if (!canBuildFrigates && techEntry.Value.GetTech().unlockFrigates)
                         {
                             canBuildFrigates = true;
-                            this.empire.GetTDict()["FrigateConstruction"].Unlocked = true;
                         }
                     }
                 }
@@ -5805,13 +5807,12 @@ namespace Ship_Game.Gameplay
 							{
 								r.PV = (planetList.MineralRichness + planetList.Fertility + planetList.MaxPopulation / 1000f) / DistanceInJumps;
 							}
-							//if (planetList.Type == "Barren" && this.empire.GetTDict()["Biospheres"].Unlocked)
                             //Added by McShooterz: changed the requirement from having research to having the building
                             if (planetList.Type == "Barren" && this.empire.GetBDict()["Biospheres"])
 							{
 								ranker.Add(r);
 							}
-							else if (planetList.Type != "Barren" && ((double)planetList.Fertility >= 1 || this.empire.GetTDict()["Aeroponics"].Unlocked || this.empire.data.Traits.Cybernetic != 0))
+                            else if (planetList.Type != "Barren" && ((double)planetList.Fertility >= 1 || Ship_Game.ResourceManager.TechTree.ContainsKey("Aeroponics") && this.empire.GetTDict()["Aeroponics"].Unlocked || this.empire.data.Traits.Cybernetic != 0))
 							{
 								ranker.Add(r);
 							}
@@ -5838,7 +5839,6 @@ namespace Ship_Game.Gameplay
 						{
 							r0.PV = (planetList.MineralRichness + planetList.Fertility + planetList.MaxPopulation / 1000f) / DistanceInJumps0;
 						}
-						//if (!(planetList.Type == "Barren") || !this.empire.GetTDict()["Biospheres"].Unlocked)
                         if (!(planetList.Type == "Barren") || !this.empire.GetBDict()["Biospheres"])
 						{
 							if (!(planetList.Type != "Barren") || (double)planetList.Fertility < 1 && !this.empire.GetTDict()["Aeroponics"].Unlocked && this.empire.data.Traits.Cybernetic == 0)

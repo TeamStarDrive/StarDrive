@@ -31,6 +31,7 @@ namespace Ship_Game
 					Localizer.LocalizerDict.Add(t.Index, t.Text);
 				}
 			}
+            
 		}
 
 		public static string GetRole(string role, Empire Owner)
