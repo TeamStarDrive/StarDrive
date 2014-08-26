@@ -122,10 +122,10 @@ namespace Ship_Game.Gameplay
 
 		public string WeaponType;
 
-		public short NameIndex;
-
-		public short DescriptionIndex;
-
+		//public short NameIndex;
+        public ushort NameIndex;
+		//public short DescriptionIndex;
+        public ushort DescriptionIndex;
 		public Ship_Game.Gameplay.Restrictions Restrictions;
 
 		public float shield_power;
