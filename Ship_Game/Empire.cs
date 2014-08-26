@@ -589,6 +589,13 @@ namespace Ship_Game
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict[triggeredEvent.EventUID]);
                 }
             }
+            foreach (Technology.RevealedTech revealedTech in ResourceManager.TechTree[techID].TechsRevealed)
+            {
+                if (revealedTech.Type == this.data.Traits.ShipType || revealedTech.Type == null || revealedTech.Type == this.TechnologyDict[techID].AcquiredFrom)
+                {
+                    this.GetTDict()[revealedTech.RevUID].Discovered = true;
+                }
+            }
             foreach (Technology.UnlockedBonus unlockedBonus in ResourceManager.TechTree[techID].BonusUnlocked)
             {
                 //Added by McShooterz: Race Specific bonus

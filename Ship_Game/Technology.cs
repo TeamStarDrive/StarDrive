@@ -37,6 +37,8 @@ namespace Ship_Game
 
         public List<Technology.TriggeredEvent> EventsTriggered = new List<Technology.TriggeredEvent>();
 
+        public List<Technology.RevealedTech> TechsRevealed = new List<Technology.RevealedTech>();
+
         //added by McShooterz: Racial Tech variables
         public List<Technology.RequiredRace> RaceRestrictions = new List<Technology.RequiredRace>();
         public struct RequiredRace
@@ -113,6 +115,12 @@ namespace Ship_Game
         public struct TriggeredEvent
         {
             public string EventUID;
+            public string Type;
+        }
+
+        public struct RevealedTech
+        {
+            public string RevUID;
             public string Type;
         }
 	}
