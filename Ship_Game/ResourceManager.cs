@@ -1691,6 +1691,11 @@ namespace Ship_Game
 
 		private static void LoadItAll()
 		{
+
+            //if (Ship_Game.ResourceManager.WhichModPath != "Content")
+            //    ResourceManager.OffSet = 10000;
+            //else
+                ResourceManager.OffSet = 0;
             Ship_Game.ResourceManager.LoadLanguage();
             Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
@@ -1740,10 +1745,8 @@ namespace Ship_Game
 		private static void LoadLanguage()
 		{
 
-            if (Ship_Game.ResourceManager.WhichModPath != "Content")
-                ResourceManager.OffSet = 10000;
-            else
-                ResourceManager.OffSet = 0;
+
+
             FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Localization/English/"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(LocalizationFile));
 			FileInfo[] fileInfoArray = textList;
@@ -1782,6 +1785,7 @@ namespace Ship_Game
                 LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
                 stream.Close();
                 stream.Dispose();
+                
                 Ship_Game.ResourceManager.LanguageFile = data;
             }
             Localizer.FillLocalizer();
@@ -1857,6 +1861,11 @@ namespace Ship_Game
 		{
 			
             Ship_Game.ResourceManager.WhichModPath = ModPath;
+            //ResourceManager.OffSet = 10000;
+            //if (Ship_Game.ResourceManager.WhichModPath != "Content")
+            //    ResourceManager.OffSet = 10000;
+            //else
+            //    ResourceManager.OffSet = 0;
             Ship_Game.ResourceManager.LoadLanguage();
 			Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
@@ -2076,6 +2085,7 @@ namespace Ship_Game
 				ShipModule data = (ShipModule)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
+                
                 data.DescriptionIndex += (short)OffSet;
                 data.NameIndex += (short)OffSet;
                 
@@ -2471,19 +2481,8 @@ namespace Ship_Game
 
 		private static void LoadTechTree()
 		{
-			foreach(KeyValuePair<string,Technology> tech in Ship_Game.ResourceManager.TechTree)
-            {
-                         
-                    tech.Value.LeadsTo.Clear();
-                    tech.Value.ModulesUnlocked.Clear();
-                    tech.Value.HullsUnlocked.Clear();
-                    tech.Value.TroopsUnlocked.Clear();
-                    tech.Value.unlockBattleships = false;
-                    tech.Value.unlockCruisers = false;
-                    tech.Value.unlockFrigates = false;
-                    tech.Value.Cost = 0;
-                
-            }
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.clearVanillaTechs)
+                Ship_Game.ResourceManager.TechTree.Clear();
             FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
 			FileInfo[] fileInfoArray = textList;
@@ -2581,9 +2580,11 @@ namespace Ship_Game
 				stream.Dispose();
 				foreach (ToolTip tip in data.ToolTipsList)
 				{
-					if (Ship_Game.ResourceManager.ToolTips.ContainsKey(tip.TIP_ID))
+					
+                    if (Ship_Game.ResourceManager.ToolTips.ContainsKey(tip.TIP_ID))
 					{
-						Ship_Game.ResourceManager.ToolTips[tip.TIP_ID] = tip;
+						
+                        Ship_Game.ResourceManager.ToolTips[tip.TIP_ID] = tip;
 					}
 					else
 					{
@@ -2605,7 +2606,7 @@ namespace Ship_Game
 				Troop data = (Troop)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				
+				//no localization
                 if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -2635,7 +2636,7 @@ namespace Ship_Game
 				Weapon data = (Weapon)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-                
+                //no localization
 				if (Ship_Game.ResourceManager.WeaponsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.WeaponsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;

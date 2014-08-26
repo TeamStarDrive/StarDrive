@@ -778,17 +778,11 @@ namespace Ship_Game.Gameplay
 						Projectile effectVsArmor = this;
 						effectVsArmor.damageAmount = effectVsArmor.damageAmount * (this.weapon.EffectVsArmor + this.ArmorDamageBonus);
 					}
-					if ((target as ShipModule).ModuleType == ShipModuleType.Shield && (target as ShipModule).shield_power > 0)
-					{
+                    if ((target as ShipModule).ModuleType == ShipModuleType.Shield && (target as ShipModule).shield_power > 0)
+                    {
                         this.damageAmount *= (this.weapon.EffectVSShields + this.ShieldDamageBonus);
-                        //Added by McShooterz: projectiles should penetrate shields weaker than their damage, but lose damage from passing through shields 
-                        if ((target as ShipModule).shield_power < this.damageAmount)
-                        {
-                            this.damageAmount -= (target as ShipModule).shield_power;
-                            (target as ShipModule).Damage(this, (target as ShipModule).shield_power);
-                            return false;
-                        }
-					}
+                        this.explodes = false;
+                    }
 					if (this.owner != null && this.owner.loyalty != (target as ShipModule).GetParent().loyalty && (target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
 					{
 						if ((((target as ShipModule).GetParent().GetSystem() != null ? (target as ShipModule).GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod * 100f)

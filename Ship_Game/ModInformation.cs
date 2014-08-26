@@ -26,6 +26,7 @@ namespace Ship_Game
         public bool useWeaponModifiers;
         public bool removeRemnantStory;
         public bool useCombatRepair;
+        public bool clearVanillaTechs;
 
         //added by The Doctor
         public bool useDestroyers;
