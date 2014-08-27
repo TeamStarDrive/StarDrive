@@ -20,7 +20,6 @@ namespace Ship_Game
         public string Version;
 
         //added by McShooterz
-        public bool useRacialTech;
         public bool useAlternateTech;
         public bool useHullBonuses;
         public bool useWeaponModifiers;
