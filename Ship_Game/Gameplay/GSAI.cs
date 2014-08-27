@@ -7139,7 +7139,7 @@ namespace Ship_Game.Gameplay
                                 || (Technology.Value.Secret && !tech.Discovered)
                                 || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
                                 || !tech.shipDesignsCanuseThis
-                                || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0
+                                || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count ==0 
                                 && !this.empire.WeCanUseThisNow(tech.GetTech())))
                                 
 							{
@@ -7367,6 +7367,15 @@ namespace Ship_Game.Gameplay
                                             goto Start;
 
                                         }
+                                case "RANDOM":
+                                        {
+                                            this.res_strat = GSAI.ResearchStrategy.Random;
+                                            this.RunResearchPlanner();
+                                            this.res_strat = GSAI.ResearchStrategy.Scripted;
+                                            ScriptIndex++;
+                                            return;
+                                        }
+                                
                                 default:
                                     {
                                         foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
@@ -7465,7 +7474,7 @@ namespace Ship_Game.Gameplay
                     || (Technology.Value.Secret && !tech.Discovered)
                     || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
                     || !tech.shipDesignsCanuseThis
-                    || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0
+                    || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && tech.shipDesignsCanuseThis && technology.HullsUnlocked.Count ==0 
                     && !this.empire.WeCanUseThisNow(tech.GetTech())))
                 {
 
