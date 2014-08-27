@@ -1553,9 +1553,18 @@ namespace Ship_Game
 			}
 			if (this.activeModSubMenu.Tabs[0].Selected && mod != null)
 			{
+                //Added by McShooterz: Changed how modules names are displayed for allowing longer names
 				Vector2 modTitlePos = new Vector2((float)(this.activeModSubMenu.Menu.X + 10), (float)(this.activeModSubMenu.Menu.Y + 35));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].NameIndex), modTitlePos, Color.White);
-				modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 6);
+                if (Fonts.Arial20Bold.MeasureString(Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].NameIndex)).X + 16 < this.activeModSubMenu.Menu.Width)
+                {
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].NameIndex), modTitlePos, Color.White);
+                    modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 6);
+                }
+                else
+                {
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].NameIndex), modTitlePos, Color.White);
+                    modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 4);
+                }
 				string rest = "";
 				if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.IO)
 				{
@@ -2265,6 +2274,11 @@ namespace Ship_Game
                         this.DrawStat(ref modTitlePos, "Shield Pen", mod.InstalledWeapon.ShieldPenChance, 181);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
+                    if (mod.OrdinanceCapacity != 0)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(2129), (float)mod.OrdinanceCapacity, 124);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
                     if (mod.InstalledWeapon.TruePD)
                     {
                         string fireRest = "Cannot Target Ships";
@@ -2369,14 +2383,14 @@ namespace Ship_Game
 			{
 				bCursor = new Vector2((float)(this.modSel.Menu.X + 10), (float)(this.modSel.Menu.Y + 45));
 				ScrollList.Entry e = this.weaponSL.Copied[i];
-				bCursor.Y = (float)e.clickRect.Y;
+                bCursor.Y = (float)e.clickRect.Y;
 				if (e.item is ModuleHeader)
 				{
 					(e.item as ModuleHeader).Draw(base.ScreenManager, bCursor);
 				}
 				else if (e.item is ShipModule)
 				{
-					bCursor.X = bCursor.X + 10f;
+                    bCursor.X -= 5f;
 					Rectangle modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Width, Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Height);
 					Vector2 vector2 = new Vector2(bCursor.X + 15f, bCursor.Y + 15f);
 					Vector2 vector21 = new Vector2((float)(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Height / 2));
@@ -2389,14 +2403,23 @@ namespace Ship_Game
 					modRect.Width = (int)w;
 					modRect.Height = (int)h;
 					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath], modRect, Color.White);
-					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
-					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    //Added by McShooterz: allow longer modules names
+					Vector2 tCursor = new Vector2(bCursor.X + 30f, bCursor.Y + 3f);
+                    if (Fonts.Arial12Bold.MeasureString(Localizer.Token((e.item as ShipModule).NameIndex)).X + 90 < this.modSel.Menu.Width)
+                    {
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
+                        tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    else
+                    {
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
+                        tCursor.Y = tCursor.Y + (float)Fonts.Arial11Bold.LineSpacing;
+                    }
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].Restrictions.ToString(), tCursor, Color.Orange);
 					tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].Restrictions.ToString()).X;
                     if (Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].InstalledWeapon != null || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].CanRotate || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].XSIZE != Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].YSIZE)
 					{
-						Rectangle rotateRect = new Rectangle((int)bCursor.X + 220, (int)bCursor.Y - 3, 27, 32);
+						Rectangle rotateRect = new Rectangle((int)bCursor.X + 255, (int)bCursor.Y + 3, 20, 22);
 						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_can_rotate"], rotateRect, Color.White);
 						if (HelperFunctions.CheckIntersection(rotateRect, MousePos))
 						{

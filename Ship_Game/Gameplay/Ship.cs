@@ -32,7 +32,6 @@ namespace Ship_Game.Gameplay
         private Dictionary<Vector2, ModuleSlot> ModulesDictionary = new Dictionary<Vector2, ModuleSlot>();
         public float DefaultFTLSpeed = 1000f;
         public float RepairRate = 1f;
-        public float RepairUsed = 0f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
         public float maxBank = 0.5235988f;
@@ -228,6 +227,7 @@ namespace Ship_Game.Gameplay
         public bool hasOrdnanceTransporter;
         public bool hasAssaultTransporter;
         public bool hasRepairBeam;
+        private float repairTimer = 1f;
 
 
         public bool IsWarpCapable
@@ -2954,16 +2954,44 @@ namespace Ship_Game.Gameplay
                     Vector2 vector2_2 = ship3.Center + this.Velocity * elapsedTime;
                     ship3.Center = vector2_2;
                     this.UpdateShipStatus(elapsedTime);
-                    //Added by McShooterz: Priority repair
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
+                    this.repairTimer -= elapsedTime;
+                    //Combat repair
+                    if (this.LastHitTimer > 0 && this.repairTimer <= 0 && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
                     {
-                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).ToList())
+                        this.repairTimer = 0.5f;
+                        float repairTracker = 0f;
+                        //Added by McShooterz: Priority repair
+                        IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                        foreach (ModuleSlot moduleSlot in repairmodule)
                         {
                             //if destroyed do not repair in combat
-                            if (moduleSlot.module.Health <= 1 && this.LastHitTimer > 0)
+                            if (moduleSlot.module.Health < 1)
                                 continue;
-                            moduleSlot.module.Health += this.RepairRate * elapsedTime;
-                            break;
+                            repairTracker = this.RepairRate * 0.5f - (moduleSlot.module.HealthMax - moduleSlot.module.Health);
+                            moduleSlot.module.Health += this.RepairRate * 0.5f;
+                            if (repairTracker > 0)
+                                this.RepairRate = repairTracker;
+                            else
+                                break;
+                        }
+                    }
+                    //Out of combat repair
+                    else if(this.repairTimer <= 0)
+                    {
+                        this.repairTimer = 2f;
+                        if (this.Health < this.HealthMax)
+                        {
+                            float repairTracker = 0f;
+                            IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                            foreach (ModuleSlot moduleSlot in repairmodule)
+                            {
+                                repairTracker = this.RepairRate * 2f - (moduleSlot.module.HealthMax - moduleSlot.module.Health);
+                                moduleSlot.module.Health += this.RepairRate * 2f;
+                                if (repairTracker > 0)
+                                    this.RepairRate = repairTracker;
+                                else
+                                    break;
+                            }
                         }
                     }
                     if (!this.Active)
@@ -3573,7 +3601,6 @@ namespace Ship_Game.Gameplay
                     this.OrdinanceMax = 0.0f;
                     this.PowerDraw = 0.0f;
                     this.RepairRate = 1f;
-                    this.RepairUsed = 0.0f;
                     this.WarpMassCapacity = 0.0f;
                     this.CargoSpace_Max = 0.0f;
                     this.SensorRange = 0.0f;

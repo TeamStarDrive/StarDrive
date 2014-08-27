@@ -4734,52 +4734,36 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-
-            bool canBuildCapitals = this.empire.GetTDict()["Battleships"].Unlocked;
-            bool canBuildCruisers = this.empire.GetTDict()["Cruisers"].Unlocked;
-            bool canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
+            if (!this.empire.canBuildCapitals && Ship_Game.ResourceManager.TechTree.ContainsKey("Battleships"))
+                this.empire.canBuildCapitals = this.empire.GetTDict()["Battleships"].Unlocked;
+            if (!this.empire.canBuildCruisers && Ship_Game.ResourceManager.TechTree.ContainsKey("Cruisers"))
+                this.empire.canBuildCruisers = this.empire.GetTDict()["Cruisers"].Unlocked;
+            if (!this.empire.canBuildFrigates && Ship_Game.ResourceManager.TechTree.ContainsKey("FrigateConstruction"))
+                this.empire.canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
 
             //Added by McShooterz: Used to find alternate techs that allow roles to be used by AI.
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useAlternateTech)
             {
-                foreach (KeyValuePair<string, TechEntry> techEntry in this.empire.GetTDict())
+                foreach (KeyValuePair<string, TechEntry> techEntry in this.empire.GetTDict().Where(entry => entry.Value.Unlocked))
                 {
-                    if (canBuildCapitals && canBuildCruisers && canBuildFrigates)
-                    {
+                    if (this.empire.canBuildCapitals && this.empire.canBuildCruisers && this.empire.canBuildFrigates)
                         break;
-                    }
-                    if (techEntry.Value.Unlocked)
-                    {
-                        if (!canBuildCapitals && techEntry.Value.GetTech().unlockBattleships)
-                        {
-                            canBuildCapitals = true;
-                            this.empire.GetTDict()["Battleships"].Unlocked = true;
-
-                        }
-                        else if (!canBuildCruisers && techEntry.Value.GetTech().unlockCruisers)
-                        {
-                            canBuildCruisers = true;
-                            this.empire.GetTDict()["Cruisers"].Unlocked = true;
-                        }
-                        else if (!canBuildFrigates && techEntry.Value.GetTech().unlockFrigates)
-                        {
-                            canBuildFrigates = true;
-                            this.empire.GetTDict()["FrigateConstruction"].Unlocked = true;
-                        }
-                    }
+                    if (!this.empire.canBuildCapitals && techEntry.Value.GetTech().unlockBattleships)
+                        this.empire.canBuildCapitals = true;
+                    else if (!this.empire.canBuildCruisers && techEntry.Value.GetTech().unlockCruisers)
+                        this.empire.canBuildCruisers = true;
+                    else if (!this.empire.canBuildFrigates && techEntry.Value.GetTech().unlockFrigates)
+                        this.empire.canBuildFrigates = true;
                 }
             }
-
-
-
-            if (canBuildCapitals)
+            if (this.empire.canBuildCapitals)
             {
                 ratio_Fighters = 0f;
                 ratio_Frigates = 4f;
                 ratio_Cruisers = 3f;
                 ratio_Capitals = 1f;
             }
-            else if (canBuildCruisers)
+            else if (this.empire.canBuildCruisers)
             {
 
                 ratio_Fighters = 0f;
@@ -4787,25 +4771,19 @@ namespace Ship_Game.Gameplay
                 ratio_Cruisers = 2f;
                 ratio_Capitals = 1f;
             }
-            else if (canBuildFrigates)
+            else if (this.empire.canBuildFrigates)
             {
                 ratio_Fighters =5.5f;
                 ratio_Frigates = 3f;
                 ratio_Cruisers = 1f;
                 ratio_Capitals = 1f;
             }
-
-
-
-
             float single = TotalMilShipCount / 10f;
             int DesiredFighters = (int)(TotalMilShipCount / 10f * ratio_Fighters );
             int DesiredBombers = (int)(TotalMilShipCount / 20f * ratio_Fighters != 0 ? ratio_Fighters : ratio_Frigates);
             int DesiredFrigates = (int)(TotalMilShipCount / 10f * ratio_Frigates);
             int DesiredCruisers = (int)(TotalMilShipCount / 10f * ratio_Cruisers);
-            int DesiredCapitals = (int)(TotalMilShipCount / 10f * ratio_Capitals);
-
-            
+            int DesiredCapitals = (int)(TotalMilShipCount / 10f * ratio_Capitals);    
             if(Capacity ==0)
             {
                 int scrapFighters = (int)numFighters - (int)DesiredFighters;
@@ -4832,26 +4810,13 @@ namespace Ship_Game.Gameplay
                     }
                 }
                 return "";
-
-
-
             }
-            
-            
-            
-            if (!canBuildFrigates && numFighters > 50f) 
-            {
 
-
-                
+            if (!this.empire.canBuildFrigates && numFighters > 50f) 
                 return null;
-            }
-
-
-
 
             List<Ship> PotentialShips = new List<Ship>();
-            if (canBuildCapitals && numCapitals < (float)DesiredCapitals)
+            if (this.empire.canBuildCapitals && numCapitals < (float)DesiredCapitals)
             {
                 foreach (string shipsWeCanBuild in this.empire.ShipsWeCanBuild)
                 {
@@ -4898,7 +4863,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (canBuildCruisers && numCruisers < (float)DesiredCruisers)
+            if (this.empire.canBuildCruisers && numCruisers < (float)DesiredCruisers)
             {
                 foreach (string shipsWeCanBuild1 in this.empire.ShipsWeCanBuild)
                 {
@@ -5039,7 +5004,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (canBuildFrigates && numFrigates < (float)DesiredFrigates)
+            if (this.empire.canBuildFrigates && numFrigates < (float)DesiredFrigates)
             {
                 foreach (string str2 in this.empire.ShipsWeCanBuild)
                 {
@@ -5805,13 +5770,12 @@ namespace Ship_Game.Gameplay
 							{
 								r.PV = (planetList.MineralRichness + planetList.Fertility + planetList.MaxPopulation / 1000f) / DistanceInJumps;
 							}
-							//if (planetList.Type == "Barren" && this.empire.GetTDict()["Biospheres"].Unlocked)
                             //Added by McShooterz: changed the requirement from having research to having the building
                             if (planetList.Type == "Barren" && this.empire.GetBDict()["Biospheres"])
 							{
 								ranker.Add(r);
 							}
-							else if (planetList.Type != "Barren" && ((double)planetList.Fertility >= 1 || this.empire.GetTDict()["Aeroponics"].Unlocked || this.empire.data.Traits.Cybernetic != 0))
+                            else if (planetList.Type != "Barren" && ((double)planetList.Fertility >= 1 || this.empire.GetBDict()["Aeroponic Farm"] || this.empire.data.Traits.Cybernetic != 0))
 							{
 								ranker.Add(r);
 							}
@@ -5838,10 +5802,9 @@ namespace Ship_Game.Gameplay
 						{
 							r0.PV = (planetList.MineralRichness + planetList.Fertility + planetList.MaxPopulation / 1000f) / DistanceInJumps0;
 						}
-						//if (!(planetList.Type == "Barren") || !this.empire.GetTDict()["Biospheres"].Unlocked)
                         if (!(planetList.Type == "Barren") || !this.empire.GetBDict()["Biospheres"])
 						{
-							if (!(planetList.Type != "Barren") || (double)planetList.Fertility < 1 && !this.empire.GetTDict()["Aeroponics"].Unlocked && this.empire.data.Traits.Cybernetic == 0)
+                            if (!(planetList.Type != "Barren") || (double)planetList.Fertility < 1 && !this.empire.GetBDict()["Aeroponic Farm"] && this.empire.data.Traits.Cybernetic == 0)
 							{
 								continue;
 							}
@@ -6221,7 +6184,43 @@ namespace Ship_Game.Gameplay
 
 		}
 
-		private void RunGroundPlanner()
+        private void RunGroundPlanner()
+        {
+            foreach(SolarSystem system in this.empire.GetOwnedSystems())
+            {
+                SystemCommander defenseSystem =  this.DefensiveCoordinator.DefenseDict[system];
+                if(defenseSystem.TroopStrengthNeeded <=0)
+                {
+                    continue;
+                }
+                Planet targetBuild = this.empire.GetPlanets().Where(planet => planet.ConstructionQueue.Count ==0 || planet.ConstructionQueue.Where(goal => goal.Goal !=null && goal.Goal.type == GoalType.BuildTroop).Count() <3).OrderByDescending(build => build.NetProductionPerTurn).FirstOrDefault();
+                if (targetBuild == null || targetBuild.NetProductionPerTurn <2)
+                    return;
+                Troop troop=new Troop();
+                foreach(KeyValuePair<String,Troop> troops in ResourceManager.TroopsDict.OrderByDescending(cost=> cost.Value.Cost))
+                {
+                    if (!this.empire.WeCanBuildTroop(troops.Key))
+                        continue;
+                    troop =troops.Value;
+                    if(targetBuild.NetProductionPerTurn > troop.Cost*.1 )
+                    {
+                        break;
+                    }
+
+                }
+
+                
+                
+
+                Goal g = new Goal(troop, this.empire, targetBuild);
+                this.Goals.Add(g);
+
+    
+
+            }
+        }
+
+		private void RunGroundPlanner2()
 		{
 			//float requiredStrength =  (float)(this.empire.GetPlanets().Count * 50);
             float requiredStrength = 0;//(float)(this.empire.GetPlanets().Sum(planet =>planet.GetPotentialGroundTroops(this.empire)));
@@ -6543,6 +6542,11 @@ namespace Ship_Game.Gameplay
 				this.RunAgentManager();
 				this.RunWarPlanner();
 			}
+            //Added by McShooterz: automating research
+            else if (this.empire.AutoResearch)
+            {
+                this.RunResearchPlanner();
+            }
 		}
 
 		
@@ -7064,14 +7068,22 @@ namespace Ship_Game.Gameplay
 
         
         private int ScriptIndex=0;
+        
         private void RunResearchPlanner()
 		{
 			if (this.empire.ResearchTopic == "")
 			{
-				
-
-                
-                
+                //Added by McShooterz: random tech is less random, selects techs based on priority
+                //Check for needs of empire
+                bool atWar = false;
+                bool highTaxes = false;
+                bool lowResearch = false;
+                if (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0)
+                    atWar = true;
+                if (this.empire.data.TaxRate >= .40f)
+                    highTaxes = true;
+                if (this.empire.GetPlanets().Sum(research => research.NetResearchPerTurn) < this.empire.GetPlanets().Count / 3)
+                    lowResearch = true;
                 switch (this.res_strat)
 				{
 					case GSAI.ResearchStrategy.Random:
@@ -7080,42 +7092,103 @@ namespace Ship_Game.Gameplay
                         List<Technology> AvailableTechs = new List<Technology>();
 						foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
 						{
-                            if (!this.empire.GetTDict().ContainsKey(Technology.Key) || this.empire.GetTDict()[Technology.Key].Unlocked  
+                            TechEntry tech = null;// new TechEntry();
+                            bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);
+                            if(!techexists ||tech ==null)
+                                continue;                                                       
+                            Technology technology = tech.GetTech();
+                            if (tech.Unlocked
                                 ||!this.empire.HavePreReq(Technology.Key)  
-                                || (ResourceManager.TechTree[Technology.Key].Secret && !this.empire.GetTDict()[Technology.Key].Discovered)
-                                || (!this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis ))
+                                || (Technology.Value.Secret && !tech.Discovered)
+                                || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
+                                || !tech.shipDesignsCanuseThis
+                                || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count ==0 
+                                && !this.empire.WeCanUseThisNow(tech.GetTech())))
+                                
 							{
                                 
                                 continue;
-							}
-                            if((this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis 
-                                && this.empire.GetTDict()[Technology.Key].GetTech().ModulesUnlocked.Count>0) 
-                                && !this.empire.WeCanUseThisNow(this.empire.GetTDict()[Technology.Key].GetTech()))
-                            {
-                                //if(AvailableTechs.Count >0)
-                                continue;
-                            }
-                            
+							}                           
                                 AvailableTechs.Add(Technology.Value);
 						}
-           
-						
-                        if (AvailableTechs.Count <= 0)
-						{
+                        if (AvailableTechs.Count == 0)
 							break;
-						}
-                        
-						int Random = (int)RandomMath.RandomBetween(0f, (float)AvailableTechs.Count*.25f + 0.99f);
-						if (Random >  0)
-						{
-                            Random += -2;
-						}
-                        if (Random < 0)
-                            Random = 0;
-						if(this.empire.data.TaxRate >.30f)
-                            this.empire.ResearchTopic = AvailableTechs.OrderByDescending(econ => econ.TechnologyType == TechnologyType.Economic).ThenBy(cost => cost.Cost).Skip(Random).First().UID;
-                        else this.empire.ResearchTopic = AvailableTechs.OrderBy(cost=>cost.Cost).Skip(Random).First().UID;
-						break;
+
+
+                        byte limit = 6;
+                        foreach(Technology tech in AvailableTechs.OrderBy(tech => tech.Cost))
+                        {
+                            if (limit < 1)
+                            {
+                                this.empire.ResearchTopic = AvailableTechs.OrderBy(cost => cost.Cost).First().UID;
+                                break;
+                            }
+                            switch (tech.TechnologyType)
+                            {
+                                case TechnologyType.ShipHull:
+                                    {
+                                        //Always research when able
+                                        this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
+                                case TechnologyType.ShipWeapons:
+                                    {
+                                        if(atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
+                                case TechnologyType.ShipDefense:
+                                    {
+                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
+                                case TechnologyType.GroundCombat:
+                                    {
+                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
+                                case TechnologyType.Economic:
+                                    {
+                                        if (highTaxes || this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
+                                case TechnologyType.Research:
+                                    {
+                                        if (lowResearch || this.empire.getResStrat().ResearchPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
+                                case TechnologyType.Industry:
+                                    {
+                                        if (this.empire.getResStrat().IndustryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
+                                case TechnologyType.Colonization:
+                                    {
+                                        if (this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
+                                case TechnologyType.ShipGeneral:
+                                    {
+                                        if (HelperFunctions.GetRandomIndex(5) > 4)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        break;
+                                    }
+                            }
+                            if (this.empire.ResearchTopic != "")
+                                break;
+                            limit--;
+                        }
+                        break;
 					}
                     case GSAI.ResearchStrategy.Scripted:
                     {
@@ -7183,7 +7256,7 @@ namespace Ship_Game.Gameplay
                                         }
                                 case "IFWAR":
                                         {
-                                            if(this.empire.GetRelations().Where(war=> war.Value.AtWar).Count() >0)
+                                            if (atWar)
                                             {
                                                  ScriptIndex=int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
                                                  loopcount++;
@@ -7197,7 +7270,7 @@ namespace Ship_Game.Gameplay
                                         }
                                 case "IFHIGHTAX":
                                         {
-                                            if(this.empire.data.TaxRate>=.50f)
+                                            if (highTaxes)
                                             {
                                                 ScriptIndex=int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
                                                 loopcount++;
@@ -7209,7 +7282,7 @@ namespace Ship_Game.Gameplay
                                         }
                                 case "IFPEACE":
                                         {
-                                            if (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() == 0)
+                                            if (!atWar)
                                             {
                                                 ScriptIndex = int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
                                                 loopcount++;
@@ -7233,7 +7306,7 @@ namespace Ship_Game.Gameplay
                                         }
                                 case "IFLOWRESEARCH":
                                         {
-                                            if ( this.empire.GetPlanets().Where(owner => owner.Owner == this.empire).Sum(research => research.NetResearchPerTurn) < this.empire.GetPlanets().Count /3)
+                                            if (lowResearch)
                                             {
                                                 ScriptIndex = int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
                                                 loopcount++;
@@ -7246,7 +7319,7 @@ namespace Ship_Game.Gameplay
                                         }
                                 case "IFNOTLOWRESEARCH":
                                         {
-                                            if (this.empire.GetPlanets().Where(owner => owner.Owner == this.empire).Sum(research => research.NetResearchPerTurn) >= this.empire.GetPlanets().Count / 3)
+                                            if (!lowResearch)
                                             {
                                                 ScriptIndex = int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
                                                 loopcount++;
@@ -7257,12 +7330,15 @@ namespace Ship_Game.Gameplay
                                             goto Start;
 
                                         }
- 
-
-                                    
-
-
-
+                                case "RANDOM":
+                                        {
+                                            this.res_strat = GSAI.ResearchStrategy.Random;
+                                            this.RunResearchPlanner();
+                                            this.res_strat = GSAI.ResearchStrategy.Scripted;
+                                            ScriptIndex++;
+                                            return;
+                                        }
+                                
                                 default:
                                     {
                                         foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
@@ -7329,27 +7405,45 @@ namespace Ship_Game.Gameplay
         {
 
             List<Technology> AvailableTechs = new List<Technology>();
-                        
-            
+
+
             foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
             {
-                if (!this.empire.GetTDict().ContainsKey(Technology.Key) || this.empire.GetTDict()[Technology.Key].Unlocked
+                //if (!this.empire.GetTDict().ContainsKey(Technology.Key) || this.empire.GetTDict()[Technology.Key].Unlocked
+                //    || !this.empire.HavePreReq(Technology.Key)
+                //    || (ResourceManager.TechTree[Technology.Key].Secret && !this.empire.GetTDict()[Technology.Key].Discovered)
+                //    || !this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis
+                //    || this.empire.GetTDict()[Technology.Key].GetTech().BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0)
+                ////|| this.empire.GetTDict()[Technology.Key].GetTech().TechnologyType != techtype)
+                //{
+
+                //    continue;
+                //}
+                //if ((this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis
+                //    && this.empire.GetTDict()[Technology.Key].GetTech().ModulesUnlocked.Count > 0 && this.empire.GetTDict()[Technology.Key].GetTech().HullsUnlocked.Count() == 0)
+                //    && !this.empire.WeCanUseThisNow(this.empire.GetTDict()[Technology.Key].GetTech()))
+                //{
+                //    //if(AvailableTechs.Count >0)
+                //    continue;
+                //}
+
+                TechEntry tech = null;// new TechEntry();
+                bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);
+                if (!techexists || tech == null)
+                    continue;
+                Technology technology = tech.GetTech();
+                if (tech.Unlocked
                     || !this.empire.HavePreReq(Technology.Key)
-                    || (ResourceManager.TechTree[Technology.Key].Secret && !this.empire.GetTDict()[Technology.Key].Discovered)
-                    || (!this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis)
-                    || this.empire.GetTDict()[Technology.Key].GetTech().BuildingsUnlocked.Where(winsgame=> ResourceManager.BuildingsDict[winsgame.Name].WinsGame ==true).Count()>0)
-                    //|| this.empire.GetTDict()[Technology.Key].GetTech().TechnologyType != techtype)
+                    || (Technology.Value.Secret && !tech.Discovered)
+                    || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
+                    || !tech.shipDesignsCanuseThis
+                    || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && tech.shipDesignsCanuseThis && technology.HullsUnlocked.Count ==0 
+                    && !this.empire.WeCanUseThisNow(tech.GetTech())))
                 {
 
                     continue;
-                }
-                if ((this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis
-                    && this.empire.GetTDict()[Technology.Key].GetTech().ModulesUnlocked.Count > 0 && this.empire.GetTDict()[Technology.Key].GetTech().HullsUnlocked.Count() ==0)
-                    && !this.empire.WeCanUseThisNow(this.empire.GetTDict()[Technology.Key].GetTech()))
-                {
-                    //if(AvailableTechs.Count >0)
-                    continue;
-                }
+                } 
+
 
                 AvailableTechs.Add(Technology.Value);
             }
@@ -7369,13 +7463,13 @@ namespace Ship_Game.Gameplay
             //    Random = 0;
             string researchtopic = "";
             TechnologyType techtype;
-            switch(command)
+            switch (command)
             {
-                
+
                 case "TECH":
                     {
                         string[] script = modifier.Split(':');
-                        for (int i = 1; i<script.Count();i++ )
+                        for (int i = 1; i < script.Count(); i++)
                         {
                             try
                             {
@@ -7386,7 +7480,7 @@ namespace Ship_Game.Gameplay
                                 techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
                             }
                             Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
-                                //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
+                            //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                             if (ResearchTech == null)
                                 continue;
                             //if (AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).Count() == 0)
@@ -7394,17 +7488,17 @@ namespace Ship_Game.Gameplay
                             float cheapCost = ResearchTech.Cost;
 
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
-                            if (researchtopic == "" )
-                                researchtopic=Testresearchtopic;
-                            else if ((int)ResearchTech.Cost*.01f < (int)(ResourceManager.TechTree[researchtopic].Cost * .01f))
+                            if (researchtopic == "")
+                                researchtopic = Testresearchtopic;
+                            else if ((int)ResearchTech.Cost * .0025f < (int)(ResourceManager.TechTree[researchtopic].Cost * .0025f))
                                 researchtopic = Testresearchtopic;
 
                         }
 
-                            break;
+                        break;
                     }
-                
-                
+
+
                 default:
                     {
                         try
@@ -7413,22 +7507,28 @@ namespace Ship_Game.Gameplay
                         }
                         catch
                         {
-                            techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
+                            this.res_strat = GSAI.ResearchStrategy.Random;
+                            this.RunResearchPlanner();
+                            this.res_strat = GSAI.ResearchStrategy.Scripted;
+                            researchtopic = this.empire.ResearchTopic; 
+                            break;
                         }
+
                         
+
                         researchtopic = AvailableTechs.OrderByDescending(econ => econ.TechnologyType == techtype).ThenBy(cost => cost.Cost).First().UID;
                         //float netresearch =this.empire.GetPlanets().Where(owner => owner.Owner == this.empire).Sum(research => research.NetResearchPerTurn);
                         //netresearch = netresearch == 0 ? 1 : netresearch;
                         //if (ResourceManager.TechTree[researchtopic].Cost / netresearch < 500 )
                         break;
                     }
-        }
+            }
             {
                 this.empire.ResearchTopic = researchtopic;
             }
-           // else
+            // else
             {
-               // researchtopic = AvailableTechs.OrderBy(cost => cost.Cost).First().UID;
+                // researchtopic = AvailableTechs.OrderBy(cost => cost.Cost).First().UID;
             }
 
 
