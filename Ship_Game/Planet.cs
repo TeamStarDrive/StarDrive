@@ -3137,7 +3137,7 @@ namespace Ship_Game
             qi.NotifyOnEmpty = false;
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
-            else if (Ship_Game.ResourceManager.TechTree.ContainsKey("Terraforming") && this.Owner.GetTDict()["Terraforming"].Unlocked && (double)this.Fertility < 1.0)
+            else if (this.Owner.GetBDict()["Terraformer"] && (double)this.Fertility < 1.0)
             {
                 bool flag = true;
                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
