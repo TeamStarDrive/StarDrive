@@ -5812,7 +5812,7 @@ namespace Ship_Game.Gameplay
 							{
 								ranker.Add(r);
 							}
-                            else if (planetList.Type != "Barren" && ((double)planetList.Fertility >= 1 || Ship_Game.ResourceManager.TechTree.ContainsKey("Aeroponics") && this.empire.GetTDict()["Aeroponics"].Unlocked || this.empire.data.Traits.Cybernetic != 0))
+                            else if (planetList.Type != "Barren" && ((double)planetList.Fertility >= 1 || this.empire.GetBDict()["Aeroponic Farm"] || this.empire.data.Traits.Cybernetic != 0))
 							{
 								ranker.Add(r);
 							}
@@ -5841,7 +5841,7 @@ namespace Ship_Game.Gameplay
 						}
                         if (!(planetList.Type == "Barren") || !this.empire.GetBDict()["Biospheres"])
 						{
-							if (!(planetList.Type != "Barren") || (double)planetList.Fertility < 1 && !this.empire.GetTDict()["Aeroponics"].Unlocked && this.empire.data.Traits.Cybernetic == 0)
+                            if (!(planetList.Type != "Barren") || (double)planetList.Fertility < 1 && !this.empire.GetBDict()["Aeroponic Farm"] && this.empire.data.Traits.Cybernetic == 0)
 							{
 								continue;
 							}
