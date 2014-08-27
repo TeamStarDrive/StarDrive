@@ -84,6 +84,7 @@ namespace Ship_Game
         public bool AutoExplore;
         public bool AutoColonize;
         public bool AutoFreighters;
+        public bool AutoResearch;
         public int TotalScore;
         public float TechScore;
         public float ExpansionScore;
@@ -95,6 +96,9 @@ namespace Ship_Game
         public Planet Capital;
         public int EmpireShipCountReserve;
         public int empireShipTotal;
+        public bool canBuildCapitals;
+        public bool canBuildCruisers;
+        public bool canBuildFrigates;
 
         static Empire()
         {
@@ -396,7 +400,7 @@ namespace Ship_Game
                 techEntry.UID = keyValuePair.Key;
 
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
+                if (keyValuePair.Value.RaceRestrictions.Count != 0)
                 {
                     techEntry.Discovered = false;
                     techEntry.GetTech().Secret = true;
@@ -406,7 +410,7 @@ namespace Ship_Game
                         {
                             techEntry.Discovered = true;
                             techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
-                            if (GlobalStats.ActiveMod.mi.useAlternateTech && this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
+                            if (this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
                                 techEntry.Unlocked = true;
                             break;
                         }
@@ -424,20 +428,24 @@ namespace Ship_Game
                 if (this.data.Traits.Militaristic == 1)
                 {
                     //added by McShooterz: alternate way to unlock militaristic techs
-                    if (GlobalStats.ActiveMod != null && techEntry.GetTech().RaceRestrictions.Count == 0 && GlobalStats.ActiveMod.mi.useAlternateTech && techEntry.GetTech().Militaristic)
+                    if (techEntry.GetTech().Militaristic && techEntry.GetTech().RaceRestrictions.Count == 0)
                         techEntry.Unlocked = true;
 
-                    if (techEntry.UID == "HeavyFighterHull")
+                    // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
+                    if (GlobalStats.ActiveMod == null || (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.customMilTraitTechs))
                     {
-                        techEntry.Unlocked = true;
-                    }
-                    if (techEntry.UID == "Military")
-                    {
-                        techEntry.Unlocked = true;
-                    }
-                    if (techEntry.UID == "ArmorTheory")
-                    {
-                        techEntry.Unlocked = true;
+                        if (techEntry.UID == "HeavyFighterHull")
+                        {
+                            techEntry.Unlocked = true;
+                        }
+                        if (techEntry.UID == "Military")
+                        {
+                            techEntry.Unlocked = true;
+                        }
+                        if (techEntry.UID == "ArmorTheory")
+                        {
+                            techEntry.Unlocked = true;
+                        }
                     }
                 }
                 if (techEntry.Unlocked)
@@ -480,7 +488,10 @@ namespace Ship_Game
             }
             this.UpdateShipsWeCanBuild();
             if (this.data.EconomicPersonality == null)
-                return;
+                this.data.EconomicPersonality = new ETrait
+                {
+                    Name = "Generalists"
+                };
             //Added by McShooterz: mod support for EconomicResearchStrategy folder
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/EconomicResearchStrategy/" , this.data.EconomicPersonality.Name , ".xml")))
             {
@@ -547,6 +558,13 @@ namespace Ship_Game
                 return;
             this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
             this.TechnologyDict[techID].Unlocked = true;
+            //Set GSAI to build ship roles
+            if (this.TechnologyDict[techID].GetTech().unlockBattleships || techID == "Battleships")
+                this.canBuildCapitals = true;
+            if (this.TechnologyDict[techID].GetTech().unlockCruisers || techID == "Cruisers")
+                this.canBuildCruisers = true;
+            if (this.TechnologyDict[techID].GetTech().unlockFrigates || techID == "FrigateConstruction")
+                this.canBuildFrigates = true;
             //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {
@@ -577,6 +595,21 @@ namespace Ship_Game
             {
                 if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
+            }
+            foreach (Technology.TriggeredEvent triggeredEvent in ResourceManager.TechTree[techID].EventsTriggered)
+            {
+                if ((triggeredEvent.Type == this.data.Traits.ShipType || triggeredEvent.Type == null || triggeredEvent.Type == this.TechnologyDict[techID].AcquiredFrom) && this.isPlayer)
+                {
+                    Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict[triggeredEvent.EventUID]);
+                }
+            }
+            foreach (Technology.RevealedTech revealedTech in ResourceManager.TechTree[techID].TechsRevealed)
+            {
+                if (revealedTech.Type == this.data.Traits.ShipType || revealedTech.Type == null || revealedTech.Type == this.TechnologyDict[techID].AcquiredFrom)
+                {
+                    this.GetTDict()[revealedTech.RevUID].Discovered = true;
+                }
+
             }
             foreach (Technology.UnlockedBonus unlockedBonus in ResourceManager.TechTree[techID].BonusUnlocked)
             {
@@ -853,7 +886,7 @@ namespace Ship_Game
             //for (int i = 0; i < Empire.universeScreen.MasterShipList.Count; i++)
             var source = Empire.universeScreen.MasterShipList.ToArray();
             var rangePartitioner = Partitioner.Create(0, source.Length);
-
+            ConcurrentBag<Ship> Shipbag =new ConcurrentBag<Ship>();
             //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>  
             lock (GlobalStats.SensorNodeLocker)
             {
@@ -929,6 +962,7 @@ namespace Ship_Game
                             if (flag)
                             {
                                 toadd.Add(nearby);
+                                //Shipbag.Add(nearby);
 
                                 if (!this.isFaction)
                                     this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
@@ -941,13 +975,14 @@ namespace Ship_Game
 
                             }
                             //<--
-                            lock (GlobalStats.KnownShipsLock)
+                            
+                            //lock (GlobalStats.KnownShipsLock)
                             {
                                 foreach (Ship ship in toadd)
                                 {
-
-                                    lock (this.KnownShips)
-                                        this.KnownShips.Add(ship);
+                                    Shipbag.Add(ship);
+                              //      lock (this.KnownShips)
+                                //        this.KnownShips.Add(ship);
 
 
                                 }
@@ -958,10 +993,11 @@ namespace Ship_Game
                         else
                         {
                             nearby.inborders = false;
-                            lock (GlobalStats.KnownShipsLock)
+                            //lock (GlobalStats.KnownShipsLock)
                             {
-                                lock (this.KnownShips)
-                                    this.KnownShips.Add(nearby);
+                                Shipbag.Add(nearby);
+                              //  lock (this.KnownShips)
+                                //    this.KnownShips.Add(nearby);
                             }
                             if (this.isPlayer)
                             {
@@ -998,6 +1034,21 @@ namespace Ship_Game
                         }
                     }
                 });
+
+                lock (GlobalStats.KnownShipsLock)
+                {
+
+                        foreach (Ship ship in Shipbag)
+                        {
+
+
+                            this.KnownShips.Add(ship);
+
+
+                        }
+                    
+
+                }
             }
         }
         public Dictionary<Empire, Relationship> GetRelations()
@@ -1032,11 +1083,16 @@ namespace Ship_Game
         public void DoFirstContact(Empire e)
         {
 
+            
             this.Relationships[e].SetInitialStrength(e.data.Traits.DiplomacyMod * 100f);
             this.Relationships[e].Known = true;
             if (!e.GetRelations()[this].Known)
                 e.DoFirstContact(this);
-            
+#if PERF
+            if (Empire.universeScreen.player == this)
+                return;
+#endif
+
             //Added by shahmatt Do not auto explore other empire planets.
             //foreach (Planet planet in e.OwnedPlanets)
             //{
@@ -1876,7 +1932,15 @@ namespace Ship_Game
                 float num2 = 0.0f;
                 foreach (Planet planet in this.OwnedPlanets)
                     num2 += planet.NetResearchPerTurn;
-                this.TechnologyDict[this.ResearchTopic].Progress += num2;
+                try
+                {
+                    this.TechnologyDict[this.ResearchTopic].Progress += num2;
+                }
+                catch (Exception e)
+                {
+                    e.Data.Add("missing Key: ", this.ResearchTopic);
+                    throw e;
+                }
                 float num3 = this.TechnologyDict[this.ResearchTopic].Progress - ResourceManager.TechTree[this.ResearchTopic].Cost * UniverseScreen.GamePaceStatic;
                 if ((double)this.TechnologyDict[this.ResearchTopic].Progress >= (double)ResourceManager.TechTree[this.ResearchTopic].Cost * (double)UniverseScreen.GamePaceStatic)
                 {

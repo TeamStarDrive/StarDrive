@@ -1679,7 +1679,8 @@ namespace Ship_Game.Gameplay
             qi.Cost = (float)cost;
             qi.isRefit = true;
             //Added by McShooterz: refit keeps name and level
-            qi.RefitName = this.Owner.VanityName;
+            if(this.Owner.VanityName != this.Owner.Name)
+                qi.RefitName = this.Owner.VanityName;
             qi.sData.Level = (byte)this.Owner.Level;
             if (this.Owner.fleet != null)
             {
@@ -6590,22 +6591,38 @@ namespace Ship_Game.Gameplay
                         //added by Gremlin fleet group speed changes
                         speedLimit = this.Owner.fleet.speed;
                         speedLimit = this.Owner.fleet.speed * this.Owner.loyalty.data.FTLModifier;
-                        float distanceShipToFleetCenter = Vector2.Distance(this.Owner.Center, this.Owner.fleet.findAveragePosition() + this.Owner.FleetOffset);
-                        float distanceFleetCenterToDistance = Vector2.Distance(this.Owner.fleet.findAveragePosition() + this.Owner.FleetOffset, Position); //
+                        Vector2 fleetAVG = this.Owner.fleet.findAveragePosition();
+                        float distanceShipToFleetCenter = Vector2.Distance(this.Owner.Center, fleetAVG + this.Owner.FleetOffset);
+                        float distanceFleetCenterToDistance = Vector2.Distance(fleetAVG + this.Owner.FleetOffset, Position); //
 
                         #region FleetGrouping
                         float radius = 1000f;
 
-                        if (distanceShipToFleetCenter > radius && Distance < distanceFleetCenterToDistance)
+                        //if (distanceShipToFleetCenter > radius && Distance < distanceFleetCenterToDistance)
+                        if ( Distance < distanceFleetCenterToDistance)
                         {
-                            speedLimit = this.Owner.fleet.speed * .25f;
+                            float speedreduction = distanceFleetCenterToDistance - Distance ;
+                            speedLimit = this.Owner.fleet.speed - speedreduction; //this.Owner.fleet.speed 
+                            if (speedLimit < 0)//this.Owner.fleet.speed * .25f
+                                speedLimit = 0; //this.Owner.fleet.speed * .25f;
+                            else if (speedLimit > this.Owner.fleet.speed)
+                                speedLimit = this.Owner.fleet.speed;
                         }
-                        else if (distanceShipToFleetCenter > radius * 4f && Distance > distanceFleetCenterToDistance)
+                        else if (Distance > distanceFleetCenterToDistance) //radius * 4f
                         {
-                            speedLimit = this.Owner.velocityMaximum;
+                            float speedIncrease = Distance -distanceFleetCenterToDistance;
+                            //distanceShipToFleetCenter > this.Owner.fleet.speed && 
+                            speedLimit = this.Owner.fleet.speed + speedIncrease;
+                            if (speedLimit > this.Owner.velocityMaximum)
+                                speedLimit = this.Owner.velocityMaximum;
+                            else if (speedLimit < 0)
+                                speedLimit = 0;
+                            
+                                
                         }
                         else
-                            if (distanceShipToFleetCenter < 7500) speedLimit = this.Owner.fleet.speed;
+                           // if (distanceShipToFleetCenter < this.Owner.fleet.speed) 
+                                speedLimit = this.Owner.fleet.speed;
 
                         #endregion
                         if (fleetReady)

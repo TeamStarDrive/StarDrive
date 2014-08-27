@@ -3137,7 +3137,7 @@ namespace Ship_Game
             qi.NotifyOnEmpty = false;
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
-            else if (this.Owner.GetTDict()["Terraforming"].Unlocked && (double)this.Fertility < 1.0)
+            else if (this.Owner.GetBDict()["Terraformer"] && (double)this.Fertility < 1.0)
             {
                 bool flag = true;
                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -3156,7 +3156,6 @@ namespace Ship_Game
             }
             else
             {
-                //if (!this.Owner.GetTDict()["Biospheres"].Unlocked)
                 if (!this.Owner.GetBDict()["Biospheres"])
                     return;
                 this.TryBiosphereBuild(ResourceManager.GetBuilding("Biospheres"), qi);
@@ -3265,7 +3264,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 5.0) && (double)this.NetProductionPerTurn > 6.0)
+                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 5.0) && (double)this.NetProductionPerTurn > 6.0)
                 {
                     bool flag2 = false;
                     foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -3326,7 +3325,6 @@ namespace Ship_Game
                         if (flag2)
                             this.AddBuildingToCQ(b);
                     }
-                    //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0)
                     else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0)
                     {
                         if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
@@ -3478,7 +3476,7 @@ namespace Ship_Game
                         {
                             double num4 = (double)this.AdjustResearchForProfit();
                         }
-                        if (this.Shipyards.Count == 0 && this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && (this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.Owner.MoneyLastTurn > 5.0) && (double)this.NetProductionPerTurn > 4.0)
+                        if (this.Shipyards.Count == 0 && this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.Owner.MoneyLastTurn > 5.0) && (double)this.NetProductionPerTurn > 4.0)
                         {
                             bool flag = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -3598,7 +3596,6 @@ namespace Ship_Game
                                 if (flag1)
                                     this.AddBuildingToCQ(b);
                             }
-                            //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
                             else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
                             {
                                 if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
@@ -4050,7 +4047,7 @@ namespace Ship_Game
                             if (!flag1)
                                 this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                         }
-                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 3.0))
+                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 3.0))
                         {
                             bool flag1 = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
