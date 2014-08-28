@@ -95,17 +95,23 @@ namespace Ship_Game
             foreach(int i in keys)
             {
                 
-                if (i < ResourceManager.OffSet || used[i] ==true)
+                if (i < ResourceManager.OffSet || (i >= ResourceManager.OffSet&& used[i] ==true))
                     continue;
 
                 string replace = null;
 
                 int clear = i - ResourceManager.OffSet;
+                
+                
                 if (LocalizerDict.TryGetValue(clear, out replace) && replace != "" && replace != null)
                 {
                     System.Diagnostics.Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
                     LocalizerDict[clear] = LocalizerDict[i];
                     
+                }
+                else if (LocalizerDict.TryGetValue(i, out replace) && replace != "" && replace != null)
+                {
+                    LocalizerDict.Add(clear, LocalizerDict[i]);
                 }
                 
                 //foreach (KeyValuePair<int, bool> inuse in used)
