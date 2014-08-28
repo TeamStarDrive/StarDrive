@@ -824,6 +824,27 @@ namespace Ship_Game
                     EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+                {
+                    foreach (Planet p in solarSystem.PlanetList)
+                    {
+                        foreach (string FleetUID in p.PlanetFleets)
+                        {
+                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.GetEmpireByName("The Remnant"), p.Position);
+                            MilitaryTask militaryTask = new MilitaryTask();
+                            militaryTask.AO = solarSystem.PlanetList[0].Position;
+                            militaryTask.AORadius = 120000f;
+                            militaryTask.type = MilitaryTask.TaskType.DefendSystem;
+                            planetFleetAt.Task = militaryTask;
+                            planetFleetAt.TaskStep = 3;
+                            militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
+                            EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Add(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, planetFleetAt);
+                            EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                            militaryTask.Step = 2;
+                        }
+                    }
+                }
+
                 foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
                 {
                     Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetAndPos.fleetname, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.Position + fleetAndPos.Pos);
