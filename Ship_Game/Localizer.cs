@@ -23,6 +23,8 @@ namespace Ship_Game
         {
             foreach (Token t in ResourceManager.LanguageFile.TokenList)
             {
+                if (ResourceManager.OffSet != 0 && t.Index > ResourceManager.OffSet)
+                    continue;
                 t.Index += ResourceManager.OffSet;
                 if (Localizer.LocalizerDict.ContainsKey(t.Index))
                 {
@@ -48,6 +50,8 @@ namespace Ship_Game
                 {
                     if (ResourceManager.ShipRoles[role].RaceList[i].ShipType == Owner.data.Traits.ShipType)
                     {
+                        //int localization = ResourceManager.ShipRoles[role].RaceList[i].Localization;
+                        
                         return Localizer.Token(ResourceManager.ShipRoles[role].RaceList[i].Localization);
                     }
                 }
@@ -84,22 +88,39 @@ namespace Ship_Game
         public static void cleanLocalizer()
         {
             //foreach (KeyValuePair<int, string> local in LocalizerDict)
-            for (int i = 0; i< LocalizerDict.Count; i++ )
+            //for (int i = 0; i< LocalizerDict.Count; i++ )
+            if (ResourceManager.OffSet == 0)
+                return;
+            List<int> keys = new List<int>(Localizer.LocalizerDict.Keys);
+            foreach(int i in keys)
             {
-                if (i < ResourceManager.OffSet)
+                
+                if (i < ResourceManager.OffSet || (i >= ResourceManager.OffSet&& used[i] ==true))
                     continue;
-                foreach (KeyValuePair<int, bool> inuse in used)
+
+                string replace = null;
+
+                int clear = i - ResourceManager.OffSet;
+                
+                
+                if (LocalizerDict.TryGetValue(clear, out replace) && replace != "" && replace != null)
                 {
-                    string replace = null;
-
-                    int clear = inuse.Key - ResourceManager.OffSet;
-                    if (LocalizerDict.TryGetValue(clear, out replace))
-                    {
-
-                        LocalizerDict[clear] = LocalizerDict[i];
-                    }
-
+                    System.Diagnostics.Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
+                    LocalizerDict[clear] = LocalizerDict[i];
+                    
                 }
+                else if (LocalizerDict.TryGetValue(i, out replace) && replace != "" && replace != null)
+                {
+                    LocalizerDict.Add(clear, LocalizerDict[i]);
+                }
+                
+                //foreach (KeyValuePair<int, bool> inuse in used)
+                //{
+                //    if (inuse.Value == true)
+                //        continue;
+
+
+                //}
             }
         }
     }

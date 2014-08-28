@@ -2492,7 +2492,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				ex.Excluded = false;
+				ex.Excluded = true;
 			}
 		}
 
