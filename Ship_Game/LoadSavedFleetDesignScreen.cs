@@ -232,8 +232,18 @@ namespace Ship_Game
 			this.AllSaves = new Submenu(base.ScreenManager, scrollList);
 			this.AllSaves.AddTab("Saved Fleets");
 			this.SavesSL = new ScrollList(this.AllSaves);
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory("Content/FleetDesigns");
+            FileInfo[] filesFromDirectory;
+			
+
+            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")))
+            {
+                filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns"));
+            }
+            else
+            {
+                filesFromDirectory = HelperFunctions.GetFilesFromDirectory("Content/FleetDesigns");
+            }
+
 			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
 			{
 				FileInfo FI = filesFromDirectory[i];
@@ -253,6 +263,8 @@ namespace Ship_Game
 					this.SavesSL.AddItem(FI);
 				}
 			}
+
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			FileInfo[] fileInfoArray = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Fleet Designs"));
 			for (int j = 0; j < (int)fileInfoArray.Length; j++)
 			{
