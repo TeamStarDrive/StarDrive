@@ -1808,13 +1808,22 @@ namespace Ship_Game
                         modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
                         tag = "";
                     }
-					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile)
+
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats && (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile & !Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Guided))
+                    {
+                        tag = string.Concat(tag, "ROCKET ");
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
+                        modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
+                        tag = "";
+                    }
+					else if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile)
 					{
 						tag = string.Concat(tag, "MISSILE ");
 						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
+
                     if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Tractor)
                     {
                         tag = string.Concat(tag, "TRACTOR ");
@@ -2390,7 +2399,8 @@ namespace Ship_Game
 				}
 				else if (e.item is ShipModule)
 				{
-                    bCursor.X -= 5f;
+                    
+                    bCursor.X += 5f;
 					Rectangle modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Width, Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Height);
 					Vector2 vector2 = new Vector2(bCursor.X + 15f, bCursor.Y + 15f);
 					Vector2 vector21 = new Vector2((float)(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Height / 2));
@@ -2404,7 +2414,7 @@ namespace Ship_Game
 					modRect.Height = (int)h;
 					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath], modRect, Color.White);
                     //Added by McShooterz: allow longer modules names
-					Vector2 tCursor = new Vector2(bCursor.X + 30f, bCursor.Y + 3f);
+					Vector2 tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
                     if (Fonts.Arial12Bold.MeasureString(Localizer.Token((e.item as ShipModule).NameIndex)).X + 90 < this.modSel.Menu.Width)
                     {
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
@@ -2419,7 +2429,7 @@ namespace Ship_Game
 					tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].Restrictions.ToString()).X;
                     if (Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].InstalledWeapon != null || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].CanRotate || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].XSIZE != Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].YSIZE)
 					{
-						Rectangle rotateRect = new Rectangle((int)bCursor.X + 255, (int)bCursor.Y + 3, 20, 22);
+						Rectangle rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
 						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_can_rotate"], rotateRect, Color.White);
 						if (HelperFunctions.CheckIntersection(rotateRect, MousePos))
 						{
@@ -2545,6 +2555,12 @@ namespace Ship_Game
                                     ModuleHeader type = new ModuleHeader("Tractor Beam", 240f);
                                     this.weaponSL.AddItem(type);
                                 }
+                                if (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided && !WeaponCategories.Contains("Unguided Rocket"))
+                                {
+                                    WeaponCategories.Add("Unguided Rocket");
+                                    ModuleHeader type = new ModuleHeader("Unguided Rocket", 240f);
+                                    this.weaponSL.AddItem(type);
+                                }
                                 else if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
                                 {
                                     WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
@@ -2640,7 +2656,7 @@ namespace Ship_Game
 							{
                                 if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats)
                                 {
-                                    if (tmp.InstalledWeapon.Tag_Flak || tmp.InstalledWeapon.Tag_Array || tmp.InstalledWeapon.Tag_Railgun || tmp.InstalledWeapon.Tag_Tractor)
+                                    if (tmp.InstalledWeapon.Tag_Flak || tmp.InstalledWeapon.Tag_Array || tmp.InstalledWeapon.Tag_Railgun || tmp.InstalledWeapon.Tag_Tractor || (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided))
                                     {
                                         if ((e.item as ModuleHeader).Text == "Flak Cannon" && tmp.InstalledWeapon.Tag_Flak)
                                             e.AddItem(module.Value);
@@ -2649,6 +2665,8 @@ namespace Ship_Game
                                         if ((e.item as ModuleHeader).Text == "Beam Array" && tmp.InstalledWeapon.Tag_Array)
                                             e.AddItem(module.Value);
                                         if ((e.item as ModuleHeader).Text == "Tractor Beam" && tmp.InstalledWeapon.Tag_Tractor)
+                                            e.AddItem(module.Value);
+                                        if ((e.item as ModuleHeader).Text == "Unguided Rocket" && tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided)
                                             e.AddItem(module.Value);
                                     }
                                     else if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
