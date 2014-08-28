@@ -439,10 +439,8 @@ namespace Ship_Game
             this.shipMenu.Children.Clear();
             if (which == 1)
             {
-                if (this.SelectedShip != null && this.SelectedShip == this.playerShip)
-                    this.shipMenu.Add(new PieMenuNode("Relinquish Control", ResourceManager.TextureDict["UI/viewPlanetIcon"], new SimpleDelegate(this.ViewShip)));
-                else
-                    this.shipMenu.Add(new PieMenuNode(Localizer.Token(1412), ResourceManager.TextureDict["UI/viewPlanetIcon"], new SimpleDelegate(this.ViewShip)));
+                this.shipMenu.Add(new PieMenuNode(Localizer.Token(1412), ResourceManager.TextureDict["UI/viewPlanetIcon"], new SimpleDelegate(this.ViewShip)));
+
                 PieMenuNode newChild1 = new PieMenuNode(Localizer.Token(1413), ResourceManager.TextureDict["UI/OrdersIcon"], (SimpleDelegate)null);
                 this.shipMenu.Add(newChild1);
                 if (this.SelectedShip != null && (double)this.SelectedShip.CargoSpace_Max > 0.0)
@@ -544,14 +542,6 @@ namespace Ship_Game
         {
             if (this.SelectedShip == null)
                 return;
-            if (this.playerShip != null && this.SelectedShip == this.playerShip)
-            {
-                this.playerShip.PlayerShip = false;
-                this.playerShip.GetAI().State = AIState.AwaitingOrders;
-                if (this.playerShip.GetHome() != null)
-                    this.SelectedShip.SetHome(this.playerShip.GetHome());
-                this.playerShip = (Ship)null;
-            }
             else
             {
                 if (this.SelectedShip.loyalty != this.player || this.SelectedShip.Role == "construction")
