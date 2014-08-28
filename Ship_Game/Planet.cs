@@ -3138,7 +3138,7 @@ namespace Ship_Game
             qi.NotifyOnEmpty = false;
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
-            else if (Ship_Game.ResourceManager.TechTree.ContainsKey("Terraforming") && this.Owner.GetTDict()["Terraforming"].Unlocked && (double)this.Fertility < 1.0)
+            else if (this.Owner.GetBDict()["Terraformer"] && (double)this.Fertility < 1.0)
             {
                 bool flag = true;
                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -4603,7 +4603,8 @@ namespace Ship_Game
             {
                 foreach (Building building in this.BuildingList)
                 {
-                    if (building.NameTranslationIndex == 458)
+                    //if (building.NameTranslationIndex == 458)
+                    if (building.AllowShipBuilding || building.Name =="Space Port")
                         return true;
                 }
             }
@@ -4668,7 +4669,8 @@ namespace Ship_Game
                     Building building = this.BuildingList[index];
                     if (building.WinsGame)
                         this.HasWinBuilding = true;
-                    if (building.NameTranslationIndex == 458)
+                    //if (building.NameTranslationIndex == 458)
+                    if (building.Name == "Space Port")
                         this.HasShipyard = true;
                     if ((double)building.PlusFlatPopulation > 0.0)
                         this.PlusFlatPopulationPerTurn += building.PlusFlatPopulation;

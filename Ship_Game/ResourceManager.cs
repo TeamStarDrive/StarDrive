@@ -1492,9 +1492,22 @@ namespace Ship_Game
 				stream.Dispose();
                 try
                 {
-                    newB.DescriptionIndex += OffSet;
-                    newB.NameTranslationIndex += OffSet;
-                    newB.ShortDescriptionIndex += OffSet;
+                    if (Localizer.LocalizerDict.ContainsKey(newB.DescriptionIndex + OffSet))
+                    {
+                        newB.DescriptionIndex += OffSet;
+                        Localizer.used[newB.DescriptionIndex] =true;
+                    }
+                    if (Localizer.LocalizerDict.ContainsKey(newB.NameTranslationIndex + OffSet))
+                    {
+                        newB.NameTranslationIndex += OffSet;
+                        Localizer.used[newB.NameTranslationIndex] = true;
+                    }
+                    if (Localizer.LocalizerDict.ContainsKey(newB.ShortDescriptionIndex + OffSet))
+                    {
+                        newB.ShortDescriptionIndex += OffSet;
+                        Localizer.used[newB.ShortDescriptionIndex] = true;
+                    }
+                    
                     if (Ship_Game.ResourceManager.BuildingsDict.ContainsKey(newB.Name))
                     {
                         Ship_Game.ResourceManager.BuildingsDict[newB.Name] = newB;
@@ -1507,7 +1520,7 @@ namespace Ship_Game
                 catch(NullReferenceException ex)
                 {
                     ex.Data["Building Lookup"] = newB.Name;
-                    
+                    throw ex;
                 }
 			}
 			textList = null;
@@ -1524,7 +1537,8 @@ namespace Ship_Game
 				FileStream stream = FI.OpenRead();
 				DiplomacyDialog data = (DiplomacyDialog)serializer1.Deserialize(stream);
 				stream.Close();
-				stream.Dispose();				
+				stream.Dispose();	
+
                 if (Ship_Game.ResourceManager.DDDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.DDDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -1623,6 +1637,7 @@ namespace Ship_Game
 				data.UID = Path.GetFileNameWithoutExtension(FI.Name);
 				stream.Close();
 				stream.Dispose();
+                //noLocalization
 				if (Ship_Game.ResourceManager.GoodsDict.ContainsKey(data.UID))
 				{
 					Ship_Game.ResourceManager.GoodsDict[data.UID] = data;
@@ -1722,6 +1737,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadExpEvents();
             Ship_Game.ResourceManager.LoadArtifacts();			
             Ship_Game.ResourceManager.LoadShipRoles();
+            
             
 		}
 
@@ -1844,7 +1860,17 @@ namespace Ship_Game
 				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-
+                if (Localizer.LocalizerDict.ContainsKey(data.TroopDescriptionIndex + OffSet))
+                {
+                    data.TroopDescriptionIndex += ResourceManager.OffSet;
+                    Localizer.used[data.TroopDescriptionIndex] = true;
+                }
+                if (Localizer.LocalizerDict.ContainsKey(data.TroopNameIndex + OffSet))
+                {
+                    data.TroopNameIndex += ResourceManager.OffSet;
+                    Localizer.used[data.TroopNameIndex] = true;
+                }
+                
                 
                 //ResourceManager.Empires.RemoveAll(x => x.PortraitName == data.PortraitName);
                 EmpireData remove = ResourceManager.Empires.Find(x => x.PortraitName == data.PortraitName);
@@ -1861,7 +1887,7 @@ namespace Ship_Game
 		{
 			
             Ship_Game.ResourceManager.WhichModPath = ModPath;
-            //ResourceManager.OffSet = 10000;
+            ResourceManager.OffSet = 32000;
             //if (Ship_Game.ResourceManager.WhichModPath != "Content")
             //    ResourceManager.OffSet = 10000;
             //else
@@ -1903,6 +1929,8 @@ namespace Ship_Game
             Ship_Game.ResourceManager.LoadMainMenuShipList();
             Ship_Game.ResourceManager.LoadSoundEffects();
             Ship_Game.ResourceManager.LoadShipRoles();
+            Localizer.cleanLocalizer();
+            ResourceManager.OffSet = 0;
 		}
 
 		private static void LoadNebulas()
@@ -2085,9 +2113,17 @@ namespace Ship_Game
 				ShipModule data = (ShipModule)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
+                if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
+                {
+                    data.DescriptionIndex += (ushort)OffSet;
+                    Localizer.used[data.DescriptionIndex]=true;
+                }
+                if (Localizer.LocalizerDict.ContainsKey(data.NameIndex + OffSet))
+                {
+                    data.NameIndex += (ushort)OffSet;
+                    Localizer.used[data.NameIndex] = true;
+                }
                 
-                data.DescriptionIndex += (short)OffSet;
-                data.NameIndex += (short)OffSet;
                 
                 if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -2493,8 +2529,29 @@ namespace Ship_Game
 				Technology data = (Technology)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-                data.DescriptionIndex += OffSet;
-                data.NameIndex += OffSet;
+                if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
+                {
+                    data.DescriptionIndex += OffSet;
+                    Localizer.used[data.DescriptionIndex] = true;
+                }
+                if (Localizer.LocalizerDict.ContainsKey(data.NameIndex + OffSet))
+                { 
+                    data.NameIndex += OffSet;
+                    Localizer.used[data.NameIndex] = true;
+                }
+                foreach(Technology.UnlockedBonus bonus in data.BonusUnlocked)
+                {
+                    if (Localizer.LocalizerDict.ContainsKey(bonus.BonusIndex + OffSet))
+                    {
+                        bonus.BonusIndex += OffSet;
+                        Localizer.used[bonus.BonusIndex] = true;
+                    }
+                    if (Localizer.LocalizerDict.ContainsKey(bonus.BonusNameIndex + OffSet))
+                    {
+                        bonus.BonusNameIndex += OffSet;
+                        Localizer.used[bonus.BonusNameIndex] = true;
+                    }
+                }
                 
                 if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -2607,6 +2664,7 @@ namespace Ship_Game
 				stream.Close();
 				stream.Dispose();
 				//no localization
+                
                 if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -2662,6 +2720,11 @@ namespace Ship_Game
                 ShipRole data = (ShipRole)serializer1.Deserialize(stream);
                 stream.Close();
                 stream.Dispose();
+                if (Localizer.LocalizerDict.ContainsKey(data.Localization + OffSet))
+                {
+                    data.Localization += OffSet;
+                    Localizer.used[data.Localization] = true;
+                }
                 if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
                 {
                     Ship_Game.ResourceManager.ShipRoles[data.Name] = data;
@@ -2706,6 +2769,7 @@ namespace Ship_Game
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")))
             {
                 Ship_Game.ResourceManager.AgentMissionData = (AgentMissionData)new XmlSerializer(typeof(AgentMissionData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")).OpenRead());
+            
             }
             else
             {
