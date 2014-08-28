@@ -854,38 +854,27 @@ namespace Ship_Game.Gameplay
         }
 
         //Added by McShooterz: New way to distribute exploding projectile damage
-        public void ProjectileExplode(GameplayObject source, float damageAmount, float damageRadius)
+        public void ProjectileExplode(Projectile source, float damageAmount, float damageRadius)
         {
             if (damageRadius <= 0.0)
                 return;
-            foreach (GameplayObject gameplayObject in this.GetNearby(source))
+            foreach (GameplayObject gameplayObject in this.GetNearby(source).Where(gameplayObject => gameplayObject != null && gameplayObject is Ship && gameplayObject.Active && !(gameplayObject as Ship).dying).OrderBy(gameplayObject => Vector2.Distance(source.Center, gameplayObject.Center)))
             {
-                if (damageAmount <= 0)
-                    return;
                 //Check if valid target
                 //added by gremlin check that projectile owner is not null
-                if (gameplayObject != null && gameplayObject != source && gameplayObject is Ship && gameplayObject.Active && !(gameplayObject as Ship).dying && (((source as Projectile).Owner !=null && (source as Projectile).Owner.loyalty != (gameplayObject as Ship).loyalty) || (source as Projectile).Owner == null))
+                if (source.Owner == null || source.Owner != null && source.Owner.loyalty != (gameplayObject as Ship).loyalty)
                 {
-                    float DamageTracker;
-                    //if shields
-                    if ((gameplayObject as Ship).shield_max > 0.0)
+                    float DamageTracker = 0;
+                    foreach (ModuleSlot moduleSlot in (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && (moduleSlot.module.shield_power > 0.0) ? Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + 4f).OrderBy(moduleSlot => (moduleSlot.module.shield_power > 0.0) ? Vector2.Distance(source.Center, moduleSlot.module.Center) - moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center)).ToList())
                     {
-                        foreach (ModuleSlot moduleSlot in (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.shield_power > 0.0 && Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + moduleSlot.module.shield_radius).ToList())
-                        {
-                            if (damageAmount <= 0)
-                                return;
-                            DamageTracker = moduleSlot.module.shield_power;
-                            moduleSlot.module.Damage(source, damageAmount);
-                            damageAmount -= DamageTracker;
-                        }
-                    }
-                    foreach (ModuleSlot moduleSlot in (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + 4f).OrderBy(moduleSlot => Vector2.Distance(source.Center, moduleSlot.module.Center)).ToList())
-                    {
-                        if (damageAmount <= 0)
-                            return;
-                        DamageTracker = moduleSlot.module.Health;
+                        if(moduleSlot.module.shield_power > 0)
+                            DamageTracker = damageAmount - moduleSlot.module.shield_power;
+                        else
+                            DamageTracker = damageAmount - moduleSlot.module.Health;
                         moduleSlot.module.Damage(source, damageAmount);
-                        damageAmount -= DamageTracker;
+                        if (DamageTracker > 0)
+                            damageAmount = DamageTracker;
+                        else return;
                     }
                 }
             }
