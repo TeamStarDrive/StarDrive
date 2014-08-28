@@ -1887,7 +1887,7 @@ namespace Ship_Game
 		{
 			
             Ship_Game.ResourceManager.WhichModPath = ModPath;
-            //ResourceManager.OffSet = 32000;
+            ResourceManager.OffSet = 32000;
             //if (Ship_Game.ResourceManager.WhichModPath != "Content")
             //    ResourceManager.OffSet = 10000;
             //else
