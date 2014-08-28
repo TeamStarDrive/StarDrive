@@ -29,14 +29,17 @@ namespace Ship_Game
         public bool clearVanillaTechs;
 
         //added by The Doctor
+        public bool customMilTraitTechs;
+        public bool customRemnantElements;
+        public bool enableECM;
         public bool useDestroyers;
         public bool useDrones;
-        public bool enableECM;
-        public bool useProportionalUpkeep;
-        public bool usePlanetaryProjection;
         public bool expandedWeaponCats;
         public bool overrideSecretsTree;
-        public bool customMilTraitTechs;
+        public bool usePlanetaryProjection;
+        public bool useProportionalUpkeep;
+        
+        
 
         public float ShipyardBonus;
         public float UpkeepBaseline;

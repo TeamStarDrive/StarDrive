@@ -145,6 +145,7 @@ namespace Ship_Game
         public int developmentLevel;
         public bool CorsairPresence;
         public bool queueEmptySent ;
+        public List<string> PlanetFleets = new List<string>();
         
 
         public Planet()

@@ -99,22 +99,46 @@ namespace Ship_Game
 
 		private void AddMajorRemnantPresence(Planet newOrbital, UniverseData data)
 		{
-			newOrbital.Guardians.Add("Xeno Fighter");
-			newOrbital.Guardians.Add("Xeno Fighter");
-			newOrbital.Guardians.Add("Xeno Fighter");
-			this.AddRemnantGunship(newOrbital, data);
-			this.AddRemnantGunship(newOrbital, data);
-			newOrbital.Guardians.Add("Ancient Assimilator");
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+            {
+                newOrbital.PlanetFleets.Add("Remnant Battlegroup");
+            }
+            else
+            {
+                newOrbital.Guardians.Add("Xeno Fighter");
+                newOrbital.Guardians.Add("Xeno Fighter");
+                newOrbital.Guardians.Add("Xeno Fighter");
+                this.AddRemnantGunship(newOrbital, data);
+                this.AddRemnantGunship(newOrbital, data);
+                newOrbital.Guardians.Add("Ancient Assimilator");
+            }
 		}
 
 		private void AddMinorRemnantPresence(Planet newOrbital, UniverseData data)
 		{
-			newOrbital.Guardians.Add("Xeno Fighter");
-			newOrbital.Guardians.Add("Xeno Fighter");
-			newOrbital.Guardians.Add("Xeno Fighter");
-			this.AddRemnantGunship(newOrbital, data);
-			this.AddRemnantGunship(newOrbital, data);
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+            {
+                newOrbital.PlanetFleets.Add("Remnant Vanguard");
+            }
+            else
+            {
+                newOrbital.Guardians.Add("Xeno Fighter");
+                newOrbital.Guardians.Add("Xeno Fighter");
+                newOrbital.Guardians.Add("Xeno Fighter");
+                this.AddRemnantGunship(newOrbital, data);
+                this.AddRemnantGunship(newOrbital, data);
+            }
 		}
+
+        private void AddRemnantPatrol(Planet newOrbital, UniverseData data)
+        {
+            newOrbital.PlanetFleets.Add("Remnant Patrol");
+        }
+
+        private void AddRemnantGarrison(Planet newOrbital, UniverseData data)
+        {
+            newOrbital.PlanetFleets.Add("Remnant Garrison");
+        }
 
 		private void AddRemnantGunship(Planet newOrbital, UniverseData data)
 		{
@@ -892,17 +916,47 @@ namespace Ship_Game
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
 					float quality = newOrbital.Fertility + newOrbital.MineralRichness + newOrbital.MaxPopulation / 1000f;
-					if (quality > 6f && quality < 10f)
-					{
-						if ((int)RandomMath.RandomBetween(0f, 100f) > 50)
-						{
-							this.AddMinorRemnantPresence(newOrbital, data);
-						}
-					}
-					else if (quality > 10f && (int)RandomMath.RandomBetween(0f, 100f) < 50)
-					{
-						this.AddMajorRemnantPresence(newOrbital, data);
-					}
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+                    {
+                        if (quality > 6f && quality < 10f)
+                        {
+                            int iRandom = (int)RandomMath.RandomBetween(0f, 100f);
+                            if (iRandom > 20 && iRandom < 50)
+                            {
+                                this.AddRemnantPatrol(newOrbital, data);
+                            }
+                            else if (iRandom >= 50)
+                            {
+                                this.AddRemnantGarrison(newOrbital, data);
+                            }
+                        }
+                        else if (quality > 10f)
+                        {
+                            int iRandom = (int)RandomMath.RandomBetween(0f, 100f);
+                            if (iRandom > 50 && iRandom < 85)
+                            {
+                                this.AddMinorRemnantPresence(newOrbital, data);
+                            }
+                            else if (iRandom >= 85)
+                            {
+                                this.AddMajorRemnantPresence(newOrbital, data);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (quality > 6f && quality < 10f)
+                        {
+                            if ((int)RandomMath.RandomBetween(0f, 100f) > 50)
+                            {
+                                this.AddMinorRemnantPresence(newOrbital, data);
+                            }
+                        }
+                        else if (quality > 10f && (int)RandomMath.RandomBetween(0f, 100f) < 50)
+                        {
+                            this.AddMajorRemnantPresence(newOrbital, data);
+                        }
+                    }
 					this.PlanetList.Add(newOrbital);
 					RandomMath.RandomBetween(0f, 3f);
 					SolarSystem.Ring ring = new SolarSystem.Ring()
