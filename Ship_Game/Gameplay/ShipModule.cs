@@ -391,8 +391,7 @@ namespace Ship_Game.Gameplay
 				{
 					return false;
 				}
-				ShipModule health = this;
-				health.Health = health.Health - damageAmount;
+                this.Health -= damageAmount;
 				if (base.Health >= this.HealthMax)
 				{
 					base.Health = this.HealthMax;
@@ -414,8 +413,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				ShipModule shieldPower = this;
-				shieldPower.shield_power = shieldPower.shield_power - damageAmount;
+                this.shield_power -= damageAmount;
 				if (this.shield_power <= 0f)
 				{
 					this.shield_power = 0f;
