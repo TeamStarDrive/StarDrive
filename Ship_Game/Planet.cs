@@ -145,6 +145,7 @@ namespace Ship_Game
         public int developmentLevel;
         public bool CorsairPresence;
         public bool queueEmptySent ;
+        public List<string> PlanetFleets = new List<string>();
         
 
         public Planet()
@@ -4602,7 +4603,8 @@ namespace Ship_Game
             {
                 foreach (Building building in this.BuildingList)
                 {
-                    if (building.NameTranslationIndex == 458)
+                    //if (building.NameTranslationIndex == 458)
+                    if (building.AllowShipBuilding || building.Name =="Space Port")
                         return true;
                 }
             }
@@ -4667,7 +4669,8 @@ namespace Ship_Game
                     Building building = this.BuildingList[index];
                     if (building.WinsGame)
                         this.HasWinBuilding = true;
-                    if (building.NameTranslationIndex == 458)
+                    //if (building.NameTranslationIndex == 458)
+                    if (building.Name == "Space Port")
                         this.HasShipyard = true;
                     if ((double)building.PlusFlatPopulation > 0.0)
                         this.PlusFlatPopulationPerTurn += building.PlusFlatPopulation;

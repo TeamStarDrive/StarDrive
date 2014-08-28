@@ -1287,7 +1287,21 @@ namespace Ship_Game
 				RacialTraits data = (RacialTraits)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				Ship_Game.ResourceManager.rt = data;
+                
+				foreach(RacialTrait trait in data.TraitList)
+                {
+                    if (Localizer.LocalizerDict.ContainsKey(trait.TraitName + OffSet))
+                    {
+                        trait.TraitName += OffSet;
+                        Localizer.used[trait.TraitName] = true;
+                    }
+                    if (Localizer.LocalizerDict.ContainsKey(trait.Description + OffSet))
+                    {
+                        trait.Description += OffSet;
+                        Localizer.used[trait.Description] = true;
+                    }
+                }
+                Ship_Game.ResourceManager.rt = data;
 			}
 			textList = null;
 			return Ship_Game.ResourceManager.rt;
@@ -1520,7 +1534,7 @@ namespace Ship_Game
                 catch(NullReferenceException ex)
                 {
                     ex.Data["Building Lookup"] = newB.Name;
-                    
+                    throw ex;
                 }
 			}
 			textList = null;
@@ -1870,6 +1884,7 @@ namespace Ship_Game
                     data.TroopNameIndex += ResourceManager.OffSet;
                     Localizer.used[data.TroopNameIndex] = true;
                 }
+                
                 
                 //ResourceManager.Empires.RemoveAll(x => x.PortraitName == data.PortraitName);
                 EmpireData remove = ResourceManager.Empires.Find(x => x.PortraitName == data.PortraitName);
@@ -2719,6 +2734,11 @@ namespace Ship_Game
                 ShipRole data = (ShipRole)serializer1.Deserialize(stream);
                 stream.Close();
                 stream.Dispose();
+                if (Localizer.LocalizerDict.ContainsKey(data.Localization + OffSet))
+                {
+                    data.Localization += OffSet;
+                    Localizer.used[data.Localization] = true;
+                }
                 if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
                 {
                     Ship_Game.ResourceManager.ShipRoles[data.Name] = data;
