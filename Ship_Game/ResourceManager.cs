@@ -1871,6 +1871,7 @@ namespace Ship_Game
                     Localizer.used[data.TroopNameIndex] = true;
                 }
                 
+                
                 //ResourceManager.Empires.RemoveAll(x => x.PortraitName == data.PortraitName);
                 EmpireData remove = ResourceManager.Empires.Find(x => x.PortraitName == data.PortraitName);
                 if(remove != null)
@@ -2719,6 +2720,11 @@ namespace Ship_Game
                 ShipRole data = (ShipRole)serializer1.Deserialize(stream);
                 stream.Close();
                 stream.Dispose();
+                if (Localizer.LocalizerDict.ContainsKey(data.Localization + OffSet))
+                {
+                    data.Localization += OffSet;
+                    Localizer.used[data.Localization] = true;
+                }
                 if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
                 {
                     Ship_Game.ResourceManager.ShipRoles[data.Name] = data;
