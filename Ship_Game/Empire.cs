@@ -96,6 +96,9 @@ namespace Ship_Game
         public Planet Capital;
         public int EmpireShipCountReserve;
         public int empireShipTotal;
+        public bool canBuildCapitals;
+        public bool canBuildCruisers;
+        public bool canBuildFrigates;
 
         static Empire()
         {
@@ -397,7 +400,7 @@ namespace Ship_Game
                 techEntry.UID = keyValuePair.Key;
 
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
+                if (keyValuePair.Value.RaceRestrictions.Count != 0)
                 {
                     techEntry.Discovered = false;
                     techEntry.GetTech().Secret = true;
@@ -407,12 +410,7 @@ namespace Ship_Game
                         {
                             techEntry.Discovered = true;
                             techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
-
-                            /* Changed by The Doctor: no foreseeable need for the custom Militaristic tech selection should also require the 'Alternative Teching' system to be in use. 
-                             * Implemented a 'customMilTraitTechs', and left an 'OR' for the alternative teching to ensure back-compatibility. Allows mods to define their own militaristic trait techs...
-                             * Without being forced to use the 'Alternate Tech' system. */
-
-                            if ((GlobalStats.ActiveMod.mi.useAlternateTech || GlobalStats.ActiveMod.mi.customMilTraitTechs) && this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
+                            if (this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
                                 techEntry.Unlocked = true;
                             break;
                         }
@@ -430,7 +428,7 @@ namespace Ship_Game
                 if (this.data.Traits.Militaristic == 1)
                 {
                     //added by McShooterz: alternate way to unlock militaristic techs
-                    if (GlobalStats.ActiveMod != null && techEntry.GetTech().RaceRestrictions.Count == 0 && (GlobalStats.ActiveMod.mi.useAlternateTech || GlobalStats.ActiveMod.mi.customMilTraitTechs) && techEntry.GetTech().Militaristic)
+                    if (techEntry.GetTech().Militaristic && techEntry.GetTech().RaceRestrictions.Count == 0)
                         techEntry.Unlocked = true;
 
                     // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
@@ -560,6 +558,13 @@ namespace Ship_Game
                 return;
             this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
             this.TechnologyDict[techID].Unlocked = true;
+            //Set GSAI to build ship roles
+            if (this.TechnologyDict[techID].GetTech().unlockBattleships || techID == "Battleships")
+                this.canBuildCapitals = true;
+            if (this.TechnologyDict[techID].GetTech().unlockCruisers || techID == "Cruisers")
+                this.canBuildCruisers = true;
+            if (this.TechnologyDict[techID].GetTech().unlockFrigates || techID == "FrigateConstruction")
+                this.canBuildFrigates = true;
             //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {

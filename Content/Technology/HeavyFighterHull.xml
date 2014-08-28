@@ -62,4 +62,5 @@
       <ShipType>Draylok</ShipType>
     </UnlockedHull>
   </HullsUnlocked>
+  <Militaristic>true</Militaristic>
 </Technology>
