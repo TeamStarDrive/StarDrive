@@ -3728,6 +3728,20 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat(stat.ToString(), "% ", words), Cursor, Color.Orange);
         }
 
+        private string GetNumberString(float stat)
+        {
+            if (stat < 1000f)
+                return stat.ToString("#.#");
+            else if (stat < 10000f)
+                return stat.ToString("#");
+            float single = stat / 1000f;
+            if (single < 100)
+                return string.Concat(single.ToString("#.##"), "k");
+            if(single < 1000)
+                return string.Concat(single.ToString("#.#"), "k");
+            return string.Concat(single.ToString("#"), "k");
+        }
+
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, string tip)
 		{
 			float amount = 105f;
@@ -3739,25 +3753,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000f)
-			{
-				numbers = stat.ToString("#.#");
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
-			if (stat == 0f)
-			{
-				numbers = "0";
-			}
+            string numbers = GetNumberString(stat);
 			Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
 			Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -3778,21 +3774,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000f)
-			{
-				numbers = stat.ToString("#.#");
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
+            string numbers = GetNumberString(stat);
 			if (stat == 0f)
 			{
 				numbers = "0";
@@ -3817,21 +3799,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("#.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
@@ -3856,21 +3824,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("#.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
@@ -3939,21 +3893,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000)
-			{
-				numbers = stat.ToString();
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
+            string numbers = GetNumberString(stat);
 			if (stat == 0)
 			{
 				numbers = "0";
@@ -3978,21 +3918,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000)
-			{
-				numbers = stat.ToString();
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
+            string numbers = GetNumberString(stat);
 			Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
 			Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4013,21 +3939,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
-            string numbers = "";
-            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000)
-            {
-                numbers = stat.ToString();
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
             Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4048,21 +3960,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.Goldenrod);
-            string numbers = "";
-            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000)
-            {
-                numbers = stat.ToString();
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
             Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4083,21 +3981,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
-            string numbers = "";
-            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000)
-            {
-                numbers = stat.ToString();
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
             Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4119,21 +4003,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.IndianRed);
-            string numbers = "";
-            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000)
-            {
-                numbers = stat.ToString();
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
             Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4274,21 +4144,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000f)
-			{
-				numbers = stat.ToString("0.#");
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
+            string numbers = GetNumberString(stat);
 			if (stat == 0f)
 			{
 				numbers = "0";
@@ -4313,21 +4169,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("0.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
@@ -4352,21 +4194,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("0.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
@@ -4391,21 +4219,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.IndianRed);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("0.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
