@@ -23,6 +23,8 @@ namespace Ship_Game
 
 		private static SpriteFont verdana12Bold;
 
+        private static SpriteFont verdana10;
+
 		private static SpriteFont verdana14Bold;
 
 		private static SpriteFont verdana12;
@@ -244,6 +246,14 @@ namespace Ship_Game
 			}
 		}
 
+        public static SpriteFont Verdana10
+        {
+            get
+            {
+                return Fonts.verdana10;
+            }
+        }
+
 		public static SpriteFont Verdana14Bold
 		{
 			get
@@ -443,6 +453,7 @@ namespace Ship_Game
 			Fonts.verdana14Bold = contentManager.Load<SpriteFont>("Fonts/Verdana14Bold");
 			Fonts.verdana12 = contentManager.Load<SpriteFont>("Fonts/Verdana12");
 			Fonts.verdana12Bold = contentManager.Load<SpriteFont>("Fonts/Verdana12Bold");
+            Fonts.verdana10 = contentManager.Load<SpriteFont>("Fonts/Verdana10");
 		}
 
 		public static void UnloadContent()
