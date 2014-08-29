@@ -352,7 +352,7 @@ namespace Ship_Game
 			{
 				cNote.ReferencedItem1 = p;
 			}
-			cNote.IconPath = (IconPath != null ? IconPath : "ResearchMenu/icon_event_science");
+			cNote.IconPath = (IconPath != null ? IconPath : "ResearchMenu/icon_event_science_bad");
 			cNote.ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64);
 			cNote.DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64);
 			AudioManager.PlayCue("sd_ui_notification_encounter");
