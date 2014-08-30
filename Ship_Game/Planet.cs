@@ -2307,8 +2307,12 @@ namespace Ship_Game
 
         public void DoTroopTimers(float elapsedTime)
         {
-            foreach (Building building in this.BuildingList)
+            //foreach (Building building in this.BuildingList)
+            for (int x = 0; x < this.BuildingList.Count;x++ )
             {
+                Building building = this.BuildingList[x];
+                if (building == null)
+                    continue;
                 building.AttackTimer -= elapsedTime;
                 if ((double)building.AttackTimer < 0.0)
                 {
@@ -2317,8 +2321,12 @@ namespace Ship_Game
                 }
             }
             List<Troop> list = new List<Troop>();
-            foreach (Troop troop in this.TroopsHere)
+            //foreach (Troop troop in this.TroopsHere)
+            for (int x = 0; x < this.TroopsHere.Count;x++ )
             {
+                Troop troop = this.TroopsHere[x];
+                if (troop == null)
+                    continue;
                 if (troop.Strength <= 0)
                 {
                     list.Add(troop);
