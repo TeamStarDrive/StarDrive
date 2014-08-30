@@ -15,6 +15,8 @@ namespace Ship_Game.Gameplay
 
 		private List<Ship> TargetList = new List<Ship>();
 
+        private List<Projectile> pTargetList = new List<Projectile>();
+
 		public static UniverseScreen universeScreen;
 
 		private float thinkTimer = 0.15f;
@@ -29,13 +31,48 @@ namespace Ship_Game.Gameplay
 				List<GameplayObject> GPO = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
 				for (int i = 0; i < GPO.Count; i++)
 				{
-					if (GPO[i] is Ship)
-					{
-						Ship target = GPO[i] as Ship;
-						if (target != null && target.loyalty != this.Owner.loyalty)
-						{
-							this.TargetList.Add(target);
-						}
+                    // The Doctor: Allows PD missiles to properly build a special target list and acquire new targets
+                    if (this.Owner.weapon.TruePD)
+                    {
+                        if (GPO[i] is Projectile)
+                        {
+                            Projectile target = GPO[i] as Projectile;
+                            if (target != null && target.loyalty != this.Owner.loyalty)
+                            {
+                                this.pTargetList.Add(target);
+                            }
+                        }
+                    }
+					else
+                    {
+                        if (GPO[i] is Ship)
+                        {
+                            Ship target = GPO[i] as Ship;
+                            if (target != null && target.loyalty != this.Owner.loyalty)
+                            {
+                                // The Doctor: progagated the fire restrictions to missile target list generation, so that e.g. an fighter-restricted missile doesn't re-target to fighters if original target is destroyed.
+                                if ((target.shipData.Role == "drone" || target.shipData.Role == "scout" || target.shipData.Role == "fighter") && this.Owner.weapon.Excludes_Fighters)
+                                {
+                                    continue;
+                                }
+                                else if (target.shipData.Role == "corvette" && this.Owner.weapon.Excludes_Corvettes)
+                                {
+                                    continue;
+                                }
+                                else if ((target.shipData.Role == "frigate" || target.shipData.Role == "destroyer" || target.shipData.Role == "cruiser" || target.shipData.Role == "carrier" || target.shipData.Role == "capital") && this.Owner.weapon.Excludes_Capitals)
+                                {
+                                    continue;
+                                }
+                                else if ((target.shipData.Role == "platform" || target.shipData.Role == "station") && this.Owner.weapon.Excludes_Stations)
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    this.TargetList.Add(target);
+                                }
+                            }
+                        }
 					}
 				}
 			}
@@ -44,17 +81,26 @@ namespace Ship_Game.Gameplay
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
         {
-            if (this.Owner.owner != null)
+            // Uses the new projectile target list if the weapon is a PD-only missile.
+            if (this.Owner.weapon.TruePD)
             {
-                GameplayObject sourceTarget = this.Owner.owner.GetAI().Target;
-                if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && (sourceTarget as Ship).loyalty != this.Owner.loyalty)
-                {
-                    this.SetTarget(sourceTarget); //use SetTarget function
-                    return;
-                }
+                this.Target = null;
+                this.SetTarget(this.pTargetList.OrderBy(Projectile => Vector2.Distance(this.Owner.Center, Projectile.Center)).FirstOrDefault<Projectile>());
             }
-            this.Target = null;
-            this.SetTarget(this.TargetList.OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>()); //use SetTarget function
+            else
+            {
+                if (this.Owner.owner != null)
+                {
+                    GameplayObject sourceTarget = this.Owner.owner.GetAI().Target;
+                    if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && (sourceTarget as Ship).loyalty != this.Owner.loyalty)
+                    {
+                        this.SetTarget(sourceTarget); //use SetTarget function
+                        return;
+                    }
+                }
+                this.Target = null;
+                this.SetTarget(this.TargetList.OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>()); //use SetTarget function
+            }
         }
 
 		public void ClearTargets()
