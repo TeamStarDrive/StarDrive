@@ -714,9 +714,10 @@ namespace Ship_Game.Gameplay
 				Projectile projectile = target as Projectile;
 				if (projectile != null)
 				{
+                    /* Commenting out to make a hopefully superior ECM system in MissileAI.
                     if (this.weapon.Tag_Guided && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
                     {
-                        float ECMResist = this.weapon.ECMResist; // check any in-built ECM resistance on the guided weapon itself
+                       float ECMResist = this.weapon.ECMResist; // check any in-built ECM resistance on the guided weapon itself
                         Ship targetShip = (target as ShipModule).GetParent(); // identify the ship to which the module belongs
                         float rnum = RandomMath.RandomBetween(0.00f, 1.00f); // Random roll 0.0-1.0, i.e. roll 0 to 100
                         if (rnum + ECMResist < targetShip.ECMValue) // Can she hit?
@@ -725,6 +726,7 @@ namespace Ship_Game.Gameplay
                             return false; // Weapon fails to impact if it has failed ECM check. Should make ECM actually work now.
                         }
                     }
+                    */
 					if (this.owner != null && projectile.loyalty == this.owner.loyalty)
 					{
 						return false;
