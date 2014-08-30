@@ -39,8 +39,27 @@ namespace Ship_Game.Gameplay
 					{
 						Ship target = GPO[i] as Ship;
 						if (target != null && target.loyalty != this.Owner.loyalty)
-						{
-							this.TargetList.Add(target);
+                        {
+                            if ((target.Role == "scout" || target.Role == "fighter" || target.Role == "drone") && this.Owner.weapon.Excludes_Fighters)
+                            {
+                                continue;
+                            }
+                            if (target.Role == "corvette" && this.Owner.weapon.Excludes_Corvettes)
+                            {
+                                continue;
+                            }
+                            if ((target.Role == "frigate" || target.Role == "destroyer" || target.Role == "cruiser" || target.Role == "carrier" || target.Role == "capital") && this.Owner.weapon.Excludes_Capitals)
+                            {
+                                continue;
+                            }
+                            if ((target.Role == "platform" || target.Role == "station") && this.Owner.weapon.Excludes_Stations)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                this.TargetList.Add(target);
+                            }
 						}
 					}
 				}
