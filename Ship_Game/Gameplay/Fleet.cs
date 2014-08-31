@@ -788,8 +788,10 @@ namespace Ship_Game.Gameplay
             //if (pos == Vector2.Zero && this.Ships.Count>0) 
             //    pos = this.Ships[0].Position;
             //float count = (float)this.Ships.Where(ship => !ship.EnginesKnockedOut && ship.IsWarpCapable && !ship.Inhibited && ship.Active).Count();
-            if (shipcount < 1) shipcount = 1;
+            if (shipcount > 1) 
             return pos / shipcount;
+            else 
+            return this.Ships[0].Position;
         }
 
         public void TrackEnemies()
