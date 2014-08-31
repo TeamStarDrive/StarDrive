@@ -2514,12 +2514,21 @@ namespace Ship_Game.Gameplay
             this.TroopCapacity = 0;
             this.MechanicalBoardingDefense = 0.0f;
             this.TroopBoardingDefense = 0.0f;
+            this.ECMValue = 0.0f;
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 if (moduleSlot.Restrictions == Restrictions.I)
                 {
                     ++this.number_Internal_modules;
                     ++this.number_Alive_Internal_modules;
+                }
+                if (moduleSlot.module.ECM > this.ECMValue)
+                {
+                    this.ECMValue = moduleSlot.module.ECM;
+                    if (this.ECMValue > 1.0f)
+                        this.ECMValue = 1.0f;
+                    if (this.ECMValue < 0f)
+                        this.ECMValue = 0f;
                 }
                 Ship ship1 = this;
                 double num1 = (double)ship1.mass + (double)moduleSlot.module.Mass;
@@ -3620,6 +3629,7 @@ namespace Ship_Game.Gameplay
                     this.FTLCount = 0;
                     this.FTLSpeed = 0.0f;
                     this.HealPerTurn = 0;
+                    this.ECMValue = 0f;
                     foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.MaxGoodStorageDict.Keys))
                         this.MaxGoodStorageDict[index] = 0.0f;
                     foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
@@ -3719,6 +3729,14 @@ namespace Ship_Game.Gameplay
                             {
                                 this.shield_power += moduleSlot.module.shield_power;
                                 moduleSlot.module.shieldsOff = false;
+                            }
+                            if (moduleSlot.module.ECM > this.ECMValue)
+                            {
+                                this.ECMValue = moduleSlot.module.ECM;
+                                if (this.ECMValue > 1.0f)
+                                    this.ECMValue = 1.0f;
+                                if (this.ECMValue < 0f)
+                                    this.ECMValue = 0f;
                             }
                             else
                             {
