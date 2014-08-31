@@ -2514,12 +2514,21 @@ namespace Ship_Game.Gameplay
             this.TroopCapacity = 0;
             this.MechanicalBoardingDefense = 0.0f;
             this.TroopBoardingDefense = 0.0f;
+            this.ECMValue = 0.0f;
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 if (moduleSlot.Restrictions == Restrictions.I)
                 {
                     ++this.number_Internal_modules;
                     ++this.number_Alive_Internal_modules;
+                }
+                if (moduleSlot.module.ECM > this.ECMValue)
+                {
+                    this.ECMValue = moduleSlot.module.ECM;
+                    if (this.ECMValue > 1.0f)
+                        this.ECMValue = 1.0f;
+                    if (this.ECMValue < 0f)
+                        this.ECMValue = 0f;
                 }
                 Ship ship1 = this;
                 double num1 = (double)ship1.mass + (double)moduleSlot.module.Mass;
@@ -2976,7 +2985,9 @@ namespace Ship_Game.Gameplay
                         }
                     }
                     //Out of combat repair
-                    else if(this.repairTimer <= 0)
+                    //The Doctor: this didn't have a last hit timer check. It's an else if, BUT the previous if was checking ActiveMod and ActiveMod.mi.useCombatRepair, so this would cause
+                    //in-combat repairs for all ships when combat repair was disabled, as it wouldn't be checking the combat status if not using a mod and not using useCombatRepair... */
+                    else if(this.repairTimer <= 0 && (!this.InCombat && this.LastHitTimer <= 0))
                     {
                         this.repairTimer = 2f;
                         if (this.Health < this.HealthMax)
@@ -3618,6 +3629,7 @@ namespace Ship_Game.Gameplay
                     this.FTLCount = 0;
                     this.FTLSpeed = 0.0f;
                     this.HealPerTurn = 0;
+                    this.ECMValue = 0f;
                     foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.MaxGoodStorageDict.Keys))
                         this.MaxGoodStorageDict[index] = 0.0f;
                     foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
@@ -3712,12 +3724,21 @@ namespace Ship_Game.Gameplay
                             this.Thrust += moduleSlot.module.thrust;
                             this.WarpThrust += (float)moduleSlot.module.WarpThrust;
                             this.TurnThrust += (float)moduleSlot.module.TurnThrust;
+                            if (moduleSlot.module.ECM > this.ECMValue)
+                            {
+                                this.ECMValue = moduleSlot.module.ECM;
+                                if (this.ECMValue > 1.0f)
+                                    this.ECMValue = 1.0f;
+                                if (this.ECMValue < 0f)
+                                    this.ECMValue = 0f;
+                            }
+
                             //Added by McShooterz: shields keep charge when manually turned off
                             if (this.ShieldsUp && !(this.engineState == Ship.MoveState.Warp))
                             {
                                 this.shield_power += moduleSlot.module.shield_power;
                                 moduleSlot.module.shieldsOff = false;
-                            }
+                            }                            
                             else
                             {
                                 moduleSlot.module.shieldsOff = true;
