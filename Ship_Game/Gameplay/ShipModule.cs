@@ -122,10 +122,10 @@ namespace Ship_Game.Gameplay
 
 		public string WeaponType;
 
-		public short NameIndex;
-
-		public short DescriptionIndex;
-
+		//public short NameIndex;
+        public ushort NameIndex;
+		//public short DescriptionIndex;
+        public ushort DescriptionIndex;
 		public Ship_Game.Gameplay.Restrictions Restrictions;
 
 		public float shield_power;
@@ -391,8 +391,7 @@ namespace Ship_Game.Gameplay
 				{
 					return false;
 				}
-				ShipModule health = this;
-				health.Health = health.Health - damageAmount;
+                this.Health -= damageAmount;
 				if (base.Health >= this.HealthMax)
 				{
 					base.Health = this.HealthMax;
@@ -414,8 +413,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				ShipModule shieldPower = this;
-				shieldPower.shield_power = shieldPower.shield_power - damageAmount;
+                this.shield_power -= damageAmount;
 				if (this.shield_power <= 0f)
 				{
 					this.shield_power = 0f;
@@ -1553,20 +1551,12 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.OrdnanceAddedPerSecond > 0f && this.Powered)
 			{
-				Ship parent = this.Parent;
-				parent.Ordinance = parent.Ordinance + this.OrdnanceAddedPerSecond * elapsedTime;
+                this.Parent.Ordinance += this.OrdnanceAddedPerSecond * elapsedTime;
 				if (this.Parent.Ordinance > this.Parent.OrdinanceMax)
 				{
 					this.Parent.Ordinance = this.Parent.OrdinanceMax;
 				}
 			}
-            if ((GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useCombatRepair) && this.Parent.LastHitTimer <= 0f && base.Health / this.HealthMax < 1f && this.Parent.RepairUsed * elapsedTime < this.Parent.RepairRate)
-            {
-                ShipModule health = this;
-                health.Health = health.Health + this.Parent.RepairRate * elapsedTime;
-                Ship repairUsed = this.Parent;
-                repairUsed.RepairUsed = repairUsed.RepairUsed + this.Parent.RepairRate * elapsedTime;
-            }
 			if (base.Health >= this.HealthMax)
 			{
 				base.Health = this.HealthMax;
@@ -1586,22 +1576,14 @@ namespace Ship_Game.Gameplay
 				ShipModule shipModule1 = this;
 				shipModule1.hangarTimer = shipModule1.hangarTimer - elapsedTime;
 			}
-            if (this.Active && this.Powered && this.shield_power < this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0) && this.Parent.ShieldRechargeTimer >= this.shield_recharge_delay)
+            if (this.Active && this.Powered && this.shield_power < this.GetShieldsMax())
 			{
-                this.shield_power += this.shield_recharge_rate * elapsedTime;
-                if (this.shield_power > this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0))
-				{
-                    this.shield_power = this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
-				}
-			}
-            //Combat shield recharge only works until shields fail, then they only come back by normal recharge
-            else if (this.Active && this.Powered && this.shield_power < this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0) && this.Parent.ShieldRechargeTimer < this.shield_recharge_delay && this.shield_power > 1)
-			{
-                this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
-                if (this.shield_power > this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0))
-				{
-                    this.shield_power = this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
-				}
+                if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
+                    this.shield_power += this.shield_recharge_rate * elapsedTime;
+                else if (this.shield_power > 1)
+                    this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
+                if (this.shield_power > this.GetShieldsMax())
+                    this.shield_power = this.GetShieldsMax();
 			}
 			if (this.shield_power < 0f)
 			{
@@ -1660,5 +1642,10 @@ namespace Ship_Game.Gameplay
 				this.firetrailEmitter.Update(elapsedTime, this.Center3D);
 			}
 		}
+
+        public float GetShieldsMax()
+        {
+            return this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
+        }
 	}
 }

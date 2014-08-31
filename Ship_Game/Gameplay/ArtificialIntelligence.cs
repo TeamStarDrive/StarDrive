@@ -1679,7 +1679,8 @@ namespace Ship_Game.Gameplay
             qi.Cost = (float)cost;
             qi.isRefit = true;
             //Added by McShooterz: refit keeps name and level
-            qi.RefitName = this.Owner.VanityName;
+            if(this.Owner.VanityName != this.Owner.Name)
+                qi.RefitName = this.Owner.VanityName;
             qi.sData.Level = (byte)this.Owner.Level;
             if (this.Owner.fleet != null)
             {

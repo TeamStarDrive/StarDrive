@@ -4734,52 +4734,36 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-
-            bool canBuildCapitals = this.empire.GetTDict()["Battleships"].Unlocked;
-            bool canBuildCruisers = this.empire.GetTDict()["Cruisers"].Unlocked;
-            bool canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
+            if (!this.empire.canBuildCapitals && Ship_Game.ResourceManager.TechTree.ContainsKey("Battleships"))
+                this.empire.canBuildCapitals = this.empire.GetTDict()["Battleships"].Unlocked;
+            if (!this.empire.canBuildCruisers && Ship_Game.ResourceManager.TechTree.ContainsKey("Cruisers"))
+                this.empire.canBuildCruisers = this.empire.GetTDict()["Cruisers"].Unlocked;
+            if (!this.empire.canBuildFrigates && Ship_Game.ResourceManager.TechTree.ContainsKey("FrigateConstruction"))
+                this.empire.canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
 
             //Added by McShooterz: Used to find alternate techs that allow roles to be used by AI.
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useAlternateTech)
             {
-                foreach (KeyValuePair<string, TechEntry> techEntry in this.empire.GetTDict())
+                foreach (KeyValuePair<string, TechEntry> techEntry in this.empire.GetTDict().Where(entry => entry.Value.Unlocked))
                 {
-                    if (canBuildCapitals && canBuildCruisers && canBuildFrigates)
-                    {
+                    if (this.empire.canBuildCapitals && this.empire.canBuildCruisers && this.empire.canBuildFrigates)
                         break;
-                    }
-                    if (techEntry.Value.Unlocked)
-                    {
-                        if (!canBuildCapitals && techEntry.Value.GetTech().unlockBattleships)
-                        {
-                            canBuildCapitals = true;
-                            this.empire.GetTDict()["Battleships"].Unlocked = true;
-
-                        }
-                        else if (!canBuildCruisers && techEntry.Value.GetTech().unlockCruisers)
-                        {
-                            canBuildCruisers = true;
-                            this.empire.GetTDict()["Cruisers"].Unlocked = true;
-                        }
-                        else if (!canBuildFrigates && techEntry.Value.GetTech().unlockFrigates)
-                        {
-                            canBuildFrigates = true;
-                            this.empire.GetTDict()["FrigateConstruction"].Unlocked = true;
-                        }
-                    }
+                    if (!this.empire.canBuildCapitals && techEntry.Value.GetTech().unlockBattleships)
+                        this.empire.canBuildCapitals = true;
+                    else if (!this.empire.canBuildCruisers && techEntry.Value.GetTech().unlockCruisers)
+                        this.empire.canBuildCruisers = true;
+                    else if (!this.empire.canBuildFrigates && techEntry.Value.GetTech().unlockFrigates)
+                        this.empire.canBuildFrigates = true;
                 }
             }
-
-
-
-            if (canBuildCapitals)
+            if (this.empire.canBuildCapitals)
             {
                 ratio_Fighters = 0f;
                 ratio_Frigates = 4f;
                 ratio_Cruisers = 3f;
                 ratio_Capitals = 1f;
             }
-            else if (canBuildCruisers)
+            else if (this.empire.canBuildCruisers)
             {
 
                 ratio_Fighters = 0f;
@@ -4787,25 +4771,19 @@ namespace Ship_Game.Gameplay
                 ratio_Cruisers = 2f;
                 ratio_Capitals = 1f;
             }
-            else if (canBuildFrigates)
+            else if (this.empire.canBuildFrigates)
             {
                 ratio_Fighters =5.5f;
                 ratio_Frigates = 3f;
                 ratio_Cruisers = 1f;
                 ratio_Capitals = 1f;
             }
-
-
-
-
             float single = TotalMilShipCount / 10f;
             int DesiredFighters = (int)(TotalMilShipCount / 10f * ratio_Fighters );
             int DesiredBombers = (int)(TotalMilShipCount / 20f * ratio_Fighters != 0 ? ratio_Fighters : ratio_Frigates);
             int DesiredFrigates = (int)(TotalMilShipCount / 10f * ratio_Frigates);
             int DesiredCruisers = (int)(TotalMilShipCount / 10f * ratio_Cruisers);
-            int DesiredCapitals = (int)(TotalMilShipCount / 10f * ratio_Capitals);
-
-            
+            int DesiredCapitals = (int)(TotalMilShipCount / 10f * ratio_Capitals);    
             if(Capacity ==0)
             {
                 int scrapFighters = (int)numFighters - (int)DesiredFighters;
@@ -4832,26 +4810,13 @@ namespace Ship_Game.Gameplay
                     }
                 }
                 return "";
-
-
-
             }
-            
-            
-            
-            if (!canBuildFrigates && numFighters > 50f) 
-            {
 
-
-                
+            if (!this.empire.canBuildFrigates && numFighters > 50f) 
                 return null;
-            }
-
-
-
 
             List<Ship> PotentialShips = new List<Ship>();
-            if (canBuildCapitals && numCapitals < (float)DesiredCapitals)
+            if (this.empire.canBuildCapitals && numCapitals < (float)DesiredCapitals)
             {
                 foreach (string shipsWeCanBuild in this.empire.ShipsWeCanBuild)
                 {
@@ -4898,7 +4863,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (canBuildCruisers && numCruisers < (float)DesiredCruisers)
+            if (this.empire.canBuildCruisers && numCruisers < (float)DesiredCruisers)
             {
                 foreach (string shipsWeCanBuild1 in this.empire.ShipsWeCanBuild)
                 {
@@ -5039,7 +5004,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (canBuildFrigates && numFrigates < (float)DesiredFrigates)
+            if (this.empire.canBuildFrigates && numFrigates < (float)DesiredFrigates)
             {
                 foreach (string str2 in this.empire.ShipsWeCanBuild)
                 {
@@ -5805,13 +5770,12 @@ namespace Ship_Game.Gameplay
 							{
 								r.PV = (planetList.MineralRichness + planetList.Fertility + planetList.MaxPopulation / 1000f) / DistanceInJumps;
 							}
-							//if (planetList.Type == "Barren" && this.empire.GetTDict()["Biospheres"].Unlocked)
                             //Added by McShooterz: changed the requirement from having research to having the building
                             if (planetList.Type == "Barren" && this.empire.GetBDict()["Biospheres"])
 							{
 								ranker.Add(r);
 							}
-							else if (planetList.Type != "Barren" && ((double)planetList.Fertility >= 1 || this.empire.GetTDict()["Aeroponics"].Unlocked || this.empire.data.Traits.Cybernetic != 0))
+                            else if (planetList.Type != "Barren" && ((double)planetList.Fertility >= 1 || this.empire.GetBDict()["Aeroponic Farm"] || this.empire.data.Traits.Cybernetic != 0))
 							{
 								ranker.Add(r);
 							}
@@ -5838,10 +5802,9 @@ namespace Ship_Game.Gameplay
 						{
 							r0.PV = (planetList.MineralRichness + planetList.Fertility + planetList.MaxPopulation / 1000f) / DistanceInJumps0;
 						}
-						//if (!(planetList.Type == "Barren") || !this.empire.GetTDict()["Biospheres"].Unlocked)
                         if (!(planetList.Type == "Barren") || !this.empire.GetBDict()["Biospheres"])
 						{
-							if (!(planetList.Type != "Barren") || (double)planetList.Fertility < 1 && !this.empire.GetTDict()["Aeroponics"].Unlocked && this.empire.data.Traits.Cybernetic == 0)
+                            if (!(planetList.Type != "Barren") || (double)planetList.Fertility < 1 && !this.empire.GetBDict()["Aeroponic Farm"] && this.empire.data.Traits.Cybernetic == 0)
 							{
 								continue;
 							}
