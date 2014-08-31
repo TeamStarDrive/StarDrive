@@ -1443,7 +1443,7 @@ namespace Ship_Game
                 ExplosionRadiusVisual = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionRadiusVisual,
                 TerminalPhaseAttack = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseAttack,
                 TerminalPhaseDistance = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseDistance,
-                TerminalPhaseSpeed = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeed
+                TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod
 			};
 			return w;
 		}
