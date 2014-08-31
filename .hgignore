@@ -7,3 +7,5 @@ bin/
 StarDrive.csproj.orig
 *.orig
 StarDrive.sln
+StarDrive.v12.suo
+UpgradeLog2.htm

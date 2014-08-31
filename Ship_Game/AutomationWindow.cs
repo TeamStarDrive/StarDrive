@@ -64,6 +64,12 @@ namespace Ship_Game
 			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 212)), Localizer.Token(2207), acomRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2230;
+
+            Ref<bool> arRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoResearch, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoResearch = x);
+            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 216 + Fonts.Arial12Bold.LineSpacing)), Localizer.Token(6136), arRef, Fonts.Arial12Bold);
+            this.Checkboxes.Add(cb);
+            cb.Tip_Token = 7039;
+
 			this.SetDropDowns();
 		}
 
@@ -224,7 +230,7 @@ namespace Ship_Game
 			this.ScoutDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 40 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
-				if (!(ResourceManager.ShipsDict[ship].Role == "scout") && !(ResourceManager.ShipsDict[ship].Role == "fighter") && !(ResourceManager.ShipsDict[ship].shipData.ShipCategory == "Recon") || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+                if (!(ResourceManager.ShipsDict[ship].Role == "scout") && !(ResourceManager.ShipsDict[ship].Role == "fighter") && (ResourceManager.ShipsDict[ship].shipData ==null || ResourceManager.ShipsDict[ship].shipData.ShipCategory == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != "Recon") || ResourceManager.ShipsDict[ship].Thrust <= 0f)
 				{
 					continue;
 				}

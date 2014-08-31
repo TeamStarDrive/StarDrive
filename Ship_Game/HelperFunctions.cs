@@ -114,7 +114,11 @@ namespace Ship_Game
 		public static Fleet CreateDefensiveFleetAt(string FleetUID, Empire Owner, Vector2 Position)
 		{
 			FileInfo theFleetFI;
-			if (File.Exists(string.Concat("Content/FleetDesigns/", FleetUID, ".xml")))
+            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")) && File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml")))
+            {
+                theFleetFI = new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml"));
+            }
+			else if (File.Exists(string.Concat("Content/FleetDesigns/", FleetUID, ".xml")))
 			{
 				theFleetFI = new FileInfo(string.Concat("Content/FleetDesigns/", FleetUID, ".xml"));
 			}
@@ -150,7 +154,12 @@ namespace Ship_Game
 		public static void CreateFleetAt(string FleetUID, Empire Owner, Vector2 Position)
 		{
 			FileInfo theFleetFI;
-			if (File.Exists(string.Concat("Content/FleetDesigns/", FleetUID, ".xml")))
+
+            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")) && File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml")))
+            {
+                theFleetFI = new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml"));
+            }
+			else if (File.Exists(string.Concat("Content/FleetDesigns/", FleetUID, ".xml")))
 			{
 				theFleetFI = new FileInfo(string.Concat("Content/FleetDesigns/", FleetUID, ".xml"));
 			}
@@ -733,8 +742,10 @@ namespace Ship_Game
                 return 3;
             if (ShipModule.ModuleType == ShipModuleType.Shield)
                 return 4;
-            if (ShipModule.ModuleType == ShipModuleType.Armor || ShipModule.ModuleType == ShipModuleType.Dummy)
+            if (ShipModule.ModuleType == ShipModuleType.Armor)
                 return 6;
+            if (ShipModule.ModuleType == ShipModuleType.Dummy)
+                return 7;
             return 5;
         }
 	}

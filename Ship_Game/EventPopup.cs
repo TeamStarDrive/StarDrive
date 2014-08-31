@@ -59,9 +59,9 @@ namespace Ship_Game
 			base.DrawBase(gameTime);
 			base.ScreenManager.SpriteBatch.Begin();
 			Vector2 TheirTextPos = new Vector2((float)(this.BlackRect.X + 10), (float)(this.BlackRect.Y + 10));
-			string Description = HelperFunctions.parseText(Fonts.Verdana12Bold, this.outcome.DescriptionText, (float)(this.BlackRect.Width - 40));
-			base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12Bold, Description, TheirTextPos, Color.White);
-			TheirTextPos.Y = TheirTextPos.Y + (float)((int)Fonts.Verdana12Bold.MeasureString(Description).Y + 10);
+			string Description = HelperFunctions.parseText(Fonts.Verdana10, this.outcome.DescriptionText, (float)(this.BlackRect.Width - 40));
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana10, Description, TheirTextPos, Color.White);
+			TheirTextPos.Y = TheirTextPos.Y + (float)((int)Fonts.Verdana10.MeasureString(Description).Y + 10);
 			if (this.outcome.SelectRandomPlanet && this.outcome.GetPlanet() != null)
 			{
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Relevant Planet: ", this.outcome.GetPlanet().Name), TheirTextPos, Color.LightGreen);

@@ -824,6 +824,27 @@ namespace Ship_Game
                     EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+                {
+                    foreach (Planet p in solarSystem.PlanetList)
+                    {
+                        foreach (string FleetUID in p.PlanetFleets)
+                        {
+                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.GetEmpireByName("The Remnant"), p.Position);
+                            MilitaryTask militaryTask = new MilitaryTask();
+                            militaryTask.AO = solarSystem.PlanetList[0].Position;
+                            militaryTask.AORadius = 120000f;
+                            militaryTask.type = MilitaryTask.TaskType.DefendSystem;
+                            planetFleetAt.Task = militaryTask;
+                            planetFleetAt.TaskStep = 3;
+                            militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
+                            EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Add(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, planetFleetAt);
+                            EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                            militaryTask.Step = 2;
+                        }
+                    }
+                }
+
                 foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
                 {
                     Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetAndPos.fleetname, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.Position + fleetAndPos.Pos);
@@ -2866,44 +2887,7 @@ namespace Ship_Game
                             {
                                 foreach (Ship ship2 in (List<Ship>)this.SelectedFleet.Ships)
                                 {
-
                                     RightClickship(ship2, planet,false);
-                                    //if (planet.Owner != null)
-                                    //{
-
-                                    //    if (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction)
-                                    //    {
-                                    //        //add new right click troop and troop ship options on planets
-                                    //        if (ship2.Role == "troop" || (ship2.GetHangars().Where(troop => troop.IsTroopBay).Count() >0 && ship2.TroopList.Count>0))
-                                    //        {
-                                    //            //ship2.GetAI().State = AIState.AssaultPlanet;
-                                    //            ship2.GetAI().OrderLandAllTroops(planet);
-                                    //        }
-          
-                                    //        //end
-
-                                    //        if (ship2.BombBays.Count > 0 && planet.Owner != this.player && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)  || planet.TroopsHere.Where(ourtroops => ourtroops.GetOwner() == this.player).Count() == 0))
-                                    //        {
-                                                
-                                    //            ship2.GetAI().OrderBombardPlanet(planet);
-                                    //        }
-
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        if (ship2.Role == "troop")
-                                    //        {
-                                    //            ship2.GetAI().State = AIState.AssaultPlanet;
-                                    //            ship2.GetAI().OrderLandAllTroops(planet);
-                                    //        }
-                                    //        else
-                                    //        ship2.GetAI().OrderToOrbit(planet, true);
-                                    //    }
-                                    //}
-                                    //else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                    //    ship2.GetAI().OrderToOrbit(planet, false);
-                                    //else
-                                    //    ship2.GetAI().OrderToOrbit(planet, true);
                                 }
                             }
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
@@ -2935,7 +2919,7 @@ namespace Ship_Game
                                     {
                                         if (this.SelectedShip.Role == "troop")
                                         {
-                                            if (ship.HasTroopBay)
+                                            if (ship.HasTroopBay || ship.hasTransporter)
                                             {
                                                 if (ship.TroopList.Count < ship.TroopCapacity)
                                                     this.SelectedShip.GetAI().OrderTroopToShip(ship);
@@ -3074,7 +3058,7 @@ namespace Ship_Game
                                         {
                                             if (ship2.Role == "troop")
                                             {
-                                                if (ship1.HasTroopBay)
+                                                if (ship1.HasTroopBay || ship1.hasTransporter)
                                                 {
                                                     if (ship1.TroopList.Count < ship1.TroopCapacity)
                                                         ship2.GetAI().OrderTroopToShip(ship1);
@@ -3485,20 +3469,12 @@ namespace Ship_Game
                             ship.GetAI().OrderRebase(planet, true);
                     }
                     //add new right click troop and troop ship options on planets
-
-                    if (planet.Owner == null && planet.habitable)
-                    {
-
-                        ship.GetAI().State = AIState.AssaultPlanet;
-                        ship.GetAI().OrderLandAllTroops(planet);
-                    }
-                    else if (planet.Owner!=null&& planet.Owner !=this.player &&  (ship.loyalty.GetRelations()[planet.Owner].AtWar ||planet.Owner.isFaction ||planet.Owner.data.Defeated ))
+                    if (planet.habitable && planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated))
                     {
                         ship.GetAI().State = AIState.AssaultPlanet;
                         ship.GetAI().OrderLandAllTroops(planet);
                     }
                     //end
-
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                         ship.GetAI().OrderToOrbit(planet, false);
                     else
@@ -4456,7 +4432,7 @@ namespace Ship_Game
                     float num3 = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X);
                     Rectangle destinationRectangle = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)num3 * 2, (int)num3 * 2);
                     Vector2 origin2 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                    float num4 = moduleSlot.module.shield_power / moduleSlot.module.shield_power_max;
+                    float num4 = moduleSlot.module.shield_power / (moduleSlot.module.shield_power_max + (ship.loyalty != null ? ship.loyalty.data.ShieldPowerMod * moduleSlot.module.shield_power_max : 0));
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], destinationRectangle, new Rectangle?(), new Color(Color.Green.R, Color.Green.G, Color.Green.B, (byte)((double)byte.MaxValue * (double)num4)), 0.0f, origin2, SpriteEffects.None, 1f);
                 }
             }
@@ -4789,7 +4765,7 @@ namespace Ship_Game
                 {
                     foreach (UniverseScreen.ClickablePlanets item_1 in this.ClickPlanetList)
                     {
-                        float local_14 = 2500f;
+                        float local_14 = 2500f * item_1.planetToClick.scale;
                         Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
                         Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
@@ -4925,13 +4901,14 @@ namespace Ship_Game
                 {
                     foreach (Planet planet in solarSystem.PlanetList)
                     {
+                        float fIconScale = 0.1875f * (0.7f + ((float)(Math.Log(planet.scale))/2.75f));
                         if (planet.Owner != null)
                         {
                             Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int)position.X - 8, (int)position.Y - 8, 16, 16);
-                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Width / 2), (float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Height / 2));
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"], position, new Rectangle?(), Color.White, 0.0f, origin, 0.6f, SpriteEffects.None, 1f);
+                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Width / 2f), (float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Height / 2f));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)planet.planetType], position, new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                             origin = new Vector2((float)(ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value.Width / 2), (float)(ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value.Height / 2));
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value, position, new Rectangle?(), planet.Owner.EmpireColor, 0.0f, origin, 0.045f, SpriteEffects.None, 1f);
                         }
@@ -4940,8 +4917,8 @@ namespace Ship_Game
                             Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), this.projection, this.view, Matrix.Identity);
                             Vector2 position = new Vector2(vector3.X, vector3.Y);
                             Rectangle rectangle = new Rectangle((int)position.X - 8, (int)position.Y - 8, 16, 16);
-                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Width / 2), (float)(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"].Height / 2));
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets 24/" + (object)planet.planetType + " copy"], position, new Rectangle?(), Color.White, 0.0f, origin, 0.6f, SpriteEffects.None, 1f);
+                            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Width / 2), (float)(ResourceManager.TextureDict["Planets/" + (object)planet.planetType].Height / 2f));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)planet.planetType], position, new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                         }
                     }
                 }
@@ -5928,7 +5905,6 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.End();
                 this.ScreenManager.SpriteBatch.Begin();
             }
-            int num1 = this.Debug ? 1 : 0;
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)

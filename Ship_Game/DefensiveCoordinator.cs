@@ -70,9 +70,8 @@ namespace Ship_Game
 			return this.DefenseDict[system].PercentageOfValue;
 		}
 
-		public void ManageForcePool()
-		{
-            this.refreshclumps();
+        public void ManageForcePool()
+        {
             foreach (Planet p in this.us.GetPlanets())
             {
                 if (p.Owner == null && p.BuildingList.Count == 0 && p.TroopsHere.Count > 0 && p.GetGroundStrengthOther(this.us) > 0)
@@ -120,9 +119,9 @@ namespace Ship_Game
                     if (p.Owner != null && p.Owner == this.us)
                     {
                         SystemCommander value = entry.Value;
-                        value.ValueToUs = value.ValueToUs + p.Population / 1000f;
+                        value.ValueToUs = value.ValueToUs + p.Population / 10000f;
                         SystemCommander valueToUs = entry.Value;
-                        valueToUs.ValueToUs = valueToUs.ValueToUs + (p.MaxPopulation / 1000f - p.Population / 1000f);
+                        valueToUs.ValueToUs = valueToUs.ValueToUs + (p.MaxPopulation / 10000f);// - p.Population / 10000f);
                         SystemCommander systemCommander = entry.Value;
                         systemCommander.ValueToUs = systemCommander.ValueToUs + p.Fertility;
                         SystemCommander value1 = entry.Value;
@@ -184,7 +183,7 @@ namespace Ship_Game
 
                         if (Relationship.Value.AtWar)
                         {
-                            entry.Value.ValueToUs += 50f;
+                            entry.Value.ValueToUs += 10f;
                             flag = true;
                             continue;
                         }
@@ -195,20 +194,20 @@ namespace Ship_Game
                         }
 
                     }
-                    if (!flag)
-                        entry.Value.ValueToUs -= 10f;
+                    if (!flag& entry.Value.ValueToUs>5)
+                        entry.Value.ValueToUs -= 2.5f;
                 }
 
             }
             IOrderedEnumerable<SolarSystem> sortedList =
                 from system in systems
-                orderby system.GetPredictedEnemyPresence(60f, this.us,false,EnemyClumpsDict) descending
+                orderby system.GetPredictedEnemyPresence(60f, this.us) descending
                 select system;
             float StrToAssign = this.GetForcePoolStrength();
             float StartingStr = StrToAssign;
             foreach (SolarSystem solarSystem in sortedList)
             {
-                float Predicted = solarSystem.GetPredictedEnemyPresence(120f, this.us, true, EnemyClumpsDict);
+                float Predicted = solarSystem.GetPredictedEnemyPresence(120f, this.us);
                 if (Predicted <= 0f)
                 {
                     this.DefenseDict[solarSystem].IdealShipStrength = 0f;
@@ -328,14 +327,13 @@ namespace Ship_Game
                 }
             }
             this.DefensiveForcePool.ApplyPendingRemovals();
-           
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
                 if (entry.Key == null)
                 {
                     continue;
                 }
-                entry.Value.AssignTargets(this.EnemyClumpsDict);
+                entry.Value.AssignTargets();
             }
 			if (this.us == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
 			{
@@ -380,151 +378,217 @@ namespace Ship_Game
 					}
 				}
 			}
+            int maxtroops = 0;
+            int currentTroops = 0;
+            List<Planet> planets = new List<Planet>();
+            int planetCount = 0;
+            int developmentlevel = 0;
 			foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
 			{
-                entry.Value.IdealTroopStr = entry.Value.ValueToUs * 10; // entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us) / (6 - planet.developmentLevel));
-                int maxtroops =entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us)) *10;
-                if (entry.Value.IdealTroopStr >= maxtroops-30)
-                    entry.Value.IdealTroopStr = maxtroops -30;
+                    //entry.Value.ValueToUs ; // entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us) / (6 - planet.developmentLevel));
+                 maxtroops =entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us)) ;
+                 currentTroops = entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.TroopsHere.Where(troop => troop.GetOwner() == this.us).Count());
+                //int planetCount = entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Count();
+                 planets = entry.Key.PlanetList.Where(planet => planet.Owner == this.us).ToList();
+                 planetCount = planets.Count;
+                 developmentlevel = planets.Sum(development => development.developmentLevel);
+
+                //float currentTroopStrength = entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.TroopsHere.Where(troop=> troop.GetOwner()==this.us).Sum(troop=>troop.Strength));
+                
+                //if (entry.Value.IdealTroopStr >= maxtroops-30)
+                //    entry.Value.IdealTroopStr = maxtroops -30;
                     //entry.Value.PercentageOfValue * TotalTroopStrength;              
-                entry.Value.TroopStrengthNeeded = entry.Value.ValueToUs * 10;
-                if (entry.Value.TroopStrengthNeeded >= maxtroops - 30)
-                    entry.Value.TroopStrengthNeeded = maxtroops - 30;
+                
+                //entry.Value.TroopStrengthNeeded = entry.Value.ValueToUs * 40;
+                
+                //if (entry.Value.TroopStrengthNeeded >= maxtroops - 120)
+                //    entry.Value.TroopStrengthNeeded = maxtroops - 120;
                     //entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us) / (6 - planet.developmentLevel)) *10; //entry.Value.PercentageOfValue * TotalTroopStrength;
- 
-				foreach (Planet p in entry.Key.PlanetList)
-				{
-					if (p.Owner != this.us )
-					{
-						continue;
-					}
-					foreach (Troop t in p.TroopsHere)
-					{
-						if (t.GetOwner() != this.us || entry.Value.TroopStrengthNeeded - (float)t.Strength < 0f)
-						{
-							continue;
-						}
+                entry.Value.IdealTroopStr = developmentlevel *(1+(int)Empire.universeScreen.GameDifficulty);
+                if (entry.Value.IdealTroopStr > maxtroops)
+                    entry.Value.IdealTroopStr = maxtroops;
+                entry.Value.TroopStrengthNeeded = entry.Value.IdealTroopStr - currentTroops;
+                //foreach (Planet p in entry.Key.PlanetList)
+                //{
+                //    if (p.Owner != this.us)
+                //    {
+                //        continue;
+                //    }
+                //    foreach (Troop t in p.TroopsHere)
+                //    {
+                //        if (t.GetOwner() != this.us || entry.Value.TroopStrengthNeeded - (float)t.Strength < 0f)
+                //        {
+                //            continue;
+                //        }
 
-                        entry.Value.TroopStrengthNeeded = entry.Value.TroopStrengthNeeded - (float)t.Strength;
-						GroundTroops.QueuePendingRemoval(t);
-					}
+                //        entry.Value.TroopStrengthNeeded = entry.Value.TroopStrengthNeeded - (float)t.Strength;
+                //        GroundTroops.QueuePendingRemoval(t);
+                //    }
 
-				}
-				GroundTroops.ApplyPendingRemovals();
-				foreach (Ship troopship in TroopShips)
-				{
-					if (troopship.GetAI().OrderQueue.Count <= 0 || troopship.GetAI().OrderQueue.Last.Value.TargetPlanet == null || troopship.GetAI().OrderQueue.Last.Value.TargetPlanet.system != entry.Key)
+                //}
+                GroundTroops.ApplyPendingRemovals();
+                //foreach (Ship troopship in TroopShips)
+                //{
+                //    if (troopship.GetAI().OrderQueue.Count <= 0 || troopship.GetAI().OrderQueue.Last.Value.TargetPlanet == null || troopship.GetAI().OrderQueue.Last.Value.TargetPlanet.system != entry.Key)
               
-					{
-						continue;
-					}
-					for (int i = 0; i < troopship.TroopList.Count; i++)
-					{
-						SystemCommander troopStrengthNeeded1 = entry.Value;
-						troopStrengthNeeded1.TroopStrengthNeeded = troopStrengthNeeded1.TroopStrengthNeeded - (float)troopship.TroopList[i].Strength;
-						TroopShips.QueuePendingRemoval(troopship);
-					}
-				}
-				TroopShips.ApplyPendingRemovals();
+                //    {
+                //        continue;
+                //    }
+                //    for (int i = 0; i < troopship.TroopList.Count; i++)
+                //    {
+                //        SystemCommander troopStrengthNeeded1 = entry.Value;
+                //        troopStrengthNeeded1.TroopStrengthNeeded = troopStrengthNeeded1.TroopStrengthNeeded - (float)troopship.TroopList[i].Strength;
+                //        TroopShips.QueuePendingRemoval(troopship);
+                //    }
+                //}
+				
+                for(int i=0;i < TroopShips.Count;i++)
+                {
+                    Ship troop = TroopShips[i];
+
+                    if (troop == null || troop.TroopList.Count <=0)
+                    {
+                        TroopShips.QueuePendingRemoval(troop);
+                        continue;
+                    }
+                        
+                    ArtificialIntelligence  troopAI = troop.GetAI();
+                    if (troopAI == null)
+                    {
+                        TroopShips.QueuePendingRemoval(troop);
+                        continue;
+                    }
+                    if(troopAI.OrderQueue.Count >0 && troopAI.OrderQueue.Where(goal=> entry.Key.PlanetList.Contains(goal.TargetPlanet)).FirstOrDefault() !=null)
+                    {
+                        currentTroops++;
+                        entry.Value.TroopStrengthNeeded--;
+                        TroopShips.QueuePendingRemoval(troop);
+                    }
+
+                }
+                TroopShips.ApplyPendingRemovals();
 			}
 			foreach (Ship ship4 in TroopShips)
 			{
-                //added by gremlin troop defense fix?
-                if (ship4.TroopList.Count == 0 || ship4.GetAI().State != AIState.AwaitingOrders )
-				{
-                    
-                    continue;
-                    
-				}
+
 				IOrderedEnumerable<SolarSystem> sortedSystems = 
 					from system in systems
-					orderby Vector2.Distance(system.Position, ship4.Center)
+                    orderby this.DefenseDict[system].ValueToUs descending
+                    orderby Vector2.Distance(system.Position, ship4.Center)
 					select system;
 				foreach (SolarSystem solarSystem2 in sortedSystems)
 				{
-					if ((float)ship4.TroopList[0].Strength >= this.DefenseDict[solarSystem2].TroopStrengthNeeded)
-					{
-						continue;
-					}
-					SystemCommander item = this.DefenseDict[solarSystem2];
-					item.TroopStrengthNeeded = item.TroopStrengthNeeded - (float)ship4.TroopList[0].Strength;
+
+                    
+
 					if (solarSystem2.PlanetList.Count <= 0)
 					{
 						continue;
 					}
-					List<Planet> Potentials = new List<Planet>();
-					foreach (Planet p in solarSystem2.PlanetList)
-					{
-						if (p.Owner == null || p.Owner != this.us)
-						{
-							continue;
-						}
-						Potentials.Add(p);
-					}
-					if (Potentials.Count <= 0)
-					{
-						continue;
-					}
-					int Ran = (int)RandomMath.RandomBetween(0f, (float)Potentials.Count + 0.85f);
-					if (Ran > Potentials.Count - 1)
-					{
-						Ran = Potentials.Count - 1;
-					}
-					ship4.GetAI().OrderRebase(Potentials[Ran], true);
+                    SystemCommander defenseSystem = this.DefenseDict[solarSystem2];
+
+                    if (defenseSystem.TroopStrengthNeeded <= 0)
+                        continue;
+                    defenseSystem.TroopStrengthNeeded--;
+
+                    Planet target = solarSystem2.PlanetList.OrderBy(planet => planet.TroopsHere.Where(troops => troops.GetOwner() == this.us).Count()).First();
+                    ship4.GetAI().OrderRebase(target, true);
+					
+                    //List<Planet> Potentials = new List<Planet>();
+                    //foreach (Planet p in solarSystem2.PlanetList)
+                    //{
+                    //    if (p.Owner == null || p.Owner != this.us)
+                    //    {
+                    //        continue;
+                    //    }
+                    //    Potentials.Add(p);
+                    //}
+                    //if (Potentials.Count <= 0)
+                    //{
+                    //    continue;
+                    //}
+                    //int Ran = (int)RandomMath.RandomBetween(0f, (float)Potentials.Count + 0.85f);
+                    //if (Ran > Potentials.Count - 1)
+                    //{
+                    //    Ran = Potentials.Count - 1;
+                    //}
+                    //ship4.GetAI().OrderRebase(Potentials[Ran], true);
 				}
 			}
+         
+
+
 			foreach (Troop troop in GroundTroops)
 			{
-                if (troop.GetPlanet() == null || troop.GetPlanet().CombatTimer > 0 || troop.GetPlanet().ParentSystem.combatTimer>0)
+                if (troop == null || troop.GetPlanet() == null)
+                    continue;
+                Planet current = troop.GetPlanet();
+                int troopshere = current.TroopsHere.Where(us=> us.GetOwner() == this.us).Count();
+                SystemCommander defenseSystem = this.DefenseDict[current.ParentSystem];
+                bool inneed = troopshere < defenseSystem.IdealTroopStr;
+                Ship troopship = null;
+                if (current == null || current.CombatTimer > 0 || current.ParentSystem.combatTimer>0
+                   )
+                    
 				{
-					continue;
+	
+                    continue;
 				}
-				IOrderedEnumerable<SolarSystem> sortedSystems = 
+                if (!inneed && troopshere > defenseSystem.IdealTroopStr)
+                {
+                    troopship = troop.Launch();
+                }
+                else
+                    continue;
+                if (troopship == null)
+                {
+                    continue;
+                }
+                IOrderedEnumerable<SolarSystem> sortedSystems = 
 					from system in systems
-                    orderby (int)(Vector2.Distance(system.Position, troop.GetPlanet().Position) / (UniverseData.UniverseWidth /5f))
+                    orderby this.DefenseDict[system].ValueToUs descending
+                    orderby (int)(Vector2.Distance(system.Position, current.Position) / (UniverseData.UniverseWidth / 5f))
                     orderby system.combatTimer descending
                     
 					select system;
 				foreach (SolarSystem solarSystem3 in sortedSystems)
 				{
                     //added by gremlin Dont take troops from system that have combat. and prevent troop loop
-                    if (solarSystem3.combatTimer > 0 || this.DefenseDict[solarSystem3].TroopStrengthNeeded+ (float)troop.Strength >0)
+                    if ( this.DefenseDict[solarSystem3].TroopStrengthNeeded <=0)
 					{
 						continue;
 					}
-                    Planet current = troop.GetPlanet();
-                    
-                    Ship troopship = troop.Launch();
-					if (troopship == null)
-					{
-						continue;
+
+                    if (solarSystem3.PlanetList.Count <= 0)
+                    {
+                        continue;
+
+
+					
 					}
-					SystemCommander item1 = this.DefenseDict[solarSystem3];
-                    //added by gremlin... Instead of lowering needed strength when removing a strength. increase it.
-					item1.TroopStrengthNeeded = item1.TroopStrengthNeeded + (float)troop.Strength;
-					if (solarSystem3.PlanetList.Count <= 0)
-					{
-						continue;
-					}
-					List<Planet> Potentials = new List<Planet>();
-					foreach (Planet p in solarSystem3.PlanetList)
-					{
-                        if (p.Owner == null || p.Owner != this.us || (current != null && p == current))
-						{
-							continue;
-						}
-						Potentials.Add(p);
-					}
-					if (Potentials.Count <= 0)
-					{
-						continue;
-					}
-					int Ran = (int)RandomMath.RandomBetween(0f, (float)Potentials.Count + 0.85f);
-					if (Ran > Potentials.Count - 1)
-					{
-						Ran = Potentials.Count - 1;
-					}
-					troopship.GetAI().OrderRebase(Potentials[Ran], true);
+                    SystemCommander item1 = this.DefenseDict[solarSystem3];                    
+                    item1.TroopStrengthNeeded--;
+                    Planet target = solarSystem3.PlanetList.OrderBy(planet => planet.TroopsHere.Where(troops => troops.GetOwner() == this.us).Count()).First();
+                    troopship.GetAI().OrderRebase(target, true);
+                    List<Planet> Potentials = new List<Planet>();
+                    //foreach (Planet p in solarSystem3.PlanetList)
+                    //{
+                    //    if (p.Owner == null || p.Owner != this.us || (current != null && p == current) || p.TroopsHere.Count*10>= this.DefenseDict[p.ParentSystem].IdealTroopStr)
+                    //    {
+                    //        continue;
+                    //    }
+                    //    Potentials.Add(p);
+                    //}
+                    //if (Potentials.Count <= 0)
+                    //{
+                    //    continue;
+                    //}
+                    //int Ran = (int)RandomMath.RandomBetween(0f, (float)Potentials.Count + 0.85f);
+                    //if (Ran > Potentials.Count - 1)
+                    //{
+                    //    Ran = Potentials.Count - 1;
+                    //}
+                    //troopship.GetAI().OrderRebase(Potentials[Ran], true);
 				}
 			}
 		}
@@ -539,11 +603,10 @@ namespace Ship_Game
 
 
 
-            //for (int i = 0; i < this.us.GetShipsInOurBorders; i++)
-            //if (Empire.universeScreen.GameDifficulty < UniverseData.GameDifficulty.Hard)
+  
             List<Ship> incomingShips = new List<Ship>();
             if (Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard)
-                incomingShips = Empire.universeScreen.MasterShipList.AsParallel().Where(bases=> bases.BaseStrength>0 && bases.loyalty != this.us && (bases.loyalty.isFaction|| this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList();
+                incomingShips = Empire.universeScreen.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != this.us && (bases.loyalty.isFaction || this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList();
             else
             {
                 incomingShips = us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
@@ -558,11 +621,11 @@ namespace Ship_Game
             }
             var source = incomingShips.ToArray();
 
-
+            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
             var   rangePartitioner = Partitioner.Create(0, source.Length);
             Parallel.ForEach(rangePartitioner, (range, loopState) =>
                 {
-                    HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
+                    
                     for (int i = range.Item1; i < range.Item2; i++)
                     {
                         //for (int i = 0; i < incomingShips.Count; i++)
@@ -577,6 +640,7 @@ namespace Ship_Game
                                 //lock(this.EnemyClumpsDict)
                                 this.EnemyClumpsDict.TryAdd(ship, new List<Ship>());
                                 this.EnemyClumpsDict[ship].Add(ship);
+                                lock(ShipsAlreadyConsidered)
                                 ShipsAlreadyConsidered.Add(ship);
                                 //for (int j = 0; j < this.system.ShipList.Count; j++)
                                 //                             var source = Empire.universeScreen.MasterShipList.ToArray();

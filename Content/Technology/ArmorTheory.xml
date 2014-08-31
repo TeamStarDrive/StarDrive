@@ -31,4 +31,5 @@
   <BonusUnlocked />
   <TroopsUnlocked />
   <HullsUnlocked />
+  <Militaristic>true</Militaristic>
 </Technology>
