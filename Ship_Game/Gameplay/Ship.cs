@@ -3724,12 +3724,6 @@ namespace Ship_Game.Gameplay
                             this.Thrust += moduleSlot.module.thrust;
                             this.WarpThrust += (float)moduleSlot.module.WarpThrust;
                             this.TurnThrust += (float)moduleSlot.module.TurnThrust;
-                            //Added by McShooterz: shields keep charge when manually turned off
-                            if (this.ShieldsUp && !(this.engineState == Ship.MoveState.Warp))
-                            {
-                                this.shield_power += moduleSlot.module.shield_power;
-                                moduleSlot.module.shieldsOff = false;
-                            }
                             if (moduleSlot.module.ECM > this.ECMValue)
                             {
                                 this.ECMValue = moduleSlot.module.ECM;
@@ -3738,6 +3732,13 @@ namespace Ship_Game.Gameplay
                                 if (this.ECMValue < 0f)
                                     this.ECMValue = 0f;
                             }
+
+                            //Added by McShooterz: shields keep charge when manually turned off
+                            if (this.ShieldsUp && !(this.engineState == Ship.MoveState.Warp))
+                            {
+                                this.shield_power += moduleSlot.module.shield_power;
+                                moduleSlot.module.shieldsOff = false;
+                            }                            
                             else
                             {
                                 moduleSlot.module.shieldsOff = true;
