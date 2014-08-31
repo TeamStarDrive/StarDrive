@@ -5340,6 +5340,12 @@ namespace Ship_Game
 
 
         }
+        public int GetGroundLandingSpots()
+        {
+            return (int)(this.TilesList.Sum(spots => spots.number_allowed_troops)-this.TroopsHere.Count );
+
+
+        }
 
         //Added by McShooterz: heal builds and troops every turn
         public void HealBuildingsAndTroops()
@@ -5347,8 +5353,11 @@ namespace Ship_Game
             if (this.RecentCombat)
                 return;
             //heal troops
+            //Gremlin Dont heal enemy troops
             foreach (Troop troop in this.TroopsHere)
             {
+                if (troop.GetOwner() != this.Owner)
+                    continue;
                 if(troop.StrengthMax>0)
                     troop.Strength = troop.GetStrengthMax();
             }
