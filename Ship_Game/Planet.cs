@@ -145,6 +145,7 @@ namespace Ship_Game
         public int developmentLevel;
         public bool CorsairPresence;
         public bool queueEmptySent ;
+        public List<string> PlanetFleets = new List<string>();
         
 
         public Planet()
@@ -949,7 +950,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.TerranInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -964,7 +968,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.SteppeInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if(ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -979,7 +986,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.IceInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -994,7 +1004,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.BarrenInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1009,7 +1022,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.TundraInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1024,7 +1040,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.DesertInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1039,7 +1058,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.OceanicInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -1054,7 +1076,10 @@ namespace Ship_Game
                             {
                                 int num3 = (int)RandomMath.RandomBetween(1f, current.SwampInstanceMax + 0.95f);
                                 for (int index = 0; index < num3; ++index)
-                                    this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                {
+                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
+                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
+                                }
                             }
                         }
                         break;
@@ -2282,8 +2307,12 @@ namespace Ship_Game
 
         public void DoTroopTimers(float elapsedTime)
         {
-            foreach (Building building in this.BuildingList)
+            //foreach (Building building in this.BuildingList)
+            for (int x = 0; x < this.BuildingList.Count;x++ )
             {
+                Building building = this.BuildingList[x];
+                if (building == null)
+                    continue;
                 building.AttackTimer -= elapsedTime;
                 if ((double)building.AttackTimer < 0.0)
                 {
@@ -2292,8 +2321,12 @@ namespace Ship_Game
                 }
             }
             List<Troop> list = new List<Troop>();
-            foreach (Troop troop in this.TroopsHere)
+            //foreach (Troop troop in this.TroopsHere)
+            for (int x = 0; x < this.TroopsHere.Count;x++ )
             {
+                Troop troop = this.TroopsHere[x];
+                if (troop == null)
+                    continue;
                 if (troop.Strength <= 0)
                 {
                     list.Add(troop);
@@ -3113,7 +3146,7 @@ namespace Ship_Game
             qi.NotifyOnEmpty = false;
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
-            else if (this.Owner.GetTDict()["Terraforming"].Unlocked && (double)this.Fertility < 1.0)
+            else if (this.Owner.GetBDict()["Terraformer"] && (double)this.Fertility < 1.0)
             {
                 bool flag = true;
                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -3132,7 +3165,6 @@ namespace Ship_Game
             }
             else
             {
-                //if (!this.Owner.GetTDict()["Biospheres"].Unlocked)
                 if (!this.Owner.GetBDict()["Biospheres"])
                     return;
                 this.TryBiosphereBuild(ResourceManager.GetBuilding("Biospheres"), qi);
@@ -3241,7 +3273,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 5.0) && (double)this.NetProductionPerTurn > 6.0)
+                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 5.0) && (double)this.NetProductionPerTurn > 6.0)
                 {
                     bool flag2 = false;
                     foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -3302,7 +3334,6 @@ namespace Ship_Game
                         if (flag2)
                             this.AddBuildingToCQ(b);
                     }
-                    //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0)
                     else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0)
                     {
                         if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
@@ -3454,7 +3485,7 @@ namespace Ship_Game
                         {
                             double num4 = (double)this.AdjustResearchForProfit();
                         }
-                        if (this.Shipyards.Count == 0 && this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && (this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.Owner.MoneyLastTurn > 5.0) && (double)this.NetProductionPerTurn > 4.0)
+                        if (this.Shipyards.Count == 0 && this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.Owner.MoneyLastTurn > 5.0) && (double)this.NetProductionPerTurn > 4.0)
                         {
                             bool flag = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -3574,7 +3605,6 @@ namespace Ship_Game
                                 if (flag1)
                                     this.AddBuildingToCQ(b);
                             }
-                            //else if (this.Owner.GetTDict()["Biospheres"].Unlocked && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
                             else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
                             {
                                 if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
@@ -4026,7 +4056,7 @@ namespace Ship_Game
                             if (!flag1)
                                 this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                         }
-                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 3.0))
+                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 3.0))
                         {
                             bool flag1 = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -4132,7 +4162,7 @@ namespace Ship_Game
                             QueueItem qi = new QueueItem();
                             qi.isTroop = true;
                             qi.troop = troop.Value;
-                            qi.Cost = troop.Value.Cost;
+                            qi.Cost = troop.Value.GetCost();
                             qi.productionTowards = 0f;
                             qi.NotifyOnEmpty = false;
                             this.ConstructionQueue.Add(qi);                         
@@ -4327,7 +4357,11 @@ namespace Ship_Game
                 }
                 else if (queueItem.isShip && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
-                    Ship shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
+                    Ship shipAt;
+                    if (queueItem.isRefit && queueItem.RefitName != "")
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName, queueItem.sData.Level);
+                    else
+                       shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);     
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                     using (List<string>.Enumerator enumerator = Enumerable.ToList<string>((IEnumerable<string>)shipAt.GetMaxGoods().Keys).GetEnumerator())
                     {
@@ -4353,8 +4387,8 @@ namespace Ship_Game
                     if (queueItem.sData.Role == "station" || queueItem.sData.Role == "platform")
                     {
                         int num = this.Shipyards.Count / 4;
-                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2500 + 2500 * num));
-                        shipAt.Center = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2500 + 2500 * num));
+                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
+                        shipAt.Center = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
                         shipAt.TetherToPlanet(this);
                         this.Shipyards.Add(shipAt.guid, shipAt);
                     }
@@ -4473,6 +4507,8 @@ namespace Ship_Game
                     this.PlusProductionPerColonist += building.PlusProdPerColonist;
                 if ((double)building.Maintenance > 0.0)
                     this.TotalMaintenanceCostsPerTurn += building.Maintenance;
+                if ((double)building.MaxPopIncrease > 0.0)
+                    this.MaxPopBonus += building.MaxPopIncrease;
             }
             foreach (Troop troop in this.TroopsHere)
             {
@@ -4529,6 +4565,8 @@ namespace Ship_Game
                     this.PlusProductionPerColonist += building.PlusProdPerColonist;
                 if ((double)building.Maintenance > 0.0)
                     this.TotalMaintenanceCostsPerTurn += building.Maintenance;
+                if ((double)building.MaxPopIncrease > 0.0)
+                    this.MaxPopBonus += building.MaxPopIncrease;
             }
             foreach (Troop troop in this.TroopsHere)
             {
@@ -4577,7 +4615,8 @@ namespace Ship_Game
             {
                 foreach (Building building in this.BuildingList)
                 {
-                    if (building.NameTranslationIndex == 458)
+                    //if (building.NameTranslationIndex == 458)
+                    if (building.AllowShipBuilding || building.Name =="Space Port")
                         return true;
                 }
             }
@@ -4617,7 +4656,16 @@ namespace Ship_Game
                     if (keyValuePair.Value == null)
                         list.Add(keyValuePair.Key);
                     else if (keyValuePair.Value.Active && keyValuePair.Value.GetShipData().IsShipyard)
-                        this.ShipBuildingModifier += 0.25f;
+                    {
+                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.ShipyardBonus > 0)
+                        {
+                            this.ShipBuildingModifier += GlobalStats.ActiveMod.mi.ShipyardBonus;
+                        }
+                        else
+                        {
+                            this.ShipBuildingModifier += 0.25f;
+                        }
+                    }
                     else if (!keyValuePair.Value.Active)
                         list.Add(keyValuePair.Key);
                 }
@@ -4633,7 +4681,8 @@ namespace Ship_Game
                     Building building = this.BuildingList[index];
                     if (building.WinsGame)
                         this.HasWinBuilding = true;
-                    if (building.NameTranslationIndex == 458)
+                    //if (building.NameTranslationIndex == 458)
+                    if (building.Name == "Space Port")
                         this.HasShipyard = true;
                     if ((double)building.PlusFlatPopulation > 0.0)
                         this.PlusFlatPopulationPerTurn += building.PlusFlatPopulation;

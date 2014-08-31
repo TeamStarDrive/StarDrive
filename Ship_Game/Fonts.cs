@@ -23,6 +23,8 @@ namespace Ship_Game
 
 		private static SpriteFont verdana12Bold;
 
+        private static SpriteFont verdana10;
+
 		private static SpriteFont verdana14Bold;
 
 		private static SpriteFont verdana12;
@@ -30,6 +32,8 @@ namespace Ship_Game
 		private static SpriteFont arial12;
 
 		private static SpriteFont tahomaBold9;
+
+        private static SpriteFont arial11Bold;
 
 		private static SpriteFont arial12Bold;
 
@@ -81,6 +85,14 @@ namespace Ship_Game
 				return Fonts.arial10;
 			}
 		}
+
+        public static SpriteFont Arial11Bold
+        {
+            get
+            {
+                return Fonts.arial11Bold;
+            }
+        }
 
 		public static SpriteFont Arial12
 		{
@@ -233,6 +245,14 @@ namespace Ship_Game
 				return Fonts.verdana12Bold;
 			}
 		}
+
+        public static SpriteFont Verdana10
+        {
+            get
+            {
+                return Fonts.verdana10;
+            }
+        }
 
 		public static SpriteFont Verdana14Bold
 		{
@@ -391,6 +411,7 @@ namespace Ship_Game
 			Fonts.arial12Bold = contentManager.Load<SpriteFont>("Fonts/Arial12Bold");
 			SpriteFont spriteFont = Fonts.arial12Bold;
 			spriteFont.LineSpacing = spriteFont.LineSpacing - 2;
+            Fonts.arial11Bold = contentManager.Load<SpriteFont>("Fonts/Arial11Bold");
 			Fonts.arial10 = contentManager.Load<SpriteFont>("Fonts/Arial10");
 			SpriteFont lineSpacing1 = Fonts.arial10;
 			lineSpacing1.LineSpacing = lineSpacing1.LineSpacing - 2;
@@ -432,6 +453,7 @@ namespace Ship_Game
 			Fonts.verdana14Bold = contentManager.Load<SpriteFont>("Fonts/Verdana14Bold");
 			Fonts.verdana12 = contentManager.Load<SpriteFont>("Fonts/Verdana12");
 			Fonts.verdana12Bold = contentManager.Load<SpriteFont>("Fonts/Verdana12Bold");
+            Fonts.verdana10 = contentManager.Load<SpriteFont>("Fonts/Verdana10");
 		}
 
 		public static void UnloadContent()

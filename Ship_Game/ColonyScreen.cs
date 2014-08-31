@@ -329,7 +329,7 @@ namespace Ship_Game
 			{
 				isTroop = true,
 				troop = ResourceManager.TroopsDict["Terran/Space Marine"],
-				Cost = ResourceManager.TroopsDict["Terran/Space Marine"].Cost,
+                Cost = ResourceManager.TroopsDict["Terran/Space Marine"].GetCost(),
 				productionTowards = 0f
 			};
 			this.p.ConstructionQueue.Add(qItem);
@@ -693,7 +693,7 @@ namespace Ship_Game
                     Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
                     position = new Vector2((float) (destinationRectangle2.X + 26), (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int) (entry.item as Troop).Cost).ToString(), position, Color.White);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
                     if (entry.Plus != 0)
                     {
                       if (entry.PlusHover == 0)
@@ -726,7 +726,7 @@ namespace Ship_Game
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
                   position = new Vector2((float) (destinationRectangle2.X + 26), (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int) (entry.item as Troop).Cost).ToString(), position, Color.White);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
                   if (entry.Plus != 0)
                   {
                     if (entry.PlusHover == 0)
@@ -791,7 +791,7 @@ namespace Ship_Game
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
                   position = new Vector2((float) (destinationRectangle2.X + 26), (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int) (entry.item as Troop).Cost).ToString(), position, Color.White);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
                   if (entry.Plus != 0)
                   {
                     if (entry.PlusHover == 0)
@@ -823,7 +823,7 @@ namespace Ship_Game
                   Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
                   position = new Vector2((float) (destinationRectangle2.X + 26), (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int) (entry.item as Troop).Cost).ToString(), position, Color.White);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
                   if (entry.Plus != 0)
                   {
                     if (entry.PlusHover == 0)
@@ -2586,7 +2586,7 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 								{
 									qi.isTroop = true;
 									qi.troop = e.item as Troop;
-									qi.Cost = (e.item as Troop).Cost;
+                                    qi.Cost = (e.item as Troop).GetCost();
 									qi.productionTowards = 0f;
 									this.p.ConstructionQueue.Add(qi);
 									AudioManager.PlayCue("sd_ui_mouseover");
@@ -2628,7 +2628,7 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 						{
 							qi.isTroop = true;
 							qi.troop = e.item as Troop;
-							qi.Cost = (e.item as Troop).Cost;
+                            qi.Cost = (e.item as Troop).GetCost();
 							qi.productionTowards = 0f;
 							this.p.ConstructionQueue.Add(qi);
 						}

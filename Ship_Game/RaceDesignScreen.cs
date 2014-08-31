@@ -110,6 +110,8 @@ namespace Ship_Game
 
 		protected UIButton Abort;
 
+        protected UIButton ClearTraits;
+
 		protected List<UIButton> Buttons = new List<UIButton>();
 
 		private int numOpponents = 7;
@@ -902,7 +904,6 @@ namespace Ship_Game
 			this.DescriptionSL.Entries.Clear();
 			this.DescriptionSL.Copied.Clear();
 			HelperFunctions.parseTextToSL(this.rd, (float)(this.Description.Menu.Width - 50), Fonts.Arial12, ref this.DescriptionSL);
-			this.RaceSummary.RaceDescription = this.rd;
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -1340,6 +1341,13 @@ namespace Ship_Game
                         AudioManager.PlayCue("echo_affirm");
                         this.ExitScreen();
                     }
+                    else if (str == "Clear")
+                    {
+                        foreach (TraitEntry trait in this.AllTraits)
+                        {
+                            trait.Selected = false;
+                        }
+                    }
                 }
             }
             this.DescriptionSL.HandleInput(input);
@@ -1713,6 +1721,14 @@ namespace Ship_Game
                     {
                         AudioManager.PlayCue("echo_affirm");
                         this.ExitScreen();
+                    }
+                    else if (str == "Clear")
+                    {
+                        foreach (TraitEntry trait in this.AllTraits)
+                        {
+                            trait.Selected = false;
+                        }
+                        this.TotalPointsUsed = 8;
                     }
                 }
             }
@@ -2215,6 +2231,16 @@ namespace Ship_Game
 				Launches = "Abort"
 			};
 			this.Buttons.Add(this.Abort);
+            this.ClearTraits = new UIButton()
+            {
+                Rect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150, this.Description.Menu.Y + this.Description.Menu.Height - 40, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
+                Text = "Clear Traits",
+                Launches = "Clear"
+            };
+            this.Buttons.Add(this.ClearTraits);
 			this.DoRaceDescription();
 			this.SetEmpireData(this.SelectedData);
 			base.LoadContent();
@@ -2466,7 +2492,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				ex.Excluded = false;
+				ex.Excluded = true;
 			}
 		}
 
