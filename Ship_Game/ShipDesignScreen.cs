@@ -191,6 +191,8 @@ namespace Ship_Game
 
         private string LoadCategory;
 
+        public string HangarShipUIDLast = "Undefined";
+
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
 			this.EmpireUI = EmpireUI;
@@ -1808,13 +1810,22 @@ namespace Ship_Game
                         modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
                         tag = "";
                     }
-					if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile)
+
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats && (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile & !Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Guided))
+                    {
+                        tag = string.Concat(tag, "ROCKET ");
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
+                        modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
+                        tag = "";
+                    }
+					else if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile)
 					{
 						tag = string.Concat(tag, "MISSILE ");
 						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
 						modTitlePos.X = modTitlePos.X + Fonts.Arial8Bold.MeasureString(tag).X;
 						tag = "";
 					}
+
                     if (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Tractor)
                     {
                         tag = string.Concat(tag, "TRACTOR ");
@@ -2076,6 +2087,7 @@ namespace Ship_Game
                         r.Height = r.Height - 25;
                         sel = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 210));
                         sel.Draw();
+                        this.UpdateHangarOptions(mod);
                         this.ChooseFighterSub.Draw();
                         this.ChooseFighterSL.Draw(base.ScreenManager.SpriteBatch);
                         Vector2 bCursor = new Vector2((float)(this.ChooseFighterSub.Menu.X + 15), (float)(this.ChooseFighterSub.Menu.Y + 25));
@@ -2390,7 +2402,8 @@ namespace Ship_Game
 				}
 				else if (e.item is ShipModule)
 				{
-                    bCursor.X -= 5f;
+                    
+                    bCursor.X += 5f;
 					Rectangle modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Width, Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Height);
 					Vector2 vector2 = new Vector2(bCursor.X + 15f, bCursor.Y + 15f);
 					Vector2 vector21 = new Vector2((float)(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath].Height / 2));
@@ -2404,7 +2417,7 @@ namespace Ship_Game
 					modRect.Height = (int)h;
 					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].IconTexturePath], modRect, Color.White);
                     //Added by McShooterz: allow longer modules names
-					Vector2 tCursor = new Vector2(bCursor.X + 30f, bCursor.Y + 3f);
+					Vector2 tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
                     if (Fonts.Arial12Bold.MeasureString(Localizer.Token((e.item as ShipModule).NameIndex)).X + 90 < this.modSel.Menu.Width)
                     {
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
@@ -2419,7 +2432,7 @@ namespace Ship_Game
 					tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].Restrictions.ToString()).X;
                     if (Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].InstalledWeapon != null || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].CanRotate || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].XSIZE != Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].YSIZE)
 					{
-						Rectangle rotateRect = new Rectangle((int)bCursor.X + 255, (int)bCursor.Y + 3, 20, 22);
+						Rectangle rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
 						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_can_rotate"], rotateRect, Color.White);
 						if (HelperFunctions.CheckIntersection(rotateRect, MousePos))
 						{
@@ -2545,6 +2558,12 @@ namespace Ship_Game
                                     ModuleHeader type = new ModuleHeader("Tractor Beam", 240f);
                                     this.weaponSL.AddItem(type);
                                 }
+                                if (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided && !WeaponCategories.Contains("Unguided Rocket"))
+                                {
+                                    WeaponCategories.Add("Unguided Rocket");
+                                    ModuleHeader type = new ModuleHeader("Unguided Rocket", 240f);
+                                    this.weaponSL.AddItem(type);
+                                }
                                 else if (!WeaponCategories.Contains(tmp.InstalledWeapon.WeaponType))
                                 {
                                     WeaponCategories.Add(tmp.InstalledWeapon.WeaponType);
@@ -2640,7 +2659,7 @@ namespace Ship_Game
 							{
                                 if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats)
                                 {
-                                    if (tmp.InstalledWeapon.Tag_Flak || tmp.InstalledWeapon.Tag_Array || tmp.InstalledWeapon.Tag_Railgun || tmp.InstalledWeapon.Tag_Tractor)
+                                    if (tmp.InstalledWeapon.Tag_Flak || tmp.InstalledWeapon.Tag_Array || tmp.InstalledWeapon.Tag_Railgun || tmp.InstalledWeapon.Tag_Tractor || (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided))
                                     {
                                         if ((e.item as ModuleHeader).Text == "Flak Cannon" && tmp.InstalledWeapon.Tag_Flak)
                                             e.AddItem(module.Value);
@@ -2649,6 +2668,8 @@ namespace Ship_Game
                                         if ((e.item as ModuleHeader).Text == "Beam Array" && tmp.InstalledWeapon.Tag_Array)
                                             e.AddItem(module.Value);
                                         if ((e.item as ModuleHeader).Text == "Tractor Beam" && tmp.InstalledWeapon.Tag_Tractor)
+                                            e.AddItem(module.Value);
+                                        if ((e.item as ModuleHeader).Text == "Unguided Rocket" && tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided)
                                             e.AddItem(module.Value);
                                     }
                                     else if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
@@ -3728,6 +3749,20 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat(stat.ToString(), "% ", words), Cursor, Color.Orange);
         }
 
+        private string GetNumberString(float stat)
+        {
+            if (stat < 1000f)
+                return stat.ToString("#.#");
+            else if (stat < 10000f)
+                return stat.ToString("#");
+            float single = stat / 1000f;
+            if (single < 100)
+                return string.Concat(single.ToString("#.##"), "k");
+            if(single < 1000)
+                return string.Concat(single.ToString("#.#"), "k");
+            return string.Concat(single.ToString("#"), "k");
+        }
+
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, string tip)
 		{
 			float amount = 105f;
@@ -3739,25 +3774,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000f)
-			{
-				numbers = stat.ToString("#.#");
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
-			if (stat == 0f)
-			{
-				numbers = "0";
-			}
+            string numbers = GetNumberString(stat);
 			Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
 			Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -3778,21 +3795,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000f)
-			{
-				numbers = stat.ToString("#.#");
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
+            string numbers = GetNumberString(stat);
 			if (stat == 0f)
 			{
 				numbers = "0";
@@ -3817,21 +3820,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("#.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
@@ -3856,21 +3845,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("#.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
@@ -3939,21 +3914,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000)
-			{
-				numbers = stat.ToString();
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
+            string numbers = GetNumberString(stat);
 			if (stat == 0)
 			{
 				numbers = "0";
@@ -3978,21 +3939,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000)
-			{
-				numbers = stat.ToString();
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
+            string numbers = GetNumberString(stat);
 			Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
 			Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4013,21 +3960,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
-            string numbers = "";
-            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000)
-            {
-                numbers = stat.ToString();
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
             Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4048,21 +3981,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.Goldenrod);
-            string numbers = "";
-            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000)
-            {
-                numbers = stat.ToString();
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
             Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4083,21 +4002,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
-            string numbers = "";
-            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000)
-            {
-                numbers = stat.ToString();
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
             Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4119,21 +4024,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.IndianRed);
-            string numbers = "";
-            if (stat >= 1000 && stat < 10000 || stat <= -1000 && stat > -10000)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000)
-            {
-                numbers = stat.ToString();
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0 ? Color.LightGreen : Color.LightPink));
             Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
@@ -4274,21 +4165,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-			string numbers = "";
-			if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-			{
-				float single = (float)stat / 1000f;
-				numbers = string.Concat(single.ToString("#.#"), "k");
-			}
-			else if (stat < 10000f)
-			{
-				numbers = stat.ToString("0.#");
-			}
-			else
-			{
-				float single1 = (float)stat / 1000f;
-				numbers = string.Concat(single1.ToString("#"), "k");
-			}
+            string numbers = GetNumberString(stat);
 			if (stat == 0f)
 			{
 				numbers = "0";
@@ -4313,21 +4190,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("0.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
@@ -4352,21 +4215,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.DarkSeaGreen);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("0.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
@@ -4391,21 +4240,7 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.IndianRed);
-            string numbers = "";
-            if (stat >= 1000f && stat < 10000f || stat <= -1000f && stat > -10000f)
-            {
-                float single = (float)stat / 1000f;
-                numbers = string.Concat(single.ToString("#.#"), "k");
-            }
-            else if (stat < 10000f)
-            {
-                numbers = stat.ToString("0.#");
-            }
-            else
-            {
-                float single1 = (float)stat / 1000f;
-                numbers = string.Concat(single1.ToString("#"), "k");
-            }
+            string numbers = GetNumberString(stat);
             if (stat == 0f)
             {
                 numbers = "0";
@@ -5063,6 +4898,7 @@ namespace Ship_Game
                 {
                     if (this.ActiveModule.ModuleType == ShipModuleType.Hangar && !this.ActiveModule.IsTroopBay && !this.ActiveModule.IsSupplyBay)
                     {
+                        this.UpdateHangarOptions(this.ActiveModule);
                         this.ChooseFighterSL.HandleInput(input);
                         for (int index = this.ChooseFighterSL.indexAtTop; index < this.ChooseFighterSL.Copied.Count && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
                         {
@@ -5075,6 +4911,7 @@ namespace Ship_Game
                                 if (input.InGameSelect)
                                 {
                                     this.ActiveModule.hangarShipUID = (entry.item as Ship).Name;
+                                    this.HangarShipUIDLast = (entry.item as Ship).Name;
                                     AudioManager.PlayCue("sd_ui_accept_alt3");
                                     return;
                                 }
@@ -5096,6 +4933,7 @@ namespace Ship_Game
                             if (input.InGameSelect)
                             {
                                 this.HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
+                                this.HangarShipUIDLast = (entry.item as Ship).Name;
                                 AudioManager.PlayCue("sd_ui_accept_alt3");
                                 return;
                             }
@@ -5488,7 +5326,10 @@ namespace Ship_Game
                 }
                 this.RecalculatePower();
                 this.ShipSaved = false;
-                this.ActiveModule = ResourceManager.GetModule(this.ActiveModule.UID);
+                if (this.ActiveModule.ModuleType != ShipModuleType.Hangar)
+                {
+                    this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+                }
                 this.ChangeModuleState(this.ActiveModState);
             }
             else
@@ -5530,6 +5371,7 @@ namespace Ship_Game
                 slot.module = this.ActiveModule;
                 slot.module.SetAttributesNoParent();
                 slot.state = this.ActiveModState;
+                slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
                 slot.module.facing = this.ActiveModule.facing;
                 slot.tex = Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
                 for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
@@ -5556,7 +5398,10 @@ namespace Ship_Game
                 }
                 this.RecalculatePower();
                 this.ShipSaved = false;
-                this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+                if (this.ActiveModule.ModuleType != ShipModuleType.Hangar)
+                {
+                    this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+                }
                 this.ChangeModuleState(this.ActiveModState);
             }
             else
@@ -5586,6 +5431,7 @@ namespace Ship_Game
                 slot.module = this.ActiveModule;
                 slot.module.SetAttributesNoParent();
                 slot.state = activeModuleState;
+                //slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
                 slot.module.facing = slot.facing;
                 slot.tex = ResourceManager.TextureDict[ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
                 for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
@@ -5642,6 +5488,7 @@ namespace Ship_Game
                 slot.module = this.ActiveModule;
                 slot.module.SetAttributesNoParent();
                 slot.state = this.ActiveModState;
+                slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
                 slot.module.facing = this.ActiveModule.facing;
                 slot.tex = ResourceManager.TextureDict[ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
                 //set other slots occupied by the module to use this slot as parent
@@ -5669,7 +5516,10 @@ namespace Ship_Game
                 }
                 this.RecalculatePower();
                 this.ShipSaved = false;
-                this.ActiveModule = ResourceManager.GetModule(this.ActiveModule.UID);
+                if (this.ActiveModule.ModuleType != ShipModuleType.Hangar)
+                {
+                    this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+                }
                 //grabs a fresh copy of the same module type to cursor 
                 this.ChangeModuleState(this.ActiveModState);
                 //set rotation for new module at cursor
@@ -6502,7 +6352,11 @@ namespace Ship_Game
 					}
 					this.ChooseFighterSL.AddItem(Ship_Game.ResourceManager.ShipsDict[shipname]);
 				}
-				if (this.ChooseFighterSL.Entries.Count > 0)
+                if (this.HangarShipUIDLast != "Undefined" && this.ActiveModule.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].Role) && this.ActiveModule.MaximumHangarShipSize >= Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].Size)
+                {
+                    this.ActiveModule.hangarShipUID = this.HangarShipUIDLast;
+                }
+				else if (this.ChooseFighterSL.Entries.Count > 0)
 				{
 					this.ActiveModule.hangarShipUID = (this.ChooseFighterSL.Entries[0].item as Ship).Name;
 				}
@@ -6511,6 +6365,23 @@ namespace Ship_Game
 			this.HoveredModule = null;
 			this.ResetModuleState();
 		}
+
+        public void UpdateHangarOptions(ShipModule mod)
+        {
+            if (mod.ModuleType == ShipModuleType.Hangar)
+            {
+                this.ChooseFighterSL.Entries.Clear();
+                this.ChooseFighterSL.Copied.Clear();
+                foreach (string shipname in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).ShipsWeCanBuild)
+                {
+                    if (!mod.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[shipname].Role) || Ship_Game.ResourceManager.ShipsDict[shipname].Size >= mod.MaximumHangarShipSize)
+                    {
+                        continue;
+                    }
+                    this.ChooseFighterSL.AddItem(Ship_Game.ResourceManager.ShipsDict[shipname]);
+                }
+            }
+        }
 
 		private void SetupSlots()
 		{

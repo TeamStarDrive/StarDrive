@@ -20,21 +20,25 @@ namespace Ship_Game
         public string Version;
 
         //added by McShooterz
-        public bool useRacialTech;
         public bool useAlternateTech;
         public bool useHullBonuses;
         public bool useWeaponModifiers;
         public bool removeRemnantStory;
         public bool useCombatRepair;
+        public bool clearVanillaTechs;
 
         //added by The Doctor
+        public bool customMilTraitTechs;
+        public bool customRemnantElements;
+        public bool enableECM;
         public bool useDestroyers;
         public bool useDrones;
-        public bool enableECM;
-        public bool useProportionalUpkeep;
-        public bool usePlanetaryProjection;
         public bool expandedWeaponCats;
         public bool overrideSecretsTree;
+        public bool usePlanetaryProjection;
+        public bool useProportionalUpkeep;
+        
+        
 
         public float ShipyardBonus;
         public float UpkeepBaseline;
