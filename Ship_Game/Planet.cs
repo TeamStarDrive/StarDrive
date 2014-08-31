@@ -4499,6 +4499,8 @@ namespace Ship_Game
                     this.PlusProductionPerColonist += building.PlusProdPerColonist;
                 if ((double)building.Maintenance > 0.0)
                     this.TotalMaintenanceCostsPerTurn += building.Maintenance;
+                if ((double)building.MaxPopIncrease > 0.0)
+                    this.MaxPopBonus += building.MaxPopIncrease;
             }
             foreach (Troop troop in this.TroopsHere)
             {
@@ -4555,6 +4557,8 @@ namespace Ship_Game
                     this.PlusProductionPerColonist += building.PlusProdPerColonist;
                 if ((double)building.Maintenance > 0.0)
                     this.TotalMaintenanceCostsPerTurn += building.Maintenance;
+                if ((double)building.MaxPopIncrease > 0.0)
+                    this.MaxPopBonus += building.MaxPopIncrease;
             }
             foreach (Troop troop in this.TroopsHere)
             {
