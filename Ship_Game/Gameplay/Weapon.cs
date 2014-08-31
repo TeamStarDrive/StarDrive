@@ -225,7 +225,7 @@ namespace Ship_Game.Gameplay
 
         public float TerminalPhaseDistance;
 
-        public float TerminalPhaseSpeed;
+        public float TerminalPhaseSpeedMod;
 
 
         public GameplayObject SalvoTarget = null;

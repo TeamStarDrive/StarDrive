@@ -191,6 +191,37 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        private void MoveTowardsTargetTerminal(float elapsedTime)
+        {
+            if (this.Target == null)
+            {
+                return;
+            }
+            try
+            {
+                Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                Vector2 right = new Vector2(-forward.Y, forward.X);
+                Vector2 AimPosition = this.Target.Center;
+                Vector2 LeftStick = this.findVectorToTarget(this.Owner.Center, AimPosition);
+                LeftStick.Y = LeftStick.Y * -1f;
+                Vector2 wantedForward = Vector2.Normalize(LeftStick);
+                float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
+                if (angleDiff > 0.2f)
+                {
+                    Projectile owner = this.Owner;
+                    owner.Rotation = owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
+                }
+                wantedForward = Vector2.Normalize(forward);
+                this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
+                this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum * this.Owner.weapon.TerminalPhaseSpeedMod;
+            }
+            catch
+            {
+                this.Target = null;
+            }
+        }
+
 		public void SetTarget(GameplayObject target)
 		{
             if (target == null)
@@ -204,11 +235,13 @@ namespace Ship_Game.Gameplay
         {
 
             float DistancetoTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
+
             if ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM) && this.Target != null && this.Jammed)
             {
                 this.MoveTowardsTargetJammed(elapsedTime);
                 return;
             }
+
             if ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM) && this.Target != null && !ECMRun && DistancetoTarget <= 4000)
             {
                 ECMRun = true;
@@ -221,6 +254,12 @@ namespace Ship_Game.Gameplay
                     this.MoveTowardsTargetJammed(elapsedTime);
                     return;
                 }
+            }
+
+            if (this.Owner.weapon.TerminalPhaseAttack && DistancetoTarget <= this.Owner.weapon.TerminalPhaseDistance)
+            {
+                this.MoveTowardsTargetTerminal(elapsedTime);
+                return;
             }
 
             this.thinkTimer -= elapsedTime;
