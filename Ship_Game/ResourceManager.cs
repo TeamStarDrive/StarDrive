@@ -1454,7 +1454,10 @@ namespace Ship_Game
                 Excludes_Capitals = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Capitals,
                 Excludes_Stations = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Stations,
                 isRepairBeam = Ship_Game.ResourceManager.WeaponsDict[uid].isRepairBeam,
-                ExplosionRadiusVisual = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionRadiusVisual
+                ExplosionRadiusVisual = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionRadiusVisual,
+                TerminalPhaseAttack = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseAttack,
+                TerminalPhaseDistance = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseDistance,
+                TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod
 			};
 			return w;
 		}
