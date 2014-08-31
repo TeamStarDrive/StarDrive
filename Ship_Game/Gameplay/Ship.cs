@@ -32,7 +32,6 @@ namespace Ship_Game.Gameplay
         private Dictionary<Vector2, ModuleSlot> ModulesDictionary = new Dictionary<Vector2, ModuleSlot>();
         public float DefaultFTLSpeed = 1000f;
         public float RepairRate = 1f;
-        public float RepairUsed = 0f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
         public float maxBank = 0.5235988f;
@@ -228,6 +227,7 @@ namespace Ship_Game.Gameplay
         public bool hasOrdnanceTransporter;
         public bool hasAssaultTransporter;
         public bool hasRepairBeam;
+        private float repairTimer = 1f;
 
 
         public bool IsWarpCapable
@@ -2514,12 +2514,21 @@ namespace Ship_Game.Gameplay
             this.TroopCapacity = 0;
             this.MechanicalBoardingDefense = 0.0f;
             this.TroopBoardingDefense = 0.0f;
+            this.ECMValue = 0.0f;
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 if (moduleSlot.Restrictions == Restrictions.I)
                 {
                     ++this.number_Internal_modules;
                     ++this.number_Alive_Internal_modules;
+                }
+                if (moduleSlot.module.ECM > this.ECMValue)
+                {
+                    this.ECMValue = moduleSlot.module.ECM;
+                    if (this.ECMValue > 1.0f)
+                        this.ECMValue = 1.0f;
+                    if (this.ECMValue < 0f)
+                        this.ECMValue = 0f;
                 }
                 Ship ship1 = this;
                 double num1 = (double)ship1.mass + (double)moduleSlot.module.Mass;
@@ -2954,18 +2963,46 @@ namespace Ship_Game.Gameplay
                     Vector2 vector2_2 = ship3.Center + this.Velocity * elapsedTime;
                     ship3.Center = vector2_2;
                     this.UpdateShipStatus(elapsedTime);
-                    //Added by McShooterz: Priority repair
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
+                    this.repairTimer -= elapsedTime;
+                    //Combat repair
+                    if (this.LastHitTimer > 0 && this.repairTimer <= 0 && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
                     {
+                        this.repairTimer = 0.5f;
+                        float repairTracker = 0f;
+                        //Added by McShooterz: Priority repair
                         IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
-                        //to list in this case is consuming a lot of cpu time. AS is faster but... any case this piece takes a lot of CPU time.
-                        foreach (ModuleSlot moduleSlot in repairmodule) // this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable)
+                        foreach (ModuleSlot moduleSlot in repairmodule)
                         {
                             //if destroyed do not repair in combat
-                            if (moduleSlot.module.Health <= 1 && this.LastHitTimer > 0)
+                            if (moduleSlot.module.Health < 1)
                                 continue;
-                            moduleSlot.module.Health += this.RepairRate * elapsedTime;
-                            break;
+                            repairTracker = this.RepairRate * 0.5f - (moduleSlot.module.HealthMax - moduleSlot.module.Health);
+                            moduleSlot.module.Health += this.RepairRate * 0.5f;
+                            if (repairTracker > 0)
+                                this.RepairRate = repairTracker;
+                            else
+                                break;
+                        }
+                    }
+                    //Out of combat repair
+                    //The Doctor: this didn't have a last hit timer check. It's an else if, BUT the previous if was checking ActiveMod and ActiveMod.mi.useCombatRepair, so this would cause
+                    //in-combat repairs for all ships when combat repair was disabled, as it wouldn't be checking the combat status if not using a mod and not using useCombatRepair... */
+                    else if(this.repairTimer <= 0 && (!this.InCombat && this.LastHitTimer <= 0))
+                    {
+                        this.repairTimer = 2f;
+                        if (this.Health < this.HealthMax)
+                        {
+                            float repairTracker = 0f;
+                            IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                            foreach (ModuleSlot moduleSlot in repairmodule)
+                            {
+                                repairTracker = this.RepairRate * 2f - (moduleSlot.module.HealthMax - moduleSlot.module.Health);
+                                moduleSlot.module.Health += this.RepairRate * 2f;
+                                if (repairTracker > 0)
+                                    this.RepairRate = repairTracker;
+                                else
+                                    break;
+                            }
                         }
                     }
                     if (!this.Active)
@@ -3575,7 +3612,6 @@ namespace Ship_Game.Gameplay
                     this.OrdinanceMax = 0.0f;
                     this.PowerDraw = 0.0f;
                     this.RepairRate = 1f;
-                    this.RepairUsed = 0.0f;
                     this.WarpMassCapacity = 0.0f;
                     this.CargoSpace_Max = 0.0f;
                     this.SensorRange = 0.0f;
@@ -3593,6 +3629,7 @@ namespace Ship_Game.Gameplay
                     this.FTLCount = 0;
                     this.FTLSpeed = 0.0f;
                     this.HealPerTurn = 0;
+                    this.ECMValue = 0f;
                     foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.MaxGoodStorageDict.Keys))
                         this.MaxGoodStorageDict[index] = 0.0f;
                     foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
@@ -3687,12 +3724,21 @@ namespace Ship_Game.Gameplay
                             this.Thrust += moduleSlot.module.thrust;
                             this.WarpThrust += (float)moduleSlot.module.WarpThrust;
                             this.TurnThrust += (float)moduleSlot.module.TurnThrust;
+                            if (moduleSlot.module.ECM > this.ECMValue)
+                            {
+                                this.ECMValue = moduleSlot.module.ECM;
+                                if (this.ECMValue > 1.0f)
+                                    this.ECMValue = 1.0f;
+                                if (this.ECMValue < 0f)
+                                    this.ECMValue = 0f;
+                            }
+
                             //Added by McShooterz: shields keep charge when manually turned off
                             if (this.ShieldsUp && !(this.engineState == Ship.MoveState.Warp))
                             {
                                 this.shield_power += moduleSlot.module.shield_power;
                                 moduleSlot.module.shieldsOff = false;
-                            }
+                            }                            
                             else
                             {
                                 moduleSlot.module.shieldsOff = true;

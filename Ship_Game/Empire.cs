@@ -96,6 +96,9 @@ namespace Ship_Game
         public Planet Capital;
         public int EmpireShipCountReserve;
         public int empireShipTotal;
+        public bool canBuildCapitals;
+        public bool canBuildCruisers;
+        public bool canBuildFrigates;
 
         static Empire()
         {
@@ -397,7 +400,7 @@ namespace Ship_Game
                 techEntry.UID = keyValuePair.Key;
 
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useRacialTech && keyValuePair.Value.RaceRestrictions.Count != 0)
+                if (keyValuePair.Value.RaceRestrictions.Count != 0)
                 {
                     techEntry.Discovered = false;
                     techEntry.GetTech().Secret = true;
@@ -407,7 +410,7 @@ namespace Ship_Game
                         {
                             techEntry.Discovered = true;
                             techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
-                            if (GlobalStats.ActiveMod.mi.useAlternateTech && this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
+                            if (this.data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
                                 techEntry.Unlocked = true;
                             break;
                         }
@@ -425,20 +428,24 @@ namespace Ship_Game
                 if (this.data.Traits.Militaristic == 1)
                 {
                     //added by McShooterz: alternate way to unlock militaristic techs
-                    if (GlobalStats.ActiveMod != null && techEntry.GetTech().RaceRestrictions.Count == 0 && GlobalStats.ActiveMod.mi.useAlternateTech && techEntry.GetTech().Militaristic)
+                    if (techEntry.GetTech().Militaristic && techEntry.GetTech().RaceRestrictions.Count == 0)
                         techEntry.Unlocked = true;
 
-                    if (techEntry.UID == "HeavyFighterHull")
+                    // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
+                    if (GlobalStats.ActiveMod == null || (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.customMilTraitTechs))
                     {
-                        techEntry.Unlocked = true;
-                    }
-                    if (techEntry.UID == "Military")
-                    {
-                        techEntry.Unlocked = true;
-                    }
-                    if (techEntry.UID == "ArmorTheory")
-                    {
-                        techEntry.Unlocked = true;
+                        if (techEntry.UID == "HeavyFighterHull")
+                        {
+                            techEntry.Unlocked = true;
+                        }
+                        if (techEntry.UID == "Military")
+                        {
+                            techEntry.Unlocked = true;
+                        }
+                        if (techEntry.UID == "ArmorTheory")
+                        {
+                            techEntry.Unlocked = true;
+                        }
                     }
                 }
                 if (techEntry.Unlocked)
@@ -551,6 +558,13 @@ namespace Ship_Game
                 return;
             this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
             this.TechnologyDict[techID].Unlocked = true;
+            //Set GSAI to build ship roles
+            if (this.TechnologyDict[techID].GetTech().unlockBattleships || techID == "Battleships")
+                this.canBuildCapitals = true;
+            if (this.TechnologyDict[techID].GetTech().unlockCruisers || techID == "Cruisers")
+                this.canBuildCruisers = true;
+            if (this.TechnologyDict[techID].GetTech().unlockFrigates || techID == "FrigateConstruction")
+                this.canBuildFrigates = true;
             //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {
@@ -582,12 +596,34 @@ namespace Ship_Game
                 if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
             }
+
+            // Added by The Doctor - trigger events with unlocking of techs, via Technology XML
             foreach (Technology.TriggeredEvent triggeredEvent in ResourceManager.TechTree[techID].EventsTriggered)
             {
-                if (triggeredEvent.Type == this.data.Traits.ShipType || triggeredEvent.Type == null || triggeredEvent.Type == this.TechnologyDict[techID].AcquiredFrom)
+                if (triggeredEvent.CustomMessage != null)
                 {
-                    Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict[triggeredEvent.EventUID]);
+                    if ((triggeredEvent.Type == this.data.Traits.ShipType || triggeredEvent.Type == null || triggeredEvent.Type == this.TechnologyDict[techID].AcquiredFrom) && this.isPlayer)
+                    {
+                        Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict[triggeredEvent.EventUID], triggeredEvent.CustomMessage);
+                    }
                 }
+                else if (triggeredEvent.CustomMessage == null)
+                {
+                    if ((triggeredEvent.Type == this.data.Traits.ShipType || triggeredEvent.Type == null || triggeredEvent.Type == this.TechnologyDict[techID].AcquiredFrom) && this.isPlayer)
+                    {
+                        Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict[triggeredEvent.EventUID]);
+                    }
+                }
+           }
+
+            // Added by The Doctor - reveal specified 'secret' techs with unlocking of techs, via Technology XML
+            foreach (Technology.RevealedTech revealedTech in ResourceManager.TechTree[techID].TechsRevealed)
+            {
+                if (revealedTech.Type == this.data.Traits.ShipType || revealedTech.Type == null || revealedTech.Type == this.TechnologyDict[techID].AcquiredFrom)
+                {
+                    this.GetTDict()[revealedTech.RevUID].Discovered = true;
+                }
+
             }
             foreach (Technology.UnlockedBonus unlockedBonus in ResourceManager.TechTree[techID].BonusUnlocked)
             {

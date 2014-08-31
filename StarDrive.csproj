@@ -1572,6 +1572,9 @@
     <None Include="Content\Fonts\Arial11Bold.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Fonts\Verdana10.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Content\Textures\Arcs\Arc120.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1636,6 +1639,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Textures\NewUI\icon_sensors.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\ResearchMenu\icon_event_science_bad.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Textures\SelectionBox\icon_formation_bleft.xnb">

@@ -539,6 +539,7 @@ namespace Ship_Game
                                         thruster.load_and_assign_effects(this.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
                                         thruster.InitializeForViewing();
                                     }
+                                    // Doctor: I think commenting this should completely stop all the recognition of the starter ship being the 'controlled' ship for the pie menu.
                                     this.data.playerShip = this.playerShip;
                                     //this.playerShip.PlayerShip = true;
                                     planet1.GovernorOn = false;
