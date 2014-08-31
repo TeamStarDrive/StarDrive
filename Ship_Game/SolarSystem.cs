@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Xml.Serialization;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -98,22 +99,46 @@ namespace Ship_Game
 
 		private void AddMajorRemnantPresence(Planet newOrbital, UniverseData data)
 		{
-			newOrbital.Guardians.Add("Xeno Fighter");
-			newOrbital.Guardians.Add("Xeno Fighter");
-			newOrbital.Guardians.Add("Xeno Fighter");
-			this.AddRemnantGunship(newOrbital, data);
-			this.AddRemnantGunship(newOrbital, data);
-			newOrbital.Guardians.Add("Ancient Assimilator");
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+            {
+                newOrbital.PlanetFleets.Add("Remnant Battlegroup");
+            }
+            else
+            {
+                newOrbital.Guardians.Add("Xeno Fighter");
+                newOrbital.Guardians.Add("Xeno Fighter");
+                newOrbital.Guardians.Add("Xeno Fighter");
+                this.AddRemnantGunship(newOrbital, data);
+                this.AddRemnantGunship(newOrbital, data);
+                newOrbital.Guardians.Add("Ancient Assimilator");
+            }
 		}
 
 		private void AddMinorRemnantPresence(Planet newOrbital, UniverseData data)
 		{
-			newOrbital.Guardians.Add("Xeno Fighter");
-			newOrbital.Guardians.Add("Xeno Fighter");
-			newOrbital.Guardians.Add("Xeno Fighter");
-			this.AddRemnantGunship(newOrbital, data);
-			this.AddRemnantGunship(newOrbital, data);
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+            {
+                newOrbital.PlanetFleets.Add("Remnant Vanguard");
+            }
+            else
+            {
+                newOrbital.Guardians.Add("Xeno Fighter");
+                newOrbital.Guardians.Add("Xeno Fighter");
+                newOrbital.Guardians.Add("Xeno Fighter");
+                this.AddRemnantGunship(newOrbital, data);
+                this.AddRemnantGunship(newOrbital, data);
+            }
 		}
+
+        private void AddRemnantPatrol(Planet newOrbital, UniverseData data)
+        {
+            newOrbital.PlanetFleets.Add("Remnant Patrol");
+        }
+
+        private void AddRemnantGarrison(Planet newOrbital, UniverseData data)
+        {
+            newOrbital.PlanetFleets.Add("Remnant Garrison");
+        }
 
 		private void AddRemnantGunship(Planet newOrbital, UniverseData data)
 		{
@@ -823,7 +848,7 @@ namespace Ship_Game
 			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
 			for (int i = 1; i < this.numberOfRings + 1; i++)
 			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f));
+				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
 				ringRadius = ringRadius * systemScale;
 				if ((int)RandomMath.RandomBetween(1f, 100f) > 80)
 				{
@@ -858,8 +883,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
+
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
 					Planet newOrbital = new Planet()
@@ -873,6 +897,13 @@ namespace Ship_Game
 					{
 						newOrbital.planetType = (int)RandomMath.RandomBetween(1f, 24f);
 					}
+
+                    float scale = RandomMath.RandomBetween(0.9f, 1.8f);
+                    if (newOrbital.planetType == 2 || newOrbital.planetType == 6 || newOrbital.planetType == 10 || newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 || newOrbital.planetType == 26)
+                    {
+                        scale += 2.5f;
+                    }
+                    float planetRadius = 100f * scale;
 					newOrbital.SetPlanetAttributes();
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -885,17 +916,47 @@ namespace Ship_Game
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
 					float quality = newOrbital.Fertility + newOrbital.MineralRichness + newOrbital.MaxPopulation / 1000f;
-					if (quality > 6f && quality < 10f)
-					{
-						if ((int)RandomMath.RandomBetween(0f, 100f) > 50)
-						{
-							this.AddMinorRemnantPresence(newOrbital, data);
-						}
-					}
-					else if (quality > 10f && (int)RandomMath.RandomBetween(0f, 100f) < 50)
-					{
-						this.AddMajorRemnantPresence(newOrbital, data);
-					}
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+                    {
+                        if (quality > 6f && quality < 10f)
+                        {
+                            int iRandom = (int)RandomMath.RandomBetween(0f, 100f);
+                            if (iRandom > 20 && iRandom < 50)
+                            {
+                                this.AddRemnantPatrol(newOrbital, data);
+                            }
+                            else if (iRandom >= 50)
+                            {
+                                this.AddRemnantGarrison(newOrbital, data);
+                            }
+                        }
+                        else if (quality > 10f)
+                        {
+                            int iRandom = (int)RandomMath.RandomBetween(0f, 100f);
+                            if (iRandom > 50 && iRandom < 85)
+                            {
+                                this.AddMinorRemnantPresence(newOrbital, data);
+                            }
+                            else if (iRandom >= 85)
+                            {
+                                this.AddMajorRemnantPresence(newOrbital, data);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (quality > 6f && quality < 10f)
+                        {
+                            if ((int)RandomMath.RandomBetween(0f, 100f) > 50)
+                            {
+                                this.AddMinorRemnantPresence(newOrbital, data);
+                            }
+                        }
+                        else if (quality > 10f && (int)RandomMath.RandomBetween(0f, 100f) < 50)
+                        {
+                            this.AddMajorRemnantPresence(newOrbital, data);
+                        }
+                    }
 					this.PlanetList.Add(newOrbital);
 					RandomMath.RandomBetween(0f, 3f);
 					SolarSystem.Ring ring = new SolarSystem.Ring()
@@ -1066,12 +1127,10 @@ namespace Ship_Game
 			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
 			for (int i = 1; i < this.numberOfRings + 1; i++)
 			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f));
+				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
 				ringRadius = ringRadius * systemScale;
 				if (i == 1)
 				{
-					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
 					Planet newOrbital = new Planet()
@@ -1081,6 +1140,12 @@ namespace Ship_Game
 						ParentSystem = this,
 						planetType = (int)RandomMath.RandomBetween(1f, 24f)
 					};
+                    float scale = RandomMath.RandomBetween(0.9f, 1.8f);
+                    if (newOrbital.planetType == 2 || newOrbital.planetType == 6 || newOrbital.planetType == 10 || newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 || newOrbital.planetType == 26)
+                    {
+                        scale += 2.5f;
+                    }
+                    float planetRadius = 100f * scale;
 					newOrbital.SetPlanetAttributes();
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -1220,10 +1285,10 @@ namespace Ship_Game
                     }
                     else
                     {
-                        scale = RandomMath.RandomBetween(0.8f, 1.6f);
+                        scale = RandomMath.RandomBetween(0.9f, 1.8f);
                         if (data.RingList[i - 1].WhichPlanet == 2 || data.RingList[i - 1].WhichPlanet == 7 || data.RingList[i - 1].WhichPlanet == 10 || data.RingList[i - 1].WhichPlanet == 12 || data.RingList[i - 1].WhichPlanet == 15 || data.RingList[i - 1].WhichPlanet == 20 || data.RingList[i - 1].WhichPlanet == 26)
                         {
-                            scale += 1.5f;
+                            scale += 2.5f;
                         }
                     }
 					float planetRadius = 100f * scale;
@@ -1337,10 +1402,10 @@ namespace Ship_Game
                     }
                     else
                     {
-                        scale = RandomMath.RandomBetween(0.8f, 1.6f);
+                        scale = RandomMath.RandomBetween(0.9f, 1.8f);
                         if (data.RingList[i - 1].WhichPlanet == 2 || data.RingList[i - 1].WhichPlanet == 6 || data.RingList[i - 1].WhichPlanet == 10 || data.RingList[i - 1].WhichPlanet == 12 || data.RingList[i - 1].WhichPlanet == 15 || data.RingList[i - 1].WhichPlanet == 20 || data.RingList[i - 1].WhichPlanet == 26)
                         {
-                            scale += 1.8f;
+                            scale += 2.5f;
                         }
                     }
 					float planetRadius = 100f * scale;
@@ -1362,11 +1427,11 @@ namespace Ship_Game
 					newOrbital.InitializeUpdate();
 					if (!data.RingList[i - 1].HomePlanet)
 					{
+                        newOrbital.SetPlanetAttributes();
                         if (data.RingList[i - 1].MaxPopDefined > 0)
                         {
                             newOrbital.MaxPopulation = data.RingList[i - 1].MaxPopDefined * 1000f;
-                        }
-						newOrbital.SetPlanetAttributes();
+                        }						
 					}
 					else
 					{
@@ -1381,7 +1446,7 @@ namespace Ship_Game
 
                         if (data.RingList[i - 1].MaxPopDefined > 0)
                         {
-                            newOrbital.MaxPopulation = (data.RingList[i - 1].MaxPopDefined * 1000f) * (Owner.data.Traits.HomeworldSizeMod > 0 ? Owner.data.Traits.HomeworldSizeMod : 1f);
+                            newOrbital.MaxPopulation = (data.RingList[i - 1].MaxPopDefined * 1000f) + ((data.RingList[i - 1].MaxPopDefined * 1000f) *  Owner.data.Traits.HomeworldSizeMod);
                         }
                         else
                         {
@@ -1469,84 +1534,28 @@ namespace Ship_Game
 			return StrHere;
 		}
 
-		public float GetPredictedEnemyPresence(float time, Empire us, bool update,ConcurrentDictionary<Ship,List<Ship>> clumps)
-		{
-			//added by gremlin massive rewrite of prediction code.
-            PredictionTimeout predictor;
-            if(!this.predictionTimeout.TryGetValue(us,out predictor))
-            {
-                predictor = new PredictionTimeout();
-                predictor.predictionTimeout = 0;
-                predictor.prediction=0;
-                this.predictionTimeout.Add(us, predictor);
-            }
-
-            if (!update )
-            {
-                if(predictor.predictedETA <= time)
-                {
-                    return predictor.prediction;
-                }
-                return 0;
-            }
-             
-
-            float timeToArrive = 0;
+        public float GetPredictedEnemyPresence(float time, Empire us)
+        {
             float prediction = 0f;
-
-            List<Ship> incomingShips =  new List<Ship>(clumps.Keys);
-
-                
-            for (int x = 0; x < incomingShips.Count; x++)
+            foreach (Ship ship in this.ShipList)
             {
-                Ship ship = incomingShips[x];
-                if (ship==null || ship.loyalty == us)
-                    continue;
-                
-                if (ship.velocityMaximum > 0)
-                    timeToArrive = Vector2.Distance(ship.Position, this.Position) / ship.velocityMaximum;
-                else continue;
-                if (timeToArrive > time)
-                    continue;
-                Relationship war = null;
-                if (ship.GetAI().OrderQueue.Count==0|| !us.GetRelations().TryGetValue(ship.loyalty, out war) ||ship.loyalty.isFaction)
+                if (ship == null || ship.loyalty == us || !ship.loyalty.isFaction && !us.GetRelations()[ship.loyalty].AtWar)
                 {
-                    if ((ship.GetSystem()!=null && ship.GetSystem()==this) || ship.GetAI().Target != null && ship.GetAI().Target.GetSystem() != null && ship.GetAI().Target.GetSystem() == this)
-                        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
                     continue;
                 }
-                Ship_Game.Gameplay.ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.Last.Value;
-                if (!war.Treaty_OpenBorders || war.AtWar || ship.loyalty.isFaction)
-                {
-
-                    if (this.PlanetList.Contains(goal.TargetPlanet))
-                    {
-                        prediction += ship.BaseStrength == 0 ? 10 : ship.BaseStrength;
-                        continue;
-                    }
-                    if (goal.MovePosition != null && Vector2.Distance(goal.MovePosition, this.Position) < 150000)
-                    {
-                        prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
-                        continue;
-                    }
-
-                }
-                if (ship.GetSystem() == this)
-                    prediction += ship.BaseStrength == 0 ? 1 : ship.BaseStrength;
-
+                prediction = prediction + ship.GetStrength();
             }
-
-            if(prediction >predictor.prediction)
+            List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+            for (int i = 0; i < nearby.Count; i++)
             {
-                predictor.prediction = prediction;
-                predictor.predictionTimeout = time;
+                Ship ship = nearby[i] as Ship;
+                if (ship != null && ship.loyalty != us && !this.ShipList.Contains(ship) && (ship.loyalty.isFaction || us.GetRelations()[ship.loyalty].AtWar) && HelperFunctions.IntersectCircleSegment(this.Position, 100000f * UniverseScreen.GameScaleStatic, ship.Center, ship.Center + (ship.Velocity * 60f)))
+                {
+                    prediction = prediction + ship.GetStrength();
+                }
             }
-            if (timeToArrive < predictor.predictedETA)
-                predictor.predictedETA = timeToArrive;
-
-            
-                return prediction;
-		}
+            return prediction;
+        }
 
 		private bool RoidPosOK(Vector3 roidPos)
         {

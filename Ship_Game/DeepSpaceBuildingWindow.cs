@@ -233,7 +233,7 @@ namespace Ship_Game
 				{
 					foreach (UniverseScreen.ClickablePlanets p in this.screen.ClickPlanetList)
 					{
-						if (Vector2.Distance(p.planetToClick.Position, pp) > 2500f)
+						if (Vector2.Distance(p.planetToClick.Position, pp) > (2500f * p.planetToClick.scale))
 						{
 							continue;
 						}
@@ -314,7 +314,7 @@ namespace Ship_Game
 			{
 				this.screen.UpdateClickableItems();
 			}
-			if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+			if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && (!input.CurrentKeyboardState.IsKeyDown(Keys.RightShift)))
 			{
 				this.itemToBuild = null;
 			}

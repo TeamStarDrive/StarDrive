@@ -138,6 +138,10 @@ namespace Ship_Game.Gameplay
 
 		private bool muzzleFlashAdded;
 
+        public Vector2 FixedError;
+
+        public bool ErrorSet = false;
+
 		public Ship Owner
 		{
 			get
@@ -750,14 +754,6 @@ namespace Ship_Game.Gameplay
 						this.DieNextFrame = true;
 						return true;
 					}
-                    if (this.weapon.Tag_Guided && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
-                    {
-                        float ECMResist = this.weapon.ECMResist; // check any in-built ECM resistance on the guided weapon itself
-                        Ship targetShip = (target as ShipModule).GetParent(); // identify the ship to which the module belongs
-                        float rnum = RandomMath.RandomBetween(0.0f, 1.0f); // Random roll 0.0-1.0, i.e. roll 0 to 100
-                        if (rnum + ECMResist < targetShip.ECMValue) // Can she hit?
-                            this.Miss = true;
-                    }
                     if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
 					{
 						if (!this.ArmorsPierced.Contains(target as ShipModule) && this.ArmorsPierced.Count < this.ArmorPiercing)
@@ -776,21 +772,10 @@ namespace Ship_Game.Gameplay
 						Projectile effectVsArmor = this;
 						effectVsArmor.damageAmount = effectVsArmor.damageAmount * (this.weapon.EffectVsArmor + this.ArmorDamageBonus);
 					}
-					if ((target as ShipModule).ModuleType == ShipModuleType.Shield)
-					{
-						Projectile effectVSShields = this;
-						effectVSShields.damageAmount = effectVSShields.damageAmount * (this.weapon.EffectVSShields + this.ShieldDamageBonus);
-					}
-					if (this.explodes || this.weapon.Tag_Explosive)
-					{
-						this.HitModule = target as ShipModule;
-						if ((target as ShipModule).ModuleType == ShipModuleType.Shield)
-						{
-							//Projectile projectile1 = this;
-                            //projectile1.damageAmount = projectile1.damageAmount; // 2f;
-							this.explodes = false;
-						}
-					}
+                    if ((target as ShipModule).ModuleType == ShipModuleType.Shield && (target as ShipModule).shield_power > 0)
+                    {
+                        this.damageAmount *= (this.weapon.EffectVSShields + this.ShieldDamageBonus);
+                    }
 					if (this.owner != null && this.owner.loyalty != (target as ShipModule).GetParent().loyalty && (target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
 					{
 						if ((((target as ShipModule).GetParent().GetSystem() != null ? (target as ShipModule).GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod * 100f)

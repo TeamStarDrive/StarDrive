@@ -455,7 +455,8 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			string text;
+            
+            string text;
 			Vector2 Position;
 			Vector2 drawCurs;
 			if (!base.IsActive)
@@ -793,7 +794,7 @@ namespace Ship_Game
 				ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Tech";
-				item1.SpecialInquiry = Technology.Key;
+                item1.SpecialInquiry = Technology.Key;
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -803,10 +804,10 @@ namespace Ship_Game
 			newCurs.X = newCurs.X + 10f;
 			foreach (Ship_Game.Artifact Artifact in this.playerEmpire.data.OwnedArtifacts)
 			{
-				ItemToOffer item1 = new ItemToOffer(Artifact.Name, newCurs, Fonts.Arial12Bold);
+				ItemToOffer item1 = new ItemToOffer(Localizer.Token(Artifact.NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Artifacts";
-				item1.SpecialInquiry = Artifact.Name;
+                item1.SpecialInquiry = Artifact.Name;
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -888,7 +889,7 @@ namespace Ship_Game
 				ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Tech";
-				item1.SpecialInquiry = Technology.Key;
+                item1.SpecialInquiry = Technology.Key;
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -898,10 +899,10 @@ namespace Ship_Game
 			newCurs.X = newCurs.X + 10f;
 			foreach (Ship_Game.Artifact Artifact in this.them.data.OwnedArtifacts)
 			{
-				ItemToOffer item1 = new ItemToOffer(Artifact.Name, newCurs, Fonts.Arial12Bold);
+                ItemToOffer item1 = new ItemToOffer(Localizer.Token(Artifact.NameIndex), newCurs, Fonts.Arial12Bold);
 				e.AddItem(item1);
 				item1.Response = "Artifacts";
-				item1.SpecialInquiry = Artifact.Name;
+                item1.SpecialInquiry = Artifact.Name;
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
 			}
 			newCurs.X = newCurs.X - 10f;
@@ -2128,47 +2129,49 @@ namespace Ship_Game
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
-			if (base.IsActive)
-			{
-				if (this.player.State == MediaState.Paused)
-				{
-					this.player.Resume();
-				}
-				if (!this.them.data.ModRace)
-				{
-					if (this.music.IsStopped)
-					{
-						if (this.them.data.MusicCue != null)
-						{
-							if (this.WarDeclared)
-							{
-								this.music = AudioManager.GetCue("Stardrive_Combat 1c_114BPM");
-								this.music.Play();
-							}
-							else
-							{
-								this.music = AudioManager.GetCue(this.them.data.MusicCue);
-								this.music.Play();
-							}
-						}
-					}
-					else if (this.music.IsPaused)
-					{
-						this.music.Resume();
-					}
-				}
-			}
-			else
-			{
-				if (this.player.State == MediaState.Playing)
-				{
-					this.player.Pause();
-				}
-				if (!this.them.data.ModRace && this.music.IsPlaying)
-				{
-					this.music.Pause();
-				}
-			}
+
+            
+            if (base.IsActive)
+            {
+                if (this.player.State == MediaState.Paused)
+                {
+                    this.player.Resume();
+                }
+                if (!this.them.data.ModRace)
+                {
+                    if (this.music.IsStopped)
+                    {
+                        if (this.them.data.MusicCue != null)
+                        {
+                            if (this.WarDeclared)
+                            {
+                                this.music = AudioManager.GetCue("Stardrive_Combat 1c_114BPM");
+                                this.music.Play();
+                            }
+                            else
+                            {
+                                this.music = AudioManager.GetCue(this.them.data.MusicCue);
+                                this.music.Play();
+                            }
+                        }
+                    }
+                    else if (this.music.IsPaused)
+                    {
+                        this.music.Resume();
+                    }
+                }
+            }
+            else
+            {
+                if (this.player.State == MediaState.Playing)
+                {
+                    this.player.Pause();
+                }
+                if (!this.them.data.ModRace && this.music.IsPlaying)
+                {
+                    this.music.Pause();
+                }
+            }
 			if (this.Discuss != null)
 			{
 				if (this.dState != DiplomacyScreen.DialogState.Discuss)
