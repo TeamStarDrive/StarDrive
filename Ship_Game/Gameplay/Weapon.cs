@@ -221,6 +221,13 @@ namespace Ship_Game.Gameplay
 
         public bool isRepairBeam;
 
+        public bool TerminalPhaseAttack;
+
+        public float TerminalPhaseDistance;
+
+        public float TerminalPhaseSpeed;
+
+
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
 
