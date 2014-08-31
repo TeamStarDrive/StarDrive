@@ -2976,7 +2976,9 @@ namespace Ship_Game.Gameplay
                         }
                     }
                     //Out of combat repair
-                    else if(this.repairTimer <= 0)
+                    /* The Doctor: this didn't have a last hit timer check. It's an else if, BUT the previous if was checking ActiveMod and ActiveMod.mi.useCombatRepair, so this would cause
+                     * in-combat repairs for all ships when combat repair was disabled, as it wouldn't be checking the combat status if not using a mod and not using useCombatRepair... */
+                    else if(this.repairTimer <= 0 && (!this.InCombat && this.LastHitTimer <= 0))
                     {
                         this.repairTimer = 2f;
                         if (this.Health < this.HealthMax)
