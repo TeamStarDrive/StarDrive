@@ -280,7 +280,9 @@ namespace Ship_Game.Gameplay
 
 		private void AwaitOrders(float elapsedTime)
 		{
-			this.HasPriorityOrder = false;
+            if (this.Owner.InCombatTimer > 0 || this.State == AIState.Intercept)
+                return;
+            this.HasPriorityOrder = false;
 			if (this.awaitClosest != null)
 			{
 				this.DoOrbit(this.awaitClosest, elapsedTime);
@@ -1930,14 +1932,14 @@ namespace Ship_Game.Gameplay
 
 		private void DoSystemDefense(float elapsedTime)
 		{
-            //if (this.Target != null )//|| this.Owner.InCombat && this.Target != null && !this.Owner.inborders))
-            //    return;
+            if (this.Owner.InCombat ||this.State ==AIState.Intercept)
+                return;
             if (this.SystemToDefend == null)
 			{
 				this.SystemToDefend = this.Owner.GetSystem();
 			}
 			//added by gremlin Prevent constant switching to await orders while defending.
-            if (this.Target == null)
+            if (this.Target == null )//&& this.State != AIState.Intercept)
                 this.AwaitOrders(elapsedTime);
 		}
 
@@ -4061,12 +4063,14 @@ namespace Ship_Game.Gameplay
 
 		public void OrderSystemDefense(SolarSystem system)
 		{
+            if (this.State == AIState.Intercept || this.Owner.InCombatTimer > 0)
+                return;
             bool inSystem = true;
             if (this.Owner.BaseCanWarp && Vector2.Distance(system.Position, this.Owner.Position) / this.Owner.velocityMaximum > 11)
                 inSystem = false;
             else 
                 inSystem = this.Owner.GetSystem() == this.SystemToDefend;
-            if (!inSystem || this.State != AIState.SystemDefender)
+            if (!inSystem || this.State != AIState.SystemDefender )
 			{
                 if (this.Target !=null &&(this.Target as Ship).Name == "Subspace Projector")
                     System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", (this.Target as Ship).Name));
