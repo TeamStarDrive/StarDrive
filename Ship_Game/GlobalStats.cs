@@ -120,6 +120,7 @@ namespace Ship_Game
         public static float spaceroadlimit = .025f;
         public static float freighterlimit = 50f;
         public static int ScriptedTechWithin = 6;
+        public static bool perf;
 		static GlobalStats()
 		{       
 			GlobalStats.ComparisonCounter = 1;
@@ -178,7 +179,7 @@ namespace Ship_Game
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
-            
+            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);
 		}
         public static void Statreset()
         {

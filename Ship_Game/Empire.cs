@@ -1106,7 +1106,8 @@ namespace Ship_Game
             if (Empire.universeScreen.player == this)
                 return;
 #endif
-
+            if (GlobalStats.perf && Empire.universeScreen.player == this)
+                return;
             //Added by shahmatt Do not auto explore other empire planets.
             //foreach (Planet planet in e.OwnedPlanets)
             //{
