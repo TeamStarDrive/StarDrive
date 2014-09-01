@@ -234,7 +234,9 @@ namespace Ship_Game.Gameplay
         public void Think(float elapsedTime)
         {
 
-            float DistancetoTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
+            float DistancetoTarget = 0; 
+            if(this.Target !=null)
+                DistancetoTarget=Vector2.Distance(this.Owner.Center, this.Target.Center);
 
             if ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM) && this.Target != null && this.Jammed)
             {

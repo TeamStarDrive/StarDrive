@@ -2492,25 +2492,26 @@ namespace Ship_Game.Gameplay
 				EntireStrength = EntireStrength + ship.GetStrength();
 			}
 			//added by gremlin dont add zero strength ships to defensive force pool
-            if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct && (toAdd.BombBays.Count < toAdd.Weapons.Count|| toAdd.WarpThrust <= 0f)) //&&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
-			{
-				this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
-				toAdd.GetAI().SystemToDefend = null;
-				toAdd.GetAI().SystemToDefendGuid = Guid.Empty;
-				toAdd.GetAI().HasPriorityOrder = false;
-				toAdd.GetAI().State = AIState.SystemDefender;
-				return;
-			}
-			IOrderedEnumerable<AO> sorted = 
-				from ao in this.empire.GetGSAI().AreasOfOperations
-				orderby Vector2.Distance(toAdd.Position, ao.Position)
-				select ao;
-			if (sorted.Count<AO>() <= 0)
-			{
-				this.empire.GetForcePool().Add(toAdd);
-				return;
-			}
-			sorted.First<AO>().AddShip(toAdd);
+            if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct && (toAdd.BombBays.Count < toAdd.Weapons.Count || toAdd.WarpThrust <= 0f)) //&&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
+            {
+                this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
+                toAdd.GetAI().SystemToDefend = null;
+                toAdd.GetAI().SystemToDefendGuid = Guid.Empty;
+                toAdd.GetAI().HasPriorityOrder = false;
+                toAdd.GetAI().State = AIState.SystemDefender;
+                return;
+            }
+            IOrderedEnumerable<AO> sorted =
+                from ao in this.empire.GetGSAI().AreasOfOperations
+                orderby Vector2.Distance(toAdd.Position, ao.Position)
+                select ao;
+            if (sorted.Count<AO>() <= 0)
+            {
+                this.empire.GetForcePool().Add(toAdd);
+                return;
+            }
+            //sorted.First().AddShip(toAdd);//   First<AO>().AddShip(toAdd);
+            sorted.ElementAt(0).AddShip(toAdd);
 		}
 
 		public void CallAllyToWar(Empire Ally, Empire Enemy)
@@ -7784,12 +7785,13 @@ namespace Ship_Game.Gameplay
 			{
 				this.RunManagers();
 			}
-			foreach (Goal g in this.Goals)
-			{
-				g.Evaluate();
-			}
-			this.Goals.ApplyPendingRemovals();
-		}
+            foreach (Goal g in this.Goals)
+            //Parallel.ForEach(this.Goals, g =>
+            {
+                g.Evaluate();
+            }//);
+            this.Goals.ApplyPendingRemovals();
+        }
 
         private void UpdateThreatMatrix()
         {
