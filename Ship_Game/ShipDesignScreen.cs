@@ -191,6 +191,8 @@ namespace Ship_Game
 
         private string LoadCategory;
 
+        public string HangarShipUIDLast = "Undefined";
+
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
 			this.EmpireUI = EmpireUI;
@@ -2085,6 +2087,7 @@ namespace Ship_Game
                         r.Height = r.Height - 25;
                         sel = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 210));
                         sel.Draw();
+                        this.UpdateHangarOptions(mod);
                         this.ChooseFighterSub.Draw();
                         this.ChooseFighterSL.Draw(base.ScreenManager.SpriteBatch);
                         Vector2 bCursor = new Vector2((float)(this.ChooseFighterSub.Menu.X + 15), (float)(this.ChooseFighterSub.Menu.Y + 25));
@@ -4895,6 +4898,7 @@ namespace Ship_Game
                 {
                     if (this.ActiveModule.ModuleType == ShipModuleType.Hangar && !this.ActiveModule.IsTroopBay && !this.ActiveModule.IsSupplyBay)
                     {
+                        this.UpdateHangarOptions(this.ActiveModule);
                         this.ChooseFighterSL.HandleInput(input);
                         for (int index = this.ChooseFighterSL.indexAtTop; index < this.ChooseFighterSL.Copied.Count && index < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; ++index)
                         {
@@ -4907,6 +4911,7 @@ namespace Ship_Game
                                 if (input.InGameSelect)
                                 {
                                     this.ActiveModule.hangarShipUID = (entry.item as Ship).Name;
+                                    this.HangarShipUIDLast = (entry.item as Ship).Name;
                                     AudioManager.PlayCue("sd_ui_accept_alt3");
                                     return;
                                 }
@@ -4928,6 +4933,7 @@ namespace Ship_Game
                             if (input.InGameSelect)
                             {
                                 this.HighlightedModule.hangarShipUID = (entry.item as Ship).Name;
+                                this.HangarShipUIDLast = (entry.item as Ship).Name;
                                 AudioManager.PlayCue("sd_ui_accept_alt3");
                                 return;
                             }
@@ -5320,7 +5326,10 @@ namespace Ship_Game
                 }
                 this.RecalculatePower();
                 this.ShipSaved = false;
-                this.ActiveModule = ResourceManager.GetModule(this.ActiveModule.UID);
+                if (this.ActiveModule.ModuleType != ShipModuleType.Hangar)
+                {
+                    this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+                }
                 this.ChangeModuleState(this.ActiveModState);
             }
             else
@@ -5362,6 +5371,7 @@ namespace Ship_Game
                 slot.module = this.ActiveModule;
                 slot.module.SetAttributesNoParent();
                 slot.state = this.ActiveModState;
+                slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
                 slot.module.facing = this.ActiveModule.facing;
                 slot.tex = Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
                 for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
@@ -5388,7 +5398,10 @@ namespace Ship_Game
                 }
                 this.RecalculatePower();
                 this.ShipSaved = false;
-                this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+                if (this.ActiveModule.ModuleType != ShipModuleType.Hangar)
+                {
+                    this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+                }
                 this.ChangeModuleState(this.ActiveModState);
             }
             else
@@ -5418,6 +5431,7 @@ namespace Ship_Game
                 slot.module = this.ActiveModule;
                 slot.module.SetAttributesNoParent();
                 slot.state = activeModuleState;
+                //slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
                 slot.module.facing = slot.facing;
                 slot.tex = ResourceManager.TextureDict[ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
                 for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
@@ -5474,6 +5488,7 @@ namespace Ship_Game
                 slot.module = this.ActiveModule;
                 slot.module.SetAttributesNoParent();
                 slot.state = this.ActiveModState;
+                slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
                 slot.module.facing = this.ActiveModule.facing;
                 slot.tex = ResourceManager.TextureDict[ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath];
                 //set other slots occupied by the module to use this slot as parent
@@ -5501,7 +5516,10 @@ namespace Ship_Game
                 }
                 this.RecalculatePower();
                 this.ShipSaved = false;
-                this.ActiveModule = ResourceManager.GetModule(this.ActiveModule.UID);
+                if (this.ActiveModule.ModuleType != ShipModuleType.Hangar)
+                {
+                    this.ActiveModule = Ship_Game.ResourceManager.GetModule(this.ActiveModule.UID);
+                }
                 //grabs a fresh copy of the same module type to cursor 
                 this.ChangeModuleState(this.ActiveModState);
                 //set rotation for new module at cursor
@@ -6334,7 +6352,11 @@ namespace Ship_Game
 					}
 					this.ChooseFighterSL.AddItem(Ship_Game.ResourceManager.ShipsDict[shipname]);
 				}
-				if (this.ChooseFighterSL.Entries.Count > 0)
+                if (this.HangarShipUIDLast != "Undefined" && this.ActiveModule.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].Role) && this.ActiveModule.MaximumHangarShipSize >= Ship_Game.ResourceManager.ShipsDict[HangarShipUIDLast].Size)
+                {
+                    this.ActiveModule.hangarShipUID = this.HangarShipUIDLast;
+                }
+				else if (this.ChooseFighterSL.Entries.Count > 0)
 				{
 					this.ActiveModule.hangarShipUID = (this.ChooseFighterSL.Entries[0].item as Ship).Name;
 				}
@@ -6343,6 +6365,23 @@ namespace Ship_Game
 			this.HoveredModule = null;
 			this.ResetModuleState();
 		}
+
+        public void UpdateHangarOptions(ShipModule mod)
+        {
+            if (mod.ModuleType == ShipModuleType.Hangar)
+            {
+                this.ChooseFighterSL.Entries.Clear();
+                this.ChooseFighterSL.Copied.Clear();
+                foreach (string shipname in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).ShipsWeCanBuild)
+                {
+                    if (!mod.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[shipname].Role) || Ship_Game.ResourceManager.ShipsDict[shipname].Size >= mod.MaximumHangarShipSize)
+                    {
+                        continue;
+                    }
+                    this.ChooseFighterSL.AddItem(Ship_Game.ResourceManager.ShipsDict[shipname]);
+                }
+            }
+        }
 
 		private void SetupSlots()
 		{

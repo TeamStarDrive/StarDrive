@@ -596,13 +596,27 @@ namespace Ship_Game
                 if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
             }
+
+            // Added by The Doctor - trigger events with unlocking of techs, via Technology XML
             foreach (Technology.TriggeredEvent triggeredEvent in ResourceManager.TechTree[techID].EventsTriggered)
             {
-                if ((triggeredEvent.Type == this.data.Traits.ShipType || triggeredEvent.Type == null || triggeredEvent.Type == this.TechnologyDict[techID].AcquiredFrom) && this.isPlayer)
+                if (triggeredEvent.CustomMessage != null)
                 {
-                    Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict[triggeredEvent.EventUID]);
+                    if ((triggeredEvent.Type == this.data.Traits.ShipType || triggeredEvent.Type == null || triggeredEvent.Type == this.TechnologyDict[techID].AcquiredFrom) && this.isPlayer)
+                    {
+                        Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict[triggeredEvent.EventUID], triggeredEvent.CustomMessage);
+                    }
                 }
-            }
+                else if (triggeredEvent.CustomMessage == null)
+                {
+                    if ((triggeredEvent.Type == this.data.Traits.ShipType || triggeredEvent.Type == null || triggeredEvent.Type == this.TechnologyDict[techID].AcquiredFrom) && this.isPlayer)
+                    {
+                        Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict[triggeredEvent.EventUID]);
+                    }
+                }
+           }
+
+            // Added by The Doctor - reveal specified 'secret' techs with unlocking of techs, via Technology XML
             foreach (Technology.RevealedTech revealedTech in ResourceManager.TechTree[techID].TechsRevealed)
             {
                 if (revealedTech.Type == this.data.Traits.ShipType || revealedTech.Type == null || revealedTech.Type == this.TechnologyDict[techID].AcquiredFrom)
@@ -1189,6 +1203,7 @@ namespace Ship_Game
                         this.AssessHostilePresence();
                 }
                 //added by gremlin. empire ship reserve.
+
                 this.EmpireShipCountReserve = 0;
                 
                 if(!this.isPlayer)
@@ -1786,7 +1801,9 @@ namespace Ship_Game
             {
                 if ((double)Empire.universeScreen.StarDate > 1060.0)
                 {
+#if !DEBUG
                     try
+#endif
                     {
                         float num2 = 0.0f;
                         float num3 = 0.0f;
@@ -1831,7 +1848,9 @@ namespace Ship_Game
                             }
                         }
                     }
+#if !DEBUG
                     catch
+#endif
                     {
                     }
                 }
