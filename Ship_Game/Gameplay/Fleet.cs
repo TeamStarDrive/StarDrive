@@ -8,6 +8,7 @@ using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
@@ -484,20 +485,25 @@ namespace Ship_Game.Gameplay
                 fleetDataNode.OrdersOffset = s.RelativeFleetOffset;
                 this.DataNodes.Add(fleetDataNode);
             }
-            foreach (List<Fleet.Squad> list in this.AllFlanks)
-            {
-                foreach (Fleet.Squad squad6 in list)
-                {
-                    foreach (Ship ship in (List<Ship>)squad6.Ships)
-                    {
-                        foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.DataNodes)
-                        {
-                            if (ship == fleetDataNode.GetShip())
-                                squad6.DataNodes.Add(fleetDataNode);
-                        }
-                    }
-                }
-            }
+
+
+            //foreach (List<Fleet.Squad> list in this.AllFlanks)
+            ////Parallel.ForEach(this.AllFlanks, list =>
+            //{
+            //    foreach (Fleet.Squad squad6 in list)
+            //    {
+
+
+            //        foreach (Ship ship in (List<Ship>)squad6.Ships)
+            //        {
+            //            foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.DataNodes)
+            //            {
+            //                if (ship == fleetDataNode.GetShip())
+            //                    squad6.DataNodes.Add(fleetDataNode);
+            //            }
+            //        }
+            //    }
+            //}//);
         }
 
         public override void MoveTo(Vector2 MovePosition, float facing, Vector2 fVec)
@@ -788,10 +794,12 @@ namespace Ship_Game.Gameplay
             //if (pos == Vector2.Zero && this.Ships.Count>0) 
             //    pos = this.Ships[0].Position;
             //float count = (float)this.Ships.Where(ship => !ship.EnginesKnockedOut && ship.IsWarpCapable && !ship.Inhibited && ship.Active).Count();
-            if (shipcount > 1) 
-            return pos / shipcount;
-            else 
-            return this.Ships[0].Position;
+            if (shipcount > 0)
+                return pos / shipcount;
+            else if (this.Ships.Count >0)
+                return this.Ships[0].Position;
+            else
+                return Vector2.Zero;
         }
 
         public void TrackEnemies()
