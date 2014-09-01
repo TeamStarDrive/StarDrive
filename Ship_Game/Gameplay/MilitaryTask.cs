@@ -1574,7 +1574,8 @@ namespace Ship_Game.Gameplay
                 tfstrength = tfstrength + ship.GetStrength();
                 elTaskForce.Add(ship);
             }
-            if ((ourAvailableStrength > EnemyTroopStrength * 1.65f && this.TargetPlanet.GetGroundLandingSpots() >this.TargetPlanet.GetPotentialGroundTroops(this.empire) *.5 )&& tfstrength >= this.MinimumTaskForceStrength)
+            //&& this.TargetPlanet.GetGroundLandingSpots() <this.TargetPlanet.GetPotentialGroundTroops(this.empire) *.5 )
+            if (ourAvailableStrength > EnemyTroopStrength * 1.65f && this.TargetPlanet.GetGroundLandingSpots() >5 && tfstrength >= this.MinimumTaskForceStrength)
             {
                 if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.GetRelations().ContainsKey(this.TargetPlanet.Owner))
                 {
