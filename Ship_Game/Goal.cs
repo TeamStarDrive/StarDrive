@@ -262,7 +262,7 @@ namespace Ship_Game
                     break;
                 case 1:
                     {
-                        if (this.PlanetBuildingAt == null || this.PlanetBuildingAt.ConstructionQueue.Count==0)
+                        if (this.PlanetBuildingAt == null || this.PlanetBuildingAt.ConstructionQueue.Count == 0)
                             break;
                         if (this.PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {

@@ -2307,8 +2307,12 @@ namespace Ship_Game
 
         public void DoTroopTimers(float elapsedTime)
         {
-            foreach (Building building in this.BuildingList)
+            //foreach (Building building in this.BuildingList)
+            for (int x = 0; x < this.BuildingList.Count;x++ )
             {
+                Building building = this.BuildingList[x];
+                if (building == null)
+                    continue;
                 building.AttackTimer -= elapsedTime;
                 if ((double)building.AttackTimer < 0.0)
                 {
@@ -2317,8 +2321,12 @@ namespace Ship_Game
                 }
             }
             List<Troop> list = new List<Troop>();
-            foreach (Troop troop in this.TroopsHere)
+            //foreach (Troop troop in this.TroopsHere)
+            for (int x = 0; x < this.TroopsHere.Count;x++ )
             {
+                Troop troop = this.TroopsHere[x];
+                if (troop == null)
+                    continue;
                 if (troop.Strength <= 0)
                 {
                     list.Add(troop);
@@ -4246,22 +4254,26 @@ namespace Ship_Game
             howMuch = (float)Math.Round((double)howMuch, 1, MidpointRounding.ToEven);
             if ((double)howMuch < 0.0)
                 return;
+            
+            
             if (this.ConstructionQueue.Count > 0 && this.ConstructionQueue.Count > whichItem)
             {
-                if (this.ConstructionQueue[whichItem].isShip)
+                QueueItem item = this.ConstructionQueue[whichItem];
+                if (item.isShip)
                     howMuch += howMuch * this.ShipBuildingModifier;
-                if ((double)this.ConstructionQueue[whichItem].productionTowards + (double)howMuch < (double)this.ConstructionQueue[whichItem].Cost)
+                if ((double)item.productionTowards + (double)howMuch < (double)item.Cost)
                 {
                     this.ConstructionQueue[whichItem].productionTowards += howMuch;
-                    if ((double)this.ConstructionQueue[whichItem].productionTowards >= (double)this.ConstructionQueue[whichItem].Cost)
-                        this.ProductionHere += this.ConstructionQueue[whichItem].productionTowards - this.ConstructionQueue[whichItem].Cost;
+                    if ((double)item.productionTowards >= (double)item.Cost)
+                        this.ProductionHere += item.productionTowards - item.Cost;
                 }
                 else
                 {
-                    howMuch -= this.ConstructionQueue[whichItem].Cost - this.ConstructionQueue[whichItem].productionTowards;
-                    this.ConstructionQueue[whichItem].productionTowards = this.ConstructionQueue[whichItem].Cost;
+                    howMuch -= item.Cost - item.productionTowards;
+                    item.productionTowards = item.Cost;
                     this.ProductionHere += howMuch;
                 }
+                this.ConstructionQueue[whichItem] = item;
             }
             else
                 this.ProductionHere += howMuch;
@@ -4353,11 +4365,11 @@ namespace Ship_Game
                     if (queueItem.isRefit && queueItem.RefitName != "")
                         shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName, queueItem.sData.Level);
                     else
-                       shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);     
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                     using (List<string>.Enumerator enumerator = Enumerable.ToList<string>((IEnumerable<string>)shipAt.GetMaxGoods().Keys).GetEnumerator())
                     {
-                    //label_35:
+                        //label_35:
                         while (enumerator.MoveNext())
                         {
                             string current = enumerator.Current;
@@ -4372,7 +4384,7 @@ namespace Ship_Game
                                 }
                                 else
                                     break;
-                                    //goto label_35;
+                                //goto label_35;
                             }
                         }
                     }
@@ -4499,6 +4511,8 @@ namespace Ship_Game
                     this.PlusProductionPerColonist += building.PlusProdPerColonist;
                 if ((double)building.Maintenance > 0.0)
                     this.TotalMaintenanceCostsPerTurn += building.Maintenance;
+                if ((double)building.MaxPopIncrease > 0.0)
+                    this.MaxPopBonus += building.MaxPopIncrease;
             }
             foreach (Troop troop in this.TroopsHere)
             {
@@ -4555,6 +4569,8 @@ namespace Ship_Game
                     this.PlusProductionPerColonist += building.PlusProdPerColonist;
                 if ((double)building.Maintenance > 0.0)
                     this.TotalMaintenanceCostsPerTurn += building.Maintenance;
+                if ((double)building.MaxPopIncrease > 0.0)
+                    this.MaxPopBonus += building.MaxPopIncrease;
             }
             foreach (Troop troop in this.TroopsHere)
             {
@@ -5328,6 +5344,12 @@ namespace Ship_Game
 
 
         }
+        public int GetGroundLandingSpots()
+        {
+            return (int)(this.TilesList.Sum(spots => spots.number_allowed_troops)-this.TroopsHere.Count );
+
+
+        }
 
         //Added by McShooterz: heal builds and troops every turn
         public void HealBuildingsAndTroops()
@@ -5335,8 +5357,11 @@ namespace Ship_Game
             if (this.RecentCombat)
                 return;
             //heal troops
+            //Gremlin Dont heal enemy troops
             foreach (Troop troop in this.TroopsHere)
             {
+                if (troop.GetOwner() != this.Owner)
+                    continue;
                 if(troop.StrengthMax>0)
                     troop.Strength = troop.GetStrengthMax();
             }
