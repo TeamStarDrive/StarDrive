@@ -2965,43 +2965,49 @@ namespace Ship_Game.Gameplay
                     this.UpdateShipStatus(elapsedTime);
                     this.repairTimer -= elapsedTime;
                     //Combat repair
-                    if (this.LastHitTimer > 0 && this.repairTimer <= 0 && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
+                    if (this.repairTimer <= 0 && this.Health < this.HealthMax)
                     {
-                        this.repairTimer = 0.5f;
-                        float repairTracker = 0f;
-                        //Added by McShooterz: Priority repair
-                        IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
-                        foreach (ModuleSlot moduleSlot in repairmodule)
+                        if (this.LastHitTimer > 0 && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
                         {
-                            //if destroyed do not repair in combat
-                            if (moduleSlot.module.Health < 1)
-                                continue;
-                            repairTracker = this.RepairRate * 0.5f - (moduleSlot.module.HealthMax - moduleSlot.module.Health);
-                            moduleSlot.module.Health += this.RepairRate * 0.5f;
-                            if (repairTracker > 0)
-                                this.RepairRate = repairTracker;
-                            else
-                                break;
-                        }
-                    }
-                    //Out of combat repair
-                    //The Doctor: this didn't have a last hit timer check. It's an else if, BUT the previous if was checking ActiveMod and ActiveMod.mi.useCombatRepair, so this would cause
-                    //in-combat repairs for all ships when combat repair was disabled, as it wouldn't be checking the combat status if not using a mod and not using useCombatRepair... */
-                    else if(this.repairTimer <= 0 && (!this.InCombat && this.LastHitTimer <= 0))
-                    {
-                        this.repairTimer = 2f;
-                        if (this.Health < this.HealthMax)
-                        {
-                            float repairTracker = 0f;
+                            this.repairTimer = 0.5f;
+                            float repairTracker = this.RepairRate * 0.5f;
+                            //Added by McShooterz: Priority repair
                             IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
                             foreach (ModuleSlot moduleSlot in repairmodule)
                             {
-                                repairTracker = this.RepairRate * 2f - (moduleSlot.module.HealthMax - moduleSlot.module.Health);
-                                moduleSlot.module.Health += this.RepairRate * 2f;
-                                if (repairTracker > 0)
-                                    this.RepairRate = repairTracker;
-                                else
+                                //if destroyed do not repair in combat
+                                if (moduleSlot.module.Health < 1)
+                                    continue;
+                                if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
+                                {
+                                    moduleSlot.module.Health += repairTracker;
                                     break;
+                                }
+                                else
+                                {
+                                    repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
+                                    moduleSlot.module.Health = moduleSlot.module.HealthMax;
+                                }
+                            }
+                        }
+                        //Out of combat repair
+                        else if (!this.InCombat && this.LastHitTimer <= 0)
+                        {
+                            this.repairTimer = 2f;
+                            float repairTracker = this.RepairRate * 2f;
+                            IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                            foreach (ModuleSlot moduleSlot in repairmodule)
+                            {
+                                if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
+                                {
+                                    moduleSlot.module.Health += repairTracker;
+                                    break;
+                                }
+                                else
+                                {
+                                    repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
+                                    moduleSlot.module.Health = moduleSlot.module.HealthMax;
+                                }
                             }
                         }
                     }
