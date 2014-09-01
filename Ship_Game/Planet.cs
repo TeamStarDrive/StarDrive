@@ -4254,22 +4254,26 @@ namespace Ship_Game
             howMuch = (float)Math.Round((double)howMuch, 1, MidpointRounding.ToEven);
             if ((double)howMuch < 0.0)
                 return;
+            
+            
             if (this.ConstructionQueue.Count > 0 && this.ConstructionQueue.Count > whichItem)
             {
-                if (this.ConstructionQueue[whichItem].isShip)
+                QueueItem item = this.ConstructionQueue[whichItem];
+                if (item.isShip)
                     howMuch += howMuch * this.ShipBuildingModifier;
-                if ((double)this.ConstructionQueue[whichItem].productionTowards + (double)howMuch < (double)this.ConstructionQueue[whichItem].Cost)
+                if ((double)item.productionTowards + (double)howMuch < (double)item.Cost)
                 {
                     this.ConstructionQueue[whichItem].productionTowards += howMuch;
-                    if ((double)this.ConstructionQueue[whichItem].productionTowards >= (double)this.ConstructionQueue[whichItem].Cost)
-                        this.ProductionHere += this.ConstructionQueue[whichItem].productionTowards - this.ConstructionQueue[whichItem].Cost;
+                    if ((double)item.productionTowards >= (double)item.Cost)
+                        this.ProductionHere += item.productionTowards - item.Cost;
                 }
                 else
                 {
-                    howMuch -= this.ConstructionQueue[whichItem].Cost - this.ConstructionQueue[whichItem].productionTowards;
-                    this.ConstructionQueue[whichItem].productionTowards = this.ConstructionQueue[whichItem].Cost;
+                    howMuch -= item.Cost - item.productionTowards;
+                    item.productionTowards = item.Cost;
                     this.ProductionHere += howMuch;
                 }
+                this.ConstructionQueue[whichItem] = item;
             }
             else
                 this.ProductionHere += howMuch;
@@ -4361,11 +4365,11 @@ namespace Ship_Game
                     if (queueItem.isRefit && queueItem.RefitName != "")
                         shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName, queueItem.sData.Level);
                     else
-                       shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);     
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                     using (List<string>.Enumerator enumerator = Enumerable.ToList<string>((IEnumerable<string>)shipAt.GetMaxGoods().Keys).GetEnumerator())
                     {
-                    //label_35:
+                        //label_35:
                         while (enumerator.MoveNext())
                         {
                             string current = enumerator.Current;
@@ -4380,7 +4384,7 @@ namespace Ship_Game
                                 }
                                 else
                                     break;
-                                    //goto label_35;
+                                //goto label_35;
                             }
                         }
                     }
