@@ -2569,14 +2569,18 @@ namespace Ship_Game
                         Localizer.used[bonus.BonusNameIndex] = true;
                     }
                 }
+                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
                 
                 if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
-					Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+                    
+                    Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+                   
 				}
 				else
 				{
-					Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+					
+                    Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
 			}
 			textList = null;
