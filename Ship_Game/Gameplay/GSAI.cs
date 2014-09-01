@@ -7169,7 +7169,7 @@ namespace Ship_Game.Gameplay
 							break;
 
 
-                        byte limit = 6;
+                        byte limit = 12;
                         foreach(Technology tech in AvailableTechs.OrderBy(tech => tech.Cost))
                         {
                             if (limit < 1)
