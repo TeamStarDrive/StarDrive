@@ -116,6 +116,7 @@ namespace Ship_Game
         {
             public string EventUID;
             public string Type;
+            public string CustomMessage;
         }
 
         public struct RevealedTech
