@@ -1106,7 +1106,8 @@ namespace Ship_Game
             if (Empire.universeScreen.player == this)
                 return;
 #endif
-
+            if (GlobalStats.perf && Empire.universeScreen.player == this)
+                return;
             //Added by shahmatt Do not auto explore other empire planets.
             //foreach (Planet planet in e.OwnedPlanets)
             //{
@@ -1203,6 +1204,7 @@ namespace Ship_Game
                         this.AssessHostilePresence();
                 }
                 //added by gremlin. empire ship reserve.
+
                 this.EmpireShipCountReserve = 0;
                 
                 if(!this.isPlayer)
@@ -1800,7 +1802,9 @@ namespace Ship_Game
             {
                 if ((double)Empire.universeScreen.StarDate > 1060.0)
                 {
+#if !DEBUG
                     try
+#endif
                     {
                         float num2 = 0.0f;
                         float num3 = 0.0f;
@@ -1845,7 +1849,9 @@ namespace Ship_Game
                             }
                         }
                     }
+#if !DEBUG
                     catch
+#endif
                     {
                     }
                 }

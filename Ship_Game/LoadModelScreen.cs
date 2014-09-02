@@ -199,7 +199,8 @@ namespace Ship_Game
 						}
 						this.activeFile = (e.item as ModelData).FileInfo;
 						AudioManager.PlayCue("sd_ui_accept_alt3");
-						this.EnterNameArea.Text = Path.GetFileNameWithoutExtension(this.activeFile.Name);
+                        //Added by McShooterz: Temp fix for ship tool
+						//this.EnterNameArea.Text = Path.GetFileNameWithoutExtension(this.activeFile.Name);
 						this.screen.LoadModel((e.item as ModelData).model, Path.GetFileNameWithoutExtension((e.item as ModelData).FileInfo.Name));
 					}
 					else
@@ -305,11 +306,12 @@ namespace Ship_Game
               //  continue;
 			}
 			this.EnternamePos = this.TitlePosition;
-			this.EnterNameArea = new UITextEntry()
-			{
-				Text = "",
-				ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing)
-			};
+            //Added by McShooterz: Temp fix for ship tool
+			//this.EnterNameArea = new UITextEntry()
+			//{
+				//Text = "",
+				//ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, 20, Fonts.Arial20Bold.LineSpacing)
+			//};
 			base.LoadContent();
 		}
 

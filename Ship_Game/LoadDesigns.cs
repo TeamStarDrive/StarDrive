@@ -116,6 +116,8 @@ namespace Ship_Game
 			{
 				bCursor = new Vector2((float)(this.SaveShips.Menu.X + 20), (float)(this.SaveShips.Menu.Y + 20));
 				ScrollList.Entry e = this.ShipDesigns.Copied[i];
+                if (e.item == null)
+                    continue;
 				bCursor.Y = (float)e.clickRect.Y;
 				if (e.item is ModuleHeader)
 				{
@@ -150,14 +152,14 @@ namespace Ship_Game
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
 					}
 				}
-				else
+                else 
 				{
 					bCursor.X = bCursor.X + 15f;
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as ShipData).Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as ShipData).Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as Ship).Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)), tCursor, Color.Orange);
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((e.item as ShipData).Role, EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty)), tCursor, Color.Orange);
 					if (e.clickRectHover != 1)
 					{
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
