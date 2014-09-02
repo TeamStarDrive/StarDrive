@@ -1287,7 +1287,21 @@ namespace Ship_Game
 				RacialTraits data = (RacialTraits)serializer1.Deserialize(stream);
 				stream.Close();
 				stream.Dispose();
-				Ship_Game.ResourceManager.rt = data;
+                
+				foreach(RacialTrait trait in data.TraitList)
+                {
+                    if (Localizer.LocalizerDict.ContainsKey(trait.TraitName + OffSet))
+                    {
+                        trait.TraitName += OffSet;
+                        Localizer.used[trait.TraitName] = true;
+                    }
+                    if (Localizer.LocalizerDict.ContainsKey(trait.Description + OffSet))
+                    {
+                        trait.Description += OffSet;
+                        Localizer.used[trait.Description] = true;
+                    }
+                }
+                Ship_Game.ResourceManager.rt = data;
 			}
 			textList = null;
 			return Ship_Game.ResourceManager.rt;
@@ -1890,7 +1904,7 @@ namespace Ship_Game
 		{
 			
             Ship_Game.ResourceManager.WhichModPath = ModPath;
-            //ResourceManager.OffSet = 32000;
+            ResourceManager.OffSet = 32000;
             //if (Ship_Game.ResourceManager.WhichModPath != "Content")
             //    ResourceManager.OffSet = 10000;
             //else
@@ -2555,14 +2569,18 @@ namespace Ship_Game
                         Localizer.used[bonus.BonusNameIndex] = true;
                     }
                 }
+                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
                 
                 if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
-					Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+                    
+                    Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+                   
 				}
 				else
 				{
-					Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+					
+                    Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
 			}
 			textList = null;
