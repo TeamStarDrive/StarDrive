@@ -775,7 +775,6 @@ namespace Ship_Game.Gameplay
                     if ((target as ShipModule).ModuleType == ShipModuleType.Shield && (target as ShipModule).shield_power > 0)
                     {
                         this.damageAmount *= (this.weapon.EffectVSShields + this.ShieldDamageBonus);
-                        this.explodes = false;
                     }
 					if (this.owner != null && this.owner.loyalty != (target as ShipModule).GetParent().loyalty && (target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
 					{

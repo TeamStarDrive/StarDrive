@@ -83,16 +83,16 @@ namespace Ship_Game.Gameplay
 				ship.GetAI().OrderQueue.Clear();
 				ship.GetAI().HasPriorityOrder = false;
 				this.CoreFleet.AddShip(ship);
-				foreach (Ship waiting in this.ShipsWaitingForCoreFleet)
-				{
-					if (waiting.fleet != null)
-					{
-						continue;
-					}
-					this.CoreFleet.AddShip(waiting);
-					waiting.GetAI().OrderQueue.Clear();
-					waiting.GetAI().HasPriorityOrder = false;
-				}
+                foreach (Ship waiting in this.ShipsWaitingForCoreFleet)
+                {
+                    if (waiting.fleet != null)
+                    {
+                        continue;
+                    }
+                    this.CoreFleet.AddShip(waiting);
+                    waiting.GetAI().OrderQueue.Clear();
+                    waiting.GetAI().HasPriorityOrder = false;
+                }
 				this.CoreFleet.Position = this.CoreWorld.Position;
 				this.CoreFleet.AutoArrange();
 				this.CoreFleet.MoveToNow(this.Position, 0f, new Vector2(0f, -1f));

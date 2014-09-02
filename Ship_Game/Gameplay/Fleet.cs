@@ -8,6 +8,7 @@ using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
@@ -475,29 +476,38 @@ namespace Ship_Game.Gameplay
             this.AutoAssembleFleet(0.0f, new Vector2(0.0f, -1f));
             foreach (Ship s in (List<Ship>)this.Ships)
             {
-                lock (GlobalStats.WayPointLock)
-                    s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
+                if (!s.InCombat)
+                {
+                    lock (GlobalStats.WayPointLock)
+                        s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
+                }
                 FleetDataNode fleetDataNode = new FleetDataNode();
                 fleetDataNode.SetShip(s);
                 fleetDataNode.ShipName = s.Name;
                 fleetDataNode.FleetOffset = s.RelativeFleetOffset;
                 fleetDataNode.OrdersOffset = s.RelativeFleetOffset;
                 this.DataNodes.Add(fleetDataNode);
+
             }
-            foreach (List<Fleet.Squad> list in this.AllFlanks)
-            {
-                foreach (Fleet.Squad squad6 in list)
-                {
-                    foreach (Ship ship in (List<Ship>)squad6.Ships)
-                    {
-                        foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.DataNodes)
-                        {
-                            if (ship == fleetDataNode.GetShip())
-                                squad6.DataNodes.Add(fleetDataNode);
-                        }
-                    }
-                }
-            }
+
+
+            //foreach (List<Fleet.Squad> list in this.AllFlanks)
+            ////Parallel.ForEach(this.AllFlanks, list =>
+            //{
+            //    foreach (Fleet.Squad squad6 in list)
+            //    {
+
+
+            //        foreach (Ship ship in (List<Ship>)squad6.Ships)
+            //        {
+            //            foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.DataNodes)
+            //            {
+            //                if (ship == fleetDataNode.GetShip())
+            //                    squad6.DataNodes.Add(fleetDataNode);
+            //            }
+            //        }
+            //    }
+            //}//);
         }
 
         public override void MoveTo(Vector2 MovePosition, float facing, Vector2 fVec)
@@ -776,7 +786,7 @@ namespace Ship_Game.Gameplay
         {
             Vector2 pos = Vector2.Zero;
             float shipcount = 0;
-            foreach (Ship ship in this.Ships)
+            foreach (Ship ship in (List<Ship>)this.Ships)
             //Parallel.ForEach(this.Ships, ship =>
             {
                 if (!ship.EnginesKnockedOut && ship.IsWarpCapable&&ship.Active && (!ship.Inhibited ||ship.Inhibited && Vector2.Distance(this.Position,ship.Position)<300000)  )
@@ -788,8 +798,12 @@ namespace Ship_Game.Gameplay
             //if (pos == Vector2.Zero && this.Ships.Count>0) 
             //    pos = this.Ships[0].Position;
             //float count = (float)this.Ships.Where(ship => !ship.EnginesKnockedOut && ship.IsWarpCapable && !ship.Inhibited && ship.Active).Count();
-            if (shipcount < 1) shipcount = 1;
-            return pos / shipcount;
+            if (shipcount > 0)
+                return pos / shipcount;
+            else if (this.Ships.Count >0)
+                return this.Ships[0].Position;
+            else
+                return Vector2.Zero;
         }
 
         public void TrackEnemies()
