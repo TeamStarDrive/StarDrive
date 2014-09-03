@@ -4133,8 +4133,6 @@ namespace Ship_Game.Gameplay
             //Parallel.ForEach(this.ModuleSlotList, slot =>  //
             foreach (ModuleSlot slot in this.ModuleSlotList)
             {
-
-
                 if (!slot.module.isDummy && slot.module.Powered && slot.module.Active)
                 {
                     ShipModule module = slot.module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
