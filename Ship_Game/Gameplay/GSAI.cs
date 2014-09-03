@@ -7157,26 +7157,16 @@ namespace Ship_Game.Gameplay
                                 || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
                                 || !tech.shipDesignsCanuseThis
                                 || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count ==0 
-                                && !this.empire.WeCanUseThisNow(tech.GetTech())))
-                                
-							{
-                                
+                                && !this.empire.WeCanUseThisNow(tech.GetTech())))                              
+							{                         
                                 continue;
 							}                           
                                 AvailableTechs.Add(Technology.Value);
 						}
                         if (AvailableTechs.Count == 0)
 							break;
-
-
-                        byte limit = 12;
                         foreach(Technology tech in AvailableTechs.OrderBy(tech => tech.Cost))
                         {
-                            if (limit < 1)
-                            {
-                                this.empire.ResearchTopic = AvailableTechs.OrderBy(cost => cost.Cost).First().UID;
-                                break;
-                            }
                             switch (tech.TechnologyType)
                             {
                                 case TechnologyType.ShipHull:
@@ -7229,18 +7219,19 @@ namespace Ship_Game.Gameplay
                                     }
                                 case TechnologyType.ShipGeneral:
                                     {
-                                        if (HelperFunctions.GetRandomIndex(5) > 4)
+                                        if (HelperFunctions.GetRandomIndex(4) > 3)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 default:
                                     {
+                                        if (HelperFunctions.GetRandomIndex(7) > 6)
+                                            this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                             }
                             if (this.empire.ResearchTopic != "")
                                 break;
-                            limit--;
                         }
                         break;
 					}
