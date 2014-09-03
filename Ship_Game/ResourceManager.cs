@@ -1056,6 +1056,7 @@ namespace Ship_Game
 			newB.ConsumptionPerTurn = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ConsumptionPerTurn;
 			newB.OutputPerTurn = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].OutputPerTurn;
 			newB.CommodityRequired = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CommodityRequired;
+            newB.ShipRepair = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ShipRepair;
 			return newB;
 		}
 

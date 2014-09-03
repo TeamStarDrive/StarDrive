@@ -92,12 +92,7 @@ namespace Ship_Game
         public SceneObject SO;
         public bool habitable;
         public string planetComposition;
-        public float InhabitedLand;
-        public bool hasRuins;
-        public bool hasNatives;
         public float MaxPopulation;
-        public float BuildingRoom;
-        public float Quality;
         public string Type;
         public float TotalOreExtracted;
         //private Planet.Richness richness;
@@ -145,6 +140,7 @@ namespace Ship_Game
         public int developmentLevel;
         public bool CorsairPresence;
         public bool queueEmptySent ;
+        public float RepairPerTurn = 50;
         public List<string> PlanetFleets = new List<string>();
         
 
@@ -2774,24 +2770,15 @@ namespace Ship_Game
                             }
                         }
                     }
-
+                    //Modified by McShooterz: changed to repair all modules based on repair rate of planet, default 50 per turn
                     if (item.Health < item.HealthMax && item.LastHitTimer <= 0f)
                     {
-                        foreach (ModuleSlot moduleSlotList in item.ModuleSlotList.OrderByDescending(slot => slot.module.BonusRepairRate).ThenByDescending(slot => slot.module.PowerRadius > 0))
-                        //Parallel.ForEach(item.ModuleSlotList.OrderByDescending(slot => slot.module.BonusRepairRate).ThenByDescending(slot => slot.module.PowerRadius > 0), moduleSlotList =>
+                        foreach (ModuleSlot slot in item.ModuleSlotList.Where(slot => slot.module.Health < slot.module.HealthMax))
                         {
-                            if (moduleSlotList.module.Health / moduleSlotList.module.HealthMax >= 1f)
-                            {
-                                continue;
-                            }
-                            ShipModule health = moduleSlotList.module;
-                            health.Health = health.Health + 10f;
-                            if (moduleSlotList.module.Health / moduleSlotList.module.HealthMax <= 1f)
-                            {
-                                continue;
-                            }
-                            moduleSlotList.module.Health = moduleSlotList.module.HealthMax;
-                        }//);
+                            slot.module.Health += this.RepairPerTurn;
+                            if (slot.module.Health > slot.module.HealthMax)
+                                slot.module.Health = slot.module.HealthMax;
+                        }
                     }
                     if ((this.ParentSystem.combatTimer <= 0 || item.InCombatTimer <= 0) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
                     {
@@ -2809,14 +2796,9 @@ namespace Ship_Game
                                 this.TroopsHere.Remove(troop);
 
                             }
-
-
-
                         }
-
                     }
                 }
-
             }
         }
 
@@ -4686,12 +4668,10 @@ namespace Ship_Game
                     if (building.WinsGame)
                         this.HasWinBuilding = true;
                     //if (building.NameTranslationIndex == 458)
-                    if (building.Name == "Space Port")
+                    if (building.AllowShipBuilding || building.Name == "Space Port")
                         this.HasShipyard = true;
                     if ((double)building.PlusFlatPopulation > 0.0)
                         this.PlusFlatPopulationPerTurn += building.PlusFlatPopulation;
-                    if (building.AllowShipBuilding)
-                        this.HasShipyard = true;
                     this.ShieldStrengthMax += building.PlanetaryShieldStrengthAdded;
                     this.PlusCreditsPerColonist += building.CreditsPerColonist;
                     if ((double)building.PlusTerraformPoints > 0.0)
@@ -4721,6 +4701,7 @@ namespace Ship_Game
                     if ((double)building.Maintenance > 0.0)
                         this.TotalMaintenanceCostsPerTurn += building.Maintenance;
                     this.FlatFoodAdded += building.PlusFlatFoodAmount;
+                    this.RepairPerTurn += building.ShipRepair;
                 }
                 for (int index = 0; index < this.TroopsHere.Count; ++index)
                 {
