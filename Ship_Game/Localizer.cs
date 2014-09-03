@@ -45,9 +45,20 @@ namespace Ship_Game
         public static string GetRole(string role, Empire Owner)
         {
             if (ResourceManager.ShipRoles.ContainsKey(role))
+            {
+                for (int i = 0; i < ResourceManager.ShipRoles[role].RaceList.Count(); i++)
+                {
+                    if (ResourceManager.ShipRoles[role].RaceList[i].ShipType == Owner.data.Traits.ShipType)
+                    {
+                        return Localizer.Token(ResourceManager.ShipRoles[role].RaceList[i].Localization);
+                    }
+                }
                 return Localizer.Token(ResourceManager.ShipRoles[role].Localization);
+            }
             else
+            {
                 return role;
+            }
         }
 
         public static string Token(int index)
