@@ -2782,7 +2782,6 @@ namespace Ship_Game
                     }
                     if ((this.ParentSystem.combatTimer <= 0 || item.InCombatTimer <= 0) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
                     {
-
                         foreach (var pgs in this.TilesList)
                         {
                             if (item.TroopCapacity ==0 || item.TroopList.Count >= item.TroopCapacity) 
@@ -2790,11 +2789,9 @@ namespace Ship_Game
                             if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
                             {
                                 Troop troop = pgs.TroopsHere[0];
-
                                 item.TroopList.Add(troop);
                                 pgs.TroopsHere.Clear();
                                 this.TroopsHere.Remove(troop);
-
                             }
                         }
                     }

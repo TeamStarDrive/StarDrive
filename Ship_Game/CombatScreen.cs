@@ -83,10 +83,6 @@ namespace Ship_Game
 		{
 			this.p = p;
 			this.ScreenManager = sm;
-			/*if (this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
-			{
-				this.LowRes = true; //was never used
-			}*/
 			int screenWidth = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
 			this.GridRect = new Rectangle(screenWidth / 2 - 639, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
 			Rectangle titleRect = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
@@ -124,8 +120,7 @@ namespace Ship_Game
                 Launches = "LaunchAll",
                 Text = "Launch All"
             };
-			foreach (Ship ship in CombatScreen.universeScreen.MasterShipList)
-			
+			foreach (Ship ship in CombatScreen.universeScreen.MasterShipList)			
             {
 				if (Vector2.Distance(p.Position, ship.Center) >= 4000f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
 				{
@@ -133,37 +128,17 @@ namespace Ship_Game
 				}
 				if (ship.Role != "troop")
 				{
-					if ((!ship.HasTroopBay && !ship.hasTransporter) || ship.TroopList.Count <=0)
-					{
+					if (ship.TroopList.Count <= 0 || !ship.HasTroopBay && !ship.hasTransporter)
 						continue;
-					}
-                    int i = 0;
-                    foreach (ShipModule hangar in ship.GetHangars().Where(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0))
+                    int LandingLimit = ship.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <= 0).Count();
+                    foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1))
+                        LandingLimit += module.TransporterTroopLanding;
+                    for (int i = 0; i < ship.TroopList.Count() && LandingLimit > 0; i++)
                     {
-                        if (i >= ship.TroopList.Count)
-                            break;
-                        Troop troop = ship.TroopList[i];
-                        if (troop != null)
+                        if (ship.TroopList[i] != null && ship.TroopList[i].GetOwner() == ship.loyalty)
                         {
-                            if (troop.GetOwner() == ship.loyalty)
-                            {
-                                this.OrbitSL.AddItem(troop);
-                                //hangar.hangarTimer = hangar.hangarTimerConstant;
-                                i++;
-                            }
-                            else
-                                i++;
-                        }
-                    }
-                    foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTroopLanding > 0))
-                    {
-                        if (i >= ship.TroopList.Count)
-                            break;
-                        for (int j = 0; j < module.TransporterTroopLanding; j++)
-                        {
-                            if (ship.TroopList[i] != null && ship.TroopList[i].GetOwner() == ship.loyalty)
-                                this.OrbitSL.AddItem(ship.TroopList[i]);
-                            i++;
+                            this.OrbitSL.AddItem(ship.TroopList[i]);
+                            LandingLimit--;
                         }
                     }
 				}
@@ -758,22 +733,6 @@ namespace Ship_Game
                     this.LaunchAll.State = UIButton.PressState.Hover;
                     if (input.InGameSelect)
                     {
-                        //AudioManager.PlayCue("sd_troop_land");
-                        //List<Troop> launchtroop = new List<Troop>();
-                        //foreach (Troop trooper in p.TroopsHere)
-                        //{
-                        //    if (trooper.GetOwner() != universeScreen.player)
-                        //        continue;
-                        //    launchtroop.Add(trooper);
-                            
-                            
-                        //}
-                        //foreach (Troop trooper in launchtroop)
-                        //{
-                        //    trooper.Launch();
-                        //}
-                        //launchtroop.Clear();
-                        
                         bool play = false;
                         foreach (PlanetGridSquare pgs in this.p.TilesList)
                         {
@@ -781,7 +740,6 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-
                             try
                             {
                                 pgs.TroopsHere[0].AvailableAttackActions = 0;
@@ -1061,9 +1019,8 @@ namespace Ship_Game
 			this.OrbitSL.Entries.Clear();
 			this.OrbitSL.Copied.Clear();
 			this.OrbitSL.indexAtTop = 0;
-            for (int i = 0; i < this.p.ParentSystem.ShipList.Count; i++) //CombatScreen.universeScreen.MasterShipList.Count
+            for (int i = 0; i < this.p.ParentSystem.ShipList.Count; i++)
 			{
-				//Ship s = CombatScreen.universeScreen.MasterShipList[i];
                 Ship ship = this.p.ParentSystem.ShipList[i];
 				if (Vector2.Distance(this.p.Position, ship.Center) < 15000f && ship.loyalty == EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
 				{
@@ -1071,28 +1028,18 @@ namespace Ship_Game
 					{
 						this.OrbitSL.AddItem(ship);
 					}
-					else if (ship.HasTroopBay)
-					{
-						int readyhangers = ship.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <=0).Count();
-
-                        //foreach (Troop t in s.TroopList)
-                        for (int x = 0; x < ship.TroopList.Count; x++)
-                        {
-                            Troop t = ship.TroopList[x];
-                            if (readyhangers <= 0)
-                                break;
-
-                            this.OrbitSL.AddItem(t);
-                        }
-					}
-                    else if (ship.hasTransporter)
+                    else if (ship.HasTroopBay || ship.hasTransporter)
                     {
-                        //foreach (Troop troop in s.TroopList.Where(troop => troop.GetOwner() == s.loyalty))
-                        for (int x = 0; x < ship.TroopList.Count;x++ )
+                        int LandingLimit = ship.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <= 0).Count();
+                        foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1f))
+                            LandingLimit += module.TransporterTroopLanding;
+                        for (int x = 0; x < ship.TroopList.Count && LandingLimit > 0; x++)
                         {
-                            Troop troop = ship.TroopList[x];
-                            if(troop!=null && troop.GetOwner()!=null&& troop.GetOwner()==ship.loyalty)
-                            this.OrbitSL.AddItem(troop);
+                            if (ship.TroopList[x].GetOwner() == ship.loyalty)
+                            {
+                                this.OrbitSL.AddItem(ship.TroopList[x]);
+                                LandingLimit--;
+                            }
                         }
                     }
 				}
