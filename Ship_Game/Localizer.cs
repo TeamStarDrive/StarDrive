@@ -101,19 +101,31 @@ namespace Ship_Game
                 string replace = null;
 
                 int clear = i - ResourceManager.OffSet;
-                
-                
-                if (LocalizerDict.TryGetValue(clear, out replace) && replace != "" && replace != null)
+                try
                 {
-                    System.Diagnostics.Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
-                    LocalizerDict[clear] = LocalizerDict[i];
-                    
+
+                    if (LocalizerDict.TryGetValue(clear, out replace) && replace != "" && replace != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
+                        LocalizerDict[clear] = LocalizerDict[i];
+                        continue;
+
+                    }
+                    else if (LocalizerDict.TryGetValue(i, out replace) && replace != "" && replace != null)
+                    {
+                        if (!LocalizerDict.ContainsKey(clear))
+                            LocalizerDict.Add(clear, LocalizerDict[i]);
+
+
+                    }
                 }
-                else if (LocalizerDict.TryGetValue(i, out replace) && replace != "" && replace != null)
+                catch (Exception e)
                 {
-                    LocalizerDict.Add(clear, LocalizerDict[i]);
+                    e.Data.Add("Text", replace);
+                    e.Data.Add("SafeIndex", i);
+                    e.Data.Add("UnSafeIndex", clear);
+                        
                 }
-                
                 //foreach (KeyValuePair<int, bool> inuse in used)
                 //{
                 //    if (inuse.Value == true)
