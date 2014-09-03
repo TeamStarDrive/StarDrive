@@ -4362,8 +4362,8 @@ namespace Ship_Game
                 else if (queueItem.isShip && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
                     Ship shipAt;
-                    if (queueItem.isRefit && queueItem.RefitName != "")
-                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName, queueItem.sData.Level);
+                    if (queueItem.isRefit)
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName != "" ? queueItem.RefitName : queueItem.sData.Name, queueItem.sData.Level);
                     else
                         shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
