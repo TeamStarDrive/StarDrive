@@ -662,8 +662,6 @@ namespace Ship_Game.Gameplay
                     this.Owner.Mothership.GetAI().State = AIState.Combat;
                     this.Owner.Mothership.InCombat = true;
                     this.Owner.Mothership.InCombatTimer = 15f;
-
-
                 }
             }
             if (this.Owner.OrdinanceMax > 0f && this.Owner.Ordinance / this.Owner.OrdinanceMax < 0.05f && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
@@ -688,75 +686,59 @@ namespace Ship_Game.Gameplay
                 }
 
             }
-
             else if (this.CombatState != CombatState.HoldPosition && this.CombatState != CombatState.Evade)
             {
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-
-
-
             if (!this.HasPriorityOrder && !this.hasPriorityTarget && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0)
             {
                 this.CombatState = CombatState.Evade;
             }
-
-
-
-            //if (this.Target == null)
-            //{
-            //   if(this.BadGuysNear && this.CombatState== Gameplay.CombatState.Evade)
-            //       this.DoEvadeCombat(elapsedTime);
-            //    return;
-            //}
-
+            if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Where(troops => troops.IsTroopBay).Count() > 0 || this.Owner.hasTransporter)
             {
-                if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Where(troops => troops.IsTroopBay).Count() > 0 || this.Owner.hasTransporter)
+                if (this.Owner.TroopList.Where(troop => troop.GetOwner() == this.Owner.loyalty).Count() > 0 && this.Owner.TroopList.Where(troop => troop.GetOwner() != this.Owner.loyalty).Count() == 0)
                 {
-                    if (this.Owner.TroopList.Where(troop => troop.GetOwner() == this.Owner.loyalty).Count() > 0 && this.Owner.TroopList.Where(troop => troop.GetOwner() != this.Owner.loyalty).Count() == 0)
+                    Planet invadeThis = null;
+                    foreach (Planet invade in this.Owner.GetSystem().PlanetList.Where(owner => owner.Owner != null && owner.Owner != this.Owner.loyalty).OrderBy(troops => troops.TroopsHere.Count))
                     {
-                        Planet invadeThis = null;
-                        foreach (Planet invade in this.Owner.GetSystem().PlanetList.Where(owner => owner.Owner != null && owner.Owner != this.Owner.loyalty).OrderBy(troops => troops.TroopsHere.Count))
+                        if (this.Owner.loyalty.GetRelations()[invade.Owner].AtWar)
                         {
-                            if (this.Owner.loyalty.GetRelations()[invade.Owner].AtWar)
+                            invadeThis = invade;
+                            break;
+                        }
+                    }
+                    if (!this.TroopsOut && !this.Owner.hasTransporter)
+                    {
+                        if (invadeThis != null)
+                        {
+                            this.TroopsOut = true;
+                            foreach (Ship troop in this.Owner.GetHangars().Where(troop => troop.IsTroopBay && troop.GetHangarShip() != null).Select(ship => ship.GetHangarShip()))
                             {
-                                invadeThis = invade;
-                                break;
+                                troop.GetAI().OrderAssaultPlanet(invadeThis);
                             }
                         }
-                        if (!this.TroopsOut && !this.Owner.hasTransporter)
+                        else if (this.Target != null && this.Target is Ship && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "corvette" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "capital")
                         {
-                            if (invadeThis != null)
+                            if (this.Owner.GetHangars().Where(troop => troop.IsTroopBay).Count() * 60 >= (this.Target as Ship).MechanicalBoardingDefense)
                             {
                                 this.TroopsOut = true;
-                                foreach (Ship troop in this.Owner.GetHangars().Where(troop => troop.IsTroopBay && troop.GetHangarShip() != null).Select(ship => ship.GetHangarShip()))
+                                foreach (ShipModule hangar in this.Owner.GetHangars())
                                 {
-                                    troop.GetAI().OrderAssaultPlanet(invadeThis);
-                                }
-                            }
-                            else if (this.Target != null && this.Target is Ship && (this.Target as Ship).Role == "frigate" || (this.Target as Ship).Role == "carrier" || (this.Target as Ship).Role == "corvette" || (this.Target as Ship).Role == "cruiser" || (this.Target as Ship).Role == "capital")
-                            {
-                                if (this.Owner.GetHangars().Where(troop => troop.IsTroopBay).Count() * 60 >= (this.Target as Ship).MechanicalBoardingDefense)
-                                {
-                                    this.TroopsOut = true;
-                                    foreach (ShipModule hangar in this.Owner.GetHangars())
+                                    if (hangar.GetHangarShip() == null || this.Target == null || !(hangar.GetHangarShip().Role == "troop") || !((this.Target as Ship).Role == "frigate") && !((this.Target as Ship).Role == "carrier") && !((this.Target as Ship).Role == "corvette") && !((this.Target as Ship).Role == "cruiser") && !((this.Target as Ship).Role == "capital"))
                                     {
-                                        if (hangar.GetHangarShip() == null || this.Target == null || !(hangar.GetHangarShip().Role == "troop") || !((this.Target as Ship).Role == "frigate") && !((this.Target as Ship).Role == "carrier") && !((this.Target as Ship).Role == "corvette") && !((this.Target as Ship).Role == "cruiser") && !((this.Target as Ship).Role == "capital"))
-                                        {
-                                            continue;
-                                        }
-                                        hangar.GetHangarShip().GetAI().OrderTroopToBoardShip(this.Target as Ship);
+                                        continue;
                                     }
+                                    hangar.GetHangarShip().GetAI().OrderTroopToBoardShip(this.Target as Ship);
                                 }
-                            }
-                            else
-                            {
-                                this.TroopsOut = false;
                             }
                         }
-
+                        else
+                        {
+                            this.TroopsOut = false;
+                        }
                     }
+
                 }
             }
             if (this.Owner.fleet == null)
@@ -7134,11 +7116,7 @@ namespace Ship_Game.Gameplay
                                 this.OrderAssaultPlanet(target);
                             }
                             else
-                            {
-                                //this.State = AIState.AwaitingOrders;
                                 this.OrderQueue.Clear();
-
-                            }
                             break;
 
                         case ArtificialIntelligence.Plan.Exterminate:
@@ -7153,9 +7131,7 @@ namespace Ship_Game.Gameplay
                                 else
                                 {
                                     if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) >= 2500f)
-                                    {
                                         break;
-                                    }
                                     List<ShipModule>.Enumerator enumerator1 = this.Owner.BombBays.GetEnumerator();
                                     try
                                     {
@@ -7163,9 +7139,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             ShipModule mod = enumerator1.Current;
                                             if (mod.BombTimer > 0f)
-                                            {
                                                 continue;
-                                            }
                                             Bomb b = new Bomb(new Vector3(this.Owner.Center, 0f), this.Owner.loyalty)
                                             {
                                                 WeaponName = mod.BombType
