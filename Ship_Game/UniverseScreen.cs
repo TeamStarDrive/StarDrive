@@ -2919,11 +2919,8 @@ namespace Ship_Game
                                     {
                                         if (this.SelectedShip.Role == "troop")
                                         {
-                                            if (ship.HasTroopBay || ship.hasTransporter)
-                                            {
-                                                if (ship.TroopList.Count < ship.TroopCapacity)
-                                                    this.SelectedShip.GetAI().OrderTroopToShip(ship);
-                                            }
+                                            if (ship.TroopList.Count < ship.TroopCapacity)
+                                                this.SelectedShip.GetAI().OrderTroopToShip(ship);
                                             else
                                                 this.SelectedShip.DoEscort(ship);
                                         }
