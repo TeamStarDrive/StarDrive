@@ -2746,6 +2746,11 @@ namespace Ship_Game
                     data.Localization += OffSet;
                     Localizer.used[data.Localization] = true;
                 }
+                for (int j = 0; j < data.RaceList.Count(); j++)
+                {
+                    data.RaceList[j].Localization += OffSet;
+                    Localizer.used[data.RaceList[j].Localization] = true;
+                }
                 if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
                 {
                     Ship_Game.ResourceManager.ShipRoles[data.Name] = data;
