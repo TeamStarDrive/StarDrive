@@ -7751,6 +7751,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6136</Index>
       <Text>Auto Research</Text>
     </Token>
+	<Token>
+      <Index>6137</Index>
+      <Text>Ship Repair</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
