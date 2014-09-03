@@ -280,7 +280,8 @@ namespace Ship_Game.Gameplay
 
 		private void AwaitOrders(float elapsedTime)
 		{
-            if (this.Owner.InCombatTimer > 0 || this.State == AIState.Intercept)
+            if ((this.Owner.GetSystem() ==null && this.State == AIState.Intercept) 
+                || this.Target != null && this.Owner.GetSystem()!=null && this.Target.GetSystem()!=null && this.Target.GetSystem()==this.Owner.GetSystem())
                 return;
             this.HasPriorityOrder = false;
 			if (this.awaitClosest != null)
@@ -4063,8 +4064,8 @@ namespace Ship_Game.Gameplay
 
 		public void OrderSystemDefense(SolarSystem system)
 		{
-            if (this.State == AIState.Intercept || this.Owner.InCombatTimer > 0)
-                return;
+            //if (this.State == AIState.Intercept || this.Owner.InCombatTimer > 0)
+            //    return;
             bool inSystem = true;
             if (this.Owner.BaseCanWarp && Vector2.Distance(system.Position, this.Owner.Position) / this.Owner.velocityMaximum > 11)
                 inSystem = false;
