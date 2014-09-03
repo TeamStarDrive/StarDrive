@@ -2308,24 +2308,15 @@ namespace Ship_Game.Gameplay
                 ship.shield_power += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
                 {
-                    Ship armorMax = this;
-                    armorMax.armor_max = armorMax.armor_max + moduleSlotList.module.HealthMax;
+                    this.armor_max += moduleSlotList.module.HealthMax;
                 }
-                Ship size = this;
-                size.Size = size.Size + 1;
-                Ship numberAliveModules = this;
-                numberAliveModules.number_alive_modules = numberAliveModules.number_alive_modules + 1;
-                Ship cargoSpaceMax = this;
-                cargoSpaceMax.CargoSpace_Max = cargoSpaceMax.CargoSpace_Max + moduleSlotList.module.Cargo_Capacity;
-                Ship ordinanceMax = this;
-                ordinanceMax.OrdinanceMax = ordinanceMax.OrdinanceMax + (float)moduleSlotList.module.OrdinanceCapacity;
-                Ship ordinance = this;
-                ordinance.Ordinance = ordinance.Ordinance + (float)moduleSlotList.module.OrdinanceCapacity;
-                Ship powerDraw = this;
-                powerDraw.PowerDraw = powerDraw.PowerDraw + moduleSlotList.module.PowerDraw;
-                Ship health = this;
-                health.Health = health.Health + moduleSlotList.module.HealthMax;
-
+                this.Size += 1;
+                this.number_alive_modules += 1;
+                this.CargoSpace_Max += moduleSlotList.module.Cargo_Capacity;
+                this.OrdinanceMax += (float)moduleSlotList.module.OrdinanceCapacity;
+                this.Ordinance += (float)moduleSlotList.module.OrdinanceCapacity;
+                this.PowerDraw += moduleSlotList.module.PowerDraw;
+                this.Health += moduleSlotList.module.HealthMax;
             }
 
             #endregion
