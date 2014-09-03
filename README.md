@@ -13,13 +13,28 @@ and more.
 ###I just want to play the mod Crunchy!###
 
 * Great!
-* If you are running an in game mod then unload that before doing the below. Go into the games mod manager and unload any loaded mod. You can load them up after you switch to this.
-* go to the download section and download the latest release version. Do not download the top option for the repository. You don't need that. Download the test version if your level of patience can take it.
-* backup your original stardrive.exe and stardrive.exe.config. 
-open the zip and look at the files inside and back up any folders and files you want to be able to restore. 
-You don't have to do this as you can just go to the steam and reverify steam content for the game.
+* The process is simply:
+* extract the download into the stardrive program folder
+* run stardrive from steam as you normally would.
+
+##### Step by step installation instructions
+* Set your game completely back to vanilla. IE if you installed a mod revert back so that vanilla runs.
+* if you have never installed a mod you can skip the "How to revert to vanilla" part and go to the "your game should now be vanilla" part.
+* How to revert to vanilla or Nuking from orbit... Its the only way to be sure. (warning: This requires basically downloading the game from steam again):
+* go to the stardrive program folder. usually something like:
+(x86)\Steam\SteamApps\common\StarDrive
+* delete the "content" folder.
+* go to steam.
+* right click stardrive
+* properties.
+* find the option that lets you "verify content"
+* do that.
+* your game should be vanilla after it replaces the gigabyte of data in the content folder. 
+* When installing normal mods do not overwrite content folder items with the mod files. mods content must exist all in the mod folder for it work right with blackbox. properly formatted it will. all the mods in the mod super pack are formatted this way.
+* go to the download section and download the latest release version or the latest monthly version (preferred). Do not download the top option for the repository. You don't need that. Download the test version if your level of patience can take it.
 * extract the zip into the the game directory usually located in Program Files (x86)\Steam\SteamApps\common\StarDrive
 * Overwrite files when asked.
+*To Uninstall follow the revert to vanilla instructions above.
 
 #### Mod Super Pack ####
 This is a blackbox download that includes these mods reformatted to work with black box:
@@ -36,7 +51,9 @@ This is a blackbox download that includes these mods reformatted to work with bl
 
 * StarWars : http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=9859
 
+* Babylon 5 : http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=9557
 
+* The Vulpeculans : http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=9849
 
 
 ##### Compatibility ####
@@ -49,7 +66,7 @@ This is a blackbox download that includes these mods reformatted to work with bl
 * how to install...
 * well... ideally the mod would support the mod enhancements in the BlackBox Code mode. Otherwise you should be able to take the mod files and put the them all in the mod folder and any folders that the mod tells you to put in the content folder... Dont. Put them int he mod folder too. If something goes wrong. Post the issue and we hopefully will figure out how to get that mod to work.
 * Some modders have put together blackbox compatible downloads for their mods. here is a list. Well.. Its short...
-* TechLevel: https://www.dropbox.com/s/frzdmh1n16g5rap/Tech%20Level%20Mod%20V1.07F.zip
+* TechLevel: http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=7091
 * if the mod has a "starter ships" folder and crashes on load copy the contents of the starterships folder into the mods ship designs folder and delete the mods starterships folder.
 
 #Future Features#
