@@ -101,6 +101,7 @@ namespace Ship_Game
             {
                 foreach (KeyValuePair<Guid, Ship> entry in this.DefenseDict[key].ShipsDict)
                 {
+                    if (entry.Value.GetSystem() == entry.Value.GetAI().SystemToDefend)
                     entry.Value.GetAI().SystemToDefend = null;
                 }
                 this.DefenseDict[key].ShipsDict.Clear();
@@ -329,7 +330,7 @@ namespace Ship_Game
             this.DefensiveForcePool.ApplyPendingRemovals();
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
-                if (entry.Key == null)
+                if (entry.Key == null )
                 {
                     continue;
                 }
