@@ -26,7 +26,6 @@ namespace Ship_Game
         public struct Race
         {
             public string ShipType;
-            public int Localization;
             public float Upkeep;
             public float KillExp;
             public float KillExpPerLevel;
