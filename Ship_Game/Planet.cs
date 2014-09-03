@@ -133,7 +133,6 @@ namespace Ship_Game
         public float ShipBuildingModifier;
         public float consumption;
         private float unfed;
-        public bool NeedsFoodTransport;
         private Shield shield;
         //private bool initializing;
         public float FoodHere;
