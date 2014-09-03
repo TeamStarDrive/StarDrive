@@ -1640,6 +1640,14 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 						spriteBatch8.DrawString(arial12Bold4, string.Concat(plusFlatFoodAmount), tCursor, Color.LightPink);
 						bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
 					}
+                    if (pgs.building.ShipRepair != 0f)
+                    {
+                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Height);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"], fIcon, Color.White);
+                        Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("+", pgs.building.ShipRepair, " ",Localizer.Token(6137)), tCursor, new Color(255, 239, 208));
+                        bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 12);
+                    }
 					if (pgs.building.Scrappable)
 					{
 						bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
@@ -1819,6 +1827,14 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 					spriteBatch17.DrawString(spriteFont8, string.Concat(plusFlatFoodAmount), tCursor, Color.LightPink);
 					bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
 				}
+                if (temp.ShipRepair != 0f)
+                {
+                    Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"], fIcon, Color.White);
+                    Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("+", temp.ShipRepair, " ", Localizer.Token(6137)), tCursor, new Color(255, 239, 208));
+                    bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+                }
 			}
 		}
 
