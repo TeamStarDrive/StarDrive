@@ -22,7 +22,7 @@ and more.
 * if you have never installed a mod you can skip the "How to revert to vanilla" part and go to the "your game should now be vanilla" part.
 * How to revert to vanilla or Nuking from orbit... Its the only way to be sure. (warning: This requires basically downloading the game from steam again):
 * go to the stardrive program folder. usually something like:
-(x86)\Steam\SteamApps\common\StarDrive
+**Program Files(x86)\Steam\SteamApps\common\StarDrive**
 * delete the "content" folder.
 * go to steam.
 * right click stardrive
@@ -33,8 +33,8 @@ and more.
 * When installing normal mods do not overwrite content folder items with the mod files. mods content must exist all in the mod folder for it work right with blackbox. properly formatted it will. all the mods in the mod super pack are formatted this way.
 * go to the download section and download the latest release version or the latest monthly version (preferred). Do not download the top option for the repository. You don't need that. Download the test version if your level of patience can take it.
 * extract the zip into the the game directory usually located in Program Files (x86)\Steam\SteamApps\common\StarDrive
-* Overwrite files when asked.
-*To Uninstall follow the revert to vanilla instructions above.
+* Overwrite files when asked. If you do not get prompted to overwrite files. You are doing it wrong.
+* To Uninstall follow the revert to vanilla instructions above.
 
 #### Mod Super Pack ####
 This is a blackbox download that includes these mods reformatted to work with black box:
