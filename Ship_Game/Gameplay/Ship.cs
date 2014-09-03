@@ -2965,48 +2965,51 @@ namespace Ship_Game.Gameplay
                     this.UpdateShipStatus(elapsedTime);
                     this.repairTimer -= elapsedTime;
                     //Combat repair
-                    if (this.repairTimer <= 0 && this.Health < this.HealthMax)
+                    if (this.repairTimer <= 0)
                     {
-                        if (this.LastHitTimer > 0 && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
+                        this.repairTimer = 2f;
+                        if (this.Health < this.HealthMax)
                         {
-                            this.repairTimer = 0.5f;
-                            float repairTracker = this.RepairRate * 0.5f;
-                            //Added by McShooterz: Priority repair
-                            IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
-                            foreach (ModuleSlot moduleSlot in repairmodule)
+                            if (this.LastHitTimer > 0 && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
                             {
-                                //if destroyed do not repair in combat
-                                if (moduleSlot.module.Health < 1)
-                                    continue;
-                                if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
+                                this.repairTimer = 0.5f;
+                                float repairTracker = this.RepairRate * 0.5f;
+                                //Added by McShooterz: Priority repair
+                                IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                                foreach (ModuleSlot moduleSlot in repairmodule)
                                 {
-                                    moduleSlot.module.Health += repairTracker;
-                                    break;
-                                }
-                                else
-                                {
-                                    repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
-                                    moduleSlot.module.Health = moduleSlot.module.HealthMax;
+                                    //if destroyed do not repair in combat
+                                    if (moduleSlot.module.Health < 1)
+                                        continue;
+                                    if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
+                                    {
+                                        moduleSlot.module.Health += repairTracker;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
+                                        moduleSlot.module.Health = moduleSlot.module.HealthMax;
+                                    }
                                 }
                             }
-                        }
-                        //Out of combat repair
-                        else if (!this.InCombat && this.LastHitTimer <= 0)
-                        {
-                            this.repairTimer = 2f;
-                            float repairTracker = this.RepairRate * 2f;
-                            IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
-                            foreach (ModuleSlot moduleSlot in repairmodule)
+                            //Out of combat repair
+                            else if (!this.InCombat && this.LastHitTimer <= 0)
                             {
-                                if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
+                                float repairTracker = this.RepairRate * 2f;
+                                IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                                foreach (ModuleSlot moduleSlot in repairmodule)
                                 {
-                                    moduleSlot.module.Health += repairTracker;
-                                    break;
-                                }
-                                else
-                                {
-                                    repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
-                                    moduleSlot.module.Health = moduleSlot.module.HealthMax;
+                                    if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
+                                    {
+                                        moduleSlot.module.Health += repairTracker;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
+                                        moduleSlot.module.Health = moduleSlot.module.HealthMax;
+                                    }
                                 }
                             }
                         }
@@ -4130,8 +4133,6 @@ namespace Ship_Game.Gameplay
             //Parallel.ForEach(this.ModuleSlotList, slot =>  //
             foreach (ModuleSlot slot in this.ModuleSlotList)
             {
-
-
                 if (!slot.module.isDummy && slot.module.Powered && slot.module.Active)
                 {
                     ShipModule module = slot.module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
