@@ -3252,18 +3252,18 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 5.0) && (double)this.NetProductionPerTurn > 6.0)
+                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.Name == "Shipyard").Count() == 0 && this.Owner.WeCanBuildThis("Shipyard") && (double)this.GrossMoneyPT > 5.0 && (double)this.NetProductionPerTurn > 6.0)
                 {
-                    bool flag2 = false;
+                    bool hasShipyard = false;
                     foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                     {
                         if (queueItem.isShip && queueItem.sData.IsShipyard)
                         {
-                            flag2 = true;
+                            hasShipyard = true;
                             break;
                         }
                     }
-                    if (!flag2)
+                    if (!hasShipyard)
                         this.ConstructionQueue.Add(new QueueItem()
                         {
                             isShip = true,
@@ -3508,18 +3508,18 @@ namespace Ship_Game
                         {
                             double num4 = (double)this.AdjustResearchForProfit();
                         }
-                        if (this.Shipyards.Count == 0 && this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.Owner.MoneyLastTurn > 5.0) && (double)this.NetProductionPerTurn > 4.0)
+                        if (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.Name == "Shipyard").Count() == 0 && this.Owner.WeCanBuildThis("Shipyard") && (double)this.Owner.MoneyLastTurn > 5.0 && (double)this.NetProductionPerTurn > 4.0)
                         {
-                            bool flag = false;
+                            bool hasShipyard = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isShip && queueItem.sData.IsShipyard)
                                 {
-                                    flag = true;
+                                    hasShipyard = true;
                                     break;
                                 }
                             }
-                            if (!flag)
+                            if (!hasShipyard)
                                 this.ConstructionQueue.Add(new QueueItem()
                                 {
                                     isShip = true,
@@ -4031,38 +4031,38 @@ namespace Ship_Game
                             if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
                                 ++buildingCount;
                         }
-                        bool flag13 = true;
+                        bool missingOutpost = true;
                         foreach (Building building in this.BuildingList)
                         {
                             if (building.Name == "Outpost" || building.Name == "Capital City")
-                                flag13 = false;
+                                missingOutpost = false;
                         }
-                        if (flag13)
+                        if (missingOutpost)
                         {
-                            bool flag1 = false;
+                            bool hasOutpost = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
                                 {
-                                    flag1 = true;
+                                    hasOutpost = true;
                                     break;
                                 }
                             }
-                            if (!flag1)
+                            if (!hasOutpost)
                                 this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                         }
-                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 3.0))
+                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.Name == "Shipyard").Count() == 0 && this.Owner.WeCanBuildThis("Shipyard") && (double)this.GrossMoneyPT > 3.0)
                         {
-                            bool flag1 = false;
+                            bool hasShipyard = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isShip && queueItem.sData.IsShipyard)
                                 {
-                                    flag1 = true;
+                                    hasShipyard = true;
                                     break;
                                 }
                             }
-                            if (!flag1)
+                            if (!hasShipyard)
                                 this.ConstructionQueue.Add(new QueueItem()
                                 {
                                     isShip = true,
@@ -4129,6 +4129,18 @@ namespace Ship_Game
                         }
                         break;
                 }
+            }
+            //Added by McShooterz: build defense platforms
+            if (this.ConstructionQueue.Count == 0 && (double)this.GrossMoneyPT > 3.0 && (double)this.NetProductionPerTurn > 4.0 && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < 8)
+            {
+                string platform = this.Owner.GetGSAI().GetDefenceSatellite();
+                if(platform != "")
+                    this.ConstructionQueue.Add(new QueueItem()
+                    {
+                        isShip = true,
+                        sData = ResourceManager.ShipsDict[platform].GetShipData(),
+                        Cost = ResourceManager.ShipsDict[platform].GetCost(this.Owner)
+                    });
             }
             //Added by McShooterz: Colony build troops
             if (this.CanBuildInfantry() && this.ConstructionQueue.Count == 0 && this.ProductionHere > this.MAX_STORAGE*.75f && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
@@ -4226,11 +4238,18 @@ namespace Ship_Game
 
         private void ApplyProductionTowardsConstruction()
         {
-            if(this.ProductionHere > this.MAX_STORAGE * 0.6f)
-                this.ApplyProductiontoQueue(this.NetProductionPerTurn + this.ProductionHere - (this.MAX_STORAGE * 0.6f), 0);
+            if (this.ProductionHere > this.MAX_STORAGE * 0.6f)
+            {
+                float amount = this.ProductionHere - (this.MAX_STORAGE * 0.6f);
+                this.ProductionHere = this.MAX_STORAGE * 0.6f;
+                this.ApplyProductiontoQueue(this.NetProductionPerTurn + amount, 0);
+            }
             else
-                if(this.NetProductionPerTurn > 5.0)
+                if (this.NetProductionPerTurn > 5.0)
+                {
                     this.ApplyProductiontoQueue(this.NetProductionPerTurn * 0.75f, 0);
+                    this.ProductionHere += 0.25f * this.NetProductionPerTurn;
+                }
                 else
                     this.ApplyProductiontoQueue(this.NetProductionPerTurn, 0);
             if ((double)this.ProductionHere > (double)this.MAX_STORAGE)
