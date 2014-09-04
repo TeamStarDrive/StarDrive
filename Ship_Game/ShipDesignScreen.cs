@@ -189,7 +189,7 @@ namespace Ship_Game
 
         public bool CarrierOnly;
 
-        private string LoadCategory;
+        private ShipData.Category LoadCategory;
 
         public string HangarShipUIDLast = "Undefined";
 
@@ -4323,7 +4323,7 @@ namespace Ship_Game
             //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
             foreach (Entry e in this.CategoryList.Options)
             {
-                if (e.Name == LoadCategory && this.fmlevenmore)
+                if (e.Name == LoadCategory.ToString() && this.fmlevenmore)
                 {
                     this.CategoryList.ActiveIndex = e.@value - 1;
                     this.fmlevenmore = false;
@@ -6096,32 +6096,32 @@ namespace Ship_Game
             {
                 case 1:
                     {
-                        this.ActiveHull.ShipCategory = "Unclassified";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
                         break;
                     }
                 case 2:
                     {
-                        this.ActiveHull.ShipCategory = "Civilian";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Civilian;
                         break;
                     }
                 case 3:
                     {
-                        this.ActiveHull.ShipCategory = "Recon";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Recon;
                         break;
                     }
                 case 4:
                     {
-                        this.ActiveHull.ShipCategory = "Fighter";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Fighter;
                         break;
                     }
                 case 5:
                     {
-                        this.ActiveHull.ShipCategory = "Bomber";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Bomber;
                         break;
                     }
                 default:
                     {
-                        this.ActiveHull.ShipCategory = "Unclassified";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
                         break;
                     }
             }
