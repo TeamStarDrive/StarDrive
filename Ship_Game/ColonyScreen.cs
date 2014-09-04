@@ -2412,9 +2412,6 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 						{
 							if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 							{
-                               // if (this.p.ProductionHere <= 0f)
-
-
                                 if (this.p.ApplyStoredProduction(i))
                                 {
                                     AudioManager.PlayCue("sd_ui_accept_alt3");
@@ -2423,45 +2420,19 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
                                 {
                                     AudioManager.PlayCue("UI_Misc20");
                                 }
-                                //if (this.p.ProductionHere >= 10f) 
-                                //{
-
-                            //    this.p.ApplyProductiontoQueue(10f, i);
-                                //    Planet productionHere = this.p;
-                                //    productionHere.ProductionHere = productionHere.ProductionHere - 10f;
-                                //    AudioManager.PlayCue("sd_ui_accept_alt3");
-                                //}
-                                //else if (this.p.ProductionHere > 10f || this.p.ProductionHere <= 0f)
-                                //{
-                                //    AudioManager.PlayCue("UI_Misc20");
-                                //}
-                                //else
-                                //{
-                                //    this.p.ApplyProductiontoQueue(this.p.ProductionHere, i);
-                                //    this.p.ProductionHere = 0f;
-                                //    AudioManager.PlayCue("sd_ui_accept_alt3");
-                                //}
 							}
 						}
 						else if (PlanetScreen.screen.Debug)
 						{
 							this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
 						}
-						else if (this.p.ProductionHere >= this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards)
-						{
-							Planet productionHere1 = this.p;
-							productionHere1.ProductionHere = productionHere1.ProductionHere - (this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards);
-							this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
-							AudioManager.PlayCue("sd_ui_accept_alt3");
-						}
-						else if (this.p.ProductionHere <= 0f)
+						else if (this.p.ProductionHere == 0f)
 						{
 							AudioManager.PlayCue("UI_Misc20");
 						}
 						else
 						{
-							this.p.ApplyProductiontoQueue(this.p.ProductionHere, i);
-							this.p.ProductionHere = 0f;
+                            this.p.ApplyAllStoredProduction(i);
 							AudioManager.PlayCue("sd_ui_accept_alt3");
 						}
 					}
