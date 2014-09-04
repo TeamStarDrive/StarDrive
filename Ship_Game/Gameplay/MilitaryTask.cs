@@ -1090,7 +1090,7 @@ namespace Ship_Game.Gameplay
 			List<Ship> PotentialBombers = new List<Ship>();
             foreach (Ship ship in this.empire.GetShips().OrderBy(troops => Vector2.Distance(this.AO, troops.Position)))
 			{
-				if ((ship.TroopList.Count<=0 ||ship.fleet!=null) || (!ship.HasTroopBay && ship.Role!="troop" && !ship.hasTransporter) )
+				if ((ship.TroopList.Count<=0 ||ship.fleet!=null) || (!ship.HasTroopBay && ship.Role != "troop" && !ship.hasTransporter) )
 				{
 					continue;
 				}
@@ -1490,7 +1490,7 @@ namespace Ship_Game.Gameplay
             {
                 if ((!ship.HasTroopBay || ship.TroopList.Count <= 0) && !(ship.Role == "troop") || ship.fleet != null)
                 {
-                    if (!(ship.HasTroopBay && ship.TroopList.Count > 0 && ship.fleet != null))
+                    if (!ship.HasTroopBay && !ship.hasTransporter || ship.TroopList.Count == 0 || ship.fleet == null)
                     {
                         continue;
                     }
@@ -2085,7 +2085,7 @@ namespace Ship_Game.Gameplay
 			List<Troop> PotentialTroops = new List<Troop>();
 			foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
 			{
-				if (ship.fleet != null || (!ship.HasTroopBay || ship.TroopList.Count <= 0) && !(ship.Role == "troop") || ship.fleet != null)
+				if (ship.fleet != null || (!ship.HasTroopBay && !ship.hasTransporter || ship.TroopList.Count <= 0) && !(ship.Role == "troop") || ship.fleet != null)
 				{
 					continue;
 				}
@@ -2279,10 +2279,7 @@ namespace Ship_Game.Gameplay
             List<Troop> PotentialTroops = new List<Troop>();
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
             {
-                if (ship.fleet != null 
-                    || (!ship.HasTroopBay && ship.Role!="troop")
-                    || (ship.HasTroopBay && ship.TroopList.Count ==0) )
-                    
+                if (ship.fleet != null || (!ship.HasTroopBay && !ship.hasTransporter && ship.Role != "troop") ||  ship.TroopList.Count ==0)    
                 {
                     continue;
                 }
