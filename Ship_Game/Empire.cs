@@ -1367,10 +1367,8 @@ namespace Ship_Game
                     if (keyValuePair.Value.Role == "platform" || keyValuePair.Value.Role == "station" && keyValuePair.Value.Name != "Shipyard")
                     {
                         this.structuresWeCanBuild.Add(keyValuePair.Key);
-                        if (keyValuePair.Value.Role == "station" && keyValuePair.Value.Name != "Shipyard")
-                            this.ShipsWeCanBuild.Add(keyValuePair.Key);
                     }
-                    else if (keyValuePair.Value.Role != "construction")
+                    if (!ResourceManager.ShipRoles[keyValuePair.Value.Role].Protected && keyValuePair.Value.Name != "Subspace Projector")
                         this.ShipsWeCanBuild.Add(keyValuePair.Key);
                 }
             }
