@@ -5108,7 +5108,6 @@ namespace Ship_Game.Gameplay
             if (TroopShips && DesiredTroopShips > 0)
                 foreach (string shipsWeCanBuild3 in this.empire.ShipsWeCanBuild)
                 {
-                    //if (!(ResourceManager.ShipsDict[shipsWeCanBuild3].GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0) || ResourceManager.ShipsDict[shipsWeCanBuild3].BaseStrength <= 0f || !(ResourceManager.ShipsDict[shipsWeCanBuild3].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild3].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax || (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerStoreMax) / (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild3].velocityMaximum > minimumWarpRange))))
                     Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild3];
                     if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
                     {
@@ -5198,6 +5197,24 @@ namespace Ship_Game.Gameplay
 
            
             return null;
+        }
+
+        //Added by McShooterz: used for AI to get defensive structures to build around planets
+        public string GetDefenceSatellite()
+        {
+            List<Ship> PotentialSatellites = new List<Ship>();
+            foreach (string platform in this.empire.structuresWeCanBuild)
+            {
+                if(ResourceManager.ShipsDict[platform].Role == "platform" && ResourceManager.ShipsDict[platform].Weapons.Count() > 0)
+                    PotentialSatellites.Add(ResourceManager.ShipsDict[platform]);
+            }
+            if (PotentialSatellites.Count() == 0)
+                return "";
+            IOrderedEnumerable<Ship> sortedList =
+                    from ship in PotentialSatellites
+                    orderby ship.BaseStrength
+                    select ship;
+            return sortedList.Last().Name;
         }
 
         private bool shipIsGoodForGoals(Ship ship)
