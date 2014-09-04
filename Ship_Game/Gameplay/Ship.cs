@@ -1131,46 +1131,6 @@ namespace Ship_Game.Gameplay
             this.AI.OrderReturnToHangar();
         }
 
-        public float GetMaintCostORIG()
-        {
-            float num;
-            switch (this.Role)
-            {
-                case "freighter":
-                    num = 0.2f;
-                    break;
-                case "platform":
-                    num = 0.2f;
-                    break;
-                case "fighter":
-                    num = 0.2f;
-                    break;
-                case "corvette":
-                    num = 0.35f;
-                    break;
-                case "scout":
-                    num = 0.1f;
-                    break;
-                case "frigate":
-                    num = 1f;
-                    break;
-                case "cruiser":
-                    num = 2.5f;
-                    break;
-                case "carrier":
-                    num = 4f;
-                    break;
-                case "capital":
-                    num = 6f;
-                    break;
-                default:
-                    num = 0.0f;
-                    break;
-            }
-            return num;
-        }
-
-
         // ModInfo activation option for Maintenance Costs:
 
         public float GetMaintCostRealism()
