@@ -7755,6 +7755,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6137</Index>
       <Text>Ship Repair</Text>
     </Token>
+	<Token>
+      <Index>6138</Index>
+      <Text>Auto Taxes</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -7913,6 +7917,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7039</Index>
       <Text>Your Empire will automatically select technologies to research.</Text>
+    </Token>
+	<Token>
+      <Index>7040</Index>
+      <Text>Your Empire will automatically manage taxes and treasury.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
