@@ -4145,7 +4145,7 @@ namespace Ship_Game.Gameplay
         public void OrderTrade()
         {
             //added by gremlin if fleeing keep fleeing
-            if (this.Owner.CargoSpace_Max ==0 || this.State == AIState.Flee)
+            if (this.Owner.CargoSpace_Max == 0 || this.State == AIState.Flee)
             {
                 return;
             }
@@ -6756,14 +6756,11 @@ namespace Ship_Game.Gameplay
             this.Owner.isTurning = false;
 
 
-            if (!this.HasPriorityOrder && (this.BadGuysNear || this.Owner.InCombatTimer > 0) && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == null || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0
-                && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State!=AIState.Rebase) &&(  this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
+            if (!this.HasPriorityOrder && (this.BadGuysNear || this.Owner.InCombatTimer > 0) && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 && this.Owner.Transporters.Count() == 0
+                && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State != AIState.Rebase) && (this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
             {
-                if (this.State != AIState.Flee )//&& !this.HasPriorityOrder)
+                if (this.State != AIState.Flee )
                 {
-                    //this.OrderQueue.Clear();
-                    //if (this.CombatState == CombatState.Evade)
-                    //    this.State = AIState.AwaitingOrders;
                     this.HasPriorityOrder = true;
                     this.State = AIState.Flee;
                     if (this.State == AIState.Flee)
