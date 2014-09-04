@@ -6778,7 +6778,7 @@ namespace Ship_Game.Gameplay
                             {
                                 scrapFleet = true;
                             }
-                            if (current.Mothership == null && (current.shipData==null || current.shipData.ShipCategory ==null || current.shipData.ShipCategory!="civilian") && !(current.Role == "freighter") && !(current.Role == "construction") && !(current.Role == "platform") && !(current.Role == "station") && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
+                            if (current.Mothership == null && (current.shipData == null || current.shipData.ShipCategory == null || current.shipData.ShipCategory != ShipData.Category.Civilian) && !(current.Role == "freighter") && !(current.Role == "construction") && !(current.Role == "platform") && !(current.Role == "station") && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
                             {
                                 if (current.fleet == null || (current.fleet != null && current.fleet.Task == null)) //&&current.fleet.TaskStep <1))
                                 {
