@@ -2076,99 +2076,6 @@ namespace Ship_Game.Gameplay
             return this.PlayerShip;
         }
 
-        public void InitializeStatusORIG()
-        {
-            this.Mass = 0.0f;
-            Ship ship1 = this;
-            double num1 = (double)ship1.Mass + (double)this.Size;
-            ship1.Mass = (float)num1;
-            this.Thrust = 0.0f;
-            this.PowerStoreMax = 0.0f;
-            this.PowerFlowMax = 0.0f;
-            this.PowerDraw = 0.0f;
-            this.shield_max = 0.0f;
-            this.shield_power = 0.0f;
-            this.armor_max = 0.0f;
-            this.CrewRequired = 0;
-            this.CrewSupplied = 0;
-            this.WarpMassCapacity = 0.0f;
-            this.Size = 0;
-            this.number_alive_modules = 0;
-            this.velocityMaximum = 0.0f;
-            this.speed = 0.0f;
-            this.SensorRange = 0.0f;
-            this.OrdinanceMax = 0.0f;
-            this.OrdAddedPerSecond = 0.0f;
-            this.rotationRadiansPerSecond = 0.0f;
-            this.Health = 0.0f;
-            this.TroopCapacity = 0;
-            this.MechanicalBoardingDefense = 0.0f;
-            this.TroopBoardingDefense = 0.0f;
-            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-            {
-                if (moduleSlot.Restrictions == Restrictions.I)
-                {
-                    ++this.number_Internal_modules;
-                    ++this.number_Alive_Internal_modules;
-                }
-                if (moduleSlot.module.ModuleType == ShipModuleType.Colony)
-                    this.isColonyShip = true;
-                if ((double)moduleSlot.module.ResourceStorageAmount > 0.0 && Ship_Game.ResourceManager.GoodsDict.ContainsKey(moduleSlot.module.ResourceStored) && !Ship_Game.ResourceManager.GoodsDict[moduleSlot.module.ResourceStored].IsCargo)
-                {
-                    Dictionary<string, float> dictionary;
-                    string index;
-                    (dictionary = this.MaxGoodStorageDict)[index = moduleSlot.module.ResourceStored] = dictionary[index] + moduleSlot.module.ResourceStorageAmount;
-                }
-                for (int index = 0; index < (int)moduleSlot.module.TroopsSupplied; ++index)
-                    this.TroopList.Add(Ship_Game.ResourceManager.CreateTroop(Ship_Game.ResourceManager.TroopsDict["Space Marine"], this.loyalty));
-                if ((double)moduleSlot.module.SensorRange > (double)this.SensorRange)
-                    this.SensorRange = moduleSlot.module.SensorRange;
-                this.TroopCapacity += (int)moduleSlot.module.TroopCapacity;
-                this.MechanicalBoardingDefense += moduleSlot.module.MechanicalBoardingDefense;
-                if (moduleSlot.module.ModuleType == ShipModuleType.Hangar)
-                {
-                    moduleSlot.module.hangarShipUID = moduleSlot.SlotOptions;
-                    if (moduleSlot.module.IsTroopBay)
-                        this.HasTroopBay = true;
-                }
-                Ship ship2 = this;
-                double num2 = (double)ship2.mass + (double)moduleSlot.module.Mass;
-                ship2.mass = (float)num2;
-                this.WarpMassCapacity += moduleSlot.module.WarpMassCapacity;
-                this.Thrust += moduleSlot.module.thrust;
-                this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
-                this.PowerCurrent += moduleSlot.module.PowerStoreMax;
-                this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
-                this.shield_max += moduleSlot.module.shield_power_max;
-                this.shield_power += moduleSlot.module.shield_power_max;
-                if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
-                    this.armor_max += moduleSlot.module.HealthMax;
-                ++this.Size;
-                ++this.number_alive_modules;
-                this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
-                this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
-                this.Ordinance += (float)moduleSlot.module.OrdinanceCapacity;
-                this.PowerDraw += moduleSlot.module.PowerDraw;
-                Ship ship3 = this;
-                double num3 = (double)ship3.Health + (double)moduleSlot.module.HealthMax;
-                ship3.Health = (float)num3;
-            }
-            foreach (Troop troop in this.TroopList)
-            {
-                troop.SetOwner(this.loyalty);
-                troop.SetShip(this);
-                this.TroopBoardingDefense += (float)troop.Strength;
-            }
-            this.MechanicalBoardingDefense += (float)(this.Size / 20);
-            if ((double)this.MechanicalBoardingDefense < 1.0)
-                this.MechanicalBoardingDefense = 1f;
-            this.HealthMax = this.Health;
-            this.velocityMaximum = this.Thrust / this.mass;
-            this.speed = this.velocityMaximum;
-            this.rotationRadiansPerSecond = this.speed / (float)this.Size;
-            this.ShipMass = this.mass;
-            this.shield_power = this.shield_max;
-        }
         //added by gremlin Initialize status from deveks mod. 
         public void InitializeStatus()
         {
@@ -2305,27 +2212,17 @@ namespace Ship_Game.Gameplay
                 ship.PowerCurrent += moduleSlotList.module.PowerStoreMax;
                 ship.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
                 ship.shield_max += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
-                ship.shield_power += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
                 {
-                    Ship armorMax = this;
-                    armorMax.armor_max = armorMax.armor_max + moduleSlotList.module.HealthMax;
+                    this.armor_max += moduleSlotList.module.HealthMax;
                 }
-                Ship size = this;
-                size.Size = size.Size + 1;
-                Ship numberAliveModules = this;
-                numberAliveModules.number_alive_modules = numberAliveModules.number_alive_modules + 1;
-                Ship cargoSpaceMax = this;
-                cargoSpaceMax.CargoSpace_Max = cargoSpaceMax.CargoSpace_Max + moduleSlotList.module.Cargo_Capacity;
-                Ship ordinanceMax = this;
-                ordinanceMax.OrdinanceMax = ordinanceMax.OrdinanceMax + (float)moduleSlotList.module.OrdinanceCapacity;
-                Ship ordinance = this;
-                ordinance.Ordinance = ordinance.Ordinance + (float)moduleSlotList.module.OrdinanceCapacity;
-                Ship powerDraw = this;
-                powerDraw.PowerDraw = powerDraw.PowerDraw + moduleSlotList.module.PowerDraw;
-                Ship health = this;
-                health.Health = health.Health + moduleSlotList.module.HealthMax;
-
+                this.Size += 1;
+                this.number_alive_modules += 1;
+                this.CargoSpace_Max += moduleSlotList.module.Cargo_Capacity;
+                this.OrdinanceMax += (float)moduleSlotList.module.OrdinanceCapacity;
+                this.Ordinance += (float)moduleSlotList.module.OrdinanceCapacity;
+                this.PowerDraw += moduleSlotList.module.PowerDraw;
+                this.Health += moduleSlotList.module.HealthMax;
             }
 
             #endregion
@@ -2538,8 +2435,8 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz
                 this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
                 this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                this.shield_max += moduleSlot.module.shield_power_max + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
-                this.shield_power += moduleSlot.module.shield_power + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                this.shield_max += moduleSlot.module.GetShieldsMax();
+                this.shield_power += moduleSlot.module.shield_power;
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                     this.armor_max += moduleSlot.module.HealthMax;
                 ++this.Size;
@@ -3612,6 +3509,7 @@ namespace Ship_Game.Gameplay
                     double num1 = (double)ship1.Mass + (double)(this.Size / 2);
                     ship1.Mass = (float)num1;
                     this.shield_power = 0.0f;
+                    this.shield_max = 0.0f;
                     this.number_alive_modules = 0;
                     this.number_Internal_modules = 0.0f;
                     this.number_Alive_Internal_modules = 0.0f;
@@ -3778,7 +3676,10 @@ namespace Ship_Game.Gameplay
                         if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                             this.armor_current += (double)moduleSlot.module.Health;
                         if ((double)moduleSlot.module.shield_power_max > 0.0)
+                        {
+                            this.shield_max += moduleSlot.module.GetShieldsMax();
                             this.Shields.Add(moduleSlot.module);
+                        }
                         if (moduleSlot.module.Active)
                         {
                             ++this.number_alive_modules;
