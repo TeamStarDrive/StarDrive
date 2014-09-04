@@ -173,7 +173,7 @@ namespace Ship_Game
 			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 130 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
-				if (ResourceManager.ShipsDict[ship].isColonyShip || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+				if (ResourceManager.ShipsDict[ship].isColonyShip || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f || ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected)
 				{
 					continue;
 				}
@@ -230,7 +230,7 @@ namespace Ship_Game
 			this.ScoutDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 40 + Fonts.Arial12Bold.LineSpacing + 9, 150, 18));
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
-                if (!(ResourceManager.ShipsDict[ship].Role == "scout") && !(ResourceManager.ShipsDict[ship].Role == "fighter") && (ResourceManager.ShipsDict[ship].shipData ==null || ResourceManager.ShipsDict[ship].shipData.ShipCategory == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != "Recon") || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+                if (!(ResourceManager.ShipsDict[ship].Role == "scout") && !(ResourceManager.ShipsDict[ship].Role == "fighter") && (ResourceManager.ShipsDict[ship].shipData ==null || ResourceManager.ShipsDict[ship].shipData.ShipCategory == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
 				{
 					continue;
 				}
