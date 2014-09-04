@@ -568,7 +568,7 @@ namespace Ship_Game
                 {
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), Color.White);
                   Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" || (entry.item as Ship).Role == "platform" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                   position.Y += (float) Fonts.Arial12Bold.LineSpacing;
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
@@ -600,7 +600,7 @@ namespace Ship_Game
                   vector2_1.Y = (float) entry.clickRect.Y;
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), Color.White);
                   Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" || (entry.item as Ship).Role == "platform" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                   position.Y += (float) Fonts.Arial12Bold.LineSpacing;
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
