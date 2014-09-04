@@ -2276,7 +2276,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (unusedFreighters.Count() > 0)
+            else if (tradeShips < TradeLimit)
             {
                 //Do trade ships
                 foreach (Ship ship in unusedFreighters)
@@ -2313,7 +2313,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (unusedFreighters.Count() > 0)
+            else if (passengerShips < PassengerLimit)
             {
                 //Do passenger ships
                 foreach (Ship ship in unusedFreighters)
