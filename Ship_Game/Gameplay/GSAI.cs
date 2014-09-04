@@ -5617,17 +5617,6 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		private void RunEconomicPlannerORIG()
-		{
-			if (this.empire.Money < 400f)
-			{
-				float TaxRate = this.FindTaxRateToReturnAmount(3f);
-				this.empire.data.TaxRate = TaxRate;
-				return;
-			}
-			float TaxRate0 = this.FindTaxRateToReturnAmount(-0.0035f * this.empire.Money);
-			this.empire.data.TaxRate = TaxRate0;
-		}
         //added by gremlin Economic planner
         private void RunEconomicPlanner()
         {
@@ -6597,9 +6586,12 @@ namespace Ship_Game.Gameplay
 				this.RunWarPlanner();
 			}
             //Added by McShooterz: automating research
-            else if (this.empire.AutoResearch)
+            else
             {
-                this.RunResearchPlanner();
+                if (this.empire.AutoResearch)
+                    this.RunResearchPlanner();
+                if (this.empire.AutoTaxes)
+                    this.RunEconomicPlanner();
             }
 		}
 
