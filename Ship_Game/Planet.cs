@@ -4375,9 +4375,9 @@ namespace Ship_Game
                     }
                     if (queueItem.sData.Role == "station" || queueItem.sData.Role == "platform")
                     {
-                        int num = this.Shipyards.Count / 4;
-                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
-                        shipAt.Center = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
+                        int num = this.Shipyards.Count / 9;
+                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 40), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
+                        shipAt.Center = shipAt.Position;
                         shipAt.TetherToPlanet(this);
                         this.Shipyards.Add(shipAt.guid, shipAt);
                     }
