@@ -2141,7 +2141,7 @@ namespace Ship_Game
                     data.NameIndex += (ushort)OffSet;
                     Localizer.used[data.NameIndex] = true;
                 }
-                
+                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
                 
                 if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -2717,6 +2717,7 @@ namespace Ship_Game
 				stream.Close();
 				stream.Dispose();
                 //no localization
+                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
 				if (Ship_Game.ResourceManager.WeaponsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.WeaponsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -2742,6 +2743,7 @@ namespace Ship_Game
                 ShipRole data = (ShipRole)serializer1.Deserialize(stream);
                 stream.Close();
                 stream.Dispose();
+
                 if (Localizer.LocalizerDict.ContainsKey(data.Localization + OffSet))
                 {
                     data.Localization += OffSet;
