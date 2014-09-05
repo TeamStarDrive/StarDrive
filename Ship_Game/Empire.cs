@@ -1392,7 +1392,7 @@ namespace Ship_Game
             if (!ResourceManager.ShipsDict.ContainsKey(ship))
                 return false;
             ShipData shipData = ResourceManager.ShipsDict[ship].GetShipData();
-            if (shipData == null || shipData.IsOrbitalDefense || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
+            if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
                 return false;
             foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlotList)
             {

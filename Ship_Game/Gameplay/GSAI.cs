@@ -5104,7 +5104,7 @@ namespace Ship_Game.Gameplay
             }
 
             //added by gremlin troop carriers
-            bool TroopShips = this.empire.ShipsWeCanBuild.Where(hangars => ResourceManager.ShipsDict[hangars].GetHangars().Where(fighters => fighters.IsTroopBay).Count() > 0 == true).Count() > 0;
+            bool TroopShips = this.empire.ShipsWeCanBuild.Where(hangars => ResourceManager.ShipsDict[hangars].GetHangars().Where(fighters => fighters.IsTroopBay).Count() > 0 || ResourceManager.ShipsDict[hangars].hasTransporter).Count() > 0;
             if (TroopShips && DesiredTroopShips > 0)
                 foreach (string shipsWeCanBuild3 in this.empire.ShipsWeCanBuild)
                 {
@@ -5205,16 +5205,13 @@ namespace Ship_Game.Gameplay
             List<Ship> PotentialSatellites = new List<Ship>();
             foreach (string platform in this.empire.structuresWeCanBuild)
             {
-                if(ResourceManager.ShipsDict[platform].Role == "platform" && ResourceManager.ShipsDict[platform].Weapons.Count() > 0)
+                if (platform != "Subspace Projector" && ResourceManager.ShipsDict[platform].Role == "platform")
                     PotentialSatellites.Add(ResourceManager.ShipsDict[platform]);
             }
             if (PotentialSatellites.Count() == 0)
-                return "";
-            IOrderedEnumerable<Ship> sortedList =
-                    from ship in PotentialSatellites
-                    orderby ship.BaseStrength
-                    select ship;
-            return sortedList.Last().Name;
+                return "Subspace Projector";
+            int index = HelperFunctions.GetRandomIndex(PotentialSatellites.Count());
+            return PotentialSatellites[index].Name;
         }
 
         private bool shipIsGoodForGoals(Ship ship)

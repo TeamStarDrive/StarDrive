@@ -1510,24 +1510,6 @@ namespace Ship_Game.Gameplay
                 }
                 return;
             }
-            //if (this.State != AIState.AssaultPlanet && this.Owner.Role == "troop" && this.Owner.loyalty == universeScreen.player)
-            //{
-
-            //    if (this.OrbitTarget != null && this.Owner.loyalty != this.OrbitTarget.Owner)
-            //    {
-
-            //        if (OrbitTarget.Owner == null)
-            //        {
-            //            this.State = AIState.AssaultPlanet;
-            //            this.OrderLandAllTroops(this.OrbitTarget);
-            //        }
-            //        else if (this.Owner.loyalty.GetRelations()[this.OrbitTarget.Owner].AtWar)
-            //        {
-            //            this.State = AIState.AssaultPlanet;
-            //            this.OrderLandAllTroops(this.OrbitTarget);
-            //        }
-            //    }
-            //}
             Vector2 vector2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
             Vector2 vector21 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
             Vector2 vector22 = new Vector2(-vector21.Y, vector21.X);
@@ -1535,33 +1517,6 @@ namespace Ship_Game.Gameplay
             Vector2.Dot(vector2, vector22);
             this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
         }
-
-
-		private void DoOrbitalDefense(float elapsedTime)
-		{
-			if (this.Owner.OrbitalDefenseTimer <= 0f && this.Owner.GetTether() != null)
-			{
-				List<PlanetGridSquare> Potentials = new List<PlanetGridSquare>();
-				foreach (PlanetGridSquare pgs in this.Owner.GetTether().TilesList)
-				{
-					if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() == null)
-					{
-						continue;
-					}
-					Potentials.Add(pgs);
-				}
-				if (Potentials.Count > 0)
-				{
-					int ran = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)Potentials.Count + 0.96f);
-					if (ran > Potentials.Count - 1)
-					{
-						ran = Potentials.Count - 1;
-					}
-					this.Owner.FireOrbitalDefenseBeam(Potentials[ran]);
-					this.Owner.OrbitalDefenseTimer = 7.5f;
-				}
-			}
-		}
 
 		private void DoOrbitNoWarp(Planet OrbitTarget, float elapsedTime)
 		{
