@@ -2071,6 +2071,7 @@ namespace Ship_Game.Gameplay
             string troopType = "Wyvern";
             string tankType = "Wyvern";
             string redshirtType = "Wyvern";
+
             #endregion
             #region TroopListFix
             if (this.loyalty != null && this.loyalty.GetTrDict().Where(value => value.Value == true).Count() > 0)
@@ -2163,15 +2164,14 @@ namespace Ship_Game.Gameplay
                     this.Transporters.Add(moduleSlotList.module);
                 if (moduleSlotList.module.InstalledWeapon != null && moduleSlotList.module.InstalledWeapon.isRepairBeam)
                     this.RepairBeams.Add(moduleSlotList.module);
-                Ship ship = this;
-                ship.mass += moduleSlotList.module.Mass;
-                ship.WarpMassCapacity += moduleSlotList.module.WarpMassCapacity;
-                ship.Thrust += moduleSlotList.module.thrust;
+                this.mass += moduleSlotList.module.Mass;
+                this.WarpMassCapacity += moduleSlotList.module.WarpMassCapacity;
+                this.Thrust += moduleSlotList.module.thrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
-                ship.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? ship.loyalty.data.FuelCellModifier : 0);
-                ship.PowerCurrent += moduleSlotList.module.PowerStoreMax;
-                ship.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                ship.shield_max += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                this.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? this.loyalty.data.FuelCellModifier : 0);
+                this.PowerCurrent += moduleSlotList.module.PowerStoreMax;
+                this.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
+                this.shield_max += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
                 {
                     this.armor_max += moduleSlotList.module.HealthMax;
