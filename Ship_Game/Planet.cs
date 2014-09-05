@@ -2650,8 +2650,6 @@ namespace Ship_Game
             {
                 if (!keyValuePair.Value.Active || keyValuePair.Value.ModuleSlotList.Count == 0)
                     list.Add(keyValuePair.Key);
-                else if (keyValuePair.Value.GetShipData() != null && keyValuePair.Value.GetShipData().IsOrbitalDefense)
-                    keyValuePair.Value.OrbitalDefenseTimer -= elapsedTime;
             }
             foreach (Guid key in list)
                 this.Shipyards.Remove(key);
@@ -4130,18 +4128,6 @@ namespace Ship_Game
                         break;
                 }
             }
-            //Added by McShooterz: build defense platforms
-            if (this.ConstructionQueue.Count == 0 && (double)this.GrossMoneyPT > 3.0 && (double)this.NetProductionPerTurn > 4.0 && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < 8)
-            {
-                string platform = this.Owner.GetGSAI().GetDefenceSatellite();
-                if(platform != "")
-                    this.ConstructionQueue.Add(new QueueItem()
-                    {
-                        isShip = true,
-                        sData = ResourceManager.ShipsDict[platform].GetShipData(),
-                        Cost = ResourceManager.ShipsDict[platform].GetCost(this.Owner)
-                    });
-            }
             //Added by McShooterz: Colony build troops
             if (this.CanBuildInfantry() && this.ConstructionQueue.Count == 0 && this.ProductionHere > this.MAX_STORAGE*.75f && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
             {
@@ -4171,6 +4157,18 @@ namespace Ship_Game
                         }
                     }
                 }
+            }
+            //Added by McShooterz: build defense platforms
+            if (this.ConstructionQueue.Count == 0 && (double)this.GrossMoneyPT > 3.0 && (double)this.NetProductionPerTurn > 4.0 && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < (this.developmentLevel - 1) * 2)
+            {
+                string platform = this.Owner.GetGSAI().GetDefenceSatellite();
+                if (platform != "")
+                    this.ConstructionQueue.Add(new QueueItem()
+                    {
+                        isShip = true,
+                        sData = ResourceManager.ShipsDict[platform].GetShipData(),
+                        Cost = ResourceManager.ShipsDict[platform].GetCost(this.Owner)
+                    });
             }
             if ((double)this.Population > 3000.0 || (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.75)
             {
