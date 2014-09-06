@@ -2722,6 +2722,7 @@ namespace Ship_Game
         //added by gremlin affectnearbyships
         private void AffectNearbyShips()
         {
+            float repairpool = this.developmentLevel  * 50;
             for (int i = 0; i < this.system.ShipList.Count; i++)
             {
                 Ship item = this.system.ShipList[i];
@@ -2767,13 +2768,19 @@ namespace Ship_Game
                         }
                     }
                     //Modified by McShooterz: changed to repair all modules based on repair rate of planet, default 50 per turn
-                    if (item.Health < item.HealthMax && item.LastHitTimer <= 0f)
+                    
+                    if (repairpool > 0 && item.Health < item.HealthMax && item.LastHitTimer <= 0f)
                     {
                         foreach (ModuleSlot slot in item.ModuleSlotList.Where(slot => slot.module.Health < slot.module.HealthMax))
                         {
+                            if (repairpool <= 0)
+                                break;
                             slot.module.Health += this.RepairPerTurn;
-                            if (slot.module.Health > slot.module.HealthMax)
+                            if (slot.module.Health > slot.module.HealthMax )
+                            {
                                 slot.module.Health = slot.module.HealthMax;
+                                repairpool--;
+                            }
                         }
                     }
                     if ((this.ParentSystem.combatTimer <= 0 || item.InCombatTimer <= 0) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
