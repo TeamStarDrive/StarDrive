@@ -3949,7 +3949,15 @@ namespace Ship_Game.Gameplay
 
 		public void OrderScrapShip()
 		{
-			lock (GlobalStats.WayPointLock)
+            System.Diagnostics.Debug.WriteLine(string.Concat(this.Owner.loyalty.PortraitName," : " , this.Owner.Role));
+           
+            if(this.Owner.Role=="platform" && this.Owner.ScuttleTimer<1)
+            {
+                this.Owner.ScuttleTimer = 1;
+                this.State = AIState.Scuttle;
+                return;
+            }
+            lock (GlobalStats.WayPointLock)
 			{
 				this.ActiveWayPoints.Clear();
 			}
