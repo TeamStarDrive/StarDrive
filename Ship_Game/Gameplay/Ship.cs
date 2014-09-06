@@ -1332,15 +1332,19 @@ namespace Ship_Game.Gameplay
                 maint *= 0.5f;
             }
 
-            //added by gremlin shipyard exploit fix
-            if (this.Name == "Shipyard" && this.IsTethered())
-                if (this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() > 3)
-                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() - 3;
-
             //Subspace Projectors do not get any more modifiers
             if (this.Name == "Subspace Projector")
             {
                 return maint;
+            }
+
+            //added by gremlin shipyard exploit fix
+            if (this.IsTethered())
+            {
+                if (this.Role == "platform")
+                    return maint *= 0.5f;
+                if (this.GetShipData().IsShipyard && this.GetTether().Shipyards.Where(shipyard => shipyard.Value.GetShipData().IsShipyard).Count() > 3)
+                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.GetShipData().IsShipyard).Count() - 3;
             }
 
             //Maintenance fluctuator
@@ -1382,7 +1386,6 @@ namespace Ship_Game.Gameplay
             }
             return maint;
         }
-
 
         // The Doctor - This function is an overload which is used for the Ship Build menu.
         // It will calculate the maintenance cost in exactly the same way as the normal function, except as the ship build list elements have no loyalty data, this variable is called by the function
@@ -1468,8 +1471,6 @@ namespace Ship_Game.Gameplay
             }
             return maint;
         }
-
-
 
         public int GetTechScore()
         {
