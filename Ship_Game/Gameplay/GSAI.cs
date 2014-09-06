@@ -5213,7 +5213,7 @@ namespace Ship_Game.Gameplay
                     PotentialSatellites.Add(orbitalDefense);
             }
             if (PotentialSatellites.Count() == 0)
-                return "Subspace Projector";
+                return "";
             int index = HelperFunctions.GetRandomIndex(PotentialSatellites.Count());
             return PotentialSatellites[index].Name;
         }
