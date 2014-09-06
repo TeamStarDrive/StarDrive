@@ -625,15 +625,25 @@ namespace Ship_Game
 					}
                     float oldbasestr = ship.BaseStrength;
                     float newbasestr = ResourceManager.CalculateBaseStrength(ship);
-                    if (oldbasestr==0&& (ship.Name !="Subspace Projector" &&ship.Role !="troop"&&ship.Role !="freighter"))
-                    {
-                        System.Diagnostics.Debug.WriteLine(ship.Name);
-                        System.Diagnostics.Debug.WriteLine("BaseStrength: " + oldbasestr);
-                        System.Diagnostics.Debug.WriteLine("NewStrength: " + newbasestr);
-                        System.Diagnostics.Debug.WriteLine("");
+                    //if (oldbasestr==0&& (ship.Name !="Subspace Projector" &&ship.Role !="troop"&&ship.Role !="freighter"))
+                    //{
+                    //    System.Diagnostics.Debug.WriteLine(ship.Name);
+                    //    System.Diagnostics.Debug.WriteLine("BaseStrength: " + oldbasestr);
+                    //    System.Diagnostics.Debug.WriteLine("NewStrength: " + newbasestr);
+                    //    System.Diagnostics.Debug.WriteLine("");
                         
-                    }
+                    //}
                     ship.BaseStrength = newbasestr;
+
+                    foreach(ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
+                    {
+                        ShipModule mismatch =null;
+                        bool exists =ResourceManager.ShipModulesDict.TryGetValue(moduleSD.InstalledModuleUID,out mismatch);
+                        if (exists)
+                            continue;
+                        System.Diagnostics.Debug.WriteLine(string.Concat("mismatch =", moduleSD.InstalledModuleUID));
+                    }
+
 
 					ship.PowerCurrent = shipData.Power;
 					ship.yRotation = shipData.yRotation;
