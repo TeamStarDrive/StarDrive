@@ -2722,7 +2722,7 @@ namespace Ship_Game
         //added by gremlin affectnearbyships
         private void AffectNearbyShips()
         {
-            float repairpool = this.developmentLevel  * 50;
+            float repairpool = this.developmentLevel * this.RepairPerTurn;
             for (int i = 0; i < this.system.ShipList.Count; i++)
             {
                 Ship item = this.system.ShipList[i];
@@ -2776,10 +2776,11 @@ namespace Ship_Game
                             if (repairpool <= 0)
                                 break;
                             slot.module.Health += this.RepairPerTurn;
+                            repairpool--;
                             if (slot.module.Health > slot.module.HealthMax )
                             {
                                 slot.module.Health = slot.module.HealthMax;
-                                repairpool--;
+                                
                             }
                         }
                     }

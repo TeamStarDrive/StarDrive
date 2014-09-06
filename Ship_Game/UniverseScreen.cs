@@ -1226,15 +1226,18 @@ namespace Ship_Game
                     
                     //added by gremlin forced garbage collection to hlep ship building issues.
                     this.garbageCollector -= 0.01666667f;
-                    if (this.garbageCollector <= 0.0f)
+                    if (this.garbageCollector <= 0.0f )
                     {
                         this.garbageCollector = this.garbargeCollectorBase;
-                        if(GC.GetTotalMemory(false) > GlobalStats.MemoryLimiter)
+                        float memory = GC.GetTotalMemory(false);
+                        if (memory > GlobalStats.MemoryLimiter)
                         {
-                            GC.Collect(GC.MaxGeneration,GCCollectionMode.Optimized);
-                            //GC.Collect();
-                            
+                            //GC.Collect(GC.MaxGeneration,GCCollectionMode.Optimized);
+                            GC.Collect();
+                            if (memory > GlobalStats.MemoryLimiter && GlobalStats.ShipCountLimit > this.globalshipCount)
+                                GlobalStats.ShipCountLimit = this.globalshipCount;
                             //GlobalStats.MemoryLimiter=(GC.GetTotalMemory(true)/1000) +500;
+                            
                         }
                     }
                     if (this.AutoSaveTimer <= 0.0f)
