@@ -280,9 +280,9 @@ namespace Ship_Game.Gameplay
 
 		private void AwaitOrders(float elapsedTime)
 		{
-            if ((this.Owner.GetSystem() ==null && this.State == AIState.Intercept) 
-                || this.Target != null && this.Owner.GetSystem()!=null && this.Target.GetSystem()!=null && this.Target.GetSystem()==this.Owner.GetSystem())
-                return;
+            //if ((this.Owner.GetSystem() ==null && this.State == AIState.Intercept) 
+            //    || this.Target != null && this.Owner.GetSystem()!=null && this.Target.GetSystem()!=null && this.Target.GetSystem()==this.Owner.GetSystem())
+            //    return;
             this.HasPriorityOrder = false;
 			if (this.awaitClosest != null)
 			{
@@ -3949,7 +3949,15 @@ namespace Ship_Game.Gameplay
 
 		public void OrderScrapShip()
 		{
-			lock (GlobalStats.WayPointLock)
+            System.Diagnostics.Debug.WriteLine(string.Concat(this.Owner.loyalty.PortraitName," : " , this.Owner.Role));
+           
+            if(this.Owner.Role=="platform" && this.Owner.ScuttleTimer<1)
+            {
+                this.Owner.ScuttleTimer = 1;
+                this.State = AIState.Scuttle;
+                return;
+            }
+            lock (GlobalStats.WayPointLock)
 			{
 				this.ActiveWayPoints.Clear();
 			}

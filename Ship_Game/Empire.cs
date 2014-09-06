@@ -1364,7 +1364,7 @@ namespace Ship_Game
             {
                 if (!keyValuePair.Value.Deleted && this.WeCanBuildThis(keyValuePair.Key))
                 {
-                    if (keyValuePair.Value.Role == "platform" || keyValuePair.Value.Role == "station" && keyValuePair.Value.Name != "Shipyard")
+                    if (keyValuePair.Value.Role == "platform" || keyValuePair.Value.Role == "station" && !(keyValuePair.Value.shipData.IsShipyard || keyValuePair.Value.Name == "Subspace Projector"))
                     {
                         this.structuresWeCanBuild.Add(keyValuePair.Key);
                     }

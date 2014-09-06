@@ -4790,11 +4790,12 @@ namespace Ship_Game.Gameplay
             int DesiredTroopShips = (int)(TotalMilShipCount / 10f * 1f);  
             if(Capacity ==0)
             {
-                int scrapFighters = (int)numFighters - (int)DesiredFighters;
-                int scrapFrigates = (int)numFrigates - (int)DesiredFrigates;
-                int scrapCruisers = (int)numCruisers - (int)DesiredCruisers;
-
-                foreach (Ship ship in this.empire.GetShips().Where(ship => !ship.InCombat && ship.inborders).OrderBy(ship=> ship.Level).ThenBy(ship=> ship.BaseStrength))
+                int scrapFighters = (int)DesiredFighters-(int)numFighters  ;
+                int scrapFrigates = (int)DesiredFrigates-(int)numFrigates  ;
+                int scrapCruisers = (int)DesiredCruisers-(int)numCruisers  ;
+                if (scrapCruisers + scrapFighters + scrapFrigates > 0 && this.empire.canBuildFrigates)
+                foreach (Ship ship in this.empire.GetShips().Where(ship => !ship.InCombat && ship.inborders).OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense)).ThenByDescending(ship=> ship.Level).ThenByDescending(ship=> ship.BaseStrength))
+                //foreach(Ship ship in this.DefensiveCoordinator.DefensiveForcePool)
                 {
 
                     if(scrapFighters >0 && ship.Role =="fighter")
@@ -4802,16 +4803,18 @@ namespace Ship_Game.Gameplay
                         ship.GetAI().OrderScrapShip();
                         scrapFighters--;
                     }
-                    if (scrapFighters > 0 && ship.Role == "frigate")
+                    if (scrapFrigates > 0 && ship.Role == "frigate")
                     {
                         ship.GetAI().OrderScrapShip();
                         scrapFrigates--;
                     }
-                    if (scrapFighters > 0 && ship.Role == "cruiser")
+                    if (scrapCruisers > 0 && ship.Role == "cruiser")
                     {
                         ship.GetAI().OrderScrapShip();
                         scrapCruisers--;
                     }
+                    if (scrapCruisers + scrapFighters + scrapFrigates <= 0)
+                        break;
                 }
                 return "";
             }
@@ -5205,8 +5208,9 @@ namespace Ship_Game.Gameplay
             List<Ship> PotentialSatellites = new List<Ship>();
             foreach (string platform in this.empire.structuresWeCanBuild)
             {
-                if (platform != "Subspace Projector" && ResourceManager.ShipsDict[platform].Role == "platform")
-                    PotentialSatellites.Add(ResourceManager.ShipsDict[platform]);
+                Ship orbitalDefense = ResourceManager.ShipsDict[platform];
+                if (platform != "Subspace Projector" && orbitalDefense.Role == "platform" && orbitalDefense.BaseStrength >0)
+                    PotentialSatellites.Add(orbitalDefense);
             }
             if (PotentialSatellites.Count() == 0)
                 return "Subspace Projector";
@@ -5216,7 +5220,7 @@ namespace Ship_Game.Gameplay
 
         private bool shipIsGoodForGoals(Ship ship)
         {
-            if ( ship.BaseStrength > 0f  && !ship.shipData.CarrierShip && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
+            if (ship.BaseStrength > 0f && ship.shipData.ShipStyle != "Platforms" && !ship.shipData.CarrierShip && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
                 || (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
                 && ship.PowerStoreMax / (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum > minimumWarpRange))
                 return true;
@@ -6662,7 +6666,7 @@ namespace Ship_Game.Gameplay
                     UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
                 }
             }
-
+            this.GetAShip(0);
             float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
 
             bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
@@ -6767,7 +6771,8 @@ namespace Ship_Game.Gameplay
 
                     IOrderedEnumerable<Ship> sortedList =
                         from ship in this.empire.GetShips()
-                        orderby ship.GetTechScore()
+                        orderby this.DefensiveCoordinator.DefensiveForcePool.Contains(ship) descending
+                        orderby ship.BaseStrength
                         select ship;
                     using (IEnumerator<Ship> enumerator1 = sortedList.GetEnumerator())
                     {
@@ -6784,7 +6789,7 @@ namespace Ship_Game.Gameplay
                             {
                                 scrapFleet = true;
                             }
-                            if (current.Mothership == null && (current.shipData == null || current.shipData.ShipCategory != ShipData.Category.Civilian) && !(current.Role == "freighter") && !(current.Role == "construction") && !(current.Role == "platform") && !(current.Role == "station") && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
+                            if (current.Mothership == null && (current.shipData == null || current.shipData.ShipCategory != ShipData.Category.Civilian) && !(current.Role == "freighter") && !(current.Role == "construction")  && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
                             {
                                 if (current.fleet == null || (current.fleet != null && current.fleet.Task == null)) //&&current.fleet.TaskStep <1))
                                 {
@@ -6800,8 +6805,9 @@ namespace Ship_Game.Gameplay
 
                                     if (maintcost > 0)
                                     {
-                                        current.GetAI().OrderScrapShip();
-
+                                        
+                                            current.GetAI().OrderScrapShip();
+      
                                         Added = Added + maintcost;
                                     }
                                 }
