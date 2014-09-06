@@ -280,9 +280,9 @@ namespace Ship_Game.Gameplay
 
 		private void AwaitOrders(float elapsedTime)
 		{
-            if ((this.Owner.GetSystem() ==null && this.State == AIState.Intercept) 
-                || this.Target != null && this.Owner.GetSystem()!=null && this.Target.GetSystem()!=null && this.Target.GetSystem()==this.Owner.GetSystem())
-                return;
+            //if ((this.Owner.GetSystem() ==null && this.State == AIState.Intercept) 
+            //    || this.Target != null && this.Owner.GetSystem()!=null && this.Target.GetSystem()!=null && this.Target.GetSystem()==this.Owner.GetSystem())
+            //    return;
             this.HasPriorityOrder = false;
 			if (this.awaitClosest != null)
 			{
