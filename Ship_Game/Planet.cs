@@ -2767,8 +2767,8 @@ namespace Ship_Game
                             }
                         }
                     }
-                    //Modified by McShooterz: changed to repair all modules based on repair rate of planet, default 50 per turn                   
-                    if (RepairPool > 0 && item.Health < item.HealthMax && item.LastHitTimer <= 0f)
+                    //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
+                    if (RepairPool > 0 && item.Health < item.HealthMax && !this.ParentSystem.CombatInSystem)
                     {
                         foreach (ModuleSlot slot in item.ModuleSlotList.Where(slot => slot.module.Health < slot.module.HealthMax))
                         {
