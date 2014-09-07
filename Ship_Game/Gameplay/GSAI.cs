@@ -7187,57 +7187,57 @@ namespace Ship_Game.Gameplay
                                         this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
+                                case TechnologyType.ShipGeneral:
+                                    {
+                                        if (HelperFunctions.GetRandomIndex(3) > 1)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
                                 case TechnologyType.ShipWeapons:
                                     {
-                                        if(atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if(atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 3)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.ShipDefense:
                                     {
-                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 3)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.GroundCombat:
                                     {
-                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 3)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Economic:
                                     {
-                                        if (highTaxes || this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (highTaxes || this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 3)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Research:
                                     {
-                                        if (lowResearch || this.empire.getResStrat().ResearchPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (lowResearch || this.empire.getResStrat().ResearchPriority + HelperFunctions.GetRandomIndex(4) > 3)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Industry:
                                     {
-                                        if (this.empire.getResStrat().IndustryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (this.empire.getResStrat().IndustryPriority + HelperFunctions.GetRandomIndex(4) > 3)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Colonization:
                                     {
-                                        if (this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 4)
-                                            this.empire.ResearchTopic = tech.UID;
-                                        break;
-                                    }
-                                case TechnologyType.ShipGeneral:
-                                    {
-                                        if (HelperFunctions.GetRandomIndex(4) > 3)
+                                        if (this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 3)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 default:
                                     {
-                                        if (HelperFunctions.GetRandomIndex(7) > 6)
+                                        if (HelperFunctions.GetRandomIndex(7) > 5)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
