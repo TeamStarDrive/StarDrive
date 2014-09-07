@@ -37,7 +37,7 @@ namespace Ship_Game.Gameplay
 
 		private int BaseAgents;
 
-        public HashSet<int> UsedFleets = new HashSet<int>();
+        public List<int> UsedFleets = new List<int>();
 
 		public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
 
