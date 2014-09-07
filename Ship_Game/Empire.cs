@@ -32,28 +32,25 @@ namespace Ship_Game
         private Dictionary<string, bool> UnlockedModulesDict = new Dictionary<string, bool>();
         private Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>();
         public List<Ship> Inhibitors = new List<Ship>();
-        public List<SpaceRoad> SpaceRoadsList = new List<SpaceRoad>();
+        public HashSet<SpaceRoad> SpaceRoadsList = new HashSet<SpaceRoad>();
         public float Money = 1000f;
         private List<Planet> OwnedPlanets = new List<Planet>();
         private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
-        private List<Ship> ShipsToAdd = new List<Ship>();
+        private HashSet<Ship> ShipsToAdd = new HashSet<Ship>();
         public List<Ship> KnownShips = new List<Ship>();
-        public List<Ship> UnknownContacts = new List<Ship>();
         public BatchRemovalCollection<Empire.InfluenceNode> BorderNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
         public BatchRemovalCollection<Empire.InfluenceNode> SensorNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
         private Dictionary<SolarSystem, bool> HostilesPresent = new Dictionary<SolarSystem, bool>();
-        private List<Ship> UnownedShipsInOurBorders = new List<Ship>();
         private Dictionary<Empire, Relationship> Relationships = new Dictionary<Empire, Relationship>();
         public volatile List<string> ShipsWeCanBuild = new List<string>();
         private float FleetUpdateTimer = 5f;
-        public List<string> structuresWeCanBuild = new List<string>();
+        public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private int numberForAverage = 1;
         public int ColonizationGoalCount = 2;
         public string ResearchTopic = "";
         private List<War> Wars = new List<War>();
         private Fleet DefensiveFleet = new Fleet();
         private BatchRemovalCollection<Ship> ForcePool = new BatchRemovalCollection<Ship>();
-        private List<Planet> DesiredPlanets = new List<Planet>();
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
@@ -1153,7 +1150,6 @@ namespace Ship_Game
                 this.ResetBorders();
                 lock (GlobalStats.KnownShipsLock)
                     this.KnownShips.Clear();
-                this.UnownedShipsInOurBorders.Clear();
                 this.UpdateKnownShips();
                 this.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
             }
