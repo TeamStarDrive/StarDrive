@@ -37,7 +37,7 @@ namespace Ship_Game.Gameplay
 
 		private int BaseAgents;
 
-		public List<int> UsedFleets = new List<int>();
+        public HashSet<int> UsedFleets = new HashSet<int>();
 
 		public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
 
@@ -7168,9 +7168,9 @@ namespace Ship_Game.Gameplay
                                 || (Technology.Value.Secret && !tech.Discovered)
                                 || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
                                 || !tech.shipDesignsCanuseThis
-                                || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count ==0 
-                                && !this.empire.WeCanUseThisNow(tech.GetTech())))                              
-							{                         
+                                || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count == 0
+                                && !this.empire.WeCanUseThisNow(tech.GetTech())))
+							{
                                 continue;
 							}                           
                                 AvailableTechs.Add(Technology.Value);
@@ -7187,64 +7187,64 @@ namespace Ship_Game.Gameplay
                                         this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
+                                case TechnologyType.ShipGeneral:
+                                    {
+                                        if (HelperFunctions.GetRandomIndex(4) == 3)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
                                 case TechnologyType.ShipWeapons:
                                     {
-                                        if(atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if(atWar || HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.ShipDefense:
                                     {
-                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (atWar || HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.GroundCombat:
                                     {
-                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (atWar || HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Economic:
                                     {
-                                        if (highTaxes || this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (highTaxes || HelperFunctions.GetRandomIndex(this.empire.getResStrat().ExpansionPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Research:
                                     {
-                                        if (lowResearch || this.empire.getResStrat().ResearchPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (lowResearch || HelperFunctions.GetRandomIndex(this.empire.getResStrat().ResearchPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Industry:
                                     {
-                                        if (this.empire.getResStrat().IndustryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (HelperFunctions.GetRandomIndex(this.empire.getResStrat().IndustryPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Colonization:
                                     {
-                                        if (this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 4)
-                                            this.empire.ResearchTopic = tech.UID;
-                                        break;
-                                    }
-                                case TechnologyType.ShipGeneral:
-                                    {
-                                        if (HelperFunctions.GetRandomIndex(4) > 3)
+                                        if (HelperFunctions.GetRandomIndex(this.empire.getResStrat().ExpansionPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 default:
                                     {
-                                        if (HelperFunctions.GetRandomIndex(7) > 6)
-                                            this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                             }
                             if (this.empire.ResearchTopic != "")
                                 break;
                         }
+                        if(this.empire.ResearchTopic == "")
+                        this.empire.ResearchTopic = AvailableTechs[0].UID;
                         break;
 					}
                     case GSAI.ResearchStrategy.Scripted:

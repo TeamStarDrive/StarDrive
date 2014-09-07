@@ -272,18 +272,19 @@ namespace Ship_Game
                                 empireFromEmpireData.data.Traits.ModHpModifier -= 0.25f;
                                 break;
                             case UniverseData.GameDifficulty.Hard:
+                                empireFromEmpireData.data.FlatMoneyBonus += 10;
                                 empireFromEmpireData.data.Traits.ProductionMod += 0.5f;
-                                empireFromEmpireData.data.Traits.ResearchMod += 0.5f;
+                                empireFromEmpireData.data.Traits.ResearchMod += 0.75f;
                                 empireFromEmpireData.data.Traits.TaxMod += 0.5f;
-                                empireFromEmpireData.data.Traits.ModHpModifier += 0.5f;
+                                //empireFromEmpireData.data.Traits.ModHpModifier += 0.5f;
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.2f;
                                 break;
                             case UniverseData.GameDifficulty.Brutal:
-                                empireFromEmpireData.data.FlatMoneyBonus += 5000;
+                                empireFromEmpireData.data.FlatMoneyBonus += 50;
                                 ++empireFromEmpireData.data.Traits.ProductionMod;
-                                ++empireFromEmpireData.data.Traits.ResearchMod;
+                                empireFromEmpireData.data.Traits.ResearchMod = 2.0f;
                                 ++empireFromEmpireData.data.Traits.TaxMod;
-                                ++empireFromEmpireData.data.Traits.ModHpModifier;
+                                //++empireFromEmpireData.data.Traits.ModHpModifier;
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.5f;
                                 break;
                         }

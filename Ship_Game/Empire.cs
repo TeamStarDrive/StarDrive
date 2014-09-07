@@ -32,28 +32,25 @@ namespace Ship_Game
         private Dictionary<string, bool> UnlockedModulesDict = new Dictionary<string, bool>();
         private Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>();
         public List<Ship> Inhibitors = new List<Ship>();
-        public List<SpaceRoad> SpaceRoadsList = new List<SpaceRoad>();
+        public HashSet<SpaceRoad> SpaceRoadsList = new HashSet<SpaceRoad>();
         public float Money = 1000f;
         private List<Planet> OwnedPlanets = new List<Planet>();
         private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
-        private List<Ship> ShipsToAdd = new List<Ship>();
+        private HashSet<Ship> ShipsToAdd = new HashSet<Ship>();
         public List<Ship> KnownShips = new List<Ship>();
-        public List<Ship> UnknownContacts = new List<Ship>();
         public BatchRemovalCollection<Empire.InfluenceNode> BorderNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
         public BatchRemovalCollection<Empire.InfluenceNode> SensorNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
         private Dictionary<SolarSystem, bool> HostilesPresent = new Dictionary<SolarSystem, bool>();
-        private List<Ship> UnownedShipsInOurBorders = new List<Ship>();
         private Dictionary<Empire, Relationship> Relationships = new Dictionary<Empire, Relationship>();
         public volatile List<string> ShipsWeCanBuild = new List<string>();
         private float FleetUpdateTimer = 5f;
-        public List<string> structuresWeCanBuild = new List<string>();
+        public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private int numberForAverage = 1;
         public int ColonizationGoalCount = 2;
         public string ResearchTopic = "";
         private List<War> Wars = new List<War>();
         private Fleet DefensiveFleet = new Fleet();
         private BatchRemovalCollection<Ship> ForcePool = new BatchRemovalCollection<Ship>();
-        private List<Planet> DesiredPlanets = new List<Planet>();
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
@@ -704,8 +701,6 @@ namespace Ship_Game
                         this.data.Traits.PassengerModifier += (int)unlockedBonus.Bonus;
                     if (str == "ECM Bonus" || str == "Missile Dodge Change Bonus")
                         this.data.MissileDodgeChance += unlockedBonus.Bonus;
-                    if (str == "Set FTL Speed")
-                        this.data.FTLSpeed = unlockedBonus.Bonus;
                     if (str == "Set FTL Drain Modifier")
                         this.data.FTLPowerDrainModifier = unlockedBonus.Bonus;
                     if (str == "Super Soldiers" || str == "Troop Strength Modifier Bonus")
@@ -1153,7 +1148,6 @@ namespace Ship_Game
                 this.ResetBorders();
                 lock (GlobalStats.KnownShipsLock)
                     this.KnownShips.Clear();
-                this.UnownedShipsInOurBorders.Clear();
                 this.UpdateKnownShips();
                 this.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
             }
@@ -1417,38 +1411,25 @@ namespace Ship_Game
                 ShipData shipData = ship.Value.shipData;
                 if (shipData.ShipStyle == null || shipData.ShipStyle == this.data.Traits.ShipType)
                 {
-                    //if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
-                       // continue;
                     foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
                     {
-
                         if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
                         {
                             flag = true;
                             break;
                         }
-                        //status.Stop();
-                        //return;
-
                     }
-                    //if (status.IsStopped)
-                    //    return;
                 }
-
-            }//);
-
+            }
             return flag;
         }
 
         public bool WeCanUseThisNow(Technology tech)
         {
-
-            //foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
             bool flag = false;
             Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
             {
                 List<Technology> techtree = new List<Technology>();
-
                 ShipData shipData = ship.Value.shipData;
                 if (shipData.ShipStyle == null || shipData.ShipStyle == this.data.Traits.ShipType)
                 {
@@ -1456,22 +1437,17 @@ namespace Ship_Game
                         return;
                     foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
                     {
-
                         if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
                         {
                             flag = true;
-                            //return;
                             status.Stop();
                             return;
                         }
-
                     }
                     if (status.IsStopped)
                         return;
                 }
-
             });
-
             return flag;
         }
 
@@ -1507,74 +1483,73 @@ namespace Ship_Game
 
         public Planet.ColonyType AssessColonyNeeds(Planet p)
         {
-            float num1 = 0.0f;
-            float num2 = 0.0f;
-            float num3 = 0.0f;
-            float num4 = 0.0f;
-            float num5 = 0.0f;
+            float MineralWealth = 0.0f;
+            float PopSupport = 0.0f;
+            float ResearchPotential = 0.0f;
+            float Fertility = 0.0f;
+            float MilitaryPotential = 0.0f;
             if ((double)p.Fertility > 1.0)
             {
-                ++num2;
-                num4 += p.Fertility;
-                num3 += 0.5f;
+                ++PopSupport;
+                Fertility += p.Fertility;
+                ResearchPotential += 0.5f;
             }
             if ((double)p.MineralRichness > 1.0)
             {
                 if ((double)p.Fertility > 1.0)
-                    ++num2;
-                num1 += p.MineralRichness;
-                num5 += 0.5f;
+                    ++PopSupport;
+                MineralWealth += p.MineralRichness;
+                MilitaryPotential += 0.5f;
             }
             if ((double)p.MaxPopulation > 1.0)
             {
-                ++num3;
+                ++ResearchPotential;
                 if ((double)p.Fertility > 1.0)
-                    ++num2;
+                    ++PopSupport;
                 if ((double)p.MaxPopulation > 4.0)
                 {
-                    ++num2;
-                    ++num3;
+                    ++PopSupport;
+                    ++ResearchPotential;
                     if ((double)p.MaxPopulation > 8.0)
-                        ++num2;
+                        ++PopSupport;
                     if ((double)p.MaxPopulation > 12.0)
-                        num2 += 2f;
+                        PopSupport += 2f;
                 }
             }
-            int num6 = 0;
-            int num7 = 0;
-            int num8 = 0;
-            int num9 = 0;
-            int num10 = 0;
+            int CoreCount = 0;
+            int IndustrialCount = 0;
+            int AgriculturalCount = 0;
+            int MilitaryCount = 0;
+            int ResearchCount = 0;
             lock (GlobalStats.OwnedPlanetsLock)
             {
                 foreach (Planet item_0 in this.OwnedPlanets)
                 {
                     if (item_0.colonyType == Planet.ColonyType.Agricultural)
-                        ++num8;
+                        ++AgriculturalCount;
                     if (item_0.colonyType == Planet.ColonyType.Core)
-                        ++num6;
+                        ++CoreCount;
                     if (item_0.colonyType == Planet.ColonyType.Industrial)
-                        ++num7;
+                        ++IndustrialCount;
                     if (item_0.colonyType == Planet.ColonyType.Research)
-                        ++num10;
+                        ++ResearchCount;
                     if (item_0.colonyType == Planet.ColonyType.Military)
-                        ++num9;
+                        ++MilitaryCount;
                 }
             }
-            int count = this.OwnedPlanets.Count;
-            float num11 = (float)(num6 + num7 + num8 + num9 + num10) / ((float)count + 0.01f);
-            float num12 = num2 + (num11 - (float)num6);
-            float num13 = num1 + (num11 - (float)num7);
-            float num14 = num4 + (num11 - (float)num8);
-            float num15 = num5 + (num11 - (float)num9);
-            float num16 = num3 + (num11 - (float)num10);
-            if ((double)num12 > (double)num13 && (double)num12 > (double)num14 && ((double)num12 > (double)num15 && (double)num12 > (double)num16))
+            float AssignedFactor = (float)(CoreCount + IndustrialCount + AgriculturalCount + MilitaryCount + ResearchCount) / ((float)this.OwnedPlanets.Count + 0.01f);
+            float CoreDesire = PopSupport + (AssignedFactor - (float)CoreCount) + 2;
+            float IndustrialDesire = MineralWealth + (AssignedFactor - (float)IndustrialCount);
+            float AgricultureDesire = Fertility + (AssignedFactor - (float)AgriculturalCount);
+            float MilitaryDesire = MilitaryPotential + (AssignedFactor - (float)MilitaryCount);
+            float ResearchDesire = ResearchPotential + (AssignedFactor - (float)ResearchCount);
+            if ((double)CoreDesire > (double)IndustrialDesire && (double)CoreDesire > (double)AgricultureDesire && ((double)CoreDesire > (double)MilitaryDesire && (double)CoreDesire > (double)ResearchDesire))
                 return Planet.ColonyType.Core;
-            if ((double)num13 > (double)num12 && (double)num13 > (double)num14 && ((double)num13 > (double)num15 && (double)num13 > (double)num16))
+            if ((double)IndustrialDesire > (double)CoreDesire && (double)IndustrialDesire > (double)AgricultureDesire && ((double)IndustrialDesire > (double)MilitaryDesire && (double)IndustrialDesire > (double)ResearchDesire))
                 return Planet.ColonyType.Industrial;
-            if ((double)num14 > (double)num13 && (double)num14 > (double)num12 && ((double)num14 > (double)num15 && (double)num14 > (double)num16))
+            if ((double)AgricultureDesire > (double)IndustrialDesire && (double)AgricultureDesire > (double)CoreDesire && ((double)AgricultureDesire > (double)MilitaryDesire && (double)AgricultureDesire > (double)ResearchDesire))
                 return Planet.ColonyType.Agricultural;
-            return (double)num16 > (double)num12 && (double)num16 > (double)num14 && ((double)num16 > (double)num15 && (double)num16 > (double)num13) ? Planet.ColonyType.Research : Planet.ColonyType.Industrial;
+            return (double)ResearchDesire > (double)CoreDesire && (double)ResearchDesire > (double)AgricultureDesire && ((double)ResearchDesire > (double)MilitaryDesire && (double)ResearchDesire > (double)IndustrialDesire) ? Planet.ColonyType.Research : Planet.ColonyType.Industrial;
         }
 
         public void ResetBorders()
