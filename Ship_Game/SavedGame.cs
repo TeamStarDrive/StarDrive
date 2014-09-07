@@ -619,7 +619,7 @@ namespace Ship_Game
 
 		public class GSAISAVE
 		{
-            public HashSet<int> UsedFleets;
+            public List<int> UsedFleets;
 
 			public List<SavedGame.GoalSave> Goals;
 

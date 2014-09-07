@@ -793,7 +793,7 @@ namespace Ship_Game
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
 			{
 				Empire e = EmpireManager.GetEmpireByName(d.Name);
-                e.SpaceRoadsList = new HashSet<SpaceRoad>();
+                e.SpaceRoadsList = new List<SpaceRoad>();
 				foreach (SavedGame.SpaceRoadSave roadsave in d.SpaceRoadData)
 				{
 					SpaceRoad road = new SpaceRoad();
