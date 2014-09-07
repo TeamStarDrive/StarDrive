@@ -701,8 +701,6 @@ namespace Ship_Game
                         this.data.Traits.PassengerModifier += (int)unlockedBonus.Bonus;
                     if (str == "ECM Bonus" || str == "Missile Dodge Change Bonus")
                         this.data.MissileDodgeChance += unlockedBonus.Bonus;
-                    if (str == "Set FTL Speed")
-                        this.data.FTLSpeed = unlockedBonus.Bonus;
                     if (str == "Set FTL Drain Modifier")
                         this.data.FTLPowerDrainModifier = unlockedBonus.Bonus;
                     if (str == "Super Soldiers" || str == "Troop Strength Modifier Bonus")
