@@ -865,7 +865,7 @@ namespace Ship_Game.Gameplay
                 if (source.Owner == null || source.Owner != null && source.Owner.loyalty != (gameplayObject as Ship).loyalty)
                 {
                     float DamageTracker = 0;
-                    foreach (ModuleSlot moduleSlot in (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && (moduleSlot.module.shield_power > 0.0) ? Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + 4f).OrderBy(moduleSlot => (moduleSlot.module.shield_power > 0.0) ? Vector2.Distance(source.Center, moduleSlot.module.Center) - moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center)).ToList())
+                    foreach (ModuleSlot moduleSlot in (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && (moduleSlot.module.shield_power > 0.0) ? Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + 8f).OrderBy(moduleSlot => (moduleSlot.module.shield_power > 0.0) ? Vector2.Distance(source.Center, moduleSlot.module.Center) - moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center)).ToList())
                     {
                         if(moduleSlot.module.shield_power > 0)
                             DamageTracker = damageAmount - moduleSlot.module.shield_power;

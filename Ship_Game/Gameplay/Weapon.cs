@@ -348,6 +348,11 @@ namespace Ship_Game.Gameplay
 			beam.range = this.Range;
 			beam.thickness = this.BeamThickness;
             beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
+            if (beam.Duration != 2f)
+            {
+                beam.damageTimerConstant = beam.Duration / 4.1f;
+                beam.damageTimer = beam.damageTimerConstant;
+            }
 			beam.damageAmount = this.DamageAmount;
 			beam.weapon = this;
 			source.Beams.Add(beam);
@@ -392,6 +397,11 @@ namespace Ship_Game.Gameplay
 				damageAmount = this.DamageAmount,
 				weapon = this
 			};
+            if (beam.Duration != 2f)
+            {
+                beam.damageTimerConstant = beam.Duration / 4.1f;
+                beam.damageTimer = beam.damageTimerConstant;
+            }
 			this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
 			this.ToggleSoundOn = false;
@@ -647,6 +657,11 @@ namespace Ship_Game.Gameplay
 				damageAmount = this.DamageAmount,
 				weapon = this
 			};
+            if (beam.Duration != 2f)
+            {
+                beam.damageTimerConstant = beam.Duration / 4.1f;
+                beam.damageTimer = beam.damageTimerConstant;
+            }
             if (this.owner.Level > 0)
             {
                 beam.damageAmount += beam.damageAmount * (float)this.owner.Level * 0.05f;

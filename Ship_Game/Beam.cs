@@ -38,8 +38,6 @@ namespace Ship_Game
 
 		public Vector2 Destination;
 
-		public int Counter = -1;
-
 		public static Effect BeamEffect;
 
 		public Vector2 ActualHitDestination;
@@ -70,6 +68,9 @@ namespace Ship_Game
 		private BasicEffect quadEffect;
 
 		private float displacement = 1f;
+
+        public float damageTimer = 0.45f;
+        public float damageTimerConstant = 0.45f;
 
 		public Beam()
 		{
@@ -332,9 +333,10 @@ namespace Ship_Game
 					target.Damage(this, this.damageAmount * 90f);
 					this.Die(null, true);
 				}
-				else
+				else if(this.damageTimer < 0)
 				{
-					target.Damage(this, this.damageAmount);
+					target.Damage(this, this.damageAmount * this.damageTimerConstant * 90f);
+                    this.damageTimer = this.damageTimerConstant;
 				}
 			}
 			return true;
@@ -363,8 +365,8 @@ namespace Ship_Game
 				this.Duration = 0f;
 				return;
 			}
-			Beam duration = this;
-			duration.Duration = duration.Duration - elapsedTime;
+            this.Duration -= elapsedTime;
+            this.damageTimer -= elapsedTime;
 			this.Source = srcCenter;
 			if (this.Target == null)
 			{
@@ -415,8 +417,8 @@ namespace Ship_Game
 					}
 				}
 			}
-			Beam duration = this;
-			duration.Duration = duration.Duration - elapsedTime;
+            this.Duration -= elapsedTime;
+            this.damageTimer -= elapsedTime;
 			this.Source = srcCenter;
 			this.quadEffect.View = view;
 			this.quadEffect.Projection = projection;

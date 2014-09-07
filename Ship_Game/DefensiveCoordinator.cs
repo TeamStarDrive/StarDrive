@@ -622,7 +622,7 @@ namespace Ship_Game
             }
             var source = incomingShips.ToArray();
 
-            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
+            List<Ship> ShipsAlreadyConsidered = new List<Ship>();
             var   rangePartitioner = Partitioner.Create(0, source.Length);
             Parallel.ForEach(rangePartitioner, (range, loopState) =>
                 {
