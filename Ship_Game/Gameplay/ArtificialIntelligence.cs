@@ -2591,11 +2591,11 @@ namespace Ship_Game.Gameplay
 				}
 				return;
 			}
-			if (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) <= 50f || (fireTarget as Ship).ExternalSlots[0].module.shield_power > 0f)
+			if (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) <= 50f || (fireTarget as Ship).ExternalSlots.ElementAt(0).module.shield_power > 0f)
 			{
 				for (int i = 0; i < (fireTarget as Ship).ExternalSlots.Count; i++)
 				{
-					if ((fireTarget as Ship).ExternalSlots[i].module.Active && (fireTarget as Ship).ExternalSlots[i].module.shield_power <= 0f)
+					if ((fireTarget as Ship).ExternalSlots.ElementAt(i).module.Active && (fireTarget as Ship).ExternalSlots.ElementAt(i).module.shield_power <= 0f)
 					{
 						float damage = w.DamageAmount;
 						if (w.isBeam)
@@ -2610,7 +2610,7 @@ namespace Ship_Game.Gameplay
 						{
 							damage = damage / 2f;
 						}
-						(fireTarget as Ship).ExternalSlots[i].module.Damage(this.Owner, damage);
+						(fireTarget as Ship).ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
 						return;
 					}
 				}
@@ -2618,7 +2618,7 @@ namespace Ship_Game.Gameplay
 			}
 			for (int i = (fireTarget as Ship).ExternalSlots.Count - 1; i > 0; i--)
 			{
-				if ((fireTarget as Ship).ExternalSlots[i].module.Active && (fireTarget as Ship).ExternalSlots[i].module.shield_power <= 0f)
+				if ((fireTarget as Ship).ExternalSlots.ElementAt(i).module.Active && (fireTarget as Ship).ExternalSlots.ElementAt(i).module.shield_power <= 0f)
 				{
 					float damage = w.DamageAmount;
 					if (w.isBeam)
@@ -2633,7 +2633,7 @@ namespace Ship_Game.Gameplay
 					{
 						damage = damage / 2f;
 					}
-					(fireTarget as Ship).ExternalSlots[i].module.Damage(this.Owner, damage);
+					(fireTarget as Ship).ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
 					return;
 				}
 			}
@@ -6546,7 +6546,6 @@ namespace Ship_Game.Gameplay
                         float distanceFleetCenterToDistance = Vector2.Distance(fleetAVG + this.Owner.FleetOffset, Position); //
 
                         #region FleetGrouping
-                        float radius = 1000f;
 
                         //if (distanceShipToFleetCenter > radius && Distance < distanceFleetCenterToDistance)
                         if ( Distance < distanceFleetCenterToDistance)
@@ -7294,7 +7293,6 @@ namespace Ship_Game.Gameplay
             {
             }
             #endif
-            return;
         Label0:
             AIState aIState = this.State;
             if (aIState == AIState.SystemTrader)

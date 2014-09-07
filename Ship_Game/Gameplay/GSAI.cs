@@ -37,7 +37,7 @@ namespace Ship_Game.Gameplay
 
 		private int BaseAgents;
 
-		public List<int> UsedFleets = new List<int>();
+        public HashSet<int> UsedFleets = new HashSet<int>();
 
 		public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
 
@@ -47,7 +47,7 @@ namespace Ship_Game.Gameplay
 
 		private Dictionary<Ship, List<Ship>> InterceptorDict = new Dictionary<Ship, List<Ship>>();
 
-		public List<MilitaryTask> TasksToAdd = new List<MilitaryTask>();
+        public HashSet<MilitaryTask> TasksToAdd = new HashSet<MilitaryTask>();
 
 		public int num_current_invasion_tasks;
 
@@ -6361,9 +6361,6 @@ namespace Ship_Game.Gameplay
 				}
 				if (Potentials.Count > 0)
 				{
-
-                    //for (int i = 0; i < (int)wantedStrength * .1f; i++)
-                    float prodPick = 0f;
                     while(wantedStrength >0 &&  currentgoals <= this.empire.GetPlanets().Count*3)//  this.Goals.Where(goal=>goal.type == GoalType.BuildTroop).Count() <= Potentials.Count*5)
 
                     {
@@ -6828,15 +6825,12 @@ namespace Ship_Game.Gameplay
             }
 
             Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
-            int shipcount = 0;
-            int shipsize = 0;
 
             int Memory = (int)GC.GetTotalMemory(false);
 
             Memory = Memory / 1000;
             //added by gremlin shipsize limit
             //i think this could be made dynamic to reduce when memory constraints come into play
-
             while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals && Memory < SizeLimiter && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
 
