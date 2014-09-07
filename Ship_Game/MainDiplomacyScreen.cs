@@ -761,7 +761,6 @@ namespace Ship_Game
 			{
 				base.ScreenManager.AddScreen(new DiplomacyScreen(this.SelectedEmpire, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), "Greeting"));
 			}
-			bool GotRace = false;
 			foreach (RaceEntry race in this.Races)
 			{
 				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) == race.e || !EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].Known)
@@ -771,7 +770,6 @@ namespace Ship_Game
 						continue;
 					}
 					this.SelectedEmpire = race.e;
-					GotRace = true;
 					this.ArtifactsSL.Entries.Clear();
 					this.ArtifactsSL.indexAtTop = 0;
 					ArtifactEntry entry = new ArtifactEntry();
@@ -803,7 +801,6 @@ namespace Ship_Game
 						continue;
 					}
 					this.SelectedEmpire = race.e;
-					GotRace = true;
 					this.ArtifactsSL.Entries.Clear();
 					this.ArtifactsSL.indexAtTop = 0;
 					ArtifactEntry entry = new ArtifactEntry();

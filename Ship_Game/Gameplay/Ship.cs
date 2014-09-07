@@ -53,7 +53,7 @@ namespace Ship_Game.Gameplay
         private BatchRemovalCollection<Beam> beams = new BatchRemovalCollection<Beam>();
         public List<Weapon> Weapons = new List<Weapon>();
         public float fireThresholdSquared = 0.25f;
-        public List<ModuleSlot> ExternalSlots = new List<ModuleSlot>();
+        public HashSet<ModuleSlot> ExternalSlots = new HashSet<ModuleSlot>();
         protected float JumpTimer = 3f;
         public BatchRemovalCollection<ProjectileTracker> ProjectilesFired = new BatchRemovalCollection<ProjectileTracker>();
         public AudioEmitter emitter = new AudioEmitter();
@@ -1147,7 +1147,6 @@ namespace Ship_Game.Gameplay
             }
             
             // Calculate maintenance by proportion of ship cost, Duh.
-
             if (this.Role == "fighter" || this.Role == "scout")
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepFighter;
             else if (this.Role == "corvette")
@@ -1171,7 +1170,6 @@ namespace Ship_Game.Gameplay
             else
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
 
-
             if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
             else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
@@ -1185,7 +1183,6 @@ namespace Ship_Game.Gameplay
             }      
 
             // Modifiers below here   
-
             if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
             {
                 maint *= 0.5f;
@@ -1380,7 +1377,6 @@ namespace Ship_Game.Gameplay
                     maintModReduction *= damRepair;
 
                 }
-
                 if (maintModReduction < 1) maintModReduction = 1;
                 maint *= maintModReduction;
             }
