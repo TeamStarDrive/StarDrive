@@ -39,7 +39,7 @@ namespace Ship_Game
         public void AssignTargets()
         {
             this.EnemyClumpsDict.Clear();
-            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
+            List<Ship> ShipsAlreadyConsidered = new List<Ship>();
             foreach (KeyValuePair<Guid, Ship> entry in this.ShipsDict)
             {
                 Ship ship = entry.Value;
@@ -83,7 +83,7 @@ namespace Ship_Game
                     from clumpPos in ClumpsList
                     orderby Vector2.Distance(this.system.Position, clumpPos.Center)
                     select clumpPos;
-                HashSet<Ship> AssignedShips = new HashSet<Ship>();
+                List<Ship> AssignedShips = new List<Ship>();
                 foreach (Ship enemy in this.EnemyClumpsDict[distanceSorted.First<Ship>()])
                 {
                     float AssignedStr = 0f;
