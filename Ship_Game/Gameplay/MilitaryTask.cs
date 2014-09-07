@@ -13,7 +13,7 @@ namespace Ship_Game.Gameplay
 
 		public bool WaitForCommand;
 
-		public List<Guid> HeldGoals = new List<Guid>();
+        public HashSet<Guid> HeldGoals = new HashSet<Guid>();
 
 		public int Step;
 
@@ -1006,7 +1006,7 @@ namespace Ship_Game.Gameplay
 		private float GetEnemyTroopStr()
 		{
             return this.TargetPlanet.GetGroundStrengthOther(this.empire);
-
+            /*
             float EnemyTroopStrength = 0f;
 			foreach (PlanetGridSquare pgs in this.TargetPlanet.TilesList)
 			{
@@ -1028,6 +1028,7 @@ namespace Ship_Game.Gameplay
 				EnemyTroopStrength = 50f;
 			}
 			return EnemyTroopStrength;
+             */ 
 		}
 
 		public Planet GetTargetPlanet()

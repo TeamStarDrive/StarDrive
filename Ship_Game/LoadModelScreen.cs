@@ -30,8 +30,6 @@ namespace Ship_Game
 
 		private Vector2 EnternamePos;
 
-		private UITextEntry EnterNameArea;
-
 		private ScrollList SavesSL;
 
 		private ContentManager LocalContent;

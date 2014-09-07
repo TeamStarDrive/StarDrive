@@ -90,8 +90,6 @@ namespace Ship_Game
 
 		private Matrix projection;
 
-		private Model model;
-
 		private SceneObject shipSO;
 
 		private MouseState currentMouse;

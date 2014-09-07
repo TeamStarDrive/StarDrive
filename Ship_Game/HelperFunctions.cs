@@ -610,6 +610,8 @@ namespace Ship_Game
 
 		public static int GetRandomIndex(int Count)
 		{
+            if (Count < 2)
+                return 0;
 			int Random = (int)RandomMath.RandomBetween(0f, (float)Count + 0.95f);
 			if (Random > Count - 1)
 			{
