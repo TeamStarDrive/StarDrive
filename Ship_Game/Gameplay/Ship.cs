@@ -515,15 +515,6 @@ namespace Ship_Game.Gameplay
             return (float)((double)this.AfterThrust / (double)this.Mass + (double)this.AfterThrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
         }
 
-        public float GetFTLSpeedORIG()
-        {
-            if (!GlobalStats.HardcoreRuleset)
-                return (float)((double)this.WarpThrust / (double)this.Mass + (double)this.WarpThrust / (double)this.Mass * (double)this.loyalty.data.FTLModifier);
-            if (this.FTLCount <= 0)
-                return 0.0f;
-            float num = this.FTLSpeed / (float)this.FTLCount;
-            return num + num * this.loyalty.data.FTLBonus;
-        }
         //added by gremlin The Generals GetFTL speed
         public float GetFTLSpeed()
         {
@@ -537,7 +528,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 //Added by McShooterz: hull bonus speed
-                v2 = (float)(this.FTLSpeed * (1.0 + this.loyalty.data.FTLBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1) / this.FTLCount);
+                v2 = (float)(this.FTLSpeed * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1) / this.FTLCount);
             }
             if (v1 >= v2)
             {
@@ -3925,7 +3916,7 @@ namespace Ship_Game.Gameplay
             if (this.engineState == Ship.MoveState.Warp)
             {
                 if (this.inborders && (double)this.loyalty.data.Traits.InBordersSpeedBonus > 0.0)
-                    this.velocityMaximum = this.velocityMaximum + this.velocityMaximum * this.loyalty.data.Traits.InBordersSpeedBonus;
+                    this.velocityMaximum += this.velocityMaximum * this.loyalty.data.Traits.InBordersSpeedBonus;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
             }
             if ((double)this.Thrust == 0.0 || (double)this.mass == 0.0)

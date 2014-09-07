@@ -3507,7 +3507,6 @@ namespace Ship_Game
 				if (FTLCount > 0f)
 				{
 					float speed = FTLSpeed / FTLCount;
-					speed = speed + speed * ShipDesignScreen.screen.player.data.FTLBonus;
 					this.DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), (int)speed, 135);
 					Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
