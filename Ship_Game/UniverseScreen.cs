@@ -246,7 +246,6 @@ namespace Ship_Game
         private int SelectorFrame;
         private float garbageCollector;
         private float garbargeCollectorBase = 10;
-        private bool doubleclicked;
         public static bool debug;
         public int globalshipCount;
         public int empireShipCountReserve;
@@ -5912,7 +5911,6 @@ namespace Ship_Game
                         Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
                         Vector3 vector3_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, solarSystem.Position, 25000f), 0.0f), this.projection, this.view, Matrix.Identity);
                         float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
-                        float scale = 0.05f;
                         Vector2 vector2 = new Vector2(position.X, position.Y);
                         if ((solarSystem.ExploredDict[this.player] || this.Debug) && this.SelectedSystem != solarSystem)
                         {
