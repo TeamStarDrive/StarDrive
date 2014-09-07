@@ -53,7 +53,7 @@ namespace Ship_Game.Gameplay
         private BatchRemovalCollection<Beam> beams = new BatchRemovalCollection<Beam>();
         public List<Weapon> Weapons = new List<Weapon>();
         public float fireThresholdSquared = 0.25f;
-        public HashSet<ModuleSlot> ExternalSlots = new HashSet<ModuleSlot>();
+        public List<ModuleSlot> ExternalSlots = new List<ModuleSlot>();
         protected float JumpTimer = 3f;
         public BatchRemovalCollection<ProjectileTracker> ProjectilesFired = new BatchRemovalCollection<ProjectileTracker>();
         public AudioEmitter emitter = new AudioEmitter();
