@@ -32,11 +32,11 @@ namespace Ship_Game
         private Dictionary<string, bool> UnlockedModulesDict = new Dictionary<string, bool>();
         private Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>();
         public List<Ship> Inhibitors = new List<Ship>();
-        public HashSet<SpaceRoad> SpaceRoadsList = new HashSet<SpaceRoad>();
+        public List<SpaceRoad> SpaceRoadsList = new List<SpaceRoad>();
         public float Money = 1000f;
         private List<Planet> OwnedPlanets = new List<Planet>();
         private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
-        private HashSet<Ship> ShipsToAdd = new HashSet<Ship>();
+        private List<Ship> ShipsToAdd = new List<Ship>();
         public List<Ship> KnownShips = new List<Ship>();
         public BatchRemovalCollection<Empire.InfluenceNode> BorderNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
         public BatchRemovalCollection<Empire.InfluenceNode> SensorNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
@@ -44,7 +44,7 @@ namespace Ship_Game
         private Dictionary<Empire, Relationship> Relationships = new Dictionary<Empire, Relationship>();
         public volatile List<string> ShipsWeCanBuild = new List<string>();
         private float FleetUpdateTimer = 5f;
-        public HashSet<string> structuresWeCanBuild = new HashSet<string>();
+        public List<string> structuresWeCanBuild = new List<string>();
         private int numberForAverage = 1;
         public int ColonizationGoalCount = 2;
         public string ResearchTopic = "";

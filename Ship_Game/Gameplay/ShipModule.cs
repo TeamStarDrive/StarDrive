@@ -332,7 +332,7 @@ namespace Ship_Game.Gameplay
 					if ((source as Beam).weapon.PowerDamage > 0f)
 					{
 						Ship powerCurrent = this.Parent;
-						powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - (source as Beam).weapon.PowerDamage;
+						powerCurrent.PowerCurrent -= (source as Beam).weapon.PowerDamage;
 						if (this.Parent.PowerCurrent < 0f)
 						{
 							this.Parent.PowerCurrent = 0f;

@@ -13,7 +13,7 @@ namespace Ship_Game.Gameplay
 
 		public bool WaitForCommand;
 
-        public HashSet<Guid> HeldGoals = new HashSet<Guid>();
+        public List<Guid> HeldGoals = new List<Guid>();
 
 		public int Step;
 
