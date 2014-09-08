@@ -7392,7 +7392,7 @@ namespace Ship_Game.Gameplay
                     break;
                 }
             }
-            if ( (this.Owner.InCombat || this.Owner.LastHitTimer > 0f))
+            if (this.Owner.InCombat)
             {
                 int oqc = this.OrderQueue.Count;
                 bool docombat = false;
