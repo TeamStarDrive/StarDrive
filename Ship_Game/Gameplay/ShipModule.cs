@@ -201,8 +201,6 @@ namespace Ship_Game.Gameplay
 
 		private Vector3 Center3D = new Vector3();
 
-		private float damagedLastTimer;
-
 		public float BombTimer;
 
 		public byte TroopCapacity;
@@ -276,10 +274,8 @@ namespace Ship_Game.Gameplay
 
 		public override bool Damage(GameplayObject source, float damageAmount)
 		{
-			this.Parent.LastHitTimer = 15f;
 			this.Parent.InCombat = true;
 			this.Parent.InCombatTimer = 15f;
-			this.damagedLastTimer = -5f;
 			this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
 			if (source is Projectile)
@@ -299,8 +295,6 @@ namespace Ship_Game.Gameplay
             {
                 damageAmount *= ((float)(100 - this.Parent.GetShipData().ArmoredBonus)) / 100f;
             }
-			this.Parent.InCombatTimer = 15f;
-			this.Parent.UnderAttackTimer = 5f;
 			if (this.ModuleType == ShipModuleType.Dummy)
 			{
 				this.ParentOfDummy.Damage(source, damageAmount);
@@ -316,8 +310,7 @@ namespace Ship_Game.Gameplay
 				}
 				if (source is Beam)
 				{
-					Vector2 vel = (source as Beam).Source - this.Center;
-					vel = Vector2.Normalize(vel);
+                    Vector2 vel = Vector2.Normalize((source as Beam).Source - this.Center);
 					if (RandomMath.RandomBetween(0f, 100f) > 90f && this.Parent.InFrustum)
 					{
 						ShipModule.universeScreen.flash.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), Vector3.Zero);
@@ -331,8 +324,7 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.PowerDamage > 0f)
 					{
-						Ship powerCurrent = this.Parent;
-						powerCurrent.PowerCurrent -= (source as Beam).weapon.PowerDamage;
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.PowerDamage * ((source as Beam).damageTimerConstant * 90f);
 						if (this.Parent.PowerCurrent < 0f)
 						{
 							this.Parent.PowerCurrent = 0f;
@@ -359,14 +351,12 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.SiphonDamage > 0f)
 					{
-						Ship ship = this.Parent;
-						ship.PowerCurrent = ship.PowerCurrent - (source as Beam).weapon.SiphonDamage;
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
 						if (this.Parent.PowerCurrent < 0f)
 						{
 							this.Parent.PowerCurrent = 0f;
 						}
-						Ship powerCurrent1 = (source as Beam).owner;
-						powerCurrent1.PowerCurrent = powerCurrent1.PowerCurrent + (source as Beam).weapon.SiphonDamage;
+                        (source as Beam).owner.PowerCurrent += (source as Beam).weapon.SiphonDamage;
 						if ((source as Beam).owner.PowerCurrent > (source as Beam).owner.PowerStoreMax)
 						{
 							(source as Beam).owner.PowerCurrent = (source as Beam).owner.PowerStoreMax;
@@ -374,8 +364,7 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.MassDamage > 0f)
 					{
-						Ship mass = this.Parent;
-						mass.Mass = mass.Mass + (source as Beam).weapon.MassDamage;
+                        this.Parent.Mass += (source as Beam).weapon.MassDamage * ((source as Beam).damageTimerConstant * 90f);
 						this.Parent.velocityMaximum = this.Parent.Thrust / this.Parent.Mass;
 						this.Parent.speed = this.Parent.velocityMaximum;
 						this.Parent.rotationRadiansPerSecond = this.Parent.speed / 700f;
@@ -384,7 +373,7 @@ namespace Ship_Game.Gameplay
 					{
 						Vector2 vtt = this.Center - (source as Beam).Owner.Center;
 						Ship velocity = this.Parent;
-						velocity.Velocity = velocity.Velocity + ((vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass);
+                        this.Parent.Velocity += ((vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass) * ((source as Beam).damageTimerConstant * 90f);
 					}
 				}
 				if (this.shield_power_max > 0f && !this.isExternal)
@@ -457,8 +446,7 @@ namespace Ship_Game.Gameplay
 						}
 						if ((source as Beam).weapon.SiphonDamage > 0f)
 						{
-							ShipModule shipModule = this;
-							shipModule.shield_power = shipModule.shield_power - (source as Beam).weapon.SiphonDamage;
+                            this.shield_power -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
 							if (this.shield_power < 0f)
 							{
 								this.shield_power = 0f;
@@ -511,7 +499,6 @@ namespace Ship_Game.Gameplay
 
 		public void DamageInvisible(GameplayObject source, float damageAmount)
 		{
-			this.Parent.LastHitTimer = 15f;
 			if (source is Projectile)
 			{
 				this.Parent.LastDamagedBy = source;
@@ -525,8 +512,6 @@ namespace Ship_Game.Gameplay
 				damageAmount = damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
 			this.Parent.InCombatTimer = 15f;
-			this.Parent.UnderAttackTimer = 5f;
-			this.damagedLastTimer = 0f;
 			if (this.ModuleType == ShipModuleType.Dummy)
 			{
 				this.ParentOfDummy.DamageInvisible(source, damageAmount);
@@ -1534,7 +1519,6 @@ namespace Ship_Game.Gameplay
 			ShipModule bombTimer = this;
 			bombTimer.BombTimer = bombTimer.BombTimer - elapsedTime;
 			ShipModule shipModule = this;
-			shipModule.damagedLastTimer = shipModule.damagedLastTimer + elapsedTime;
 			if (base.Health > 0f && !this.Active)
 			{
 				this.Active = true;
@@ -1580,7 +1564,7 @@ namespace Ship_Game.Gameplay
 			{
                 if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
                     this.shield_power += this.shield_recharge_rate * elapsedTime;
-                else if (this.shield_power > 1)
+                else if (this.shield_power > 0)
                     this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
                 if (this.shield_power > this.GetShieldsMax())
                     this.shield_power = this.GetShieldsMax();
