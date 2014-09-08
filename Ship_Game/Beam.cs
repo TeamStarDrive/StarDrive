@@ -69,8 +69,8 @@ namespace Ship_Game
 
 		private float displacement = 1f;
 
-        public float damageTimer = 0.45f;
-        public float damageTimerConstant = 0.45f;
+        public float damageTimer = 0.33332f;
+        public float damageTimerConstant = 0.33332f;
 
 		public Beam()
 		{

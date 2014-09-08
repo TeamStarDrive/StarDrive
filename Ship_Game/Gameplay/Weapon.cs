@@ -350,7 +350,7 @@ namespace Ship_Game.Gameplay
             beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
             if (beam.Duration != 2f)
             {
-                beam.damageTimerConstant = beam.Duration / 4.1f;
+                beam.damageTimerConstant = beam.Duration / 6.02f;
                 beam.damageTimer = beam.damageTimerConstant;
             }
 			beam.damageAmount = this.DamageAmount;
@@ -399,7 +399,7 @@ namespace Ship_Game.Gameplay
 			};
             if (beam.Duration != 2f)
             {
-                beam.damageTimerConstant = beam.Duration / 4.1f;
+                beam.damageTimerConstant = beam.Duration / 6.02f;
                 beam.damageTimer = beam.damageTimerConstant;
             }
 			this.moduleAttachedTo.GetParent().Beams.Add(beam);
@@ -659,7 +659,7 @@ namespace Ship_Game.Gameplay
 			};
             if (beam.Duration != 2f)
             {
-                beam.damageTimerConstant = beam.Duration / 4.1f;
+                beam.damageTimerConstant = beam.Duration / 6.02f;
                 beam.damageTimer = beam.damageTimerConstant;
             }
             if (this.owner.Level > 0)

@@ -96,7 +96,6 @@ namespace Ship_Game.Gameplay
         public bool EnginesKnockedOut;
         protected float ThrustLast;
         public float InCombatTimer;
-        public float UnderAttackTimer;
         public bool isTurning;
         public bool PauseUpdate;
         public float InhibitionRadius;
@@ -171,7 +170,6 @@ namespace Ship_Game.Gameplay
         public bool ModulesInitialized;
         public bool WeaponCentered;
         protected Cue drone;
-        public float LastHitTimer;
         public float ShieldRechargeTimer;
         public bool InCombat;
         private Vector3 pointat;
@@ -2610,7 +2608,6 @@ namespace Ship_Game.Gameplay
                     this.ProjectilesFired.QueuePendingRemoval(projectileTracker);
             }
             this.ProjectilesFired.ApplyPendingRemovals();
-            this.LastHitTimer -= elapsedTime;
             this.ShieldRechargeTimer += elapsedTime;
             this.InhibitedTimer -= elapsedTime;
             this.Inhibited = (double)this.InhibitedTimer > 0.0;
@@ -2778,7 +2775,6 @@ namespace Ship_Game.Gameplay
                     this.ClickTimer = 10f;
                 if (this.Active)
                 {
-                    this.UnderAttackTimer -= elapsedTime;
                     this.InCombatTimer -= elapsedTime;
                     if ((double)this.InCombatTimer > 0.0)
                     {
@@ -2815,7 +2811,7 @@ namespace Ship_Game.Gameplay
                         this.repairTimer = 2f;
                         if (this.Health < this.HealthMax)
                         {
-                            if (this.LastHitTimer > 0 && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
+                            if (this.InCombat && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
                             {
                                 this.repairTimer = 0.5f;
                                 float repairTracker = this.RepairRate * 0.5f;
@@ -2839,7 +2835,7 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                             //Out of combat repair
-                            else if (!this.InCombat && this.LastHitTimer <= 0)
+                            else if (!this.InCombat)
                             {
                                 float repairTracker = this.RepairRate * 2f;
                                 IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
