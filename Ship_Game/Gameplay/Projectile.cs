@@ -775,6 +775,13 @@ namespace Ship_Game.Gameplay
                     if ((target as ShipModule).ModuleType == ShipModuleType.Shield && (target as ShipModule).shield_power > 0)
                     {
                         this.damageAmount *= (this.weapon.EffectVSShields + this.ShieldDamageBonus);
+                        //projectiles penetrate weak shields
+                        if (this.damageAmount > (target as ShipModule).shield_power)
+                        {
+                            this.damageAmount -= (target as ShipModule).shield_power;
+                            (target as ShipModule).shield_power = 0f;
+                            return false;
+                        }
                     }
 					if (this.owner != null && this.owner.loyalty != (target as ShipModule).GetParent().loyalty && (target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
 					{
