@@ -2513,7 +2513,6 @@
     <Content Include="Icons\blackbox.ico" />
     <Content Include="Icons\PipeSmoke.ico" />
     <Content Include="Icons\StarTrek-SA.ico" />
-    <Content Include="StarTrek-SA.ico" />
     <None Include="Content\Textures\TacticalIcons\symbol_prototype.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
