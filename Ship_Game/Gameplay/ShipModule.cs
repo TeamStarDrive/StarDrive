@@ -301,7 +301,7 @@ namespace Ship_Game.Gameplay
 				return true;
 			}
             //Added by McShooterz: shields keep charge when manually turned off
-			if (this.shield_power <= 0f || shieldsOff)
+            if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
 			{
 				if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
 				{
@@ -476,7 +476,6 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
-			bool moduleType = this.ModuleType == ShipModuleType.PowerPlant & this.Parent.isPlayerShip();
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power > 0f && !shieldsOff)
 			{
