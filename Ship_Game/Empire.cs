@@ -769,13 +769,13 @@ namespace Ship_Game
                     if (str == "Shield Power Bonus")
                         this.data.ShieldPowerMod += unlockedBonus.Bonus;
                 }
-                this.UpdateShipsWeCanBuild();
-                if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
-                    this.GSAI.TriggerRefit();
-                if (!this.data.ResearchQueue.Contains(techID))
-                    return;
-                this.data.ResearchQueue.Remove(techID);
             }
+            this.UpdateShipsWeCanBuild();
+            if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                this.GSAI.TriggerRefit();
+            if (!this.data.ResearchQueue.Contains(techID))
+                return;
+            this.data.ResearchQueue.Remove(techID);
         }
 
         public void UnlockTechFromSave(string techID)
@@ -816,7 +816,6 @@ namespace Ship_Game
         {
             this.TechnologyDict[techID].AcquiredFrom = target.data.Traits.ShipType;
             this.UnlockTech(techID);
-            this.UpdateShipsWeCanBuild();
         }
 
         public void UnlockHullsSave(string techID, string AbsorbedShipType)
