@@ -47,6 +47,8 @@ namespace Ship_Game
 
 			public string Station;
 
+            public List<Moon> Moons;
+
 			public List<SolarSystemData.BuildingData> BuildingDataList;
 
 			public List<SolarSystemData.Resource> ResourceList;
@@ -55,5 +57,11 @@ namespace Ship_Game
 
             public float MaxPopDefined;
 		}
+
+        public struct Moon
+        {
+            public int WhichMoon;
+            public float MoonScale;
+        }
 	}
 }
