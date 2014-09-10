@@ -63,7 +63,6 @@ namespace Ship_Game.Gameplay
         public float ScuttleTimer = -1f;
         //private float systemUpdateTimer = 0.5f;
         public Vector2 FleetOffset = new Vector2();
-        public BatchRemovalCollection<OrbitalBeam> OrbitalBeams = new BatchRemovalCollection<OrbitalBeam>();
         public Vector2 RelativeFleetOffset = new Vector2();
         private List<ShipModule> Shields = new List<ShipModule>();
         private List<ShipModule> Hangars = new List<ShipModule>();
@@ -2594,13 +2593,6 @@ namespace Ship_Game.Gameplay
                 this.InFrustum = false;
                 this.ShipSO.Visibility = ObjectVisibility.None;
             }
-            foreach (OrbitalBeam orbitalBeam in (List<OrbitalBeam>)this.OrbitalBeams)
-            {
-                orbitalBeam.Duration -= elapsedTime;
-                if ((double)orbitalBeam.Duration <= 0.0)
-                    this.OrbitalBeams.QueuePendingRemoval(orbitalBeam);
-            }
-            this.OrbitalBeams.ApplyPendingRemovals();
             foreach (ProjectileTracker projectileTracker in (List<ProjectileTracker>)this.ProjectilesFired)
             {
                 projectileTracker.Timer -= elapsedTime;
@@ -3022,18 +3014,6 @@ namespace Ship_Game.Gameplay
                 if (slot1 != slot && (int)Math.Abs(slot.Position.X - slot1.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - slot1.Position.Y) / 16 == 1 && (slot1.module != null && slot1.module.ModuleType == ShipModuleType.PowerConduit) && (slot1.module.ModuleType == ShipModuleType.PowerConduit && !slot1.CheckedConduits))
                     this.CheckAndPowerConduit(slot1);
             }
-        }
-
-        public void FireOrbitalDefenseBeam(PlanetGridSquare pgs)
-        {
-            this.OrbitalBeams.Add(new OrbitalBeam());
-            this.TetheredTo.DoOrbitalBeam(pgs);
-            Cue cue1 = AudioManager.GetCue("sd_weapon_pulse_alt15_01");
-            cue1.Apply3D(Ship.universeScreen.listener, this.emitter);
-            cue1.Play();
-            Cue cue2 = AudioManager.GetCue("sd_weapon_beam_ion_med");
-            cue2.Apply3D(Ship.universeScreen.listener, this.emitter);
-            cue2.Play();
         }
 
         public void RecalculatePower()

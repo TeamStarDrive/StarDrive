@@ -101,59 +101,6 @@ namespace Ship_Game.Gameplay
 			return true;
 		}
 
-		public override void Die(GameplayObject source, bool cleanupOnly)
-		{
-			if (this.system != null)
-			{
-				this.system.AsteroidsList.QueuePendingRemoval(this);
-			}
-			if (this.AsteroidSO != null)
-			{
-				lock (GlobalStats.ObjectManagerLocker)
-				{
-					Asteroid.universeScreen.ScreenManager.inter.ObjectManager.Remove(this.AsteroidSO);
-				}
-			}
-			Cue roidDie = AudioManager.GetCue("roid_destroy");
-			roidDie.Apply3D(GameplayObject.audioListener, this.emitter);
-			roidDie.Play();
-			for (int i = 0; (float)i < base.Radius; i = i + 5)
-			{
-				Loot ore = new Loot(this.system, "Model/Asteroids/Asteroid9", this);
-				if (RandomMath.RandomBetween(1f, 100f) >= 15f)
-				{
-					XmlSerializer serializer0 = new XmlSerializer(typeof(Good));
-					Good newGood = (Good)serializer0.Deserialize(File.OpenRead("Content/Goods/ore_common.xml"));
-					ore.good = newGood;
-				}
-				else if (RandomMath.RandomBetween(1f, 100f) >= 20f)
-				{
-					XmlSerializer serializer0 = new XmlSerializer(typeof(Good));
-					Good newGood = (Good)serializer0.Deserialize(File.OpenRead("Content/Goods/ore_rare.xml"));
-					ore.good = newGood;
-				}
-				else
-				{
-					XmlSerializer serializer0 = new XmlSerializer(typeof(Good));
-					Good newGood = (Good)serializer0.Deserialize(File.OpenRead("Content/Goods/ore_exotic.xml"));
-					ore.good = newGood;
-				}
-				ore.quantity = 1;
-				ore.LoadContent(ore.ModelPath);
-				ore.Initialize();
-				lock (GlobalStats.ObjectManagerLocker)
-				{
-					Asteroid.universeScreen.ScreenManager.inter.ObjectManager.Submit(ore.LootSO);
-				}
-				this.system.spatialManager.CollidableObjects.Add(ore);
-				for (int k = 0; k < 20; k++)
-				{
-					Asteroid.universeScreen.smokePlumeParticles.AddParticleThreadB(new Vector3(ore.Center + new Vector2(RandomMath.RandomBetween(-base.Radius, base.Radius), RandomMath.RandomBetween(-base.Radius, base.Radius)), RandomMath.RandomBetween(-base.Radius, base.Radius)), new Vector3(ore.Velocity, RandomMath.RandomBetween(-5f, 25f)));
-				}
-			}
-			base.Die(source, cleanupOnly);
-		}
-
 		public SceneObject GetSO()
 		{
 			return this.AsteroidSO;
