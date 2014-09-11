@@ -152,21 +152,15 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.Active)
 			{
-				base.Position = new Vector2(this.Position3D.X, this.Position3D.Y);
-				Vector2 movement = base.Velocity * elapsedTime;
-				Asteroid position = this;
-				position.Position = position.Position + movement;
-				this.Position3D.X = base.Position.X;
-				this.Position3D.Y = base.Position.Y;
-				this.Center = base.Position;
-				Asteroid xrotate = this;
-				xrotate.Xrotate = xrotate.Xrotate + this.spinx * elapsedTime;
-				Asteroid zrotate = this;
-				zrotate.Zrotate = zrotate.Zrotate + this.spiny * elapsedTime;
-				Asteroid yrotate = this;
-				yrotate.Yrotate = yrotate.Yrotate + this.spinz * elapsedTime;
 				if (currentContainmentType != ContainmentType.Disjoint && Asteroid.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 				{
+                    base.Position = new Vector2(this.Position3D.X, this.Position3D.Y);
+                    this.Position3D.X = base.Position.X;
+                    this.Position3D.Y = base.Position.Y;
+                    this.Center = base.Position;
+                    this.Xrotate += this.spinx * elapsedTime;
+                    this.Zrotate += this.spiny * elapsedTime;
+                    this.Yrotate += this.spinz * elapsedTime;
 					this.WorldMatrix = ((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationX(this.Xrotate)) * Matrix.CreateRotationY(this.Yrotate)) * Matrix.CreateRotationZ(this.Zrotate)) * Matrix.CreateTranslation(this.Position3D);
 					if (this.AsteroidSO != null)
 					{
