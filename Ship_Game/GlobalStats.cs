@@ -19,6 +19,8 @@ namespace Ship_Game
 
 		public static float FTLInSystemModifier;
 
+        public static float EnemyFTLInSystemModifier;
+
 		public static object ShieldLocker;
 
 		public static object ClickableSystemsLock;
@@ -129,6 +131,7 @@ namespace Ship_Game
 			GlobalStats.TakingInput = false;
 			GlobalStats.WarpInSystem = true;
 			GlobalStats.FTLInSystemModifier = 1f;
+            GlobalStats.EnemyFTLInSystemModifier = 1f;
 			GlobalStats.ShieldLocker = new object();
 			GlobalStats.ClickableSystemsLock = new object();
 			GlobalStats.SensorNodeLocker = new object();

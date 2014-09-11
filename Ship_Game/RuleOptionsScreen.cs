@@ -18,6 +18,7 @@ namespace Ship_Game
 		private bool LowRes;
 
 		private FloatSlider FTLPenaltySlider;
+        private FloatSlider EnemyFTLPenaltySlider;
 
 		private CloseButton close;
 
@@ -75,6 +76,7 @@ namespace Ship_Game
 			text = HelperFunctions.parseText(Fonts.Arial12, text, (float)(this.MainMenu.Menu.Width - 80));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, TitlePos, Color.White);
 			this.FTLPenaltySlider.DrawDecimal(base.ScreenManager);
+            this.EnemyFTLPenaltySlider.DrawDecimal(base.ScreenManager);
             this.GravityWellSize.Draw(base.ScreenManager);
             this.extraPlanets.Draw(base.ScreenManager);
             this.OptionIncreaseShipMaintenance.Draw(base.ScreenManager);
@@ -117,6 +119,12 @@ namespace Ship_Game
 			}
 			this.FTLPenaltySlider.HandleInput(input);
 			GlobalStats.FTLInSystemModifier = this.FTLPenaltySlider.amount;
+            if (HelperFunctions.CheckIntersection(this.EnemyFTLPenaltySlider.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(Localizer.Token(7041), base.ScreenManager);
+            }
+            this.EnemyFTLPenaltySlider.HandleInput(input);
+            GlobalStats.EnemyFTLInSystemModifier = this.EnemyFTLPenaltySlider.amount;
 			foreach (Checkbox cb in this.Checkboxes)
 			{
 				cb.HandleInput(input);
@@ -180,12 +188,19 @@ namespace Ship_Game
 				leftRect.Height = 580;
 			}
 			this.close = new CloseButton(new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+
 			Rectangle ftlRect = new Rectangle(leftRect.X + 60, leftRect.Y + 100, 270, 50);
 			this.FTLPenaltySlider = new FloatSlider(ftlRect, Localizer.Token(4007));
 			this.FTLPenaltySlider.SetAmount(GlobalStats.FTLInSystemModifier);
 			this.FTLPenaltySlider.amount = GlobalStats.FTLInSystemModifier;
+
+            Rectangle EftlRect = new Rectangle(leftRect.X + 60, leftRect.Y + 150, 270, 50);
+            this.EnemyFTLPenaltySlider = new FloatSlider(EftlRect, Localizer.Token(6139));
+            this.EnemyFTLPenaltySlider.SetAmount(GlobalStats.FTLInSystemModifier);
+            this.EnemyFTLPenaltySlider.amount = GlobalStats.FTLInSystemModifier;
+
 			Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.PlanetaryGravityWells, (bool x) => GlobalStats.PlanetaryGravityWells = x);
-			Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 85)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
+            Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 100)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 
 		    cb.Tip_Token = 2288;
