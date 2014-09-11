@@ -251,13 +251,19 @@ namespace Ship_Game
 				Name = data.Name,
 				Position = data.Position,
 				SunPath = data.SunPath,
-				AsteroidsList = new BatchRemovalCollection<Asteroid>()
+				AsteroidsList = new BatchRemovalCollection<Asteroid>(),
+                MoonList = new List<Moon>()
 			};
 			foreach (Asteroid roid in data.AsteroidsList)
 			{
 				roid.Initialize();
 				system.AsteroidsList.Add(roid);
 			}
+            foreach (Moon moon in data.MoonList)
+            {
+                moon.Initialize();
+                system.MoonList.Add(moon);
+            }
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
 				system.ExploredDict.Add(e, false);
@@ -1126,9 +1132,6 @@ namespace Ship_Game
 			}
 			this.data.SolarSystemsList[this.systemToMake].spatialManager.Setup((int)(200000f * this.GameScale), (int)(200000f * this.GameScale), (int)(100000f * this.GameScale), this.data.SolarSystemsList[this.systemToMake].Position);
 			this.percentloaded = (float)this.systemToMake / (float)this.data.SolarSystemsList.Count;
-			foreach (Asteroid asteroidsList in this.data.SolarSystemsList[this.systemToMake].AsteroidsList)
-			{
-			}
 			foreach (Planet p in this.data.SolarSystemsList[this.systemToMake].PlanetList)
 			{
 				p.system = this.data.SolarSystemsList[this.systemToMake];

@@ -35,15 +35,11 @@ namespace Ship_Game
 
 		public SpatialManager spatialManager = new SpatialManager();
 
-		public bool AsteroidsShowing;
-
 		public bool isVisible;
 
 		public Vector2 Position;
 
 		public int RingsCount;
-
-		public bool isAnomaly;
 
 		public Vector2 Size = new Vector2(200000f, 200000f);
 
@@ -870,14 +866,16 @@ namespace Ship_Game
                     {
                         for (int j = 0; j < data.RingList[i - 1].Moons.Count; j++)
                         {
+                            float radius = (newOrbital.ObjectRadius * 10) + (1000 * (j + 1));
                             Moon moon = new Moon()
                             {
                                 planet = newOrbital,
                                 moonType = data.RingList[i - 1].Moons[j].WhichMoon,
                                 scale = data.RingList[i - 1].Moons[j].MoonScale,
-                                Position = newOrbital.Position
+                                OrbitRadius = radius,
+                                OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
+                                Position = newSys.GenerateRandomPointOnCircle(radius, newOrbital.Position)
                             };
-                            moon.Initialize();
                             newSys.MoonList.Add(moon);
                         }
                     }
