@@ -16,6 +16,7 @@ namespace Ship_Game
 		public UniverseData.GameDifficulty difficulty = UniverseData.GameDifficulty.Normal;
 
 		public float FTLSpeedModifier = 1f;
+        public float EnemyFTLSpeedModifier = 1f;
 
 		public bool GravityWells;
 

@@ -525,6 +525,7 @@ namespace Ship_Game
 			this.data.difficulty = this.savedData.gameDifficulty;
 			this.data.Size = this.savedData.Size;
 			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
+            this.data.EnemyFTLSpeedModifier = this.savedData.EnemyFTLModifier;
 			this.data.GravityWells = this.savedData.GravityWells;
 			EmpireManager.EmpireList.Clear();
             if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
