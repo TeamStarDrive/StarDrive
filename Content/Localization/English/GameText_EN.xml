@@ -7759,6 +7759,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6138</Index>
       <Text>Auto Taxes</Text>
     </Token>
+	<Token>
+      <Index>6139</Index>
+      <Text>In-System Enemy FTL Speed Modifier</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -7921,6 +7925,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7040</Index>
       <Text>Your Empire will automatically manage taxes and treasury.</Text>
+    </Token>
+	<Token>
+      <Index>7041</Index>
+      <Text>Using this slider, you can lower the FTL speeds of enemy ships that are within the gravity wells of Solar Systems. A value of 100% provides no penalty, whereas a value of 0% will completely inhibit warp of enemy ships in system.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
