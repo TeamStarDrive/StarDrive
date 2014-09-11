@@ -272,7 +272,7 @@ namespace Ship_Game
 				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f));
 				if (i != 1)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(155f, 400f);
+					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
 					for (int k = 0; (float)k < numberOfAsteroids; k++)
 					{
 						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f, 3500f), Vector2.Zero), 0f);
@@ -411,7 +411,7 @@ namespace Ship_Game
 				ringRadius = ringRadius * systemScale;
 				if ((int)RandomMath.RandomBetween(1f, 100f) > 80)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(155f, 400f);
+					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
 					for (int k = 0; (float)k < numberOfAsteroids; k++)
 					{
 						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f * systemScale, 3500f * systemScale), Vector2.Zero), 0f);
@@ -565,7 +565,7 @@ namespace Ship_Game
 				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f));
 				if (i != 1)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(155f, 400f);
+					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
 					for (int k = 0; (float)k < numberOfAsteroids; k++)
 					{
 						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f, 3500f), Vector2.Zero), 0f);
@@ -728,7 +728,7 @@ namespace Ship_Game
 				}
 				else if (i == 2)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(100f, 200f);
+					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
 					for (int k = 0; (float)k < numberOfAsteroids; k++)
 					{
 						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f * systemScale, 3500f * systemScale), Vector2.Zero), 0f);
@@ -944,7 +944,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(250f, 500f);
+					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
 					for (int k = 0; (float)k < numberOfAsteroids; k++)
 					{
 						Vector3 asteroidCenter = new Vector3(newSys.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3000f, 3000f), Vector2.Zero), 0f);
