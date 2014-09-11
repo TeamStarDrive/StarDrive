@@ -379,6 +379,12 @@ namespace Ship_Game
                     asteroid.Position3D.X += this.data.SolarSystemsList[this.systemToMake].Position.X;
                     asteroid.Position3D.Y += this.data.SolarSystemsList[this.systemToMake].Position.Y;
                     asteroid.Initialize();
+                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)asteroid.GetSO());
+                }
+                foreach (Moon moon in (List<Moon>)this.data.SolarSystemsList[this.systemToMake].MoonList)
+                {
+                    moon.Initialize();
+                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)moon.GetSO());
                 }
                 foreach (Ship ship in (List<Ship>)this.data.SolarSystemsList[this.systemToMake].ShipList)
                 {
