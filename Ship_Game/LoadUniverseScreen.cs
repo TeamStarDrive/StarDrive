@@ -354,12 +354,13 @@ namespace Ship_Game
 			GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
             
             GlobalStats.GravityWellRange = savedData.GravityWellRange;            
-            GlobalStats.IconSize = savedData.IconSize;            
+            GlobalStats.IconSize = savedData.IconSize;        
             GlobalStats.MemoryLimiter = savedData.MemoryLimiter;          
             GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;         
             GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;            
             GlobalStats.preventFederations = savedData.preventFederations;
             GlobalStats.EliminationMode = savedData.EliminationMode;
+            GlobalStats.TurnTimer = savedData.TurnTimer;
 
 
 
@@ -525,6 +526,7 @@ namespace Ship_Game
 			this.data.difficulty = this.savedData.gameDifficulty;
 			this.data.Size = this.savedData.Size;
 			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
+            this.data.EnemyFTLSpeedModifier = this.savedData.EnemyFTLModifier;
 			this.data.GravityWells = this.savedData.GravityWells;
 			EmpireManager.EmpireList.Clear();
             if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
