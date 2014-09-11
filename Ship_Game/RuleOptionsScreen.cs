@@ -31,6 +31,8 @@ namespace Ship_Game
         private FloatSlider MemoryLimiter;
         private FloatSlider StartingPlanetRichness;
 
+        private FloatSlider TurnTimer;
+
 		public Ship itemToBuild;
 
         //        public static float OptionIncreaseShipMaintenance;
@@ -83,6 +85,7 @@ namespace Ship_Game
             this.MinimumWarpRange.Draw(base.ScreenManager);
             this.MemoryLimiter.Draw(base.ScreenManager);
             this.StartingPlanetRichness.Draw(base.ScreenManager);
+            this.TurnTimer.Draw(base.ScreenManager);
 			this.close.Draw(base.ScreenManager);
 			foreach (Checkbox cb in this.Checkboxes)
 			{
@@ -172,6 +175,12 @@ namespace Ship_Game
             this.StartingPlanetRichness.HandleInput(input);
             GlobalStats.StartingPlanetRichness = this.StartingPlanetRichness.amountRange;
 
+            if (HelperFunctions.CheckIntersection(this.TurnTimer.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("Time in seconds for turns", base.ScreenManager);
+            }
+            this.TurnTimer.HandleInput(input);
+            GlobalStats.TurnTimer = (byte)this.TurnTimer.amountRange;
 		}
 
 		public override void LoadContent()
@@ -214,8 +223,6 @@ namespace Ship_Game
 
             Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
             this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002),0,20000,GlobalStats.GravityWellRange);
-            //this.GravityWellSize.SetAmountGW(GlobalStats.GravityWellRange);
-            //this.GravityWellSize.amount = GlobalStats.GravityWellRange;
             
             //added by gremlin init extra planets slider
             Rectangle epRect = new Rectangle(leftRect.X + 60, leftRect.Y + 280, 270, 50);
@@ -229,6 +236,9 @@ namespace Ship_Game
             this.MemoryLimiter = new FloatSlider(MemoryLimiter, "Memory Limit", 150000, 300000f, GlobalStats.MemoryLimiter);
             Rectangle OptionIncreaseShipMaintenance = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 400, 270, 50);
             this.OptionIncreaseShipMaintenance = new FloatSlider(OptionIncreaseShipMaintenance, "Increase Maintenance", 1, 10f, GlobalStats.OptionIncreaseShipMaintenance);
+            //Added by McShooterz: slider to change time for turns
+            Rectangle OptionTurnTimer = new Rectangle(leftRect.X * 2 + 60, leftRect.Y + 275, 270, 50);
+            this.TurnTimer = new FloatSlider(OptionTurnTimer, "Change Turn Timer", 2f, 18f, GlobalStats.TurnTimer);
            
 			this.MainMenu = new Menu2(base.ScreenManager, leftRect);
 		}

@@ -354,12 +354,13 @@ namespace Ship_Game
 			GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
             
             GlobalStats.GravityWellRange = savedData.GravityWellRange;            
-            GlobalStats.IconSize = savedData.IconSize;            
+            GlobalStats.IconSize = savedData.IconSize;        
             GlobalStats.MemoryLimiter = savedData.MemoryLimiter;          
             GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;         
             GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;            
             GlobalStats.preventFederations = savedData.preventFederations;
             GlobalStats.EliminationMode = savedData.EliminationMode;
+            GlobalStats.TurnTimer = savedData.TurnTimer;
 
 
 

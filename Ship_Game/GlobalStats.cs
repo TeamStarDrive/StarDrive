@@ -114,6 +114,7 @@ namespace Ship_Game
         public static float StartingPlanetRichness;
         public static string ExtendedVersion;
         public static int IconSize;
+        public static byte TurnTimer = 5;
 
         public static bool preventFederations;
         public static bool EliminationMode;
@@ -182,6 +183,7 @@ namespace Ship_Game
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
+
             GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);
 		}
         public static void Statreset()
