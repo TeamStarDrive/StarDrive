@@ -420,15 +420,6 @@ namespace Ship_Game
 			}
 			this.ScreenManager.SpriteBatch.End();
 			this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-			foreach (OrbitalBeam beam in this.p.OrbitalBeams)
-			{
-				TimeSpan totalGameTime = gameTime.TotalGameTime;
-				float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
-				f = 32f + Math.Abs(f) * 64f;
-				Rectangle r = new Rectangle(beam.pgs.TroopClickRect.X + beam.pgs.TroopClickRect.Width / 2 - 32, -5, (int)f, beam.pgs.TroopClickRect.Y + beam.pgs.TroopClickRect.Height / 2 + 2);
-				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Beams/beam_thick_red"], r, Color.White);
-				r = new Rectangle(beam.pgs.TroopClickRect.X + beam.pgs.TroopClickRect.Width / 2 - 20, -5, (int)f, beam.pgs.TroopClickRect.Y + beam.pgs.TroopClickRect.Height / 2 + 2);
-			}
 			lock (GlobalStats.ExplosionLocker)
 			{
 				foreach (CombatScreen.SmallExplosion exp in this.Explosions)
