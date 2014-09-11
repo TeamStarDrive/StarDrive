@@ -26,7 +26,6 @@ namespace Ship_Game
         public List<PlanetGridSquare> TilesList = new List<PlanetGridSquare>();
         public string Special = "None";
         public BatchRemovalCollection<Planet.OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<Planet.OrbitalDrop>();
-        public BatchRemovalCollection<OrbitalBeam> OrbitalBeams = new BatchRemovalCollection<OrbitalBeam>();
         public Planet.GoodState fs = Planet.GoodState.IMPORT;
         public Planet.GoodState ps = Planet.GoodState.IMPORT;
         public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
@@ -94,15 +93,11 @@ namespace Ship_Game
         public float MaxPopulation;
         public string Type;
         public float TotalOreExtracted;
-        //private Planet.Richness richness;
-        //private Cue noiseCue;
-        //private float UpdateTimer;
         private float Zrotate;
         public float BuildingRoomUsed;
         public int StorageAdded;
         public float CombatTimer;
         private int numInvadersLast;
-        //private BoundingSphere bs;
         public float ProductionHere;
         public float NetFoodPerTurn;
         public float FoodPercentAdded;
@@ -133,7 +128,6 @@ namespace Ship_Game
         public float consumption;
         private float unfed;
         private Shield shield;
-        //private bool initializing;
         public float FoodHere;
         public int developmentLevel;
         public bool CorsairPresence;
@@ -141,7 +135,6 @@ namespace Ship_Game
         public float RepairPerTurn = 50;
         public List<string> PlanetFleets = new List<string>();
         
-
         public Planet()
         {
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
@@ -555,14 +548,6 @@ namespace Ship_Game
                     return;
                 }
             }
-        }
-
-        public void DoOrbitalBeam(PlanetGridSquare pgs)
-        {
-            this.OrbitalBeams.Add(new OrbitalBeam()
-            {
-                pgs = pgs
-            });
         }
 
         public float GetNetFoodPerTurn()
@@ -2619,32 +2604,6 @@ namespace Ship_Game
             this.DecisionTimer -= elapsedTime;
             this.CombatTimer -= elapsedTime;
             this.RecentCombat = (double)this.CombatTimer > 0.0;
-            foreach (OrbitalBeam orbitalBeam in (List<OrbitalBeam>)this.OrbitalBeams)
-            {
-                orbitalBeam.Duration -= elapsedTime;
-                if ((double)orbitalBeam.Duration <= 0.0)
-                {
-                    this.OrbitalBeams.QueuePendingRemoval(orbitalBeam);
-                    if (orbitalBeam.pgs.TroopsHere.Count > 0)
-                    {
-                        orbitalBeam.pgs.TroopsHere[0].Strength -= 10;
-                        if (orbitalBeam.pgs.TroopsHere[0].Strength <= 0)
-                        {
-                            this.TroopsHere.Remove(orbitalBeam.pgs.TroopsHere[0]);
-                            orbitalBeam.pgs.TroopsHere.Clear();
-                        }
-                        if (Planet.universeScreen.LookingAtPlanet && Planet.universeScreen.workersPanel is CombatScreen)
-                        {
-                            AudioManager.PlayCue("Explo1");
-                            CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(4);
-                            smallExplosion.grid = orbitalBeam.pgs.TroopClickRect;
-                            lock (GlobalStats.ExplosionLocker)
-                                (Planet.universeScreen.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
-                        }
-                    }
-                }
-            }
-            this.OrbitalBeams.ApplyPendingRemovals();
             List<Guid> list = new List<Guid>();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
             {
