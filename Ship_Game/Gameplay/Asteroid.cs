@@ -39,17 +39,7 @@ namespace Ship_Game.Gameplay
 
 		public Matrix WorldMatrix;
 
-		public int CommonOreCount;
-
-		public int RareOreCount;
-
-		public int ExoticOreCount;
-
-		public AudioEmitter emitter = new AudioEmitter();
-
 		private BoundingSphere bs;
-
-		private GameplayObject lastDamagedBy;
 
 		public Asteroid()
 		{
@@ -59,46 +49,6 @@ namespace Ship_Game.Gameplay
 			this.Xrotate = RandomMath.RandomBetween(0.01f, 1.02f);
 			this.Yrotate = RandomMath.RandomBetween(0.01f, 1.02f);
 			this.Zrotate = RandomMath.RandomBetween(0.01f, 1.02f);
-		}
-
-		public override bool Damage(GameplayObject source, float damageAmount)
-		{
-			if (!(source is Beam))
-			{
-				Cue hit = AudioManager.GetCue("roid_impact");
-				hit.Apply3D(GameplayObject.audioListener, this.emitter);
-				hit.Play();
-			}
-			Asteroid health = this;
-			health.Health = health.Health - damageAmount;
-			if (!(source is Beam))
-			{
-				Projectile sourceAsProjectile = source as Projectile;
-				if (sourceAsProjectile == null)
-				{
-					this.lastDamagedBy = source;
-				}
-				else
-				{
-					this.lastDamagedBy = sourceAsProjectile.Owner;
-					for (int i = 0; i < 5; i++)
-					{
-						Asteroid.universeScreen.smokePlumeParticles.AddParticleThreadB(new Vector3(source.Center, 0f), new Vector3(RandomMath.RandomDirection() * 3f, RandomMath.RandomBetween(-5f, 5f)));
-					}
-				}
-			}
-			else
-			{
-				Vector2 direction = (source as Beam).ActualHitDestination - (source as Beam).Source;
-				direction = Vector2.Normalize(direction);
-				direction = Vector2.Negate(direction);
-				Asteroid.universeScreen.smokePlumeParticles.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination + (direction * this.radius), 0f), new Vector3((direction * RandomMath.RandomBetween(5f, 25f)) + (RandomMath.RandomDirection() * 3f), RandomMath.RandomBetween(-5f, 5f)));
-				for (int i = 0; i < 5; i++)
-				{
-					Asteroid.universeScreen.sparks.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination + (direction * this.AsteroidSO.WorldBoundingSphere.Radius), 0f), new Vector3((direction * RandomMath.RandomBetween(15f, 40f)) + (RandomMath.RandomDirection() * 3f), RandomMath.RandomBetween(-5f, 5f)));
-				}
-			}
-			return true;
 		}
 
 		public SceneObject GetSO()
@@ -117,29 +67,11 @@ namespace Ship_Game.Gameplay
 			this.WorldMatrix = ((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationX(this.Xrotate)) * Matrix.CreateRotationY(this.Yrotate)) * Matrix.CreateRotationZ(this.Zrotate)) * Matrix.CreateTranslation(this.Position3D);
 			this.AsteroidSO.World = this.WorldMatrix;
 			base.Radius = this.AsteroidSO.ObjectBoundingSphere.Radius * this.scale * 0.65f;
-			base.Health = 50f * base.Radius;
 			int radius = (int)base.Radius / 5;
-			this.mass = 25f * base.Radius;
-		}
-
-		public override bool Touch(GameplayObject target)
-		{
-			if (target is Asteroid)
-			{
-				Vector2 playerAsteroidVector = base.Position - target.Position;
-				if (playerAsteroidVector.LengthSquared() > 0f)
-				{
-					playerAsteroidVector.Normalize();
-					float rammingSpeed = Vector2.Dot(playerAsteroidVector, target.Velocity) - Vector2.Dot(playerAsteroidVector, base.Velocity);
-					float momentum = base.Mass * rammingSpeed;
-					target.Damage(this, momentum * 0.007f);
-				}
-			}
-			else if (target is Projectile)
-			{
-				return true;
-			}
-			return base.Touch(target);
+            base.Position = new Vector2(this.Position3D.X, this.Position3D.Y);
+            this.Position3D.X = base.Position.X;
+            this.Position3D.Y = base.Position.Y;
+            this.Center = base.Position;
 		}
 
 		public override void Update(float elapsedTime)
@@ -154,10 +86,6 @@ namespace Ship_Game.Gameplay
 			{
 				if (currentContainmentType != ContainmentType.Disjoint && Asteroid.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 				{
-                    base.Position = new Vector2(this.Position3D.X, this.Position3D.Y);
-                    this.Position3D.X = base.Position.X;
-                    this.Position3D.Y = base.Position.Y;
-                    this.Center = base.Position;
                     this.Xrotate += this.spinx * elapsedTime;
                     this.Zrotate += this.spiny * elapsedTime;
                     this.Yrotate += this.spinz * elapsedTime;
@@ -167,11 +95,6 @@ namespace Ship_Game.Gameplay
 						this.AsteroidSO.World = this.WorldMatrix;
 					}
 				}
-				if (base.Health <= 0f)
-				{
-					this.Die(this.lastDamagedBy, false);
-				}
-				this.emitter.Position = this.Position3D;
 				base.Update(elapsedTime);
 			}
 		}
