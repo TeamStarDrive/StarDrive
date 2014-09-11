@@ -1112,7 +1112,6 @@ namespace Ship_Game
             ArtificialIntelligence.universeScreen = this;
             MissileAI.universeScreen = this;
             Asteroid.universeScreen = this;
-            Loot.universeScreen = this;
             CombatScreen.universeScreen = this;
             FleetDesignScreen.screen = this;
             this.xnaPlanetModel = this.ScreenManager.Content.Load<Model>("Model/SpaceObjects/planet");
@@ -1688,6 +1687,10 @@ namespace Ship_Game
                             system.isVisible = false;
                             system.AsteroidsShowing = false;
                         }
+                        foreach (Moon moon in system.MoonList)
+                        {
+                            this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)moon.GetSO());
+                        }
                     }
                     foreach (Planet planet in system.PlanetList)
                     {
@@ -1728,7 +1731,6 @@ namespace Ship_Game
                     if (!this.Paused && this.IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();
-                    system.LootList.ApplyPendingRemovals();
                     system.ShipList.ApplyPendingRemovals();
                 }
                 this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
@@ -1858,8 +1860,6 @@ namespace Ship_Game
                         system.AsteroidsShowing = false;
                     }
                 }
-                foreach (Loot loot in (List<Loot>)system.LootList)
-                    loot.Update(elapsedTime);
                 foreach (Planet planet in system.PlanetList)
                 {
                     planet.Update(elapsedTime);
@@ -1872,7 +1872,6 @@ namespace Ship_Game
                         gameplayObject.Update(elapsedTime);
                 }
                 system.AsteroidsList.ApplyPendingRemovals();
-                system.LootList.ApplyPendingRemovals();
                 system.ShipList.ApplyPendingRemovals();
             }
         }
@@ -4176,7 +4175,6 @@ namespace Ship_Game
             ArtificialIntelligence.universeScreen = (UniverseScreen)null;
             MissileAI.universeScreen = (UniverseScreen)null;
             Asteroid.universeScreen = (UniverseScreen)null;
-            Loot.universeScreen = (UniverseScreen)null;
             CombatScreen.universeScreen = (UniverseScreen)null;
             MuzzleFlashManager.universeScreen = (UniverseScreen)null;
             FleetDesignScreen.screen = (UniverseScreen)null;

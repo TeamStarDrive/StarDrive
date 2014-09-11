@@ -315,12 +315,12 @@ namespace Ship_Game
                             //Added by McShooterz: support for SolarSystems folder for mods
                             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")))
                             {
-                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
+                                solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
                             }
                             else if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
                             {
-                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
+                                solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
                             }
                             else
@@ -347,7 +347,6 @@ namespace Ship_Game
                         ++this.counter;
                         this.percentloaded = (float)(this.counter / (this.numSystems * 2));
                     }
-                    new SolarSystem().GeneratePrisonAnomaly(markovNameGenerator.NextName);
                     this.ThrusterEffect = this.ScreenManager.Content.Load<Effect>("Effects/Thrust");
                     foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
                     {
