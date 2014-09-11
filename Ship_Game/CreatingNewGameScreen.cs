@@ -98,6 +98,7 @@ namespace Ship_Game
                 this.data = new UniverseData()
                 {
                     FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
+                    EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
                     GravityWells = GlobalStats.PlanetaryGravityWells
                 };
                 string str = size;

@@ -30,6 +30,7 @@ namespace Ship_Game
 			this.data.StarDate = screenToSave.StarDate;
 			this.data.SolarSystemDataList = new List<SavedGame.SolarSystemSaveData>();
 			this.data.FTLModifier = screenToSave.FTLModifier;
+            this.data.EnemyFTLModifier = screenToSave.EnemyFTLModifier;
 			this.data.GravityWells = screenToSave.GravityWells;
 			this.data.PlayerLoyalty = screenToSave.PlayerLoyalty;
 			this.data.RandomEvent = RandomEventManager.ActiveEvent;
@@ -950,6 +951,7 @@ namespace Ship_Game
 			public bool RemnantArmageddon;
 
 			public float FTLModifier = 1.0f;
+            public float EnemyFTLModifier = 1.0f;
 
 			public bool GravityWells;
 
