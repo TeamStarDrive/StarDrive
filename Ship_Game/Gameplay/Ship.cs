@@ -3796,7 +3796,23 @@ namespace Ship_Game.Gameplay
                     this.NeedRecalculate = false;
                 }
                 if (this.system != null && (double)Ship.universeScreen.FTLModifier < 1.0)
+                {
                     this.WarpThrust *= Ship.universeScreen.FTLModifier;
+                    if (this.system.OwnerList.Count() > 0 && !this.system.OwnerList.Contains(this.loyalty))
+                    {
+                        bool freindlySystem = false;
+                        foreach (Empire empire in this.system.OwnerList)
+                        {
+                            if (this.loyalty.GetRelations()[empire].Treaty_OpenBorders)
+                            {
+                                freindlySystem = true;
+                                break;
+                            }
+                        }
+                        if(!freindlySystem)
+                            this.WarpThrust *= Ship.universeScreen.EnemyFTLModifier;
+                    }
+                }
             }
             else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || (double)this.MoveModulesTimer > 0.0 || this.InCombat && GlobalStats.ForceFullSim)
             {
