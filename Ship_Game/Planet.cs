@@ -29,7 +29,6 @@ namespace Ship_Game
         public Planet.GoodState fs = Planet.GoodState.IMPORT;
         public Planet.GoodState ps = Planet.GoodState.IMPORT;
         public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
-        public List<Resource> ResourceList = new List<Resource>();
         public List<Building> BuildingList = new List<Building>();
         public SpaceStation Station = new SpaceStation();
         public Dictionary<Guid, Ship> Shipyards = new Dictionary<Guid, Ship>();
@@ -5459,25 +5458,6 @@ namespace Ship_Game
             public Vector2 Velocity;
             public float Rotation;
             public PlanetGridSquare Target;
-        }
-
-        public enum Resources
-        {
-            Timber,
-            Crystal,
-            Whales,
-            Spaceweed,
-            Ale,
-            Curios,
-            Delicacies,
-            Pets,
-            Iridium,
-            Osmium,
-            Gold,
-            Platinum,
-            Furs,
-            Flora,
-            Chemicals,
         }
     }
 }
