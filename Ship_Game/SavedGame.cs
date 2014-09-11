@@ -39,7 +39,7 @@ namespace Ship_Game
             this.data.MemoryLimiter = GlobalStats.MemoryLimiter;
             this.data.MinimumWarpRange = GlobalStats.MinimumWarpRange;
             this.data.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
-
+            this.data.TurnTimer = GlobalStats.TurnTimer;
             this.data.IconSize=GlobalStats.IconSize;
             this.data.preventFederations=GlobalStats.preventFederations;
             this.data.GravityWellRange=GlobalStats.GravityWellRange;
@@ -964,6 +964,8 @@ namespace Ship_Game
             public float MemoryLimiter=GlobalStats.MemoryLimiter;
             
             public int IconSize;
+
+            public byte TurnTimer;
 
             public bool preventFederations;
             public float GravityWellRange=GlobalStats.GravityWellRange;
