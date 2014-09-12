@@ -616,7 +616,7 @@ namespace Ship_Game
 			HelperFunctions.ClampVectorToInt(ref nPos);
 			SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			string str1 = string.Concat(value.ToString(), "%");
+			string str1 = string.Concat(value.ToString("#.##"), "%");
 			Vector2 vector2 = nPos;
 			if (value > 0f)
 			{
@@ -659,7 +659,7 @@ namespace Ship_Game
 			HelperFunctions.ClampVectorToInt(ref nPos);
 			SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			string str1 = string.Concat(value.ToString(), "%");
+            string str1 = string.Concat(value.ToString("#.##"), "%");
 			Vector2 vector2 = nPos;
 			if (value < 0f)
 			{

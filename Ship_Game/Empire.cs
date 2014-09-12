@@ -720,7 +720,7 @@ namespace Ship_Game
                     if (str == "Slipstreams" || str == "In Borders FTL Bonus")
                         this.data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus;
                     if (str == "StarDrive Enhancement" || str == "FTL Speed Bonus")
-                        this.data.FTLModifier = (float)(int)((double)this.data.FTLModifier + (double)unlockedBonus.Bonus * (double)this.data.FTLModifier);
+                        this.data.FTLModifier += unlockedBonus.Bonus * this.data.FTLModifier;
                     if (str == "Warp Efficiency")
                         this.data.WarpEfficiencyBonus += unlockedBonus.Bonus;
                     if (str == "Burner Efficiency")
