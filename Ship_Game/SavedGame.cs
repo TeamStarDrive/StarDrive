@@ -53,14 +53,14 @@ namespace Ship_Game
 					Position = system.Position,
 					SunPath = system.SunPath,
 					AsteroidsList = new List<Asteroid>(),
-                    MoonList = new List<Moon>(),
+                    Moons = new List<Moon>(),
 				};
 				foreach (Asteroid roid in system.AsteroidsList)
 				{
 					sdata.AsteroidsList.Add(roid);
 				}
                 foreach (Moon moon in system.MoonList)
-                    sdata.MoonList.Add(moon);
+                    sdata.Moons.Add(moon);
 				sdata.guid = system.guid;
 				sdata.RingList = new List<SavedGame.RingSave>();
 				foreach (SolarSystem.Ring ring in system.RingList)
@@ -894,7 +894,7 @@ namespace Ship_Game
 
 			public List<Asteroid> AsteroidsList;
 
-            public List<Moon> MoonList;
+            public List<Moon> Moons;
 
 			public List<string> EmpiresThatKnowThisSystem;
 		}
