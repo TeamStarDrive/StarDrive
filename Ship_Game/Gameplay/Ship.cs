@@ -2808,21 +2808,21 @@ namespace Ship_Game.Gameplay
                                 this.repairTimer = 0.5f;
                                 float repairTracker = this.RepairRate * 0.5f;
                                 //Added by McShooterz: Priority repair
-                                IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
-                                foreach (ModuleSlot moduleSlot in repairmodule)
+                                IEnumerable<ModuleSlot> damagedModules = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.ModuleType != ShipModuleType.Dummy && moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                                foreach (ModuleSlot moduleSlot in damagedModules)
                                 {
                                     //if destroyed do not repair in combat
                                     if (moduleSlot.module.Health < 1)
                                         continue;
                                     if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
                                     {
-                                        moduleSlot.module.Health += repairTracker;
+                                        moduleSlot.module.Repair(repairTracker);
                                         break;
                                     }
                                     else
                                     {
                                         repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
-                                        moduleSlot.module.Health = moduleSlot.module.HealthMax;
+                                        moduleSlot.module.Repair(moduleSlot.module.HealthMax);
                                     }
                                 }
                             }
@@ -2830,18 +2830,18 @@ namespace Ship_Game.Gameplay
                             else if (!this.InCombat)
                             {
                                 float repairTracker = this.RepairRate * 2f;
-                                IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
-                                foreach (ModuleSlot moduleSlot in repairmodule)
+                                IEnumerable<ModuleSlot> damagedModules = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.ModuleType != ShipModuleType.Dummy && moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                                foreach (ModuleSlot moduleSlot in damagedModules)
                                 {
                                     if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
                                     {
-                                        moduleSlot.module.Health += repairTracker;
+                                        moduleSlot.module.Repair(repairTracker);
                                         break;
                                     }
                                     else
                                     {
                                         repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
-                                        moduleSlot.module.Health = moduleSlot.module.HealthMax;
+                                        moduleSlot.module.Repair(moduleSlot.module.HealthMax);
                                     }
                                 }
                             }
