@@ -25,7 +25,7 @@ namespace Ship_Game.Gameplay
 
         public int moonType;
 
-        public Planet planet;
+        public Guid orbitTarget;
 
         public float OrbitRadius;
 
@@ -150,7 +150,7 @@ namespace Ship_Game.Gameplay
                 if ((double)this.OrbitalAngle >= 360.0)
                     this.OrbitalAngle -= 360f;
             }
-            this.Position = this.GeneratePointOnCircle(this.OrbitalAngle, this.planet.Position, this.OrbitRadius);
+            this.Position = this.GeneratePointOnCircle(this.OrbitalAngle, universeScreen.PlanetsDict[orbitTarget].Position, this.OrbitRadius);
             this.WorldMatrix = ((Matrix.Identity * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ(-this.Zrotate)) * Matrix.CreateTranslation(new Vector3(this.Position, 3200f)));
 			if (this.SO != null)
 			{
