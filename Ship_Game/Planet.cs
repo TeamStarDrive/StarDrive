@@ -2728,17 +2728,17 @@ namespace Ship_Game
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
                     if (RepairPool > 0 && item.Health < item.HealthMax && !this.ParentSystem.CombatInSystem)
                     {
-                        foreach (ModuleSlot slot in item.ModuleSlotList.Where(slot => slot.module.Health < slot.module.HealthMax))
+                        foreach (ModuleSlot slot in item.ModuleSlotList.Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax))
                         {
                             if (slot.module.HealthMax - slot.module.Health > RepairPool)
                             {
-                                slot.module.Health += RepairPool;
+                                slot.module.Repair(RepairPool);
                                 break;
                             }
                             else
                             {
                                 RepairPool -= slot.module.HealthMax - slot.module.Health;
-                                slot.module.Health = slot.module.HealthMax;
+                                slot.module.Repair(slot.module.HealthMax);
                             }
                         }
                     }
