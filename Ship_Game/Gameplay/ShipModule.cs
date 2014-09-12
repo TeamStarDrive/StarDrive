@@ -1881,6 +1881,26 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
+        public void Repair(float repairAmount)
+        {
+            this.Health += repairAmount;
+            if (this.Health >= this.HealthMax)
+            {
+                this.Health = this.HealthMax;
+                foreach (ShipModule dummy in this.LinkedModulesList)
+                {
+                    dummy.Health = dummy.HealthMax;
+                }
+            }
+            else
+            {
+                foreach (ShipModule dummy in this.LinkedModulesList)
+                {
+                    dummy.Health = this.Health;
+                }
+            }
+        }
+
         public float GetShieldsMax()
         {
             return this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
