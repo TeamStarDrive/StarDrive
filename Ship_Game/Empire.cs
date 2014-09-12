@@ -30,7 +30,7 @@ namespace Ship_Game
         private Dictionary<string, bool> UnlockedTroopDict = new Dictionary<string, bool>();
         private Dictionary<string, bool> UnlockedBuildingsDict = new Dictionary<string, bool>();
         private Dictionary<string, bool> UnlockedModulesDict = new Dictionary<string, bool>();
-        private Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>();
+        public Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>();
         public List<Ship> Inhibitors = new List<Ship>();
         public List<SpaceRoad> SpaceRoadsList = new List<SpaceRoad>();
         public float Money = 1000f;
@@ -554,8 +554,26 @@ namespace Ship_Game
         {
             if (this.TechnologyDict[techID].Unlocked)
                 return;
-            this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
-            this.TechnologyDict[techID].Unlocked = true;
+            //Add to level of tech if more than one level
+            if (ResourceManager.TechTree[techID].MaxLevel > 1)
+            {
+                this.TechnologyDict[techID].level++;
+                if (this.TechnologyDict[techID].level == ResourceManager.TechTree[techID].MaxLevel)
+                {
+                    this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTechCost() * UniverseScreen.GamePaceStatic;
+                    this.TechnologyDict[techID].Unlocked = true;
+                }
+                else
+                {
+                    this.TechnologyDict[techID].Unlocked = false;
+                    this.TechnologyDict[techID].Progress = 0;
+                }
+            }
+            else
+            {
+                this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
+                this.TechnologyDict[techID].Unlocked = true;
+            }
             //Set GSAI to build ship roles
             if (this.TechnologyDict[techID].GetTech().unlockBattleships || techID == "Battleships")
                 this.canBuildCapitals = true;
@@ -1934,8 +1952,8 @@ namespace Ship_Game
                     e.Data.Add("missing Key: ", this.ResearchTopic);
                     throw e;
                 }
-                float num3 = this.TechnologyDict[this.ResearchTopic].Progress - ResourceManager.TechTree[this.ResearchTopic].Cost * UniverseScreen.GamePaceStatic;
-                if ((double)this.TechnologyDict[this.ResearchTopic].Progress >= (double)ResourceManager.TechTree[this.ResearchTopic].Cost * (double)UniverseScreen.GamePaceStatic)
+                float num3 = this.TechnologyDict[this.ResearchTopic].Progress - this.TechnologyDict[this.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic;
+                if (this.TechnologyDict[this.ResearchTopic].Progress >= this.TechnologyDict[this.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic)
                 {
                     this.UnlockTech(this.ResearchTopic);
                     if (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))

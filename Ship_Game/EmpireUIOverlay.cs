@@ -432,7 +432,7 @@ namespace Ship_Game
 					spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(102), "..."), textCursor, new Color(255, 240, 189));
 					return;
 				}
-				float percentResearch = this.empire.GetTDict()[this.empire.ResearchTopic].Progress / ResourceManager.TechTree[this.empire.ResearchTopic].Cost * UniverseScreen.GamePaceStatic;
+				float percentResearch = this.empire.GetTDict()[this.empire.ResearchTopic].Progress / this.empire.GetTDict()[this.empire.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic;
 				int xOffset = (int)(percentResearch * (float)this.res2.Width);
 				Rectangle gradientSourceRect = this.res2;
 				gradientSourceRect.X = 159 - xOffset;
@@ -442,11 +442,11 @@ namespace Ship_Game
 				float plusRes = this.empire.GetProjectedResearchNextTurn();
 				float x = (float)(this.res2.X + this.res2.Width - 30);
 				SpriteFont arial12Bold = Fonts.Arial12Bold;
-				object[] str = new object[] { research.ToString(), "/", ResourceManager.TechTree[this.empire.ResearchTopic].Cost * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
+				object[] str = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
 				textCursor.X = x - arial12Bold.MeasureString(string.Concat(str)).X;
 				textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
 				SpriteFont spriteFont = Fonts.Arial12Bold;
-				object[] objArray = new object[] { research.ToString(), "/", ResourceManager.TechTree[this.empire.ResearchTopic].Cost * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
+				object[] objArray = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
 				spriteBatch.DrawString(spriteFont, string.Concat(objArray), textCursor, new Color(255, 240, 189));
 				return;
 			}
@@ -454,7 +454,7 @@ namespace Ship_Game
 			{
 				if (this.empire.ResearchTopic != "")
 				{
-					float percentResearch = this.empire.GetTDict()[this.empire.ResearchTopic].Progress / ResourceManager.TechTree[this.empire.ResearchTopic].Cost * UniverseScreen.GamePaceStatic;
+					float percentResearch = this.empire.GetTDict()[this.empire.ResearchTopic].Progress / this.empire.GetTDict()[this.empire.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic;
 					int xOffset = (int)(percentResearch * (float)this.res2.Width);
 					Rectangle gradientSourceRect = this.res2;
 					gradientSourceRect.X = 159 - xOffset;
@@ -464,10 +464,10 @@ namespace Ship_Game
 					float plusRes = this.empire.GetProjectedResearchNextTurn();
 					float single = (float)(this.res2.X + this.res2.Width - 20);
 					SpriteFont arial12Bold1 = Fonts.Arial12Bold;
-					object[] str1 = new object[] { research.ToString(), "/", ResourceManager.TechTree[this.empire.ResearchTopic].Cost * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
+					object[] str1 = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
 					textCursor.X = single - arial12Bold1.MeasureString(string.Concat(str1)).X;
 					textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-					object[] objArray1 = new object[] { research.ToString(), "/", ResourceManager.TechTree[this.empire.ResearchTopic].Cost * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
+					object[] objArray1 = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
 					string text = string.Concat(objArray1);
 					if (Fonts.Arial12Bold.MeasureString(text).X <= 75f)
 					{
@@ -476,7 +476,7 @@ namespace Ship_Game
 					}
 					float x1 = (float)(this.res2.X + this.res2.Width - 20);
 					SpriteFont tahoma10 = Fonts.Tahoma10;
-					object[] str2 = new object[] { research.ToString(), "/", ResourceManager.TechTree[this.empire.ResearchTopic].Cost * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
+					object[] str2 = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic, " (+", plusRes.ToString("#.0"), ")" };
 					textCursor.X = x1 - tahoma10.MeasureString(string.Concat(str2)).X;
 					textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Tahoma10.LineSpacing / 2);
 					textCursor.X = (float)((int)textCursor.X);

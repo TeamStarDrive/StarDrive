@@ -13,6 +13,13 @@ namespace Ship_Game
 
 		public bool Unlocked;
 
+        public byte level = 1;
+
+        public float GetTechCost()
+        {
+            return this.GetTech().Cost * (float)Math.Max(1, Math.Pow( 2.0, this.level - 1));
+        }
+
         public string AcquiredFrom = "";
         //added by gremlin
         public bool shipDesignsCanuseThis = true;
