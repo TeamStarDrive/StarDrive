@@ -173,7 +173,6 @@ namespace Ship_Game
             GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
             GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
             GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
-
             GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
             GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
@@ -183,7 +182,7 @@ namespace Ship_Game
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
-
+            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
             GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);
 		}
         public static void Statreset()
@@ -191,7 +190,6 @@ namespace Ship_Game
             GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
             GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
             GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
-
             GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
             GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
@@ -201,6 +199,7 @@ namespace Ship_Game
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.EliminationMode = bool.Parse(ConfigurationManager.AppSettings["EliminationMode"]);
+            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
         }
 		public GlobalStats()
 		{
