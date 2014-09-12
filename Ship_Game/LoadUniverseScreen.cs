@@ -259,7 +259,7 @@ namespace Ship_Game
 				roid.Initialize();
 				system.AsteroidsList.Add(roid);
 			}
-            foreach (Moon moon in data.MoonList)
+            foreach (Moon moon in data.Moons)
             {
                 moon.Initialize();
                 system.MoonList.Add(moon);
@@ -1140,6 +1140,10 @@ namespace Ship_Game
 				p.InitializeUpdate();
 				base.ScreenManager.inter.ObjectManager.Submit(p.SO);
 			}
+            foreach (Asteroid roid in this.data.SolarSystemsList[this.systemToMake].AsteroidsList)
+                base.ScreenManager.inter.ObjectManager.Submit(roid.GetSO());
+            foreach (Moon moon in this.data.SolarSystemsList[this.systemToMake].MoonList)
+                base.ScreenManager.inter.ObjectManager.Submit(moon.GetSO());
 			LoadUniverseScreen loadUniverseScreen = this;
 			loadUniverseScreen.systemToMake = loadUniverseScreen.systemToMake + 1;
 			if (this.systemToMake == this.data.SolarSystemsList.Count)

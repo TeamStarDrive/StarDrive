@@ -862,23 +862,6 @@ namespace Ship_Game
 						OrbitalRadius = ringRadius,
 						planetTilt = RandomMath.RandomBetween(45f, 135f)
 					};
-                    if (data.RingList[i - 1].Moons.Count > 0)
-                    {
-                        for (int j = 0; j < data.RingList[i - 1].Moons.Count; j++)
-                        {
-                            float radius = (newOrbital.ObjectRadius * 10) + (1000 * (j + 1));
-                            Moon moon = new Moon()
-                            {
-                                planet = newOrbital,
-                                moonType = data.RingList[i - 1].Moons[j].WhichMoon,
-                                scale = data.RingList[i - 1].Moons[j].MoonScale,
-                                OrbitRadius = radius,
-                                OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
-                                Position = newSys.GenerateRandomPointOnCircle(radius, newOrbital.Position)
-                            };
-                            newSys.MoonList.Add(moon);
-                        }
-                    }
 					newOrbital.InitializeUpdate();
 					if (!data.RingList[i - 1].HomePlanet)
 					{
@@ -931,6 +914,24 @@ namespace Ship_Game
 						newOrbital.hasRings = true;
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
+                    //Add moons to planets
+                    if (data.RingList[i - 1].Moons.Count > 0)
+                    {
+                        for (int j = 0; j < data.RingList[i - 1].Moons.Count; j++)
+                        {
+                            float radius = newOrbital.ObjectRadius * 5 + (RandomMath.RandomBetween(1000f, 1500f) * (j + 1));
+                            Moon moon = new Moon()
+                            {
+                                orbitTarget = newOrbital.guid,
+                                moonType = data.RingList[i - 1].Moons[j].WhichMoon,
+                                scale = data.RingList[i - 1].Moons[j].MoonScale,
+                                OrbitRadius = radius,
+                                OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
+                                Position = newSys.GenerateRandomPointOnCircle(radius, newOrbital.Position)
+                            };
+                            newSys.MoonList.Add(moon);
+                        }
+                    }
 					newSys.PlanetList.Add(newOrbital);
 					SolarSystem.Ring ring = new SolarSystem.Ring()
 					{
