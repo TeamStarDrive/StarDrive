@@ -58,6 +58,7 @@ namespace Ship_Game
         public Background bg = new Background();
         public Vector2 Size = new Vector2(5000000f, 5000000f);
         public float FTLModifier = 1f;
+        public float EnemyFTLModifier = 1f;
         public UniverseData.GameDifficulty GameDifficulty = UniverseData.GameDifficulty.Normal;
         public Vector3 transitionStartPosition = new Vector3();
         public Vector3 camTransitionPosition = new Vector3();
@@ -263,6 +264,7 @@ namespace Ship_Game
         {
             this.Size = data.Size;
             this.FTLModifier = data.FTLSpeedModifier;
+            this.EnemyFTLModifier = data.EnemyFTLSpeedModifier;
             this.GravityWells = data.GravityWells;
             UniverseScreen.SolarSystemList = data.SolarSystemsList;
             this.MasterShipList = data.MasterShipList;
@@ -275,6 +277,7 @@ namespace Ship_Game
         {
             this.Size = data.Size;
             this.FTLModifier = data.FTLSpeedModifier;
+            this.EnemyFTLModifier = data.EnemyFTLSpeedModifier;
             this.GravityWells = data.GravityWells;
             UniverseScreen.SolarSystemList = data.SolarSystemsList;
             this.MasterShipList = data.MasterShipList;

@@ -1222,7 +1222,7 @@ namespace Ship_Game
                         continue;
                     this.empireShipTotal++;
                 }
-                this.UpdateTimer = 5f;
+                this.UpdateTimer = (float)GlobalStats.TurnTimer;
                 this.DoMoney();
                 this.TakeTurn();             
             }
