@@ -343,7 +343,9 @@ namespace Ship_Game
             }
             catch
             {
-                serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+                var attributeOverrides = new XmlAttributeOverrides();
+                attributeOverrides.Add(typeof(SavedGame.SolarSystemSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
+                serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData), attributeOverrides);
             }
 			FileStream stream = decompressed.OpenRead();
 			SavedGame.UniverseSaveData savedData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
