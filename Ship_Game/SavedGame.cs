@@ -30,6 +30,7 @@ namespace Ship_Game
 			this.data.StarDate = screenToSave.StarDate;
 			this.data.SolarSystemDataList = new List<SavedGame.SolarSystemSaveData>();
 			this.data.FTLModifier = screenToSave.FTLModifier;
+            this.data.EnemyFTLModifier = screenToSave.EnemyFTLModifier;
 			this.data.GravityWells = screenToSave.GravityWells;
 			this.data.PlayerLoyalty = screenToSave.PlayerLoyalty;
 			this.data.RandomEvent = RandomEventManager.ActiveEvent;
@@ -38,7 +39,7 @@ namespace Ship_Game
             this.data.MemoryLimiter = GlobalStats.MemoryLimiter;
             this.data.MinimumWarpRange = GlobalStats.MinimumWarpRange;
             this.data.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
-
+            this.data.TurnTimer = GlobalStats.TurnTimer;
             this.data.IconSize=GlobalStats.IconSize;
             this.data.preventFederations=GlobalStats.preventFederations;
             this.data.GravityWellRange=GlobalStats.GravityWellRange;
@@ -950,6 +951,7 @@ namespace Ship_Game
 			public bool RemnantArmageddon;
 
 			public float FTLModifier = 1.0f;
+            public float EnemyFTLModifier = 1.0f;
 
 			public bool GravityWells;
 
@@ -962,6 +964,8 @@ namespace Ship_Game
             public float MemoryLimiter=GlobalStats.MemoryLimiter;
             
             public int IconSize;
+
+            public byte TurnTimer;
 
             public bool preventFederations;
             public float GravityWellRange=GlobalStats.GravityWellRange;
