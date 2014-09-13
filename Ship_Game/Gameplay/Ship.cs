@@ -3882,7 +3882,11 @@ namespace Ship_Game.Gameplay
             this.rotationRadiansPerSecond += (float)((double)this.rotationRadiansPerSecond * (double)this.Level * 0.0500000007450581);
             this.yBankAmount = this.rotationRadiansPerSecond / 50f;
             if (this.engineState == Ship.MoveState.Warp)
+            {
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.WarpSpeedMultiplier > 0.0)
+                    this.velocityMaximum *= GlobalStats.ActiveMod.mi.WarpSpeedMultiplier;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
+            }
             if ((double)this.Thrust == 0.0 || (double)this.mass == 0.0)
             {
                 this.EnginesKnockedOut = true;
