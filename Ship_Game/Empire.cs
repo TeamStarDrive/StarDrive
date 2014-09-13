@@ -26,11 +26,11 @@ namespace Ship_Game
         public static Operation TriggerBombs = new Operation(Localizer.Token(1642), "Trigger Bombs", 50, 45);
         public static Operation StealTech = new Operation(Localizer.Token(1643), "Steal Technology", 75, 46);
         private Dictionary<int, Fleet> FleetsDict = new Dictionary<int, Fleet>();
-        private Dictionary<string, bool> UnlockedHullsDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private Dictionary<string, bool> UnlockedTroopDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private Dictionary<string, bool> UnlockedBuildingsDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private Dictionary<string, bool> UnlockedModulesDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
+        private Dictionary<string, bool> UnlockedHullsDict = new Dictionary<string, bool>();
+        private Dictionary<string, bool> UnlockedTroopDict = new Dictionary<string, bool>();
+        private Dictionary<string, bool> UnlockedBuildingsDict = new Dictionary<string, bool>();
+        private Dictionary<string, bool> UnlockedModulesDict = new Dictionary<string, bool>();
+        public Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>();
         public List<Ship> Inhibitors = new List<Ship>();
         public List<SpaceRoad> SpaceRoadsList = new List<SpaceRoad>();
         public float Money = 1000f;
@@ -552,19 +552,28 @@ namespace Ship_Game
 
         public void UnlockTech(string techID)
         {
-            try
+            if (this.TechnologyDict[techID].Unlocked)
+                return;
+            //Add to level of tech if more than one level
+            if (ResourceManager.TechTree[techID].MaxLevel > 1)
             {
-                if (this.TechnologyDict[techID].Unlocked)
-                    return;
+                this.TechnologyDict[techID].level++;
+                if (this.TechnologyDict[techID].level == ResourceManager.TechTree[techID].MaxLevel)
+                {
+                    this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTechCost() * UniverseScreen.GamePaceStatic;
+                    this.TechnologyDict[techID].Unlocked = true;
+                }
+                else
+                {
+                    this.TechnologyDict[techID].Unlocked = false;
+                    this.TechnologyDict[techID].Progress = 0;
+                }
             }
-            catch (Exception e)
+            else
             {
-                
-                e.Data.Add("TechID", techID);
-                throw (e);
+                this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
+                this.TechnologyDict[techID].Unlocked = true;
             }
-            this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
-            this.TechnologyDict[techID].Unlocked = true;
             //Set GSAI to build ship roles
             if (this.TechnologyDict[techID].GetTech().unlockBattleships || techID == "Battleships")
                 this.canBuildCapitals = true;
@@ -729,7 +738,7 @@ namespace Ship_Game
                     if (str == "Slipstreams" || str == "In Borders FTL Bonus")
                         this.data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus;
                     if (str == "StarDrive Enhancement" || str == "FTL Speed Bonus")
-                        this.data.FTLModifier = (float)(int)((double)this.data.FTLModifier + (double)unlockedBonus.Bonus * (double)this.data.FTLModifier);
+                        this.data.FTLModifier += unlockedBonus.Bonus * this.data.FTLModifier;
                     if (str == "Warp Efficiency")
                         this.data.WarpEfficiencyBonus += unlockedBonus.Bonus;
                     if (str == "Burner Efficiency")
@@ -1943,8 +1952,8 @@ namespace Ship_Game
                     e.Data.Add("missing Key: ", this.ResearchTopic);
                     throw e;
                 }
-                float num3 = this.TechnologyDict[this.ResearchTopic].Progress - ResourceManager.TechTree[this.ResearchTopic].Cost * UniverseScreen.GamePaceStatic;
-                if ((double)this.TechnologyDict[this.ResearchTopic].Progress >= (double)ResourceManager.TechTree[this.ResearchTopic].Cost * (double)UniverseScreen.GamePaceStatic)
+                float num3 = this.TechnologyDict[this.ResearchTopic].Progress - this.TechnologyDict[this.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic;
+                if (this.TechnologyDict[this.ResearchTopic].Progress >= this.TechnologyDict[this.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic)
                 {
                     this.UnlockTech(this.ResearchTopic);
                     if (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))

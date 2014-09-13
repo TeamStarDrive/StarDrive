@@ -868,11 +868,7 @@ namespace Ship_Game.Gameplay
                     IEnumerable<ModuleSlot> modules = (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + 10f).OrderBy(moduleSlot => (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) - moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center));
                     foreach (ModuleSlot moduleSlot in modules)
                     {
-                        if (moduleSlot.module.shield_power > 0 && !source.IgnoresShields)
-                            DamageTracker = damageAmount - moduleSlot.module.shield_power;
-                        else
-                            DamageTracker = damageAmount - moduleSlot.module.Health;
-                        moduleSlot.module.Damage(source, damageAmount);
+                        moduleSlot.module.Damage(source, damageAmount, ref DamageTracker);
                         if (DamageTracker > 0)
                             damageAmount = DamageTracker;
                         else return;
