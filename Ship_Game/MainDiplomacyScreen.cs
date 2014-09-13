@@ -611,7 +611,7 @@ namespace Ship_Game
 			spriteBatch.DrawString(arial12, str, position, lightGreen);
 			Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
 			//{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString(), "%")).X;
+            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString("#.##"), "%")).X;
 			//};
 			HelperFunctions.ClampVectorToInt(ref nPos);
 			SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
@@ -654,7 +654,7 @@ namespace Ship_Game
 			spriteBatch.DrawString(arial12, str, position, lightGreen);
 			Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
 			//{
-                nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString(), "%")).X;
+            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString("#.##"), "%")).X;
 			//};
 			HelperFunctions.ClampVectorToInt(ref nPos);
 			SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
