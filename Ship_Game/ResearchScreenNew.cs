@@ -765,7 +765,6 @@ namespace Ship_Game
                     {
                         Type = "ADVANCE",
                         privateName = ub.Name,
-                        Description = ub.Description
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
