@@ -27,6 +27,10 @@ namespace Ship_Game
         public bool useCombatRepair;
         public bool clearVanillaTechs;
 
+        public bool useWarpCurve;
+        public float curveFactor;
+        public float MaxWarp;
+
         //added by The Doctor
         public bool customMilTraitTechs;
         public bool customRemnantElements;

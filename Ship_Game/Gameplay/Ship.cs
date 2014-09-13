@@ -195,8 +195,6 @@ namespace Ship_Game.Gameplay
         public float WarpThrust;
         public float TurnThrust;
         public float maxWeaponsRange;
-        private float FTLSpeed;
-        private int FTLCount;
         public float MoveModulesTimer;
         private float AfterThrust;
         public float HealPerTurn;
@@ -515,26 +513,13 @@ namespace Ship_Game.Gameplay
         //added by gremlin The Generals GetFTL speed
         public float GetFTLSpeed()
         {
-            //Added by McShooterz: hull bonus speed
-            float v1 = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
-            float v2;
-            if (this.FTLCount <= 0 || base.Mass > this.WarpMassCapacity)
-            {
-                v2 = 0f;
-            }
-            else
-            {
-                //Added by McShooterz: hull bonus speed
-                v2 = (float)(this.FTLSpeed * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1) / this.FTLCount);
-            }
-            if (v1 >= v2)
-            {
-                return v1;
-            }
-            else
-            {
-                return v2;
-            }
+            //Added by McShooterz: hull bonus speed 
+            float WarpSpeed = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
+            if (this.inborders && (double)this.loyalty.data.Traits.InBordersSpeedBonus > 0.0)
+                WarpSpeed += WarpSpeed * this.loyalty.data.Traits.InBordersSpeedBonus;
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWarpCurve)
+                WarpSpeed = (WarpSpeed / 2) / (WarpSpeed / 2 + GlobalStats.ActiveMod.mi.curveFactor) * GlobalStats.ActiveMod.mi.MaxWarp;
+            return WarpSpeed;
         }
 
         public float GetSTLSpeed()
@@ -3457,8 +3442,6 @@ namespace Ship_Game.Gameplay
                     this.AfterThrust = 0.0f;
                     this.WarpDraw = 0.0f;
                     this.AfterDraw = 0.0f;
-                    this.FTLCount = 0;
-                    this.FTLSpeed = 0.0f;
                     this.HealPerTurn = 0;
                     this.ECMValue = 0f;
                     foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.MaxGoodStorageDict.Keys))
@@ -3576,11 +3559,6 @@ namespace Ship_Game.Gameplay
                             }
                             this.OrdAddedPerSecond += moduleSlot.module.OrdnanceAddedPerSecond;
                             this.WarpMassCapacity += moduleSlot.module.WarpMassCapacity;
-                            if ((double)moduleSlot.module.FTLSpeed > 0.0)
-                            {
-                                ++this.FTLCount;
-                                this.FTLSpeed += moduleSlot.module.FTLSpeed;
-                            }
                             if ((double)moduleSlot.module.AfterburnerThrust > 0.0)
                                 this.AfterThrust += moduleSlot.module.AfterburnerThrust;
                             else
@@ -3857,8 +3835,6 @@ namespace Ship_Game.Gameplay
             this.PowerCurrent -= this.PowerDraw * elapsedTime;
             if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
                 this.PowerCurrent += (this.PowerFlowMax + (this.loyalty != null ? this.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0)) * elapsedTime;
-
-
             if (this.ResourceDrawDict.Count > 0)
             {
                 foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
@@ -3906,11 +3882,7 @@ namespace Ship_Game.Gameplay
             this.rotationRadiansPerSecond += (float)((double)this.rotationRadiansPerSecond * (double)this.Level * 0.0500000007450581);
             this.yBankAmount = this.rotationRadiansPerSecond / 50f;
             if (this.engineState == Ship.MoveState.Warp)
-            {
-                if (this.inborders && (double)this.loyalty.data.Traits.InBordersSpeedBonus > 0.0)
-                    this.velocityMaximum += this.velocityMaximum * this.loyalty.data.Traits.InBordersSpeedBonus;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
-            }
             if ((double)this.Thrust == 0.0 || (double)this.mass == 0.0)
             {
                 this.EnginesKnockedOut = true;
