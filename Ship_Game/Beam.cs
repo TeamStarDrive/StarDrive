@@ -335,7 +335,7 @@ namespace Ship_Game
 				}
 				else if(this.damageTimer < 0)
 				{
-					target.Damage(this, this.damageAmount * this.damageTimerConstant * 90f);
+                    (target as ShipModule).Damage(this, this.damageAmount * this.damageTimerConstant * 90f);
                     this.damageTimer = this.damageTimerConstant;
 				}
 			}
