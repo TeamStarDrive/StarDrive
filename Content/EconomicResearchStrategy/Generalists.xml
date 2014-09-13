@@ -45,7 +45,7 @@
       <id>CHEAPEST:TECH:Industry:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat:ShipGeneral:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST</id>
+      <id>RANDOM</id>
     </Tech>
 
     <Tech>
