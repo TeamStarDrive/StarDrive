@@ -113,10 +113,10 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.TextureDict = new Dictionary<string, Texture2D>();
 			Ship_Game.ResourceManager.weapon_serializer = new XmlSerializer(typeof(Weapon));
 			Ship_Game.ResourceManager.serializer_shipdata = new XmlSerializer(typeof(ShipData));
-			Ship_Game.ResourceManager.ShipsDict = new Dictionary<string, Ship>();
+            Ship_Game.ResourceManager.ShipsDict = new Dictionary<string, Ship>();
 			Ship_Game.ResourceManager.RoidsModels = new Dictionary<int, Model>();
 			Ship_Game.ResourceManager.JunkModels = new Dictionary<int, Model>();
-			Ship_Game.ResourceManager.TechTree = new Dictionary<string, Technology>();
+            Ship_Game.ResourceManager.TechTree = new Dictionary<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
 			Ship_Game.ResourceManager.Encounters = new List<Encounter>();
 			Ship_Game.ResourceManager.BuildingsDict = new Dictionary<string, Building>();
 			Ship_Game.ResourceManager.GoodsDict = new Dictionary<string, Good>();
@@ -147,7 +147,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.ModSerializer = new XmlSerializer(typeof(ModInformation));
 			Ship_Game.ResourceManager.ModelDict = new Dictionary<string, Model>();
 			Ship_Game.ResourceManager.EconSerializer = new XmlSerializer(typeof(EconomicResearchStrategy));
-			Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>();
+            Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
             //Added by McShooterz
             Ship_Game.ResourceManager.HostileFleets = new HostileFleets();

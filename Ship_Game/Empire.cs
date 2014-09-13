@@ -26,11 +26,11 @@ namespace Ship_Game
         public static Operation TriggerBombs = new Operation(Localizer.Token(1642), "Trigger Bombs", 50, 45);
         public static Operation StealTech = new Operation(Localizer.Token(1643), "Steal Technology", 75, 46);
         private Dictionary<int, Fleet> FleetsDict = new Dictionary<int, Fleet>();
-        private Dictionary<string, bool> UnlockedHullsDict = new Dictionary<string, bool>();
-        private Dictionary<string, bool> UnlockedTroopDict = new Dictionary<string, bool>();
-        private Dictionary<string, bool> UnlockedBuildingsDict = new Dictionary<string, bool>();
-        private Dictionary<string, bool> UnlockedModulesDict = new Dictionary<string, bool>();
-        private Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>();
+        private Dictionary<string, bool> UnlockedHullsDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        private Dictionary<string, bool> UnlockedTroopDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        private Dictionary<string, bool> UnlockedBuildingsDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        private Dictionary<string, bool> UnlockedModulesDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        private Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public List<Ship> Inhibitors = new List<Ship>();
         public List<SpaceRoad> SpaceRoadsList = new List<SpaceRoad>();
         public float Money = 1000f;
@@ -552,8 +552,17 @@ namespace Ship_Game
 
         public void UnlockTech(string techID)
         {
-            if (this.TechnologyDict[techID].Unlocked)
-                return;
+            try
+            {
+                if (this.TechnologyDict[techID].Unlocked)
+                    return;
+            }
+            catch (Exception e)
+            {
+                
+                e.Data.Add("TechID", techID);
+                throw (e);
+            }
             this.TechnologyDict[techID].Progress = this.TechnologyDict[techID].GetTech().Cost * UniverseScreen.GamePaceStatic;
             this.TechnologyDict[techID].Unlocked = true;
             //Set GSAI to build ship roles
