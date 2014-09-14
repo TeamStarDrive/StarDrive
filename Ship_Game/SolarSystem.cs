@@ -863,13 +863,22 @@ namespace Ship_Game
 						planetTilt = RandomMath.RandomBetween(45f, 135f)
 					};
 					newOrbital.InitializeUpdate();
-					if (!data.RingList[i - 1].HomePlanet)
+                    if (!data.RingList[i - 1].HomePlanet || Owner == null)
 					{
                         newOrbital.SetPlanetAttributes();
                         if (data.RingList[i - 1].MaxPopDefined > 0)
-                        {
                             newOrbital.MaxPopulation = data.RingList[i - 1].MaxPopDefined * 1000f;
-                        }						
+                        if (data.RingList[i - 1].Owner != null && data.RingList[i - 1].Owner != "")
+                        {
+                            newOrbital.Owner = EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner);
+                            EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner).AddPlanet(newOrbital);
+                            newOrbital.Population = newOrbital.MaxPopulation;
+                            newOrbital.MineralRichness = 1f;
+                            newOrbital.Fertility = 2f;
+                            newOrbital.InitializeSliders(newOrbital.Owner);
+                            newOrbital.colonyType = Planet.ColonyType.Core;
+                            newOrbital.GovernorOn = true;
+                        }
 					}
 					else
 					{
