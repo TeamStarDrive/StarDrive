@@ -362,6 +362,8 @@ namespace Ship_Game
             GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;            
             GlobalStats.preventFederations = savedData.preventFederations;
             GlobalStats.EliminationMode = savedData.EliminationMode;
+            if (savedData.TurnTimer == 0)
+                savedData.TurnTimer = 5;
             GlobalStats.TurnTimer = savedData.TurnTimer;
 
 
