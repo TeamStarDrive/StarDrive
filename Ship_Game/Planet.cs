@@ -2266,13 +2266,8 @@ namespace Ship_Game
                 if ((double)index.data.Traits.Spiritual < (double)this.Owner.data.Traits.Spiritual)
                     index.data.Traits.Spiritual = this.Owner.data.Traits.Spiritual;
             }
-            if (index.isFaction)
-                return;
-            this.Owner.GetGSAI().ReformulateWarGoals();
             this.Owner = index;
             this.TurnsSinceTurnover = 0;
-            this.colonyType = this.Owner.AssessColonyNeeds(this);
-            this.GovernorOn = true;
             this.Owner.AddPlanet(this);
             this.ConstructionQueue.Clear();
             this.system.OwnerList.Clear();
@@ -2283,6 +2278,12 @@ namespace Ship_Game
                 if (planet.Owner != null && !this.system.OwnerList.Contains(planet.Owner))
                     this.system.OwnerList.Add(planet.Owner);
             }
+            if (index.isFaction)
+                return;
+            this.Owner.GetGSAI().ReformulateWarGoals();
+           
+            this.colonyType = this.Owner.AssessColonyNeeds(this);
+            this.GovernorOn = true;
         }
 
         public void DoTroopTimers(float elapsedTime)

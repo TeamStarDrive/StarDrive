@@ -19,12 +19,6 @@ namespace Ship_Game
     public class Empire
     {
         public static float ProjectorRadius = 150000f;
-        public static Operation PlantMole = new Operation(Localizer.Token(1638), "Plant Mole", 10, 41);
-        public static Operation DiscoverPlot = new Operation(Localizer.Token(1639), "Discover Plot", 15, 42);
-        public static Operation DamageRelations = new Operation(Localizer.Token(1640), "Damage Relations", 20, 43);
-        public static Operation PlantBomb = new Operation(Localizer.Token(1641), "Plant Bomb", 25, 44);
-        public static Operation TriggerBombs = new Operation(Localizer.Token(1642), "Trigger Bombs", 50, 45);
-        public static Operation StealTech = new Operation(Localizer.Token(1643), "Steal Technology", 75, 46);
         private Dictionary<int, Fleet> FleetsDict = new Dictionary<int, Fleet>();
         private Dictionary<string, bool> UnlockedHullsDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private Dictionary<string, bool> UnlockedTroopDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
