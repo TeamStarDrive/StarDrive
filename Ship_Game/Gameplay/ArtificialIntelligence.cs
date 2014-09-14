@@ -1227,7 +1227,7 @@ namespace Ship_Game.Gameplay
 					return;
 				}
 			}
-            else if (this.Owner.loyalty ==goal.TargetPlanet.Owner || this.Owner.TroopList.Count <= 0 || goal.TargetPlanet.GetGroundStrength(this.Owner.loyalty)+3 > goal.TargetPlanet.GetGroundStrength(goal.TargetPlanet.Owner)*1.5)
+            else if (this.Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0 || this.Owner.TroopList.Count <= 0 || (this.Owner.Role != "troop" && (this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count() == 0&& !this.Owner.hasTransporter)))//|| goal.TargetPlanet.GetGroundStrength(this.Owner.loyalty)+3 > goal.TargetPlanet.GetGroundStrength(goal.TargetPlanet.Owner)*1.5)
 			{
 				if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
 				{
@@ -1236,6 +1236,7 @@ namespace Ship_Game.Gameplay
 				this.HasPriorityOrder = false;
                 this.State = this.DefaultAIState;
 				this.OrderQueue.Clear();
+                System.Diagnostics.Debug.WriteLine("Troop Assault Canceled");
 			}
 			else
 			{
@@ -1875,8 +1876,11 @@ namespace Ship_Game.Gameplay
 
 		private void DoSystemDefense(float elapsedTime)
 		{
-            if (this.Owner.InCombat ||this.State ==AIState.Intercept)
-                return;
+            if (this.Owner.InCombat || this.State == AIState.Intercept)
+                //if (this.State == AIState.Intercept)
+                    return;
+                //else
+                //this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f)); 
             if (this.SystemToDefend == null)
 			{
 				this.SystemToDefend = this.Owner.GetSystem();
@@ -3277,9 +3281,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderLandAllTroops(Planet target)
 		{
-            if ((this.Owner.Role == "troop" || this.Owner.TroopList.Count > 0) 
-                && target.TroopsHere.Where(unfriendlyTroops => unfriendlyTroops.GetOwner() != this.Owner.loyalty).Count() * 1.5 
-                < target.TilesList.Sum(space => space.number_allowed_troops))
+            if ((this.Owner.Role == "troop" || !this.Owner.HasTroopBay) &&  this.Owner.TroopList.Count > 0  && target.GetGroundLandingSpots() >15 )
             {
                 this.HasPriorityOrder = true;
                 this.State = AIState.AssaultPlanet;
@@ -3291,7 +3293,7 @@ namespace Ship_Game.Gameplay
                 };
                 this.OrderQueue.AddLast(goal);
             }
-            else if (universeScreen.player == this.Owner.loyalty && (this.Owner.BombBays.Count > 0))
+            else if (this.Owner.BombBays.Count > 0 && target.GetGroundStrength(this.Owner.loyalty) ==0)  //universeScreen.player == this.Owner.loyalty && 
             {
                 this.State = AIState.Bombard;
                 this.OrderBombardTroops(target);
@@ -7205,6 +7207,13 @@ namespace Ship_Game.Gameplay
                                 this.DoRebase(toEvaluate);
                                 break;
                             }
+                        case ArtificialIntelligence.Plan.DefendSystem:
+                            {
+                                if (this.Target != null)
+                                    System.Diagnostics.Debug.WriteLine(this.Target);
+                                this.DoSystemDefense(elapsedTime);
+                                break;
+                            }
                         case ArtificialIntelligence.Plan.DoCombat:
                             {
                                 this.DoCombat(elapsedTime);
@@ -7215,13 +7224,7 @@ namespace Ship_Game.Gameplay
                                 this.MoveTowardsPosition(this.MovePosition, elapsedTime);
                                 break;
                             }
-                        case ArtificialIntelligence.Plan.DefendSystem:
-                            {
-                                if(this.Target!=null)
-                                System.Diagnostics.Debug.WriteLine(this.Target);
-                                this.DoSystemDefense(elapsedTime);
-                                break;
-                            }
+
                         case ArtificialIntelligence.Plan.DropOre:
                             {
                                 this.DoOreDrop(elapsedTime);
