@@ -2697,7 +2697,7 @@ namespace Ship_Game.Gameplay
                     {
                         if ((double)Vector2.Distance(p.Position, this.Center) < 3000.0)
                         {
-                            if (!p.ExploredDict[this.loyalty] && this.loyalty == Ship.universeScreen.player)
+                            if (this.loyalty == Ship.universeScreen.player&&!p.ExploredDict[this.loyalty])
                             {
                                 foreach (Building building in p.BuildingList)
                                 {
@@ -3803,10 +3803,11 @@ namespace Ship_Game.Gameplay
                         float sin = (float)Math.Sin((double)this.Rotation);
                         float tan = (float)Math.Tan((double)this.yRotation);
                         foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                        //Parallel.ForEach(this.ModuleSlotList, moduleSlot =>
                         {
                             ++GlobalStats.ModuleUpdates;
                             moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        }
+                        }//);
                     }
                 }
                 else if ((double)elapsedTime < 0.0 && !this.UpdatedModulesOnce)
@@ -3857,6 +3858,65 @@ namespace Ship_Game.Gameplay
             this.hull_integrity = 100.0 * (double)this.number_alive_modules / (double)this.Size;
             if (this.hull_integrity < 0.0)
                 this.hull_integrity = 0.0;
+            //Parallel.Invoke(() =>
+            //{
+            //    this.armor_percent = 100.0 * this.armor_current / (double)this.armor_max;
+
+            //},
+            //() =>
+            //{
+            //    if (this.shield_percent < 0.0)
+            //        this.shield_percent = 0.0;
+            //    this.shield_percent = 100.0 * (double)this.shield_power / (double)this.shield_max;
+            //    if (this.shield_percent < 0.0)
+            //        this.shield_percent = 0.0;
+
+
+            //},
+            //() =>
+            //{
+            //    if ((double)this.Mass <= 0.0)
+            //        this.Mass = 1f;
+            //    switch (this.engineState)
+            //    {
+            //        case Ship.MoveState.Sublight:
+            //            this.velocityMaximum = this.GetSTLSpeed();
+            //            break;
+            //        case Ship.MoveState.Afterburner:
+            //            this.velocityMaximum = this.GetAfterBurnerSpeed();
+            //            break;
+            //        case Ship.MoveState.Warp:
+            //            this.velocityMaximum = this.GetFTLSpeed();
+            //            break;
+            //    }
+
+            //    this.speed = this.velocityMaximum;
+            //    this.rotationRadiansPerSecond = (float)((double)this.TurnThrust / (double)this.Mass / 700.0);
+            //    this.rotationRadiansPerSecond += (float)((double)this.rotationRadiansPerSecond * (double)this.Level * 0.0500000007450581);
+            //    this.yBankAmount = this.rotationRadiansPerSecond / 50f;
+            //    if (this.engineState == Ship.MoveState.Warp)
+            //    {
+            //        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.WarpSpeedMultiplier > 0.0)
+            //            this.velocityMaximum *= GlobalStats.ActiveMod.mi.WarpSpeedMultiplier;
+            //        this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
+            //    }
+            //    if ((double)this.Thrust == 0.0 || (double)this.mass == 0.0)
+            //    {
+            //        this.EnginesKnockedOut = true;
+            //        this.velocityMaximum = this.Velocity.Length();
+            //        Ship ship = this;
+            //        Vector2 vector2 = ship.velocity - this.velocity * (elapsedTime * 0.1f);
+            //        ship.velocity = vector2;
+            //    }
+            //    else
+            //        this.EnginesKnockedOut = false;
+            //    if ((double)this.Velocity.Length() <= (double)this.velocityMaximum)
+            //        return;
+            //    this.Velocity = Vector2.Normalize(this.Velocity) * this.velocityMaximum;
+            //}
+            //);
+
+
             this.armor_percent = 100.0 * this.armor_current / (double)this.armor_max;
             if (this.shield_percent < 0.0)
                 this.shield_percent = 0.0;
