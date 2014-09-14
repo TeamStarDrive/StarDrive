@@ -335,12 +335,20 @@ namespace Ship_Game
 
                         }
                     }
+                    int SystemCount = 0;
+                    foreach(string system in Directory.GetFiles(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
+                    {
+                        SolarSystem solarSystem = new SolarSystem();
+                        solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(system).OpenRead()), null);
+                        this.data.SolarSystemsList.Add(solarSystem);
+                        SystemCount++;
+                    }
                     MarkovNameGenerator markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
                     SolarSystem solarSystem1 = new SolarSystem();
                     solarSystem1.GenerateCorsairSystem(markovNameGenerator.NextName);
                     solarSystem1.DontStartNearPlayer = true;
                     this.data.SolarSystemsList.Add(solarSystem1);
-                    for (int index = 0; index < this.numSystems; ++index)
+                    for (; SystemCount < this.numSystems; ++SystemCount)
                     {
                         SolarSystem solarSystem2 = new SolarSystem();
                         solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, this.data, this.scale);
