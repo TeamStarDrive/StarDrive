@@ -865,12 +865,6 @@ namespace Ship_Game
 			{
 				Toggled = true
 			};
-			Empire.PlantMole.Selected = false;
-			Empire.DiscoverPlot.Selected = false;
-			Empire.DamageRelations.Selected = false;
-			Empire.PlantBomb.Selected = false;
-			Empire.TriggerBombs.Selected = false;
-			Empire.StealTech.Selected = false;
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
 				if (e != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
