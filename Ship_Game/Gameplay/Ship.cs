@@ -515,8 +515,6 @@ namespace Ship_Game.Gameplay
         {
             //Added by McShooterz: hull bonus speed 
             float WarpSpeed = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
-            if (this.inborders && (double)this.loyalty.data.Traits.InBordersSpeedBonus > 0.0)
-                WarpSpeed += WarpSpeed * this.loyalty.data.Traits.InBordersSpeedBonus;
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWarpCurve)
                 WarpSpeed = (WarpSpeed / 2) / (WarpSpeed / 2 + GlobalStats.ActiveMod.mi.curveFactor) * GlobalStats.ActiveMod.mi.MaxWarp;
             return WarpSpeed;
@@ -3943,6 +3941,8 @@ namespace Ship_Game.Gameplay
             this.yBankAmount = this.rotationRadiansPerSecond / 50f;
             if (this.engineState == Ship.MoveState.Warp)
             {
+                if (this.inborders && (double)this.loyalty.data.Traits.InBordersSpeedBonus > 0.0)
+                    this.velocityMaximum += this.velocityMaximum * this.loyalty.data.Traits.InBordersSpeedBonus;
                 if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.WarpSpeedMultiplier > 0.0)
                     this.velocityMaximum *= GlobalStats.ActiveMod.mi.WarpSpeedMultiplier;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
