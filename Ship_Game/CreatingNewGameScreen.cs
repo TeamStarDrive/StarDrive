@@ -98,6 +98,7 @@ namespace Ship_Game
                 this.data = new UniverseData()
                 {
                     FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
+                    EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
                     GravityWells = GlobalStats.PlanetaryGravityWells
                 };
                 string str = size;
@@ -272,18 +273,19 @@ namespace Ship_Game
                                 empireFromEmpireData.data.Traits.ModHpModifier -= 0.25f;
                                 break;
                             case UniverseData.GameDifficulty.Hard:
+                                empireFromEmpireData.data.FlatMoneyBonus += 10;
                                 empireFromEmpireData.data.Traits.ProductionMod += 0.5f;
-                                empireFromEmpireData.data.Traits.ResearchMod += 0.5f;
+                                empireFromEmpireData.data.Traits.ResearchMod += 0.75f;
                                 empireFromEmpireData.data.Traits.TaxMod += 0.5f;
-                                empireFromEmpireData.data.Traits.ModHpModifier += 0.5f;
+                                //empireFromEmpireData.data.Traits.ModHpModifier += 0.5f;
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.2f;
                                 break;
                             case UniverseData.GameDifficulty.Brutal:
-                                empireFromEmpireData.data.FlatMoneyBonus += 5000;
+                                empireFromEmpireData.data.FlatMoneyBonus += 50;
                                 ++empireFromEmpireData.data.Traits.ProductionMod;
-                                ++empireFromEmpireData.data.Traits.ResearchMod;
+                                empireFromEmpireData.data.Traits.ResearchMod = 2.0f;
                                 ++empireFromEmpireData.data.Traits.TaxMod;
-                                ++empireFromEmpireData.data.Traits.ModHpModifier;
+                                //++empireFromEmpireData.data.Traits.ModHpModifier;
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.5f;
                                 break;
                         }
@@ -314,12 +316,12 @@ namespace Ship_Game
                             //Added by McShooterz: support for SolarSystems folder for mods
                             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")))
                             {
-                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
+                                solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
                             }
                             else if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
                             {
-                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
+                                solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
                             }
                             else
@@ -333,12 +335,24 @@ namespace Ship_Game
 
                         }
                     }
+                    int SystemCount = 0;
+                    try
+                    {
+                        foreach (string system in Directory.GetFiles(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
+                        {
+                            SolarSystem solarSystem = new SolarSystem();
+                            solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(system).OpenRead()), null);
+                            this.data.SolarSystemsList.Add(solarSystem);
+                            SystemCount++;
+                        }
+                    }
+                    catch { }
                     MarkovNameGenerator markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
                     SolarSystem solarSystem1 = new SolarSystem();
                     solarSystem1.GenerateCorsairSystem(markovNameGenerator.NextName);
                     solarSystem1.DontStartNearPlayer = true;
                     this.data.SolarSystemsList.Add(solarSystem1);
-                    for (int index = 0; index < this.numSystems; ++index)
+                    for (; SystemCount < this.numSystems; ++SystemCount)
                     {
                         SolarSystem solarSystem2 = new SolarSystem();
                         solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, this.data, this.scale);
@@ -346,7 +360,6 @@ namespace Ship_Game
                         ++this.counter;
                         this.percentloaded = (float)(this.counter / (this.numSystems * 2));
                     }
-                    new SolarSystem().GeneratePrisonAnomaly(markovNameGenerator.NextName);
                     this.ThrusterEffect = this.ScreenManager.Content.Load<Effect>("Effects/Thrust");
                     foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
                     {
@@ -379,6 +392,12 @@ namespace Ship_Game
                     asteroid.Position3D.X += this.data.SolarSystemsList[this.systemToMake].Position.X;
                     asteroid.Position3D.Y += this.data.SolarSystemsList[this.systemToMake].Position.Y;
                     asteroid.Initialize();
+                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)asteroid.GetSO());
+                }
+                foreach (Moon moon in (List<Moon>)this.data.SolarSystemsList[this.systemToMake].MoonList)
+                {
+                    moon.Initialize();
+                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)moon.GetSO());
                 }
                 foreach (Ship ship in (List<Ship>)this.data.SolarSystemsList[this.systemToMake].ShipList)
                 {

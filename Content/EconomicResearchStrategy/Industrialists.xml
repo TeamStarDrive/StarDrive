@@ -37,7 +37,7 @@
       <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST</id>
+      <id>RANDOM</id>
     </Tech>
     <Tech>
       <id>IFPEACE:8</id>

@@ -229,7 +229,7 @@ namespace Ship_Game
 			this.pBar.Max = this.ship.PowerStoreMax;
 			this.pBar.Progress = this.ship.PowerCurrent;
 			this.pBar.Draw(this.ScreenManager.SpriteBatch);
-			this.sBar.Max = this.ship.shield_max + (this.ship.loyalty != null ? this.ship.shield_max * this.ship.loyalty.data.ShieldPowerMod : 0);
+			this.sBar.Max = this.ship.shield_max;
 			this.sBar.Progress = this.ship.shield_power;
 			this.sBar.Draw(this.ScreenManager.SpriteBatch);
 			this.oBar.Max = this.ship.OrdinanceMax;

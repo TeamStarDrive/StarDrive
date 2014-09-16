@@ -63,7 +63,6 @@ namespace Ship_Game.Gameplay
         public float ScuttleTimer = -1f;
         //private float systemUpdateTimer = 0.5f;
         public Vector2 FleetOffset = new Vector2();
-        public BatchRemovalCollection<OrbitalBeam> OrbitalBeams = new BatchRemovalCollection<OrbitalBeam>();
         public Vector2 RelativeFleetOffset = new Vector2();
         private List<ShipModule> Shields = new List<ShipModule>();
         private List<ShipModule> Hangars = new List<ShipModule>();
@@ -96,7 +95,6 @@ namespace Ship_Game.Gameplay
         public bool EnginesKnockedOut;
         protected float ThrustLast;
         public float InCombatTimer;
-        public float UnderAttackTimer;
         public bool isTurning;
         public bool PauseUpdate;
         public float InhibitionRadius;
@@ -171,7 +169,6 @@ namespace Ship_Game.Gameplay
         public bool ModulesInitialized;
         public bool WeaponCentered;
         protected Cue drone;
-        public float LastHitTimer;
         public float ShieldRechargeTimer;
         public bool InCombat;
         private Vector3 pointat;
@@ -198,8 +195,6 @@ namespace Ship_Game.Gameplay
         public float WarpThrust;
         public float TurnThrust;
         public float maxWeaponsRange;
-        private float FTLSpeed;
-        private int FTLCount;
         public float MoveModulesTimer;
         private float AfterThrust;
         public float HealPerTurn;
@@ -515,38 +510,14 @@ namespace Ship_Game.Gameplay
             return (float)((double)this.AfterThrust / (double)this.Mass + (double)this.AfterThrust / (double)this.Mass * (double)this.loyalty.data.SubLightModifier) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
         }
 
-        public float GetFTLSpeedORIG()
-        {
-            if (!GlobalStats.HardcoreRuleset)
-                return (float)((double)this.WarpThrust / (double)this.Mass + (double)this.WarpThrust / (double)this.Mass * (double)this.loyalty.data.FTLModifier);
-            if (this.FTLCount <= 0)
-                return 0.0f;
-            float num = this.FTLSpeed / (float)this.FTLCount;
-            return num + num * this.loyalty.data.FTLBonus;
-        }
         //added by gremlin The Generals GetFTL speed
         public float GetFTLSpeed()
         {
-            //Added by McShooterz: hull bonus speed
-            float v1 = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
-            float v2;
-            if (this.FTLCount <= 0 || base.Mass > this.WarpMassCapacity)
-            {
-                v2 = 0f;
-            }
-            else
-            {
-                //Added by McShooterz: hull bonus speed
-                v2 = (float)(this.FTLSpeed * (1.0 + this.loyalty.data.FTLBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1) / this.FTLCount);
-            }
-            if (v1 >= v2)
-            {
-                return v1;
-            }
-            else
-            {
-                return v2;
-            }
+            //Added by McShooterz: hull bonus speed 
+            float WarpSpeed = this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.GetShipData().SpeedBonus != 0 ? (1 + (float)this.GetShipData().SpeedBonus / 100f) : 1);
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWarpCurve)
+                WarpSpeed = (WarpSpeed / 2) / (WarpSpeed / 2 + GlobalStats.ActiveMod.mi.curveFactor) * GlobalStats.ActiveMod.mi.MaxWarp;
+            return WarpSpeed;
         }
 
         public float GetSTLSpeed()
@@ -1131,46 +1102,6 @@ namespace Ship_Game.Gameplay
             this.AI.OrderReturnToHangar();
         }
 
-        public float GetMaintCostORIG()
-        {
-            float num;
-            switch (this.Role)
-            {
-                case "freighter":
-                    num = 0.2f;
-                    break;
-                case "platform":
-                    num = 0.2f;
-                    break;
-                case "fighter":
-                    num = 0.2f;
-                    break;
-                case "corvette":
-                    num = 0.35f;
-                    break;
-                case "scout":
-                    num = 0.1f;
-                    break;
-                case "frigate":
-                    num = 1f;
-                    break;
-                case "cruiser":
-                    num = 2.5f;
-                    break;
-                case "carrier":
-                    num = 4f;
-                    break;
-                case "capital":
-                    num = 6f;
-                    break;
-                default:
-                    num = 0.0f;
-                    break;
-            }
-            return num;
-        }
-
-
         // ModInfo activation option for Maintenance Costs:
 
         public float GetMaintCostRealism()
@@ -1187,7 +1118,6 @@ namespace Ship_Game.Gameplay
             }
             
             // Calculate maintenance by proportion of ship cost, Duh.
-
             if (this.Role == "fighter" || this.Role == "scout")
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepFighter;
             else if (this.Role == "corvette")
@@ -1211,7 +1141,6 @@ namespace Ship_Game.Gameplay
             else
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
 
-
             if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
             else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
@@ -1225,7 +1154,6 @@ namespace Ship_Game.Gameplay
             }      
 
             // Modifiers below here   
-
             if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
             {
                 maint *= 0.5f;
@@ -1372,15 +1300,19 @@ namespace Ship_Game.Gameplay
                 maint *= 0.5f;
             }
 
-            //added by gremlin shipyard exploit fix
-            if (this.Name == "Shipyard" && this.IsTethered())
-                if (this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() > 3)
-                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.Name == "Shipyard").Count() - 3;
-
             //Subspace Projectors do not get any more modifiers
             if (this.Name == "Subspace Projector")
             {
                 return maint;
+            }
+
+            //added by gremlin shipyard exploit fix
+            if (this.IsTethered())
+            {
+                if (this.Role == "platform")
+                    return maint *= 0.5f;
+                if (this.GetShipData().IsShipyard && this.GetTether().Shipyards.Where(shipyard => shipyard.Value.GetShipData().IsShipyard).Count() > 3)
+                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.GetShipData().IsShipyard).Count() - 3;
             }
 
             //Maintenance fluctuator
@@ -1416,13 +1348,11 @@ namespace Ship_Game.Gameplay
                     maintModReduction *= damRepair;
 
                 }
-
                 if (maintModReduction < 1) maintModReduction = 1;
                 maint *= maintModReduction;
             }
             return maint;
         }
-
 
         // The Doctor - This function is an overload which is used for the Ship Build menu.
         // It will calculate the maintenance cost in exactly the same way as the normal function, except as the ship build list elements have no loyalty data, this variable is called by the function
@@ -1508,8 +1438,6 @@ namespace Ship_Game.Gameplay
             }
             return maint;
         }
-
-
 
         public int GetTechScore()
         {
@@ -2076,99 +2004,6 @@ namespace Ship_Game.Gameplay
             return this.PlayerShip;
         }
 
-        public void InitializeStatusORIG()
-        {
-            this.Mass = 0.0f;
-            Ship ship1 = this;
-            double num1 = (double)ship1.Mass + (double)this.Size;
-            ship1.Mass = (float)num1;
-            this.Thrust = 0.0f;
-            this.PowerStoreMax = 0.0f;
-            this.PowerFlowMax = 0.0f;
-            this.PowerDraw = 0.0f;
-            this.shield_max = 0.0f;
-            this.shield_power = 0.0f;
-            this.armor_max = 0.0f;
-            this.CrewRequired = 0;
-            this.CrewSupplied = 0;
-            this.WarpMassCapacity = 0.0f;
-            this.Size = 0;
-            this.number_alive_modules = 0;
-            this.velocityMaximum = 0.0f;
-            this.speed = 0.0f;
-            this.SensorRange = 0.0f;
-            this.OrdinanceMax = 0.0f;
-            this.OrdAddedPerSecond = 0.0f;
-            this.rotationRadiansPerSecond = 0.0f;
-            this.Health = 0.0f;
-            this.TroopCapacity = 0;
-            this.MechanicalBoardingDefense = 0.0f;
-            this.TroopBoardingDefense = 0.0f;
-            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-            {
-                if (moduleSlot.Restrictions == Restrictions.I)
-                {
-                    ++this.number_Internal_modules;
-                    ++this.number_Alive_Internal_modules;
-                }
-                if (moduleSlot.module.ModuleType == ShipModuleType.Colony)
-                    this.isColonyShip = true;
-                if ((double)moduleSlot.module.ResourceStorageAmount > 0.0 && Ship_Game.ResourceManager.GoodsDict.ContainsKey(moduleSlot.module.ResourceStored) && !Ship_Game.ResourceManager.GoodsDict[moduleSlot.module.ResourceStored].IsCargo)
-                {
-                    Dictionary<string, float> dictionary;
-                    string index;
-                    (dictionary = this.MaxGoodStorageDict)[index = moduleSlot.module.ResourceStored] = dictionary[index] + moduleSlot.module.ResourceStorageAmount;
-                }
-                for (int index = 0; index < (int)moduleSlot.module.TroopsSupplied; ++index)
-                    this.TroopList.Add(Ship_Game.ResourceManager.CreateTroop(Ship_Game.ResourceManager.TroopsDict["Space Marine"], this.loyalty));
-                if ((double)moduleSlot.module.SensorRange > (double)this.SensorRange)
-                    this.SensorRange = moduleSlot.module.SensorRange;
-                this.TroopCapacity += (int)moduleSlot.module.TroopCapacity;
-                this.MechanicalBoardingDefense += moduleSlot.module.MechanicalBoardingDefense;
-                if (moduleSlot.module.ModuleType == ShipModuleType.Hangar)
-                {
-                    moduleSlot.module.hangarShipUID = moduleSlot.SlotOptions;
-                    if (moduleSlot.module.IsTroopBay)
-                        this.HasTroopBay = true;
-                }
-                Ship ship2 = this;
-                double num2 = (double)ship2.mass + (double)moduleSlot.module.Mass;
-                ship2.mass = (float)num2;
-                this.WarpMassCapacity += moduleSlot.module.WarpMassCapacity;
-                this.Thrust += moduleSlot.module.thrust;
-                this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
-                this.PowerCurrent += moduleSlot.module.PowerStoreMax;
-                this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
-                this.shield_max += moduleSlot.module.shield_power_max;
-                this.shield_power += moduleSlot.module.shield_power_max;
-                if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
-                    this.armor_max += moduleSlot.module.HealthMax;
-                ++this.Size;
-                ++this.number_alive_modules;
-                this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
-                this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
-                this.Ordinance += (float)moduleSlot.module.OrdinanceCapacity;
-                this.PowerDraw += moduleSlot.module.PowerDraw;
-                Ship ship3 = this;
-                double num3 = (double)ship3.Health + (double)moduleSlot.module.HealthMax;
-                ship3.Health = (float)num3;
-            }
-            foreach (Troop troop in this.TroopList)
-            {
-                troop.SetOwner(this.loyalty);
-                troop.SetShip(this);
-                this.TroopBoardingDefense += (float)troop.Strength;
-            }
-            this.MechanicalBoardingDefense += (float)(this.Size / 20);
-            if ((double)this.MechanicalBoardingDefense < 1.0)
-                this.MechanicalBoardingDefense = 1f;
-            this.HealthMax = this.Health;
-            this.velocityMaximum = this.Thrust / this.mass;
-            this.speed = this.velocityMaximum;
-            this.rotationRadiansPerSecond = this.speed / (float)this.Size;
-            this.ShipMass = this.mass;
-            this.shield_power = this.shield_max;
-        }
         //added by gremlin Initialize status from deveks mod. 
         public void InitializeStatus()
         {
@@ -2204,6 +2039,7 @@ namespace Ship_Game.Gameplay
             string troopType = "Wyvern";
             string tankType = "Wyvern";
             string redshirtType = "Wyvern";
+
             #endregion
             #region TroopListFix
             if (this.loyalty != null && this.loyalty.GetTrDict().Where(value => value.Value == true).Count() > 0)
@@ -2296,36 +2132,25 @@ namespace Ship_Game.Gameplay
                     this.Transporters.Add(moduleSlotList.module);
                 if (moduleSlotList.module.InstalledWeapon != null && moduleSlotList.module.InstalledWeapon.isRepairBeam)
                     this.RepairBeams.Add(moduleSlotList.module);
-                Ship ship = this;
-                ship.mass += moduleSlotList.module.Mass;
-                ship.WarpMassCapacity += moduleSlotList.module.WarpMassCapacity;
-                ship.Thrust += moduleSlotList.module.thrust;
+                this.mass += moduleSlotList.module.Mass;
+                this.WarpMassCapacity += moduleSlotList.module.WarpMassCapacity;
+                this.Thrust += moduleSlotList.module.thrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
-                ship.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? ship.loyalty.data.FuelCellModifier : 0);
-                ship.PowerCurrent += moduleSlotList.module.PowerStoreMax;
-                ship.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                ship.shield_max += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
-                ship.shield_power += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                this.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? this.loyalty.data.FuelCellModifier : 0);
+                this.PowerCurrent += moduleSlotList.module.PowerStoreMax;
+                this.PowerFlowMax += moduleSlotList.module.PowerFlowMax + (this.loyalty != null ? moduleSlotList.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
+                this.shield_max += moduleSlotList.module.shield_power_max + (this.loyalty != null ? moduleSlotList.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
                 {
-                    Ship armorMax = this;
-                    armorMax.armor_max = armorMax.armor_max + moduleSlotList.module.HealthMax;
+                    this.armor_max += moduleSlotList.module.HealthMax;
                 }
-                Ship size = this;
-                size.Size = size.Size + 1;
-                Ship numberAliveModules = this;
-                numberAliveModules.number_alive_modules = numberAliveModules.number_alive_modules + 1;
-                Ship cargoSpaceMax = this;
-                cargoSpaceMax.CargoSpace_Max = cargoSpaceMax.CargoSpace_Max + moduleSlotList.module.Cargo_Capacity;
-                Ship ordinanceMax = this;
-                ordinanceMax.OrdinanceMax = ordinanceMax.OrdinanceMax + (float)moduleSlotList.module.OrdinanceCapacity;
-                Ship ordinance = this;
-                ordinance.Ordinance = ordinance.Ordinance + (float)moduleSlotList.module.OrdinanceCapacity;
-                Ship powerDraw = this;
-                powerDraw.PowerDraw = powerDraw.PowerDraw + moduleSlotList.module.PowerDraw;
-                Ship health = this;
-                health.Health = health.Health + moduleSlotList.module.HealthMax;
-
+                this.Size += 1;
+                this.number_alive_modules += 1;
+                this.CargoSpace_Max += moduleSlotList.module.Cargo_Capacity;
+                this.OrdinanceMax += (float)moduleSlotList.module.OrdinanceCapacity;
+                this.Ordinance += (float)moduleSlotList.module.OrdinanceCapacity;
+                this.PowerDraw += moduleSlotList.module.PowerDraw;
+                this.Health += moduleSlotList.module.HealthMax;
             }
 
             #endregion
@@ -2538,8 +2363,8 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz
                 this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
                 this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                this.shield_max += moduleSlot.module.shield_power_max + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
-                this.shield_power += moduleSlot.module.shield_power + (this.loyalty != null ? moduleSlot.module.shield_power_max * this.loyalty.data.ShieldPowerMod : 0);
+                this.shield_max += moduleSlot.module.GetShieldsMax();
+                this.shield_power += moduleSlot.module.shield_power;
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                     this.armor_max += moduleSlot.module.HealthMax;
                 ++this.Size;
@@ -2751,13 +2576,6 @@ namespace Ship_Game.Gameplay
                 this.InFrustum = false;
                 this.ShipSO.Visibility = ObjectVisibility.None;
             }
-            foreach (OrbitalBeam orbitalBeam in (List<OrbitalBeam>)this.OrbitalBeams)
-            {
-                orbitalBeam.Duration -= elapsedTime;
-                if ((double)orbitalBeam.Duration <= 0.0)
-                    this.OrbitalBeams.QueuePendingRemoval(orbitalBeam);
-            }
-            this.OrbitalBeams.ApplyPendingRemovals();
             foreach (ProjectileTracker projectileTracker in (List<ProjectileTracker>)this.ProjectilesFired)
             {
                 projectileTracker.Timer -= elapsedTime;
@@ -2765,7 +2583,6 @@ namespace Ship_Game.Gameplay
                     this.ProjectilesFired.QueuePendingRemoval(projectileTracker);
             }
             this.ProjectilesFired.ApplyPendingRemovals();
-            this.LastHitTimer -= elapsedTime;
             this.ShieldRechargeTimer += elapsedTime;
             this.InhibitedTimer -= elapsedTime;
             this.Inhibited = (double)this.InhibitedTimer > 0.0;
@@ -2878,7 +2695,7 @@ namespace Ship_Game.Gameplay
                     {
                         if ((double)Vector2.Distance(p.Position, this.Center) < 3000.0)
                         {
-                            if (!p.ExploredDict[this.loyalty] && this.loyalty == Ship.universeScreen.player)
+                            if (this.loyalty == Ship.universeScreen.player&&!p.ExploredDict[this.loyalty])
                             {
                                 foreach (Building building in p.BuildingList)
                                 {
@@ -2933,7 +2750,6 @@ namespace Ship_Game.Gameplay
                     this.ClickTimer = 10f;
                 if (this.Active)
                 {
-                    this.UnderAttackTimer -= elapsedTime;
                     this.InCombatTimer -= elapsedTime;
                     if ((double)this.InCombatTimer > 0.0)
                     {
@@ -2965,43 +2781,52 @@ namespace Ship_Game.Gameplay
                     this.UpdateShipStatus(elapsedTime);
                     this.repairTimer -= elapsedTime;
                     //Combat repair
-                    if (this.LastHitTimer > 0 && this.repairTimer <= 0 && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair && this.Health < this.HealthMax)
-                    {
-                        this.repairTimer = 0.5f;
-                        float repairTracker = 0f;
-                        //Added by McShooterz: Priority repair
-                        IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
-                        foreach (ModuleSlot moduleSlot in repairmodule)
-                        {
-                            //if destroyed do not repair in combat
-                            if (moduleSlot.module.Health < 1)
-                                continue;
-                            repairTracker = this.RepairRate * 0.5f - (moduleSlot.module.HealthMax - moduleSlot.module.Health);
-                            moduleSlot.module.Health += this.RepairRate * 0.5f;
-                            if (repairTracker > 0)
-                                this.RepairRate = repairTracker;
-                            else
-                                break;
-                        }
-                    }
-                    //Out of combat repair
-                    //The Doctor: this didn't have a last hit timer check. It's an else if, BUT the previous if was checking ActiveMod and ActiveMod.mi.useCombatRepair, so this would cause
-                    //in-combat repairs for all ships when combat repair was disabled, as it wouldn't be checking the combat status if not using a mod and not using useCombatRepair... */
-                    else if(this.repairTimer <= 0 && (!this.InCombat && this.LastHitTimer <= 0))
+                    if (this.repairTimer <= 0)
                     {
                         this.repairTimer = 2f;
                         if (this.Health < this.HealthMax)
                         {
-                            float repairTracker = 0f;
-                            IEnumerable<ModuleSlot> repairmodule = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
-                            foreach (ModuleSlot moduleSlot in repairmodule)
+                            if (this.InCombat && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
                             {
-                                repairTracker = this.RepairRate * 2f - (moduleSlot.module.HealthMax - moduleSlot.module.Health);
-                                moduleSlot.module.Health += this.RepairRate * 2f;
-                                if (repairTracker > 0)
-                                    this.RepairRate = repairTracker;
-                                else
-                                    break;
+                                this.repairTimer = 0.5f;
+                                float repairTracker = this.RepairRate * 0.5f;
+                                //Added by McShooterz: Priority repair
+                                IEnumerable<ModuleSlot> damagedModules = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.ModuleType != ShipModuleType.Dummy && moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                                foreach (ModuleSlot moduleSlot in damagedModules)
+                                {
+                                    //if destroyed do not repair in combat
+                                    if (moduleSlot.module.Health < 1)
+                                        continue;
+                                    if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
+                                    {
+                                        moduleSlot.module.Repair(repairTracker);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
+                                        moduleSlot.module.Repair(moduleSlot.module.HealthMax);
+                                    }
+                                }
+                            }
+                            //Out of combat repair
+                            else if (!this.InCombat)
+                            {
+                                float repairTracker = this.RepairRate * 2f;
+                                IEnumerable<ModuleSlot> damagedModules = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.ModuleType != ShipModuleType.Dummy && moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                                foreach (ModuleSlot moduleSlot in damagedModules)
+                                {
+                                    if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
+                                    {
+                                        moduleSlot.module.Repair(repairTracker);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
+                                        moduleSlot.module.Repair(moduleSlot.module.HealthMax);
+                                    }
+                                }
                             }
                         }
                     }
@@ -3172,18 +2997,6 @@ namespace Ship_Game.Gameplay
                 if (slot1 != slot && (int)Math.Abs(slot.Position.X - slot1.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - slot1.Position.Y) / 16 == 1 && (slot1.module != null && slot1.module.ModuleType == ShipModuleType.PowerConduit) && (slot1.module.ModuleType == ShipModuleType.PowerConduit && !slot1.CheckedConduits))
                     this.CheckAndPowerConduit(slot1);
             }
-        }
-
-        public void FireOrbitalDefenseBeam(PlanetGridSquare pgs)
-        {
-            this.OrbitalBeams.Add(new OrbitalBeam());
-            this.TetheredTo.DoOrbitalBeam(pgs);
-            Cue cue1 = AudioManager.GetCue("sd_weapon_pulse_alt15_01");
-            cue1.Apply3D(Ship.universeScreen.listener, this.emitter);
-            cue1.Play();
-            Cue cue2 = AudioManager.GetCue("sd_weapon_beam_ion_med");
-            cue2.Apply3D(Ship.universeScreen.listener, this.emitter);
-            cue2.Play();
         }
 
         public void RecalculatePower()
@@ -3603,6 +3416,7 @@ namespace Ship_Game.Gameplay
                     double num1 = (double)ship1.Mass + (double)(this.Size / 2);
                     ship1.Mass = (float)num1;
                     this.shield_power = 0.0f;
+                    this.shield_max = 0.0f;
                     this.number_alive_modules = 0;
                     this.number_Internal_modules = 0.0f;
                     this.number_Alive_Internal_modules = 0.0f;
@@ -3626,8 +3440,6 @@ namespace Ship_Game.Gameplay
                     this.AfterThrust = 0.0f;
                     this.WarpDraw = 0.0f;
                     this.AfterDraw = 0.0f;
-                    this.FTLCount = 0;
-                    this.FTLSpeed = 0.0f;
                     this.HealPerTurn = 0;
                     this.ECMValue = 0f;
                     foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.MaxGoodStorageDict.Keys))
@@ -3745,11 +3557,6 @@ namespace Ship_Game.Gameplay
                             }
                             this.OrdAddedPerSecond += moduleSlot.module.OrdnanceAddedPerSecond;
                             this.WarpMassCapacity += moduleSlot.module.WarpMassCapacity;
-                            if ((double)moduleSlot.module.FTLSpeed > 0.0)
-                            {
-                                ++this.FTLCount;
-                                this.FTLSpeed += moduleSlot.module.FTLSpeed;
-                            }
                             if ((double)moduleSlot.module.AfterburnerThrust > 0.0)
                                 this.AfterThrust += moduleSlot.module.AfterburnerThrust;
                             else
@@ -3769,7 +3576,10 @@ namespace Ship_Game.Gameplay
                         if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                             this.armor_current += (double)moduleSlot.module.Health;
                         if ((double)moduleSlot.module.shield_power_max > 0.0)
+                        {
+                            this.shield_max += moduleSlot.module.GetShieldsMax();
                             this.Shields.Add(moduleSlot.module);
+                        }
                         if (moduleSlot.module.Active)
                         {
                             ++this.number_alive_modules;
@@ -3962,7 +3772,23 @@ namespace Ship_Game.Gameplay
                     this.NeedRecalculate = false;
                 }
                 if (this.system != null && (double)Ship.universeScreen.FTLModifier < 1.0)
+                {
                     this.WarpThrust *= Ship.universeScreen.FTLModifier;
+                    if (this.system.OwnerList.Count() > 0 && !this.system.OwnerList.Contains(this.loyalty))
+                    {
+                        bool freindlySystem = false;
+                        foreach (Empire empire in this.system.OwnerList)
+                        {
+                            if (this.loyalty.GetRelations()[empire].Treaty_OpenBorders)
+                            {
+                                freindlySystem = true;
+                                break;
+                            }
+                        }
+                        if(!freindlySystem)
+                            this.WarpThrust *= Ship.universeScreen.EnemyFTLModifier;
+                    }
+                }
             }
             else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || (double)this.MoveModulesTimer > 0.0 || this.InCombat && GlobalStats.ForceFullSim)
             {
@@ -3975,10 +3801,11 @@ namespace Ship_Game.Gameplay
                         float sin = (float)Math.Sin((double)this.Rotation);
                         float tan = (float)Math.Tan((double)this.yRotation);
                         foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                        //Parallel.ForEach(this.ModuleSlotList, moduleSlot =>
                         {
                             ++GlobalStats.ModuleUpdates;
                             moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        }
+                        }//);
                     }
                 }
                 else if ((double)elapsedTime < 0.0 && !this.UpdatedModulesOnce)
@@ -4007,8 +3834,6 @@ namespace Ship_Game.Gameplay
             this.PowerCurrent -= this.PowerDraw * elapsedTime;
             if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
                 this.PowerCurrent += (this.PowerFlowMax + (this.loyalty != null ? this.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0)) * elapsedTime;
-
-
             if (this.ResourceDrawDict.Count > 0)
             {
                 foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
@@ -4031,6 +3856,65 @@ namespace Ship_Game.Gameplay
             this.hull_integrity = 100.0 * (double)this.number_alive_modules / (double)this.Size;
             if (this.hull_integrity < 0.0)
                 this.hull_integrity = 0.0;
+            //Parallel.Invoke(() =>
+            //{
+            //    this.armor_percent = 100.0 * this.armor_current / (double)this.armor_max;
+
+            //},
+            //() =>
+            //{
+            //    if (this.shield_percent < 0.0)
+            //        this.shield_percent = 0.0;
+            //    this.shield_percent = 100.0 * (double)this.shield_power / (double)this.shield_max;
+            //    if (this.shield_percent < 0.0)
+            //        this.shield_percent = 0.0;
+
+
+            //},
+            //() =>
+            //{
+            //    if ((double)this.Mass <= 0.0)
+            //        this.Mass = 1f;
+            //    switch (this.engineState)
+            //    {
+            //        case Ship.MoveState.Sublight:
+            //            this.velocityMaximum = this.GetSTLSpeed();
+            //            break;
+            //        case Ship.MoveState.Afterburner:
+            //            this.velocityMaximum = this.GetAfterBurnerSpeed();
+            //            break;
+            //        case Ship.MoveState.Warp:
+            //            this.velocityMaximum = this.GetFTLSpeed();
+            //            break;
+            //    }
+
+            //    this.speed = this.velocityMaximum;
+            //    this.rotationRadiansPerSecond = (float)((double)this.TurnThrust / (double)this.Mass / 700.0);
+            //    this.rotationRadiansPerSecond += (float)((double)this.rotationRadiansPerSecond * (double)this.Level * 0.0500000007450581);
+            //    this.yBankAmount = this.rotationRadiansPerSecond / 50f;
+            //    if (this.engineState == Ship.MoveState.Warp)
+            //    {
+            //        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.WarpSpeedMultiplier > 0.0)
+            //            this.velocityMaximum *= GlobalStats.ActiveMod.mi.WarpSpeedMultiplier;
+            //        this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
+            //    }
+            //    if ((double)this.Thrust == 0.0 || (double)this.mass == 0.0)
+            //    {
+            //        this.EnginesKnockedOut = true;
+            //        this.velocityMaximum = this.Velocity.Length();
+            //        Ship ship = this;
+            //        Vector2 vector2 = ship.velocity - this.velocity * (elapsedTime * 0.1f);
+            //        ship.velocity = vector2;
+            //    }
+            //    else
+            //        this.EnginesKnockedOut = false;
+            //    if ((double)this.Velocity.Length() <= (double)this.velocityMaximum)
+            //        return;
+            //    this.Velocity = Vector2.Normalize(this.Velocity) * this.velocityMaximum;
+            //}
+            //);
+
+
             this.armor_percent = 100.0 * this.armor_current / (double)this.armor_max;
             if (this.shield_percent < 0.0)
                 this.shield_percent = 0.0;
@@ -4058,7 +3942,9 @@ namespace Ship_Game.Gameplay
             if (this.engineState == Ship.MoveState.Warp)
             {
                 if (this.inborders && (double)this.loyalty.data.Traits.InBordersSpeedBonus > 0.0)
-                    this.velocityMaximum = this.velocityMaximum + this.velocityMaximum * this.loyalty.data.Traits.InBordersSpeedBonus;
+                    this.velocityMaximum += this.velocityMaximum * this.loyalty.data.Traits.InBordersSpeedBonus;
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.WarpSpeedMultiplier > 0.0)
+                    this.velocityMaximum *= GlobalStats.ActiveMod.mi.WarpSpeedMultiplier;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
             }
             if ((double)this.Thrust == 0.0 || (double)this.mass == 0.0)
@@ -4124,8 +4010,6 @@ namespace Ship_Game.Gameplay
             //Parallel.ForEach(this.ModuleSlotList, slot =>  //
             foreach (ModuleSlot slot in this.ModuleSlotList)
             {
-
-
                 if (!slot.module.isDummy && slot.module.Powered && slot.module.Active)
                 {
                     ShipModule module = slot.module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];

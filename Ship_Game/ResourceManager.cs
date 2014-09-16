@@ -113,10 +113,10 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.TextureDict = new Dictionary<string, Texture2D>();
 			Ship_Game.ResourceManager.weapon_serializer = new XmlSerializer(typeof(Weapon));
 			Ship_Game.ResourceManager.serializer_shipdata = new XmlSerializer(typeof(ShipData));
-			Ship_Game.ResourceManager.ShipsDict = new Dictionary<string, Ship>();
+            Ship_Game.ResourceManager.ShipsDict = new Dictionary<string, Ship>();
 			Ship_Game.ResourceManager.RoidsModels = new Dictionary<int, Model>();
 			Ship_Game.ResourceManager.JunkModels = new Dictionary<int, Model>();
-			Ship_Game.ResourceManager.TechTree = new Dictionary<string, Technology>();
+            Ship_Game.ResourceManager.TechTree = new Dictionary<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
 			Ship_Game.ResourceManager.Encounters = new List<Encounter>();
 			Ship_Game.ResourceManager.BuildingsDict = new Dictionary<string, Building>();
 			Ship_Game.ResourceManager.GoodsDict = new Dictionary<string, Good>();
@@ -147,7 +147,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.ModSerializer = new XmlSerializer(typeof(ModInformation));
 			Ship_Game.ResourceManager.ModelDict = new Dictionary<string, Model>();
 			Ship_Game.ResourceManager.EconSerializer = new XmlSerializer(typeof(EconomicResearchStrategy));
-			Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>();
+            Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
             //Added by McShooterz
             Ship_Game.ResourceManager.HostileFleets = new HostileFleets();
@@ -1056,6 +1056,7 @@ namespace Ship_Game
 			newB.ConsumptionPerTurn = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ConsumptionPerTurn;
 			newB.OutputPerTurn = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].OutputPerTurn;
 			newB.CommodityRequired = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CommodityRequired;
+            newB.ShipRepair = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ShipRepair;
 			return newB;
 		}
 
@@ -2140,7 +2141,7 @@ namespace Ship_Game
                     data.NameIndex += (ushort)OffSet;
                     Localizer.used[data.NameIndex] = true;
                 }
-                
+                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
                 
                 if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -2569,14 +2570,18 @@ namespace Ship_Game
                         Localizer.used[bonus.BonusNameIndex] = true;
                     }
                 }
+                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
                 
                 if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
-					Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+                    
+                    Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+                   
 				}
 				else
 				{
-					Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+					
+                    Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
 			}
 			textList = null;
@@ -2712,6 +2717,7 @@ namespace Ship_Game
 				stream.Close();
 				stream.Dispose();
                 //no localization
+                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
 				if (Ship_Game.ResourceManager.WeaponsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.WeaponsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -2737,10 +2743,16 @@ namespace Ship_Game
                 ShipRole data = (ShipRole)serializer1.Deserialize(stream);
                 stream.Close();
                 stream.Dispose();
+
                 if (Localizer.LocalizerDict.ContainsKey(data.Localization + OffSet))
                 {
                     data.Localization += OffSet;
                     Localizer.used[data.Localization] = true;
+                }
+                for (int j = 0; j < data.RaceList.Count(); j++)
+                {
+                    data.RaceList[j].Localization += OffSet;
+                    Localizer.used[data.RaceList[j].Localization] = true;
                 }
                 if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
                 {

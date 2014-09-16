@@ -201,8 +201,6 @@ namespace Ship_Game.Gameplay
 
 		private Vector3 Center3D = new Vector3();
 
-		private float damagedLastTimer;
-
 		public float BombTimer;
 
 		public byte TroopCapacity;
@@ -274,12 +272,10 @@ namespace Ship_Game.Gameplay
 			this.LinkedModulesList.Clear();
 		}
 
-		public override bool Damage(GameplayObject source, float damageAmount)
+		public bool Damage(GameplayObject source, float damageAmount, ref float damageRemainder)
 		{
-			this.Parent.LastHitTimer = 15f;
 			this.Parent.InCombat = true;
 			this.Parent.InCombatTimer = 15f;
-			this.damagedLastTimer = -5f;
 			this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
 			if (source is Projectile)
@@ -299,15 +295,13 @@ namespace Ship_Game.Gameplay
             {
                 damageAmount *= ((float)(100 - this.Parent.GetShipData().ArmoredBonus)) / 100f;
             }
-			this.Parent.InCombatTimer = 15f;
-			this.Parent.UnderAttackTimer = 5f;
 			if (this.ModuleType == ShipModuleType.Dummy)
 			{
 				this.ParentOfDummy.Damage(source, damageAmount);
 				return true;
 			}
             //Added by McShooterz: shields keep charge when manually turned off
-			if (this.shield_power <= 0f || shieldsOff)
+            if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
 			{
 				if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
 				{
@@ -316,8 +310,7 @@ namespace Ship_Game.Gameplay
 				}
 				if (source is Beam)
 				{
-					Vector2 vel = (source as Beam).Source - this.Center;
-					vel = Vector2.Normalize(vel);
+                    Vector2 vel = Vector2.Normalize((source as Beam).Source - this.Center);
 					if (RandomMath.RandomBetween(0f, 100f) > 90f && this.Parent.InFrustum)
 					{
 						ShipModule.universeScreen.flash.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), Vector3.Zero);
@@ -331,8 +324,7 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.PowerDamage > 0f)
 					{
-						Ship powerCurrent = this.Parent;
-						powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - (source as Beam).weapon.PowerDamage;
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.PowerDamage * ((source as Beam).damageTimerConstant * 90f);
 						if (this.Parent.PowerCurrent < 0f)
 						{
 							this.Parent.PowerCurrent = 0f;
@@ -359,14 +351,12 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.SiphonDamage > 0f)
 					{
-						Ship ship = this.Parent;
-						ship.PowerCurrent = ship.PowerCurrent - (source as Beam).weapon.SiphonDamage;
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
 						if (this.Parent.PowerCurrent < 0f)
 						{
 							this.Parent.PowerCurrent = 0f;
 						}
-						Ship powerCurrent1 = (source as Beam).owner;
-						powerCurrent1.PowerCurrent = powerCurrent1.PowerCurrent + (source as Beam).weapon.SiphonDamage;
+                        (source as Beam).owner.PowerCurrent += (source as Beam).weapon.SiphonDamage;
 						if ((source as Beam).owner.PowerCurrent > (source as Beam).owner.PowerStoreMax)
 						{
 							(source as Beam).owner.PowerCurrent = (source as Beam).owner.PowerStoreMax;
@@ -374,8 +364,7 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.MassDamage > 0f)
 					{
-						Ship mass = this.Parent;
-						mass.Mass = mass.Mass + (source as Beam).weapon.MassDamage;
+                        this.Parent.Mass += (source as Beam).weapon.MassDamage * ((source as Beam).damageTimerConstant * 90f);
 						this.Parent.velocityMaximum = this.Parent.Thrust / this.Parent.Mass;
 						this.Parent.speed = this.Parent.velocityMaximum;
 						this.Parent.rotationRadiansPerSecond = this.Parent.speed / 700f;
@@ -384,14 +373,23 @@ namespace Ship_Game.Gameplay
 					{
 						Vector2 vtt = this.Center - (source as Beam).Owner.Center;
 						Ship velocity = this.Parent;
-						velocity.Velocity = velocity.Velocity + ((vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass);
+                        this.Parent.Velocity += ((vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass) * ((source as Beam).damageTimerConstant * 90f);
 					}
 				}
 				if (this.shield_power_max > 0f && !this.isExternal)
 				{
 					return false;
 				}
-                this.Health -= damageAmount;
+                if (damageAmount > this.Health)
+                {
+                    damageRemainder = damageAmount - this.Health;
+                    this.Health = 0;
+                }
+                else
+                {
+                    damageRemainder = 0;
+                    this.Health -= damageAmount;
+                }
 				if (base.Health >= this.HealthMax)
 				{
 					base.Health = this.HealthMax;
@@ -413,11 +411,29 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-                this.shield_power -= damageAmount;
-				if (this.shield_power <= 0f)
-				{
-					this.shield_power = 0f;
-				}
+                //Damage module health if shields fail from damage
+                if (damageAmount > this.shield_power)
+                {
+                    damageRemainder = damageAmount - this.shield_power;
+                    this.shield_power = 0;
+                    if (damageRemainder > this.Health)
+                    {
+                        damageRemainder -= this.Health;
+                        this.Health = 0;
+                    }
+                    else
+                    {
+                        this.Health -= damageRemainder;
+                        damageRemainder = 0;
+                    }
+                }
+                else
+                {
+                    damageRemainder = 0;
+                    this.shield_power -= damageAmount;
+                    if (this.shield_power < 0f)
+                        this.shield_power = 0f;
+                }
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
 					base.findAngleToTarget(this.Parent.Center, source.Center);
@@ -457,8 +473,7 @@ namespace Ship_Game.Gameplay
 						}
 						if ((source as Beam).weapon.SiphonDamage > 0f)
 						{
-							ShipModule shipModule = this;
-							shipModule.shield_power = shipModule.shield_power - (source as Beam).weapon.SiphonDamage;
+                            this.shield_power -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
 							if (this.shield_power < 0f)
 							{
 								this.shield_power = 0f;
@@ -488,7 +503,6 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
-			bool moduleType = this.ModuleType == ShipModuleType.PowerPlant & this.Parent.isPlayerShip();
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power > 0f && !shieldsOff)
 			{
@@ -501,17 +515,244 @@ namespace Ship_Game.Gameplay
 			return true;
 		}
 
+        public override bool Damage(GameplayObject source, float damageAmount)
+        {
+            this.Parent.InCombat = true;
+            this.Parent.InCombatTimer = 15f;
+            this.Parent.ShieldRechargeTimer = 0f;
+            //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
+            if (source is Projectile)
+            {
+                this.Parent.LastDamagedBy = source;
+                if (this.Parent.Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
+                {
+                    damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
+                }
+            }
+            if (source is Ship && (source as Ship).Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
+            {
+                damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
+            }
+            //Added by McShooterz: ArmorBonus Hull Bonus
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.Parent.GetShipData().ArmoredBonus != 0 && this.Parent.GetShipData().ArmoredBonus < 100)
+            {
+                damageAmount *= ((float)(100 - this.Parent.GetShipData().ArmoredBonus)) / 100f;
+            }
+            if (this.ModuleType == ShipModuleType.Dummy)
+            {
+                this.ParentOfDummy.Damage(source, damageAmount);
+                return true;
+            }
+            //Added by McShooterz: shields keep charge when manually turned off
+            if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
+            {
+                if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
+                {
+                    Ship parent = this.Parent;
+                    parent.EMPDamage = parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
+                }
+                if (source is Beam)
+                {
+                    Vector2 vel = Vector2.Normalize((source as Beam).Source - this.Center);
+                    if (RandomMath.RandomBetween(0f, 100f) > 90f && this.Parent.InFrustum)
+                    {
+                        ShipModule.universeScreen.flash.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), Vector3.Zero);
+                    }
+                    if (this.Parent.InFrustum)
+                    {
+                        for (int i = 0; i < 20; i++)
+                        {
+                            ShipModule.universeScreen.sparks.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
+                        }
+                    }
+                    if ((source as Beam).weapon.PowerDamage > 0f)
+                    {
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.PowerDamage * ((source as Beam).damageTimerConstant * 90f);
+                        if (this.Parent.PowerCurrent < 0f)
+                        {
+                            this.Parent.PowerCurrent = 0f;
+                        }
+                    }
+                    if ((source as Beam).weapon.TroopDamageChance > 0f)
+                    {
+                        if (this.Parent.TroopList.Count > 0)
+                        {
+                            if (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
+                            {
+                                Troop item = this.Parent.TroopList[0];
+                                item.Strength = item.Strength - 1;
+                                if (this.Parent.TroopList[0].Strength <= 0)
+                                {
+                                    this.Parent.TroopList.RemoveAt(0);
+                                }
+                            }
+                        }
+                        else if (this.Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
+                        {
+                            this.Parent.MechanicalBoardingDefense -= 1f;
+                        }
+                    }
+                    if ((source as Beam).weapon.SiphonDamage > 0f)
+                    {
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
+                        if (this.Parent.PowerCurrent < 0f)
+                        {
+                            this.Parent.PowerCurrent = 0f;
+                        }
+                        (source as Beam).owner.PowerCurrent += (source as Beam).weapon.SiphonDamage;
+                        if ((source as Beam).owner.PowerCurrent > (source as Beam).owner.PowerStoreMax)
+                        {
+                            (source as Beam).owner.PowerCurrent = (source as Beam).owner.PowerStoreMax;
+                        }
+                    }
+                    if ((source as Beam).weapon.MassDamage > 0f)
+                    {
+                        this.Parent.Mass += (source as Beam).weapon.MassDamage * ((source as Beam).damageTimerConstant * 90f);
+                        this.Parent.velocityMaximum = this.Parent.Thrust / this.Parent.Mass;
+                        this.Parent.speed = this.Parent.velocityMaximum;
+                        this.Parent.rotationRadiansPerSecond = this.Parent.speed / 700f;
+                    }
+                    if ((source as Beam).weapon.RepulsionDamage > 0f)
+                    {
+                        Vector2 vtt = this.Center - (source as Beam).Owner.Center;
+                        Ship velocity = this.Parent;
+                        this.Parent.Velocity += ((vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass) * ((source as Beam).damageTimerConstant * 90f);
+                    }
+                }
+                if (this.shield_power_max > 0f && !this.isExternal)
+                {
+                    return false;
+                }
+                if (damageAmount > this.Health)
+                {
+                    this.Health = 0;
+                }
+                else
+                {
+                    this.Health -= damageAmount;
+                }
+                if (base.Health >= this.HealthMax)
+                {
+                    base.Health = this.HealthMax;
+                    this.Active = true;
+                    this.onFire = false;
+                }
+                if (base.Health / this.HealthMax < 0.5f)
+                {
+                    this.onFire = true;
+                }
+                if ((double)(this.Parent.Health / this.Parent.HealthMax) < 0.5 && (double)base.Health < 0.5 * (double)this.HealthMax)
+                {
+                    this.reallyFuckedUp = true;
+                }
+                foreach (ShipModule dummy in this.LinkedModulesList)
+                {
+                    dummy.DamageDummy(source, damageAmount);
+                }
+            }
+            else
+            {
+                //Damage module health if shields fail from damage
+                if (damageAmount > this.shield_power)
+                {
+                    this.shield_power = 0;
+                }
+                else
+                {
+                    this.shield_power -= damageAmount;
+                    if (this.shield_power < 0f)
+                        this.shield_power = 0f;
+                }
+                if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
+                {
+                    base.findAngleToTarget(this.Parent.Center, source.Center);
+                    this.shield.Rotation = source.Rotation - 3.14159274f;
+                    this.shield.displacement = 0f;
+                    this.shield.texscale = 2.8f;
+                    lock (GlobalStats.ObjectManagerLocker)
+                    {
+                        ShipModule.universeScreen.ScreenManager.inter.LightManager.Remove(this.shield.pointLight);
+                        ShipModule.universeScreen.ScreenManager.inter.LightManager.Submit(this.shield.pointLight);
+                    }
+                    if (source is Beam)
+                    {
+                        this.shield.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Center, (source as Beam).Source));
+                        this.shield.pointLight.World = Matrix.CreateTranslation(new Vector3((source as Beam).ActualHitDestination, 0f));
+                        this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
+                        this.shield.pointLight.Radius = this.shield_radius * 2f;
+                        this.shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
+                        this.shield.displacement = 0f;
+                        this.shield.Radius = this.radius;
+                        this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
+                        this.shield.texscale = 2.8f;
+                        this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
+                        this.shield.pointLight.Enabled = true;
+                        Vector2 vel = (source as Beam).Source - this.Center;
+                        vel = Vector2.Normalize(vel);
+                        if (RandomMath.RandomBetween(0f, 100f) > 90f && this.Parent.InFrustum)
+                        {
+                            ShipModule.universeScreen.flash.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), Vector3.Zero);
+                        }
+                        if (this.Parent.InFrustum)
+                        {
+                            for (int i = 0; i < 20; i++)
+                            {
+                                ShipModule.universeScreen.sparks.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
+                            }
+                        }
+                        if ((source as Beam).weapon.SiphonDamage > 0f)
+                        {
+                            this.shield_power -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
+                            if (this.shield_power < 0f)
+                            {
+                                this.shield_power = 0f;
+                            }
+                        }
+                    }
+                    else if (source is Projectile && !(source as Projectile).IgnoresShields && this.Parent.InFrustum)
+                    {
+                        Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
+                        shieldcue.Apply3D(ShipModule.universeScreen.listener, this.Parent.emitter);
+                        shieldcue.Play();
+                        this.shield.Radius = this.radius;
+                        this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
+                        this.shield.texscale = 2.8f;
+                        this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
+                        this.shield.pointLight.World = (source as Projectile).GetWorld();
+                        this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
+                        this.shield.pointLight.Radius = this.radius;
+                        this.shield.pointLight.Intensity = 8f;
+                        this.shield.pointLight.Enabled = true;
+                        Vector2 vel = Vector2.Normalize((source as Projectile).Center - this.Center);
+                        ShipModule.universeScreen.flash.AddParticleThreadB(new Vector3((source as Projectile).Center, this.Center3D.Z), Vector3.Zero);
+                        for (int i = 0; i < 20; i++)
+                        {
+                            ShipModule.universeScreen.sparks.AddParticleThreadB(new Vector3((source as Projectile).Center, this.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
+                        }
+                    }
+                }
+            }
+            //Added by McShooterz: shields keep charge when manually turned off
+            if (this.shield_power > 0f && !shieldsOff)
+            {
+                this.radius = this.shield_radius;
+            }
+            else
+            {
+                this.radius = 8f;
+            }
+            return true;
+        }
+
 		public bool DamageDummy(GameplayObject source, float damageAmount)
 		{
-			ShipModule health = this;
-			health.Health = health.Health - damageAmount;
+            this.Health -= damageAmount;
 			this.Parent.LastDamagedBy = source;
 			return true;
 		}
 
 		public void DamageInvisible(GameplayObject source, float damageAmount)
 		{
-			this.Parent.LastHitTimer = 15f;
 			if (source is Projectile)
 			{
 				this.Parent.LastDamagedBy = source;
@@ -525,8 +766,6 @@ namespace Ship_Game.Gameplay
 				damageAmount = damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
 			this.Parent.InCombatTimer = 15f;
-			this.Parent.UnderAttackTimer = 5f;
-			this.damagedLastTimer = 0f;
 			if (this.ModuleType == ShipModuleType.Dummy)
 			{
 				this.ParentOfDummy.DamageInvisible(source, damageAmount);
@@ -1534,7 +1773,6 @@ namespace Ship_Game.Gameplay
 			ShipModule bombTimer = this;
 			bombTimer.BombTimer = bombTimer.BombTimer - elapsedTime;
 			ShipModule shipModule = this;
-			shipModule.damagedLastTimer = shipModule.damagedLastTimer + elapsedTime;
 			if (base.Health > 0f && !this.Active)
 			{
 				this.Active = true;
@@ -1580,7 +1818,7 @@ namespace Ship_Game.Gameplay
 			{
                 if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
                     this.shield_power += this.shield_recharge_rate * elapsedTime;
-                else if (this.shield_power > 1)
+                else if (this.shield_power > 0)
                     this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
                 if (this.shield_power > this.GetShieldsMax())
                     this.shield_power = this.GetShieldsMax();
@@ -1642,6 +1880,26 @@ namespace Ship_Game.Gameplay
 				this.firetrailEmitter.Update(elapsedTime, this.Center3D);
 			}
 		}
+
+        public void Repair(float repairAmount)
+        {
+            this.Health += repairAmount;
+            if (this.Health >= this.HealthMax)
+            {
+                this.Health = this.HealthMax;
+                foreach (ShipModule dummy in this.LinkedModulesList)
+                {
+                    dummy.Health = dummy.HealthMax;
+                }
+            }
+            else
+            {
+                foreach (ShipModule dummy in this.LinkedModulesList)
+                {
+                    dummy.Health = this.Health;
+                }
+            }
+        }
 
         public float GetShieldsMax()
         {

@@ -30,6 +30,7 @@ namespace Ship_Game
 			this.data.StarDate = screenToSave.StarDate;
 			this.data.SolarSystemDataList = new List<SavedGame.SolarSystemSaveData>();
 			this.data.FTLModifier = screenToSave.FTLModifier;
+            this.data.EnemyFTLModifier = screenToSave.EnemyFTLModifier;
 			this.data.GravityWells = screenToSave.GravityWells;
 			this.data.PlayerLoyalty = screenToSave.PlayerLoyalty;
 			this.data.RandomEvent = RandomEventManager.ActiveEvent;
@@ -38,7 +39,7 @@ namespace Ship_Game
             this.data.MemoryLimiter = GlobalStats.MemoryLimiter;
             this.data.MinimumWarpRange = GlobalStats.MinimumWarpRange;
             this.data.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
-
+            this.data.TurnTimer = GlobalStats.TurnTimer;
             this.data.IconSize=GlobalStats.IconSize;
             this.data.preventFederations=GlobalStats.preventFederations;
             this.data.GravityWellRange=GlobalStats.GravityWellRange;
@@ -51,12 +52,15 @@ namespace Ship_Game
 					Name = system.Name,
 					Position = system.Position,
 					SunPath = system.SunPath,
-					AsteroidsList = new List<Asteroid>()
+					AsteroidsList = new List<Asteroid>(),
+                    Moons = new List<Moon>(),
 				};
 				foreach (Asteroid roid in system.AsteroidsList)
 				{
 					sdata.AsteroidsList.Add(roid);
 				}
+                foreach (Moon moon in system.MoonList)
+                    sdata.Moons.Add(moon);
 				sdata.guid = system.guid;
 				sdata.RingList = new List<SavedGame.RingSave>();
 				foreach (SolarSystem.Ring ring in system.RingList)
@@ -619,7 +623,7 @@ namespace Ship_Game
 
 		public class GSAISAVE
 		{
-			public List<int> UsedFleets;
+            public List<int> UsedFleets;
 
 			public List<SavedGame.GoalSave> Goals;
 
@@ -890,6 +894,8 @@ namespace Ship_Game
 
 			public List<Asteroid> AsteroidsList;
 
+            public List<Moon> Moons;
+
 			public List<string> EmpiresThatKnowThisSystem;
 		}
 
@@ -945,6 +951,7 @@ namespace Ship_Game
 			public bool RemnantArmageddon;
 
 			public float FTLModifier = 1.0f;
+            public float EnemyFTLModifier = 1.0f;
 
 			public bool GravityWells;
 
@@ -957,6 +964,8 @@ namespace Ship_Game
             public float MemoryLimiter=GlobalStats.MemoryLimiter;
             
             public int IconSize;
+
+            public byte TurnTimer;
 
             public bool preventFederations;
             public float GravityWellRange=GlobalStats.GravityWellRange;

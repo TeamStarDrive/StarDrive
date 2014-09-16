@@ -100,10 +100,6 @@ namespace Ship_Game
 
 		public float FTLModifier = 35f;
 
-		public float FTLBonus;
-
-		public float FTLSpeed;
-
 		public float MassModifier = 1f;
 
 		public float SubLightModifier = 1f;

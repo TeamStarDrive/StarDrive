@@ -122,6 +122,7 @@ namespace Ship_Game.Gameplay
         {
             ThreatMatrix.Pin pin = null;
             bool exists = this.Pins.TryGetValue(ship.guid, out pin);
+
             if (pin == null)
             {
                 pin = new ThreatMatrix.Pin()
@@ -145,15 +146,16 @@ namespace Ship_Game.Gameplay
                 this.Pins[ship.guid].Position = ship.Center;
 
                 this.Pins[ship.guid].InBorders = ShipinBorders;
-                if (ShipinBorders && this.Pins[ship.guid].ship == null)
+                if (this.Pins[ship.guid].ship == null) //ShipinBorders &&
                     this.Pins[ship.guid].ship = ship;
                 return;
             }
 
 
-            lock (this.Pins)
+            lock (this.Pins)            
                 this.Pins.Add(ship.guid, pin);
 
+            
 
 
         }
