@@ -6,6 +6,7 @@
   <KillExp>0.5</KillExp>
   <KillExpPerLevel>0.2</KillExpPerLevel>
   <ExpPerLevel>0.5</ExpPerLevel>
+  <DamageRelations>0.5</DamageRelations>
   <RaceList>
     <Race>
 	  <ShipType>Terran</ShipType>
