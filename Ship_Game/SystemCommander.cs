@@ -39,11 +39,13 @@ namespace Ship_Game
         public void AssignTargets()
         {
             this.EnemyClumpsDict.Clear();
-            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
+            List<Ship> ShipsAlreadyConsidered = new List<Ship>();
             foreach (KeyValuePair<Guid, Ship> entry in this.ShipsDict)
             {
                 Ship ship = entry.Value;
-                if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
+                //if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
+
+                if (ship == null || ship.GetSystem() != this.system )
                 {
                     continue;
                 }
@@ -81,13 +83,13 @@ namespace Ship_Game
                     from clumpPos in ClumpsList
                     orderby Vector2.Distance(this.system.Position, clumpPos.Center)
                     select clumpPos;
-                HashSet<Ship> AssignedShips = new HashSet<Ship>();
+                List<Ship> AssignedShips = new List<Ship>();
                 foreach (Ship enemy in this.EnemyClumpsDict[distanceSorted.First<Ship>()])
                 {
                     float AssignedStr = 0f;
                     foreach (KeyValuePair<Guid, Ship> friendly in this.ShipsDict)
                     {
-                        if (!friendly.Value.InCombat)
+                        if (!friendly.Value.InCombat&&friendly.Value.GetSystem() ==this.system)
                         {
                             if (AssignedShips.Contains(friendly.Value) || AssignedStr != 0f && AssignedStr >= enemy.GetStrength() || friendly.Value.GetAI().State == AIState.Resupply)
                             {
@@ -119,7 +121,7 @@ namespace Ship_Game
                 }
                 foreach (Ship ship in UnassignedShips)
                 {
-                    if (ship.GetAI().State == AIState.Resupply)
+                    if (ship.GetAI().State == AIState.Resupply ||ship.GetSystem() !=this.system)
                     {
                         continue;
                     }
@@ -131,7 +133,7 @@ namespace Ship_Game
             {
                 foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
                 {
-                    if (ship.Value.GetAI().State == AIState.Resupply)
+                    if (ship.Value.GetAI().State == AIState.Resupply )
                     {
                         continue;
                     }

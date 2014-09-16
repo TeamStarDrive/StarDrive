@@ -101,6 +101,7 @@ namespace Ship_Game
             {
                 foreach (KeyValuePair<Guid, Ship> entry in this.DefenseDict[key].ShipsDict)
                 {
+                    if (entry.Value.GetSystem() == entry.Value.GetAI().SystemToDefend)
                     entry.Value.GetAI().SystemToDefend = null;
                 }
                 this.DefenseDict[key].ShipsDict.Clear();
@@ -263,10 +264,10 @@ namespace Ship_Game
             {
                 if ((!defensiveForcePool.GetAI().HasPriorityOrder || defensiveForcePool.GetAI().State == AIState.Resupply) && defensiveForcePool.loyalty == this.us)
                 {
-                    if (defensiveForcePool.GetAI().SystemToDefend != null)
-                    {
-                        continue;
-                    }
+                    //if (defensiveForcePool.GetAI().SystemToDefend != null)
+                    //{
+                    //    continue;
+                    //}
                     ShipsAvailableForAssignment.Add(defensiveForcePool);
                 }
                 else
@@ -329,7 +330,7 @@ namespace Ship_Game
             this.DefensiveForcePool.ApplyPendingRemovals();
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
-                if (entry.Key == null)
+                if (entry.Key == null )
                 {
                     continue;
                 }
@@ -621,7 +622,7 @@ namespace Ship_Game
             }
             var source = incomingShips.ToArray();
 
-            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
+            List<Ship> ShipsAlreadyConsidered = new List<Ship>();
             var   rangePartitioner = Partitioner.Create(0, source.Length);
             Parallel.ForEach(rangePartitioner, (range, loopState) =>
                 {

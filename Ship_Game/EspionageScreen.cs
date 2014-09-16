@@ -490,18 +490,6 @@ namespace Ship_Game
 			this.OpSLRect = new Rectangle(this.OperationsRect.X + 20, this.OperationsRect.Y + 20, this.OperationsRect.Width - 40, this.OperationsRect.Height - 45);
 			Submenu OpSub = new Submenu(base.ScreenManager, this.OpSLRect);
 			this.OperationsSL = new ScrollList(OpSub, Fonts.Arial12Bold.LineSpacing + 5);
-			Empire.PlantMole.Selected = false;
-			Empire.DiscoverPlot.Selected = false;
-			Empire.DamageRelations.Selected = false;
-			Empire.PlantBomb.Selected = false;
-			Empire.TriggerBombs.Selected = false;
-			Empire.StealTech.Selected = false;
-			this.OperationsSL.AddItem(Empire.PlantMole);
-			this.OperationsSL.AddItem(Empire.DiscoverPlot);
-			this.OperationsSL.AddItem(Empire.DamageRelations);
-			this.OperationsSL.AddItem(Empire.PlantBomb);
-			this.OperationsSL.AddItem(Empire.TriggerBombs);
-			this.OperationsSL.AddItem(Empire.StealTech);
 			Vector2 ExecutePos = new Vector2((float)(this.OperationsRect.X + this.OperationsRect.Width / 2 - 91), (float)(this.OperationsRect.Y + this.OperationsRect.Height - 60));
 			this.ExecuteOperation = new DanButton(ExecutePos, "Execute Op")
 			{

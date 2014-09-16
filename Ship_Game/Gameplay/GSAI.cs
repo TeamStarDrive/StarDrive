@@ -37,7 +37,7 @@ namespace Ship_Game.Gameplay
 
 		private int BaseAgents;
 
-		public List<int> UsedFleets = new List<int>();
+        public List<int> UsedFleets = new List<int>();
 
 		public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
 
@@ -4790,11 +4790,12 @@ namespace Ship_Game.Gameplay
             int DesiredTroopShips = (int)(TotalMilShipCount / 10f * 1f);  
             if(Capacity ==0)
             {
-                int scrapFighters = (int)numFighters - (int)DesiredFighters;
-                int scrapFrigates = (int)numFrigates - (int)DesiredFrigates;
-                int scrapCruisers = (int)numCruisers - (int)DesiredCruisers;
-
-                foreach (Ship ship in this.empire.GetShips().Where(ship => !ship.InCombat && ship.inborders).OrderBy(ship=> ship.Level).ThenBy(ship=> ship.BaseStrength))
+                int scrapFighters = (int)DesiredFighters-(int)numFighters  ;
+                int scrapFrigates = (int)DesiredFrigates-(int)numFrigates  ;
+                int scrapCruisers = (int)DesiredCruisers-(int)numCruisers  ;
+                if (scrapCruisers + scrapFighters + scrapFrigates > 0 && this.empire.canBuildFrigates)
+                foreach (Ship ship in this.empire.GetShips().Where(ship => !ship.InCombat && ship.inborders).OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense)).ThenByDescending(ship=> ship.Level).ThenByDescending(ship=> ship.BaseStrength))
+                //foreach(Ship ship in this.DefensiveCoordinator.DefensiveForcePool)
                 {
 
                     if(scrapFighters >0 && ship.Role =="fighter")
@@ -4802,16 +4803,18 @@ namespace Ship_Game.Gameplay
                         ship.GetAI().OrderScrapShip();
                         scrapFighters--;
                     }
-                    if (scrapFighters > 0 && ship.Role == "frigate")
+                    if (scrapFrigates > 0 && ship.Role == "frigate")
                     {
                         ship.GetAI().OrderScrapShip();
                         scrapFrigates--;
                     }
-                    if (scrapFighters > 0 && ship.Role == "cruiser")
+                    if (scrapCruisers > 0 && ship.Role == "cruiser")
                     {
                         ship.GetAI().OrderScrapShip();
                         scrapCruisers--;
                     }
+                    if (scrapCruisers + scrapFighters + scrapFrigates <= 0)
+                        break;
                 }
                 return "";
             }
@@ -5104,11 +5107,10 @@ namespace Ship_Game.Gameplay
             }
 
             //added by gremlin troop carriers
-            bool TroopShips = this.empire.ShipsWeCanBuild.Where(hangars => ResourceManager.ShipsDict[hangars].GetHangars().Where(fighters => fighters.IsTroopBay).Count() > 0 == true).Count() > 0;
+            bool TroopShips = this.empire.ShipsWeCanBuild.Where(hangars => ResourceManager.ShipsDict[hangars].GetHangars().Where(fighters => fighters.IsTroopBay).Count() > 0 || ResourceManager.ShipsDict[hangars].hasTransporter).Count() > 0;
             if (TroopShips && DesiredTroopShips > 0)
                 foreach (string shipsWeCanBuild3 in this.empire.ShipsWeCanBuild)
                 {
-                    //if (!(ResourceManager.ShipsDict[shipsWeCanBuild3].GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0) || ResourceManager.ShipsDict[shipsWeCanBuild3].BaseStrength <= 0f || !(ResourceManager.ShipsDict[shipsWeCanBuild3].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild3].IsWarpCapable && (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier <= ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax || (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerStoreMax) / (ResourceManager.ShipsDict[shipsWeCanBuild3].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild3].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild3].velocityMaximum > minimumWarpRange))))
                     Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild3];
                     if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
                     {
@@ -5200,9 +5202,25 @@ namespace Ship_Game.Gameplay
             return null;
         }
 
+        //Added by McShooterz: used for AI to get defensive structures to build around planets
+        public string GetDefenceSatellite()
+        {
+            List<Ship> PotentialSatellites = new List<Ship>();
+            foreach (string platform in this.empire.structuresWeCanBuild)
+            {
+                Ship orbitalDefense = ResourceManager.ShipsDict[platform];
+                if (platform != "Subspace Projector" && orbitalDefense.Role == "platform" && orbitalDefense.BaseStrength >0)
+                    PotentialSatellites.Add(orbitalDefense);
+            }
+            if (PotentialSatellites.Count() == 0)
+                return "";
+            int index = HelperFunctions.GetRandomIndex(PotentialSatellites.Count());
+            return PotentialSatellites[index].Name;
+        }
+
         private bool shipIsGoodForGoals(Ship ship)
         {
-            if ( ship.BaseStrength > 0f  && !ship.shipData.CarrierShip && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
+            if (ship.BaseStrength > 0f && ship.shipData.ShipStyle != "Platforms" && !ship.shipData.CarrierShip && ship.BaseCanWarp && ship.IsWarpCapable && ship.PowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
                 || (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
                 && ship.PowerStoreMax / (ship.PowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum > minimumWarpRange))
                 return true;
@@ -5617,17 +5635,6 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		private void RunEconomicPlannerORIG()
-		{
-			if (this.empire.Money < 400f)
-			{
-				float TaxRate = this.FindTaxRateToReturnAmount(3f);
-				this.empire.data.TaxRate = TaxRate;
-				return;
-			}
-			float TaxRate0 = this.FindTaxRateToReturnAmount(-0.0035f * this.empire.Money);
-			this.empire.data.TaxRate = TaxRate0;
-		}
         //added by gremlin Economic planner
         private void RunEconomicPlanner()
         {
@@ -6588,18 +6595,43 @@ namespace Ship_Game.Gameplay
 			this.DefensiveCoordinator.ManageForcePool();
 			if (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty))
 			{
-				this.RunEconomicPlanner();
-				this.RunDiplomaticPlanner();
-				this.RunMilitaryPlanner();
-				this.RunResearchPlanner();
-				this.RunForcePoolManager();
-				this.RunAgentManager();
-				this.RunWarPlanner();
+                      this.RunEconomicPlanner();
+                      this.RunDiplomaticPlanner();
+                    
+                Parallel.Invoke(() =>
+                {
+              
+                        this.RunMilitaryPlanner();
+                    },
+                    () =>
+                    {
+                        this.RunResearchPlanner();
+                    },
+                    () =>
+                    {
+                        this.RunAgentManager();
+                    },
+                   () =>
+                   {
+                       this.RunWarPlanner();
+                   }
+                );
+
+                //this.RunEconomicPlanner();
+                //this.RunDiplomaticPlanner();
+                //this.RunMilitaryPlanner();
+                //this.RunResearchPlanner();
+                //this.RunForcePoolManager();
+                //this.RunAgentManager();
+                //this.RunWarPlanner();
 			}
             //Added by McShooterz: automating research
-            else if (this.empire.AutoResearch)
+            else
             {
-                this.RunResearchPlanner();
+                if (this.empire.AutoResearch)
+                    this.RunResearchPlanner();
+                if (this.empire.AutoTaxes)
+                    this.RunEconomicPlanner();
             }
 		}
 
@@ -6656,7 +6688,7 @@ namespace Ship_Game.Gameplay
                     UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
                 }
             }
-
+            this.GetAShip(0);
             float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
 
             bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
@@ -6761,7 +6793,8 @@ namespace Ship_Game.Gameplay
 
                     IOrderedEnumerable<Ship> sortedList =
                         from ship in this.empire.GetShips()
-                        orderby ship.GetTechScore()
+                        orderby this.DefensiveCoordinator.DefensiveForcePool.Contains(ship) descending
+                        orderby ship.BaseStrength
                         select ship;
                     using (IEnumerator<Ship> enumerator1 = sortedList.GetEnumerator())
                     {
@@ -6778,7 +6811,7 @@ namespace Ship_Game.Gameplay
                             {
                                 scrapFleet = true;
                             }
-                            if (current.Mothership == null && (current.shipData==null || current.shipData.ShipCategory ==null || current.shipData.ShipCategory!="civilian") && !(current.Role == "freighter") && !(current.Role == "construction") && !(current.Role == "platform") && !(current.Role == "station") && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
+                            if (current.Mothership == null && (current.shipData == null || current.shipData.ShipCategory != ShipData.Category.Civilian) && !(current.Role == "freighter") && !(current.Role == "construction")  && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
                             {
                                 if (current.fleet == null || (current.fleet != null && current.fleet.Task == null)) //&&current.fleet.TaskStep <1))
                                 {
@@ -6794,8 +6827,9 @@ namespace Ship_Game.Gameplay
 
                                     if (maintcost > 0)
                                     {
-                                        current.GetAI().OrderScrapShip();
-
+                                        
+                                            current.GetAI().OrderScrapShip();
+      
                                         Added = Added + maintcost;
                                     }
                                 }
@@ -6824,8 +6858,8 @@ namespace Ship_Game.Gameplay
             Memory = Memory / 1000;
             //added by gremlin shipsize limit
             //i think this could be made dynamic to reduce when memory constraints come into play
-
-            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals && Memory < SizeLimiter && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
+            //&& Memory < SizeLimiter
+            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals  && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
 
                 string s = this.GetAShip(Capacity);
@@ -7156,27 +7190,17 @@ namespace Ship_Game.Gameplay
                                 || (Technology.Value.Secret && !tech.Discovered)
                                 || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
                                 || !tech.shipDesignsCanuseThis
-                                || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count ==0 
+                                || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count == 0
                                 && !this.empire.WeCanUseThisNow(tech.GetTech())))
-                                
 							{
-                                
                                 continue;
 							}                           
                                 AvailableTechs.Add(Technology.Value);
 						}
                         if (AvailableTechs.Count == 0)
 							break;
-
-
-                        byte limit = 6;
                         foreach(Technology tech in AvailableTechs.OrderBy(tech => tech.Cost))
                         {
-                            if (limit < 1)
-                            {
-                                this.empire.ResearchTopic = AvailableTechs.OrderBy(cost => cost.Cost).First().UID;
-                                break;
-                            }
                             switch (tech.TechnologyType)
                             {
                                 case TechnologyType.ShipHull:
@@ -7185,51 +7209,51 @@ namespace Ship_Game.Gameplay
                                         this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
+                                case TechnologyType.ShipGeneral:
+                                    {
+                                        if (HelperFunctions.GetRandomIndex(4) == 3)
+                                            this.empire.ResearchTopic = tech.UID;
+                                        break;
+                                    }
                                 case TechnologyType.ShipWeapons:
                                     {
-                                        if(atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if(atWar || HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.ShipDefense:
                                     {
-                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (atWar || HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.GroundCombat:
                                     {
-                                        if (atWar || this.empire.getResStrat().MilitaryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (atWar || HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Economic:
                                     {
-                                        if (highTaxes || this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (highTaxes || HelperFunctions.GetRandomIndex(this.empire.getResStrat().ExpansionPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Research:
                                     {
-                                        if (lowResearch || this.empire.getResStrat().ResearchPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (lowResearch || HelperFunctions.GetRandomIndex(this.empire.getResStrat().ResearchPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Industry:
                                     {
-                                        if (this.empire.getResStrat().IndustryPriority + HelperFunctions.GetRandomIndex(4) > 4)
+                                        if (HelperFunctions.GetRandomIndex(this.empire.getResStrat().IndustryPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
                                 case TechnologyType.Colonization:
                                     {
-                                        if (this.empire.getResStrat().ExpansionPriority + HelperFunctions.GetRandomIndex(4) > 4)
-                                            this.empire.ResearchTopic = tech.UID;
-                                        break;
-                                    }
-                                case TechnologyType.ShipGeneral:
-                                    {
-                                        if (HelperFunctions.GetRandomIndex(5) > 4)
+                                        if (HelperFunctions.GetRandomIndex(this.empire.getResStrat().ExpansionPriority + 4) > 2)
                                             this.empire.ResearchTopic = tech.UID;
                                         break;
                                     }
@@ -7240,8 +7264,9 @@ namespace Ship_Game.Gameplay
                             }
                             if (this.empire.ResearchTopic != "")
                                 break;
-                            limit--;
                         }
+                        if(this.empire.ResearchTopic == "")
+                        this.empire.ResearchTopic = AvailableTechs[0].UID;
                         break;
 					}
                     case GSAI.ResearchStrategy.Scripted:

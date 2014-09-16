@@ -19,6 +19,8 @@ namespace Ship_Game
 
 		public static float FTLInSystemModifier;
 
+        public static float EnemyFTLInSystemModifier;
+
 		public static object ShieldLocker;
 
 		public static object ClickableSystemsLock;
@@ -112,6 +114,7 @@ namespace Ship_Game
         public static float StartingPlanetRichness;
         public static string ExtendedVersion;
         public static int IconSize;
+        public static byte TurnTimer = 5;
 
         public static bool preventFederations;
         public static bool EliminationMode;
@@ -120,6 +123,7 @@ namespace Ship_Game
         public static float spaceroadlimit = .025f;
         public static float freighterlimit = 50f;
         public static int ScriptedTechWithin = 6;
+        public static bool perf;
 		static GlobalStats()
 		{       
 			GlobalStats.ComparisonCounter = 1;
@@ -128,6 +132,7 @@ namespace Ship_Game
 			GlobalStats.TakingInput = false;
 			GlobalStats.WarpInSystem = true;
 			GlobalStats.FTLInSystemModifier = 1f;
+            GlobalStats.EnemyFTLInSystemModifier = 1f;
 			GlobalStats.ShieldLocker = new object();
 			GlobalStats.ClickableSystemsLock = new object();
 			GlobalStats.SensorNodeLocker = new object();
@@ -168,7 +173,6 @@ namespace Ship_Game
             GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
             GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
             GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
-
             GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
             GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
@@ -178,14 +182,14 @@ namespace Ship_Game
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
-            
+            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
+            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);
 		}
         public static void Statreset()
         {
             GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
             GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
             GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
-
             GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
             GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
@@ -195,6 +199,7 @@ namespace Ship_Game
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.EliminationMode = bool.Parse(ConfigurationManager.AppSettings["EliminationMode"]);
+            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
         }
 		public GlobalStats()
 		{
