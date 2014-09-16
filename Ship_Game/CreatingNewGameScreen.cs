@@ -341,6 +341,8 @@ namespace Ship_Game
                         {
                             foreach (string system in Directory.GetFiles(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
                             {
+                                if (SystemCount > this.numSystems)
+                                    break;
                                 SolarSystem solarSystem = new SolarSystem();
                                 solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(system).OpenRead()), null);
                                 this.data.SolarSystemsList.Add(solarSystem);
