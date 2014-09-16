@@ -11,11 +11,11 @@ namespace Ship_Game
 	{
 		public Camera2d camera;
 
-		private Dictionary<string, Node> TechTree = new Dictionary<string, Node>();
+        private Dictionary<string, Node> TechTree = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
 
-		public Dictionary<string, Node> CompleteSubNodeTree = new Dictionary<string, Node>();
+        public Dictionary<string, Node> CompleteSubNodeTree = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
 
-		public Dictionary<string, Node> SubNodes = new Dictionary<string, Node>();
+        public Dictionary<string, Node> SubNodes = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
 
 		private Vector2 Cursor = Vector2.Zero;
 
