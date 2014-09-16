@@ -59,7 +59,8 @@ namespace Ship_Game
         public byte CostBonus;  // % cost reduction
 
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
-        public string ShipCategory;
+        public Category ShipCategory = Category.Unclassified;
+
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip = false;
         public float BaseStrength;
@@ -74,5 +75,14 @@ namespace Ship_Game
 		{
 			return (ShipData)this.MemberwiseClone();
 		}
+
+        public enum Category
+        {
+            Unclassified,
+            Civilian,
+            Recon,
+            Fighter,
+            Bomber,
+        }
 	}
 }

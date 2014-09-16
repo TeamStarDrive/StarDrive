@@ -8,7 +8,7 @@
   <ExpPerLevel>14.0</ExpPerLevel>
   <RaceList>
     <Race>
-	  <ShipType>Human</ShipType>
+	  <ShipType>Terran</ShipType>
 	    <Localization>145</Localization>
         <Upkeep>6.0</Upkeep>
         <KillExp>28.0</KillExp>

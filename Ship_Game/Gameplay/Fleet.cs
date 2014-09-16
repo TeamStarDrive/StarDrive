@@ -342,6 +342,8 @@ namespace Ship_Game.Gameplay
                 else if (num1 < 15)
                 {
                     this.ScreenShips.Add(ship);
+                    ship.FleetCombatStatus = FleetCombatStatus.Maintain;
+
                     ++num1;
                 }
                 if (num1 == 15)
@@ -476,14 +478,18 @@ namespace Ship_Game.Gameplay
             this.AutoAssembleFleet(0.0f, new Vector2(0.0f, -1f));
             foreach (Ship s in (List<Ship>)this.Ships)
             {
-                lock (GlobalStats.WayPointLock)
-                    s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
+                if (!s.InCombat)
+                {
+                    lock (GlobalStats.WayPointLock)
+                        s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
+                }
                 FleetDataNode fleetDataNode = new FleetDataNode();
                 fleetDataNode.SetShip(s);
                 fleetDataNode.ShipName = s.Name;
                 fleetDataNode.FleetOffset = s.RelativeFleetOffset;
                 fleetDataNode.OrdersOffset = s.RelativeFleetOffset;
                 this.DataNodes.Add(fleetDataNode);
+
             }
 
 
@@ -781,10 +787,12 @@ namespace Ship_Game.Gameplay
         public Vector2 findAveragePosition()
         {
             Vector2 pos = Vector2.Zero;
+            Vector2 pos2 = Vector2.Zero;
             float shipcount = 0;
-            foreach (Ship ship in this.Ships)
+            foreach (Ship ship in (List<Ship>)this.Ships)
             //Parallel.ForEach(this.Ships, ship =>
             {
+                pos2 = pos2 + ship.Position;
                 if (!ship.EnginesKnockedOut && ship.IsWarpCapable&&ship.Active && (!ship.Inhibited ||ship.Inhibited && Vector2.Distance(this.Position,ship.Position)<300000)  )
                 {
                     pos = pos + ship.Position;
@@ -796,8 +804,8 @@ namespace Ship_Game.Gameplay
             //float count = (float)this.Ships.Where(ship => !ship.EnginesKnockedOut && ship.IsWarpCapable && !ship.Inhibited && ship.Active).Count();
             if (shipcount > 0)
                 return pos / shipcount;
-            else if (this.Ships.Count >0)
-                return this.Ships[0].Position;
+            else if (this.Ships.Count > 0)
+                return pos2 / this.Ships.Count;
             else
                 return Vector2.Zero;
         }
