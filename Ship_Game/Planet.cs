@@ -47,7 +47,7 @@ namespace Ship_Game
         public float WorkerPercentage = 0.33f;
         public float ResearcherPercentage = 0.33f;
         public List<string> CommoditiesPresent = new List<string>();
-        private Dictionary<string, float> ResourcesDict = new Dictionary<string, float>();
+        private Dictionary<string, float> ResourcesDict = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
         private float PosUpdateTimer = 1f;
         public float MAX_STORAGE = 10f;
         public string DevelopmentStatus = "Undeveloped";
