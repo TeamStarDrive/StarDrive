@@ -1019,14 +1019,7 @@ namespace Ship_Game.Gameplay
 						Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
 						Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
 						fireDirection.Y = fireDirection.Y * -1f;
-						if (!this.PlaySoundOncePerSalvo)
-						{
-							this.CreateProjectiles(Vector2.Normalize(fireDirection), target, true);
-						}
-						else
-						{
-							this.CreateProjectiles(Vector2.Normalize(fireDirection), target, false);
-						}
+                        this.CreateProjectiles(Vector2.Normalize(fireDirection), target, !this.PlaySoundOncePerSalvo);
 					}
 					return;
 				}
@@ -1037,24 +1030,12 @@ namespace Ship_Game.Gameplay
 					Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
 					Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
 					fireDirection.Y = fireDirection.Y * -1f;
-					if (this.PlaySoundOncePerSalvo)
-					{
-						this.CreateProjectiles(Vector2.Normalize(fireDirection), target, false);
-						return;
-					}
-					this.CreateProjectiles(Vector2.Normalize(fireDirection), target, true);
+                    this.CreateProjectiles(Vector2.Normalize(fireDirection), target, !this.PlaySoundOncePerSalvo);
 					return;
 				}
 				for (int i = 0; i < this.ProjectileCount; i++)
 				{
-					if (!this.PlaySoundOncePerSalvo)
-					{
-                        this.CreateProjectiles(direction, target, true);
-					}
-					else
-					{
-                        this.CreateProjectiles(direction, target, false);
-					}
+                    this.CreateProjectiles(direction, target, !this.PlaySoundOncePerSalvo);
 				}
 				return;
 			}
