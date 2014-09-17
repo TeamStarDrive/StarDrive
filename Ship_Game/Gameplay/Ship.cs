@@ -4163,8 +4163,6 @@ namespace Ship_Game.Gameplay
             if (this.dying && !this.reallyDie)
                 return;
             source = this.LastDamagedBy;
-            if (this.HomePlanet != null)
-                --this.HomePlanet.numGuardians;
             if (this.system != null)
                 this.system.ShipList.QueuePendingRemoval(this);
             if (source is Projectile)
