@@ -865,29 +865,36 @@ namespace Ship_Game
                     ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.PlanetList[0], true);
                 foreach (Planet p in solarSystem.PlanetList)
                 {
-                    //Added by McShooterz: alternate hostile fleets populate universe
-                    if (GlobalStats.ActiveMod != null && ResourceManager.HostileFleets.Fleets.Count != 0)
+                    if (p.Owner != null)
                     {
-                        if (p.Guardians.Count != 0)
-                        {
-                            Random r = new Random();
-                            int randomFleet = r.Next(0, (int)ResourceManager.HostileFleets.Fleets.Count);
-                            foreach (string ship in ResourceManager.HostileFleets.Fleets[randomFleet].Ships)
-                            {
-                                ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName(ResourceManager.HostileFleets.Fleets[randomFleet].Empire), p, true);
-                            }
-                        }
+                        foreach (string key in p.Guardians)
+                            ResourceManager.CreateShipAt(key, p.Owner, p, true);
                     }
                     else
                     {
-                        foreach (string key in p.Guardians)
-                            ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), p, true);
-                        if (p.CorsairPresence)
+                        //Added by McShooterz: alternate hostile fleets populate universe
+                        if (GlobalStats.ActiveMod != null && ResourceManager.HostileFleets.Fleets.Count > 0)
                         {
-                            ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
-                            ResourceManager.CreateShipAt("Corsair", EmpireManager.GetEmpireByName("Corsairs"), p, true);
-                            ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
-                            ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                            if (p.Guardians.Count > 0)
+                            {
+                                int randomFleet = HelperFunctions.GetRandomIndex(ResourceManager.HostileFleets.Fleets.Count);
+                                foreach (string ship in ResourceManager.HostileFleets.Fleets[randomFleet].Ships)
+                                {
+                                    ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName(ResourceManager.HostileFleets.Fleets[randomFleet].Empire), p, true);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (string key in p.Guardians)
+                                ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), p, true);
+                            if (p.CorsairPresence)
+                            {
+                                ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
+                                ResourceManager.CreateShipAt("Corsair", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                                ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                                ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                            }
                         }
                     }
                 }
