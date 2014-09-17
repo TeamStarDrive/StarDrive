@@ -746,13 +746,24 @@ namespace Ship_Game.Gameplay
 				if (target is ShipModule)
 				{
                     ShipModule module = target as ShipModule;
-                    if (module != null && module.GetParent().loyalty == this.loyalty || module == null)
+                    if (module != null && module.GetParent().loyalty == this.loyalty && !this.weapon.HitsFriendlies || module == null)
                         return false;
 					if (this.weapon.TruePD)
 					{
 						this.DieNextFrame = true;
 						return true;
 					}
+                    if ((target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
+                    {
+                        if ((((target as ShipModule).GetParent().GetSystem() != null ? (target as ShipModule).GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod * 100f)
+                        {
+                            this.Miss = true;
+                        }
+                    }
+                    if (this.Miss)
+                    {
+                        return false;
+                    }
                     if (module.ModuleType == ShipModuleType.Armor)
 					{
                         if (!this.ArmorsPierced.Contains(module) && this.ArmorsPierced.Count < this.ArmorPiercing)
@@ -785,20 +796,11 @@ namespace Ship_Game.Gameplay
                             {
                                 this.damageAmount = 0;
                                 this.explodes = false;
+                                this.DieNextFrame = true;
+                                return base.Touch(target);
                             }
                         }
                     }
-					if (this.owner != null && this.owner.loyalty != (target as ShipModule).GetParent().loyalty && (target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
-					{
-						if ((((target as ShipModule).GetParent().GetSystem() != null ? (target as ShipModule).GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod * 100f)
-						{
-							this.Miss = true;
-						}
-					}
-					if (this.Miss)
-					{
-						return false;
-					}
                     //Non exploding projectiles should go through multiple modules if it has enough damage
                     if (!this.explodes)
                     {
@@ -806,7 +808,7 @@ namespace Ship_Game.Gameplay
                         module.Damage(this, this.damageAmount, ref remainder);
                         if (remainder > 0)
                         {
-                            this.damageAmount -= remainder;
+                            this.damageAmount = remainder;
                             return false;
                         }
                     }
