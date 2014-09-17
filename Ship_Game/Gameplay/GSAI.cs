@@ -6594,35 +6594,35 @@ namespace Ship_Game.Gameplay
 			this.DefensiveCoordinator.ManageForcePool();
 			if (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty))
 			{
-                      this.RunEconomicPlanner();
-                      this.RunDiplomaticPlanner();
-                    
-                Parallel.Invoke(() =>
-                {
-              
-                        this.RunMilitaryPlanner();
-                    },
-                    () =>
-                    {
-                        this.RunResearchPlanner();
-                    },
-                    () =>
-                    {
-                        this.RunAgentManager();
-                    },
-                   () =>
-                   {
-                       this.RunWarPlanner();
-                   }
-                );
-
                 //this.RunEconomicPlanner();
                 //this.RunDiplomaticPlanner();
-                //this.RunMilitaryPlanner();
-                //this.RunResearchPlanner();
-                //this.RunForcePoolManager();
-                //this.RunAgentManager();
-                //this.RunWarPlanner();
+
+                //Parallel.Invoke(() =>
+                //{
+
+                //    this.RunMilitaryPlanner();
+                //},
+                //    () =>
+                //    {
+                //        this.RunResearchPlanner();
+                //    },
+                //    () =>
+                //    {
+                //        this.RunAgentManager();
+                //    },
+                //   () =>
+                //   {
+                //       this.RunWarPlanner();
+                //   }
+                //);
+
+                this.RunEconomicPlanner();
+                this.RunDiplomaticPlanner();
+                this.RunMilitaryPlanner();
+                this.RunResearchPlanner();
+                this.RunForcePoolManager();
+                this.RunAgentManager();
+                this.RunWarPlanner();
 			}
             //Added by McShooterz: automating research
             else
