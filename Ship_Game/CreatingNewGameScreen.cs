@@ -338,16 +338,14 @@ namespace Ship_Game
                     int SystemCount = 0;
                     if (Directory.Exists(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
                     {
+                        foreach (string system in Directory.GetFiles(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
                         {
-                            foreach (string system in Directory.GetFiles(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
-                            {
-                                if (SystemCount > this.numSystems)
-                                    break;
-                                SolarSystem solarSystem = new SolarSystem();
-                                solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(system).OpenRead()), null);
-                                this.data.SolarSystemsList.Add(solarSystem);
-                                SystemCount++;
-                            }
+                            if (SystemCount > this.numSystems)
+                                break;
+                            SolarSystem solarSystem = new SolarSystem();
+                            solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(system).OpenRead()), null);
+                            this.data.SolarSystemsList.Add(solarSystem);
+                            SystemCount++;
                         }
                     }
                     MarkovNameGenerator markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);

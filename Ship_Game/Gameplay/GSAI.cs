@@ -6363,7 +6363,6 @@ namespace Ship_Game.Gameplay
 				{
 
                     //for (int i = 0; i < (int)wantedStrength * .1f; i++)
-                    float prodPick = 0f;
                     while(wantedStrength >0 &&  currentgoals <= this.empire.GetPlanets().Count*3)//  this.Goals.Where(goal=>goal.type == GoalType.BuildTroop).Count() <= Potentials.Count*5)
 
                     {
@@ -6850,8 +6849,6 @@ namespace Ship_Game.Gameplay
             }
 
             Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
-            int shipcount = 0;
-            int shipsize = 0;
 
             int Memory = (int)GC.GetTotalMemory(false);
 
