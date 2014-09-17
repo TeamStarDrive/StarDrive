@@ -36,9 +36,9 @@ namespace Ship_Game
         public BatchRemovalCollection<Empire.InfluenceNode> SensorNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
         private Dictionary<SolarSystem, bool> HostilesPresent = new Dictionary<SolarSystem, bool>();
         private Dictionary<Empire, Relationship> Relationships = new Dictionary<Empire, Relationship>();
-        public volatile List<string> ShipsWeCanBuild = new List<string>();
+        public HashSet<string> ShipsWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
-        public List<string> structuresWeCanBuild = new List<string>();
+        public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private int numberForAverage = 1;
         public int ColonizationGoalCount = 2;
         public string ResearchTopic = "";
@@ -1363,17 +1363,15 @@ namespace Ship_Game
 
         public void UpdateShipsWeCanBuild()
         {
-            this.ShipsWeCanBuild.Clear();
-            this.structuresWeCanBuild.Clear();
             foreach (KeyValuePair<string, Ship> keyValuePair in ResourceManager.ShipsDict)
             {
-                if (!keyValuePair.Value.Deleted && this.WeCanBuildThis(keyValuePair.Key))
+                if (keyValuePair.Value.Deleted)
+                    continue;
+                if (this.WeCanBuildThis(keyValuePair.Key))
                 {
-                    if (keyValuePair.Value.Role == "platform" || keyValuePair.Value.Role == "station" && !keyValuePair.Value.shipData.IsShipyard)
-                    {
+                    if (!this.structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.Role == "platform" || keyValuePair.Value.Role == "station" && !keyValuePair.Value.shipData.IsShipyard)
                         this.structuresWeCanBuild.Add(keyValuePair.Key);
-                    }
-                    if (!ResourceManager.ShipRoles[keyValuePair.Value.Role].Protected && keyValuePair.Value.Name != "Subspace Projector")
+                    if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.Role].Protected && keyValuePair.Value.Name != "Subspace Projector")
                         this.ShipsWeCanBuild.Add(keyValuePair.Key);
                 }
             }
