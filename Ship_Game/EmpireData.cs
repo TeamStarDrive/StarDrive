@@ -86,9 +86,11 @@ namespace Ship_Game
 
 		public RacialTrait Traits;
 
-		public int Faction;
+		public byte Faction;
 
-		public int TurnsBelowZero;
+        public bool MinorRace;
+
+		public short TurnsBelowZero;
 
 		public bool Privatization;
 

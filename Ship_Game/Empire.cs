@@ -49,6 +49,7 @@ namespace Ship_Game
         public DiplomacyDialog dd;
         public string PortraitName;
         public bool isFaction;
+        public bool MinorRace;
         public float Research;
         public Color EmpireColor;
         public static UniverseScreen universeScreen;
@@ -1115,15 +1116,9 @@ namespace Ship_Game
 #endif
             if (GlobalStats.perf && Empire.universeScreen.player == this)
                 return;
-            //Added by shahmatt Do not auto explore other empire planets.
-            //foreach (Planet planet in e.OwnedPlanets)
-            //{
-            //    planet.ExploredDict[this] = true;
-            //    planet.system.ExploredDict[this] = true;
-            //}
             try
             {
-                if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this && !e.isFaction)
+                if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this && !e.isFaction && !e.MinorRace)
                 {
                     Empire.universeScreen.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(e, EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty), "First Contact"));
                 }
