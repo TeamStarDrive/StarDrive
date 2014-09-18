@@ -5965,7 +5965,6 @@ namespace Ship_Game.Gameplay
                     if (g.GetMarkedPlanet().ParentSystem.ShipList.Where(ship => ship.loyalty != null && ship.loyalty.isFaction).Count() > 0)
                     {
                         numColonyGoals--;
-
                     }
                     //foreach (Ship enemy in g.GetMarkedPlanet().ParentSystem.ShipList)
                     //{
@@ -6583,39 +6582,17 @@ namespace Ship_Game.Gameplay
 				ao.Update();
 			}
 			this.UpdateThreatMatrix();
-			if (!this.empire.isFaction && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoColonize))
+			if (!this.empire.isFaction && !this.empire.MinorRace && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoColonize))
 			{
 				this.RunExpansionPlanner();
 			}
-            if (!this.empire.isFaction && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoBuild))
+            if (!this.empire.isFaction && !this.empire.MinorRace && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoBuild))
 			{
 				this.RunInfrastructurePlanner();
 			}
 			this.DefensiveCoordinator.ManageForcePool();
 			if (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty))
 			{
-                //this.RunEconomicPlanner();
-                //this.RunDiplomaticPlanner();
-
-                //Parallel.Invoke(() =>
-                //{
-
-                //    this.RunMilitaryPlanner();
-                //},
-                //    () =>
-                //    {
-                //        this.RunResearchPlanner();
-                //    },
-                //    () =>
-                //    {
-                //        this.RunAgentManager();
-                //    },
-                //   () =>
-                //   {
-                //       this.RunWarPlanner();
-                //   }
-                //);
-
                 this.RunEconomicPlanner();
                 this.RunDiplomaticPlanner();
                 this.RunMilitaryPlanner();
