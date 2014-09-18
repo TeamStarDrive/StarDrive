@@ -2169,7 +2169,7 @@ namespace Ship_Game
 			}
 			foreach (EmpireData e in ResourceManager.Empires)
 			{
-                if (e.Traits.Singular != "Human" || e.Faction == 1 || e.MinorRace)
+                if (e.Traits.Singular != "Human")
 				{
 					continue;
 				}

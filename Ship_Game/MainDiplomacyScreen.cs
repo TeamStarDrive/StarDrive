@@ -87,7 +87,7 @@ namespace Ship_Game
 			Color color = new Color(118, 102, 67, 50);
 			foreach (RaceEntry race in this.Races)
 			{
-				if (race.e.isFaction)
+				if (race.e.isFaction || race.e.MinorRace)
 				{
 					continue;
 				}
@@ -160,7 +160,7 @@ namespace Ship_Game
 				List<Empire> Sortlist = new List<Empire>();
 				foreach (Empire e in EmpireManager.EmpireList)
 				{
-					if (e.isFaction || e.data.Defeated)
+					if (e.isFaction || e.data.Defeated || e.MinorRace)
 					{
 						if (this.SelectedEmpire != e)
 						{
@@ -342,7 +342,7 @@ namespace Ship_Game
 				List<Empire> Sortlist = new List<Empire>();
 				foreach (Empire e in EmpireManager.EmpireList)
 				{
-					if (e.isFaction || e.data.Defeated)
+					if (e.isFaction || e.data.Defeated || e.MinorRace)
 					{
 						if (this.SelectedEmpire != e)
 						{
@@ -869,7 +869,7 @@ namespace Ship_Game
 			{
 				if (e != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
 				{
-					if (e.isFaction && (e.isFaction || !e.data.Defeated))
+					if (e.isFaction || e.MinorRace)
 					{
 						continue;
 					}
