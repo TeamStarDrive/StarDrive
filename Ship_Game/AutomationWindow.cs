@@ -173,6 +173,7 @@ namespace Ship_Game
 
 		public void SetDropDowns()
 		{
+            this.resetDropDowns();
 			string Current;
             if (this.screen.player.data.CurrentAutoFreighter != "")
                 Current = this.screen.player.data.CurrentAutoFreighter;
@@ -257,5 +258,12 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        private void resetDropDowns()
+        {
+            this.AutoFreighterDropDown.Options.Clear();
+            this.ColonyShipDropDown.Options.Clear();
+            this.ScoutDropDown.Options.Clear();
+        }
 	}
 }
