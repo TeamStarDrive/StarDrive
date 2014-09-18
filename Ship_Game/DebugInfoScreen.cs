@@ -63,7 +63,7 @@ namespace Ship_Game
             
             foreach (Empire empire in EmpireManager.EmpireList)
             {
-                if (empire == Empire.universeScreen.player || empire.isFaction)
+                if (empire == Empire.universeScreen.player || empire.isFaction || empire.MinorRace)
                     continue;
                 bool flag=false;
                 foreach (Ship ship in empire.GetShips())
@@ -154,7 +154,7 @@ namespace Ship_Game
 			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.win, Color.Black);
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
-				if (e.isFaction)
+				if (e.isFaction || e.MinorRace)
 				{
 					continue;
 				}
