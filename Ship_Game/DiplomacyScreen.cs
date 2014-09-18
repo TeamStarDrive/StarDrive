@@ -1983,18 +1983,18 @@ namespace Ship_Game
                         }
                         else
                         {
-                            List<Empire> list1 = new List<Empire>();
+                            List<Empire> warTargets = new List<Empire>();
                             List<Empire> list2 = new List<Empire>();
                             foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.them.GetRelations())
                             {
                                 if (!keyValuePair.Key.isFaction && keyValuePair.Value.AtWar)
-                                    list1.Add(keyValuePair.Key);
+                                    warTargets.Add(keyValuePair.Key);
                                 if (this.playerEmpire.GetRelations().ContainsKey(keyValuePair.Key) && !keyValuePair.Key.isFaction && ((double)keyValuePair.Value.GetStrength() > 75.0 && this.playerEmpire.GetRelations()[keyValuePair.Key].AtWar))
                                     list2.Add(keyValuePair.Key);
                             }
-                            if (list1.Count > 0)
+                            if (warTargets.Count > 0)
                             {
-                                IOrderedEnumerable<Empire> orderedEnumerable = Enumerable.OrderByDescending<Empire, int>((IEnumerable<Empire>)list1, (Func<Empire, int>)(emp => emp.TotalScore));
+                                IOrderedEnumerable<Empire> orderedEnumerable = Enumerable.OrderByDescending<Empire, int>((IEnumerable<Empire>)warTargets, (Func<Empire, int>)(emp => emp.TotalScore));
                                 if (Enumerable.Count<Empire>((IEnumerable<Empire>)orderedEnumerable) <= 0)
                                     break;
                                 this.empToDiscuss = Enumerable.First<Empire>((IEnumerable<Empire>)orderedEnumerable);
