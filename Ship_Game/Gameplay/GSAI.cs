@@ -6239,11 +6239,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-		private void RunForcePoolManager()
-		{
-
-		}
-
         private void RunGroundPlanner()
         {
             foreach(SolarSystem system in this.empire.GetOwnedSystems())
@@ -6266,17 +6261,9 @@ namespace Ship_Game.Gameplay
                     {
                         break;
                     }
-
                 }
-
-                
-                
-
                 Goal g = new Goal(troop, this.empire, targetBuild);
                 this.Goals.Add(g);
-
-    
-
             }
         }
 
@@ -6595,11 +6582,13 @@ namespace Ship_Game.Gameplay
 			{
                 this.RunEconomicPlanner();
                 this.RunDiplomaticPlanner();
-                this.RunMilitaryPlanner();
-                this.RunResearchPlanner();
-                this.RunForcePoolManager();
-                this.RunAgentManager();
-                this.RunWarPlanner();
+                if (!this.empire.MinorRace)
+                {
+                    this.RunMilitaryPlanner();
+                    this.RunResearchPlanner();
+                    this.RunAgentManager();
+                    this.RunWarPlanner();
+                }
 			}
             //Added by McShooterz: automating research
             else
@@ -6616,7 +6605,8 @@ namespace Ship_Game.Gameplay
         private void RunMilitaryPlanner()
         {
             List<AO>.Enumerator enumerator;
-            this.RunGroundPlanner();
+            if(!this.empire.MinorRace)
+                this.RunGroundPlanner();
             this.numberOfShipGoals = 0;
             foreach (Planet p in this.empire.GetPlanets())
             {
@@ -6762,11 +6752,6 @@ namespace Ship_Game.Gameplay
                     }
 
                     this.Goals.ApplyPendingRemovals();
-                    
-                   
-                    
-                    
-
                     IOrderedEnumerable<Ship> sortedList =
                         from ship in this.empire.GetShips()
                         orderby this.DefensiveCoordinator.DefensiveForcePool.Contains(ship) descending

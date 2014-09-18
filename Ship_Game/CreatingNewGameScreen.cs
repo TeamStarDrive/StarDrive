@@ -249,7 +249,7 @@ namespace Ship_Game
                     BatchRemovalCollection<EmpireData> removalCollection = new BatchRemovalCollection<EmpireData>();
                     foreach (EmpireData empireData in ResourceManager.Empires)
                     {
-                        if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0)
+                        if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0 && !empireData.MinorRace)
                             removalCollection.Add(empireData);
                     }
                     int num = removalCollection.Count - this.numOpponents;
