@@ -249,7 +249,7 @@ namespace Ship_Game
                     BatchRemovalCollection<EmpireData> removalCollection = new BatchRemovalCollection<EmpireData>();
                     foreach (EmpireData empireData in ResourceManager.Empires)
                     {
-                        if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0)
+                        if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0 && !empireData.MinorRace)
                             removalCollection.Add(empireData);
                     }
                     int num = removalCollection.Count - this.numOpponents;
@@ -293,7 +293,7 @@ namespace Ship_Game
                     }
                     foreach (EmpireData data in ResourceManager.Empires)
                     {
-                        if (data.Faction != 0)
+                        if (data.Faction != 0 || data.MinorRace)
                         {
                             Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
                             this.data.EmpireList.Add(empireFromEmpireData);
@@ -310,7 +310,7 @@ namespace Ship_Game
                     }
                     foreach (Empire Owner in this.data.EmpireList)
                     {
-                        if (!Owner.isFaction)
+                        if (!Owner.isFaction && !Owner.MinorRace)
                         {
                             SolarSystem solarSystem = new SolarSystem();
                             //Added by McShooterz: support for SolarSystems folder for mods
@@ -457,7 +457,7 @@ namespace Ship_Game
                     }
                     foreach (Empire index in this.data.EmpireList)
                     {
-                        if (!index.isFaction)
+                        if (!index.isFaction && !index.MinorRace)
                         {
                             foreach (Planet planet1 in index.GetPlanets())
                             {
@@ -796,6 +796,8 @@ namespace Ship_Game
             Empire empire = new Empire();
             if (data.Faction == 1)
                 empire.isFaction = true;
+            if (data.MinorRace)
+                empire.MinorRace = true;
             int index1 = (int)RandomMath.RandomBetween(0.0f, (float)this.dtraits.DiplomaticTraitsList.Count);
             data.DiplomaticPersonality = this.dtraits.DiplomaticTraitsList[index1];
             while (!this.CheckPersonality(data))
