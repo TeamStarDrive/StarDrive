@@ -5548,13 +5548,6 @@ namespace Ship_Game.Gameplay
 			this.empire.GetUS().ScreenManager.AddScreen(new DiplomacyScreen(this.empire, EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty), dialogue, new Offer(), OfferPeace));
 		}
 
-		public void ReformulateWarGoals()
-		{
-			foreach (MilitaryTask taskList in this.TaskList)
-			{
-			}
-		}
-
 		private void RunAgentManager()
 		{
 			string name = this.empire.data.DiplomaticPersonality.Name;
