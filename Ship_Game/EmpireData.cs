@@ -34,8 +34,6 @@ namespace Ship_Game
 
 		public List<string> ExcludedETraits = new List<string>();
 
-		public string TechTree = "Standard";
-
 		public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
 
 		public string AbsorbedBy;
@@ -149,6 +147,10 @@ namespace Ship_Game
         //Added by McShooterz: power bonus
         public float PowerFlowMod = 0.0f;
         public float ShieldPowerMod = 0.0f;
+
+        //unlock at start
+        public List<string> unlockBuilding = new List<string>();
+        public List<string> unlockShips = new List<string>();
 
 
 		public EmpireData()
