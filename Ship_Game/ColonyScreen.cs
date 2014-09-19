@@ -523,18 +523,17 @@ namespace Ship_Game
         List<string> list = new List<string>();
         if (this.shipsCanBuildLast != this.p.Owner.ShipsWeCanBuild.Count || this.Reset)
         {
-          this.buildSL.Reset();
-          for (int index1 = 0; index1 < this.p.Owner.ShipsWeCanBuild.Count; ++index1)
-          {
-            string index2 = this.p.Owner.ShipsWeCanBuild[index1];
-            if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[index2].Role].Protected)
-                continue;
-            if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index2].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)))
+            this.buildSL.Reset();
+            foreach(string ship in this.p.Owner.ShipsWeCanBuild)
             {
-                list.Add(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner));
-                this.buildSL.AddItem((object)new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)));
+                if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected)
+                    continue;
+                if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner)))
+                {
+                    list.Add(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner));
+                    this.buildSL.AddItem((object)new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner)));
+                }
             }
-          }
           this.buildSL.indexAtTop = 0;
           this.Reset = false;
           for (int index1 = 0; index1 < this.buildSL.Entries.Count; ++index1)
@@ -542,12 +541,11 @@ namespace Ship_Game
             ScrollList.Entry entry = this.buildSL.Entries[index1];
             if (entry != null)
             {
-              for (int index2 = 0; index2 < this.p.Owner.ShipsWeCanBuild.Count; ++index2)
-              {
-                string index3 = this.p.Owner.ShipsWeCanBuild[index2];
-                if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index3].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[index3].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
-                  entry.AddItem((object) ResourceManager.ShipsDict[index3], 1, 1);
-              }
+                foreach (string ship in this.p.Owner.ShipsWeCanBuild)
+                {
+                    if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
+                        entry.AddItem((object)ResourceManager.ShipsDict[ship], 1, 1);
+                }
             }
           }
         }

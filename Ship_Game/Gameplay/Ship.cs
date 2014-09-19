@@ -4085,10 +4085,10 @@ namespace Ship_Game.Gameplay
             if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory)))
                 GlobalStats.IncrementRemnantKills();
             //Added by McShooterz: change level cap, dynamic experience required per level
-            float Exp = 0;
-            float ExpLevel = 0;
+            float Exp = 1;
+            float ExpLevel = 1;
             bool ExpFound = false;
-            float ReqExp = 0;
+            float ReqExp = 1;
             if (ResourceManager.ShipRoles.ContainsKey(killed.Role))
             {
                 for (int i = 0; i < ResourceManager.ShipRoles[killed.Role].RaceList.Count(); i++)
@@ -4163,45 +4163,15 @@ namespace Ship_Game.Gameplay
             if (this.dying && !this.reallyDie)
                 return;
             source = this.LastDamagedBy;
-            if (this.HomePlanet != null)
-                --this.HomePlanet.numGuardians;
             if (this.system != null)
                 this.system.ShipList.QueuePendingRemoval(this);
             if (source is Projectile)
             {
                 if ((source as Projectile).owner != null)
                 {
-                    float Amount;
-                    switch ((source as Projectile).owner.Role)
-                    {
-                        case "freighter":
-                            Amount = 2f;
-                            break;
-                        case "platform":
-                            Amount = 1f;
-                            break;
-                        case "fighter":
-                            Amount = 1f;
-                            break;
-                        case "scout":
-                            Amount = 1f;
-                            break;
-                        case "frigate":
-                            Amount = 3f;
-                            break;
-                        case "cruiser":
-                            Amount = 3f;
-                            break;
-                        case "carrier":
-                            Amount = 4f;
-                            break;
-                        case "capital":
-                            Amount = 5f;
-                            break;
-                        default:
-                            Amount = 2f;
-                            break;
-                    }
+                    float Amount = 1f;
+                    if(ResourceManager.ShipRoles.ContainsKey((source as Projectile).owner.Role))
+                        Amount = ResourceManager.ShipRoles[(source as Projectile).owner.Role].DamageRelations;
                     this.loyalty.DamageRelationship((source as Projectile).owner.loyalty, "Destroyed Ship", Amount, (Planet)null);
                 }
             }
