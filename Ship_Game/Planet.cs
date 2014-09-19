@@ -57,7 +57,6 @@ namespace Ship_Game
         public bool ResLocked;
         public bool RecentCombat;
         public int Crippled_Turns;
-        public int numGuardians;
         public Planet.ColonyType colonyType;
         public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;
