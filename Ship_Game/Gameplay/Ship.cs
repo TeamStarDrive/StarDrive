@@ -4165,15 +4165,12 @@ namespace Ship_Game.Gameplay
             source = this.LastDamagedBy;
             if (this.system != null)
                 this.system.ShipList.QueuePendingRemoval(this);
-            if (source is Projectile)
+            if (source is Projectile && (source as Projectile).owner != null)
             {
-                if ((source as Projectile).owner != null)
-                {
-                    float Amount = 1f;
-                    if(ResourceManager.ShipRoles.ContainsKey((source as Projectile).owner.Role))
-                        Amount = ResourceManager.ShipRoles[(source as Projectile).owner.Role].DamageRelations;
-                    this.loyalty.DamageRelationship((source as Projectile).owner.loyalty, "Destroyed Ship", Amount, (Planet)null);
-                }
+                float Amount = 1f;
+                if(ResourceManager.ShipRoles.ContainsKey(this.Role))
+                    Amount = ResourceManager.ShipRoles[this.Role].DamageRelations;
+                this.loyalty.DamageRelationship((source as Projectile).owner.loyalty, "Destroyed Ship", Amount, (Planet)null);
             }
             if (!cleanupOnly && this.InFrustum)
             {
