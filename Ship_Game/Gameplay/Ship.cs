@@ -2786,6 +2786,7 @@ namespace Ship_Game.Gameplay
                         this.repairTimer = 2f;
                         if (this.Health < this.HealthMax)
                         {
+                            this.shipStatusChanged = true;
                             if (this.InCombat && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
                             {
                                 this.repairTimer = 0.5f;
@@ -2829,6 +2830,8 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
+                        else
+                            this.shipStatusChanged = false;
                     }
                     if (!this.Active)
                         return;
@@ -3405,7 +3408,7 @@ namespace Ship_Game.Gameplay
                         }
                     }//);
                 }
-                if (this.shipStatusChanged)
+                if (this.shipStatusChanged || this.InCombat)
                 {
                     this.Hangars.Clear();
                     this.Shields.Clear();
