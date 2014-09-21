@@ -1892,13 +1892,6 @@ namespace Ship_Game.Gameplay
                     dummy.Health = dummy.HealthMax;
                 }
             }
-            else
-            {
-                foreach (ShipModule dummy in this.LinkedModulesList)
-                {
-                    dummy.Health = this.Health;
-                }
-            }
         }
 
         public float GetShieldsMax()
