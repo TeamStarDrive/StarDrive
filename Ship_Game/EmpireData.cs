@@ -118,12 +118,6 @@ namespace Ship_Game
 
 		public float ShieldPenBonusChance;
 
-		public float WarpEfficiencyBonus;
-
-		public float BurnerEfficiencyBonus;
-
-		public float AfterBurnerSpeedModifier;
-
 		public float SpyModifier;
 
 		public float DefensiveSpyBonus;
