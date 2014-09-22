@@ -677,8 +677,6 @@ namespace Ship_Game.Gameplay
                 if (this.Owner.engineState != Ship.MoveState.Warp && this.Owner.GetHangars().Count > 0 && !this.Owner.ManualHangarOverride)
                 {
                     if (!this.Owner.FightersOut) this.Owner.FightersOut = true;
-                    //if (!this.Owner.TroopsOut) this.Owner.TroopsOut = true;
-
                 }
                 if (this.Owner.engineState == Ship.MoveState.Warp)
                 {

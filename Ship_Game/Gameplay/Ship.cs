@@ -76,7 +76,6 @@ namespace Ship_Game.Gameplay
         public bool reserved;
         public bool isColonyShip;
         public string StrategicIconPath;
-        public float WarpMassCapacity;
         private Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
@@ -145,6 +144,7 @@ namespace Ship_Game.Gameplay
         public float PowerDraw;
         public float ModulePowerDraw;
         private Planet HomePlanet;
+        public float ShieldPowerDraw;
         public float rotationRadiansPerSecond;
         public bool FromSave;
         public bool HasRepairModule;
@@ -218,14 +218,6 @@ namespace Ship_Game.Gameplay
         public bool hasOrdnanceTransporter;
         public bool hasAssaultTransporter;
         public bool hasRepairBeam;
-
-        public bool IsWarpCapable
-        {
-            get
-            {
-                return !this.Inhibited && (!GlobalStats.HardcoreRuleset || (double)this.Mass <= (double)this.WarpMassCapacity);
-            }
-        }
 
         public float CargoSpace_Used
         {
@@ -1777,23 +1769,27 @@ namespace Ship_Game.Gameplay
 
         public void ResetJumpTimer()
         {
-            this.JumpTimer = 0; // to ensure that the game will always prefer any module data that *is* there
-            foreach (ModuleSlot moduleSlot in this.ModuleSlotList) // Spool-time can be defined by ANY module type - e.g. internal warp cores as well as engines
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useSpoolModifiers)
             {
-                if (moduleSlot.module.FTLSpoolTime != 0) // Ignore 0 values (as 0 is assumed as default value if the XML contains no <FTLSpoolTime> data
+                this.JumpTimer = 0; // to ensure that the game will always prefer any module data that *is* there
+                foreach (ModuleSlot moduleSlot in this.ModuleSlotList) // Spool-time can be defined by ANY module type - e.g. internal warp cores as well as engines
                 {
-                    if (this.JumpTimer < moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
-                        this.JumpTimer = moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier; // New addition: Added capability to modify the spool time via research/racial bonus and apply this on top
+                    if (moduleSlot.module.FTLSpoolTime != 0) // Ignore 0 values (as 0 is assumed as default value if the XML contains no <FTLSpoolTime> data
+                    {
+                        if (this.JumpTimer < moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier) // Ensures that the SLOWEST module's spool time is used, not just the most recent one read
+                            this.JumpTimer = moduleSlot.module.FTLSpoolTime * this.loyalty.data.SpoolTimeModifier; // New addition: Added capability to modify the spool time via research/racial bonus and apply this on top
+                    }
                 }
+                if (JumpTimer == 0)
+                    this.JumpTimer = 3.0f * this.loyalty.data.SpoolTimeModifier; // Spooling bonus from any research is also applied to the default value if a modder is using research boni but not necessarily module XML control
             }
-            if (JumpTimer == 0)
-                this.JumpTimer = 3.0f * this.loyalty.data.SpoolTimeModifier; // Spooling bonus from any research is also applied to the default value if a modder is using research boni but not necessarily module XML control
+            else
+                this.JumpTimer = 3.0f;
         } 
 
         //added by gremlin: Fighter recall and stuff
         public void EngageStarDrive()
         {
-
             #region No warp in uncontrolled systems
             if (ArtificialIntelligence.WarpRestriction == true && !this.Inhibited && !universeScreen.Debug)
             {
@@ -1959,18 +1955,17 @@ namespace Ship_Game.Gameplay
         {
             #region Variables
             base.Mass = 0f;
-            Ship mass = this;
-            mass.Mass = mass.Mass + (float)this.Size;
+            this.Mass += (float)this.Size;
             this.Thrust = 0f;
             this.PowerStoreMax = 0f;
             this.PowerFlowMax = 0f;
             this.ModulePowerDraw = 0f;
+            this.ShieldPowerDraw = 0f;
             this.shield_max = 0f;
             this.shield_power = 0f;
             this.armor_max = 0f;
             this.CrewRequired = 0;
             this.CrewSupplied = 0;
-            this.WarpMassCapacity = 0f;
             this.Size = 0;
             this.number_alive_modules = 0;
             this.velocityMaximum = 0f;
@@ -2083,7 +2078,6 @@ namespace Ship_Game.Gameplay
                 if (moduleSlotList.module.InstalledWeapon != null && moduleSlotList.module.InstalledWeapon.isRepairBeam)
                     this.RepairBeams.Add(moduleSlotList.module);
                 this.mass += moduleSlotList.module.Mass;
-                this.WarpMassCapacity += moduleSlotList.module.WarpMassCapacity;
                 this.Thrust += moduleSlotList.module.thrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
                 this.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? this.loyalty.data.FuelCellModifier : 0);
@@ -2099,7 +2093,10 @@ namespace Ship_Game.Gameplay
                 this.CargoSpace_Max += moduleSlotList.module.Cargo_Capacity;
                 this.OrdinanceMax += (float)moduleSlotList.module.OrdinanceCapacity;
                 this.Ordinance += (float)moduleSlotList.module.OrdinanceCapacity;
-                this.ModulePowerDraw += moduleSlotList.module.PowerDraw;
+                if(moduleSlotList.module.ModuleType != ShipModuleType.Shield)
+                    this.ModulePowerDraw += moduleSlotList.module.PowerDraw;
+                else
+                    this.ShieldPowerDraw += moduleSlotList.module.PowerDraw;
                 this.Health += moduleSlotList.module.HealthMax;
             }
 
@@ -2321,7 +2318,10 @@ namespace Ship_Game.Gameplay
                 ++this.number_alive_modules;
                 this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
-                this.ModulePowerDraw += moduleSlot.module.PowerDraw;
+                if (moduleSlot.module.ModuleType != ShipModuleType.Shield)
+                    this.ModulePowerDraw += moduleSlot.module.PowerDraw;
+                else
+                    this.ShieldPowerDraw += moduleSlot.module.PowerDraw;
                 Ship ship2 = this;
                 double num2 = (double)ship2.Health + (double)moduleSlot.module.HealthMax;
                 ship2.Health = (float)num2;
@@ -2539,7 +2539,6 @@ namespace Ship_Game.Gameplay
             if (this.Inhibited && this.engineState == Ship.MoveState.Warp)
             {
                 this.HyperspaceReturn();
-                this.engineState = Ship.MoveState.Afterburner;
             }
             if (this.TetheredTo != null)
             {
@@ -2756,7 +2755,7 @@ namespace Ship_Game.Gameplay
                             float num2 = this.Velocity.Length() / this.velocityMaximum;
                             if (this.isThrusting)
                             {
-                                if (this.engineState == Ship.MoveState.Warp || this.engineState == Ship.MoveState.Afterburner)
+                                if (this.engineState == Ship.MoveState.Warp)
                                 {
                                     if ((double)thruster.heat < (double)num2)
                                         thruster.heat += 0.06f;
@@ -2808,7 +2807,7 @@ namespace Ship_Game.Gameplay
                         }
                         if ((double)this.JumpTimer <= 0.1)
                         {
-                            if (this.engineState == Ship.MoveState.Sublight && (this.IsWarpCapable && (double)this.GetFTLSpeed() > (double)this.GetSTLSpeed()))
+                            if (this.engineState == Ship.MoveState.Sublight && (!this.Inhibited && (double)this.GetFTLSpeed() > (double)this.GetSTLSpeed()))
                             {
                                 FTL ftl = new FTL();
                                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
@@ -3320,8 +3319,8 @@ namespace Ship_Game.Gameplay
                     this.PowerFlowMax = 0.0f;
                     this.OrdinanceMax = 0.0f;
                     this.ModulePowerDraw = 0.0f;
-                    this.RepairRate = 0;
-                    this.WarpMassCapacity = 0.0f;
+                    this.ShieldPowerDraw = 0f;
+                    this.RepairRate = 0f;
                     this.CargoSpace_Max = 0.0f;
                     this.SensorRange = 0.0f;
                     float sensorBonus = 0f;
@@ -3384,7 +3383,6 @@ namespace Ship_Game.Gameplay
                                         this.ECMValue = 0f;
                                 }
                                 this.OrdAddedPerSecond += moduleSlot.module.OrdnanceAddedPerSecond;
-                                this.WarpMassCapacity += moduleSlot.module.WarpMassCapacity;
                                 this.HealPerTurn += moduleSlot.module.HealPerTurn;
                                 if (moduleSlot.module.ModuleType == ShipModuleType.Hangar)
                                 {
@@ -3400,7 +3398,10 @@ namespace Ship_Game.Gameplay
                                     this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
                                 if(moduleSlot.module.PowerFlowMax != 0)
                                     this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                                this.ModulePowerDraw += moduleSlot.module.PowerDraw;
+                                if(moduleSlot.module.ModuleType != ShipModuleType.Shield)
+                                    this.ModulePowerDraw += moduleSlot.module.PowerDraw;
+                                else
+                                    this.ShieldPowerDraw += moduleSlot.module.PowerDraw;
                                 this.WarpDraw += moduleSlot.module.PowerDrawAtWarp;
                             }
                         }
@@ -3421,7 +3422,11 @@ namespace Ship_Game.Gameplay
                 }
                 //Power draw based on warp
                 if (!this.inborders && this.engineState == Ship.MoveState.Warp)
+                {
                     this.PowerDraw = (this.loyalty.data.FTLPowerDrainModifier * this.ModulePowerDraw) + (this.WarpDraw * this.loyalty.data.FTLPowerDrainModifier / 2);
+                }
+                else if (this.engineState != Ship.MoveState.Warp && this.ShieldsUp)
+                    this.PowerDraw = this.ModulePowerDraw + this.ShieldPowerDraw;
                 else
                     this.PowerDraw = this.ModulePowerDraw;
                 //Check Current Shields
@@ -4213,7 +4218,6 @@ namespace Ship_Game.Gameplay
         public enum MoveState
         {
             Sublight,
-            Afterburner,
             Warp,
         }
     }
