@@ -762,7 +762,7 @@ namespace Ship_Game
                             if (ResourceManager.ShipsDict[index].Role == "scout")
                                 list2.Add(ResourceManager.ShipsDict[index]);
                         }
-                        IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.PowerFlowMax - ship.PowerDraw));
+                        IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.PowerFlowMax - ship.ModulePowerDraw));
                         if (Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) <= 0)
                             break;
                         planet1.ConstructionQueue.Add(new QueueItem()
