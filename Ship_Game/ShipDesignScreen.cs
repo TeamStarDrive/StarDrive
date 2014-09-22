@@ -3184,14 +3184,12 @@ namespace Ship_Game
 			float WarpThrust = 0f;
 			float TurnThrust = 0f;
 			float WarpableMass = 0f;
-			float BurnerDrain = 0f;
 			float WarpDraw = 0f;
 			float FTLCount = 0f;
 			float FTLSpeed = 0f;
             float RepairRate = 0f;
             float sensorRange = 0f;
             float sensorBonus = 0f;
-            float BeamPowerUsed =0f;
             float BeamLongestDuration = 0f;
             float OrdnanceUsed=0f;
             float OrdnanceRecoverd = 0f;
@@ -3223,7 +3221,6 @@ namespace Ship_Game
 				{
 					WarpableMass = WarpableMass + slot.module.WarpMassCapacity;
                     PowerDraw = PowerDraw + slot.module.PowerDraw;
-					BurnerDrain = BurnerDrain + slot.module.PowerDrawWithAfterburner;
 					WarpDraw = WarpDraw + slot.module.PowerDrawAtWarp;
                     if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.PowerRequiredToFire > 0)
                         bEnergyWeapons = true;
@@ -3242,7 +3239,6 @@ namespace Ship_Game
 					Thrust = Thrust + slot.module.thrust;
 					WarpThrust = WarpThrust + (float)slot.module.WarpThrust;
 					TurnThrust = TurnThrust + (float)slot.module.TurnThrust;
-					AfterThrust = AfterThrust + slot.module.AfterburnerThrust;
                     RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.RepairBonus != 0 ? (1 + (float)this.ActiveHull.RepairBonus / 100f) : 1));
                     OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
                     if (slot.module.SensorRange > sensorRange)
@@ -3252,9 +3248,7 @@ namespace Ship_Game
                     if (slot.module.SensorBonus > sensorBonus)
                         sensorBonus = slot.module.SensorBonus;
                     
-                    //added by gremlin collect weapon stats
-                    
-
+                    //added by gremlin collect weapon stats                  
                     if (slot.module.isWeapon || slot.module.BombType != null)
                     {
                         Weapon weapon;
@@ -3262,10 +3256,10 @@ namespace Ship_Game
                             weapon = slot.module.InstalledWeapon;
                         else
                             weapon = ResourceManager.WeaponsDict[slot.module.BombType];
-
-                        BeamPowerUsed += weapon.BeamPowerCostPerSecond * weapon.BeamDuration;
-                        OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay;
-                        WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay;
+                        OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
+                        WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
+                        if(weapon.isBeam)
+                            WeaponPowerNeeded += weapon.BeamPowerCostPerSecond * weapon.BeamDuration / weapon.fireDelay;
                         if(BeamLongestDuration < weapon.BeamDuration)
                             BeamLongestDuration = weapon.BeamDuration; 
                         
@@ -3410,20 +3404,20 @@ namespace Ship_Game
             }
             
 
-            float powerconsumed = (BeamPowerUsed + WeaponPowerNeeded) - PowerFlow;
-            float beamduration = 0f;
+            float powerconsumed = WeaponPowerNeeded - PowerFlow;
+            float EnergyDuration = 0f;
             if (powerconsumed > 0)
             {
-                beamduration = BeamPowerUsed + WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
-                if ((beamduration >= BeamLongestDuration) && bEnergyWeapons == true)
+                EnergyDuration = WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
+                if ((EnergyDuration >= BeamLongestDuration) && bEnergyWeapons == true)
                 {
                     Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergy60(ref Cursor, "Power Time:", beamduration, 163);
+                    this.DrawStatEnergy60(ref Cursor, "Power Time:", EnergyDuration, 163);
                 }
                 else if (bEnergyWeapons == true)
                 {
                     Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergyBad(ref Cursor, "Power Time:", beamduration.ToString("N1"), 163);
+                    this.DrawStatEnergyBad(ref Cursor, "Power Time:", EnergyDuration.ToString("N1"), 163);
                 }
 
             }
@@ -3436,13 +3430,6 @@ namespace Ship_Game
                 }
             }
             Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
-            
-                       //added by McShooterz
-            if (BurnerDrain != 0)
-            {
-                this.DrawStat(ref Cursor, "Power with Afterburner:", (int)(PowerFlow - PowerDraw - BurnerDrain), "Power draw of the ship when the afterburner is engaged");
-                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-            }
 			this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(113), ":"), (int)HitPoints, 103);
             //Added by McShooterz: draw total repair
             if (RepairRate > 0)

@@ -691,8 +691,6 @@ namespace Ship_Game
                     }
                     if (str == "Xeno Compilers" || str == "Research Bonus")
                         this.data.Traits.ResearchMod += unlockedBonus.Bonus;
-                    if (str == "Afterburner Bonus")
-                        this.data.AfterBurnerSpeedModifier += unlockedBonus.Bonus;
                     if (str == "FTL Spool Bonus")
                     {
                         if (unlockedBonus.Bonus < 1)
@@ -741,10 +739,6 @@ namespace Ship_Game
                         this.data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus;
                     if (str == "StarDrive Enhancement" || str == "FTL Speed Bonus")
                         this.data.FTLModifier += unlockedBonus.Bonus * this.data.FTLModifier;
-                    if (str == "Warp Efficiency")
-                        this.data.WarpEfficiencyBonus += unlockedBonus.Bonus;
-                    if (str == "Burner Efficiency")
-                        this.data.BurnerEfficiencyBonus += unlockedBonus.Bonus;
                     if (str == "FTL Efficiency" || str == "FTL Efficiency Bonus")
                         this.data.FTLPowerDrainModifier = this.data.FTLPowerDrainModifier - unlockedBonus.Bonus * this.data.FTLPowerDrainModifier;
                     if (str == "Spy Offense" || str == "Spy Offense Roll Bonus")
@@ -789,6 +783,12 @@ namespace Ship_Game
                     if (str == "Shield Power Bonus")
                         this.data.ShieldPowerMod += unlockedBonus.Bonus;
                 }
+            }
+            //update ship stats if a bonus was unlocked
+            if (ResourceManager.TechTree[techID].BonusUnlocked.Count > 0)
+            {
+                foreach (Ship ship in this.OwnedShips)
+                    ship.shipStatusChanged = true;
             }
             this.UpdateShipsWeCanBuild();
             if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))

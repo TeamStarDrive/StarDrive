@@ -1417,7 +1417,6 @@ namespace Ship_Game
                     solarSystem.ShipList.Clear();
                 foreach (Ship ship in (List<Ship>)this.MasterShipList)
                 {
-                    ship.Updated = false;
                     ship.isInDeepSpace = false;
                     ship.SetSystem((SolarSystem)null);
                     foreach (SolarSystem s in UniverseScreen.SolarSystemList)
