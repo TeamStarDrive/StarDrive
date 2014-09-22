@@ -112,7 +112,10 @@ namespace Ship_Game
                     else if (LocalizerDict.TryGetValue(i, out replace) && replace != "" && replace != null)
                     {
                         if (!LocalizerDict.ContainsKey(clear))
+                        {
+                            System.Diagnostics.Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
                             LocalizerDict.Add(clear, LocalizerDict[i]);
+                        }
 
 
                     }
