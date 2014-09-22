@@ -3184,7 +3184,6 @@ namespace Ship_Game
 			float WarpThrust = 0f;
 			float TurnThrust = 0f;
 			float WarpableMass = 0f;
-			float BurnerDrain = 0f;
 			float WarpDraw = 0f;
 			float FTLCount = 0f;
 			float FTLSpeed = 0f;
@@ -3223,7 +3222,6 @@ namespace Ship_Game
 				{
 					WarpableMass = WarpableMass + slot.module.WarpMassCapacity;
                     PowerDraw = PowerDraw + slot.module.PowerDraw;
-					BurnerDrain = BurnerDrain + slot.module.PowerDrawWithAfterburner;
 					WarpDraw = WarpDraw + slot.module.PowerDrawAtWarp;
                     if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.PowerRequiredToFire > 0)
                         bEnergyWeapons = true;
@@ -3242,7 +3240,6 @@ namespace Ship_Game
 					Thrust = Thrust + slot.module.thrust;
 					WarpThrust = WarpThrust + (float)slot.module.WarpThrust;
 					TurnThrust = TurnThrust + (float)slot.module.TurnThrust;
-					AfterThrust = AfterThrust + slot.module.AfterburnerThrust;
                     RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.RepairBonus != 0 ? (1 + (float)this.ActiveHull.RepairBonus / 100f) : 1));
                     OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
                     if (slot.module.SensorRange > sensorRange)
@@ -3436,13 +3433,6 @@ namespace Ship_Game
                 }
             }
             Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
-            
-                       //added by McShooterz
-            if (BurnerDrain != 0)
-            {
-                this.DrawStat(ref Cursor, "Power with Afterburner:", (int)(PowerFlow - PowerDraw - BurnerDrain), "Power draw of the ship when the afterburner is engaged");
-                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-            }
 			this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(113), ":"), (int)HitPoints, 103);
             //Added by McShooterz: draw total repair
             if (RepairRate > 0)
