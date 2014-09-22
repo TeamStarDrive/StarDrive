@@ -3190,7 +3190,6 @@ namespace Ship_Game
             float RepairRate = 0f;
             float sensorRange = 0f;
             float sensorBonus = 0f;
-            float BeamPowerUsed =0f;
             float BeamLongestDuration = 0f;
             float OrdnanceUsed=0f;
             float OrdnanceRecoverd = 0f;
@@ -3249,9 +3248,7 @@ namespace Ship_Game
                     if (slot.module.SensorBonus > sensorBonus)
                         sensorBonus = slot.module.SensorBonus;
                     
-                    //added by gremlin collect weapon stats
-                    
-
+                    //added by gremlin collect weapon stats                  
                     if (slot.module.isWeapon || slot.module.BombType != null)
                     {
                         Weapon weapon;
@@ -3259,10 +3256,10 @@ namespace Ship_Game
                             weapon = slot.module.InstalledWeapon;
                         else
                             weapon = ResourceManager.WeaponsDict[slot.module.BombType];
-
-                        BeamPowerUsed += weapon.BeamPowerCostPerSecond * weapon.BeamDuration;
-                        OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay;
-                        WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay;
+                        OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
+                        WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
+                        if(weapon.isBeam)
+                            WeaponPowerNeeded += weapon.BeamPowerCostPerSecond * weapon.BeamDuration / weapon.fireDelay;
                         if(BeamLongestDuration < weapon.BeamDuration)
                             BeamLongestDuration = weapon.BeamDuration; 
                         
@@ -3407,20 +3404,20 @@ namespace Ship_Game
             }
             
 
-            float powerconsumed = (BeamPowerUsed + WeaponPowerNeeded) - PowerFlow;
-            float beamduration = 0f;
+            float powerconsumed = WeaponPowerNeeded - PowerFlow;
+            float EnergyDuration = 0f;
             if (powerconsumed > 0)
             {
-                beamduration = BeamPowerUsed + WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
-                if ((beamduration >= BeamLongestDuration) && bEnergyWeapons == true)
+                EnergyDuration = WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
+                if ((EnergyDuration >= BeamLongestDuration) && bEnergyWeapons == true)
                 {
                     Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergy60(ref Cursor, "Power Time:", beamduration, 163);
+                    this.DrawStatEnergy60(ref Cursor, "Power Time:", EnergyDuration, 163);
                 }
                 else if (bEnergyWeapons == true)
                 {
                     Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergyBad(ref Cursor, "Power Time:", beamduration.ToString("N1"), 163);
+                    this.DrawStatEnergyBad(ref Cursor, "Power Time:", EnergyDuration.ToString("N1"), 163);
                 }
 
             }
