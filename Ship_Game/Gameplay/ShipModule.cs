@@ -38,8 +38,6 @@ namespace Ship_Game.Gameplay
 
 		public float ResourcePerSecondWarp;
 
-		public float ResourcePerSecondAfterburner;
-
 		public bool IsCommandModule;
 
 		public bool IsRepairModule;
@@ -174,10 +172,6 @@ namespace Ship_Game.Gameplay
 		public float PowerDraw;
 
 		public float PowerDrawAtWarp;
-
-		public float PowerDrawWithAfterburner;
-
-		public float AfterburnerThrust;
 
 		public float PowerStoreMax;
 
@@ -1770,9 +1764,7 @@ namespace Ship_Game.Gameplay
 
 		public override void Update(float elapsedTime)
 		{
-			ShipModule bombTimer = this;
-			bombTimer.BombTimer = bombTimer.BombTimer - elapsedTime;
-			ShipModule shipModule = this;
+            this.BombTimer -= elapsedTime;
 			if (base.Health > 0f && !this.Active)
 			{
 				this.Active = true;
@@ -1786,14 +1778,6 @@ namespace Ship_Game.Gameplay
 			if (base.Health <= 0f && this.Active)
 			{
 				this.Die(base.LastDamagedBy, false);
-			}
-			if (this.OrdnanceAddedPerSecond > 0f && this.Powered)
-			{
-                this.Parent.Ordinance += this.OrdnanceAddedPerSecond * elapsedTime;
-				if (this.Parent.Ordinance > this.Parent.OrdinanceMax)
-				{
-					this.Parent.Ordinance = this.Parent.OrdinanceMax;
-				}
 			}
 			if (base.Health >= this.HealthMax)
 			{
@@ -1810,10 +1794,8 @@ namespace Ship_Game.Gameplay
 				this.radius = this.shield_radius;
 			}
 			if ((this.hangarShip == null || !this.hangarShip.Active) && this.ModuleType == ShipModuleType.Hangar && this.Active)
-			{
-				ShipModule shipModule1 = this;
-				shipModule1.hangarTimer = shipModule1.hangarTimer - elapsedTime;
-			}
+                this.hangarTimer -= elapsedTime;
+            //Shield Recharge
             if (this.Active && this.Powered && this.shield_power < this.GetShieldsMax())
 			{
                 if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
@@ -1890,13 +1872,6 @@ namespace Ship_Game.Gameplay
                 foreach (ShipModule dummy in this.LinkedModulesList)
                 {
                     dummy.Health = dummy.HealthMax;
-                }
-            }
-            else
-            {
-                foreach (ShipModule dummy in this.LinkedModulesList)
-                {
-                    dummy.Health = this.Health;
                 }
             }
         }
