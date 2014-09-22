@@ -7,19 +7,19 @@ namespace Ship_Game
 {
     public class ShipRole
     {
-        public string Name;
+        public string Name = "";
 
         public int Localization;
 
-        public float Upkeep;
+        public float Upkeep = 1;
 
-        public float KillExp;
+        public float KillExp = 1;
 
-        public float KillExpPerLevel;
+        public float KillExpPerLevel = 1;
 
-        public float ExpPerLevel;
+        public float ExpPerLevel = 1;
 
-        public float DamageRelations;
+        public float DamageRelations = 1;
 
         public bool Protected;
 

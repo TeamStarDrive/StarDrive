@@ -412,7 +412,6 @@ namespace Ship_Game
                 {
                     techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
                 }
-
                 if (this.isFaction || this.data.Traits.Prewarp == 1)
                 {
                     techEntry.Unlocked = false;
@@ -452,6 +451,9 @@ namespace Ship_Game
                 this.UnlockedBuildingsDict.Add(keyValuePair.Key, false);
             foreach (KeyValuePair<string, ShipModule> keyValuePair in ResourceManager.ShipModulesDict)
                 this.UnlockedModulesDict.Add(keyValuePair.Key, false);
+            //unlock from empire data file
+            foreach (string building in this.data.unlockBuilding)
+                this.UnlockedBuildingsDict[building] = true;
             foreach (KeyValuePair<string, TechEntry> keyValuePair in this.TechnologyDict)
             {
                 if (keyValuePair.Value.Unlocked)
@@ -478,6 +480,12 @@ namespace Ship_Game
                     }
                 }
             }
+            //unlock ships from empire data
+            foreach (string ship in this.data.unlockShips)
+                this.ShipsWeCanBuild.Add(ship);
+            //clear these lists as they serve no more purpose
+            this.data.unlockBuilding.Clear();
+            this.data.unlockShips.Clear();
             this.UpdateShipsWeCanBuild();
             if (this.data.EconomicPersonality == null)
                 this.data.EconomicPersonality = new ETrait
@@ -683,8 +691,6 @@ namespace Ship_Game
                     }
                     if (str == "Xeno Compilers" || str == "Research Bonus")
                         this.data.Traits.ResearchMod += unlockedBonus.Bonus;
-                    if (str == "Afterburner Bonus")
-                        this.data.AfterBurnerSpeedModifier += unlockedBonus.Bonus;
                     if (str == "FTL Spool Bonus")
                     {
                         if (unlockedBonus.Bonus < 1)
@@ -733,10 +739,6 @@ namespace Ship_Game
                         this.data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus;
                     if (str == "StarDrive Enhancement" || str == "FTL Speed Bonus")
                         this.data.FTLModifier += unlockedBonus.Bonus * this.data.FTLModifier;
-                    if (str == "Warp Efficiency")
-                        this.data.WarpEfficiencyBonus += unlockedBonus.Bonus;
-                    if (str == "Burner Efficiency")
-                        this.data.BurnerEfficiencyBonus += unlockedBonus.Bonus;
                     if (str == "FTL Efficiency" || str == "FTL Efficiency Bonus")
                         this.data.FTLPowerDrainModifier = this.data.FTLPowerDrainModifier - unlockedBonus.Bonus * this.data.FTLPowerDrainModifier;
                     if (str == "Spy Offense" || str == "Spy Offense Roll Bonus")
@@ -781,6 +783,12 @@ namespace Ship_Game
                     if (str == "Shield Power Bonus")
                         this.data.ShieldPowerMod += unlockedBonus.Bonus;
                 }
+            }
+            //update ship stats if a bonus was unlocked
+            if (ResourceManager.TechTree[techID].BonusUnlocked.Count > 0)
+            {
+                foreach (Ship ship in this.OwnedShips)
+                    ship.shipStatusChanged = true;
             }
             this.UpdateShipsWeCanBuild();
             if (Empire.universeScreen != null && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
@@ -1719,7 +1727,7 @@ namespace Ship_Game
         private void TakeTurn()
         {
             //Added by McShooterz: Home World Elimination game mode
-            if (GlobalStats.EliminationMode && !this.data.Defeated && this.Capital != null && this.Capital.Owner != this)
+            if (!this.isFaction && !this.data.Defeated && (this.OwnedPlanets.Count == 0 || GlobalStats.EliminationMode && this.Capital != null && this.Capital.Owner != this))
             {
                 this.SetAsDefeated();
                 if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this)
@@ -1864,17 +1872,6 @@ namespace Ship_Game
                     }
                 }
             }
-            if (this.OwnedPlanets.Count == 0 && !this.isFaction && !this.data.Defeated)
-            {
-                this.SetAsDefeated();
-                if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this)
-                {
-                    Empire.universeScreen.ScreenManager.AddScreen((GameScreen)new YouLoseScreen());
-                    return;
-                }
-                else
-                    Empire.universeScreen.NotificationManager.AddEmpireDiedNotification(this);
-            }
             foreach (Planet planet in this.OwnedPlanets)
             {
                 if (!this.data.IsRebelFaction)
@@ -1939,7 +1936,7 @@ namespace Ship_Game
                 if (this.TechnologyDict[this.ResearchTopic].Progress >= this.TechnologyDict[this.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic)
                 {
                     this.UnlockTech(this.ResearchTopic);
-                    if (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                    if (this.isPlayer)
                         Empire.universeScreen.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
                     this.data.ResearchQueue.Remove(this.ResearchTopic);
                     if (this.data.ResearchQueue.Count > 0)
