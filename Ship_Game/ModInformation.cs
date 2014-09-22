@@ -43,7 +43,6 @@ namespace Ship_Game
         public bool useProportionalUpkeep;
         public bool useSpoolModifiers;
         
-
         public float ShipyardBonus;
         public float UpkeepBaseline;
         public float UpkeepFighter;
