@@ -26,7 +26,6 @@ namespace Ship_Game
         public bool removeRemnantStory;
         public bool useCombatRepair;
         public bool clearVanillaTechs;
-
         public bool useWarpCurve;
         public float curveFactor;
         public float MaxWarp;
@@ -42,7 +41,7 @@ namespace Ship_Game
         public bool overrideSecretsTree;
         public bool usePlanetaryProjection;
         public bool useProportionalUpkeep;
-        
+        public bool useSpoolModifiers;
         
 
         public float ShipyardBonus;
