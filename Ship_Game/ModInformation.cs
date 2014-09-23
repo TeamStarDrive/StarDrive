@@ -41,7 +41,6 @@ namespace Ship_Game
         public bool overrideSecretsTree;
         public bool usePlanetaryProjection;
         public bool useProportionalUpkeep;
-        public bool useSpoolModifiers;
         
         public float ShipyardBonus;
         public float UpkeepBaseline;
