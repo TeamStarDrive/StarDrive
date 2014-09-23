@@ -1438,9 +1438,15 @@ namespace Ship_Game
         public bool WeCanUseThisNow(Technology tech)
         {
             bool flag = false;
+            HashSet<string> unlocklist = new HashSet<string>();
+            foreach(Technology.UnlockedMod unlocked in tech.ModulesUnlocked)
+            {
+                unlocklist.Add(unlocked.ModuleUID);
+            }
+            
             Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
             {
-                List<Technology> techtree = new List<Technology>();
+                
                 ShipData shipData = ship.Value.shipData;
                 if (shipData.ShipStyle == null || shipData.ShipStyle == this.data.Traits.ShipType)
                 {
@@ -1448,7 +1454,8 @@ namespace Ship_Game
                         return;
                     foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
                     {
-                        if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
+                        //if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
+                        if(unlocklist.Contains(module.InstalledModuleUID))
                         {
                             flag = true;
                             status.Stop();
