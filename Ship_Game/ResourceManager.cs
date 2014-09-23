@@ -2741,15 +2741,19 @@ namespace Ship_Game
                 stream.Close();
                 stream.Dispose();
 
-                if (Localizer.LocalizerDict.ContainsKey(data.Localization + OffSet))
+                                
+                if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
                 {
-                    data.Localization += OffSet;
+                    data.Localization += ResourceManager.OffSet;
                     Localizer.used[data.Localization] = true;
                 }
                 for (int j = 0; j < data.RaceList.Count(); j++)
                 {
-                    data.RaceList[j].Localization += OffSet;
-                    Localizer.used[data.RaceList[j].Localization] = true;
+                    if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
+                    {
+                        data.RaceList[j].Localization += ResourceManager.OffSet;
+                        Localizer.used[data.RaceList[j].Localization] = true;
+                    }
                 }
                 if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
                 {
