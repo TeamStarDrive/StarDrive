@@ -6088,7 +6088,7 @@ namespace Ship_Game.Gameplay
 					{
 						if (otherShip.ship.loyalty != this.Owner.loyalty)
 						{
-							if (otherShip.ship.loyalty == this.Owner.loyalty || otherShip.ship.GetAI().Target == null || !(otherShip.ship.GetAI().Target is Ship) || (otherShip.ship.GetAI().Target as Ship).hull_integrity >= 65 || (otherShip.ship.GetAI().Target as Ship).loyalty != this.Owner.loyalty)
+							if (otherShip.ship.GetAI().Target == null || !(otherShip.ship.GetAI().Target is Ship) || (otherShip.ship.GetAI().Target as Ship).hull_integrity >= 65 || (otherShip.ship.GetAI().Target as Ship).loyalty != this.Owner.loyalty)
 							{
 								continue;
 							}
