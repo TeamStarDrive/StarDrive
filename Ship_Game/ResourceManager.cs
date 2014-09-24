@@ -1132,7 +1132,6 @@ namespace Ship_Game
 				BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
 				HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
 				BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
-                CanRotate = Ship_Game.ResourceManager.ShipModulesDict[uid].CanRotate,
 				Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
 				Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
 				DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
