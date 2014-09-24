@@ -1922,8 +1922,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadDialogs();
 			Ship_Game.ResourceManager.LoadEncounters();
 			Ship_Game.ResourceManager.LoadExpEvents();
-			Ship_Game.ResourceManager.LoadArtifacts();
-			
+			Ship_Game.ResourceManager.LoadArtifacts();		
 			Ship_Game.ResourceManager.LoadShips();
             Ship_Game.ResourceManager.LoadRandomItems();
             Ship_Game.ResourceManager.LoadProjTexts();
