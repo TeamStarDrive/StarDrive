@@ -8,7 +8,6 @@ namespace Ship_Game
     //Added by McShooterz: class to store names for ships
     public class ShipNames
     {
-
         public List<EmpireEntry> EmpireEntries;
 
         public struct EmpireEntry
