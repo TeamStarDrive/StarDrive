@@ -203,8 +203,6 @@ namespace Ship_Game.Gameplay
 
 		public float Cost;
 
-		public bool CanRotate;
-
 		public ShipModuleType ModuleType;
 
 		public Vector2 moduleCenter = new Vector2(0f, 0f);
