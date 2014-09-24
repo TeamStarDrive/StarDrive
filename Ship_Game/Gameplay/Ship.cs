@@ -87,7 +87,6 @@ namespace Ship_Game.Gameplay
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
         public float ECMValue = 0f;
-        public float OrbitalDefenseTimer;
         public ShipData shipData;
         public int kills;
         public float experience;
@@ -3452,35 +3451,16 @@ namespace Ship_Game.Gameplay
                 if (this.Health < this.HealthMax)
                 {
                     this.shipStatusChanged = true;
-                    float repairTracker = this.RepairRate;
-                    //Combat repair
-                    if (this.InCombat && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
+                    if (!this.InCombat || GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
                     {
                         //Added by McShooterz: Priority repair
+                        float repairTracker = this.RepairRate;
                         IEnumerable<ModuleSlot> damagedModules = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.ModuleType != ShipModuleType.Dummy && moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
                         foreach (ModuleSlot moduleSlot in damagedModules)
                         {
                             //if destroyed do not repair in combat
-                            if (moduleSlot.module.Health < 1)
+                            if (this.InCombat && moduleSlot.module.Health < 1)
                                 continue;
-                            if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
-                            {
-                                moduleSlot.module.Repair(repairTracker);
-                                break;
-                            }
-                            else
-                            {
-                                repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
-                                moduleSlot.module.Repair(moduleSlot.module.HealthMax);
-                            }
-                        }
-                    }
-                    //Out of combat repair
-                    else if (!this.InCombat)
-                    {
-                        IEnumerable<ModuleSlot> damagedModules = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.ModuleType != ShipModuleType.Dummy && moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
-                        foreach (ModuleSlot moduleSlot in damagedModules)
-                        {
                             if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
                             {
                                 moduleSlot.module.Repair(repairTracker);
@@ -3496,7 +3476,6 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    this.Health = this.HealthMax;
                     this.shipStatusChanged = false;
                 }
                 //Update modules
