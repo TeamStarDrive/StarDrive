@@ -3422,20 +3422,18 @@ namespace Ship_Game.Gameplay
                     this.PowerDraw = this.ModulePowerDraw + this.ShieldPowerDraw;
                 else
                     this.PowerDraw = this.ModulePowerDraw;
+                //Update modules
+                foreach (ModuleSlot slot in this.ModuleSlotList)
+                    slot.module.Update(1f);
                 //Check Current Shields
                 if (this.engineState == Ship.MoveState.Warp)
                     this.shield_power = 0f;
                 else
                 {
-                    if (this.shield_power < this.shield_max)
-                    {
-                        this.shield_power = 0.0f;
-                        foreach (ShipModule shield in this.Shields)
-                            this.shield_power += shield.shield_power;
-                        if (this.shield_power > this.shield_max)
-                            this.shield_power = this.shield_max;
-                    }
-                    else
+                    this.shield_power = 0.0f;
+                    foreach (ShipModule shield in this.Shields)
+                        this.shield_power += shield.shield_power;
+                    if (this.shield_power > this.shield_max)
                         this.shield_power = this.shield_max;
                 }
                 //Add ordnance
@@ -3478,9 +3476,6 @@ namespace Ship_Game.Gameplay
                 {
                     this.shipStatusChanged = false;
                 }
-                //Update modules
-                foreach (ModuleSlot slot in this.ModuleSlotList)
-                    slot.module.Update(1f);
                 List<Troop> OwnTroops = new List<Troop>();
                 List<Troop> EnemyTroops = new List<Troop>();
                 foreach (Troop troop in this.TroopList)
