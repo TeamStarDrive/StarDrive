@@ -1717,7 +1717,7 @@ namespace Ship_Game.Gameplay
                     if(this.Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
                     {
                         GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
-                        AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
+                        AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
                     }
                     return;
                 }
@@ -1752,7 +1752,7 @@ namespace Ship_Game.Gameplay
                         if (this.Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
                         {
                             GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
-                            AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
+                            AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
                         }
                         return;
                     }
