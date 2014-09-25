@@ -2836,12 +2836,12 @@ namespace Ship_Game.Gameplay
                     //task gremlin look at parallel here for weapons
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
                     //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
-                {
-                    if (projectile !=null && projectile.Active)
-                        projectile.Update(elapsedTime);
-                    else
-                        this.Projectiles.QueuePendingRemoval(projectile);
-                }//);
+                    {
+                        if (projectile !=null && projectile.Active)
+                            projectile.Update(elapsedTime);
+                        else
+                            this.Projectiles.QueuePendingRemoval(projectile);
+                     }//);
                     foreach (Beam beam in (List<Beam>)this.beams)
                     //Parallel.ForEach<Beam>(this.beams, beam =>
                     {
@@ -3688,8 +3688,8 @@ namespace Ship_Game.Gameplay
             if ((double)this.Ordinance > (double)this.OrdinanceMax)
                 this.Ordinance = this.OrdinanceMax;
             this.percent = this.number_Alive_Internal_modules / this.number_Internal_modules;
-            if ((double)this.percent < 0.35)
-                this.Die((GameplayObject)null, false);
+            if ((double)this.percent < 0.35 || this.number_Internal_modules == 0)
+                this.Die(this.LastDamagedBy, false);
             if ((double)this.Mass < (double)(this.Size / 2))
                 this.Mass = (float)(this.Size / 2);
             this.PowerCurrent -= this.PowerDraw * elapsedTime;

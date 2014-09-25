@@ -653,6 +653,7 @@ namespace Ship_Game.Gameplay
                 this.Owner.InCombatTimer = 0f;
                 return;
             }
+
             if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
             {
 
