@@ -3216,7 +3216,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 && this.Owner.WeCanBuildThis("Shipyard") && (double)this.GrossMoneyPT > 5.0 && (double)this.NetProductionPerTurn > 6.0)
+                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 && this.Owner.ShipsWeCanBuild.Contains("Shipyard") && (double)this.GrossMoneyPT > 5.0 && (double)this.NetProductionPerTurn > 6.0)
                 {
                     bool hasShipyard = false;
                     foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -3472,7 +3472,7 @@ namespace Ship_Game
                         {
                             double num4 = (double)this.AdjustResearchForProfit();
                         }
-                        if (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 && this.Owner.WeCanBuildThis("Shipyard") && (double)this.Owner.MoneyLastTurn > 5.0 && (double)this.NetProductionPerTurn > 4.0)
+                        if (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 && this.Owner.ShipsWeCanBuild.Contains("Shipyard") && (double)this.Owner.MoneyLastTurn > 5.0 && (double)this.NetProductionPerTurn > 4.0)
                         {
                             bool hasShipyard = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -4015,7 +4015,7 @@ namespace Ship_Game
                             if (!hasOutpost)
                                 this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                         }
-                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 && this.Owner.WeCanBuildThis("Shipyard") && (double)this.GrossMoneyPT > 3.0)
+                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 && this.Owner.ShipsWeCanBuild.Contains("Shipyard") && (double)this.GrossMoneyPT > 3.0)
                         {
                             bool hasShipyard = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
