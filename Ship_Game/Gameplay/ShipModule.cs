@@ -203,8 +203,6 @@ namespace Ship_Game.Gameplay
 
 		public float Cost;
 
-		public bool CanRotate;
-
 		public ShipModuleType ModuleType;
 
 		public Vector2 moduleCenter = new Vector2(0f, 0f);
@@ -268,7 +266,6 @@ namespace Ship_Game.Gameplay
 
 		public bool Damage(GameplayObject source, float damageAmount, ref float damageRemainder)
 		{
-			this.Parent.InCombat = true;
 			this.Parent.InCombatTimer = 15f;
 			this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
@@ -318,7 +315,7 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.PowerDamage > 0f)
 					{
-                        this.Parent.PowerCurrent -= (source as Beam).weapon.PowerDamage * ((source as Beam).damageTimerConstant * 90f);
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.PowerDamage;
 						if (this.Parent.PowerCurrent < 0f)
 						{
 							this.Parent.PowerCurrent = 0f;
@@ -345,7 +342,7 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.SiphonDamage > 0f)
 					{
-                        this.Parent.PowerCurrent -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.SiphonDamage;
 						if (this.Parent.PowerCurrent < 0f)
 						{
 							this.Parent.PowerCurrent = 0f;
@@ -358,7 +355,7 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.MassDamage > 0f)
 					{
-                        this.Parent.Mass += (source as Beam).weapon.MassDamage * ((source as Beam).damageTimerConstant * 90f);
+                        this.Parent.Mass += (source as Beam).weapon.MassDamage;
 						this.Parent.velocityMaximum = this.Parent.Thrust / this.Parent.Mass;
 						this.Parent.speed = this.Parent.velocityMaximum;
 						this.Parent.rotationRadiansPerSecond = this.Parent.speed / 700f;
@@ -367,7 +364,7 @@ namespace Ship_Game.Gameplay
 					{
 						Vector2 vtt = this.Center - (source as Beam).Owner.Center;
 						Ship velocity = this.Parent;
-                        this.Parent.Velocity += ((vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass) * ((source as Beam).damageTimerConstant * 90f);
+                        this.Parent.Velocity += (vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass;
 					}
 				}
 				if (this.shield_power_max > 0f && !this.isExternal)
@@ -410,16 +407,6 @@ namespace Ship_Game.Gameplay
                 {
                     damageRemainder = damageAmount - this.shield_power;
                     this.shield_power = 0;
-                    if (damageRemainder > this.Health)
-                    {
-                        damageRemainder -= this.Health;
-                        this.Health = 0;
-                    }
-                    else
-                    {
-                        this.Health -= damageRemainder;
-                        damageRemainder = 0;
-                    }
                 }
                 else
                 {
@@ -467,7 +454,7 @@ namespace Ship_Game.Gameplay
 						}
 						if ((source as Beam).weapon.SiphonDamage > 0f)
 						{
-                            this.shield_power -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
+                            this.shield_power -= (source as Beam).weapon.SiphonDamage;
 							if (this.shield_power < 0f)
 							{
 								this.shield_power = 0f;
@@ -511,7 +498,6 @@ namespace Ship_Game.Gameplay
 
         public override bool Damage(GameplayObject source, float damageAmount)
         {
-            this.Parent.InCombat = true;
             this.Parent.InCombatTimer = 15f;
             this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
@@ -561,7 +547,7 @@ namespace Ship_Game.Gameplay
                     }
                     if ((source as Beam).weapon.PowerDamage > 0f)
                     {
-                        this.Parent.PowerCurrent -= (source as Beam).weapon.PowerDamage * ((source as Beam).damageTimerConstant * 90f);
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.PowerDamage;
                         if (this.Parent.PowerCurrent < 0f)
                         {
                             this.Parent.PowerCurrent = 0f;
@@ -588,7 +574,7 @@ namespace Ship_Game.Gameplay
                     }
                     if ((source as Beam).weapon.SiphonDamage > 0f)
                     {
-                        this.Parent.PowerCurrent -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
+                        this.Parent.PowerCurrent -= (source as Beam).weapon.SiphonDamage;
                         if (this.Parent.PowerCurrent < 0f)
                         {
                             this.Parent.PowerCurrent = 0f;
@@ -601,7 +587,7 @@ namespace Ship_Game.Gameplay
                     }
                     if ((source as Beam).weapon.MassDamage > 0f)
                     {
-                        this.Parent.Mass += (source as Beam).weapon.MassDamage * ((source as Beam).damageTimerConstant * 90f);
+                        this.Parent.Mass += (source as Beam).weapon.MassDamage;
                         this.Parent.velocityMaximum = this.Parent.Thrust / this.Parent.Mass;
                         this.Parent.speed = this.Parent.velocityMaximum;
                         this.Parent.rotationRadiansPerSecond = this.Parent.speed / 700f;
@@ -610,7 +596,7 @@ namespace Ship_Game.Gameplay
                     {
                         Vector2 vtt = this.Center - (source as Beam).Owner.Center;
                         Ship velocity = this.Parent;
-                        this.Parent.Velocity += ((vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass) * ((source as Beam).damageTimerConstant * 90f);
+                        this.Parent.Velocity += (vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass;
                     }
                 }
                 if (this.shield_power_max > 0f && !this.isExternal)
@@ -696,7 +682,7 @@ namespace Ship_Game.Gameplay
                         }
                         if ((source as Beam).weapon.SiphonDamage > 0f)
                         {
-                            this.shield_power -= (source as Beam).weapon.SiphonDamage * ((source as Beam).damageTimerConstant * 90f);
+                            this.shield_power -= (source as Beam).weapon.SiphonDamage;
                             if (this.shield_power < 0f)
                             {
                                 this.shield_power = 0f;
@@ -1279,99 +1265,6 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		private void OldMove(float elapsedTime)
-		{
-			float theta;
-			float parentFacing = this.Parent.Rotation;
-			if (parentFacing != 0f)
-			{
-				parentFacing = parentFacing * 180f / 3.14159274f;
-			}
-			float gamma = this.offsetAngle + parentFacing;
-			float D = this.distanceToParentCenter;
-			int gammaQuadrant = 0;
-			float oppY = 0f;
-			float adjX = 0f;
-			if (gamma > 360f)
-			{
-				gamma = gamma - 360f;
-			}
-			if (gamma < 90f)
-			{
-				theta = 90f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 1;
-			}
-			else if (gamma > 90f && gamma < 180f)
-			{
-				theta = gamma - 90f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 2;
-			}
-			else if (gamma > 180f && gamma < 270f)
-			{
-				theta = 270f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 3;
-			}
-			else if (gamma > 270f && gamma < 360f)
-			{
-				theta = gamma - 270f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 4;
-			}
-			if (gamma == 0f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X;
-				this.ModuleCenter.Y = this.Parent.Center.Y - D;
-			}
-			if (gamma == 90f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X + D;
-				this.ModuleCenter.Y = this.Parent.Center.Y;
-			}
-			if (gamma == 180f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X;
-				this.ModuleCenter.Y = this.Parent.Center.Y + D;
-			}
-			if (gamma == 270f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X - D;
-				this.ModuleCenter.Y = this.Parent.Center.Y;
-			}
-			if (gammaQuadrant == 1)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X + adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y - oppY;
-			}
-			else if (gammaQuadrant == 2)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X + adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y + oppY;
-			}
-			else if (gammaQuadrant == 3)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X - adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y + oppY;
-			}
-			else if (gammaQuadrant == 4)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X - adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y - oppY;
-			}
-			base.Position = new Vector2(this.ModuleCenter.X - 8f, this.ModuleCenter.Y - 8f);
-			this.Center = this.ModuleCenter;
-		}
-
 		public void ScrambleFightersORIG()
 		{
 			if (!this.IsTroopBay && this.Powered && !this.IsSupplyBay)
@@ -1710,28 +1603,6 @@ namespace Ship_Game.Gameplay
 		public void SetParent(Ship p)
 		{
 			this.Parent = p;
-		}
-
-		public void ShipDie(GameplayObject source, bool cleanupOnly)
-		{
-			if (this.shield != null)
-			{
-				lock (GlobalStats.ObjectManagerLocker)
-				{
-					ShipModule.universeScreen.ScreenManager.inter.LightManager.Remove(this.shield.pointLight);
-				}
-				lock (GlobalStats.ShieldLocker)
-				{
-					ShieldManager.shieldList.QueuePendingRemoval(this.shield);
-				}
-			}
-			base.Health = 0f;
-			Vector3 vector3 = new Vector3(this.Center.X, this.Center.Y, -100f);
-			if (this.Active)
-			{
-				((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(5f, 15f);
-			}
-			base.Die(source, cleanupOnly);
 		}
 
 		private Color[,] TextureTo2DArray(Texture2D texture)
