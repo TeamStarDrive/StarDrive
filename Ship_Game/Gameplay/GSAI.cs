@@ -6812,7 +6812,10 @@ namespace Ship_Game.Gameplay
             //added by gremlin shipsize limit
             //i think this could be made dynamic to reduce when memory constraints come into play
             //&& Memory < SizeLimiter
-            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals  && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
+            while (Capacity > allowable_deficit 
+                && numgoals < (float)this.numberOfShipGoals  
+                && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool 
+                || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
 
                 string s = this.GetAShip(Capacity);
