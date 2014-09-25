@@ -266,7 +266,6 @@ namespace Ship_Game.Gameplay
 
 		public bool Damage(GameplayObject source, float damageAmount, ref float damageRemainder)
 		{
-			this.Parent.InCombat = true;
 			this.Parent.InCombatTimer = 15f;
 			this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
@@ -408,16 +407,6 @@ namespace Ship_Game.Gameplay
                 {
                     damageRemainder = damageAmount - this.shield_power;
                     this.shield_power = 0;
-                    if (damageRemainder > this.Health)
-                    {
-                        damageRemainder -= this.Health;
-                        this.Health = 0;
-                    }
-                    else
-                    {
-                        this.Health -= damageRemainder;
-                        damageRemainder = 0;
-                    }
                 }
                 else
                 {
@@ -509,7 +498,6 @@ namespace Ship_Game.Gameplay
 
         public override bool Damage(GameplayObject source, float damageAmount)
         {
-            this.Parent.InCombat = true;
             this.Parent.InCombatTimer = 15f;
             this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
