@@ -201,8 +201,7 @@ namespace Ship_Game.Gameplay
 
 		public void DamageMissile(GameplayObject source, float damageAmount)
 		{
-			Projectile health = this;
-			health.Health = health.Health - damageAmount;
+            this.Health -= damageAmount;
 			if (base.Health <= 0f && this.Active)
 			{
 				this.DieNextFrame = true;

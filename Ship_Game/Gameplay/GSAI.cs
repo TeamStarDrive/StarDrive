@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Configuration;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Ship_Game.Gameplay
 {
@@ -5220,7 +5221,7 @@ namespace Ship_Game.Gameplay
 
         private bool shipIsGoodForGoals(Ship ship)
         {
-            if (ship.BaseStrength > 0f && ship.shipData.ShipStyle != "Platforms" && !ship.shipData.CarrierShip && ship.BaseCanWarp && ship.IsWarpCapable && ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
+            if (ship.BaseStrength > 0f && ship.shipData.ShipStyle != "Platforms" && !ship.shipData.CarrierShip && ship.BaseCanWarp && !ship.Inhibited && ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
                 || (ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
                 && ship.PowerStoreMax / (ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum > minimumWarpRange))
                 return true;
@@ -6811,7 +6812,10 @@ namespace Ship_Game.Gameplay
             //added by gremlin shipsize limit
             //i think this could be made dynamic to reduce when memory constraints come into play
             //&& Memory < SizeLimiter
-            while (Capacity > allowable_deficit && numgoals < (float)this.numberOfShipGoals  && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
+            while (Capacity > allowable_deficit 
+                && numgoals < (float)this.numberOfShipGoals  
+                && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool 
+                || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
 
                 string s = this.GetAShip(Capacity);
@@ -7129,26 +7133,29 @@ namespace Ship_Game.Gameplay
 					case GSAI.ResearchStrategy.Random:
 					{
                       //changed by gremlin exclude module tech that we dont have any ships that use it.
-                        List<Technology> AvailableTechs = new List<Technology>();
-						foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
-						{
+                        ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
+						//foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
+                        Parallel.ForEach(ResourceManager.TechTree, Technology =>
+                        {
                             TechEntry tech = null;// new TechEntry();
                             bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);
-                            if(!techexists ||tech ==null)
-                                continue;                                                       
+                            if (!techexists || tech == null)
+                                //continue;
+                                return;
                             Technology technology = tech.GetTech();
                             if (tech.Unlocked
-                                ||!this.empire.HavePreReq(Technology.Key)  
+                                || !this.empire.HavePreReq(Technology.Key)
                                 || (Technology.Value.Secret && !tech.Discovered)
                                 || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
                                 || !tech.shipDesignsCanuseThis
                                 || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count == 0
                                 && !this.empire.WeCanUseThisNow(tech.GetTech())))
-							{
-                                continue;
-							}                           
-                                AvailableTechs.Add(Technology.Value);
-						}
+                            {
+                                //continue;
+                                return;
+                            }
+                            AvailableTechs.Add(Technology.Value);
+                        });
                         if (AvailableTechs.Count == 0)
 							break;
                         foreach(Technology tech in AvailableTechs.OrderBy(tech => tech.Cost))
@@ -7218,7 +7225,7 @@ namespace Ship_Game.Gameplay
                                 break;
                         }
                         if(this.empire.ResearchTopic == "")
-                        this.empire.ResearchTopic = AvailableTechs[0].UID;
+                        this.empire.ResearchTopic = AvailableTechs.First().UID;
                         break;
 					}
                     case GSAI.ResearchStrategy.Scripted:
@@ -7435,28 +7442,12 @@ namespace Ship_Game.Gameplay
         private bool ScriptedResearch(string command, string modifier)
         {
 
-            List<Technology> AvailableTechs = new List<Technology>();
+            ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
 
 
             foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
             {
-                //if (!this.empire.GetTDict().ContainsKey(Technology.Key) || this.empire.GetTDict()[Technology.Key].Unlocked
-                //    || !this.empire.HavePreReq(Technology.Key)
-                //    || (ResourceManager.TechTree[Technology.Key].Secret && !this.empire.GetTDict()[Technology.Key].Discovered)
-                //    || !this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis
-                //    || this.empire.GetTDict()[Technology.Key].GetTech().BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0)
-                ////|| this.empire.GetTDict()[Technology.Key].GetTech().TechnologyType != techtype)
-                //{
 
-                //    continue;
-                //}
-                //if ((this.empire.GetTDict()[Technology.Key].shipDesignsCanuseThis
-                //    && this.empire.GetTDict()[Technology.Key].GetTech().ModulesUnlocked.Count > 0 && this.empire.GetTDict()[Technology.Key].GetTech().HullsUnlocked.Count() == 0)
-                //    && !this.empire.WeCanUseThisNow(this.empire.GetTDict()[Technology.Key].GetTech()))
-                //{
-                //    //if(AvailableTechs.Count >0)
-                //    continue;
-                //}
 
                 TechEntry tech = null;// new TechEntry();
                 bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);

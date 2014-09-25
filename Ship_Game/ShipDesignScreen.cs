@@ -2430,7 +2430,7 @@ namespace Ship_Game
                     }
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].Restrictions.ToString(), tCursor, Color.Orange);
 					tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].Restrictions.ToString()).X;
-                    if (Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].InstalledWeapon != null || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].CanRotate || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].XSIZE != Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].YSIZE)
+                    if (Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].InstalledWeapon != null && Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].ModuleType != ShipModuleType.Turret || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].XSIZE != Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].YSIZE)
 					{
 						Rectangle rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
 						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_can_rotate"], rotateRect, Color.White);
@@ -3280,8 +3280,6 @@ namespace Ship_Game
 			float WarpSpeed = WarpThrust / (Mass + 0.1f);
             //Added by McShooterz: hull bonus speed
             WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SpeedBonus != 0 ? (1 + (float)this.ActiveHull.SpeedBonus / 100f) : 1);
-            if(GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWarpCurve)
-                WarpSpeed = (WarpSpeed / 2) / (WarpSpeed / 2 + GlobalStats.ActiveMod.mi.curveFactor) * GlobalStats.ActiveMod.mi.MaxWarp;
 			float single = WarpSpeed / 1000f;
 			string WarpString = string.Concat(single.ToString("#.0"), "k");
 			float Turn = 0f;
@@ -4743,7 +4741,7 @@ namespace Ship_Game
             this.CategoryList.HandleInput(input);
             this.CarrierOnlyBox.HandleInput(input);
 
-            if (this.ActiveModule != null && (this.ActiveModule.InstalledWeapon != null || this.ActiveModule.CanRotate || this.ActiveModule.XSIZE != this.ActiveModule.YSIZE))
+            if (this.ActiveModule != null && (this.ActiveModule.InstalledWeapon != null && this.ActiveModule.ModuleType != ShipModuleType.Turret || this.ActiveModule.XSIZE != this.ActiveModule.YSIZE))
             {
                 if (input.Left)
                     this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Left);
