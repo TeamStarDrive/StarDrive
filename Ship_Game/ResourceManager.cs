@@ -1132,7 +1132,6 @@ namespace Ship_Game
 				BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
 				HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
 				BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
-                CanRotate = Ship_Game.ResourceManager.ShipModulesDict[uid].CanRotate,
 				Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
 				Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
 				DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
@@ -1922,8 +1921,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadDialogs();
 			Ship_Game.ResourceManager.LoadEncounters();
 			Ship_Game.ResourceManager.LoadExpEvents();
-			Ship_Game.ResourceManager.LoadArtifacts();
-			
+			Ship_Game.ResourceManager.LoadArtifacts();		
 			Ship_Game.ResourceManager.LoadShips();
             Ship_Game.ResourceManager.LoadRandomItems();
             Ship_Game.ResourceManager.LoadProjTexts();
@@ -2741,15 +2739,19 @@ namespace Ship_Game
                 stream.Close();
                 stream.Dispose();
 
-                if (Localizer.LocalizerDict.ContainsKey(data.Localization + OffSet))
+                                
+                if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
                 {
-                    data.Localization += OffSet;
+                    data.Localization += ResourceManager.OffSet;
                     Localizer.used[data.Localization] = true;
                 }
                 for (int j = 0; j < data.RaceList.Count(); j++)
                 {
-                    data.RaceList[j].Localization += OffSet;
-                    Localizer.used[data.RaceList[j].Localization] = true;
+                    if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
+                    {
+                        data.RaceList[j].Localization += ResourceManager.OffSet;
+                        Localizer.used[data.RaceList[j].Localization] = true;
+                    }
                 }
                 if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
                 {

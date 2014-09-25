@@ -289,6 +289,7 @@ namespace Ship_Game
 					p.system = system;
 					p.ParentSystem = system;
 					p.Position = HelperFunctions.GeneratePointOnCircle(p.OrbitalAngle, system.Position, p.OrbitalRadius);
+                    
 					foreach (Building b in p.BuildingList)
 					{
 						if (b.Name != "Space Port")
@@ -300,10 +301,13 @@ namespace Ship_Game
 							planet = p,
 							Position = p.Position,
 							ParentSystem = p.system
+                            
 						};
 						p.Station.LoadContent(base.ScreenManager);
 						p.HasShipyard = true;
+                        
 					}
+                    
 					if (p.Owner != null && !system.OwnerList.Contains(p.Owner))
 					{
 						system.OwnerList.Add(p.Owner);

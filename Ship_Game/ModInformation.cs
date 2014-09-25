@@ -27,11 +27,6 @@ namespace Ship_Game
         public bool useCombatRepair;
         public bool clearVanillaTechs;
 
-        public bool useWarpCurve;
-        public float curveFactor;
-        public float MaxWarp;
-        public float WarpSpeedMultiplier;
-
         //added by The Doctor
         public bool customMilTraitTechs;
         public bool customRemnantElements;
@@ -43,8 +38,6 @@ namespace Ship_Game
         public bool usePlanetaryProjection;
         public bool useProportionalUpkeep;
         
-        
-
         public float ShipyardBonus;
         public float UpkeepBaseline;
         public float UpkeepFighter;
