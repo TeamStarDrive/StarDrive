@@ -69,9 +69,6 @@ namespace Ship_Game
 
 		private float displacement = 1f;
 
-        public float damageTimer = 0.33332f;
-        public float damageTimerConstant = 0.33332f;
-
 		public Beam()
 		{
 		}
@@ -333,10 +330,9 @@ namespace Ship_Game
 					target.Damage(this, this.damageAmount * 90f);
 					this.Die(null, true);
 				}
-				else if(this.damageTimer < 0)
+				else
 				{
-                    (target as ShipModule).Damage(this, this.damageAmount * this.damageTimerConstant * 90f);
-                    this.damageTimer = this.damageTimerConstant;
+                    (target as ShipModule).Damage(this, this.damageAmount);
 				}
 			}
 			return true;
@@ -366,7 +362,6 @@ namespace Ship_Game
 				return;
 			}
             this.Duration -= elapsedTime;
-            this.damageTimer -= elapsedTime;
 			this.Source = srcCenter;
 			if (this.Target == null)
 			{
@@ -418,7 +413,6 @@ namespace Ship_Game
 				}
 			}
             this.Duration -= elapsedTime;
-            this.damageTimer -= elapsedTime;
 			this.Source = srcCenter;
 			this.quadEffect.View = view;
 			this.quadEffect.Projection = projection;
