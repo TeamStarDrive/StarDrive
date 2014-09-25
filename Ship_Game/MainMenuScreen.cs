@@ -603,11 +603,15 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			if (ConfigurationManager.AppSettings["ActiveMod"] != "")
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            //if (ConfigurationManager.AppSettings["ActiveMod"] != "")
+            if (config.AppSettings.Settings["ActiveMod"].Value != "")
 			{
-				if (!File.Exists(string.Concat("Mods/", ConfigurationManager.AppSettings["ActiveMod"], ".xml")))
+                
+                //if (!File.Exists(string.Concat("Mods/", ConfigurationManager.AppSettings["ActiveMod"], ".xml")))
+                if (!File.Exists(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value, ".xml")))
 				{
-					Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+					//Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 					config.AppSettings.Settings["ActiveMod"].Value = "";
 					config.Save();
 					Ship_Game.ResourceManager.WhichModPath = "Content";
@@ -616,7 +620,7 @@ namespace Ship_Game
 				}
 				else
 				{
-                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    //Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                     FileInfo FI = new FileInfo(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value, ".xml"));
 					Stream file = FI.OpenRead();
 					ModInformation data = (ModInformation)Ship_Game.ResourceManager.ModSerializer.Deserialize(file);

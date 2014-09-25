@@ -653,6 +653,7 @@ namespace Ship_Game.Gameplay
                 this.Owner.InCombatTimer = 0f;
                 return;
             }
+
             if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
             {
 
@@ -677,8 +678,6 @@ namespace Ship_Game.Gameplay
                 if (this.Owner.engineState != Ship.MoveState.Warp && this.Owner.GetHangars().Count > 0 && !this.Owner.ManualHangarOverride)
                 {
                     if (!this.Owner.FightersOut) this.Owner.FightersOut = true;
-                    //if (!this.Owner.TroopsOut) this.Owner.TroopsOut = true;
-
                 }
                 if (this.Owner.engineState == Ship.MoveState.Warp)
                 {
@@ -1243,51 +1242,34 @@ namespace Ship_Game.Gameplay
 				List<Troop> ToRemove = new List<Troop>();
                 if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f)
 				{
-                    int i = 0;
-                    foreach(ShipModule hangar in this.Owner.GetHangars().Where(hangar=> hangar.hangarTimer<=0 && hangar.IsTroopBay))
-                    //for (int i = 0; i < this.Owner.TroopList.Count; i++)
-					{
-                        if (i >= this.Owner.TroopList.Count)
-                            break;
-                        Troop troop = this.Owner.TroopList[i];
-                        //added by gremlin: if cant place troops then dont.
-                        if (troop != null )
-                        {
-                            if (troop.GetOwner() == this.Owner.loyalty)
-                            {
-                                if (goal.TargetPlanet.AssignTroopToTile(troop))
-                                {
-                                    //this.Owner.TroopList.Remove(troop);
-                                    hangar.hangarTimer = hangar.hangarTimerConstant;
-                                    ToRemove.Add(troop);
-                                    i++;
-                                }
-                                else
-                                    break;
-                            }
-                            else
-                                i++;
-                        }
-                        
-					}
-                    foreach (ShipModule module in this.Owner.Transporters.Where(module => module.TransporterTimer <= 1f && module.TransporterTroopLanding > 0))
+                    //Get limit of troops to land
+                    int LandLimit = this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count();
+                    foreach (ShipModule module in this.Owner.Transporters.Where(module => module.TransporterTimer <= 1f))
+                        LandLimit += module.TransporterTroopLanding;
+                    //Land troops
+                    foreach (Troop troop in this.Owner.TroopList)
                     {
-                        if (i >= this.Owner.TroopList.Count)
-                            break;
-                        for (int j = 0; j < module.TransporterTroopLanding; j++)
+                        if (troop == null || troop.GetOwner() != this.Owner.loyalty)
+                            continue;
+                        if (goal.TargetPlanet.AssignTroopToTile(troop))
                         {
-                            Troop troop = this.Owner.TroopList[i];
-                            if (troop != null && troop.GetOwner() == this.Owner.loyalty && goal.TargetPlanet.AssignTroopToTile(troop))
-                            {
-                                module.TransporterTimer = module.TransporterTimerConstant;
-                                ToRemove.Add(troop);
-                            }
-                            i++;
+                            ToRemove.Add(troop);
+                            LandLimit--;
+                            if (LandLimit < 1)
+                                break;
                         }
+                        else
+                            break;
                     }
-                    foreach (Troop to in ToRemove)
+                    //Clear out Troops
+                    if (ToRemove.Count > 0)
                     {
-                        this.Owner.TroopList.Remove(to);
+                        foreach (ShipModule module in this.Owner.GetHangars())
+                            module.hangarTimer = module.hangarTimerConstant;
+                        foreach (ShipModule module in this.Owner.Transporters)
+                            module.TransporterTimer = module.TransporterTimerConstant;
+                        foreach (Troop to in ToRemove)
+                            this.Owner.TroopList.Remove(to);
                     }
 				}
 			}
@@ -1719,7 +1701,7 @@ namespace Ship_Game.Gameplay
                     if(this.Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
                     {
                         GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
-                        AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
+                        AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
                     }
                     return;
                 }
@@ -1754,7 +1736,7 @@ namespace Ship_Game.Gameplay
                         if (this.Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
                         {
                             GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
-                            AudioManager.Play3DSoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
+                            AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
                         }
                         return;
                     }
@@ -6090,7 +6072,7 @@ namespace Ship_Game.Gameplay
 					{
 						if (otherShip.ship.loyalty != this.Owner.loyalty)
 						{
-							if (otherShip.ship.loyalty == this.Owner.loyalty || otherShip.ship.GetAI().Target == null || !(otherShip.ship.GetAI().Target is Ship) || (otherShip.ship.GetAI().Target as Ship).hull_integrity >= 65 || (otherShip.ship.GetAI().Target as Ship).loyalty != this.Owner.loyalty)
+							if (otherShip.ship.GetAI().Target == null || !(otherShip.ship.GetAI().Target is Ship) || (otherShip.ship.GetAI().Target as Ship).hull_integrity >= 65 || (otherShip.ship.GetAI().Target as Ship).loyalty != this.Owner.loyalty)
 							{
 								continue;
 							}
