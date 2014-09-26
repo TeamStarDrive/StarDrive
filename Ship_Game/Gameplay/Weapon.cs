@@ -833,7 +833,7 @@ namespace Ship_Game.Gameplay
 		{
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
 				return;
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -922,7 +922,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -993,7 +993,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
@@ -1035,7 +1035,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -1051,7 +1051,7 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-            this.owner.InCombatTimer = 5f;
+            this.owner.InCombatTimer = 15f;
             this.timeToNextFire = this.fireDelay;
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
             {
@@ -1065,7 +1065,7 @@ namespace Ship_Game.Gameplay
         {
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
                 return;
-            this.owner.InCombatTimer = 5f;
+            this.owner.InCombatTimer = 15f;
             this.timeToNextFire = this.fireDelay;
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
             {

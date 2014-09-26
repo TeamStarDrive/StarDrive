@@ -264,6 +264,7 @@ namespace Ship_Game.Gameplay
             Ship ship1 = (Ship)null;
             Vector2 vector2_2 = Vector2.Zero;
             GameplayObject gameplayObject1 = (GameplayObject)null;
+            //How repair beams repair modules
             if (beam.GetTarget() != null)
             {
                 if (beam.GetTarget() is Ship)
@@ -301,7 +302,7 @@ namespace Ship_Game.Gameplay
             else if (beam.Owner != null)
                 gameplayObject1 = (GameplayObject)beam.owner;
             List<GameplayObject> nearby = this.GetNearby(gameplayObject1);
-            List<GameplayObject> list2 = new List<GameplayObject>();
+            List<GameplayObject> AlliedShips = new List<GameplayObject>();
             foreach (Vector2 vector2_3 in list1)
             {
                 foreach (GameplayObject gameplayObject2 in nearby)
@@ -309,8 +310,8 @@ namespace Ship_Game.Gameplay
                     if (gameplayObject2 is Ship)
                     {
                         if ((gameplayObject2 as Ship).loyalty == beam.owner.loyalty)
-                            list2.Add(gameplayObject2);
-                        else if (gameplayObject2 != beam.owner && gameplayObject2 is Ship && (beam.weapon.HitsFriendlies || (gameplayObject2 as Ship).loyalty != beam.owner.loyalty))
+                            AlliedShips.Add(gameplayObject2);
+                        else if (gameplayObject2 != beam.owner || beam.weapon.HitsFriendlies)
                         {
                             ++GlobalStats.BeamTests;
                             if ((double)Vector2.Distance(gameplayObject2.Center, vector2_3) < (double)gameplayObject2.Radius)
@@ -323,9 +324,9 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-                foreach (GameplayObject gameplayObject2 in list2)
+                foreach (GameplayObject gameplayObject2 in AlliedShips)
                     nearby.Remove(gameplayObject2);
-                list2.Clear();
+                AlliedShips.Clear();
                 if (ship1 != null)
                     break;
             }
@@ -362,12 +363,12 @@ namespace Ship_Game.Gameplay
                             {
                                 ++GlobalStats.BeamTests;
                                 float num4 = Vector2.Distance(vector2_3, shipModule.Center);
-                                if ((double)num4 <= (double)shipModule.Radius + 8.0)
+                                if ((double)num4 <= (beam.IgnoresShields ? 16.0 : (double)shipModule.Radius + 8.0))
                                 {
                                     ++GlobalStats.BeamTests;
                                     this.collisionResults.Add(new SpatialManager.CollisionResult()
                                     {
-                                        Distance = shipModule.Radius + 8f,
+                                        Distance = (beam.IgnoresShields ? 16f : shipModule.Radius + 8f),
                                         Normal = Vector2.Normalize(Vector2.Zero),
                                         GameplayObject = (GameplayObject)shipModule
                                     });
@@ -393,27 +394,30 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Vector2 vector2_3 in list1)
                     {
-                        for (int index = 0; index < ship1.GetShields().Count; ++index)
+                        if (!beam.IgnoresShields)
                         {
-                            ++GlobalStats.BeamTests;
-                            ShipModule shipModule = ship1.GetShields()[index];
-                            if (shipModule != null && (shipModule.Active || (double)beam.damageAmount <= 0.0))
+                            for (int index = 0; index < ship1.GetShields().Count; ++index)
                             {
-                                if ((double)shipModule.shield_power <= 0.0)
-                                    beam.hitLast = (ShipModule)null;
-                                else if ((double)Vector2.Distance(vector2_3, shipModule.Center) <= (double)shipModule.Radius + 4.0)
+                                ++GlobalStats.BeamTests;
+                                ShipModule shipModule = ship1.GetShields()[index];
+                                if (shipModule != null && (shipModule.Active || (double)beam.damageAmount <= 0.0))
                                 {
-                                    ++GlobalStats.BeamTests;
-                                    this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                    if ((double)shipModule.shield_power <= 0.0)
+                                        beam.hitLast = (ShipModule)null;
+                                    else if ((double)Vector2.Distance(vector2_3, shipModule.Center) <= (double)shipModule.Radius + 4.0)
                                     {
-                                        Distance = shipModule.Radius + 8f,
-                                        Normal = Vector2.Normalize(Vector2.Zero),
-                                        GameplayObject = (GameplayObject)shipModule
-                                    });
-                                    beam.ActualHitDestination = vector2_3;
-                                    flag = true;
-                                    beam.hitLast = shipModule;
-                                    break;
+                                        ++GlobalStats.BeamTests;
+                                        this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                        {
+                                            Distance = shipModule.Radius + 8f,
+                                            Normal = Vector2.Normalize(Vector2.Zero),
+                                            GameplayObject = (GameplayObject)shipModule
+                                        });
+                                        beam.ActualHitDestination = vector2_3;
+                                        flag = true;
+                                        beam.hitLast = shipModule;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -423,12 +427,12 @@ namespace Ship_Game.Gameplay
                             {
                                 ++GlobalStats.BeamTests;
                                 ModuleSlot moduleSlot = ship1.ExternalSlots.ElementAt(index);
-                                if (moduleSlot != null && (moduleSlot.module.Active || (double)beam.damageAmount <= 0.0) && (double)Vector2.Distance(vector2_3, moduleSlot.module.Center) <= (double)moduleSlot.module.Radius + 4.0)
+                                if (moduleSlot != null && (moduleSlot.module.Active || (double)beam.damageAmount <= 0.0) && (double)Vector2.Distance(vector2_3, moduleSlot.module.Center) <= (beam.IgnoresShields ? 12.0 : (double)moduleSlot.module.Radius + 4.0))
                                 {
                                     ++GlobalStats.BeamTests;
                                     this.collisionResults.Add(new SpatialManager.CollisionResult()
                                     {
-                                        Distance = moduleSlot.module.Radius + 8f,
+                                        Distance = (beam.IgnoresShields ? 12f : moduleSlot.module.Radius + 8f),
                                         Normal = Vector2.Normalize(Vector2.Zero),
                                         GameplayObject = (GameplayObject)moduleSlot.module
                                     });
