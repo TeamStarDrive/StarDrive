@@ -191,7 +191,7 @@ namespace Ship_Game.Gameplay
 
 		public string Name;
 
-		public int LoopAnimation;
+		public byte LoopAnimation;
 
 		public float Scale = 1f;
 
@@ -587,9 +587,6 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
 		{
-            //Force target into combat
-            if (target is Ship)
-                (target as Ship).InCombatTimer = 15f;
 			Projectile projectile = new Projectile(p, direction)
 			{
 				range = this.Range,
