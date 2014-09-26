@@ -638,8 +638,6 @@ namespace Ship_Game.Gameplay
 						ship.GetAI().OrderQueue.Clear();
 						ship.GetAI().State = AIState.AwaitingOrders;
 						ship.fleet = null;
-						ship.InCombatTimer = 0f;
-						ship.InCombat = false;
 						ship.HyperspaceReturn();
 						ship.isSpooling = false;
 						if (ship.Role != "troop")
@@ -721,8 +719,6 @@ namespace Ship_Game.Gameplay
 					foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
 					{
 						ship.fleet = null;
-						ship.InCombatTimer = 0f;
-						ship.InCombat = false;
 						ClosestAO.AddShip(ship);
 						ClosestAO.TurnsToRelax = 0;
 					}
@@ -950,8 +946,6 @@ namespace Ship_Game.Gameplay
 						ship.GetAI().OrderQueue.Clear();
 						ship.GetAI().State = AIState.AwaitingOrders;
 						ship.fleet = null;
-						ship.InCombatTimer = 0f;
-						ship.InCombat = false;
 						ship.HyperspaceReturn();
 						ship.isSpooling = false;
 						if (ship.Role != "troop")
