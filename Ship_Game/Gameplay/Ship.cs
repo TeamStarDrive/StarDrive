@@ -3795,6 +3795,8 @@ namespace Ship_Game.Gameplay
         //added by Gremlin : active ship strength calculator
         public float GetStrength()
         {
+            if (this.Health >= this.HealthMax * .90)
+                return this.BaseStrength;
             float Str = 0f;
             float def = 0f;
 
