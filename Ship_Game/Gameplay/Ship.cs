@@ -3322,10 +3322,10 @@ namespace Ship_Game.Gameplay
                     this.HealPerTurn = 0;
                     this.ECMValue = 0f;
                     this.FTLSpoolTime = 0f;
-                    foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.MaxGoodStorageDict.Keys))
-                        this.MaxGoodStorageDict[index] = 0.0f;
-                    foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
-                        this.ResourceDrawDict[index] = 0.0f;
+                    //foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.MaxGoodStorageDict.Keys))
+                    //    this.MaxGoodStorageDict[index] = 0.0f;
+                    //foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
+                    //    this.ResourceDrawDict[index] = 0.0f;
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     {
                         this.Health = (float)((double)this.Health + (double)moduleSlot.module.Health);
@@ -3695,18 +3695,31 @@ namespace Ship_Game.Gameplay
             this.PowerCurrent -= this.PowerDraw * elapsedTime;
             if ((double)this.PowerCurrent < (double)this.PowerStoreMax)
                 this.PowerCurrent += (this.PowerFlowMax + (this.loyalty != null ? this.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0)) * elapsedTime;
-            if (this.ResourceDrawDict.Count > 0)
-            {
-                foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
-                //Parallel.ForEach(Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys), index1 =>
-                {
-                    Dictionary<string, float> dictionary;
-                    string index2;
-                    (dictionary = this.CargoDict)[index2 = index1] = dictionary[index2] - this.ResourceDrawDict[index1] * elapsedTime;
-                    if ((double)this.CargoDict[index1] <= 0.0)
-                        this.CargoDict[index1] = 0.0f;
-                }//);
-            }
+            //if (this.ResourceDrawDict.Count > 0)
+            //{
+
+            //    //foreach (KeyValuePair<string, float> draw in this.ResourceDrawDict)
+            //    //{
+            //    //    string index1 = draw.Key;
+            //    //    float drawvalue = draw.Value;
+            //    //    if (drawvalue <= 0 || this.CargoDict[index1] <= 0.0f)
+            //    //        continue;
+            //    //    float store = this.CargoDict[index1];
+            //    //    store -= drawvalue * elapsedTime;
+
+            //    //    if (store < 0)
+            //    //        store = 0;
+            //    //    this.CargoDict[index1] = store;
+            //    //}
+            //    foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
+            //    {
+            //        Dictionary<string, float> dictionary;
+            //        string index2;
+            //        (dictionary = this.CargoDict)[index2 = index1] = dictionary[index2] - this.ResourceDrawDict[index1] * elapsedTime;
+            //        if ((double)this.CargoDict[index1] <= 0.0)
+            //            this.CargoDict[index1] = 0.0f;
+            //    }
+            //}
             if ((double)this.PowerCurrent <= 0.0)
             {
                 this.PowerCurrent = 0.0f;
