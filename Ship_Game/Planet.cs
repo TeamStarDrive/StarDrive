@@ -2726,7 +2726,7 @@ namespace Ship_Game
                         }
                     }
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
-                    if (RepairPool > 0 && item.Health < item.HealthMax && !this.ParentSystem.CombatInSystem)
+                    if (!item.InCombat && RepairPool > 0 && item.Health < item.HealthMax)
                     {
                         foreach (ModuleSlot slot in item.ModuleSlotList.Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax))
                         {
@@ -2742,7 +2742,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if ((this.ParentSystem.combatTimer <= 0 || item.InCombatTimer <= 0) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
+                    if ((this.ParentSystem.combatTimer <= 0 || !item.InCombat) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
                     {
                         foreach (var pgs in this.TilesList)
                         {

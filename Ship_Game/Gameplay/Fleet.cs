@@ -2775,8 +2775,6 @@ namespace Ship_Game.Gameplay
                     s.GetAI().OrderQueue.Clear();
                     s.GetAI().State = AIState.AwaitingOrders;
                     s.fleet = (Fleet)null;
-                    s.InCombatTimer = 0.0f;
-                    s.InCombat = false;
                     s.HyperspaceReturn();
                     s.isSpooling = false;
                     if (s.Role == "troop")
