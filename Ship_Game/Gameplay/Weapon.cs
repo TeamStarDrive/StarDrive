@@ -191,7 +191,7 @@ namespace Ship_Game.Gameplay
 
 		public string Name;
 
-		public int LoopAnimation;
+		public byte LoopAnimation;
 
 		public float Scale = 1f;
 
@@ -587,9 +587,6 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
 		{
-            //Force target into combat
-            if (target is Ship)
-                (target as Ship).InCombatTimer = 15f;
 			Projectile projectile = new Projectile(p, direction)
 			{
 				range = this.Range,
@@ -833,7 +830,7 @@ namespace Ship_Game.Gameplay
 		{
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
 				return;
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -922,7 +919,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -993,7 +990,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
@@ -1035,7 +1032,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -1051,7 +1048,7 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-            this.owner.InCombatTimer = 5f;
+            this.owner.InCombatTimer = 15f;
             this.timeToNextFire = this.fireDelay;
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
             {
@@ -1065,7 +1062,7 @@ namespace Ship_Game.Gameplay
         {
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
                 return;
-            this.owner.InCombatTimer = 5f;
+            this.owner.InCombatTimer = 15f;
             this.timeToNextFire = this.fireDelay;
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
             {

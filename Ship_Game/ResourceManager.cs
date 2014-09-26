@@ -2394,9 +2394,6 @@ namespace Ship_Game
                 if (!fighters && !weapons) Str = 0;
                 if (def > Str) def = Str;
                 entry.Value.BaseStrength = Str + def;
-
-
-
             }
 		}
 
