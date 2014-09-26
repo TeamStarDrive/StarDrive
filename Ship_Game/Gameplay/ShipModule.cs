@@ -402,7 +402,6 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-                //Damage module health if shields fail from damage
                 if (damageAmount > this.shield_power)
                 {
                     damageRemainder = damageAmount - this.shield_power;
