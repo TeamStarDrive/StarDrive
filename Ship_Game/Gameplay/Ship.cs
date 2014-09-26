@@ -765,26 +765,6 @@ namespace Ship_Game.Gameplay
             this.lastKBState = this.currentKeyBoardState;
         }
 
-        public bool CheckIfInsideFireArcORIG(Weapon w, Vector3 PickedPos)
-        {
-            Vector2 vector2_1 = new Vector2(PickedPos.X, PickedPos.Y);
-            float num1 = w.moduleAttachedTo.FieldOfFire / 2f;
-            Vector2 vector2_2 = vector2_1 - w.Center;
-            float num2 = 180f - MathHelper.ToDegrees((float)Math.Atan2((double)vector2_2.X, (double)vector2_2.Y));
-            float num3 = w.moduleAttachedTo.facing + MathHelper.ToDegrees(this.Rotation);
-            if ((double)num3 > 360.0)
-                num3 -= 360f;
-            float num4 = Math.Abs(num2 - num3);
-            if ((double)num4 > (double)num1)
-            {
-                if ((double)num2 > 180.0)
-                    num2 = (float)(-1.0 * (360.0 - (double)num2));
-                if ((double)num3 > 180.0)
-                    num3 = (float)(-1.0 * (360.0 - (double)num3));
-                num4 = Math.Abs(num2 - num3);
-            }
-            return (double)num4 < (double)num1 && (double)Vector2.Distance(this.Position, vector2_1) < (double)w.Range + 50.0;
-        }
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos)
         {
@@ -814,7 +794,7 @@ namespace Ship_Game.Gameplay
             }
             //added by gremlin attackrun compensator
             float modifyRangeAR = 50f;
-            if (this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoCount > 0)
+            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
                 modifyRangeAR = this.speed;
             }
@@ -825,26 +805,6 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        public bool CheckIfInsideFireArcORIG(Weapon w, Vector2 PickedPos)
-        {
-            ++GlobalStats.WeaponArcChecks;
-            float num1 = w.moduleAttachedTo.FieldOfFire / 2f;
-            Vector2 vector2 = PickedPos - w.Center;
-            float num2 = 180f - MathHelper.ToDegrees((float)Math.Atan2((double)vector2.X, (double)vector2.Y));
-            float num3 = w.moduleAttachedTo.facing + MathHelper.ToDegrees(this.Rotation);
-            if ((double)num3 > 360.0)
-                num3 -= 360f;
-            float num4 = Math.Abs(num2 - num3);
-            if ((double)num4 > (double)num1)
-            {
-                if ((double)num2 > 180.0)
-                    num2 = (float)(-1.0 * (360.0 - (double)num2));
-                if ((double)num3 > 180.0)
-                    num3 = (float)(-1.0 * (360.0 - (double)num3));
-                num4 = Math.Abs(num2 - num3);
-            }
-            return (double)num4 < (double)num1 && (double)Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < (double)w.Range;
-        }
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos)
         {
@@ -873,9 +833,8 @@ namespace Ship_Game.Gameplay
                 difference = Math.Abs(angleToMouse - facing);
             }
             float modifyRangeAR = 50f;
-            if (this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
+            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
             {
-
                 modifyRangeAR = this.speed * w.SalvoTimer;
             }
             if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < modifyRange(w) + modifyRangeAR)
@@ -885,25 +844,6 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        public static bool CheckIfInsideFireArcORIG(Weapon w, Vector2 PickedPos, float Rotation)
-        {
-            float num1 = w.moduleAttachedTo.FieldOfFire / 2f;
-            Vector2 vector2 = PickedPos - w.Center;
-            float num2 = 180f - MathHelper.ToDegrees((float)Math.Atan2((double)vector2.X, (double)vector2.Y));
-            float num3 = w.moduleAttachedTo.facing + MathHelper.ToDegrees(Rotation);
-            if ((double)num3 > 360.0)
-                num3 -= 360f;
-            float num4 = Math.Abs(num2 - num3);
-            if ((double)num4 > (double)num1)
-            {
-                if ((double)num2 > 180.0)
-                    num2 = (float)(-1.0 * (360.0 - (double)num2));
-                if ((double)num3 > 180.0)
-                    num3 = (float)(-1.0 * (360.0 - (double)num3));
-                num4 = Math.Abs(num2 - num3);
-            }
-            return (double)num4 < (double)num1 && (double)Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < (double)w.Range;
-        }
         //Added by McShooterz
         public static bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos, float Rotation)
         {
@@ -930,25 +870,22 @@ namespace Ship_Game.Gameplay
                 }
                 difference = Math.Abs(angleToMouse - facing);
             }
-
-
             if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < modifyRange(w) + 50f)
             {
                 return true;
             }
             return false;
         }
+
         //Added by McShooterz
         public static float modifyRange(Weapon w)
         {
             float modifiedRange = w.Range;
-
             //Added by McShooterz: check if mod uses weapon modifiers
-            if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useWeaponModifiers)
+            if (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useWeaponModifiers)
             {
                 return modifiedRange;
             }
-
             if (w.Tag_Beam)
             {
                 modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Beam"].Range;
@@ -1025,7 +962,6 @@ namespace Ship_Game.Gameplay
             {
                 modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Tractor"].Range;
             }
-
             return modifiedRange;
         }
         public List<Thruster> GetTList()
