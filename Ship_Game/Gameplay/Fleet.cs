@@ -2792,7 +2792,7 @@ namespace Ship_Game.Gameplay
         public void Update(float elapsedTime)
         {
             List<Ship> list = new List<Ship>();
-            foreach (Ship ship in (List<Ship>)this.Ships)
+            foreach (Ship ship in this.Ships as List<Ship>)
             {
                 if (!ship.Active)
                     list.Add(ship);
