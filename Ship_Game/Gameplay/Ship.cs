@@ -570,7 +570,7 @@ namespace Ship_Game.Gameplay
             this.AI.Target = (GameplayObject)target;
             this.AI.HasPriorityOrder = false;
             this.AI.hasPriorityTarget = true;
-            this.InCombatTimer = 5f;
+            this.InCombatTimer = 15f;
         }
 
         public Dictionary<string, float> GetCargo()
