@@ -2742,7 +2742,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if ((this.ParentSystem.combatTimer <= 0 || item.InCombatTimer <= 0) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
+                    if ((this.ParentSystem.combatTimer <= 0 || !item.InCombat) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
                     {
                         foreach (var pgs in this.TilesList)
                         {

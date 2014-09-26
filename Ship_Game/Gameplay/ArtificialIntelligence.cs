@@ -6452,7 +6452,7 @@ namespace Ship_Game.Gameplay
             this.Owner.isTurning = false;
 
 
-            if (!this.HasPriorityOrder && (this.BadGuysNear || this.Owner.InCombatTimer > 0) && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 && this.Owner.Transporters.Count() == 0
+            if (!this.HasPriorityOrder && (this.BadGuysNear || this.Owner.InCombat) && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 && this.Owner.Transporters.Count() == 0
                 && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State != AIState.Rebase) && (this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
             {
                 if (this.State != AIState.Flee )
