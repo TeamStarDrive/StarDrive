@@ -70,7 +70,7 @@ This is a blackbox download that includes these mods reformatted to work with bl
 * if the mod has a "starter ships" folder and crashes on load copy the contents of the starterships folder into the mods ship designs folder and delete the mods starterships folder.
 
 #Future Features#
-[Future Features](https://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Mod+Issue&status=%21closed&status=%21resolved&version=%210.1+Gravity)
+[Future Features](https://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Mod+Issue&status=resolved&status=closed&version=%210.1+Gravity)
 
 ### Yeah thats great but i want to add my own features or change some issue that bugs me###
 * even better!!!
