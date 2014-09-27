@@ -285,7 +285,7 @@ namespace Ship_Game
             this.loadFogPath = data.loadFogPath;
             this.PlayerLoyalty = loyalty;
             this.playerShip = data.playerShip;
-            this.playerShip.loyalty.isPlayer = true;
+            EmpireManager.GetEmpireByName(loyalty).isPlayer = true;
             this.ShipToView = this.playerShip;
             this.loading = true;
         }
