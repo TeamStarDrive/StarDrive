@@ -2683,33 +2683,33 @@ namespace Ship_Game
             float RepairPool = this.developmentLevel * this.RepairPerTurn * 20;
             for (int i = 0; i < this.system.ShipList.Count; i++)
             {
-                Ship item = this.system.ShipList[i];
-                if (item != null && item.loyalty == this.Owner && this.HasShipyard && Vector2.Distance(this.Position, item.Position) <= 5000f)
+                Ship ship = this.system.ShipList[i];
+                if (ship != null && ship.loyalty == this.Owner && this.HasShipyard && Vector2.Distance(this.Position, ship.Position) <= 5000f)
                 {
-                    item.PowerCurrent = item.PowerStoreMax;
-                    item.Ordinance = item.OrdinanceMax;
+                    ship.PowerCurrent = ship.PowerStoreMax;
+                    ship.Ordinance = ship.OrdinanceMax;
                     if (GlobalStats.HardcoreRuleset)
                     {
-                        foreach (KeyValuePair<string, float> maxGood in item.GetMaxGoods())
+                        foreach (KeyValuePair<string, float> maxGood in ship.GetMaxGoods())
                         {
-                            if (item.GetCargo()[maxGood.Key] >= maxGood.Value)
+                            if (ship.GetCargo()[maxGood.Key] >= maxGood.Value)
                             {
                                 continue;
                             }
-                            while (this.ResourcesDict[maxGood.Key] > 0f && item.GetCargo()[maxGood.Key] < maxGood.Value)
+                            while (this.ResourcesDict[maxGood.Key] > 0f && ship.GetCargo()[maxGood.Key] < maxGood.Value)
                             {
-                                if (maxGood.Value - item.GetCargo()[maxGood.Key] < 1f)
+                                if (maxGood.Value - ship.GetCargo()[maxGood.Key] < 1f)
                                 {
                                     Dictionary<string, float> resourcesDict = this.ResourcesDict;
                                     Dictionary<string, float> strs = resourcesDict;
                                     string key = maxGood.Key;
                                     string str = key;
-                                    resourcesDict[key] = strs[str] - (maxGood.Value - item.GetCargo()[maxGood.Key]);
-                                    Dictionary<string, float> cargo = item.GetCargo();
+                                    resourcesDict[key] = strs[str] - (maxGood.Value - ship.GetCargo()[maxGood.Key]);
+                                    Dictionary<string, float> cargo = ship.GetCargo();
                                     Dictionary<string, float> strs1 = cargo;
                                     string key1 = maxGood.Key;
                                     string str1 = key1;
-                                    cargo[key1] = strs1[str1] + (maxGood.Value - item.GetCargo()[maxGood.Key]);
+                                    cargo[key1] = strs1[str1] + (maxGood.Value - ship.GetCargo()[maxGood.Key]);
                                 }
                                 else
                                 {
@@ -2717,7 +2717,7 @@ namespace Ship_Game
                                     Dictionary<string, float> strs2 = resourcesDict1;
                                     string key2 = maxGood.Key;
                                     resourcesDict1[key2] = strs2[key2] - 1f;
-                                    Dictionary<string, float> cargo1 = item.GetCargo();
+                                    Dictionary<string, float> cargo1 = ship.GetCargo();
                                     Dictionary<string, float> strs3 = cargo1;
                                     string str2 = maxGood.Key;
                                     cargo1[str2] = strs3[str2] + 1f;
@@ -2726,9 +2726,9 @@ namespace Ship_Game
                         }
                     }
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
-                    if (!item.InCombat && RepairPool > 0 && item.Health < item.HealthMax)
+                    if (!ship.InCombat && RepairPool > 0 && ship.Health < ship.HealthMax)
                     {
-                        foreach (ModuleSlot slot in item.ModuleSlotList.Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax))
+                        foreach (ModuleSlot slot in ship.ModuleSlotList.Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax))
                         {
                             if (slot.module.HealthMax - slot.module.Health > RepairPool)
                             {
@@ -2742,16 +2742,16 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if ((this.ParentSystem.combatTimer <= 0 || !item.InCombat) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
+                    if ((this.ParentSystem.combatTimer <= 0 || !ship.InCombat) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
                     {
                         foreach (var pgs in this.TilesList)
                         {
-                            if (item.TroopCapacity ==0 || item.TroopList.Count >= item.TroopCapacity) 
+                            if (ship.TroopCapacity ==0 || ship.TroopList.Count >= ship.TroopCapacity) 
                                 break;
                             if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
                             {
                                 Troop troop = pgs.TroopsHere[0];
-                                item.TroopList.Add(troop);
+                                ship.TroopList.Add(troop);
                                 pgs.TroopsHere.Clear();
                                 this.TroopsHere.Remove(troop);
                             }

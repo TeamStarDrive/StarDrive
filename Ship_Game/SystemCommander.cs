@@ -89,7 +89,7 @@ namespace Ship_Game
                     float AssignedStr = 0f;
                     foreach (KeyValuePair<Guid, Ship> friendly in this.ShipsDict)
                     {
-                        if (!friendly.Value.InCombat&&friendly.Value.GetSystem() ==this.system)
+                        if (!friendly.Value.InCombat && friendly.Value.GetSystem() ==this.system)
                         {
                             if (AssignedShips.Contains(friendly.Value) || AssignedStr != 0f && AssignedStr >= enemy.GetStrength() || friendly.Value.GetAI().State == AIState.Resupply)
                             {
