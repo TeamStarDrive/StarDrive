@@ -129,7 +129,7 @@ namespace Ship_Game
         private float unfed;
         private Shield shield;
         public float FoodHere;
-        public int developmentLevel;
+        public byte developmentLevel;
         public bool CorsairPresence;
         public bool queueEmptySent ;
         public float RepairPerTurn = 50;
@@ -4094,47 +4094,50 @@ namespace Ship_Game
                         break;
                 }
             }
-            //Added by McShooterz: Colony build troops
-            if (this.CanBuildInfantry() && this.ConstructionQueue.Count == 0 && this.ProductionHere > this.MAX_STORAGE*.75f && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+            if (this.ConstructionQueue.Count == 0 && this.ProductionHere > this.MAX_STORAGE * .75f)
             {
-                bool addTroop = false;
-                foreach (PlanetGridSquare planetGridSquare in this.TilesList)
+                //Added by McShooterz: Colony build troops
+                if (this.CanBuildInfantry() && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
                 {
-                    if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops)
+                    bool addTroop = false;
+                    foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                     {
-                        addTroop = true;
-                        break;
-                    }
-                }
-                if (addTroop)
-                {
-                    foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
-                    {
-                        if (this.Owner.WeCanBuildTroop(troop.Key))
+                        if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops)
                         {
-                            QueueItem qi = new QueueItem();
-                            qi.isTroop = true;
-                            qi.troop = troop.Value;
-                            qi.Cost = troop.Value.GetCost();
-                            qi.productionTowards = 0f;
-                            qi.NotifyOnEmpty = false;
-                            this.ConstructionQueue.Add(qi);                         
+                            addTroop = true;
                             break;
                         }
                     }
-                }
-            }
-            //Added by McShooterz: build defense platforms
-            if (this.ConstructionQueue.Count == 0 && this.Owner.data.TaxRate <.40f && (double)this.NetProductionPerTurn > 4.0 && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < (this.developmentLevel - 1) * 2)
-            {
-                string platform = this.Owner.GetGSAI().GetDefenceSatellite();
-                if (platform != "")
-                    this.ConstructionQueue.Add(new QueueItem()
+                    if (addTroop)
                     {
-                        isShip = true,
-                        sData = ResourceManager.ShipsDict[platform].GetShipData(),
-                        Cost = ResourceManager.ShipsDict[platform].GetCost(this.Owner)
-                    });
+                        foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
+                        {
+                            if (this.Owner.WeCanBuildTroop(troop.Key))
+                            {
+                                QueueItem qi = new QueueItem();
+                                qi.isTroop = true;
+                                qi.troop = troop.Value;
+                                qi.Cost = troop.Value.GetCost();
+                                qi.productionTowards = 0f;
+                                qi.NotifyOnEmpty = false;
+                                this.ConstructionQueue.Add(qi);
+                                break;
+                            }
+                        }
+                    }
+                }
+                //Added by McShooterz: build defense platforms
+                if (this.Owner.data.TaxRate < .40f && (double)this.NetProductionPerTurn > 4.0 && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < (this.developmentLevel - 1) * 2)
+                {
+                    string platform = this.Owner.GetGSAI().GetDefenceSatellite();
+                    if (platform != "")
+                        this.ConstructionQueue.Add(new QueueItem()
+                        {
+                            isShip = true,
+                            sData = ResourceManager.ShipsDict[platform].GetShipData(),
+                            Cost = ResourceManager.ShipsDict[platform].GetCost(this.Owner)
+                        });
+                }
             }
             if ((double)this.Population > 3000.0 || (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.75)
             {
