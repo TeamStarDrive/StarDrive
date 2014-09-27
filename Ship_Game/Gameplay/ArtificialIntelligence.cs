@@ -631,8 +631,6 @@ namespace Ship_Game.Gameplay
         {
             this.awaitClosest = null;
             this.State = AIState.Combat;
-            this.Owner.InCombat = true;
-            this.Owner.InCombatTimer = 15f;
             if (this.Target != null && !this.Target.Active)
             {
                 this.Target = null;
@@ -657,7 +655,6 @@ namespace Ship_Game.Gameplay
                 {
                     this.Owner.Mothership.GetAI().Target = this.Target;
                     this.Owner.Mothership.GetAI().State = AIState.Combat;
-                    this.Owner.Mothership.InCombat = true;
                     this.Owner.Mothership.InCombatTimer = 15f;
                 }
             }
@@ -837,10 +834,6 @@ namespace Ship_Game.Gameplay
                             break;
                         }
                 }
-            }
-            if (this.Target == null)
-            {
-                this.Owner.InCombat = false;
             }
         }
 
@@ -3088,7 +3081,6 @@ namespace Ship_Game.Gameplay
 					}
 					this.State = AIState.AttackTarget;
 					this.Target = toAttack;
-					this.Owner.InCombat = true;
 					this.Owner.InCombatTimer = 15f;
 					this.OrderQueue.Clear();
 					this.IgnoreCombat = false;
@@ -3110,7 +3102,7 @@ namespace Ship_Game.Gameplay
 				this.ActiveWayPoints.Clear();
 			}
 			this.State = AIState. Bombard;
-			this.Owner.InCombat = true;
+			this.Owner.InCombatTimer = 15f;
 			this.OrderQueue.Clear();
 			this.HasPriorityOrder = true;
 			ArtificialIntelligence.ShipGoal combat = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Bombard, Vector2.Zero, 0f)
@@ -3127,7 +3119,7 @@ namespace Ship_Game.Gameplay
                 this.ActiveWayPoints.Clear();
             }
             this.State = AIState.BombardTroops;
-            this.Owner.InCombat = true;
+            this.Owner.InCombatTimer = 15f;
             this.OrderQueue.Clear();
             this.HasPriorityOrder = true;
             ArtificialIntelligence.ShipGoal combat = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.BombTroops, Vector2.Zero, 0f)
@@ -5695,8 +5687,6 @@ namespace Ship_Game.Gameplay
             if (this.Target != null && !this.Owner.InCombat)
             {
                 //this.Owner.ShieldsUp = true;
-                this.Owner.InCombat = true;
-                this.Owner.InCombatTimer = 15f;
                 if (!this.HasPriorityOrder && this.OrderQueue.Count > 0 && this.OrderQueue.ElementAt<ArtificialIntelligence.ShipGoal>(0).Plan != ArtificialIntelligence.Plan.DoCombat)
                 {
                     ArtificialIntelligence.ShipGoal combat = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f);
@@ -5718,10 +5708,6 @@ namespace Ship_Game.Gameplay
                     this.OrderQueue.AddFirst(combat);
                     return;
                 }
-            }
-            else if (this.Target == null)
-            {
-                this.Owner.InCombat = false;
             }
         }
 

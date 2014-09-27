@@ -205,8 +205,8 @@ namespace Ship_Game
 
             Rectangle EftlRect = new Rectangle(leftRect.X + 60, leftRect.Y + 150, 270, 50);
             this.EnemyFTLPenaltySlider = new FloatSlider(EftlRect, Localizer.Token(6139));
-            this.EnemyFTLPenaltySlider.SetAmount(GlobalStats.FTLInSystemModifier);
-            this.EnemyFTLPenaltySlider.amount = GlobalStats.FTLInSystemModifier;
+            this.EnemyFTLPenaltySlider.SetAmount(GlobalStats.EnemyFTLInSystemModifier);
+            this.EnemyFTLPenaltySlider.amount = GlobalStats.EnemyFTLInSystemModifier;
 
 			Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.PlanetaryGravityWells, (bool x) => GlobalStats.PlanetaryGravityWells = x);
             Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 100)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);

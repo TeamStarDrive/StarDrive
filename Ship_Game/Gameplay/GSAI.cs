@@ -6563,16 +6563,15 @@ namespace Ship_Game.Gameplay
 				ao.Update();
 			}
 			this.UpdateThreatMatrix();
-			if (!this.empire.isFaction && !this.empire.MinorRace && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoColonize))
+			if (!this.empire.isFaction && !this.empire.MinorRace)
 			{
-				this.RunExpansionPlanner();
-			}
-            if (!this.empire.isFaction && !this.empire.MinorRace && (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty) || this.empire.AutoBuild))
-			{
-				this.RunInfrastructurePlanner();
+                if (!this.empire.isPlayer || this.empire.AutoColonize)
+				    this.RunExpansionPlanner();
+                if(!this.empire.isPlayer || this.empire.AutoBuild)
+                    this.RunInfrastructurePlanner();
 			}
 			this.DefensiveCoordinator.ManageForcePool();
-			if (this.empire != EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty))
+            if (!this.empire.isPlayer)
 			{
                 this.RunEconomicPlanner();
                 this.RunDiplomaticPlanner();
