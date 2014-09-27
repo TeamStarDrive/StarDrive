@@ -70,7 +70,7 @@ This is a blackbox download that includes these mods reformatted to work with bl
 * if the mod has a "starter ships" folder and crashes on load copy the contents of the starterships folder into the mods ship designs folder and delete the mods starterships folder.
 
 #Future Features#
-[Future Features](https://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Mod+Issue&status=resolved&status=closed&version=%210.1+Gravity)
+[Future Features](https://bitbucket.org/CrunchyGremlin/sd-idk/issues/2?status=closed&status=resolved&version=%210.1+Gravity&component=events&component=diplomacy+ui&component=galaxy+UI&component=fleet+ui&component=ship+AI&component=mod+enhancements&component=spies&component=shipyard+ui&component=Ship+function&component=General+UI&component=Vanilla+Issue&component=Troops&component=Economy&component=General+Feature+Issue&component=General+AI&component=combat+ai&component=colony+management)
 
 ### Yeah thats great but i want to add my own features or change some issue that bugs me###
 * even better!!!
