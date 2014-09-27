@@ -58,7 +58,7 @@ namespace Ship_Game
         //private MilitaryResearchStrategy militaryResearchStrategy;
         private EconomicResearchStrategy economicResearchStrategy;
         private float UpdateTimer;
-        private bool isPlayer;
+        public bool isPlayer;
         private float totalShipMaintenance;
         private float totalBuildingMaintenance;
         private float updateContactsTimer;
@@ -503,7 +503,6 @@ namespace Ship_Game
                     }
                 }
             }
-
         }
 
         private bool WeCanUseThisLater(TechEntry tech)
@@ -1772,7 +1771,7 @@ namespace Ship_Game
                 StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].MilitaryStrength = num1;
                 StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].TaxRate = this.data.TaxRate;
             }
-            if (this.isPlayer || this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+            if (this.isPlayer)
             {
                 if ((double)Empire.universeScreen.StarDate > 1060.0)
                 {
@@ -1830,7 +1829,6 @@ namespace Ship_Game
                     }
                 }
                 RandomEventManager.UpdateEvents();
-                this.isPlayer = true;
                 if (this.data.TurnsBelowZero == 5 && (double)this.Money < 0.0)
                     Empire.universeScreen.NotificationManager.AddMoneyWarning();
                 bool allEmpiresDead = true;
