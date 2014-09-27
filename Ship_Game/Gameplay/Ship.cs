@@ -114,9 +114,9 @@ namespace Ship_Game.Gameplay
         public float DamageModifier;
         public Empire loyalty;
         public int Size;
-        public bool isCloaked;
-        public bool isDecloaking;
-        public bool isCloaking;
+        //public bool isCloaked;
+        //public bool isDecloaking;
+        //public bool isCloaking;
         //private Cue CloakSound;
         public int CrewRequired;
         public int CrewSupplied;
@@ -214,6 +214,7 @@ namespace Ship_Game.Gameplay
         public bool hasOrdnanceTransporter;
         public bool hasAssaultTransporter;
         public bool hasRepairBeam;
+        private bool hasCommand;
 
         public float CargoSpace_Used
         {
@@ -1834,17 +1835,9 @@ namespace Ship_Game.Gameplay
             }
             if (this.engineState == Ship.MoveState.Warp && (double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && Ship.universeScreen.camHeight < 250000)
             {
-                 //Added by McShooterz: Use sounds from new sound dictionary
-                if (ResourceManager.SoundEffectDict.ContainsKey(this.GetEndWarpCue()))
-                {
-                    AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[this.GetEndWarpCue()], 0.2f);
-                }
-                else
-                {
-                    Cue cue = AudioManager.GetCue(this.GetEndWarpCue());
-                    cue.Apply3D(Ship.universeScreen.listener, this.emitter);
-                    cue.Play();
-                }
+                Cue cue = AudioManager.GetCue(this.GetEndWarpCue());
+                cue.Apply3D(Ship.universeScreen.listener, this.emitter);
+                cue.Play();
                 FTL ftl = new FTL();
                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
                 lock (FTLManager.FTLLock)
@@ -2707,7 +2700,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
-                    if (this.isSpooling)
+                    if (this.isSpooling && !this.Inhibited)
                     {
                         this.JumpTimer -= elapsedTime;
                         //task gremlin move fighter recall here.
@@ -2715,18 +2708,9 @@ namespace Ship_Game.Gameplay
                         {
                             if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying) && Ship.universeScreen.camHeight < 250000)
                             {
-                                //Added by McShooterz: Use sounds from new sound dictionary
-                                if (ResourceManager.SoundEffectDict.ContainsKey(this.GetStartWarpCue()))
-                                {
-                                    if((double)this.JumpTimer <= 0.1)
-                                        AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[this.GetStartWarpCue()], 0.2f);
-                                }
-                                else
-                                {
-                                    this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
-                                    this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
-                                    this.Jump.Play();
-                                }
+                                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
+                                this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
+                                this.Jump.Play();
                             }
                         }
                         if ((double)this.JumpTimer <= 0.1)
@@ -3087,13 +3071,17 @@ namespace Ship_Game.Gameplay
             }
             this.MoveModulesTimer -= elapsedTime;
             this.updateTimer -= elapsedTime;
+            //Disable if no command module
+            if (this.hasCommand)
+                this.disabled = false;
+            else
+                this.disabled = true;
+            //Disable if enough EMP damage
             --this.EMPDamage;
             if ((double)this.EMPDamage < 0.0)
                 this.EMPDamage = 0.0f;
             else if ((double)this.EMPDamage > (double)this.Size + (double)this.BonusEMP_Protection)
                 this.disabled = true;
-            else if ((double)this.EMPDamage < (double)this.Size + (double)this.BonusEMP_Protection)
-                this.disabled = false;
             this.CargoMass = 0.0f;
             if ((double)this.rotation > 2.0 * Math.PI)
             {
@@ -3258,6 +3246,7 @@ namespace Ship_Game.Gameplay
                     this.HealPerTurn = 0;
                     this.ECMValue = 0f;
                     this.FTLSpoolTime = 0f;
+                    this.hasCommand = this.IsPlatform;
                     //foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.MaxGoodStorageDict.Keys))
                     //    this.MaxGoodStorageDict[index] = 0.0f;
                     //foreach (string index in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
@@ -3282,6 +3271,9 @@ namespace Ship_Game.Gameplay
                             this.RepairRate += moduleSlot.module.BonusRepairRate;
                             if (moduleSlot.module.Active)
                             {
+                                //Checks to see if there is an active command module
+                                if (moduleSlot.module.IsCommandModule)
+                                    this.hasCommand = true;
                                 ++this.number_alive_modules;
                                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                                 this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
