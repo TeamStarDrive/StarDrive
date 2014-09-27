@@ -270,10 +270,11 @@ namespace Ship_Game
             this.MasterShipList = data.MasterShipList;
             this.playerShip = data.playerShip;
             this.PlayerLoyalty = this.playerShip.loyalty.data.Traits.Name;
+            this.playerShip.loyalty.isPlayer = true;
             this.ShipToView = this.playerShip;
         }
 
-        public UniverseScreen(UniverseData data, bool FromSave, string loyalty)
+        public UniverseScreen(UniverseData data, string loyalty)
         {
             this.Size = data.Size;
             this.FTLModifier = data.FTLSpeedModifier;
@@ -284,6 +285,7 @@ namespace Ship_Game
             this.loadFogPath = data.loadFogPath;
             this.PlayerLoyalty = loyalty;
             this.playerShip = data.playerShip;
+            EmpireManager.GetEmpireByName(loyalty).isPlayer = true;
             this.ShipToView = this.playerShip;
             this.loading = true;
         }
