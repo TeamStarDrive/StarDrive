@@ -1296,7 +1296,7 @@ namespace Ship_Game
 						sys.FiveClosestSystems.Add(sp.System);
 					}
 				}
-				this.us = new UniverseScreen(this.data, true, this.PlayerLoyalty)
+				this.us = new UniverseScreen(this.data, this.PlayerLoyalty)
 				{
 					GamePace = this.GamePace,
 					GameScale = this.GameScale,
