@@ -345,14 +345,17 @@ namespace Ship_Game
             switch (this.Step)
             {
                 case 0:
-                    this.PlanetBuildingAt.ConstructionQueue.Add(new QueueItem()
-                    {
-                        isTroop = true,
-                        QueueNumber = this.PlanetBuildingAt.ConstructionQueue.Count,
-                        troop = ResourceManager.CopyTroop(ResourceManager.TroopsDict[this.ToBuildUID]),
-                        Goal = this,
-                        Cost = ResourceManager.TroopsDict[this.ToBuildUID].GetCost()
-                    });
+                    if (this.ToBuildUID != null)
+                        this.PlanetBuildingAt.ConstructionQueue.Add(new QueueItem()
+                        {
+                            isTroop = true,
+                            QueueNumber = this.PlanetBuildingAt.ConstructionQueue.Count,
+                            troop = ResourceManager.CopyTroop(ResourceManager.TroopsDict[this.ToBuildUID]),
+                            Goal = this,
+                            Cost = ResourceManager.TroopsDict[this.ToBuildUID].GetCost()
+                        });
+                    else
+                        System.Diagnostics.Debug.WriteLine(string.Concat("Missing Troop "));
                     this.Step = 1;
 
                     break;
