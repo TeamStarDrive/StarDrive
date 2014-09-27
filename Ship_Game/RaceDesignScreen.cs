@@ -1180,17 +1180,18 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.difficulty.ToString(), new Vector2((float)(this.DifficultyRect.X + 190) - Fonts.Arial12.MeasureString(this.difficulty.ToString()).X, (float)this.DifficultyRect.Y), Color.BurlyWood);
 			string txt = "";
 			int tip = 0;
-			if (this.mode == RaceDesignScreen.GameMode.PreWarp)
-			{
-				txt = "Pre-Warp";
-				tip = 111;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-				if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-				{
-					ToolTip.CreateTooltip("Play with a new, hardcore ruleset that makes radical changes to the StarDrive FTL systems", base.ScreenManager);
-				}
-			}
-			else if (this.mode == RaceDesignScreen.GameMode.Sandbox)
+            //if (this.mode == RaceDesignScreen.GameMode.PreWarp)
+            //{
+            //    txt = "Pre-Warp";
+            //    tip = 111;
+            //    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
+            //    if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            //    {
+            //        ToolTip.CreateTooltip("Play with a new, hardcore ruleset that makes radical changes to the StarDrive FTL systems", base.ScreenManager);
+            //    }
+            //}
+            //else 
+                if (this.mode == RaceDesignScreen.GameMode.Sandbox)
 			{
 				txt = Localizer.Token(2103);
 				tip = 112;
@@ -2248,12 +2249,13 @@ namespace Ship_Game
 
 		protected virtual void OnEngage()
 		{
-			if (this.mode == RaceDesignScreen.GameMode.PreWarp)
-			{
-				ResourceManager.LoadHardcoreTechTree();
-				GlobalStats.HardcoreRuleset = true;
-			}
-            else if (this.mode == RaceDesignScreen.GameMode.Elimination)
+            //if (this.mode == RaceDesignScreen.GameMode.PreWarp)
+            //{
+            //    ResourceManager.LoadHardcoreTechTree();
+            //    GlobalStats.HardcoreRuleset = true;
+            //}
+            //else 
+                if (this.mode == RaceDesignScreen.GameMode.Elimination)
             {
                 GlobalStats.EliminationMode = true;
             }
@@ -2632,7 +2634,7 @@ namespace Ship_Game
         {
             Sandbox,
             Warlords,
-            PreWarp,
+            //PreWarp,
             Elimination
         }
 
