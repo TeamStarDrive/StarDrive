@@ -4127,7 +4127,8 @@ namespace Ship_Game
                     }
                 }
                 //Added by McShooterz: build defense platforms
-                if (this.Owner.data.TaxRate < .40f && (double)this.NetProductionPerTurn > 4.0 && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < (this.developmentLevel - 1) * 2)
+                //< ShipCountLimit * GlobalStats.spaceroadlimit
+                if (this.Owner.data.TaxRate < .40f && (double)this.NetProductionPerTurn > 4.0 && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < (this.developmentLevel - 1) * 2 && this.Shipyards.Count < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                 {
                     string platform = this.Owner.GetGSAI().GetDefenceSatellite();
                     if (platform != "")

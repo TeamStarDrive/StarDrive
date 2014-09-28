@@ -899,7 +899,7 @@ namespace Ship_Game
 				}
 				for (int i = 0; i < d.GSAIData.PinGuids.Count; i++)
 				{
-					e.GetGSAI().ThreatMatrix.Pins.Add(d.GSAIData.PinGuids[i], d.GSAIData.PinList[i]);
+					e.GetGSAI().ThreatMatrix.Pins.TryAdd(d.GSAIData.PinGuids[i], d.GSAIData.PinList[i]);
 				}
 				e.GetGSAI().UsedFleets = d.GSAIData.UsedFleets;
 				lock (GlobalStats.TaskLocker)

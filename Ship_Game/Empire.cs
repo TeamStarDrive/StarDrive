@@ -898,7 +898,7 @@ namespace Ship_Game
             var rangePartitioner = Partitioner.Create(0, source.Length);
             ConcurrentBag<Ship> Shipbag =new ConcurrentBag<Ship>();
             //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>  
-            lock (GlobalStats.SensorNodeLocker)
+            
             {
                 Parallel.ForEach(rangePartitioner, (range, loopState) =>
                 {
@@ -913,7 +913,8 @@ namespace Ship_Game
                             bool border = false;
 
 
-
+                            lock (GlobalStats.SensorNodeLocker)
+                            {
                             foreach (Empire.InfluenceNode node in this.SensorNodes)
                             //Parallel.ForEach<Empire.InfluenceNode>(this.SensorNodes, (node, status) =>
                             {
@@ -969,6 +970,7 @@ namespace Ship_Game
 
                                 //status.Stop();
                             }//);
+                        }
                             if (flag)
                             {
                                 toadd.Add(nearby);
