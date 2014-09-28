@@ -2217,7 +2217,7 @@ namespace Ship_Game.Gameplay
                             if (this.fireTarget == null) //this.
                             
                             {
-                                if (this.Target == null || !this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center) || weapon.TruePD)
+                                if (this.Target == null || weapon.TruePD || !this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center))
                                 {
                                     if (this.Target is Ship && !this.PotentialTargets.Contains(this.Target as Ship))
                                     {
@@ -2236,18 +2236,24 @@ namespace Ship_Game.Gameplay
 
                                         if (weapon.TruePD || weapon.Tag_PD)
                                         {
-                                            foreach (Projectile p in ship.Projectiles)
+                                            //foreach (Projectile p in ship.Projectiles)
+                                            for (int x = 0; x < ship.Projectiles.Count;x++ )
                                             {
+                                                Projectile p = ship.Projectiles[x];
+                                                if(p==null)
+                                                {
+                                                    continue;
+                                                }
                                                 if (!p.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, p.Center))
                                                 {
                                                     continue;
                                                 }
-                                                this.                                                fireTarget = p;
-                                     
+                                                this.fireTarget = p;
+
                                                 break;
                                             }
                                         }
-                                        if (this.fireTarget != null || weapon.TruePD || !this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || !ship.Active) //this.
+                                        if (this.fireTarget != null || weapon.TruePD  || !ship.Active) //this.
                                         {
                                             continue;
                                         }
@@ -2260,6 +2266,8 @@ namespace Ship_Game.Gameplay
                                         if (weapon.Excludes_Capitals && (ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital"))
                                             continue;
                                         if (weapon.Excludes_Stations && (ship.Role == "platform" || ship.Role == "station"))
+                                            continue;
+                                        if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center))
                                             continue;
 
                                         this.fireTarget = ship;
@@ -2304,22 +2312,25 @@ namespace Ship_Game.Gameplay
                                     {
                                         foreach (Ship ship in PotentialTargets)
                                         {
-                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || (weapon.Excludes_Fighters && (ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone")))
+   
+                                            if (weapon.Excludes_Fighters && (ship.Role == "fighter" || ship.Role == "scout" || ship.Role == "drone"))
                                             {
                                                 continue;
                                             }
-                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || (weapon.Excludes_Corvettes && ship.Role == "corvette"))
+                                            if (weapon.Excludes_Corvettes && ship.Role == "corvette")
                                             {
                                                 continue;
                                             }
-                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || (weapon.Excludes_Capitals && (ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital")))
+                                            if (weapon.Excludes_Capitals && (ship.Role == "frigate" || ship.Role == "destroyer" || ship.Role == "cruiser" || ship.Role == "carrier" || ship.Role == "capital"))
                                             {
                                                 continue;
                                             }
-                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || (weapon.Excludes_Stations && (ship.Role == "station" || ship.Role == "platform")))
+                                            if (weapon.Excludes_Stations && (ship.Role == "station" || ship.Role == "platform"))
                                             {
                                                 continue;
                                             }
+                                            if (!this.Owner.CheckIfInsideFireArc(weapon, ship.Center))
+                                                continue;
                                             this.fireTarget = ship;
                                             break;
                                         }
