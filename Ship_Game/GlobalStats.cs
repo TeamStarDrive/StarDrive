@@ -124,6 +124,7 @@ namespace Ship_Game
         public static float freighterlimit = 50f;
         public static int ScriptedTechWithin = 6;
         public static bool perf;
+        public static float DefensePlatformLimit = .025f;
 		static GlobalStats()
 		{       
 			GlobalStats.ComparisonCounter = 1;

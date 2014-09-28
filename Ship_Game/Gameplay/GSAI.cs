@@ -7854,7 +7854,10 @@ namespace Ship_Game.Gameplay
                     list.Add(keyValuePair);
             }
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> keyValuePair in list)
-                this.ThreatMatrix.Pins.Remove(keyValuePair.Key);
+            {
+                ThreatMatrix.Pin remove = null;
+                this.ThreatMatrix.Pins.TryRemove(keyValuePair.Key,out remove);
+            }
             list.Clear();
         }
 
