@@ -215,6 +215,7 @@ namespace Ship_Game.Gameplay
         public bool hasAssaultTransporter;
         public bool hasRepairBeam;
         private bool hasCommand;
+        private float FTLmodifier = 1f;
 
         public float CargoSpace_Used
         {
@@ -3563,10 +3564,16 @@ namespace Ship_Game.Gameplay
                     this.RecalculatePower();
                     this.NeedRecalculate = false;
                 }
-                if (this.system != null && (double)Ship.universeScreen.FTLModifier < 1.0)
+                //Change FTL modifier for ship
+                if (this.system != null)
                 {
-                    this.WarpThrust *= Ship.universeScreen.FTLModifier;
-                    if (this.system.OwnerList.Count() > 0 && !this.system.OwnerList.Contains(this.loyalty))
+                    bool modified = false;
+                    if (Ship.universeScreen.FTLModifier < 1f)
+                    {
+                        this.FTLmodifier = Ship.universeScreen.FTLModifier;
+                        modified = true;
+                    }
+                    if (Ship.universeScreen.EnemyFTLModifier < Ship.universeScreen.FTLModifier && this.system.OwnerList.Count() > 0 && !this.system.OwnerList.Contains(this.loyalty))
                     {
                         bool friendlySystem = false;
                         foreach (Empire empire in this.system.OwnerList)
@@ -3577,10 +3584,17 @@ namespace Ship_Game.Gameplay
                                 break;
                             }
                         }
-                        if(!friendlySystem)
-                            this.WarpThrust *= Ship.universeScreen.EnemyFTLModifier;
+                        if (!friendlySystem)
+                        {
+                            this.FTLmodifier = Ship.universeScreen.EnemyFTLModifier;
+                            modified = true;
+                        }
                     }
+                    if (!modified)
+                        this.FTLmodifier = 1f;
                 }
+                else
+                    this.FTLmodifier = 1f;
             }
             else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || (double)this.MoveModulesTimer > 0.0 || this.InCombat && GlobalStats.ForceFullSim)
             {
@@ -3597,7 +3611,7 @@ namespace Ship_Game.Gameplay
                         {
                             ++GlobalStats.ModuleUpdates;
                             moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        }//);
+                        }
                     }
                 }
                 else if ((double)elapsedTime < 0.0 && !this.UpdatedModulesOnce)
@@ -3682,6 +3696,8 @@ namespace Ship_Game.Gameplay
             {
                 if (this.inborders && (double)this.loyalty.data.Traits.InBordersSpeedBonus > 0.0)
                     this.velocityMaximum += this.velocityMaximum * this.loyalty.data.Traits.InBordersSpeedBonus;
+                if (this.FTLmodifier != 1f)
+                    this.velocityMaximum *= this.FTLmodifier;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
             }
             if ((double)this.Thrust == 0.0 || (double)this.mass == 0.0)
