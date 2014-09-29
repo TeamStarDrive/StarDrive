@@ -7223,8 +7223,8 @@ namespace Ship_Game.Gameplay
                             if (this.empire.ResearchTopic != "")
                                 break;
                         }
-                        if(this.empire.ResearchTopic == "")
-                        this.empire.ResearchTopic = AvailableTechs.First().UID;
+                        if (this.empire.ResearchTopic == "")
+                            this.empire.ResearchTopic = AvailableTechs.OrderBy(tech => tech.Cost).First().UID;
                         break;
 					}
                     case GSAI.ResearchStrategy.Scripted:
@@ -7380,7 +7380,7 @@ namespace Ship_Game.Gameplay
                                     {
                                         foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
                                         {
-                                            if (!this.empire.GetTDict().ContainsKey(tech.id) || this.empire.GetTDict()[tech.id].Unlocked || !this.empire.HavePreReq(tech.id))
+                                            if (this.empire.GetTDict()[tech.id].Unlocked || !this.empire.GetTDict().ContainsKey(tech.id) || !this.empire.HavePreReq(tech.id))
                                             {
                           
                                                     continue;
@@ -7389,23 +7389,23 @@ namespace Ship_Game.Gameplay
                                             int X = GlobalStats.ScriptedTechWithin;
                                             List<TechEntry> unresearched = new List<TechEntry>();
                                             unresearched = this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && filter.shipDesignsCanuseThis && (!filter.GetTech().Secret || !filter.Discovered) && this.empire.HavePreReq(filter.UID) && filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost).ToList();
-                                            foreach (TechEntry tech2 in unresearched)//this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && !filter.GetTech().Secret&& filter.Discovered  && filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost))
-                                            {
-                                                X--;
-                                                if (tech2.UID == tech.id || tech2.GetTech().Cost >= ResourceManager.TechTree[tech.id].Cost * .25F)
-                                                    break;
-                                                if (X <= 0)
-                                                {
-                                                    this.res_strat = GSAI.ResearchStrategy.Random;
-                                                    this.RunResearchPlanner();
-                                                    this.res_strat = GSAI.ResearchStrategy.Scripted;
-                                                    ScriptIndex ++;
-                                                    return;
-                                                }
+                                            //foreach (TechEntry tech2 in unresearched)//this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && !filter.GetTech().Secret&& filter.Discovered  && filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost))
+                                            //{
+                                            //    X--;
+                                            //    if (tech2.UID == tech.id || tech2.GetTech().Cost >= ResourceManager.TechTree[tech.id].Cost * .25F)
+                                            //        break;
+                                            //    if (X <= 0)
+                                            //    {
+                                            //        this.res_strat = GSAI.ResearchStrategy.Random;
+                                            //        this.RunResearchPlanner();
+                                            //        this.res_strat = GSAI.ResearchStrategy.Scripted;
+                                            //        ScriptIndex++;
+                                            //        return;
+                                            //    }
 
 
 
-                                            }
+                                            //}
 
                                                 this.empire.ResearchTopic = tech.id;
                                                 ScriptIndex++;
