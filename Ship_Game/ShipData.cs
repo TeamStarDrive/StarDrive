@@ -57,6 +57,8 @@ namespace Ship_Game
         public byte FireRateBonus; // % fire rate
         public byte RepairBonus; // % repair rate
         public byte CostBonus;  // % cost reduction
+        public byte DamageBonus; // % weapon damage increase
+        public byte ShieldBonus; // % shield power increase
 
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
