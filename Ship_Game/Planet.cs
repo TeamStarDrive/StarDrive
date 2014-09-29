@@ -3515,7 +3515,7 @@ namespace Ship_Game
                                     this.ps = Planet.GoodState.IMPORT;
                             else
                                 this.ps = Planet.GoodState.IMPORT;
-                            float num5 = 0.0f;
+                            byte num5 = 0;
                             bool flag5 = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                             {
@@ -3548,7 +3548,7 @@ namespace Ship_Game
                                 if (!flag1)
                                     this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                             }
-                            if ((double)num5 < 2.0)
+                            if (num5 < 2)
                             {
                                 this.GetBuildingsWeCanBuildHere();
                                 Building b = (Building)null;
@@ -3636,7 +3636,6 @@ namespace Ship_Game
                                         this.ConstructionQueue.Add(queueItem2);
                                 }
                             }
-
                             break;
                         }
                     case Planet.ColonyType.Industrial:
