@@ -281,11 +281,6 @@ namespace Ship_Game.Gameplay
 			{
 				damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
-            //Added by McShooterz: ArmorBonus Hull Bonus
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.Parent.GetShipData().ArmoredBonus != 0 && this.Parent.GetShipData().ArmoredBonus < 100)
-            {
-                damageAmount *= ((float)(100 - this.Parent.GetShipData().ArmoredBonus)) / 100f;
-            }
 			if (this.ModuleType == ShipModuleType.Dummy)
 			{
 				this.ParentOfDummy.Damage(source, damageAmount);
@@ -294,6 +289,11 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
 			{
+                //Added by McShooterz: ArmorBonus Hull Bonus
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.Parent.GetShipData().ArmoredBonus != 0)
+                {
+                    damageAmount *= ((float)(100 - this.Parent.GetShipData().ArmoredBonus)) / 100f;
+                }
 				if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
 				{
 					Ship parent = this.Parent;
@@ -1748,7 +1748,7 @@ namespace Ship_Game.Gameplay
 
         public float GetShieldsMax()
         {
-            return this.shield_power_max + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
+            return this.shield_power_max * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1f + (this.GetParent().GetShipData().ShieldBonus / 100f)) : 1f) + (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
         }
 	}
 }
