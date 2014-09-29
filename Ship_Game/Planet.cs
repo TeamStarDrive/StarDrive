@@ -3505,9 +3505,14 @@ namespace Ship_Game
                             }*/
                             //if ((double)this.NetProductionPerTurn < 2.0 && (double)this.Population / 1000.0 < 1.0)
                                 //this.ps = Planet.GoodState.IMPORT;
-                            //Export only if greater than 50% stored production and producing more than 3 production per turn
-                            if (this.NetProductionPerTurn > 3f && this.ProductionHere > this.MAX_STORAGE * 0.5f)
-                                this.ps = Planet.GoodState.EXPORT;
+                            //Logic of production good state
+                            if (this.NetProductionPerTurn > 3f)
+                                if (this.ProductionHere > this.MAX_STORAGE * 0.33f)
+                                    this.ps = Planet.GoodState.EXPORT;
+                                else if (this.ConstructionQueue.Count == 0)
+                                    this.ps = Planet.GoodState.STORE;
+                                else
+                                    this.ps = Planet.GoodState.IMPORT;
                             else
                                 this.ps = Planet.GoodState.IMPORT;
                             float num5 = 0.0f;
