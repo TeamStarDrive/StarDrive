@@ -630,7 +630,6 @@ namespace Ship_Game.Gameplay
         private void DoCombat(float elapsedTime)
         {
             this.awaitClosest = null;
-            this.State = AIState.Combat;
             if (this.Target != null && !this.Target.Active)
             {
                 this.Target = null;
@@ -647,7 +646,8 @@ namespace Ship_Game.Gameplay
                 this.OrderQueue.Clear();
                 return;
             }
-
+            this.State = AIState.Combat;
+            this.Owner.InCombatTimer = 15f;
             if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
             {
 
@@ -5698,6 +5698,7 @@ namespace Ship_Game.Gameplay
             if (this.Target != null && !this.Owner.InCombat)
             {
                 //this.Owner.ShieldsUp = true;
+                this.Owner.InCombatTimer = 15f;
                 if (!this.HasPriorityOrder && this.OrderQueue.Count > 0 && this.OrderQueue.ElementAt<ArtificialIntelligence.ShipGoal>(0).Plan != ArtificialIntelligence.Plan.DoCombat)
                 {
                     ArtificialIntelligence.ShipGoal combat = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f);
