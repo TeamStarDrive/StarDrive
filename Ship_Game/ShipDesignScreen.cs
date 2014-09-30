@@ -225,15 +225,6 @@ namespace Ship_Game
                 ShipCategory = hull.ShipCategory,
                 CarrierShip = hull.CarrierShip,
 				ModuleSlotList = new List<ModuleSlotData>(),
-                //Added by McShooterz: Copy hull bonus
-                ArmoredBonus = hull.ArmoredBonus,
-                SensorBonus = hull.SensorBonus,
-                SpeedBonus = hull.SpeedBonus,
-                StartingCost = hull.StartingCost,
-                CargoBonus = hull.CargoBonus,
-                FireRateBonus = hull.FireRateBonus,
-                RepairBonus = hull.RepairBonus,
-                CostBonus = hull.CostBonus
 			};
             this.CarrierOnly = hull.CarrierShip;
             this.LoadCategory = hull.ShipCategory;
@@ -1944,7 +1935,7 @@ namespace Ship_Game
                     }
 					if (mod.BonusRepairRate != 0f)
 					{
-                        this.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), (float)((mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.RepairBonus !=0 ? (1 + (float)this.ActiveHull.RepairBonus / 100f) : 1)), 97);
+                        this.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), (float)((mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1)), 97);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
                     //Shift to next Column
@@ -1968,7 +1959,7 @@ namespace Ship_Game
                     }
                     if (mod.shield_power_max != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(132), mod.shield_power_max * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? (1f + (ActiveHull.ShieldBonus / 100f)) : 1f) + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.ShieldPowerMod * mod.shield_power_max, 93);
+                        this.DrawStat(ref modTitlePos, Localizer.Token(132), mod.shield_power_max * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus : 1f) + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.ShieldPowerMod * mod.shield_power_max, 93);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.shield_radius != 0)
@@ -2124,17 +2115,17 @@ namespace Ship_Game
 					{
                         if (mod.InstalledWeapon.isRepairBeam)
                         {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(135), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * -90f * mod.InstalledWeapon.BeamDuration * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? 1f + (ActiveHull.DamageBonus / 100f) : 1f), 166);
+                            this.DrawStat(ref modTitlePos, Localizer.Token(135), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * -90f * mod.InstalledWeapon.BeamDuration * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus : 1f), 166);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         else if (mod.InstalledWeapon.isBeam)
                         {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 90f * mod.InstalledWeapon.BeamDuration * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? 1f + (ActiveHull.DamageBonus / 100f) : 1f), 83);
+                            this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 90f * mod.InstalledWeapon.BeamDuration * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus : 1f), 83);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         else
                         {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? 1f + (ActiveHull.DamageBonus / 100f) : 1f), 83);
+                            this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus : 1f), 83);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
 					}
@@ -2154,7 +2145,7 @@ namespace Ship_Game
                     {
                         if (mod.InstalledWeapon.isBeam)
                         {
-                            float dps = (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? 1f + (ActiveHull.DamageBonus / 100f) : 1f) * 90f * mod.InstalledWeapon.BeamDuration / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f));
+                            float dps = (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus : 1f) * 90f * mod.InstalledWeapon.BeamDuration / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull)) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus : 1f));
                             this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                             modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
                         }
@@ -2162,14 +2153,14 @@ namespace Ship_Game
                         {
                             if (mod.InstalledWeapon.SalvoCount <= 1)
                             {
-                                float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? 1f + (ActiveHull.DamageBonus / 100f) : 1f) + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
+                                float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull)) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus : 1f) + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
                                 dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
                                 this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                                 modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                             }
                             else
                             {
-                                float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? 1f + (ActiveHull.DamageBonus / 100f) : 1f) + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
+                                float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull)) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus : 1f) + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
                                 dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
                                 this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                                 modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
@@ -2179,14 +2170,14 @@ namespace Ship_Game
                         }
                         else if (mod.InstalledWeapon.SalvoCount <= 1)
                         {
-                            float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? 1f + (ActiveHull.DamageBonus / 100f) : 1f) + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
+                            float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull)) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus : 1f) + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
                             dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
                             this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         else
                         {
-                            float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
+                            float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull)) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus : 1f) + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
                             dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
                             this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                             modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
@@ -2203,7 +2194,7 @@ namespace Ship_Game
                     modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					if (mod.InstalledWeapon.EMPDamage > 0f)
 					{
-                        this.DrawStat(ref modTitlePos, "EMP", 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * (float)mod.InstalledWeapon.EMPDamage, 110);
+                        this.DrawStat(ref modTitlePos, "EMP", 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull)) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus : 1f)) * (float)mod.InstalledWeapon.EMPDamage, 110);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
                     if (mod.InstalledWeapon.SiphonDamage > 0f)
@@ -3239,7 +3230,7 @@ namespace Ship_Game
 					Thrust = Thrust + slot.module.thrust;
 					WarpThrust = WarpThrust + (float)slot.module.WarpThrust;
 					TurnThrust = TurnThrust + (float)slot.module.TurnThrust;
-                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.RepairBonus != 0 ? (1 + (float)this.ActiveHull.RepairBonus / 100f) : 1));
+                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1));
                     OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
                     if (slot.module.SensorRange > sensorRange)
                     {
@@ -3279,7 +3270,7 @@ namespace Ship_Game
 			float Speed = 0f;
 			float WarpSpeed = WarpThrust / (Mass + 0.1f);
             //Added by McShooterz: hull bonus speed
-            WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SpeedBonus != 0 ? (1 + (float)this.ActiveHull.SpeedBonus / 100f) : 1);
+            WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1);
 			float single = WarpSpeed / 1000f;
 			string WarpString = string.Concat(single.ToString("#.0"), "k");
 			float Turn = 0f;
@@ -3293,62 +3284,70 @@ namespace Ship_Game
 			Turn = (float)MathHelper.ToDegrees(Turn);
             Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
             //Added by McShooterz: Draw Hull Bonuses
-           if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
-           {
+            if (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull))
+            {
                Vector2 LCursor = new Vector2(this.HullSelectionRect.X - 145, HullSelectionRect.Y + 31);
-                if(this.ActiveHull.ArmoredBonus != 0 || this.ActiveHull.SensorBonus != 0 || this.ActiveHull.SpeedBonus != 0 || this.ActiveHull.CargoBonus != 0 || this.ActiveHull.FireRateBonus != 0 || this.ActiveHull.RepairBonus != 0 || this.ActiveHull.CostBonus != 0)
+               if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ArmoredBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus != 0)
                 {
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana14Bold ,Localizer.Token(6015), LCursor, Color.Orange);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Verdana14Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.ArmoredBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ArmoredBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6016), this.ActiveHull.ArmoredBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6016), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ArmoredBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.ShieldBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, "Shield Strength", this.ActiveHull.ShieldBonus);
+                    this.DrawHullBonus(ref LCursor, "Shield Strength", Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.SensorBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6017), this.ActiveHull.SensorBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6017), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.SpeedBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6018), this.ActiveHull.SpeedBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6018), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.CargoBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6019), this.ActiveHull.CargoBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6019), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.DamageBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, "Weapon Damage", this.ActiveHull.DamageBonus);
+                    this.DrawHullBonus(ref LCursor, "Weapon Damage", Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.FireRateBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6020), this.ActiveHull.FireRateBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6020), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.RepairBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6013), this.ActiveHull.RepairBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6013), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.CostBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6021), this.ActiveHull.CostBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6021), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
                 }
             }
             //Added by McShooterz: hull bonus starting cost
-            this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? this.ActiveHull.StartingCost : 0)) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.CostBonus != 0 ? (1 - (float)this.ActiveHull.CostBonus / 100f) : 1)), 99);
+            this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].StartingCost : 0)) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus : 1)), 99);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
@@ -3524,7 +3523,7 @@ namespace Ship_Game
                 this.DrawStatPropulsion(ref Cursor, "FTL Spool:", FTLSpoolTimer, 177);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-            this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SpeedBonus != 0 ? (1 + (float)this.ActiveHull.SpeedBonus / 100f) : 1)), 105);
+            this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1)), 105);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             //added by McShooterz: afterburn speed
             if (AfterSpeed != 0)
@@ -3572,12 +3571,12 @@ namespace Ship_Game
 
             if (CargoSpace > 0)
             {
-                this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.CargoBonus != 0 ? (1 + (float)this.ActiveHull.CargoBonus / 100f) : 1)), 109);
+                this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? CargoSpace * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus : 0)), 109);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (sensorRange != 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SensorBonus != 0 ? (1 + (float)this.ActiveHull.SensorBonus / 100f) : 1)), 159);
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 159);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);
@@ -3716,7 +3715,6 @@ namespace Ship_Game
                 maint = fCost * GlobalStats.ActiveMod.mi.UpkeepDrone;
             else
                 maint = fCost * GlobalStats.ActiveMod.mi.UpkeepBaseline;
-
             if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
                 maint = fCost * GlobalStats.ActiveMod.mi.UpkeepBaseline;
             else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
@@ -3740,9 +3738,9 @@ namespace Ship_Game
         }
 
 
-        private void DrawHullBonus(ref Vector2 Cursor, string words, byte stat)
+        private void DrawHullBonus(ref Vector2 Cursor, string words, float stat)
         {
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat(stat.ToString(), "% ", words), Cursor, Color.Orange);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat((stat * 100f).ToString(), "% ", words), Cursor, Color.Orange);
         }
 
         private string GetNumberString(float stat)
