@@ -1094,7 +1094,7 @@ namespace Ship_Game
 							}
 							QueueItem queueItem = qi;
                             queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;
-                            queueItem.Cost *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().CostBonus != 0 ? (1f - (float)Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().CostBonus / 100f) : 1);
+                            queueItem.Cost *= (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().Hull) ? 1f - ResourceManager.HullBonuses[Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().Hull].CostBonus : 1);
 							if (qi.sData.HasFixedCost)
 							{
 								qi.Cost = (float)qi.sData.FixedCost;
