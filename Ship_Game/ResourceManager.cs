@@ -107,6 +107,7 @@ namespace Ship_Game
         public static AgentMissionData AgentMissionData;
         public static MainMenuShipList MainMenuShipList;
         public static Dictionary<string, ShipRole> ShipRoles;
+        public static Dictionary<string, HullBonus> HullBonuses;
 
 		static ResourceManager()
 		{
@@ -156,6 +157,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.AgentMissionData = new AgentMissionData();
             Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
             Ship_Game.ResourceManager.ShipRoles = new Dictionary<string, ShipRole>();
+            Ship_Game.ResourceManager.HullBonuses = new Dictionary<string, HullBonus>();
             Ship_Game.ResourceManager.OffSet = 0;
 		}
 
@@ -1942,6 +1944,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.LoadMainMenuShipList();
             Ship_Game.ResourceManager.LoadSoundEffects();
             Ship_Game.ResourceManager.LoadShipRoles();
+            Ship_Game.ResourceManager.LoadHullBonuses();
             Localizer.cleanLocalizer();
             ResourceManager.OffSet = 0;
 		}
@@ -2760,6 +2763,36 @@ namespace Ship_Game
                 }
             }
             textList = null;
+        }
+
+        //Added by McShooterz: Load hull bonuses
+        private static void LoadHullBonuses()
+        {
+            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveMod.mi.useHullBonuses)
+            {
+                FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses"));
+                XmlSerializer serializer1 = new XmlSerializer(typeof(HullBonus));
+                FileInfo[] fileInfoArray = textList;
+                for (int i = 0; i < (int)fileInfoArray.Length; i++)
+                {
+                    FileInfo FI = fileInfoArray[i];
+                    FileStream stream = FI.OpenRead();
+                    HullBonus data = (HullBonus)serializer1.Deserialize(stream);
+                    stream.Close();
+                    stream.Dispose();
+                    if (Ship_Game.ResourceManager.HullBonuses.ContainsKey(data.Hull))
+                    {
+                        Ship_Game.ResourceManager.HullBonuses[data.Hull] = data;
+                    }
+                    else
+                    {
+                        Ship_Game.ResourceManager.HullBonuses.Add(data.Hull, data);
+                    }
+                }
+                textList = null;
+            }
+            if (Ship_Game.ResourceManager.HullBonuses.Count == 0)
+                GlobalStats.ActiveMod.mi.useHullBonuses = false;
         }
 
         //Added by McShooterz: Load hostileFleets.xml
