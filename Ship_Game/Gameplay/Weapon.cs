@@ -401,8 +401,8 @@ namespace Ship_Game.Gameplay
                 beam.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
             }
             //Hull bonus damage increase
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.owner.GetShipData().DamageBonus > 0)
-                beam.damageAmount += beam.damageAmount * (1f + (this.owner.GetShipData().DamageBonus / 100f));
+            if (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.owner.GetShipData().Hull))
+                beam.damageAmount += beam.damageAmount * ResourceManager.HullBonuses[this.owner.GetShipData().Hull].DamageBonus;
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
             beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
             this.ToggleSoundOn = false;
@@ -505,8 +505,8 @@ namespace Ship_Game.Gameplay
                 projectile.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
             }
             //Hull bonus damage increase
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.owner.GetShipData().DamageBonus > 0)
-                projectile.damageAmount += projectile.damageAmount * (1f + (this.owner.GetShipData().DamageBonus / 100f));
+            if (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.owner.GetShipData().Hull))
+                projectile.damageAmount += projectile.damageAmount * ResourceManager.HullBonuses[this.owner.GetShipData().Hull].DamageBonus;
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
             projectile.explosionradiusmod = this.ExplosionRadiusVisual;
