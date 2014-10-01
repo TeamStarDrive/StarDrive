@@ -266,6 +266,11 @@ namespace Ship_Game.Gameplay
 
 		public bool Damage(GameplayObject source, float damageAmount, ref float damageRemainder)
 		{
+            if (this.ModuleType == ShipModuleType.Dummy)
+            {
+                this.ParentOfDummy.Damage(source, damageAmount, ref damageRemainder);
+                return true;
+            }
 			this.Parent.InCombatTimer = 15f;
 			this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
@@ -280,11 +285,6 @@ namespace Ship_Game.Gameplay
 			if (source is Ship && (source as Ship).Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
 			{
 				damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
-			}
-			if (this.ModuleType == ShipModuleType.Dummy)
-			{
-				this.ParentOfDummy.Damage(source, damageAmount);
-				return true;
 			}
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
@@ -391,7 +391,7 @@ namespace Ship_Game.Gameplay
 				}
 				foreach (ShipModule dummy in this.LinkedModulesList)
 				{
-					dummy.DamageDummy(source, damageAmount);
+					dummy.DamageDummy(damageAmount);
 				}
 			}
 			else
@@ -489,6 +489,11 @@ namespace Ship_Game.Gameplay
 
         public override bool Damage(GameplayObject source, float damageAmount)
         {
+            if (this.ModuleType == ShipModuleType.Dummy)
+            {
+                this.ParentOfDummy.Damage(source, damageAmount);
+                return true;
+            }
             this.Parent.InCombatTimer = 15f;
             this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
@@ -503,11 +508,6 @@ namespace Ship_Game.Gameplay
             if (source is Ship && (source as Ship).Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
             {
                 damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
-            }
-            if (this.ModuleType == ShipModuleType.Dummy)
-            {
-                this.ParentOfDummy.Damage(source, damageAmount);
-                return true;
             }
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
@@ -612,7 +612,7 @@ namespace Ship_Game.Gameplay
                 }
                 foreach (ShipModule dummy in this.LinkedModulesList)
                 {
-                    dummy.DamageDummy(source, damageAmount);
+                    dummy.DamageDummy(damageAmount);
                 }
             }
             else
@@ -707,10 +707,9 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-		public bool DamageDummy(GameplayObject source, float damageAmount)
+		public bool DamageDummy(float damageAmount)
 		{
             this.Health -= damageAmount;
-			this.Parent.LastDamagedBy = source;
 			return true;
 		}
 
@@ -821,17 +820,9 @@ namespace Ship_Game.Gameplay
 					this.Active = true;
 					this.onFire = false;
 				}
-				if (base.Health / this.HealthMax < 0.5f)
-				{
-					this.onFire = true;
-				}
-				if ((double)(this.Parent.Health / this.Parent.HealthMax) < 0.5 && (double)base.Health < 0.5 * (double)this.HealthMax)
-				{
-					this.reallyFuckedUp = true;
-				}
 				foreach (ShipModule dummy in this.LinkedModulesList)
 				{
-					dummy.DamageDummy(source, damageAmount);
+					dummy.DamageDummy(damageAmount);
 				}
 			}
 			else
