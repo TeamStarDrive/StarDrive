@@ -266,6 +266,11 @@ namespace Ship_Game.Gameplay
 
 		public bool Damage(GameplayObject source, float damageAmount, ref float damageRemainder)
 		{
+            if (this.ModuleType == ShipModuleType.Dummy)
+            {
+                this.ParentOfDummy.Damage(source, damageAmount, ref damageRemainder);
+                return true;
+            }
 			this.Parent.InCombatTimer = 15f;
 			this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
@@ -281,18 +286,15 @@ namespace Ship_Game.Gameplay
 			{
 				damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
-			if (this.ModuleType == ShipModuleType.Dummy)
-			{
-				this.ParentOfDummy.Damage(source, damageAmount);
-				return true;
-			}
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
 			{
                 //Added by McShooterz: ArmorBonus Hull Bonus
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.GetParent().shipData.Hull))
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
                 {
-                    damageAmount *= (1f - ResourceManager.HullBonuses[this.GetParent().shipData.Hull].ArmoredBonus);
+                    HullBonus mod;
+                    if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))
+                        damageAmount *= (1f - mod.ArmoredBonus);
                 }
 				if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
 				{
@@ -387,17 +389,9 @@ namespace Ship_Game.Gameplay
 					this.Active = true;
 					this.onFire = false;
 				}
-				if (base.Health / this.HealthMax < 0.5f)
-				{
-					this.onFire = true;
-				}
-				if ((double)(this.Parent.Health / this.Parent.HealthMax) < 0.5 && (double)base.Health < 0.5 * (double)this.HealthMax)
-				{
-					this.reallyFuckedUp = true;
-				}
 				foreach (ShipModule dummy in this.LinkedModulesList)
 				{
-					dummy.DamageDummy(source, damageAmount);
+					dummy.DamageDummy(damageAmount);
 				}
 			}
 			else
@@ -411,8 +405,6 @@ namespace Ship_Game.Gameplay
                 {
                     damageRemainder = 0;
                     this.shield_power -= damageAmount;
-                    if (this.shield_power < 0f)
-                        this.shield_power = 0f;
                 }
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
@@ -497,6 +489,11 @@ namespace Ship_Game.Gameplay
 
         public override bool Damage(GameplayObject source, float damageAmount)
         {
+            if (this.ModuleType == ShipModuleType.Dummy)
+            {
+                this.ParentOfDummy.Damage(source, damageAmount);
+                return true;
+            }
             this.Parent.InCombatTimer = 15f;
             this.Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
@@ -512,19 +509,16 @@ namespace Ship_Game.Gameplay
             {
                 damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
             }
-            //Added by McShooterz: ArmorBonus Hull Bonus
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.GetParent().shipData.Hull))
-            {
-                damageAmount *= (1f - ResourceManager.HullBonuses[this.GetParent().shipData.Hull].ArmoredBonus);
-            }
-            if (this.ModuleType == ShipModuleType.Dummy)
-            {
-                this.ParentOfDummy.Damage(source, damageAmount);
-                return true;
-            }
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
             {
+                //Added by McShooterz: ArmorBonus Hull Bonus
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+                {
+                    HullBonus mod;
+                    if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))
+                        damageAmount *= (1f - mod.ArmoredBonus);
+                }
                 if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
                 {
                     Ship parent = this.Parent;
@@ -616,17 +610,9 @@ namespace Ship_Game.Gameplay
                     this.Active = true;
                     this.onFire = false;
                 }
-                if (base.Health / this.HealthMax < 0.5f)
-                {
-                    this.onFire = true;
-                }
-                if ((double)(this.Parent.Health / this.Parent.HealthMax) < 0.5 && (double)base.Health < 0.5 * (double)this.HealthMax)
-                {
-                    this.reallyFuckedUp = true;
-                }
                 foreach (ShipModule dummy in this.LinkedModulesList)
                 {
-                    dummy.DamageDummy(source, damageAmount);
+                    dummy.DamageDummy(damageAmount);
                 }
             }
             else
@@ -639,8 +625,6 @@ namespace Ship_Game.Gameplay
                 else
                 {
                     this.shield_power -= damageAmount;
-                    if (this.shield_power < 0f)
-                        this.shield_power = 0f;
                 }
                 if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
                 {
@@ -723,10 +707,9 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-		public bool DamageDummy(GameplayObject source, float damageAmount)
+		public bool DamageDummy(float damageAmount)
 		{
             this.Health -= damageAmount;
-			this.Parent.LastDamagedBy = source;
 			return true;
 		}
 
@@ -837,17 +820,9 @@ namespace Ship_Game.Gameplay
 					this.Active = true;
 					this.onFire = false;
 				}
-				if (base.Health / this.HealthMax < 0.5f)
-				{
-					this.onFire = true;
-				}
-				if ((double)(this.Parent.Health / this.Parent.HealthMax) < 0.5 && (double)base.Health < 0.5 * (double)this.HealthMax)
-				{
-					this.reallyFuckedUp = true;
-				}
 				foreach (ShipModule dummy in this.LinkedModulesList)
 				{
-					dummy.DamageDummy(source, damageAmount);
+					dummy.DamageDummy(damageAmount);
 				}
 			}
 			else
@@ -1645,15 +1620,26 @@ namespace Ship_Game.Gameplay
 			{
 				this.isExternal = true;
 			}
-			if (base.Health <= 0f && this.Active)
-			{
-				this.Die(base.LastDamagedBy, false);
-			}
-			if (base.Health >= this.HealthMax)
-			{
-				base.Health = this.HealthMax;
-				this.onFire = false;
-			}
+            if (base.Health >= this.HealthMax)
+            {
+                base.Health = this.HealthMax;
+                this.onFire = false;
+            }
+            else
+            {
+                if (base.Health / this.HealthMax < 0.5f)
+                {
+                    this.onFire = true;
+                    if ((double)(this.Parent.Health / this.Parent.HealthMax) < 0.5 && (double)base.Health < 0.5 * (double)this.HealthMax)
+                    {
+                        this.reallyFuckedUp = true;
+                        if (base.Health <= 0f && this.Active)
+                        {
+                            this.Die(base.LastDamagedBy, false);
+                        }
+                    }
+                }
+            }
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power <= 0f || shieldsOff)
 			{
