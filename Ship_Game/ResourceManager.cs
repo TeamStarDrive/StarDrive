@@ -107,16 +107,17 @@ namespace Ship_Game
         public static AgentMissionData AgentMissionData;
         public static MainMenuShipList MainMenuShipList;
         public static Dictionary<string, ShipRole> ShipRoles;
+        public static Dictionary<string, HullBonus> HullBonuses;
 
 		static ResourceManager()
 		{
 			Ship_Game.ResourceManager.TextureDict = new Dictionary<string, Texture2D>();
 			Ship_Game.ResourceManager.weapon_serializer = new XmlSerializer(typeof(Weapon));
 			Ship_Game.ResourceManager.serializer_shipdata = new XmlSerializer(typeof(ShipData));
-			Ship_Game.ResourceManager.ShipsDict = new Dictionary<string, Ship>();
+            Ship_Game.ResourceManager.ShipsDict = new Dictionary<string, Ship>();
 			Ship_Game.ResourceManager.RoidsModels = new Dictionary<int, Model>();
 			Ship_Game.ResourceManager.JunkModels = new Dictionary<int, Model>();
-			Ship_Game.ResourceManager.TechTree = new Dictionary<string, Technology>();
+            Ship_Game.ResourceManager.TechTree = new Dictionary<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
 			Ship_Game.ResourceManager.Encounters = new List<Encounter>();
 			Ship_Game.ResourceManager.BuildingsDict = new Dictionary<string, Building>();
 			Ship_Game.ResourceManager.GoodsDict = new Dictionary<string, Good>();
@@ -147,7 +148,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.ModSerializer = new XmlSerializer(typeof(ModInformation));
 			Ship_Game.ResourceManager.ModelDict = new Dictionary<string, Model>();
 			Ship_Game.ResourceManager.EconSerializer = new XmlSerializer(typeof(EconomicResearchStrategy));
-			Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>();
+            Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
             //Added by McShooterz
             Ship_Game.ResourceManager.HostileFleets = new HostileFleets();
@@ -156,6 +157,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.AgentMissionData = new AgentMissionData();
             Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
             Ship_Game.ResourceManager.ShipRoles = new Dictionary<string, ShipRole>();
+            Ship_Game.ResourceManager.HullBonuses = new Dictionary<string, HullBonus>();
             Ship_Game.ResourceManager.OffSet = 0;
 		}
 
@@ -1056,6 +1058,7 @@ namespace Ship_Game
 			newB.ConsumptionPerTurn = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ConsumptionPerTurn;
 			newB.OutputPerTurn = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].OutputPerTurn;
 			newB.CommodityRequired = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CommodityRequired;
+            newB.ShipRepair = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ShipRepair;
 			return newB;
 		}
 
@@ -1131,7 +1134,6 @@ namespace Ship_Game
 				BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
 				HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
 				BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
-                CanRotate = Ship_Game.ResourceManager.ShipModulesDict[uid].CanRotate,
 				Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
 				Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
 				DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
@@ -1198,13 +1200,10 @@ namespace Ship_Game
 				MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,
 				WarpMassCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpMassCapacity,
 				PowerDrawAtWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDrawAtWarp,
-				PowerDrawWithAfterburner = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDrawWithAfterburner,
-				AfterburnerThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].AfterburnerThrust,
 				FTLSpeed = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpeed,
 				ResourceStored = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStored,
 				ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,
 				ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,
-				ResourcePerSecondAfterburner = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondAfterburner,
 				ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,
 				ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
 				IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
@@ -1924,8 +1923,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadDialogs();
 			Ship_Game.ResourceManager.LoadEncounters();
 			Ship_Game.ResourceManager.LoadExpEvents();
-			Ship_Game.ResourceManager.LoadArtifacts();
-			
+			Ship_Game.ResourceManager.LoadArtifacts();		
 			Ship_Game.ResourceManager.LoadShips();
             Ship_Game.ResourceManager.LoadRandomItems();
             Ship_Game.ResourceManager.LoadProjTexts();
@@ -1946,6 +1944,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.LoadMainMenuShipList();
             Ship_Game.ResourceManager.LoadSoundEffects();
             Ship_Game.ResourceManager.LoadShipRoles();
+            Ship_Game.ResourceManager.LoadHullBonuses();
             Localizer.cleanLocalizer();
             ResourceManager.OffSet = 0;
 		}
@@ -2140,7 +2139,7 @@ namespace Ship_Game
                     data.NameIndex += (ushort)OffSet;
                     Localizer.used[data.NameIndex] = true;
                 }
-                
+                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
                 
                 if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -2398,9 +2397,6 @@ namespace Ship_Game
                 if (!fighters && !weapons) Str = 0;
                 if (def > Str) def = Str;
                 entry.Value.BaseStrength = Str + def;
-
-
-
             }
 		}
 
@@ -2716,6 +2712,7 @@ namespace Ship_Game
 				stream.Close();
 				stream.Dispose();
                 //no localization
+                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
 				if (Ship_Game.ResourceManager.WeaponsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.WeaponsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -2741,10 +2738,20 @@ namespace Ship_Game
                 ShipRole data = (ShipRole)serializer1.Deserialize(stream);
                 stream.Close();
                 stream.Dispose();
-                if (Localizer.LocalizerDict.ContainsKey(data.Localization + OffSet))
+
+                                
+                if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
                 {
-                    data.Localization += OffSet;
+                    data.Localization += ResourceManager.OffSet;
                     Localizer.used[data.Localization] = true;
+                }
+                for (int j = 0; j < data.RaceList.Count(); j++)
+                {
+                    if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
+                    {
+                        data.RaceList[j].Localization += ResourceManager.OffSet;
+                        Localizer.used[data.RaceList[j].Localization] = true;
+                    }
                 }
                 if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
                 {
@@ -2756,6 +2763,36 @@ namespace Ship_Game
                 }
             }
             textList = null;
+        }
+
+        //Added by McShooterz: Load hull bonuses
+        private static void LoadHullBonuses()
+        {
+            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveMod.mi.useHullBonuses)
+            {
+                FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses"));
+                XmlSerializer serializer1 = new XmlSerializer(typeof(HullBonus));
+                FileInfo[] fileInfoArray = textList;
+                for (int i = 0; i < (int)fileInfoArray.Length; i++)
+                {
+                    FileInfo FI = fileInfoArray[i];
+                    FileStream stream = FI.OpenRead();
+                    HullBonus data = (HullBonus)serializer1.Deserialize(stream);
+                    stream.Close();
+                    stream.Dispose();
+                    if (Ship_Game.ResourceManager.HullBonuses.ContainsKey(data.Hull))
+                    {
+                        Ship_Game.ResourceManager.HullBonuses[data.Hull] = data;
+                    }
+                    else
+                    {
+                        Ship_Game.ResourceManager.HullBonuses.Add(data.Hull, data);
+                    }
+                }
+                textList = null;
+            }
+            if (Ship_Game.ResourceManager.HullBonuses.Count == 0)
+                GlobalStats.ActiveMod.mi.useHullBonuses = false;
         }
 
         //Added by McShooterz: Load hostileFleets.xml

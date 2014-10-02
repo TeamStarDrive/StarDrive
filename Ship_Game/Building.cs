@@ -120,6 +120,8 @@ namespace Ship_Game
 
         public float ProjectorRange;
 
+        public float ShipRepair;
+
 		public Building()
 		{
 		}

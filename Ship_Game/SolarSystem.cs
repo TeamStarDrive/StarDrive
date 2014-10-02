@@ -23,8 +23,6 @@ namespace Ship_Game
 
 		public bool DontStartNearPlayer;
 
-		public bool PositionSet;
-
 		public float DangerTimer;
 
 		public float DangerUpdater = 10f;
@@ -37,15 +35,11 @@ namespace Ship_Game
 
 		public SpatialManager spatialManager = new SpatialManager();
 
-		public bool AsteroidsShowing;
-
 		public bool isVisible;
 
 		public Vector2 Position;
 
 		public int RingsCount;
-
-		public bool isAnomaly;
 
 		public Vector2 Size = new Vector2(200000f, 200000f);
 
@@ -53,7 +47,7 @@ namespace Ship_Game
 
 		public BatchRemovalCollection<Asteroid> AsteroidsList = new BatchRemovalCollection<Asteroid>();
 
-		public BatchRemovalCollection<Loot> LootList = new BatchRemovalCollection<Loot>();
+        public List<Moon> MoonList = new List<Moon>();
 
 		public string SunPath;
 
@@ -97,7 +91,7 @@ namespace Ship_Game
 		{
 		}
 
-		private void AddMajorRemnantPresence(Planet newOrbital, UniverseData data)
+		private void AddMajorRemnantPresence(Planet newOrbital)
 		{
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
             {
@@ -108,13 +102,13 @@ namespace Ship_Game
                 newOrbital.Guardians.Add("Xeno Fighter");
                 newOrbital.Guardians.Add("Xeno Fighter");
                 newOrbital.Guardians.Add("Xeno Fighter");
-                this.AddRemnantGunship(newOrbital, data);
-                this.AddRemnantGunship(newOrbital, data);
+                newOrbital.Guardians.Add("Heavy Drone");
+                newOrbital.Guardians.Add("Heavy Drone");
                 newOrbital.Guardians.Add("Ancient Assimilator");
             }
 		}
 
-		private void AddMinorRemnantPresence(Planet newOrbital, UniverseData data)
+		private void AddMinorRemnantPresence(Planet newOrbital)
 		{
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
             {
@@ -125,8 +119,8 @@ namespace Ship_Game
                 newOrbital.Guardians.Add("Xeno Fighter");
                 newOrbital.Guardians.Add("Xeno Fighter");
                 newOrbital.Guardians.Add("Xeno Fighter");
-                this.AddRemnantGunship(newOrbital, data);
-                this.AddRemnantGunship(newOrbital, data);
+                newOrbital.Guardians.Add("Heavy Drone");
+                newOrbital.Guardians.Add("Heavy Drone");
             }
 		}
 
@@ -139,16 +133,6 @@ namespace Ship_Game
         {
             newOrbital.PlanetFleets.Add("Remnant Garrison");
         }
-
-		private void AddRemnantGunship(Planet newOrbital, UniverseData data)
-		{
-			newOrbital.Guardians.Add("Heavy Drone");
-		}
-
-		private void AddSlaverGroup()
-		{
-			this.DefensiveFleets.Add("Slaver Fleet");
-		}
 
 		private Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
 		{
@@ -238,314 +222,6 @@ namespace Ship_Game
 			return TargetPosition;
 		}
 
-		public SolarSystem GenerateAdventureSystem(string name, UniverseData data)
-		{
-			this.SunPath = "star_yellow";
-			this.Name = name;
-			this.numberOfRings = 11;
-			this.RingsCount = this.numberOfRings;
-			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
-			for (int i = 1; i < this.numberOfRings + 1; i++)
-			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(100000f, 200000f));
-				if ((int)RandomMath.RandomBetween(1f, 100f) > 80)
-				{
-					float numberOfAsteroids = RandomMath.RandomBetween(500f, 2000f);
-					for (int k = 0; (float)k < numberOfAsteroids; k++)
-					{
-						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-35000f, 35000f), Vector2.Zero), 0f);
-						while (!this.RoidPosOK(asteroidCenter))
-						{
-							asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-35000f, 35000f), Vector2.Zero), 0f);
-						}
-						Asteroid newRoid = new Asteroid()
-						{
-							scale = RandomMath.RandomBetween(1.2f, 4.6f),
-							Position3D = asteroidCenter
-						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
-						this.AsteroidsList.Add(newRoid);
-					}
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = true
-					};
-					this.RingList.Add(ring);
-				}
-				else
-				{
-					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
-					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-					Planet newOrbital = new Planet()
-					{
-						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
-						OrbitalAngle = RandomAngle,
-						ParentSystem = this,
-						planetType = (int)RandomMath.RandomBetween(1f, 24f)
-					};
-					if ((newOrbital.planetType == 22 || newOrbital.planetType == 13) && RandomMath.RandomBetween(0f, 100f) > 50f)
-					{
-						newOrbital.planetType = (int)RandomMath.RandomBetween(1f, 24f);
-					}
-					newOrbital.SetPlanetAttributes();
-					newOrbital.Position = planetCenter;
-					newOrbital.scale = scale;
-					newOrbital.ObjectRadius = planetRadius;
-					newOrbital.OrbitalRadius = ringRadius;
-					newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
-					if (RandomMath.RandomBetween(1f, 100f) < 15f)
-					{
-						newOrbital.hasRings = true;
-						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
-					}
-					float fertility = newOrbital.Fertility;
-					float mineralRichness = newOrbital.MineralRichness;
-					float maxPopulation = newOrbital.MaxPopulation / 1000f;
-					this.PlanetList.Add(newOrbital);
-					RandomMath.RandomBetween(0f, 3f);
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = false,
-						planet = newOrbital
-					};
-					this.RingList.Add(ring);
-				}
-			}
-			return this;
-		}
-
-		public void GenerateAscensionRingSystem(string name)
-		{
-			this.isStartingSystem = true;
-			int WhichSun = (int)RandomMath.RandomBetween(1f, 6f);
-			if (WhichSun > 5)
-			{
-				WhichSun = 5;
-			}
-			if (WhichSun == 1)
-			{
-				this.SunPath = "star_red";
-			}
-			else if (WhichSun == 2)
-			{
-				this.SunPath = "star_yellow";
-			}
-			else if (WhichSun == 3)
-			{
-				this.SunPath = "star_green";
-			}
-			else if (WhichSun == 4)
-			{
-				this.SunPath = "star_blue";
-			}
-			else if (WhichSun == 5)
-			{
-				this.SunPath = "star_neutron";
-			}
-			else if (WhichSun == 6)
-			{
-				this.SunPath = "star_yellow2";
-			}
-			this.Name = name;
-			this.numberOfRings = 1;
-			this.RingsCount = this.numberOfRings;
-			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
-			float ringRadius = (float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f);
-			float scale = RandomMath.RandomBetween(1f, 2f);
-			float planetRadius = 100f * scale;
-			float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-			Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-			Planet newOrbital = new Planet()
-			{
-				Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(1)),
-				OrbitalAngle = RandomAngle,
-				ParentSystem = this
-			};
-			int random = (int)RandomMath.RandomBetween(1f, 3f);
-			if (random == 1)
-			{
-				newOrbital.planetType = 27;
-			}
-			else if (random == 2)
-			{
-				newOrbital.planetType = 29;
-			}
-			newOrbital.MineralRichness = 3.5f;
-			newOrbital.SetPlanetAttributes(80f);
-			newOrbital.Special = "None";
-			newOrbital.Fertility = 2f;
-			newOrbital.MaxPopulation = 20000f;
-			newOrbital.Population = 0f;
-			newOrbital.FoodHere = 0f;
-			newOrbital.ProductionHere = 0f;
-			this.AddSlaverGroup();
-			newOrbital.Position = planetCenter;
-			newOrbital.scale = scale;
-			newOrbital.ObjectRadius = planetRadius;
-			newOrbital.OrbitalRadius = ringRadius;
-			newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
-			if (RandomMath.RandomBetween(1f, 100f) < 15f)
-			{
-				newOrbital.hasRings = true;
-				newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
-			}
-			this.PlanetList.Add(newOrbital);
-			RandomMath.RandomBetween(0f, 3f);
-			SolarSystem.Ring ring = new SolarSystem.Ring()
-			{
-				Distance = ringRadius,
-				Asteroids = false,
-				planet = newOrbital
-			};
-			this.RingList.Add(ring);
-		}
-
-		public void GenerateAscensionSystem(string name)
-		{
-			this.isStartingSystem = true;
-			int WhichSun = (int)RandomMath.RandomBetween(1f, 3f);
-			if (WhichSun == 1)
-			{
-				this.SunPath = "star_red";
-			}
-			else if (WhichSun == 2)
-			{
-				this.SunPath = "star_yellow";
-			}
-			else if (WhichSun == 3)
-			{
-				this.SunPath = "star_green";
-			}
-			else if (WhichSun == 4)
-			{
-				this.SunPath = "star_blue";
-			}
-			else if (WhichSun == 5)
-			{
-				this.SunPath = "star_neutron";
-			}
-			else if (WhichSun == 6)
-			{
-				this.SunPath = "star_binary";
-			}
-			this.Name = "Zero";
-			this.numberOfRings = 1;
-			this.RingsCount = this.numberOfRings;
-			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
-			float ringRadius = (float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f);
-			float scale = RandomMath.RandomBetween(1f, 2f);
-			float planetRadius = 100f * scale;
-			float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-			Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-			Planet newOrbital = new Planet()
-			{
-				Name = "Zero",
-				OrbitalAngle = RandomAngle,
-				ParentSystem = this
-			};
-			int random = (int)RandomMath.RandomBetween(1f, 3f);
-			if (random == 1)
-			{
-				newOrbital.planetType = 27;
-			}
-			else if (random == 2)
-			{
-				newOrbital.planetType = 29;
-			}
-			newOrbital.MineralRichness = 5f;
-			newOrbital.SetPlanetAttributes(99f);
-			newOrbital.Special = "None";
-			newOrbital.Fertility = 4f;
-			newOrbital.MaxPopulation = 20000f;
-			newOrbital.Population = 0f;
-			newOrbital.FoodHere = 0f;
-			newOrbital.ProductionHere = 0f;
-			SolarSystem.FleetAndPos Intercept = new SolarSystem.FleetAndPos()
-			{
-				fleetname = "Remnant Interceptors",
-				Pos = new Vector2(0f, -75000f)
-			};
-			this.FleetsToSpawn.Add(Intercept);
-			Intercept = new SolarSystem.FleetAndPos()
-			{
-				fleetname = "Remnant Interceptors",
-				Pos = new Vector2(0f, 75000f)
-			};
-			this.FleetsToSpawn.Add(Intercept);
-			Intercept = new SolarSystem.FleetAndPos()
-			{
-				fleetname = "Remnant Interceptors",
-				Pos = new Vector2(75000f, 0f)
-			};
-			this.FleetsToSpawn.Add(Intercept);
-			Intercept = new SolarSystem.FleetAndPos()
-			{
-				fleetname = "Remnant Interceptors",
-				Pos = new Vector2(-75000f, 0f)
-			};
-			this.FleetsToSpawn.Add(Intercept);
-			this.DefensiveFleets.Add("Remnant Core Fleet");
-			ResourceManager.GetBuilding("Remnant Ruins").SetPlanet(newOrbital);
-			newOrbital.Position = planetCenter;
-			newOrbital.scale = scale;
-			newOrbital.ObjectRadius = planetRadius;
-			newOrbital.OrbitalRadius = ringRadius;
-			newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
-			if (RandomMath.RandomBetween(1f, 100f) < 15f)
-			{
-				newOrbital.hasRings = true;
-				newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
-			}
-			this.PlanetList.Add(newOrbital);
-			RandomMath.RandomBetween(0f, 3f);
-			SolarSystem.Ring ring = new SolarSystem.Ring()
-			{
-				Distance = ringRadius,
-				Asteroids = false,
-				planet = newOrbital
-			};
-			this.RingList.Add(ring);
-		}
-
-		public void GenerateAsteroidFieldAnomaly(string name)
-		{
-			this.isAnomaly = true;
-			this.SunPath = "star_neutron";
-			this.Name = name;
-			float numberOfAsteroids = 700f;
-			for (int k = 0; (float)k < numberOfAsteroids; k++)
-			{
-				Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(RandomMath.RandomBetween(-70000f, 70000f), Vector2.Zero), 0f);
-				while (!this.RoidPosOK(asteroidCenter))
-				{
-					asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(RandomMath.RandomBetween(-70000f, 70000f), Vector2.Zero), 0f);
-				}
-				Asteroid newRoid = new Asteroid()
-				{
-					scale = RandomMath.RandomBetween(0.4f, 4f),
-					Position3D = asteroidCenter
-				};
-				int whichRoid = 0;
-				while (whichRoid == 0 || whichRoid == 3)
-				{
-					whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-				}
-				newRoid.whichRoid = whichRoid;
-				newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
-				this.AsteroidsList.Add(newRoid);
-			}
-		}
-
 		public void GenerateCorsairSystem(string name)
 		{
 			int WhichSun = (int)RandomMath.RandomBetween(1f, 3f);
@@ -582,7 +258,7 @@ namespace Ship_Game
 				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f));
 				if (i != 1)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(155f, 400f);
+					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
 					for (int k = 0; (float)k < numberOfAsteroids; k++)
 					{
 						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f, 3500f), Vector2.Zero), 0f);
@@ -652,136 +328,6 @@ namespace Ship_Game
 			}
 		}
 
-		public void GenerateEmpty(string name, UniverseData data)
-		{
-			int WhichSun = (int)RandomMath.RandomBetween(1f, 3f);
-			if (WhichSun == 1)
-			{
-				this.SunPath = "star_red";
-			}
-			else if (WhichSun == 2)
-			{
-				this.SunPath = "star_yellow";
-			}
-			else if (WhichSun == 3)
-			{
-				this.SunPath = "star_yellow";
-			}
-			this.Name = name;
-			this.numberOfRings = 0;
-			this.RingsCount = 0;
-			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
-		}
-
-		public void GenerateOuterAscensionRingSystem(string name)
-		{
-			this.isStartingSystem = true;
-			int WhichSun = (int)RandomMath.RandomBetween(1f, 3f);
-			if (WhichSun == 1)
-			{
-				this.SunPath = "star_red";
-			}
-			else if (WhichSun == 2)
-			{
-				this.SunPath = "star_yellow";
-			}
-			else if (WhichSun == 3)
-			{
-				this.SunPath = "star_yellow";
-			}
-			this.Name = name;
-			this.numberOfRings = 1;
-			this.RingsCount = this.numberOfRings;
-			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
-			float ringRadius = (float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f);
-			float scale = RandomMath.RandomBetween(1f, 2f);
-			float planetRadius = 100f * scale;
-			float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-			Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-			Planet newOrbital = new Planet()
-			{
-				Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(1)),
-				OrbitalAngle = RandomAngle,
-				ParentSystem = this
-			};
-			int random = (int)RandomMath.RandomBetween(1f, 3f);
-			if (random == 1)
-			{
-				newOrbital.planetType = 27;
-			}
-			else if (random == 2)
-			{
-				newOrbital.planetType = 29;
-			}
-			newOrbital.MineralRichness = 1.5f;
-			newOrbital.SetPlanetAttributes(40f);
-			newOrbital.Special = "None";
-			newOrbital.Fertility = 1f;
-			newOrbital.MaxPopulation = 12000f;
-			newOrbital.Population = 0f;
-			newOrbital.FoodHere = 0f;
-			newOrbital.ProductionHere = 0f;
-			this.DefensiveFleets.Add("Remnant Blockade");
-			newOrbital.Position = planetCenter;
-			newOrbital.scale = scale;
-			newOrbital.ObjectRadius = planetRadius;
-			newOrbital.OrbitalRadius = ringRadius;
-			newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
-			if (RandomMath.RandomBetween(1f, 100f) < 15f)
-			{
-				newOrbital.hasRings = true;
-				newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
-			}
-			this.PlanetList.Add(newOrbital);
-			RandomMath.RandomBetween(0f, 3f);
-			SolarSystem.Ring ring = new SolarSystem.Ring()
-			{
-				Distance = ringRadius,
-				Asteroids = false,
-				planet = newOrbital
-			};
-			this.RingList.Add(ring);
-		}
-
-		public void GeneratePrisonAnomaly(string name)
-		{
-			this.isAnomaly = true;
-			this.SunPath = "star_red";
-			this.Name = name;
-			float numberOfAsteroids = 700f;
-			for (int k = 0; (float)k < numberOfAsteroids; k++)
-			{
-				Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(RandomMath.RandomBetween(-70000f, 70000f), Vector2.Zero), 0f);
-				while (!this.RoidPosOK(asteroidCenter))
-				{
-					asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(RandomMath.RandomBetween(-70000f, 70000f), Vector2.Zero), 0f);
-				}
-				Asteroid newRoid = new Asteroid()
-				{
-					scale = RandomMath.RandomBetween(0.4f, 4f),
-					Position3D = asteroidCenter
-				};
-				int whichRoid = 0;
-				while (whichRoid == 0 || whichRoid == 3)
-				{
-					whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-				}
-				newRoid.whichRoid = whichRoid;
-				newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
-				this.AsteroidsList.Add(newRoid);
-			}
-			for (int i = 0; i < 20; i++)
-			{
-				Vector2 pos = this.Position + new Vector2(RandomMath.RandomBetween(-50000f, 50000f), RandomMath.RandomBetween(-50000f, 50000f));
-				Anomaly am = new Anomaly()
-				{
-					Position = pos,
-					type = "DP"
-				};
-				this.AnomaliesList.Add(am);
-			}
-		}
-
 		private Vector2 GenerateRandomPointOnCircle(float radius, Vector2 center)
 		{
 			float RandomAngle = RandomMath.RandomBetween(0f, 360f);
@@ -835,7 +381,6 @@ namespace Ship_Game
 			{
 				this.SunPath = "star_binary";
 			}
-
 			this.Name = name;
 			this.numberOfRings = (int)RandomMath.RandomBetween(1f, 6f);
             // ADDED BY SHAHMATT (more planets in system)
@@ -852,7 +397,7 @@ namespace Ship_Game
 				ringRadius = ringRadius * systemScale;
 				if ((int)RandomMath.RandomBetween(1f, 100f) > 80)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(155f, 400f);
+					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
 					for (int k = 0; (float)k < numberOfAsteroids; k++)
 					{
 						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f * systemScale, 3500f * systemScale), Vector2.Zero), 0f);
@@ -935,11 +480,11 @@ namespace Ship_Game
                             int iRandom = (int)RandomMath.RandomBetween(0f, 100f);
                             if (iRandom > 50 && iRandom < 85)
                             {
-                                this.AddMinorRemnantPresence(newOrbital, data);
+                                this.AddMinorRemnantPresence(newOrbital);
                             }
                             else if (iRandom >= 85)
                             {
-                                this.AddMajorRemnantPresence(newOrbital, data);
+                                this.AddMajorRemnantPresence(newOrbital);
                             }
                         }
                     }
@@ -949,133 +494,14 @@ namespace Ship_Game
                         {
                             if ((int)RandomMath.RandomBetween(0f, 100f) > 50)
                             {
-                                this.AddMinorRemnantPresence(newOrbital, data);
+                                this.AddMinorRemnantPresence(newOrbital);
                             }
                         }
                         else if (quality > 10f && (int)RandomMath.RandomBetween(0f, 100f) < 50)
                         {
-                            this.AddMajorRemnantPresence(newOrbital, data);
+                            this.AddMajorRemnantPresence(newOrbital);
                         }
                     }
-					this.PlanetList.Add(newOrbital);
-					RandomMath.RandomBetween(0f, 3f);
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = false,
-						planet = newOrbital
-					};
-					this.RingList.Add(ring);
-				}
-			}
-		}
-
-		public void GenerateRevoranSystem(string name, Empire Owner)
-		{
-			int WhichSun = (int)RandomMath.RandomBetween(1f, 3f);
-			if (WhichSun == 1)
-			{
-				this.SunPath = "star_red";
-			}
-			else if (WhichSun == 2)
-			{
-				this.SunPath = "star_yellow";
-			}
-			else if (WhichSun == 3)
-			{
-				this.SunPath = "star_green";
-			}
-			else if (WhichSun == 4)
-			{
-				this.SunPath = "star_blue";
-			}
-			else if (WhichSun == 5)
-			{
-				this.SunPath = "star_neutron";
-			}
-			else if (WhichSun == 6)
-			{
-				this.SunPath = "star_binary";
-			}
-			this.Name = "Revoran";
-			this.numberOfRings = 2;
-			this.RingsCount = this.numberOfRings;
-			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
-			for (int i = 1; i < this.numberOfRings + 1; i++)
-			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f));
-				if (i != 1)
-				{
-					float numberOfAsteroids = RandomMath.RandomBetween(155f, 400f);
-					for (int k = 0; (float)k < numberOfAsteroids; k++)
-					{
-						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f, 3500f), Vector2.Zero), 0f);
-						while (!this.RoidPosOK(asteroidCenter))
-						{
-							asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f, 3500f), Vector2.Zero), 0f);
-						}
-						Asteroid newRoid = new Asteroid()
-						{
-							scale = RandomMath.RandomBetween(0.75f, 1.6f),
-							Position3D = asteroidCenter
-						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
-						this.AsteroidsList.Add(newRoid);
-					}
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = true
-					};
-					this.RingList.Add(ring);
-				}
-				else
-				{
-					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
-					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-					Planet newOrbital = new Planet()
-					{
-						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
-						OrbitalAngle = RandomAngle,
-						ParentSystem = this,
-						planetType = 22
-					};
-					newOrbital.SetPlanetAttributes();
-					newOrbital.Position = planetCenter;
-					newOrbital.scale = scale;
-					newOrbital.ObjectRadius = planetRadius;
-					newOrbital.OrbitalRadius = ringRadius;
-					newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
-					newOrbital.Owner = Owner;
-					newOrbital.InitializeSliders(Owner);
-					Owner.AddPlanet(newOrbital);
-					if (RandomMath.RandomBetween(1f, 100f) < 15f)
-					{
-						newOrbital.hasRings = true;
-						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
-					}
-					ResourceManager.GetBuilding("Capital City").SetPlanet(newOrbital);
-					float fertility = newOrbital.Fertility;
-					float mineralRichness = newOrbital.MineralRichness;
-					float maxPopulation = newOrbital.MaxPopulation / 1000f;
-					newOrbital.Population = newOrbital.MaxPopulation;
-					newOrbital.Name = "Revoran";
-					Troop t = ResourceManager.CreateTroop(ResourceManager.TroopsDict["Walker"], EmpireManager.GetEmpireByName("Revoran"));
-					newOrbital.AssignTroopToTile(t);
-					t = ResourceManager.CreateTroop(ResourceManager.TroopsDict["Walker"], EmpireManager.GetEmpireByName("Revoran"));
-					newOrbital.AssignTroopToTile(t);
-					t = ResourceManager.CreateTroop(ResourceManager.TroopsDict["Walker"], EmpireManager.GetEmpireByName("Revoran"));
-					newOrbital.AssignTroopToTile(t);
-					t = ResourceManager.CreateTroop(ResourceManager.TroopsDict["Walker"], EmpireManager.GetEmpireByName("Revoran"));
-					newOrbital.AssignTroopToTile(t);
 					this.PlanetList.Add(newOrbital);
 					RandomMath.RandomBetween(0f, 3f);
 					SolarSystem.Ring ring = new SolarSystem.Ring()
@@ -1169,7 +595,7 @@ namespace Ship_Game
 				}
 				else if (i == 2)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(100f, 200f);
+					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
 					for (int k = 0; (float)k < numberOfAsteroids; k++)
 					{
 						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f * systemScale, 3500f * systemScale), Vector2.Zero), 0f);
@@ -1264,124 +690,7 @@ namespace Ship_Game
 			}
 		}
 
-		public static SolarSystem GenerateSystemFromData(SolarSystemData data)
-		{
-			SolarSystem newSys = new SolarSystem()
-			{
-				SunPath = data.SunPath,
-				Name = data.Name
-			};
-			int numberOfRings = data.RingList.Count;
-			int StarRadius = (int)RandomMath.RandomBetween(50f, 500f);
-			for (int i = 1; i < numberOfRings + 1; i++)
-			{
-				float ringRadius = (float)((i * (0.5f * (float)StarRadius + RandomMath.RandomBetween(250000f, 300000f))) + 60000f);
-				if (data.RingList[i - 1].Asteroids == null)
-				{
-                    float scale = 1f;
-                    if (data.RingList[i - 1].planetScale > 0)
-                    {
-                        scale = data.RingList[i - 1].planetScale;
-                    }
-                    else
-                    {
-                        scale = RandomMath.RandomBetween(0.9f, 1.8f);
-                        if (data.RingList[i - 1].WhichPlanet == 2 || data.RingList[i - 1].WhichPlanet == 7 || data.RingList[i - 1].WhichPlanet == 10 || data.RingList[i - 1].WhichPlanet == 12 || data.RingList[i - 1].WhichPlanet == 15 || data.RingList[i - 1].WhichPlanet == 20 || data.RingList[i - 1].WhichPlanet == 26)
-                        {
-                            scale += 2.5f;
-                        }
-                    }
-					float planetRadius = 100f * scale;
-					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = newSys.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-					Planet newOrbital = new Planet()
-					{
-						Name = data.RingList[i - 1].Planet,
-						OrbitalAngle = RandomAngle,
-						ParentSystem = newSys,
-						SpecialDescription = data.RingList[i - 1].SpecialDescription,
-						planetType = data.RingList[i - 1].WhichPlanet,
-						Position = planetCenter,
-						scale = scale,
-						ObjectRadius = planetRadius,
-						OrbitalRadius = ringRadius,
-						planetTilt = RandomMath.RandomBetween(45f, 135f)
-					};
-					newOrbital.SetPlanetAttributes();
-					if (data.RingList[i - 1].BuildingDataList.Count > 0)
-					{
-						foreach (SolarSystemData.BuildingData bdata in data.RingList[i - 1].BuildingDataList)
-						{
-							XmlSerializer serializer = new XmlSerializer(typeof(Building));
-							Building building = (Building)serializer.Deserialize(File.OpenRead(string.Concat("Content/Buildings/", bdata.XMLName, ".xml")));
-							building.SetPlanet(newOrbital);
-							newOrbital.BuildingList.Add(building);
-						}
-					}
-					newOrbital.InitializeUpdate();
-					if (data.RingList[i - 1].Owner != "None" && data.RingList[i - 1].Owner != null)
-					{
-						newOrbital.Owner = EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner);
-						newOrbital.Population = (float)data.RingList[i - 1].Population;
-						newOrbital.Owner.AddPlanet(newOrbital);
-						if (!newSys.OwnerList.Contains(newOrbital.Owner))
-						{
-							newSys.OwnerList.Add(newOrbital.Owner);
-						}
-						newOrbital.HasShipyard = true;
-						ResourceManager.GetBuilding("Capitol").SetPlanet(newOrbital);
-						ResourceManager.GetBuilding("Space Port").SetPlanet(newOrbital);
-					}
-					if (data.RingList[i - 1].HasRings != null)
-					{
-						newOrbital.hasRings = true;
-						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
-					}
-					newSys.PlanetList.Add(newOrbital);
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = false,
-						planet = newOrbital
-					};
-					newSys.RingList.Add(ring);
-				}
-				else
-				{
-					float numberOfAsteroids = RandomMath.RandomBetween(2000f, 3000f);
-					for (int k = 0; (float)k < numberOfAsteroids; k++)
-					{
-						Vector3 asteroidCenter = new Vector3(newSys.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-30000f, 30000f), Vector2.Zero), 0f);
-						while (!newSys.RoidPosOK(asteroidCenter))
-						{
-							asteroidCenter = new Vector3(newSys.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-30000f, 30000f), Vector2.Zero), 0f);
-						}
-						Asteroid newRoid = new Asteroid()
-						{
-							scale = RandomMath.RandomBetween(1.2f, 4.6f),
-							Position3D = asteroidCenter
-						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
-						newSys.AsteroidsList.Add(newRoid);
-					}
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = true
-					};
-					newSys.RingList.Add(ring);
-				}
-			}
-			return newSys;
-		}
-
-		public static SolarSystem GenerateSystemFromDataNormalSize(SolarSystemData data, Empire Owner)
+		public static SolarSystem GenerateSystemFromData(SolarSystemData data, Empire Owner)
 		{
 			SolarSystem newSys = new SolarSystem()
 			{
@@ -1425,13 +734,22 @@ namespace Ship_Game
 						planetTilt = RandomMath.RandomBetween(45f, 135f)
 					};
 					newOrbital.InitializeUpdate();
-					if (!data.RingList[i - 1].HomePlanet)
+                    if (!data.RingList[i - 1].HomePlanet || Owner == null)
 					{
                         newOrbital.SetPlanetAttributes();
                         if (data.RingList[i - 1].MaxPopDefined > 0)
-                        {
                             newOrbital.MaxPopulation = data.RingList[i - 1].MaxPopDefined * 1000f;
-                        }						
+                        if (data.RingList[i - 1].Owner != null && data.RingList[i - 1].Owner != "")
+                        {
+                            newOrbital.Owner = EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner);
+                            EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner).AddPlanet(newOrbital);
+                            newOrbital.Population = newOrbital.MaxPopulation;
+                            newOrbital.MineralRichness = 1f;
+                            newOrbital.Fertility = 2f;
+                            newOrbital.InitializeSliders(newOrbital.Owner);
+                            newOrbital.colonyType = Planet.ColonyType.Core;
+                            newOrbital.GovernorOn = true;
+                        }
 					}
 					else
 					{
@@ -1476,6 +794,32 @@ namespace Ship_Game
 						newOrbital.hasRings = true;
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
+                    //Add buildings to planet
+                    if (data.RingList[i - 1].BuildingList.Count > 0)
+                        foreach (string building in data.RingList[i - 1].BuildingList)
+                            ResourceManager.GetBuilding(building).SetPlanet(newOrbital);
+                    //Add ships to orbit
+                    if (data.RingList[i - 1].Guardians.Count > 0)
+                        foreach (string ship in data.RingList[i - 1].Guardians)
+                            newOrbital.Guardians.Add(ship);
+                    //Add moons to planets
+                    if (data.RingList[i - 1].Moons.Count > 0)
+                    {
+                        for (int j = 0; j < data.RingList[i - 1].Moons.Count; j++)
+                        {
+                            float radius = newOrbital.ObjectRadius * 5 + (RandomMath.RandomBetween(1000f, 1500f) * (j + 1));
+                            Moon moon = new Moon()
+                            {
+                                orbitTarget = newOrbital.guid,
+                                moonType = data.RingList[i - 1].Moons[j].WhichMoon,
+                                scale = data.RingList[i - 1].Moons[j].MoonScale,
+                                OrbitRadius = radius,
+                                OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
+                                Position = newSys.GenerateRandomPointOnCircle(radius, newOrbital.Position)
+                            };
+                            newSys.MoonList.Add(moon);
+                        }
+                    }
 					newSys.PlanetList.Add(newOrbital);
 					SolarSystem.Ring ring = new SolarSystem.Ring()
 					{
@@ -1487,7 +831,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(250f, 500f);
+					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
 					for (int k = 0; (float)k < numberOfAsteroids; k++)
 					{
 						Vector3 asteroidCenter = new Vector3(newSys.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3000f, 3000f), Vector2.Zero), 0f);

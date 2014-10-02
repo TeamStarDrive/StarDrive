@@ -15,7 +15,7 @@ namespace Ship_Game
 
 		public bool Discovered;
 
-		public int RootNode;
+		public byte RootNode;
 
         public TechnologyType TechnologyType = TechnologyType.General;
 
@@ -38,6 +38,9 @@ namespace Ship_Game
         public List<Technology.TriggeredEvent> EventsTriggered = new List<Technology.TriggeredEvent>();
 
         public List<Technology.RevealedTech> TechsRevealed = new List<Technology.RevealedTech>();
+
+        //Added by McShooterz to allow for techs with more than one level
+        public byte MaxLevel = 1;
 
         //added by McShooterz: Racial Tech variables
         public List<Technology.RequiredRace> RaceRestrictions = new List<Technology.RequiredRace>();

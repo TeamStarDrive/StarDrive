@@ -58,6 +58,7 @@ namespace Ship_Game
         public Background bg = new Background();
         public Vector2 Size = new Vector2(5000000f, 5000000f);
         public float FTLModifier = 1f;
+        public float EnemyFTLModifier = 1f;
         public UniverseData.GameDifficulty GameDifficulty = UniverseData.GameDifficulty.Normal;
         public Vector3 transitionStartPosition = new Vector3();
         public Vector3 camTransitionPosition = new Vector3();
@@ -246,7 +247,6 @@ namespace Ship_Game
         private int SelectorFrame;
         private float garbageCollector;
         private float garbargeCollectorBase = 10;
-        private bool doubleclicked;
         public static bool debug;
         public int globalshipCount;
         public int empireShipCountReserve;
@@ -264,24 +264,28 @@ namespace Ship_Game
         {
             this.Size = data.Size;
             this.FTLModifier = data.FTLSpeedModifier;
+            this.EnemyFTLModifier = data.EnemyFTLSpeedModifier;
             this.GravityWells = data.GravityWells;
             UniverseScreen.SolarSystemList = data.SolarSystemsList;
             this.MasterShipList = data.MasterShipList;
             this.playerShip = data.playerShip;
             this.PlayerLoyalty = this.playerShip.loyalty.data.Traits.Name;
+            this.playerShip.loyalty.isPlayer = true;
             this.ShipToView = this.playerShip;
         }
 
-        public UniverseScreen(UniverseData data, bool FromSave, string loyalty)
+        public UniverseScreen(UniverseData data, string loyalty)
         {
             this.Size = data.Size;
             this.FTLModifier = data.FTLSpeedModifier;
+            this.EnemyFTLModifier = data.EnemyFTLSpeedModifier;
             this.GravityWells = data.GravityWells;
             UniverseScreen.SolarSystemList = data.SolarSystemsList;
             this.MasterShipList = data.MasterShipList;
             this.loadFogPath = data.loadFogPath;
             this.PlayerLoyalty = loyalty;
             this.playerShip = data.playerShip;
+            EmpireManager.GetEmpireByName(loyalty).isPlayer = true;
             this.ShipToView = this.playerShip;
             this.loading = true;
         }
@@ -863,29 +867,36 @@ namespace Ship_Game
                     ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.PlanetList[0], true);
                 foreach (Planet p in solarSystem.PlanetList)
                 {
-                    //Added by McShooterz: alternate hostile fleets populate universe
-                    if (GlobalStats.ActiveMod != null && ResourceManager.HostileFleets.Fleets.Count != 0)
+                    if (p.Owner != null)
                     {
-                        if (p.Guardians.Count != 0)
-                        {
-                            Random r = new Random();
-                            int randomFleet = r.Next(0, (int)ResourceManager.HostileFleets.Fleets.Count);
-                            foreach (string ship in ResourceManager.HostileFleets.Fleets[randomFleet].Ships)
-                            {
-                                ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName(ResourceManager.HostileFleets.Fleets[randomFleet].Empire), p, true);
-                            }
-                        }
+                        foreach (string key in p.Guardians)
+                            ResourceManager.CreateShipAt(key, p.Owner, p, true);
                     }
                     else
                     {
-                        foreach (string key in p.Guardians)
-                            ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), p, true);
-                        if (p.CorsairPresence)
+                        //Added by McShooterz: alternate hostile fleets populate universe
+                        if (GlobalStats.ActiveMod != null && ResourceManager.HostileFleets.Fleets.Count > 0)
                         {
-                            ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
-                            ResourceManager.CreateShipAt("Corsair", EmpireManager.GetEmpireByName("Corsairs"), p, true);
-                            ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
-                            ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                            if (p.Guardians.Count > 0)
+                            {
+                                int randomFleet = HelperFunctions.GetRandomIndex(ResourceManager.HostileFleets.Fleets.Count);
+                                foreach (string ship in ResourceManager.HostileFleets.Fleets[randomFleet].Ships)
+                                {
+                                    ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName(ResourceManager.HostileFleets.Fleets[randomFleet].Empire), p, true);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (string key in p.Guardians)
+                                ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), p, true);
+                            if (p.CorsairPresence)
+                            {
+                                ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
+                                ResourceManager.CreateShipAt("Corsair", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                                ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                                ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                            }
                         }
                     }
                 }
@@ -1112,8 +1123,7 @@ namespace Ship_Game
             Ship.universeScreen = this;
             ArtificialIntelligence.universeScreen = this;
             MissileAI.universeScreen = this;
-            Asteroid.universeScreen = this;
-            Loot.universeScreen = this;
+            Moon.universeScreen = this;
             CombatScreen.universeScreen = this;
             FleetDesignScreen.screen = this;
             this.xnaPlanetModel = this.ScreenManager.Content.Load<Model>("Model/SpaceObjects/planet");
@@ -1226,15 +1236,18 @@ namespace Ship_Game
                     
                     //added by gremlin forced garbage collection to hlep ship building issues.
                     this.garbageCollector -= 0.01666667f;
-                    if (this.garbageCollector <= 0.0f)
+                    if (this.garbageCollector <= 0.0f )
                     {
                         this.garbageCollector = this.garbargeCollectorBase;
-                        if(GC.GetTotalMemory(false) > GlobalStats.MemoryLimiter)
+                        float memory = GC.GetTotalMemory(false);
+                        if (memory > GlobalStats.MemoryLimiter)
                         {
-                            GC.Collect(GC.MaxGeneration,GCCollectionMode.Optimized);
-                            //GC.Collect();
-                            
+                            //GC.Collect(GC.MaxGeneration,GCCollectionMode.Optimized);
+                            GC.Collect();
+                            if (memory > GlobalStats.MemoryLimiter && GlobalStats.ShipCountLimit > this.globalshipCount)
+                                GlobalStats.ShipCountLimit = this.globalshipCount;
                             //GlobalStats.MemoryLimiter=(GC.GetTotalMemory(true)/1000) +500;
+                            
                         }
                     }
                     if (this.AutoSaveTimer <= 0.0f)
@@ -1406,7 +1419,6 @@ namespace Ship_Game
                     solarSystem.ShipList.Clear();
                 foreach (Ship ship in (List<Ship>)this.MasterShipList)
                 {
-                    ship.Updated = false;
                     ship.isInDeepSpace = false;
                     ship.SetSystem((SolarSystem)null);
                     foreach (SolarSystem s in UniverseScreen.SolarSystemList)
@@ -1641,10 +1653,10 @@ namespace Ship_Game
 
                     if ((double)system.combatTimer <= 0.0)
                         system.CombatInSystem = false;
-                    bool flag = false;
+                    bool viewing = false;
                     this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(system.Position, 0.0f), this.projection, this.view, Matrix.Identity);
                     if (this.Frustum.Contains(new BoundingSphere(new Vector3(system.Position, 0.0f), 100000f)) != ContainmentType.Disjoint)
-                        flag = true;
+                        viewing = true;
                     else if (this.viewState == UniverseScreen.UnivScreenState.ShipView)
                     {
                         Rectangle rect = new Rectangle((int)system.Position.X - 100000, (int)system.Position.Y - 100000, 200000, 200000);
@@ -1656,35 +1668,34 @@ namespace Ship_Game
                         Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
                         Vector2 pos = new Vector2(vector3.X, vector3.Y);
                         if (HelperFunctions.CheckIntersection(rect, pos))
-                            flag = true;
+                            viewing = true;
                     }
-                    if (system.ExploredDict[this.player])
+                    if (system.ExploredDict[this.player] && viewing)
                     {
-                        if (flag)
+                        system.isVisible = (double)this.camHeight < 250000.0;
+                    }
+                    if (system.isVisible && this.camHeight < 150000.0)
+                    {
+                        foreach (Asteroid asteroid in system.AsteroidsList)
                         {
-                            if (system.isVisible && (double)this.camHeight < 250000.0 && !system.AsteroidsShowing)
-                            {
-                                lock (GlobalStats.ObjectManagerLocker)
-                                {
-                                    foreach (Asteroid item_0 in (List<Asteroid>)system.AsteroidsList)
-                                        this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)item_0.GetSO());
-                                }
-                                system.AsteroidsShowing = true;
-                            }
-                            system.isVisible = (double)this.camHeight < 250000.0;
+                            asteroid.GetSO().Visibility = ObjectVisibility.Rendered;
+                            asteroid.Update(elapsedTime);
                         }
-                        else
+                        foreach (Moon moon in system.MoonList)
                         {
-                            if (system.AsteroidsShowing)
-                            {
-                                lock (GlobalStats.ObjectManagerLocker)
-                                {
-                                    foreach (Asteroid item_1 in (List<Asteroid>)system.AsteroidsList)
-                                        this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)item_1.GetSO());
-                                }
-                            }
-                            system.isVisible = false;
-                            system.AsteroidsShowing = false;
+                            moon.GetSO().Visibility = ObjectVisibility.Rendered;
+                            moon.UpdatePosition(elapsedTime);
+                        }
+                    }
+                    else
+                    {
+                        foreach (Asteroid asteroid in system.AsteroidsList)
+                        {
+                            asteroid.GetSO().Visibility = ObjectVisibility.None;
+                        }
+                        foreach (Moon moon in system.MoonList)
+                        {
+                            moon.GetSO().Visibility = ObjectVisibility.None;
                         }
                     }
                     foreach (Planet planet in system.PlanetList)
@@ -1692,11 +1703,6 @@ namespace Ship_Game
                         planet.Update(elapsedTime);
                         if (planet.HasShipyard && system.isVisible)
                             planet.Station.Update(elapsedTime);
-                    }
-                    if (system.isVisible && (double)this.camHeight < 150000.0)
-                    {
-                        foreach (GameplayObject gameplayObject in (List<Asteroid>)system.AsteroidsList)
-                            gameplayObject.Update(elapsedTime);
                     }
                     foreach (Ship ship in (List<Ship>)system.ShipList)
                     {
@@ -1726,7 +1732,6 @@ namespace Ship_Game
                     if (!this.Paused && this.IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();
-                    system.LootList.ApplyPendingRemovals();
                     system.ShipList.ApplyPendingRemovals();
                 }
                 this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
@@ -1827,37 +1832,34 @@ namespace Ship_Game
                     if (HelperFunctions.CheckIntersection(rect, pos))
                         flag = true;
                 }
-                if (system.ExploredDict[this.player])
+                if (system.ExploredDict[this.player] && flag)
                 {
-                    if (flag)
+                        system.isVisible = (double)this.camHeight < 250000.0; 
+                }
+                if (system.isVisible && this.camHeight < 150000.0)
+                {
+                    foreach (Asteroid asteroid in system.AsteroidsList)
                     {
-                        if (system.isVisible && (double)this.camHeight < 250000.0 && !system.AsteroidsShowing)
-                        {
-                            lock (GlobalStats.ObjectManagerLocker)
-                            {
-                                foreach (Asteroid item_0 in (List<Asteroid>)system.AsteroidsList)
-                                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)item_0.GetSO());
-                            }
-                            system.AsteroidsShowing = true;
-                        }
-                        system.isVisible = (double)this.camHeight < 250000.0;
+                        asteroid.GetSO().Visibility = ObjectVisibility.Rendered;
+                        asteroid.Update(elapsedTime);
                     }
-                    else
+                    foreach (Moon moon in system.MoonList)
                     {
-                        if (system.AsteroidsShowing)
-                        {
-                            lock (GlobalStats.ObjectManagerLocker)
-                            {
-                                foreach (Asteroid item_1 in (List<Asteroid>)system.AsteroidsList)
-                                    this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)item_1.GetSO());
-                            }
-                        }
-                        system.isVisible = false;
-                        system.AsteroidsShowing = false;
+                        moon.GetSO().Visibility = ObjectVisibility.Rendered;
+                        moon.UpdatePosition(elapsedTime);
                     }
                 }
-                foreach (Loot loot in (List<Loot>)system.LootList)
-                    loot.Update(elapsedTime);
+                else
+                {
+                    foreach (Asteroid asteroid in system.AsteroidsList)
+                    {
+                        asteroid.GetSO().Visibility = ObjectVisibility.None;
+                    }
+                    foreach (Moon moon in system.MoonList)
+                    {
+                        moon.GetSO().Visibility = ObjectVisibility.None;
+                    }
+                }
                 foreach (Planet planet in system.PlanetList)
                 {
                     planet.Update(elapsedTime);
@@ -1870,7 +1872,6 @@ namespace Ship_Game
                         gameplayObject.Update(elapsedTime);
                 }
                 system.AsteroidsList.ApplyPendingRemovals();
-                system.LootList.ApplyPendingRemovals();
                 system.ShipList.ApplyPendingRemovals();
             }
         }
@@ -2919,11 +2920,8 @@ namespace Ship_Game
                                     {
                                         if (this.SelectedShip.Role == "troop")
                                         {
-                                            if (ship.HasTroopBay || ship.hasTransporter)
-                                            {
-                                                if (ship.TroopList.Count < ship.TroopCapacity)
-                                                    this.SelectedShip.GetAI().OrderTroopToShip(ship);
-                                            }
+                                            if (ship.TroopList.Count < ship.TroopCapacity)
+                                                this.SelectedShip.GetAI().OrderTroopToShip(ship);
                                             else
                                                 this.SelectedShip.DoEscort(ship);
                                         }
@@ -3058,11 +3056,8 @@ namespace Ship_Game
                                         {
                                             if (ship2.Role == "troop")
                                             {
-                                                if (ship1.HasTroopBay || ship1.hasTransporter)
-                                                {
-                                                    if (ship1.TroopList.Count < ship1.TroopCapacity)
-                                                        ship2.GetAI().OrderTroopToShip(ship1);
-                                                }
+                                                if (ship1.TroopList.Count < ship1.TroopCapacity)
+                                                    ship2.GetAI().OrderTroopToShip(ship1);
                                                 else
                                                     ship2.DoEscort(ship1);
                                             }
@@ -3469,12 +3464,11 @@ namespace Ship_Game
                             ship.GetAI().OrderRebase(planet, true);
                     }
                     //add new right click troop and troop ship options on planets
-                    if (planet.habitable && planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated))
+                    if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)))
                     {
                         ship.GetAI().State = AIState.AssaultPlanet;
                         ship.GetAI().OrderLandAllTroops(planet);
                     }
-                    //end
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                         ship.GetAI().OrderToOrbit(planet, false);
                     else
@@ -4108,11 +4102,19 @@ namespace Ship_Game
                     if (asteroid.GetSO() != null)
                     {
                         asteroid.GetSO().Clear();
-                        asteroid.emitter = (AudioEmitter)null;
                         this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)asteroid.GetSO());
                     }
                 }
                 solarSystem.AsteroidsList.Clear();
+                foreach (Moon moon in solarSystem.MoonList)
+                {
+                    if (moon.GetSO() != null)
+                    {
+                        moon.GetSO().Clear();
+                        this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)moon.GetSO());
+                    }
+                }
+                solarSystem.MoonList.Clear();
             }
             foreach (Empire empire in EmpireManager.EmpireList)
                 empire.CleanOut();
@@ -4180,8 +4182,7 @@ namespace Ship_Game
             Ship.universeScreen = (UniverseScreen)null;
             ArtificialIntelligence.universeScreen = (UniverseScreen)null;
             MissileAI.universeScreen = (UniverseScreen)null;
-            Asteroid.universeScreen = (UniverseScreen)null;
-            Loot.universeScreen = (UniverseScreen)null;
+            Moon.universeScreen = (UniverseScreen)null;
             CombatScreen.universeScreen = (UniverseScreen)null;
             MuzzleFlashManager.universeScreen = (UniverseScreen)null;
             FleetDesignScreen.screen = (UniverseScreen)null;
@@ -5916,7 +5917,6 @@ namespace Ship_Game
                         Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
                         Vector3 vector3_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, solarSystem.Position, 25000f), 0.0f), this.projection, this.view, Matrix.Identity);
                         float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
-                        float scale = 0.05f;
                         Vector2 vector2 = new Vector2(position.X, position.Y);
                         if ((solarSystem.ExploredDict[this.player] || this.Debug) && this.SelectedSystem != solarSystem)
                         {
