@@ -1,5 +1,6 @@
 ﻿<SolarSystemData>
   <Name>Sol</Name>
+  <SunPath>star_yellow</SunPath>
   <RingList>
     <Ring>
       <Planet>Mercury</Planet>
@@ -21,6 +22,12 @@
       <Station>Yes</Station>  
 	  <planetScale>1.0</planetScale>
 	  <MaxPopDefined>14.0</MaxPopDefined>
+	  <Moons>
+		<Moon>
+			<WhichMoon>20</WhichMoon>
+			<MoonScale>1</MoonScale>
+		</Moon>
+	  </Moons>
     </Ring>
     <Ring>
       <Planet>Mars</Planet>

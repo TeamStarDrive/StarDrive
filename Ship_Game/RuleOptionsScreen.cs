@@ -18,6 +18,7 @@ namespace Ship_Game
 		private bool LowRes;
 
 		private FloatSlider FTLPenaltySlider;
+        private FloatSlider EnemyFTLPenaltySlider;
 
 		private CloseButton close;
 
@@ -29,6 +30,8 @@ namespace Ship_Game
         private FloatSlider MinimumWarpRange;
         private FloatSlider MemoryLimiter;
         private FloatSlider StartingPlanetRichness;
+
+        private FloatSlider TurnTimer;
 
 		public Ship itemToBuild;
 
@@ -75,12 +78,14 @@ namespace Ship_Game
 			text = HelperFunctions.parseText(Fonts.Arial12, text, (float)(this.MainMenu.Menu.Width - 80));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, TitlePos, Color.White);
 			this.FTLPenaltySlider.DrawDecimal(base.ScreenManager);
+            this.EnemyFTLPenaltySlider.DrawDecimal(base.ScreenManager);
             this.GravityWellSize.Draw(base.ScreenManager);
             this.extraPlanets.Draw(base.ScreenManager);
             this.OptionIncreaseShipMaintenance.Draw(base.ScreenManager);
             this.MinimumWarpRange.Draw(base.ScreenManager);
             this.MemoryLimiter.Draw(base.ScreenManager);
             this.StartingPlanetRichness.Draw(base.ScreenManager);
+            this.TurnTimer.Draw(base.ScreenManager);
 			this.close.Draw(base.ScreenManager);
 			foreach (Checkbox cb in this.Checkboxes)
 			{
@@ -117,6 +122,12 @@ namespace Ship_Game
 			}
 			this.FTLPenaltySlider.HandleInput(input);
 			GlobalStats.FTLInSystemModifier = this.FTLPenaltySlider.amount;
+            if (HelperFunctions.CheckIntersection(this.EnemyFTLPenaltySlider.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(Localizer.Token(7041), base.ScreenManager);
+            }
+            this.EnemyFTLPenaltySlider.HandleInput(input);
+            GlobalStats.EnemyFTLInSystemModifier = this.EnemyFTLPenaltySlider.amount;
 			foreach (Checkbox cb in this.Checkboxes)
 			{
 				cb.HandleInput(input);
@@ -164,6 +175,12 @@ namespace Ship_Game
             this.StartingPlanetRichness.HandleInput(input);
             GlobalStats.StartingPlanetRichness = this.StartingPlanetRichness.amountRange;
 
+            if (HelperFunctions.CheckIntersection(this.TurnTimer.ContainerRect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("Time in seconds for turns", base.ScreenManager);
+            }
+            this.TurnTimer.HandleInput(input);
+            GlobalStats.TurnTimer = (byte)this.TurnTimer.amountRange;
 		}
 
 		public override void LoadContent()
@@ -180,12 +197,19 @@ namespace Ship_Game
 				leftRect.Height = 580;
 			}
 			this.close = new CloseButton(new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+
 			Rectangle ftlRect = new Rectangle(leftRect.X + 60, leftRect.Y + 100, 270, 50);
 			this.FTLPenaltySlider = new FloatSlider(ftlRect, Localizer.Token(4007));
 			this.FTLPenaltySlider.SetAmount(GlobalStats.FTLInSystemModifier);
 			this.FTLPenaltySlider.amount = GlobalStats.FTLInSystemModifier;
+
+            Rectangle EftlRect = new Rectangle(leftRect.X + 60, leftRect.Y + 150, 270, 50);
+            this.EnemyFTLPenaltySlider = new FloatSlider(EftlRect, Localizer.Token(6139));
+            this.EnemyFTLPenaltySlider.SetAmount(GlobalStats.EnemyFTLInSystemModifier);
+            this.EnemyFTLPenaltySlider.amount = GlobalStats.EnemyFTLInSystemModifier;
+
 			Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.PlanetaryGravityWells, (bool x) => GlobalStats.PlanetaryGravityWells = x);
-			Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 85)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
+            Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 100)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 
 		    cb.Tip_Token = 2288;
@@ -199,8 +223,6 @@ namespace Ship_Game
 
             Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
             this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002),0,20000,GlobalStats.GravityWellRange);
-            //this.GravityWellSize.SetAmountGW(GlobalStats.GravityWellRange);
-            //this.GravityWellSize.amount = GlobalStats.GravityWellRange;
             
             //added by gremlin init extra planets slider
             Rectangle epRect = new Rectangle(leftRect.X + 60, leftRect.Y + 280, 270, 50);
@@ -214,6 +236,9 @@ namespace Ship_Game
             this.MemoryLimiter = new FloatSlider(MemoryLimiter, "Memory Limit", 150000, 300000f, GlobalStats.MemoryLimiter);
             Rectangle OptionIncreaseShipMaintenance = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 400, 270, 50);
             this.OptionIncreaseShipMaintenance = new FloatSlider(OptionIncreaseShipMaintenance, "Increase Maintenance", 1, 10f, GlobalStats.OptionIncreaseShipMaintenance);
+            //Added by McShooterz: slider to change time for turns
+            Rectangle OptionTurnTimer = new Rectangle(leftRect.X * 2 + 60, leftRect.Y + 275, 270, 50);
+            this.TurnTimer = new FloatSlider(OptionTurnTimer, "Change Turn Timer", 2f, 18f, GlobalStats.TurnTimer);
            
 			this.MainMenu = new Menu2(base.ScreenManager, leftRect);
 		}

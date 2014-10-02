@@ -7,6 +7,7 @@
   <PlusTaxPercentage>.5</PlusTaxPercentage>
   <ShortDescription>+50% tax revenues; allows ship construction</ShortDescription>
   <AllowShipBuilding>true</AllowShipBuilding>
+  <ShipRepair>50</ShipRepair>
   <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
   <NameTranslationIndex>458</NameTranslationIndex>
   <DescriptionIndex>459</DescriptionIndex>

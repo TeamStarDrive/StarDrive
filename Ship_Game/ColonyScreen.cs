@@ -523,18 +523,17 @@ namespace Ship_Game
         List<string> list = new List<string>();
         if (this.shipsCanBuildLast != this.p.Owner.ShipsWeCanBuild.Count || this.Reset)
         {
-          this.buildSL.Reset();
-          for (int index1 = 0; index1 < this.p.Owner.ShipsWeCanBuild.Count; ++index1)
-          {
-            string index2 = this.p.Owner.ShipsWeCanBuild[index1];
-            if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[index2].Role].Protected)
-                continue;
-            if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index2].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)))
+            this.buildSL.Reset();
+            foreach(string ship in this.p.Owner.ShipsWeCanBuild)
             {
-                list.Add(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner));
-                this.buildSL.AddItem((object)new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[index2].Role, this.p.Owner)));
+                if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected)
+                    continue;
+                if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner)))
+                {
+                    list.Add(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner));
+                    this.buildSL.AddItem((object)new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner)));
+                }
             }
-          }
           this.buildSL.indexAtTop = 0;
           this.Reset = false;
           for (int index1 = 0; index1 < this.buildSL.Entries.Count; ++index1)
@@ -542,12 +541,11 @@ namespace Ship_Game
             ScrollList.Entry entry = this.buildSL.Entries[index1];
             if (entry != null)
             {
-              for (int index2 = 0; index2 < this.p.Owner.ShipsWeCanBuild.Count; ++index2)
-              {
-                string index3 = this.p.Owner.ShipsWeCanBuild[index2];
-                if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[index3].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[index3].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
-                  entry.AddItem((object) ResourceManager.ShipsDict[index3], 1, 1);
-              }
+                foreach (string ship in this.p.Owner.ShipsWeCanBuild)
+                {
+                    if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
+                        entry.AddItem((object)ResourceManager.ShipsDict[ship], 1, 1);
+                }
             }
           }
         }
@@ -568,7 +566,7 @@ namespace Ship_Game
                 {
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), Color.White);
                   Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" || (entry.item as Ship).Role == "platform" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                   position.Y += (float) Fonts.Arial12Bold.LineSpacing;
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
@@ -600,7 +598,7 @@ namespace Ship_Game
                   vector2_1.Y = (float) entry.clickRect.Y;
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), Color.White);
                   Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
+                  this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" || (entry.item as Ship).Role == "platform" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                   position.Y += (float) Fonts.Arial12Bold.LineSpacing;
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
                   position.X = (float) (entry.clickRect.X + entry.clickRect.Width - 120);
@@ -1640,6 +1638,14 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 						spriteBatch8.DrawString(arial12Bold4, string.Concat(plusFlatFoodAmount), tCursor, Color.LightPink);
 						bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
 					}
+                    if (pgs.building.ShipRepair != 0f)
+                    {
+                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Height);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"], fIcon, Color.White);
+                        Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("+", pgs.building.ShipRepair, " ",Localizer.Token(6137)), tCursor, new Color(255, 239, 208));
+                        bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 12);
+                    }
 					if (pgs.building.Scrappable)
 					{
 						bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
@@ -1819,6 +1825,14 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 					spriteBatch17.DrawString(spriteFont8, string.Concat(plusFlatFoodAmount), tCursor, Color.LightPink);
 					bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
 				}
+                if (temp.ShipRepair != 0f)
+                {
+                    Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"].Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"], fIcon, Color.White);
+                    Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("+", temp.ShipRepair, " ", Localizer.Token(6137)), tCursor, new Color(255, 239, 208));
+                    bCursor.Y = bCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+                }
 			}
 		}
 
@@ -2396,9 +2410,6 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 						{
 							if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 							{
-                               // if (this.p.ProductionHere <= 0f)
-
-
                                 if (this.p.ApplyStoredProduction(i))
                                 {
                                     AudioManager.PlayCue("sd_ui_accept_alt3");
@@ -2407,45 +2418,19 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
                                 {
                                     AudioManager.PlayCue("UI_Misc20");
                                 }
-                                //if (this.p.ProductionHere >= 10f) 
-                                //{
-
-                            //    this.p.ApplyProductiontoQueue(10f, i);
-                                //    Planet productionHere = this.p;
-                                //    productionHere.ProductionHere = productionHere.ProductionHere - 10f;
-                                //    AudioManager.PlayCue("sd_ui_accept_alt3");
-                                //}
-                                //else if (this.p.ProductionHere > 10f || this.p.ProductionHere <= 0f)
-                                //{
-                                //    AudioManager.PlayCue("UI_Misc20");
-                                //}
-                                //else
-                                //{
-                                //    this.p.ApplyProductiontoQueue(this.p.ProductionHere, i);
-                                //    this.p.ProductionHere = 0f;
-                                //    AudioManager.PlayCue("sd_ui_accept_alt3");
-                                //}
 							}
 						}
 						else if (PlanetScreen.screen.Debug)
 						{
 							this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
 						}
-						else if (this.p.ProductionHere >= this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards)
-						{
-							Planet productionHere1 = this.p;
-							productionHere1.ProductionHere = productionHere1.ProductionHere - (this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards);
-							this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
-							AudioManager.PlayCue("sd_ui_accept_alt3");
-						}
-						else if (this.p.ProductionHere <= 0f)
+						else if (this.p.ProductionHere == 0f)
 						{
 							AudioManager.PlayCue("UI_Misc20");
 						}
 						else
 						{
-							this.p.ApplyProductiontoQueue(this.p.ProductionHere, i);
-							this.p.ProductionHere = 0f;
+                            this.p.ApplyAllStoredProduction(i);
 							AudioManager.PlayCue("sd_ui_accept_alt3");
 						}
 					}

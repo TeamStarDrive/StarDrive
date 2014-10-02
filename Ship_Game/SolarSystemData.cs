@@ -15,18 +15,6 @@ namespace Ship_Game
 		{
 		}
 
-		public struct BuildingData
-		{
-			public string XMLName;
-
-			public int Level;
-		}
-
-		public struct Resource
-		{
-			public string Name;
-		}
-
 		public struct Ring
 		{
 			public string Planet;
@@ -47,13 +35,19 @@ namespace Ship_Game
 
 			public string Station;
 
-			public List<SolarSystemData.BuildingData> BuildingDataList;
+            public List<Moon> Moons;
 
-			public List<SolarSystemData.Resource> ResourceList;
+			public List<string> BuildingList;
 
-			public int Population;
+            public List<string> Guardians;
 
             public float MaxPopDefined;
 		}
+
+        public struct Moon
+        {
+            public int WhichMoon;
+            public float MoonScale;
+        }
 	}
 }

@@ -88,10 +88,6 @@ namespace Ship_Game.Gameplay
 
 		public float RotationRadsPerSecond;
 
-		//private GameplayObject Target;
-
-		//private bool isDrone;
-
 		private DroneAI droneAI;
 
 		public Weapon weapon;
@@ -205,8 +201,7 @@ namespace Ship_Game.Gameplay
 
 		public void DamageMissile(GameplayObject source, float damageAmount)
 		{
-			Projectile health = this;
-			health.Health = health.Health - damageAmount;
+            this.Health -= damageAmount;
 			if (base.Health <= 0f && this.Active)
 			{
 				this.DieNextFrame = true;
@@ -749,55 +744,74 @@ namespace Ship_Game.Gameplay
 				}
 				if (target is ShipModule)
 				{
+                    ShipModule module = target as ShipModule;
+                    if (module != null && module.GetParent().loyalty == this.loyalty && !this.weapon.HitsFriendlies || module == null)
+                        return false;
 					if (this.weapon.TruePD)
 					{
 						this.DieNextFrame = true;
 						return true;
 					}
-                    if ((target as ShipModule).ModuleType == ShipModuleType.Armor)
+                    if ((target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
+                    {
+                        if ((((target as ShipModule).GetParent().GetSystem() != null ? (target as ShipModule).GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod * 100f)
+                        {
+                            this.Miss = true;
+                        }
+                    }
+                    if (this.Miss)
+                    {
+                        return false;
+                    }
+                    if (module.ModuleType == ShipModuleType.Armor)
 					{
-						if (!this.ArmorsPierced.Contains(target as ShipModule) && this.ArmorsPierced.Count < this.ArmorPiercing)
+                        if (!this.ArmorsPierced.Contains(module) && this.ArmorsPierced.Count < this.ArmorPiercing)
 						{
-							this.ArmorsPierced.Add(target as ShipModule);
+                            this.ArmorsPierced.Add(module);
 							return false;
 						}
-						if (this.ArmorsPierced.Count > 0 && this.ArmorsPierced.Contains(target as ShipModule))
+                        if (this.ArmorsPierced.Count > 0 && this.ArmorsPierced.Contains(module))
 						{
 							return false;
 						}
-						Projectile explosiveRadiusReduction = this;
-						explosiveRadiusReduction.damageRadius = explosiveRadiusReduction.damageRadius - (target as ShipModule).GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageRadius;
-						Projectile explosiveRadiusReduction1 = this;
-						explosiveRadiusReduction1.damageAmount = explosiveRadiusReduction1.damageAmount - (target as ShipModule).GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageAmount;
-						Projectile effectVsArmor = this;
-						effectVsArmor.damageAmount = effectVsArmor.damageAmount * (this.weapon.EffectVsArmor + this.ArmorDamageBonus);
+                        this.damageRadius -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageRadius;
+                        this.damageAmount -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageAmount;
+                        this.damageAmount *= (this.weapon.EffectVsArmor + this.ArmorDamageBonus);
 					}
-                    if ((target as ShipModule).ModuleType == ShipModuleType.Shield && (target as ShipModule).shield_power > 0)
+                    if (module.ModuleType == ShipModuleType.Shield && module.shield_power > 0)
                     {
                         this.damageAmount *= (this.weapon.EffectVSShields + this.ShieldDamageBonus);
+                        //projectiles penetrate weak shields
+                        if (this.damageAmount > module.shield_power)
+                        {
+                            float remainder = 0;
+                            module.Damage(this, this.damageAmount, ref remainder);
+                            if (remainder > 0)
+                            {
+                                this.damageAmount = remainder;
+                                return false;
+                            }
+                            else
+                            {
+                                this.damageAmount = 0;
+                                this.explodes = false;
+                                this.DieNextFrame = true;
+                                return base.Touch(target);
+                            }
+                        }
                     }
-					if (this.owner != null && this.owner.loyalty != (target as ShipModule).GetParent().loyalty && (target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
-					{
-						if ((((target as ShipModule).GetParent().GetSystem() != null ? (target as ShipModule).GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod * 100f)
-						{
-							this.Miss = true;
-						}
-					}
-					if (this.Miss)
-					{
-						return false;
-					}
-				}
-				ShipModule module = target as ShipModule;
-				if (module != null && module.GetParent().loyalty == this.loyalty)
-				{
-					return false;
-				}
-				if (module != null)
-				{
+                    //Non exploding projectiles should go through multiple modules if it has enough damage
                     if (!this.explodes)
-                        target.Damage(this, this.damageAmount);
-					base.Health = 0f;
+                    {
+                        float remainder = 0;
+                        module.Damage(this, this.damageAmount, ref remainder);
+                        if (remainder > 0)
+                        {
+                            this.damageAmount = remainder;
+                            return false;
+                        }
+                    }
+                    base.Health = 0f;
 				}
 				if (this.WeaponEffectType == "Plasma")
 				{

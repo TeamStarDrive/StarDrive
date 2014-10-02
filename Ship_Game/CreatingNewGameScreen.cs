@@ -98,6 +98,7 @@ namespace Ship_Game
                 this.data = new UniverseData()
                 {
                     FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
+                    EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
                     GravityWells = GlobalStats.PlanetaryGravityWells
                 };
                 string str = size;
@@ -248,7 +249,7 @@ namespace Ship_Game
                     BatchRemovalCollection<EmpireData> removalCollection = new BatchRemovalCollection<EmpireData>();
                     foreach (EmpireData empireData in ResourceManager.Empires)
                     {
-                        if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0)
+                        if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0 && !empireData.MinorRace)
                             removalCollection.Add(empireData);
                     }
                     int num = removalCollection.Count - this.numOpponents;
@@ -272,18 +273,19 @@ namespace Ship_Game
                                 empireFromEmpireData.data.Traits.ModHpModifier -= 0.25f;
                                 break;
                             case UniverseData.GameDifficulty.Hard:
+                                empireFromEmpireData.data.FlatMoneyBonus += 10;
                                 empireFromEmpireData.data.Traits.ProductionMod += 0.5f;
-                                empireFromEmpireData.data.Traits.ResearchMod += 0.5f;
+                                empireFromEmpireData.data.Traits.ResearchMod += 0.75f;
                                 empireFromEmpireData.data.Traits.TaxMod += 0.5f;
-                                empireFromEmpireData.data.Traits.ModHpModifier += 0.5f;
+                                //empireFromEmpireData.data.Traits.ModHpModifier += 0.5f;
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.2f;
                                 break;
                             case UniverseData.GameDifficulty.Brutal:
-                                empireFromEmpireData.data.FlatMoneyBonus += 5000;
+                                empireFromEmpireData.data.FlatMoneyBonus += 50;
                                 ++empireFromEmpireData.data.Traits.ProductionMod;
-                                ++empireFromEmpireData.data.Traits.ResearchMod;
+                                empireFromEmpireData.data.Traits.ResearchMod = 2.0f;
                                 ++empireFromEmpireData.data.Traits.TaxMod;
-                                ++empireFromEmpireData.data.Traits.ModHpModifier;
+                                //++empireFromEmpireData.data.Traits.ModHpModifier;
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.5f;
                                 break;
                         }
@@ -291,7 +293,7 @@ namespace Ship_Game
                     }
                     foreach (EmpireData data in ResourceManager.Empires)
                     {
-                        if (data.Faction != 0)
+                        if (data.Faction != 0 || data.MinorRace)
                         {
                             Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
                             this.data.EmpireList.Add(empireFromEmpireData);
@@ -308,18 +310,18 @@ namespace Ship_Game
                     }
                     foreach (Empire Owner in this.data.EmpireList)
                     {
-                        if (!Owner.isFaction)
+                        if (!Owner.isFaction && !Owner.MinorRace)
                         {
                             SolarSystem solarSystem = new SolarSystem();
                             //Added by McShooterz: support for SolarSystems folder for mods
                             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")))
                             {
-                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
+                                solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
                             }
                             else if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
                             {
-                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
+                                solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
                             }
                             else
@@ -333,12 +335,25 @@ namespace Ship_Game
 
                         }
                     }
+                    int SystemCount = 0;
+                    if (Directory.Exists(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
+                    {
+                        foreach (string system in Directory.GetFiles(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
+                        {
+                            if (SystemCount > this.numSystems)
+                                break;
+                            SolarSystem solarSystem = new SolarSystem();
+                            solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(system).OpenRead()), null);
+                            this.data.SolarSystemsList.Add(solarSystem);
+                            SystemCount++;
+                        }
+                    }
                     MarkovNameGenerator markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
                     SolarSystem solarSystem1 = new SolarSystem();
                     solarSystem1.GenerateCorsairSystem(markovNameGenerator.NextName);
                     solarSystem1.DontStartNearPlayer = true;
                     this.data.SolarSystemsList.Add(solarSystem1);
-                    for (int index = 0; index < this.numSystems; ++index)
+                    for (; SystemCount < this.numSystems; ++SystemCount)
                     {
                         SolarSystem solarSystem2 = new SolarSystem();
                         solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, this.data, this.scale);
@@ -346,7 +361,6 @@ namespace Ship_Game
                         ++this.counter;
                         this.percentloaded = (float)(this.counter / (this.numSystems * 2));
                     }
-                    new SolarSystem().GeneratePrisonAnomaly(markovNameGenerator.NextName);
                     this.ThrusterEffect = this.ScreenManager.Content.Load<Effect>("Effects/Thrust");
                     foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
                     {
@@ -379,6 +393,12 @@ namespace Ship_Game
                     asteroid.Position3D.X += this.data.SolarSystemsList[this.systemToMake].Position.X;
                     asteroid.Position3D.Y += this.data.SolarSystemsList[this.systemToMake].Position.Y;
                     asteroid.Initialize();
+                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)asteroid.GetSO());
+                }
+                foreach (Moon moon in (List<Moon>)this.data.SolarSystemsList[this.systemToMake].MoonList)
+                {
+                    moon.Initialize();
+                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)moon.GetSO());
                 }
                 foreach (Ship ship in (List<Ship>)this.data.SolarSystemsList[this.systemToMake].ShipList)
                 {
@@ -437,7 +457,7 @@ namespace Ship_Game
                     }
                     foreach (Empire index in this.data.EmpireList)
                     {
-                        if (!index.isFaction)
+                        if (!index.isFaction && !index.MinorRace)
                         {
                             foreach (Planet planet1 in index.GetPlanets())
                             {
@@ -776,6 +796,8 @@ namespace Ship_Game
             Empire empire = new Empire();
             if (data.Faction == 1)
                 empire.isFaction = true;
+            if (data.MinorRace)
+                empire.MinorRace = true;
             int index1 = (int)RandomMath.RandomBetween(0.0f, (float)this.dtraits.DiplomaticTraitsList.Count);
             data.DiplomaticPersonality = this.dtraits.DiplomaticTraitsList[index1];
             while (!this.CheckPersonality(data))
