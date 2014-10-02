@@ -38,8 +38,6 @@ namespace Ship_Game
 
 		public Vector2 Destination;
 
-		public int Counter = -1;
-
 		public static Effect BeamEffect;
 
 		public Vector2 ActualHitDestination;
@@ -334,7 +332,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					target.Damage(this, this.damageAmount);
+                    (target as ShipModule).Damage(this, this.damageAmount);
 				}
 			}
 			return true;
@@ -363,8 +361,7 @@ namespace Ship_Game
 				this.Duration = 0f;
 				return;
 			}
-			Beam duration = this;
-			duration.Duration = duration.Duration - elapsedTime;
+            this.Duration -= elapsedTime;
 			this.Source = srcCenter;
 			if (this.Target == null)
 			{
@@ -415,8 +412,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			Beam duration = this;
-			duration.Duration = duration.Duration - elapsedTime;
+            this.Duration -= elapsedTime;
 			this.Source = srcCenter;
 			this.quadEffect.View = view;
 			this.quadEffect.Projection = projection;

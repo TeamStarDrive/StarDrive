@@ -6,9 +6,10 @@
   <KillExp>0.5</KillExp>
   <KillExpPerLevel>0.1</KillExpPerLevel>
   <ExpPerLevel>0.5</ExpPerLevel>
+  <DamageRelations>2.0</DamageRelations>
   <RaceList>
     <Race>
-	  <ShipType>Human</ShipType>
+	  <ShipType>Terran</ShipType>
 	    <Localization>140</Localization>
         <Upkeep>0.2</Upkeep>
         <KillExp>0.5</KillExp>

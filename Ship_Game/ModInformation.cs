@@ -38,8 +38,6 @@ namespace Ship_Game
         public bool usePlanetaryProjection;
         public bool useProportionalUpkeep;
         
-        
-
         public float ShipyardBonus;
         public float UpkeepBaseline;
         public float UpkeepFighter;

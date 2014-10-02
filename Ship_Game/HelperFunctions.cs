@@ -610,6 +610,8 @@ namespace Ship_Game
 
 		public static int GetRandomIndex(int Count)
 		{
+            if (Count < 2)
+                return 0;
 			int Random = (int)RandomMath.RandomBetween(0f, (float)Count + 0.95f);
 			if (Random > Count - 1)
 			{
@@ -744,8 +746,6 @@ namespace Ship_Game
                 return 4;
             if (ShipModule.ModuleType == ShipModuleType.Armor)
                 return 6;
-            if (ShipModule.ModuleType == ShipModuleType.Dummy)
-                return 7;
             return 5;
         }
 	}

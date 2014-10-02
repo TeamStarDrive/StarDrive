@@ -143,7 +143,7 @@ namespace Ship_Game.Gameplay
         {//Vector2.Distance(this.findAveragePosition(),ship.Center) <10000 
             IOrderedEnumerable<Ship> speedSorted =
                 from ship in this.Ships
-                where !ship.EnginesKnockedOut && ship.IsWarpCapable && !ship.InCombat && !ship.Inhibited && ship.Active
+                where !ship.EnginesKnockedOut && !ship.InCombat && !ship.Inhibited && ship.Active
                 orderby ship.speed
                 select ship;
             this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
@@ -793,7 +793,7 @@ namespace Ship_Game.Gameplay
             //Parallel.ForEach(this.Ships, ship =>
             {
                 pos2 = pos2 + ship.Position;
-                if (!ship.EnginesKnockedOut && ship.IsWarpCapable&&ship.Active && (!ship.Inhibited ||ship.Inhibited && Vector2.Distance(this.Position,ship.Position)<300000)  )
+                if (!ship.EnginesKnockedOut && ship.Active && (!ship.Inhibited || ship.Inhibited && Vector2.Distance(this.Position,ship.Position)<300000)  )
                 {
                     pos = pos + ship.Position;
                     shipcount++;
@@ -2775,8 +2775,6 @@ namespace Ship_Game.Gameplay
                     s.GetAI().OrderQueue.Clear();
                     s.GetAI().State = AIState.AwaitingOrders;
                     s.fleet = (Fleet)null;
-                    s.InCombatTimer = 0.0f;
-                    s.InCombat = false;
                     s.HyperspaceReturn();
                     s.isSpooling = false;
                     if (s.Role == "troop")
@@ -2792,7 +2790,7 @@ namespace Ship_Game.Gameplay
         public void Update(float elapsedTime)
         {
             List<Ship> list = new List<Ship>();
-            foreach (Ship ship in (List<Ship>)this.Ships)
+            foreach (Ship ship in this.Ships as List<Ship>)
             {
                 if (!ship.Active)
                     list.Add(ship);

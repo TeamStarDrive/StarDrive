@@ -87,7 +87,7 @@ namespace Ship_Game
 			Color color = new Color(118, 102, 67, 50);
 			foreach (RaceEntry race in this.Races)
 			{
-				if (race.e.isFaction)
+				if (race.e.isFaction || race.e.MinorRace)
 				{
 					continue;
 				}
@@ -160,7 +160,7 @@ namespace Ship_Game
 				List<Empire> Sortlist = new List<Empire>();
 				foreach (Empire e in EmpireManager.EmpireList)
 				{
-					if (e.isFaction || e.data.Defeated)
+					if (e.isFaction || e.data.Defeated || e.MinorRace)
 					{
 						if (this.SelectedEmpire != e)
 						{
@@ -342,7 +342,7 @@ namespace Ship_Game
 				List<Empire> Sortlist = new List<Empire>();
 				foreach (Empire e in EmpireManager.EmpireList)
 				{
-					if (e.isFaction || e.data.Defeated)
+					if (e.isFaction || e.data.Defeated || e.MinorRace)
 					{
 						if (this.SelectedEmpire != e)
 						{
@@ -611,12 +611,12 @@ namespace Ship_Game
 			spriteBatch.DrawString(arial12, str, position, lightGreen);
 			Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
 			//{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString(), "%")).X;
+            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString("#.##"), "%")).X;
 			//};
 			HelperFunctions.ClampVectorToInt(ref nPos);
 			SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			string str1 = string.Concat(value.ToString(), "%");
+			string str1 = string.Concat(value.ToString("#.##"), "%");
 			Vector2 vector2 = nPos;
 			if (value > 0f)
 			{
@@ -654,12 +654,12 @@ namespace Ship_Game
 			spriteBatch.DrawString(arial12, str, position, lightGreen);
 			Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
 			//{
-                nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString(), "%")).X;
+            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString("#.##"), "%")).X;
 			//};
 			HelperFunctions.ClampVectorToInt(ref nPos);
 			SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			string str1 = string.Concat(value.ToString(), "%");
+            string str1 = string.Concat(value.ToString("#.##"), "%");
 			Vector2 vector2 = nPos;
 			if (value < 0f)
 			{
@@ -761,7 +761,6 @@ namespace Ship_Game
 			{
 				base.ScreenManager.AddScreen(new DiplomacyScreen(this.SelectedEmpire, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), "Greeting"));
 			}
-			bool GotRace = false;
 			foreach (RaceEntry race in this.Races)
 			{
 				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) == race.e || !EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].Known)
@@ -771,7 +770,6 @@ namespace Ship_Game
 						continue;
 					}
 					this.SelectedEmpire = race.e;
-					GotRace = true;
 					this.ArtifactsSL.Entries.Clear();
 					this.ArtifactsSL.indexAtTop = 0;
 					ArtifactEntry entry = new ArtifactEntry();
@@ -803,7 +801,6 @@ namespace Ship_Game
 						continue;
 					}
 					this.SelectedEmpire = race.e;
-					GotRace = true;
 					this.ArtifactsSL.Entries.Clear();
 					this.ArtifactsSL.indexAtTop = 0;
 					ArtifactEntry entry = new ArtifactEntry();
@@ -868,17 +865,11 @@ namespace Ship_Game
 			{
 				Toggled = true
 			};
-			Empire.PlantMole.Selected = false;
-			Empire.DiscoverPlot.Selected = false;
-			Empire.DamageRelations.Selected = false;
-			Empire.PlantBomb.Selected = false;
-			Empire.TriggerBombs.Selected = false;
-			Empire.StealTech.Selected = false;
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
 				if (e != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
 				{
-					if (e.isFaction && (e.isFaction || !e.data.Defeated))
+					if (e.isFaction || e.MinorRace)
 					{
 						continue;
 					}
