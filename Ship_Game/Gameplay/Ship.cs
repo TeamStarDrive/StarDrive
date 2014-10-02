@@ -3579,7 +3579,7 @@ namespace Ship_Game.Gameplay
                     this.RecalculatePower();
                     this.NeedRecalculate = false;
                 }
-                //Change FTL modifier for ship
+                //Change FTL modifier for ship based on solar system
                 if (this.system != null)
                 {
                     bool modified = false;
@@ -3610,6 +3610,9 @@ namespace Ship_Game.Gameplay
                 }
                 else
                     this.FTLmodifier = 1f;
+                //Apply inboarders bonus through ftl modifier
+                if (this.inborders && this.loyalty.data.Traits.InBordersSpeedBonus > 0)
+                    this.FTLmodifier += this.FTLmodifier * this.loyalty.data.Traits.InBordersSpeedBonus;
             }
             else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || (double)this.MoveModulesTimer > 0.0 || this.InCombat && GlobalStats.ForceFullSim)
             {
@@ -3709,8 +3712,6 @@ namespace Ship_Game.Gameplay
             this.yBankAmount = this.rotationRadiansPerSecond / 50f;
             if (this.engineState == Ship.MoveState.Warp)
             {
-                if (this.inborders && (double)this.loyalty.data.Traits.InBordersSpeedBonus > 0.0)
-                    this.velocityMaximum += this.velocityMaximum * this.loyalty.data.Traits.InBordersSpeedBonus;
                 if (this.FTLmodifier != 1f)
                     this.velocityMaximum *= this.FTLmodifier;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
