@@ -2351,6 +2351,7 @@ namespace Ship_Game.Gameplay
 
         public bool InitFromSave()
         {
+            this.SetShipData(this.GetShipData());
             this.ModulesInitialized = true;
             this.Weapons.Clear();
             List<ModuleSlot> list = new List<ModuleSlot>();
