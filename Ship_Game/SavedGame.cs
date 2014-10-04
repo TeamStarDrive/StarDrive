@@ -207,6 +207,7 @@ namespace Ship_Game
 				SavedGame.EmpireSaveData empireToSave = new SavedGame.EmpireSaveData()
 				{
 					IsFaction = e.isFaction,
+                    isMinorRace = e.MinorRace,
 					Relations = new List<Relationship>()
 				};
 				foreach (KeyValuePair<Empire, Relationship> relation in e.GetRelations())
@@ -540,6 +541,8 @@ namespace Ship_Game
 			public List<SavedGame.SpaceRoadSave> SpaceRoadData;
 
 			public bool IsFaction;
+
+            public bool isMinorRace;
 
 			public RacialTrait Traits;
 

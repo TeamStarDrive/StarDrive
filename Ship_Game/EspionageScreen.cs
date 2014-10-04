@@ -501,7 +501,7 @@ namespace Ship_Game
 			{
 				if (e != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
 				{
-					if (e.isFaction || e.MinorRace && (!e.data.Defeated))
+					if (e.isFaction || e.MinorRace)
 					{
 						continue;
 					}
