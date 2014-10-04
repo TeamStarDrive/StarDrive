@@ -2157,7 +2157,7 @@ namespace Ship_Game.Gameplay
 			};
 			return Vec2Target;
 		}
-        List<GameplayObject> Mfiretarget = new List<GameplayObject>();
+
 		public void FireOnTarget(float elapsedTime)
 		{
 			if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled)
@@ -2187,7 +2187,7 @@ namespace Ship_Game.Gameplay
                             continue;
                             //return;
                         }
-                        if (GlobalStats.ForceFullSim||this.Owner.InFrustum || (this.Target as Ship).InFrustum )
+                        if (GlobalStats.ForceFullSim || this.Owner.InFrustum || (this.Target as Ship).InFrustum )
                         {
                             //this.
                             //GameplayObject fireTarget;

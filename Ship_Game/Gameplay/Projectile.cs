@@ -32,8 +32,6 @@ namespace Ship_Game.Gameplay
 
 		private MissileAI missileAI;
 
-		public float life;
-
 		private Ship_Game.Planet planet;
 
 		public float velocityMaximum;
