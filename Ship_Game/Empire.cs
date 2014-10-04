@@ -2193,24 +2193,32 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
+            int freighterLimit = (this.OwnedPlanets.Count() + 3 > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : this.OwnedPlanets.Count() + 3);
+            int TradeLimit = (int)(freighterLimit * 0.8f);
+            int PassLimit = freighterLimit - TradeLimit;
             List<Ship> unusedFreighters = new List<Ship>();
             List<Ship> assignedShips = new List<Ship>();
-            List<Ship> TradeShips = new List<Ship>();
-            List<Ship> PassengerShips = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if (((ship.shipData == null || ship.shipData.ShipCategory == ShipData.Category.Civilian) && ship.Role == "freighter") && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
+                if (ship.Role != "freighter" || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                    continue;
+                if (ship.GetAI().State == AIState.SystemTrader)
                 {
-                    if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
-                        TradeShips.Add(ship);
-                    else if (ship.GetAI() != null && ship.GetAI().State == AIState.PassengerTransport)
-                        PassengerShips.Add(ship);
-                    else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
-                        unusedFreighters.Add(ship);
+                    if (tradeShips < TradeLimit)
+                        tradeShips++;
+                    else
+                        ship.GetAI().OrderScrapShip();
                 }
+                else if (ship.GetAI().State == AIState.PassengerTransport)
+                {
+                    if (passengerShips < PassLimit)
+                        passengerShips++;
+                    else
+                        ship.GetAI().OrderScrapShip();
+                }
+                else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
+                    unusedFreighters.Add(ship);
             }
-            tradeShips = TradeShips.Count();
-            passengerShips = PassengerShips.Count();
             //get number of freighters being built
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
@@ -2219,39 +2227,16 @@ namespace Ship_Game
                 else if (goal.GoalName == "IncreasePassengerShips")
                     ++passengerShips;
             }
-            //Set freighter limit based on number of planets in need
-            int freighterLimit = this.OwnedPlanets.Count() + 3 > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : this.OwnedPlanets.Count() + 3;
-            int TradeLimit = 2 + this.OwnedPlanets.Where(planet => planet.ps == Planet.GoodState.IMPORT || planet.fs == Planet.GoodState.IMPORT).Count();
-            if (TradeLimit >= freighterLimit)
-                TradeLimit = freighterLimit - 1;
-            int PassengerLimit = 1 + this.OwnedPlanets.Where(planet => planet.Population < planet.MaxPopulation * 0.5f).Count();
-            if (TradeLimit + PassengerLimit > freighterLimit)
-            {
-                PassengerLimit = freighterLimit - TradeLimit;
-            }
-            //Recycle unneeded trade ships
-            if (tradeShips > TradeLimit)
-            {
-                for (int i = 0; i < TradeShips.Count() && tradeShips > TradeLimit; i++)
-                {
-                    if (TradeShips[i].GetAI().OrderQueue.Count <= 0)
-                    {
-                        TradeShips[i].GetAI().OrderScrapShip();
-                        tradeShips--;
-                    }
-                }
-            }
-            else if (tradeShips < TradeLimit)
+            if (tradeShips < TradeLimit)
             {
                 //Do trade ships
                 foreach (Ship ship in unusedFreighters)
                 {
-                    if (tradeShips >= TradeLimit)
+                    if (tradeShips > TradeLimit)
                         break;
                     if (ship.GetAI().State != AIState.Flee)
                     {
                         ship.GetAI().OrderTrade();
-
                     }
                     assignedShips.Add(ship);
                     ++tradeShips;
@@ -2259,31 +2244,19 @@ namespace Ship_Game
                 foreach (Ship ship in assignedShips)
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
-                for (; tradeShips <= TradeLimit; ++tradeShips)
+                for (; tradeShips < TradeLimit; ++tradeShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
                         GoalName = "IncreaseFreighters",
                         type = GoalType.BuildShips
                     });          
             }
-            //Recycle unneeded passenger ships
-            if (passengerShips > PassengerLimit)
-            {
-                for (int i = 0; i < PassengerShips.Count() && passengerShips > PassengerLimit; i++)
-                {
-                    if (PassengerShips[i].GetAI().OrderQueue.Count <= 0)
-                    {
-                        PassengerShips[i].GetAI().OrderScrapShip();
-                        passengerShips--;
-                    }
-                }
-            }
-            else if (passengerShips < PassengerLimit)
+            if (passengerShips < PassLimit)
             {
                 //Do passenger ships
                 foreach (Ship ship in unusedFreighters)
                 {
-                    if (passengerShips >= PassengerLimit)
+                    if (passengerShips > PassLimit)
                         break;
                     ship.GetAI().OrderTransportPassengers();
                     assignedShips.Add(ship);
@@ -2292,7 +2265,7 @@ namespace Ship_Game
                 foreach (Ship ship in assignedShips)
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
-                for (; passengerShips <= PassengerLimit; ++passengerShips)
+                for (; passengerShips < PassLimit; ++passengerShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
                         type = GoalType.BuildShips,
