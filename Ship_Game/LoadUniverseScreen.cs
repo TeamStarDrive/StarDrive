@@ -85,6 +85,10 @@ namespace Ship_Game
 			{
 				e.isFaction = true;
 			}
+            if (data.isMinorRace)
+            {
+                e.MinorRace = true;
+            }
 			if (data.empireData == null)
 			{
 				e.data.Traits = data.Traits;

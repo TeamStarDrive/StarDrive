@@ -3492,7 +3492,8 @@ namespace Ship_Game
                                         Cost = ResourceManager.ShipsDict["Shipyard"].GetCost(this.Owner) * UniverseScreen.GamePaceStatic
                                     });
                             }
-                            if (this.developmentLevel > 2)
+                            //Control the import/export of production
+                            if (this.NetProductionPerTurn > 3f || this.developmentLevel > 2)
                                 if (this.ProductionHere > this.MAX_STORAGE * 0.33f)
                                     this.ps = Planet.GoodState.EXPORT;
                                 else if (this.ConstructionQueue.Count == 0)
