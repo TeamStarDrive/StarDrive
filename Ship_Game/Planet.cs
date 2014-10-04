@@ -3417,8 +3417,8 @@ namespace Ship_Game
                                     }
                                     else
                                     {
-                                        this.WorkerPercentage = 1.0f;
-                                        this.ResearcherPercentage = 0.0f;
+                                        this.WorkerPercentage = 1f;
+                                        this.ResearcherPercentage = 0f;
                                     }
                                 }
                             }
@@ -3441,8 +3441,8 @@ namespace Ship_Game
                                 }
                                 else
                                 {
-                                    this.WorkerPercentage = 1.0f;
-                                    this.ResearcherPercentage = 0.0f;
+                                    this.WorkerPercentage = 1f;
+                                    this.ResearcherPercentage = 0f;
                                 }
                             }
                             else
@@ -3492,21 +3492,7 @@ namespace Ship_Game
                                         Cost = ResourceManager.ShipsDict["Shipyard"].GetCost(this.Owner) * UniverseScreen.GamePaceStatic
                                     });
                             }
-                            /* space port should not be taken into account for import/export
-                            foreach (Building building in this.BuildingList)
-                            {
-                                if (building.Name == "Space Port")
-                                {
-                                    this.ps = Planet.GoodState.EXPORT;
-                                    break;
-                                }
-                                else
-                                    this.ps = Planet.GoodState.IMPORT;
-                            }*/
-                            //if ((double)this.NetProductionPerTurn < 2.0 && (double)this.Population / 1000.0 < 1.0)
-                                //this.ps = Planet.GoodState.IMPORT;
-                            //Logic of production good state
-                            if (this.NetProductionPerTurn > 3f)
+                            if (this.developmentLevel > 2)
                                 if (this.ProductionHere > this.MAX_STORAGE * 0.33f)
                                     this.ps = Planet.GoodState.EXPORT;
                                 else if (this.ConstructionQueue.Count == 0)
