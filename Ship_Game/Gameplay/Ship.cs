@@ -135,7 +135,6 @@ namespace Ship_Game.Gameplay
         public float PowerStoreMax;
         public float PowerDraw;
         public float ModulePowerDraw;
-        private Planet HomePlanet;
         public float ShieldPowerDraw;
         public float rotationRadiansPerSecond;
         public bool FromSave;
@@ -1453,16 +1452,6 @@ namespace Ship_Game.Gameplay
         public void DoTrading()
         {
             this.AI.State = AIState.SystemTrader;
-        }
-
-        public void SetHome(Planet p)
-        {
-            this.HomePlanet = p;
-        }
-
-        public Planet GetHome()
-        {
-            return this.HomePlanet;
         }
 
         public void InitializeAI()
@@ -3392,7 +3381,7 @@ namespace Ship_Game.Gameplay
                     if (!this.InCombat || GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
                     {
                         //Added by McShooterz: Priority repair
-                        float repairTracker = this.InCombat ? this.RepairRate / 2f : this.RepairRate;
+                        float repairTracker = this.InCombat ? this.RepairRate * 0.1f : this.RepairRate;
                         IEnumerable<ModuleSlot> damagedModules = this.ModuleSlotList.AsParallel().Where(moduleSlot => moduleSlot.module.ModuleType != ShipModuleType.Dummy && moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
                         foreach (ModuleSlot moduleSlot in damagedModules)
                         {

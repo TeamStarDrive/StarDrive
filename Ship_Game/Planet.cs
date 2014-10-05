@@ -1893,7 +1893,6 @@ namespace Ship_Game
 
         public void AddBasedShip(Ship ship)
         {
-            ship.SetHome(this);
             this.BasedShips.Add(ship);
         }
 

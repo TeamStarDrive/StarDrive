@@ -603,15 +603,22 @@ namespace Ship_Game
 					Ship ship = Ship.LoadSavedShip(shipData.data);
 					ship.guid = shipData.guid;
 					ship.Name = shipData.Name;
-					if (ship.Name == "Troop Shuttle" || ship.Name == "Spider Tank")
-					{
-						ship.Name = d.empireData.StartingScout;
-						if (shipData.TroopList.Count > 0)
-						{
-							ship.VanityName = shipData.TroopList[0].Name;
-						}
-					}
-					ship.VanityName = shipData.Name;
+                    if (shipData.VanityName != "")
+                        ship.VanityName = shipData.VanityName;
+                    else
+                    {
+                        if (ship.Role == "troop")
+                        {
+                            if (shipData.TroopList.Count > 0)
+                            {
+                                ship.VanityName = shipData.TroopList[0].Name;
+                            }
+                            else
+                                ship.VanityName = shipData.Name;
+                        }
+                        else
+                            ship.VanityName = shipData.Name;
+                    }
 					ship.Position = shipData.Position;
 					if (shipData.IsPlayerShip)
 					{
@@ -634,8 +641,7 @@ namespace Ship_Game
 						newShip.IsPlayerDesign = false;
 						newShip.FromSave = true;
 						Ship_Game.ResourceManager.ShipsDict.Add(shipData.Name, newShip);
-					}
-					
+					}				
                     else if (Ship_Game.ResourceManager.ShipsDict[shipData.Name].FromSave)
 					{
 						ship.IsPlayerDesign = false;
@@ -798,14 +804,6 @@ namespace Ship_Game
 						if (ship.Position != shipData.Position)
 						{
 							continue;
-						}
-						foreach (Planet p in e.GetPlanets())
-						{
-							if (p.Name != shipData.HomePlanet)
-							{
-								continue;
-							}
-							ship.SetHome(p);
 						}
 					}
 				}
