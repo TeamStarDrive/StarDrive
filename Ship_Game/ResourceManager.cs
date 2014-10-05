@@ -397,7 +397,6 @@ namespace Ship_Game
 			}
 			newShip.SetSO(newSO);
 			newShip.Position = p.Position;
-			newShip.SetHome(p);
 			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
 			{
 				Thruster thr = new Thruster()

@@ -365,7 +365,8 @@ namespace Ship_Game
 						sdata.TetheredTo = ship.GetTether().guid;
 						sdata.TetherOffset = ship.TetherOffset;
 					}
-					sdata.Name = ship.VanityName;
+					sdata.Name = ship.Name;
+                    sdata.VanityName = ship.VanityName;
 					if (ship.PlayerShip)
 					{
 						sdata.IsPlayerShip = true;
@@ -455,10 +456,6 @@ namespace Ship_Game
 					if (ship.GetAI().EscortTarget != null)
 					{
 						sdata.AISave.EscortTarget = ship.GetAI().EscortTarget.guid;
-					}
-					if (ship.GetHome() != null)
-					{
-						sdata.HomePlanet = ship.GetHome().Name;
 					}
 					sdata.Projectiles = new List<SavedGame.ProjectileSaveData>();
 					for (int i = 0; i < ship.Projectiles.Count; i++)
@@ -852,6 +849,8 @@ namespace Ship_Game
 
 			public string Name;
 
+            public string VanityName;
+
 			public bool IsPlayerShip;
 
 			public float yRotation;
@@ -859,8 +858,6 @@ namespace Ship_Game
 			public float Power;
 
 			public float Ordnance;
-
-			public string HomePlanet;
 
 			public float InCombatTimer;
 
