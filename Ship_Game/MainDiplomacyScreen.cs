@@ -498,6 +498,8 @@ namespace Ship_Game
                 this.DrawGoodStat(Localizer.Token(4040), string.Concat("+", this.SelectedEmpire.data.Traits.PopGrowthMin.ToString(".##")), ref TextCursor);
             if (this.SelectedEmpire.data.Traits.ReproductionMod != 0)
                 this.DrawStat(Localizer.Token(4017), this.SelectedEmpire.data.Traits.ReproductionMod, ref TextCursor);
+            if (this.SelectedEmpire.data.Traits.ConsumptionModifier != 0)
+                this.DrawStat(Localizer.Token(6140), this.SelectedEmpire.data.Traits.ConsumptionModifier, ref TextCursor);
             if (this.SelectedEmpire.data.Traits.ProductionMod != 0)
                 this.DrawStat(Localizer.Token(4018), this.SelectedEmpire.data.Traits.ProductionMod, ref TextCursor);
             if (this.SelectedEmpire.data.Traits.ResearchMod != 0)

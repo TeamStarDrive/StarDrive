@@ -61,7 +61,6 @@ namespace Ship_Game.Gameplay
         public Vector2 VelocityLast = new Vector2();
         public Vector2 ScreenPosition = new Vector2();
         public float ScuttleTimer = -1f;
-        //private float systemUpdateTimer = 0.5f;
         public Vector2 FleetOffset = new Vector2();
         public Vector2 RelativeFleetOffset = new Vector2();
         private List<ShipModule> Shields = new List<ShipModule>();
@@ -96,10 +95,8 @@ namespace Ship_Game.Gameplay
         public bool isTurning;
         public bool PauseUpdate;
         public float InhibitionRadius;
-        //private GamePadState lastGamePadState;
         private KeyboardState lastKBState;
         private KeyboardState currentKeyBoardState;
-        //private float noiseTimer;
         public bool PlayerAutoFire;
         public bool IsPlatform;
         protected SceneObject ShipSO;
@@ -114,10 +111,6 @@ namespace Ship_Game.Gameplay
         public float DamageModifier;
         public Empire loyalty;
         public int Size;
-        //public bool isCloaked;
-        //public bool isDecloaking;
-        //public bool isCloaking;
-        //private Cue CloakSound;
         public int CrewRequired;
         public int CrewSupplied;
         public float Ordinance;
@@ -154,7 +147,6 @@ namespace Ship_Game.Gameplay
         protected Cue hyperspace_return;
         private Cue Jump;
         public float InhibitedTimer;
-        //private int numberOfClicks;
         public int Level;
         public bool PlayerShip;
         public float HealthMax;
@@ -170,11 +162,9 @@ namespace Ship_Game.Gameplay
         private Vector3 pointat;
         private Vector3 scalefactors;
         public float xRotation;
-        //private float beamTimer;
         public Ship.MoveState engineState;
         public float ScreenRadius;
         public float ScreenSensorRadius;
-        //private float AITimer;
         public bool InFrustum;
         public bool NeedRecalculate;
         public bool Deleted;
