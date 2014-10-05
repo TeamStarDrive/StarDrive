@@ -135,7 +135,6 @@ namespace Ship_Game.Gameplay
         public float PowerStoreMax;
         public float PowerDraw;
         public float ModulePowerDraw;
-        private Planet HomePlanet;
         public float ShieldPowerDraw;
         public float rotationRadiansPerSecond;
         public bool FromSave;
@@ -1453,16 +1452,6 @@ namespace Ship_Game.Gameplay
         public void DoTrading()
         {
             this.AI.State = AIState.SystemTrader;
-        }
-
-        public void SetHome(Planet p)
-        {
-            this.HomePlanet = p;
-        }
-
-        public Planet GetHome()
-        {
-            return this.HomePlanet;
         }
 
         public void InitializeAI()
