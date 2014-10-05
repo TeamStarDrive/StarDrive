@@ -2193,7 +2193,7 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
-            int freighterLimit = (this.OwnedPlanets.Count() + 3 > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : this.OwnedPlanets.Count() + 3);
+            int freighterLimit = (this.OwnedPlanets.Count() * 2 > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : this.OwnedPlanets.Count() * 2);
             int TradeLimit = (int)(freighterLimit * 0.8f);
             int PassLimit = freighterLimit - TradeLimit;
             List<Ship> unusedFreighters = new List<Ship>();
