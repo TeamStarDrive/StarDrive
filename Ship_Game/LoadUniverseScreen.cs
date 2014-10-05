@@ -603,15 +603,17 @@ namespace Ship_Game
 					Ship ship = Ship.LoadSavedShip(shipData.data);
 					ship.guid = shipData.guid;
 					ship.Name = shipData.Name;
-					if (ship.Name == "Troop Shuttle" || ship.Name == "Spider Tank")
+                    if(shipData.VanityName != "")
+                        ship.VanityName = shipData.VanityName;
+                    else
+                        ship.VanityName = shipData.Name;
+					if (ship.Role == "troop")
 					{
-						ship.Name = d.empireData.StartingScout;
 						if (shipData.TroopList.Count > 0)
 						{
 							ship.VanityName = shipData.TroopList[0].Name;
 						}
 					}
-					ship.VanityName = shipData.Name;
 					ship.Position = shipData.Position;
 					if (shipData.IsPlayerShip)
 					{
@@ -634,8 +636,7 @@ namespace Ship_Game
 						newShip.IsPlayerDesign = false;
 						newShip.FromSave = true;
 						Ship_Game.ResourceManager.ShipsDict.Add(shipData.Name, newShip);
-					}
-					
+					}				
                     else if (Ship_Game.ResourceManager.ShipsDict[shipData.Name].FromSave)
 					{
 						ship.IsPlayerDesign = false;
