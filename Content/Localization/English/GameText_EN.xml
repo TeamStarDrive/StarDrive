@@ -7767,6 +7767,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6140</Index>
       <Text>Food Consumption Modifier</Text>
     </Token>
+	<Token>
+      <Index>6141</Index>
+      <Text>Shield Strength Modifier</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
