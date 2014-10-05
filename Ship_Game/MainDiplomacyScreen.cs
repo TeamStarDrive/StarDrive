@@ -497,33 +497,35 @@ namespace Ship_Game
             if (this.SelectedEmpire.data.Traits.PopGrowthMin > 0f)
                 this.DrawGoodStat(Localizer.Token(4040), string.Concat("+", this.SelectedEmpire.data.Traits.PopGrowthMin.ToString(".##")), ref TextCursor);
             if (this.SelectedEmpire.data.Traits.ReproductionMod != 0)
-                this.DrawStat(Localizer.Token(4017), this.SelectedEmpire.data.Traits.ReproductionMod, ref TextCursor);
+                this.DrawStat(Localizer.Token(4017), this.SelectedEmpire.data.Traits.ReproductionMod, ref TextCursor, false);
             if (this.SelectedEmpire.data.Traits.ConsumptionModifier != 0)
-                this.DrawStat(Localizer.Token(6140), this.SelectedEmpire.data.Traits.ConsumptionModifier, ref TextCursor);
+                this.DrawStat(Localizer.Token(6140), this.SelectedEmpire.data.Traits.ConsumptionModifier, ref TextCursor, true);
             if (this.SelectedEmpire.data.Traits.ProductionMod != 0)
-                this.DrawStat(Localizer.Token(4018), this.SelectedEmpire.data.Traits.ProductionMod, ref TextCursor);
+                this.DrawStat(Localizer.Token(4018), this.SelectedEmpire.data.Traits.ProductionMod, ref TextCursor, false);
             if (this.SelectedEmpire.data.Traits.ResearchMod != 0)
-                this.DrawStat(Localizer.Token(4019), this.SelectedEmpire.data.Traits.ResearchMod, ref TextCursor);
+                this.DrawStat(Localizer.Token(4019), this.SelectedEmpire.data.Traits.ResearchMod, ref TextCursor, false);
             if (this.SelectedEmpire.data.Traits.DiplomacyMod != 0)
-                this.DrawStat(Localizer.Token(4020), this.SelectedEmpire.data.Traits.DiplomacyMod, ref TextCursor);
+                this.DrawStat(Localizer.Token(4020), this.SelectedEmpire.data.Traits.DiplomacyMod, ref TextCursor, false);
             if (this.SelectedEmpire.data.Traits.GroundCombatModifier != 0)
-                this.DrawStat(Localizer.Token(4021), this.SelectedEmpire.data.Traits.GroundCombatModifier, ref TextCursor);
+                this.DrawStat(Localizer.Token(4021), this.SelectedEmpire.data.Traits.GroundCombatModifier, ref TextCursor, false);
             if (this.SelectedEmpire.data.Traits.ShipCostMod != 0)
                 this.DrawStat(Localizer.Token(4022), this.SelectedEmpire.data.Traits.ShipCostMod, ref TextCursor, true);
             if (this.SelectedEmpire.data.Traits.ModHpModifier != 0)
-                this.DrawStat(Localizer.Token(4023), this.SelectedEmpire.data.Traits.ModHpModifier, ref TextCursor);
+                this.DrawStat(Localizer.Token(4023), this.SelectedEmpire.data.Traits.ModHpModifier, ref TextCursor, false);
             //Added by McShooterz: new races stats to display in diplomacy
             if (this.SelectedEmpire.data.Traits.RepairMod != 0)
-                this.DrawStat(Localizer.Token(6012), this.SelectedEmpire.data.Traits.RepairMod, ref TextCursor);
+                this.DrawStat(Localizer.Token(6012), this.SelectedEmpire.data.Traits.RepairMod, ref TextCursor, false);
             if (this.SelectedEmpire.data.PowerFlowMod != 0)
-                this.DrawStat(Localizer.Token(6014), this.SelectedEmpire.data.PowerFlowMod, ref TextCursor);
+                this.DrawStat(Localizer.Token(6014), this.SelectedEmpire.data.PowerFlowMod, ref TextCursor, false);
+            if (this.SelectedEmpire.data.ShieldPowerMod != 0)
+                this.DrawStat(Localizer.Token(6141), this.SelectedEmpire.data.ShieldPowerMod, ref TextCursor, false);
             if (this.SelectedEmpire.data.MassModifier != 1)
                 this.DrawStat(Localizer.Token(4036), this.SelectedEmpire.data.MassModifier - 1f, ref TextCursor, true);
             if (this.SelectedEmpire.data.Traits.TaxMod != 0)
-                this.DrawStat(Localizer.Token(4024), this.SelectedEmpire.data.Traits.TaxMod, ref TextCursor);
+                this.DrawStat(Localizer.Token(4024), this.SelectedEmpire.data.Traits.TaxMod, ref TextCursor, false);
             if (this.SelectedEmpire.data.Traits.MaintMod != 0)
                 this.DrawStat(Localizer.Token(4037), this.SelectedEmpire.data.Traits.MaintMod, ref TextCursor, true);
-            this.DrawStat(Localizer.Token(4025), this.SelectedEmpire.data.Traits.InBordersSpeedBonus, ref TextCursor);
+            this.DrawStat(Localizer.Token(4025), this.SelectedEmpire.data.Traits.InBordersSpeedBonus, ref TextCursor, false);
             if (Ship.universeScreen.FTLModifier != 1f)
             {
                 float fTLModifier = Ship.universeScreen.FTLModifier * 100f;
@@ -532,11 +534,11 @@ namespace Ship_Game
             this.DrawStat(Localizer.Token(4026), string.Concat(this.SelectedEmpire.data.FTLModifier, "x"), ref TextCursor);
             this.DrawStat(Localizer.Token(4027), string.Concat(this.SelectedEmpire.data.FTLPowerDrainModifier, "x"), ref TextCursor);
             if (this.SelectedEmpire.data.FuelCellModifier != 0)
-                this.DrawStat(Localizer.Token(4039), this.SelectedEmpire.data.FuelCellModifier, ref TextCursor);
+                this.DrawStat(Localizer.Token(4039), this.SelectedEmpire.data.FuelCellModifier, ref TextCursor, false);
             if (this.SelectedEmpire.data.SubLightModifier != 1)
-                this.DrawStat(Localizer.Token(4028), this.SelectedEmpire.data.SubLightModifier - 1f, ref TextCursor);
+                this.DrawStat(Localizer.Token(4028), this.SelectedEmpire.data.SubLightModifier - 1f, ref TextCursor, false);
             if (this.SelectedEmpire.data.SensorModifier != 1)
-                this.DrawStat(Localizer.Token(4029), this.SelectedEmpire.data.SensorModifier - 1f, ref TextCursor);
+                this.DrawStat(Localizer.Token(4029), this.SelectedEmpire.data.SensorModifier - 1f, ref TextCursor, false);
             if (this.SelectedEmpire.data.SpyModifier > 0f)
             {
                 this.DrawGoodStat(Localizer.Token(4030), string.Concat("+", this.SelectedEmpire.data.SpyModifier.ToString("#")), ref TextCursor);
@@ -546,15 +548,15 @@ namespace Ship_Game
                 this.DrawBadStat(Localizer.Token(4030), string.Concat("-", this.SelectedEmpire.data.SpyModifier.ToString("#")), ref TextCursor);
             }
             if (this.SelectedEmpire.data.Traits.Spiritual != 0)
-                this.DrawStat(Localizer.Token(4031), this.SelectedEmpire.data.Traits.Spiritual, ref TextCursor);
+                this.DrawStat(Localizer.Token(4031), this.SelectedEmpire.data.Traits.Spiritual, ref TextCursor, false);
             if (this.SelectedEmpire.data.Traits.EnergyDamageMod != 0)
-                this.DrawStat(Localizer.Token(4032), this.SelectedEmpire.data.Traits.EnergyDamageMod, ref TextCursor);
+                this.DrawStat(Localizer.Token(4032), this.SelectedEmpire.data.Traits.EnergyDamageMod, ref TextCursor, false);
             if (this.SelectedEmpire.data.OrdnanceEffectivenessBonus != 0)
-                this.DrawStat(Localizer.Token(4033), this.SelectedEmpire.data.OrdnanceEffectivenessBonus, ref TextCursor);
+                this.DrawStat(Localizer.Token(4033), this.SelectedEmpire.data.OrdnanceEffectivenessBonus, ref TextCursor, false);
             if (this.SelectedEmpire.data.MissileHPModifier != 1)
-                this.DrawStat(Localizer.Token(4034), this.SelectedEmpire.data.MissileHPModifier - 1f, ref TextCursor);
+                this.DrawStat(Localizer.Token(4034), this.SelectedEmpire.data.MissileHPModifier - 1f, ref TextCursor, false);
             if (this.SelectedEmpire.data.MissileDodgeChance != 0)
-                this.DrawStat(Localizer.Token(4035), this.SelectedEmpire.data.MissileDodgeChance, ref TextCursor);
+                this.DrawStat(Localizer.Token(4035), this.SelectedEmpire.data.MissileDodgeChance, ref TextCursor, false);
 			this.close.Draw(base.ScreenManager);
 			if (base.IsActive)
 			{
@@ -589,28 +591,27 @@ namespace Ship_Game
 			Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 		}
 
-		private void DrawStat(string text, float value, ref Vector2 Position)
+        private void DrawStat(string text, float value, ref Vector2 Position, bool OppositeBonuses)
 		{
-			Color lightGreen;
 			Color color;
 			if (value <= 10f)
 			{
 				value = value * 100f;
 			}
+            if ((value > 0f && !OppositeBonuses) || (value < 0f && OppositeBonuses))
+            {
+                color = Color.LightGreen;
+            }
+            else
+            {
+                color = (value == 0f ? Color.White : Color.LightPink);
+            }
 			HelperFunctions.ClampVectorToInt(ref Position);
 			SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
 			SpriteFont arial12 = Fonts.Arial12;
 			string str = text;
 			Vector2 position = Position;
-			if (value > 0f)
-			{
-				lightGreen = Color.LightGreen;
-			}
-			else
-			{
-				lightGreen = (value == 0f ? Color.White : Color.LightPink);
-			}
-			spriteBatch.DrawString(arial12, str, position, lightGreen);
+			spriteBatch.DrawString(arial12, str, position, color);
 			Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
 			//{
             nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString("#.##"), "%")).X;
@@ -620,59 +621,8 @@ namespace Ship_Game
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			string str1 = string.Concat(value.ToString("#.##"), "%");
 			Vector2 vector2 = nPos;
-			if (value > 0f)
-			{
-				color = Color.LightGreen;
-			}
-			else
-			{
-				color = (value == 0f ? Color.White : Color.LightPink);
-			}
 			spriteBatch1.DrawString(arial12Bold, str1, vector2, color);
 			Position.Y = Position.Y + (float)Fonts.Arial12Bold.LineSpacing;
-		}
-
-		private void DrawStat(string text, float value, ref Vector2 Position, bool OppositeBonuses)
-		{
-			Color lightGreen;
-			Color color;
-			if (value < 10f)
-			{
-				value = value * 100f;
-			}
-			HelperFunctions.ClampVectorToInt(ref Position);
-			SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
-			SpriteFont arial12 = Fonts.Arial12;
-			string str = text;
-			Vector2 position = Position;
-			if (value < 0f)
-			{
-				lightGreen = Color.LightGreen;
-			}
-			else
-			{
-				lightGreen = (value == 0f ? Color.White : Color.LightPink);
-			}
-			spriteBatch.DrawString(arial12, str, position, lightGreen);
-			Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-			//{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString("#.##"), "%")).X;
-			//};
-			HelperFunctions.ClampVectorToInt(ref nPos);
-			SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
-			SpriteFont arial12Bold = Fonts.Arial12Bold;
-            string str1 = string.Concat(value.ToString("#.##"), "%");
-			Vector2 vector2 = nPos;
-			if (value < 0f)
-			{
-				color = Color.LightGreen;
-			}
-			else
-			{
-				color = (value == 0f ? Color.White : Color.LightPink);
-			}
-			spriteBatch1.DrawString(arial12Bold, str1, vector2, color);
-			Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 		}
 
 		private void DrawStat(string text, string text2, ref Vector2 Position)
