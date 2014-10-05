@@ -365,7 +365,8 @@ namespace Ship_Game
 						sdata.TetheredTo = ship.GetTether().guid;
 						sdata.TetherOffset = ship.TetherOffset;
 					}
-					sdata.Name = ship.VanityName;
+					sdata.Name = ship.Name;
+                    sdata.VanityName = ship.VanityName;
 					if (ship.PlayerShip)
 					{
 						sdata.IsPlayerShip = true;
@@ -851,6 +852,8 @@ namespace Ship_Game
 			public string Hull;
 
 			public string Name;
+
+            public string VanityName;
 
 			public bool IsPlayerShip;
 
