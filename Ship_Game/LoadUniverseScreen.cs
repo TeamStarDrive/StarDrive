@@ -603,17 +603,22 @@ namespace Ship_Game
 					Ship ship = Ship.LoadSavedShip(shipData.data);
 					ship.guid = shipData.guid;
 					ship.Name = shipData.Name;
-                    if(shipData.VanityName != "")
+                    if (shipData.VanityName != "")
                         ship.VanityName = shipData.VanityName;
                     else
-                        ship.VanityName = shipData.Name;
-					if (ship.Role == "troop")
-					{
-						if (shipData.TroopList.Count > 0)
-						{
-							ship.VanityName = shipData.TroopList[0].Name;
-						}
-					}
+                    {
+                        if (ship.Role == "troop")
+                        {
+                            if (shipData.TroopList.Count > 0)
+                            {
+                                ship.VanityName = shipData.TroopList[0].Name;
+                            }
+                            else
+                                ship.VanityName = shipData.Name;
+                        }
+                        else
+                            ship.VanityName = shipData.Name;
+                    }
 					ship.Position = shipData.Position;
 					if (shipData.IsPlayerShip)
 					{
