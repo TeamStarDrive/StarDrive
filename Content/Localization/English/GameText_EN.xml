@@ -7763,6 +7763,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6139</Index>
       <Text>In-System Enemy FTL Speed Modifier</Text>
     </Token>
+	<Token>
+      <Index>6140</Index>
+      <Text>Food Consumption Modifier</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
