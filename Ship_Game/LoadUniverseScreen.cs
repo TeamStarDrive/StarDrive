@@ -800,14 +800,6 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						foreach (Planet p in e.GetPlanets())
-						{
-							if (p.Name != shipData.HomePlanet)
-							{
-								continue;
-							}
-							ship.SetHome(p);
-						}
 					}
 				}
 			}
