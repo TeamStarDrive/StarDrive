@@ -148,7 +148,7 @@ namespace Ship_Game
 				}
 				e.GetTDict()[tech.UID].Progress = tech.Progress;
 				e.GetTDict()[tech.UID].Discovered = tech.Discovered;
-
+                e.GetTDict()[tech.UID].level = tech.level;
 			}
 			return e;
 		}
