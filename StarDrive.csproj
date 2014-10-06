@@ -2500,7 +2500,9 @@
     <None Include="Content\Textures\UI\icon_experience_shipUI.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Textures\UI\icon_kills_shipUI.xnb" />
+    <None Include="Content\Textures\UI\icon_kills_shipUI.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Content\Textures\UI\icon_money_22.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
