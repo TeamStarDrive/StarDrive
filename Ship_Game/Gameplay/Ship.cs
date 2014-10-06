@@ -3854,7 +3854,9 @@ namespace Ship_Game.Gameplay
                     ExpLevel = ResourceManager.ShipRoles[killed.Role].KillExpPerLevel;
                 }
             }
-            this.experience += Exp + (ExpLevel * killed.Level);
+            Exp = (Exp + (ExpLevel * killed.Level));
+            Exp += Exp * this.loyalty.data.ExperienceMod;
+            this.experience += Exp;
             ExpFound = false;
             if (ResourceManager.ShipRoles.ContainsKey(this.Role))
             {
@@ -3872,7 +3874,6 @@ namespace Ship_Game.Gameplay
                     ReqExp = ResourceManager.ShipRoles[this.Role].ExpPerLevel;
                 }
             }
-
             while (this.experience > ReqExp * (1 + this.Level))
             {
                 this.experience -= ReqExp * (1 + this.Level);

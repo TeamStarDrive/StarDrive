@@ -763,6 +763,8 @@ namespace Ship_Game
                         this.data.PowerFlowMod += unlockedBonus.Bonus;
                     if (str == "Shield Power Bonus")
                         this.data.ShieldPowerMod += unlockedBonus.Bonus;
+                    if (str == "Ship Experience Bonus")
+                        this.data.ExperienceMod += unlockedBonus.Bonus;
                 }
             }
             //update ship stats if a bonus was unlocked
