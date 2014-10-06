@@ -135,8 +135,6 @@ namespace Ship_Game.Gameplay
 
 		public bool isMainGun;
 
-		public bool requiresOrdinance;
-
 		public float OrdinanceRequiredToFire;
 
 		public Vector2 Center;
