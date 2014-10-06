@@ -989,7 +989,7 @@ namespace Ship_Game.Gameplay
                         bool flag4 = false;
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
-                            if (!ship.disabled && ship.Active)
+                            if (!ship.disabled && ship.hasCommand && ship.Active)
                             {
                                 if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                     flag3 = false;
@@ -1011,7 +1011,7 @@ namespace Ship_Game.Gameplay
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
                             ship.GetAI().HasPriorityOrder = false;
-                            if (!ship.disabled && ship.Active)
+                            if (!ship.disabled && ship.hasCommand && ship.Active)
                             {
                                 if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                     flag5 = false;
@@ -1229,7 +1229,7 @@ namespace Ship_Game.Gameplay
                             bool flag1 = true;
                             foreach (Ship ship in (List<Ship>)this.Ships)
                             {
-                                if (!ship.disabled && ship.Active)
+                                if (!ship.disabled && ship.hasCommand && ship.Active)
                                 {
                                     if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                         flag1 = false;
@@ -1249,7 +1249,7 @@ namespace Ship_Game.Gameplay
                             bool flag2 = true;
                             foreach (Ship ship in (List<Ship>)this.Ships)
                             {
-                                if (!ship.disabled && ship.Active)
+                                if (!ship.disabled && ship.hasCommand && ship.Active)
                                 {
                                     if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 25000.0)
                                         flag2 = false;
@@ -1544,7 +1544,7 @@ namespace Ship_Game.Gameplay
                         bool flag1 = true;
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
-                            if (!ship.disabled && ship.Active)
+                            if (!ship.disabled && ship.hasCommand && ship.Active)
                             {
                                 if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                     flag1 = false;
@@ -1582,7 +1582,7 @@ namespace Ship_Game.Gameplay
                         bool flag2 = true;
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
-                            if (!ship.disabled && ship.Active)
+                            if (!ship.disabled && ship.hasCommand && ship.Active)
                             {
                                 if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                     flag2 = false;
@@ -1768,7 +1768,7 @@ namespace Ship_Game.Gameplay
                     bool flag1 = true;
                     foreach (Ship ship in (List<Ship>)this.Ships)
                     {
-                        if (!ship.disabled && ship.Active)
+                        if (!ship.disabled && ship.hasCommand && ship.Active)
                         {
                             if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                 flag1 = false;
@@ -1806,7 +1806,7 @@ namespace Ship_Game.Gameplay
                     bool flag2 = true;
                     foreach (Ship ship in (List<Ship>)this.Ships)
                     {
-                        if (!ship.disabled && ship.Active)
+                        if (!ship.disabled && ship.hasCommand && ship.Active)
                         {
                             if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                 flag2 = false;
@@ -2003,7 +2003,7 @@ namespace Ship_Game.Gameplay
                     bool flag1 = true;
                     foreach (Ship ship in (List<Ship>)this.Ships)
                     {
-                        if (!ship.disabled && ship.Active)
+                        if (!ship.disabled && ship.hasCommand && ship.Active)
                         {
                             if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                 flag1 = false;
@@ -2418,7 +2418,7 @@ namespace Ship_Game.Gameplay
                         bool flag = true;
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
-                            if (!ship.disabled && ship.Active)
+                            if (!ship.disabled && ship.hasCommand && ship.Active)
                             {
                                 if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 15000.0)
                                     flag = false;
@@ -2534,7 +2534,7 @@ namespace Ship_Game.Gameplay
                     bool flag1 = true;
                     foreach (Ship ship in (List<Ship>)this.Ships)
                     {
-                        if (!ship.disabled && ship.Active)
+                        if (!ship.disabled && ship.hasCommand && ship.Active)
                         {
                             if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                 flag1 = false;
