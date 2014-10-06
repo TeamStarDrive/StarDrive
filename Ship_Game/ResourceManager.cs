@@ -1404,7 +1404,6 @@ namespace Ship_Game
 				ProjectileTexturePath = Ship_Game.ResourceManager.WeaponsDict[uid].ProjectileTexturePath,
 				Range = Ship_Game.ResourceManager.WeaponsDict[uid].Range,
 				RepulsionDamage = Ship_Game.ResourceManager.WeaponsDict[uid].RepulsionDamage,
-				requiresOrdinance = Ship_Game.ResourceManager.WeaponsDict[uid].requiresOrdinance,
 				Scale = Ship_Game.ResourceManager.WeaponsDict[uid].Scale,
 				ShieldPenChance = Ship_Game.ResourceManager.WeaponsDict[uid].ShieldPenChance,
 				SiphonDamage = Ship_Game.ResourceManager.WeaponsDict[uid].SiphonDamage,
