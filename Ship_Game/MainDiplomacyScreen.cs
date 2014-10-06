@@ -539,6 +539,8 @@ namespace Ship_Game
                 this.DrawStat(Localizer.Token(4028), this.SelectedEmpire.data.SubLightModifier - 1f, ref TextCursor, false);
             if (this.SelectedEmpire.data.SensorModifier != 1)
                 this.DrawStat(Localizer.Token(4029), this.SelectedEmpire.data.SensorModifier - 1f, ref TextCursor, false);
+            if (this.SelectedEmpire.data.ExperienceMod != 0)
+                this.DrawStat("Ship Experience Modifier", this.SelectedEmpire.data.ExperienceMod, ref TextCursor, false);
             if (this.SelectedEmpire.data.SpyModifier > 0f)
             {
                 this.DrawGoodStat(Localizer.Token(4030), string.Concat("+", this.SelectedEmpire.data.SpyModifier.ToString("#")), ref TextCursor);

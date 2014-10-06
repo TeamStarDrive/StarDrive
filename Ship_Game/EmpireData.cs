@@ -139,8 +139,9 @@ namespace Ship_Game
 		public float BaseReproductiveRate = 0.01f;
 
         //Added by McShooterz: power bonus
-        public float PowerFlowMod = 0.0f;
-        public float ShieldPowerMod = 0.0f;
+        public float PowerFlowMod = 0f;
+        public float ShieldPowerMod = 0f;
+        public float ExperienceMod = 0f;
 
         //unlock at start
         public List<string> unlockBuilding = new List<string>();
