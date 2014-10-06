@@ -2160,7 +2160,7 @@ namespace Ship_Game.Gameplay
 
 		public void FireOnTarget(float elapsedTime)
 		{
-			if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled)
+			if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled || !this.Owner.hasCommand)
 			{
 				return;
 			}
