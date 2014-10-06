@@ -255,7 +255,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
             //Added by McShooterz: new experience level display
-            Rectangle star = new Rectangle(this.TroopRect.X, this.TroopRect.Y + 25, 22, 22);
+            Rectangle star = new Rectangle(this.TroopRect.X, this.TroopRect.Y + 23, 22, 22);
             Vector2 levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_experience_shipUI"], star, Color.White);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.Level.ToString(), levelPos, Color.White);
@@ -263,6 +263,11 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(161, this.ScreenManager);
             }
+            //Added by McShooterz: kills display
+            star = new Rectangle(star.X, star.Y + 19, 22, 22);
+            levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_kills_shipUI"], star, Color.White);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ship.kills.ToString(), levelPos, Color.White);
 			Vector2 StatusArea = new Vector2((float)(this.Housing.X + 175), (float)(this.Housing.Y + 15));
 			int numStatus = 0;
 			if (this.ship.loyalty.data.Traits.Pack)

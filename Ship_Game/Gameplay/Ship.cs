@@ -203,7 +203,7 @@ namespace Ship_Game.Gameplay
         public bool hasOrdnanceTransporter;
         public bool hasAssaultTransporter;
         public bool hasRepairBeam;
-        private bool hasCommand;
+        public bool hasCommand;
         private float FTLmodifier = 1f;
 
         public float CargoSpace_Used
@@ -593,7 +593,7 @@ namespace Ship_Game.Gameplay
 
         public void ProcessInput(float elapsedTime)
         {
-            if (GlobalStats.TakingInput || this.disabled)
+            if (GlobalStats.TakingInput || this.disabled || !this.hasCommand)
                 return;
             if (Ship.universeScreen.input != null)
                 this.currentKeyBoardState = Ship.universeScreen.input.CurrentKeyboardState;
@@ -1745,7 +1745,7 @@ namespace Ship_Game.Gameplay
 
                         if (rangeTocarrier > this.SensorRange)
                         { RecallFigters = false; continue; }
-                        if (hangerShip.disabled || hangerShip.dying || hangerShip.EnginesKnockedOut)
+                        if (hangerShip.disabled || !hangerShip.hasCommand || hangerShip.dying || hangerShip.EnginesKnockedOut)
                         {
                             RecallFigters = false;
                             if (Hanger.GetHangarShip().ScuttleTimer == 0) Hanger.GetHangarShip().ScuttleTimer = 10f;
@@ -2629,7 +2629,7 @@ namespace Ship_Game.Gameplay
                     this.UpdateShipStatus(elapsedTime);
                     if (!this.Active)
                         return;
-                    if (!this.disabled && !Ship.universeScreen.Paused)
+                    if (!this.disabled && this.hasCommand && !Ship.universeScreen.Paused)
                         this.AI.Update(elapsedTime);
                     if (this.InFrustum)
                     {
@@ -3053,11 +3053,6 @@ namespace Ship_Game.Gameplay
             }
             this.MoveModulesTimer -= elapsedTime;
             this.updateTimer -= elapsedTime;
-            //Disable if no command module
-            if (this.hasCommand)
-                this.disabled = false;
-            else
-                this.disabled = true;
             //Disable if enough EMP damage
             --this.EMPDamage;
             if ((double)this.EMPDamage < 0.0)
@@ -3077,16 +3072,10 @@ namespace Ship_Game.Gameplay
                 double num = (double)ship.rotation + 6.28318548202515;
                 ship.rotation = (float)num;
             }
-            if (this.InCombat && !this.disabled || this.PlayerShip)
+            if (this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip)
             {
                 foreach (Weapon weapon in this.Weapons)
                     weapon.Update(elapsedTime);
-                //added by gremlin More cores for guns?
-                
-                //Parallel.ForEach(this.Weapons, weapon =>
-                //    {
-                //        weapon.Update(elapsedTime);
-                //    });
             }
             this.TroopBoardingDefense = 0.0f;
             foreach (Troop troop in this.TroopList)
@@ -3097,7 +3086,7 @@ namespace Ship_Game.Gameplay
             }
             if ((double)this.updateTimer < 0.0)
             {
-                if ((this.InCombat && !this.disabled || this.PlayerShip) && this.Weapons.Count > 0)
+                if ((this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip) && this.Weapons.Count > 0)
                 {
                     IOrderedEnumerable<Weapon> orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)this.Weapons, (Func<Weapon, float>)(weapon => weapon.Range));
                     bool flag = false;
@@ -3238,6 +3227,8 @@ namespace Ship_Game.Gameplay
                     }
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     {
+                        if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
+                            continue;
                         this.Health = (float)((double)this.Health + (double)moduleSlot.module.Health);
                         if (this.shipStatusChanged)
                         {
@@ -3257,7 +3248,7 @@ namespace Ship_Game.Gameplay
                             if (moduleSlot.module.Active && (moduleSlot.module.Powered || moduleSlot.module.PowerDraw == 0))
                             {
                                 //Checks to see if there is an active command module
-                                if (moduleSlot.module.IsCommandModule)
+                                if (!this.hasCommand && moduleSlot.module.IsCommandModule)
                                     this.hasCommand = true;
                                 ++this.number_alive_modules;
                                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
@@ -3633,7 +3624,7 @@ namespace Ship_Game.Gameplay
             if ((double)this.Ordinance > (double)this.OrdinanceMax)
                 this.Ordinance = this.OrdinanceMax;
             this.percent = this.number_Alive_Internal_modules / this.number_Internal_modules;
-            if ((double)this.percent < 0.35 || this.number_Internal_modules == 0)
+            if ((double)this.percent < 0.35)
                 this.Die(this.LastDamagedBy, false);
             if ((double)this.Mass < (double)(this.Size / 2))
                 this.Mass = (float)(this.Size / 2);
