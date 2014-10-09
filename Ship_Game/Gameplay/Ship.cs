@@ -97,7 +97,6 @@ namespace Ship_Game.Gameplay
         public float InhibitionRadius;
         private KeyboardState lastKBState;
         private KeyboardState currentKeyBoardState;
-        public bool PlayerAutoFire;
         public bool IsPlatform;
         protected SceneObject ShipSO;
         public bool ManualHangarOverride;
@@ -742,13 +741,9 @@ namespace Ship_Game.Gameplay
                                     else if (w.isBeam)
                                         w.FireMouseBeam(new Vector2(PickedPos.X, PickedPos.Y));
                                 }
-                                else if (this.PlayerAutoFire)
-                                    this.AI.FireOnTarget(elapsedTime);
                             }
                         }
                     }
-                    else if (this.PlayerAutoFire)
-                        this.AI.FireOnTarget(elapsedTime);
                 }
                 else
                     GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
