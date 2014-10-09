@@ -965,7 +965,6 @@ namespace Ship_Game.Gameplay
 					dieCue.Apply3D(GameplayObject.audioListener, this.Parent.emitter);
 					dieCue.Play();
 				}
-				//if (this.ModuleType == ShipModuleType.PowerPlant)
                 if (this.explodes)
 				{
 					if (this.Parent.GetSystem() == null)
@@ -976,9 +975,8 @@ namespace Ship_Game.Gameplay
 					{
                         this.Parent.GetSystem().spatialManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
 					}
-					this.Parent.NeedRecalculate = true;
 				}
-				if (this.ModuleType == ShipModuleType.PowerConduit)
+				if (this.PowerFlowMax > 0 || this.PowerRadius > 0)
 				{
 					this.Parent.NeedRecalculate = true;
 				}
