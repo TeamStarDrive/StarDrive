@@ -97,7 +97,6 @@ namespace Ship_Game.Gameplay
         public float InhibitionRadius;
         private KeyboardState lastKBState;
         private KeyboardState currentKeyBoardState;
-        public bool PlayerAutoFire;
         public bool IsPlatform;
         protected SceneObject ShipSO;
         public bool ManualHangarOverride;
@@ -742,13 +741,9 @@ namespace Ship_Game.Gameplay
                                     else if (w.isBeam)
                                         w.FireMouseBeam(new Vector2(PickedPos.X, PickedPos.Y));
                                 }
-                                else if (this.PlayerAutoFire)
-                                    this.AI.FireOnTarget(elapsedTime);
                             }
                         }
                     }
-                    else if (this.PlayerAutoFire)
-                        this.AI.FireOnTarget(elapsedTime);
                 }
                 else
                     GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
@@ -1686,33 +1681,6 @@ namespace Ship_Game.Gameplay
         //added by gremlin: Fighter recall and stuff
         public void EngageStarDrive()
         {
-            #region No warp in uncontrolled systems
-            if (ArtificialIntelligence.WarpRestriction == true && !this.Inhibited && !universeScreen.Debug)
-            {
-                SolarSystem currentSystem = this.GetSystem();
-                if (!this.inborders && currentSystem != null)
-                {
-                    int systemOwnerCount = currentSystem.OwnerList.Count();
-                    {
-                        if (systemOwnerCount == 0 && ArtificialIntelligence.WarpRestrictionInNuetral)
-                        {
-                            this.Inhibited = true;
-                            this.InhibitedTimer = 10f;
-                            return;
-                        }
-                    }
-
-                    Empire happySystems = currentSystem.OwnerList.Where(empire => empire.GetRelations()[this.loyalty].Treaty_OpenBorders).FirstOrDefault();
-                    if (happySystems == null && systemOwnerCount > 0)
-                    {
-                        this.Inhibited = true;
-                        this.InhibitedTimer = 10f;
-                        return;
-                    }
-
-                }
-            }
-            #endregion
             if (this.isSpooling)
             {
                 return;
