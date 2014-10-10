@@ -646,19 +646,9 @@ namespace Ship_Game
 					{
 						ship.IsPlayerDesign = false;
 						ship.FromSave = true;
-
-
 					}
                     float oldbasestr = ship.BaseStrength;
                     float newbasestr = ResourceManager.CalculateBaseStrength(ship);
-                    //if (oldbasestr==0&& (ship.Name !="Subspace Projector" &&ship.Role !="troop"&&ship.Role !="freighter"))
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine(ship.Name);
-                    //    System.Diagnostics.Debug.WriteLine("BaseStrength: " + oldbasestr);
-                    //    System.Diagnostics.Debug.WriteLine("NewStrength: " + newbasestr);
-                    //    System.Diagnostics.Debug.WriteLine("");
-                        
-                    //}
                     ship.BaseStrength = newbasestr;
 
                     foreach(ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
