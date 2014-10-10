@@ -783,7 +783,7 @@ namespace Ship_Game.Gameplay
             {
                 modifyRangeAR = this.speed;
             }
-            if (difference < halfArc && Vector2.Distance(base.Position, pos) < modifyRange(w) + modifyRangeAR)
+            if (difference < halfArc && Vector2.Distance(base.Position, pos) < w.GetModifiedRange() + modifyRangeAR)
             {
                 return true;
             }
@@ -822,7 +822,7 @@ namespace Ship_Game.Gameplay
             {
                 modifyRangeAR = this.speed * w.SalvoTimer;
             }
-            if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < modifyRange(w) + modifyRangeAR)
+            if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + modifyRangeAR)
             {
                 return true;
             }
@@ -830,7 +830,7 @@ namespace Ship_Game.Gameplay
         }
 
         //Added by McShooterz
-        public static bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos, float Rotation)
+        public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos, float Rotation)
         {
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
             Vector2 toTarget = PickedPos - w.Center;
@@ -855,100 +855,13 @@ namespace Ship_Game.Gameplay
                 }
                 difference = Math.Abs(angleToMouse - facing);
             }
-            if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < modifyRange(w) + 50f)
+            if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + 50f)
             {
                 return true;
             }
             return false;
         }
 
-        //Added by McShooterz
-        public static float modifyRange(Weapon w)
-        {
-            float modifiedRange = w.Range;
-            //Added by McShooterz: check if mod uses weapon modifiers
-            if (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useWeaponModifiers)
-            {
-                return modifiedRange;
-            }
-            if (w.Tag_Beam)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Beam"].Range;
-            }
-            if (w.Tag_Energy)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Energy"].Range;
-            }
-            if (w.Tag_Explosive)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Explosive"].Range;
-            }
-            if (w.Tag_Guided)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Guided"].Range;
-            }
-            if (w.Tag_Hybrid)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Hybrid"].Range;
-            }
-            if (w.Tag_Intercept)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Intercept"].Range;
-            }
-            if (w.Tag_Kinetic)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Kinetic"].Range;
-            }
-            if (w.Tag_Missile)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Missile"].Range;
-            }
-            if (w.Tag_Railgun)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Railgun"].Range;
-            }
-            if (w.Tag_Cannon)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Cannon"].Range;
-            }
-            if (w.Tag_PD)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["PD"].Range;
-            }
-            if (w.Tag_SpaceBomb)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Spacebomb"].Range;
-            }
-            if (w.Tag_BioWeapon)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["BioWeapon"].Range;
-            }
-            if (w.Tag_Drone)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Drone"].Range;
-            }
-            if (w.Tag_Subspace)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Subspace"].Range;
-            }
-            if (w.Tag_Warp)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Warp"].Range;
-            }
-            if (w.Tag_Array)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Array"].Range;
-            }
-            if (w.Tag_Flak)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Flak"].Range;
-            }
-            if (w.Tag_Tractor)
-            {
-                modifiedRange += w.Range * w.GetOwner().loyalty.data.WeaponTags["Tractor"].Range;
-            }
-            return modifiedRange;
-        }
         public List<Thruster> GetTList()
         {
             return this.ThrusterList;
@@ -4075,6 +3988,20 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
+        }
+
+        public ShipModule GetRandomInternalModule()
+        {
+            List<ShipModule> InternalModules = new List<ShipModule>();
+            foreach (ModuleSlot slot in this.ModuleSlotList)
+            {
+                if (slot.Restrictions == Restrictions.I || slot.module.Active)
+                    InternalModules.Add(slot.module);
+            }
+            if (InternalModules.Count > 0)
+                return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+            else
+                return null;
         }
 
         public virtual void StopAllSounds()
