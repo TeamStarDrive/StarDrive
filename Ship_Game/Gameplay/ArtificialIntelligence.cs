@@ -2422,7 +2422,7 @@ namespace Ship_Game.Gameplay
 				this.Target = null;
 			}
             //Determine if there is something to shoot at
-            if (this.BadGuysNear || (this.Owner.GetSystem() != null && this.Owner.GetSystem().OwnerList.Count > 0 && !this.Owner.GetSystem().OwnerList.Contains(this.Owner.loyalty)))
+            if (this.BadGuysNear || this.Owner.InCombat)
             {
                 //Go through each weapon
                 foreach (Weapon weapon in this.Owner.Weapons)
@@ -2433,7 +2433,7 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     //Visible weapon firing
-                    if (GlobalStats.ForceFullSim || this.Owner.InFrustum || (this.Target as Ship).InFrustum)
+                    if (GlobalStats.ForceFullSim || this.Owner.InFrustum || this.Target is Ship && (this.Target as Ship).InFrustum)
                     {
                         this.fireTarget = null;
                         //Can this weapon fire on ships

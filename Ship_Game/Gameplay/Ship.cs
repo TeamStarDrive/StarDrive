@@ -190,7 +190,6 @@ namespace Ship_Game.Gameplay
         public bool BaseCanWarp;
         public bool dying;
         private bool reallyDie;
-        private GameplayObject destroyedby;
         public static UniverseScreen universeScreen;
         public float FTLSpoolTime;
         public bool IsIndangerousSpace;
@@ -2442,7 +2441,7 @@ namespace Ship_Game.Gameplay
                 if ((double)this.dietimer <= 0.0)
                 {
                     this.reallyDie = true;
-                    this.Die(this.destroyedby, true);
+                    this.Die(this.LastDamagedBy, true);
                     return;
                 }
                 else
@@ -3866,24 +3865,22 @@ namespace Ship_Game.Gameplay
                 this.beams[index].Die((GameplayObject)this, true);
             this.beams.Clear();
             ++DebugInfoScreen.ShipsDied;
-            this.destroyedby = this.LastDamagedBy;
-            if (this.destroyedby is Projectile && (this.destroyedby as Projectile).owner != null)
-                (this.destroyedby as Projectile).owner.AddKill(this);
-            if ((this.system != null ? (double)this.system.RNG.RandomBetween(0.0f, 100f) : (double)Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) > 65.0 && this.Role != "platform" && this.InFrustum)
+            if (!cleanupOnly && source is Projectile && (source as Projectile).owner != null)
+                (source as Projectile).owner.AddKill(this);
+            if ((this.system != null ? (double)this.system.RNG.RandomBetween(0.0f, 100f) : (double)Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) > 65.0 && !this.IsPlatform && this.InFrustum)
             {
                 this.dying = true;
                 this.xdie = (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(-1f, 1f) * 40f / (float)this.Size;
                 this.ydie = (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(-1f, 1f) * 40f / (float)this.Size;
                 this.zdie = (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(-1f, 1f) * 40f / (float)this.Size;
                 this.dietimer = (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(4f, 6f);
-                if (this.destroyedby is Projectile && (this.destroyedby as Projectile).explodes && (double)(this.destroyedby as Projectile).damageAmount > 100.0)
+                if (source is Projectile && (source as Projectile).explodes && (double)(source as Projectile).damageAmount > 100.0)
                     this.reallyDie = true;
             }
             else
                 this.reallyDie = true;
             if (this.dying && !this.reallyDie)
                 return;
-            source = this.LastDamagedBy;
             if (this.system != null)
                 this.system.ShipList.QueuePendingRemoval(this);
             if (source is Projectile && (source as Projectile).owner != null)

@@ -845,6 +845,8 @@ namespace Ship_Game.Gameplay
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
 				return;
 			this.owner.InCombatTimer = 15f;
+            if (target is Ship)
+                (target as Ship).InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -958,6 +960,8 @@ namespace Ship_Game.Gameplay
 
         public virtual void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
         {
+            if (target is Ship)
+                (target as Ship).InCombatTimer = 15f;
             Vector2 StartPos = p.Position;
             if (this.FireArc != 0)
             {
