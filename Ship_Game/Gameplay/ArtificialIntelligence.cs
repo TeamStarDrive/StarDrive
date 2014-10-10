@@ -2433,7 +2433,7 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     //Visible weapon firing
-                    if (GlobalStats.ForceFullSim || this.Owner.InFrustum || (this.Target as Ship).InFrustum)
+                    if (GlobalStats.ForceFullSim || this.Owner.InFrustum || this.Target is Ship && (this.Target as Ship).InFrustum)
                     {
                         this.fireTarget = null;
                         //Can this weapon fire on ships
