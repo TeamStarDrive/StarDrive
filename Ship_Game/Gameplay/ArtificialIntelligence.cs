@@ -154,10 +154,6 @@ namespace Ship_Game.Gameplay
 		public bool BadGuysNear;
         //added by gremlin: new troopsout property. Change this to use actual troopsout 
         public bool troopsout = false;
-        //added by gremlin devek mod warp restriction Change this to use app config
-        public static bool WarpRestriction = false;
-        public static bool WarpRestrictionInNuetral = false;
-        public float OrbitTimer=0;
 
         private float RepairBeamTimer;
 
@@ -1438,17 +1434,10 @@ namespace Ship_Game.Gameplay
                     }
                     this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
                     if (this.inOrbit == false) this.inOrbit = true;
-                    this.OrbitTimer++;
                 }
-                //else
-                //{
-                //    this.inOrbit = false;
-                //}
                 this.findNewPosTimer = 1.5f;
 
             }
-            if (!this.inOrbit)
-                this.OrbitTimer = 0;
             float single = Vector2.Distance(this.Owner.Center, this.OrbitPos);
             if (single < 7500f)
             {
@@ -2428,7 +2417,7 @@ namespace Ship_Game.Gameplay
 				return;
 			}
             //Target is dead or dying, will need a new one.
-			if (this.Target != null && !this.Target.Active || (this.Target as  Ship).dying)
+			if (this.Target != null && !this.Target.Active)
 			{
 				this.Target = null;
 			}
@@ -2451,7 +2440,7 @@ namespace Ship_Game.Gameplay
                         if (this.BadGuysNear && !weapon.TruePD)
                         {
                             //Is primary target valid
-                            if (this.Target != null && this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center) && this.CheckTargetValidity(weapon, (this.Target) as Ship))
+                            if (this.Target != null && this.Target is Ship && this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center) && this.CheckTargetValidity(weapon, (this.Target) as Ship))
                                 this.fireTarget = this.Target;
                             //Find alternate target to fire on
                             else
@@ -5373,19 +5362,16 @@ namespace Ship_Game.Gameplay
                     return (GameplayObject)null;
                 }
             }
-            //List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
             this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.66f;
             if (this.EscortTarget == null || !this.EscortTarget.Active)
             {
-                //changing the ship to parrallel query for MOAR perf.AsParallel().
                 foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item => item.Active && !item.dying
-                    && (Vector2.Distance(this.Owner.Center, item.Center) <= Radius))) //this.Owner.loyalty.GetGSAI().ThreatMatrix.ShipInOurBorders(item)||
-                //for (int i = 0; i < nearby.Count(); i++)
+                    && (Vector2.Distance(this.Owner.Center, item.Center) <= Radius)))
                 {
                     Ship item = nearby as Ship;
                     if (item != null && item.Active && !item.dying)
                     {
-                        if (item.loyalty == this.Owner.loyalty)//&&  Vector2.Distance(this.Owner.Center, item.Center) < 30000f)
+                        if (item.loyalty == this.Owner.loyalty)
                         {
                             this.FriendliesNearby.Add(item);
                         }
@@ -5589,24 +5575,18 @@ namespace Ship_Game.Gameplay
 
                 }
                 else
-                //foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips.AsParallel().Where(loyalty => loyalty.ship.loyalty == this.Owner.loyalty))
-                //Parallel.ForEach(this.NearbyShips.Where(loyalty => loyalty.ship.loyalty == this.Owner.loyalty), nearbyShip =>
                 {
                     this.NearbyShips.QueuePendingRemoval(nearbyShip);
                 }
 
             }
-            //this.FriendliesNearby.Clear();
-            //this.FriendliesNearby.Add(this.Owner);
-
             if (this.Owner.Role == "platform")
             {
                 this.NearbyShips.ApplyPendingRemovals();
-                //AsParallel(). OrderedParallelQuery
                 IEnumerable<ArtificialIntelligence.ShipWeight> sortedList =
-                                                                                  from potentialTarget in this.NearbyShips
-                                                                                  orderby Vector2.Distance(this.Owner.Center, potentialTarget.ship.Center)
-                                                                                  select potentialTarget;
+                    from potentialTarget in this.NearbyShips
+                    orderby Vector2.Distance(this.Owner.Center, potentialTarget.ship.Center)
+                    select potentialTarget;
                 if (sortedList.Count<ArtificialIntelligence.ShipWeight>() > 0)
                 {
                     this.Target = sortedList.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
@@ -5615,9 +5595,9 @@ namespace Ship_Game.Gameplay
             }
             this.NearbyShips.ApplyPendingRemovals();
             IEnumerable<ArtificialIntelligence.ShipWeight> sortedList2 =
-                                                                               from potentialTarget in this.NearbyShips
-                                                                               orderby potentialTarget.weight descending
-                                                                               select potentialTarget;
+                from potentialTarget in this.NearbyShips
+                orderby potentialTarget.weight descending
+                select potentialTarget;
             if (sortedList2.Count<ArtificialIntelligence.ShipWeight>() > 0)
             {
                 if (this.Owner.Role == "supply" && this.Owner.VanityName != "Resupply Shuttle")
@@ -5627,8 +5607,7 @@ namespace Ship_Game.Gameplay
                 this.Target = sortedList2.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
             }
             if (this.Owner.Weapons.Count() > 0 || this.Owner.GetHangars().Count > 0)
-                return this.Target;
-            
+                return this.Target;          
             return null;
         }
 
@@ -5636,7 +5615,6 @@ namespace Ship_Game.Gameplay
         {
             float radius = 30000f;
             Vector2 senseCenter = this.Owner.Center;
-
             if (UseSensorsForTargets)
             {
                 if (this.Owner.Mothership != null)
