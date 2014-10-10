@@ -112,11 +112,11 @@ namespace Ship_Game.Gameplay
             Vector2 vector2 = shiptoadd.RelativeFleetOffset;
             this.AssignPositions(this.facing);
         }
+
         public void AddShip(Ship shiptoadd)
         {
-            if (shiptoadd.Role == "station")
+            if (shiptoadd.Role == "station" || shiptoadd.IsPlatform)
             {
-                //dotoughnutrequisition is the actual cause I found
                 return;
             }
             this.Ships.Add(shiptoadd);
@@ -138,6 +138,7 @@ namespace Ship_Game.Gameplay
                 return;
             this.speed = 200f;
         }
+
         //added by gremlin make fleet speed average not include warpless ships.
         public void SetSpeed()
         {//Vector2.Distance(this.findAveragePosition(),ship.Center) <10000 
