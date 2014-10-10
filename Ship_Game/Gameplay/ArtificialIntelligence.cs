@@ -2458,14 +2458,14 @@ namespace Ship_Game.Gameplay
                             //If a ship was found to fire on, change to target an internal module
                             if (this.fireTarget != null)
                             {
+                                List<ShipModule> Modules = new List<ShipModule>();
                                 foreach (ModuleSlot slot in (fireTarget as Ship).ModuleSlotList) //this.
                                 {
                                     if (slot.Restrictions == Restrictions.I || slot.module.Active)
-                                    {
-                                        this.fireTarget = slot.module;
-                                        break;
-                                    }
+                                        Modules.Add(slot.module);
                                 }
+                                int index = HelperFunctions.GetRandomIndex(Modules.Count);
+                                this.fireTarget = Modules[index];
                             }
                         }
                         //No ship to target, check for projectiles

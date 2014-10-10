@@ -3230,8 +3230,11 @@ namespace Ship_Game.Gameplay
                                 if ((double)moduleSlot.module.shield_power_max > 0f)
                                 {
                                     this.shield_max += moduleSlot.module.GetShieldsMax();
+                                    this.ShieldPowerDraw += moduleSlot.module.PowerDraw;
                                     this.Shields.Add(moduleSlot.module);
                                 }
+                                else
+                                    this.ModulePowerDraw += moduleSlot.module.PowerDraw;
                                 this.Thrust += moduleSlot.module.thrust;
                                 this.WarpThrust += (float)moduleSlot.module.WarpThrust;
                                 this.TurnThrust += (float)moduleSlot.module.TurnThrust;
@@ -3256,13 +3259,9 @@ namespace Ship_Game.Gameplay
                                 if (moduleSlot.module.InstalledWeapon != null && moduleSlot.module.InstalledWeapon.isRepairBeam)
                                     this.RepairBeams.Add(moduleSlot.module);
                                 if (moduleSlot.module.PowerStoreMax != 0)
-                                    this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
+                                    this.PowerStoreMax += moduleSlot.module.PowerStoreMax;
                                 if (moduleSlot.module.PowerFlowMax != 0)
-                                    this.PowerFlowMax += moduleSlot.module.PowerFlowMax + (this.loyalty != null ? moduleSlot.module.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0);
-                                if (moduleSlot.module.ModuleType != ShipModuleType.Shield)
-                                    this.ModulePowerDraw += moduleSlot.module.PowerDraw;
-                                else
-                                    this.ShieldPowerDraw += moduleSlot.module.PowerDraw;
+                                    this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
                                 this.WarpDraw += moduleSlot.module.PowerDrawAtWarp;
                                 if (moduleSlot.module.FTLSpoolTime > this.FTLSpoolTime)
                                     this.FTLSpoolTime = moduleSlot.module.FTLSpoolTime;
@@ -3280,10 +3279,16 @@ namespace Ship_Game.Gameplay
                         this.HealthMax = this.Health;
                     if (this.shipStatusChanged)
                     {
-                        this.Mass *= this.loyalty.data.MassModifier;
-                        this.RepairRate += (float)((double)this.RepairRate * (double)this.Level * 0.05) + this.RepairRate * this.loyalty.data.Traits.RepairMod;
                         this.SensorRange += sensorBonus;
-                        this.SensorRange *= this.loyalty.data.SensorModifier;
+                        //Apply modifiers to stats
+                        if (this.loyalty != null)
+                        {
+                            this.Mass *= this.loyalty.data.MassModifier;
+                            this.RepairRate += (float)((double)this.RepairRate * (double)this.Level * 0.05) + this.RepairRate * this.loyalty.data.Traits.RepairMod;
+                            this.PowerFlowMax += this.PowerFlowMax * this.loyalty.data.PowerFlowMod;
+                            this.PowerStoreMax += this.PowerStoreMax * this.loyalty.data.FuelCellModifier;
+                            this.SensorRange *= this.loyalty.data.SensorModifier;
+                        }
                         if (this.FTLSpoolTime == 0)
                             this.FTLSpoolTime = 3f;
                         //Hull bonuses
