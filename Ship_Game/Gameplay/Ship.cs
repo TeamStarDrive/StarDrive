@@ -1681,33 +1681,6 @@ namespace Ship_Game.Gameplay
         //added by gremlin: Fighter recall and stuff
         public void EngageStarDrive()
         {
-            #region No warp in uncontrolled systems
-            if (ArtificialIntelligence.WarpRestriction == true && !this.Inhibited && !universeScreen.Debug)
-            {
-                SolarSystem currentSystem = this.GetSystem();
-                if (!this.inborders && currentSystem != null)
-                {
-                    int systemOwnerCount = currentSystem.OwnerList.Count();
-                    {
-                        if (systemOwnerCount == 0 && ArtificialIntelligence.WarpRestrictionInNuetral)
-                        {
-                            this.Inhibited = true;
-                            this.InhibitedTimer = 10f;
-                            return;
-                        }
-                    }
-
-                    Empire happySystems = currentSystem.OwnerList.Where(empire => empire.GetRelations()[this.loyalty].Treaty_OpenBorders).FirstOrDefault();
-                    if (happySystems == null && systemOwnerCount > 0)
-                    {
-                        this.Inhibited = true;
-                        this.InhibitedTimer = 10f;
-                        return;
-                    }
-
-                }
-            }
-            #endregion
             if (this.isSpooling)
             {
                 return;
