@@ -2328,10 +2328,6 @@ namespace Ship_Game.Gameplay
 					{
 						damage = damage * (float)w.SalvoCount;
 					}
-					if (w.explodes)
-					{
-						damage = damage / 2f;
-					}
 					sortedList.First<ModuleSlot>().module.Damage(this.Owner, damage);
 				}
 				return;
@@ -2357,10 +2353,6 @@ namespace Ship_Game.Gameplay
 						{
 							damage = damage * (float)w.SalvoCount;
 						}
-						if (w.explodes)
-						{
-							damage = damage / 2f;
-						}
 						(fireTarget as Ship).GetShields()[i].Damage(this.Owner, damage);
 						return;
 					}
@@ -2382,10 +2374,6 @@ namespace Ship_Game.Gameplay
 						{
 							damage = damage * (float)w.SalvoCount;
 						}
-						if (w.explodes)
-						{
-							damage = damage / 2f;
-						}
 						(fireTarget as Ship).ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
 						return;
 					}
@@ -2404,10 +2392,6 @@ namespace Ship_Game.Gameplay
 					if (w.SalvoCount > 0)
 					{
 						damage = damage * (float)w.SalvoCount;
-					}
-					if (w.explodes)
-					{
-						damage = damage / 2f;
 					}
 					(fireTarget as Ship).ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
 					return;
