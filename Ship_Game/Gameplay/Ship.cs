@@ -125,10 +125,8 @@ namespace Ship_Game.Gameplay
         public float armor_max;
         public float shield_max;
         public float shield_power;
-        public double hull_integrity;
-        public float number_Internal_modules;
-        public float number_Alive_Internal_modules;
-        public int number_alive_modules;
+        public float number_Internal_slots;
+        public float number_Alive_Internal_slots;
         public float PowerCurrent;
         public float PowerFlowMax;
         public float PowerStoreMax;
@@ -1144,9 +1142,9 @@ namespace Ship_Game.Gameplay
                 {
                     maintModReduction *= 2f;
                 }
-                if (this.number_Alive_Internal_modules < this.number_Internal_modules)
+                if (this.number_Alive_Internal_slots < this.number_Internal_slots)
                 {
-                    float damRepair = 2 - this.number_Internal_modules / this.number_Alive_Internal_modules;
+                    float damRepair = 2 - this.number_Internal_slots / this.number_Alive_Internal_slots;
                     if (damRepair > 1.5f) damRepair = 1.5f;
                     if (damRepair < 1) damRepair = 1;
                     maintModReduction *= damRepair;
@@ -1735,7 +1733,6 @@ namespace Ship_Game.Gameplay
             this.CrewRequired = 0;
             this.CrewSupplied = 0;
             this.Size = 0;
-            this.number_alive_modules = 0;
             this.velocityMaximum = 0f;
             this.speed = 0f;
             this.SensorRange = 0f;
@@ -1773,13 +1770,11 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot moduleSlotList in this.ModuleSlotList)
             {
                 if (moduleSlotList.Restrictions == Restrictions.I)
-                {
-                    ++this.number_Internal_modules;
-                }
+                    ++this.number_Internal_slots;
+                if (moduleSlotList.module.ModuleType == ShipModuleType.Dummy)
+                    continue;
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Colony)
-                {
                     this.isColonyShip = true;
-                }
                 if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
                 {
                     Dictionary<string, float> maxGoodStorageDict = this.MaxGoodStorageDict;
@@ -1858,7 +1853,6 @@ namespace Ship_Game.Gameplay
                     this.armor_max += moduleSlotList.module.HealthMax;
                 }
                 this.Size += 1;
-                this.number_alive_modules += 1;
                 this.CargoSpace_Max += moduleSlotList.module.Cargo_Capacity;
                 this.OrdinanceMax += (float)moduleSlotList.module.OrdinanceCapacity;
                 this.Ordinance += (float)moduleSlotList.module.OrdinanceCapacity;
@@ -1890,7 +1884,7 @@ namespace Ship_Game.Gameplay
             }
             #endregion
             this.HealthMax = base.Health;
-            this.number_Alive_Internal_modules = this.number_Internal_modules;
+            this.number_Alive_Internal_slots = this.number_Internal_slots;
             this.velocityMaximum = this.Thrust / this.mass;
             this.speed = this.velocityMaximum;
             this.rotationRadiansPerSecond = this.speed / (float)this.Size;
@@ -2050,7 +2044,6 @@ namespace Ship_Game.Gameplay
             this.CrewRequired = 0;
             this.CrewSupplied = 0;
             this.Size = 0;
-            this.number_alive_modules = 0;
             this.velocityMaximum = 0.0f;
             this.speed = 0.0f;
             this.OrdinanceMax = 0.0f;
@@ -2064,10 +2057,9 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 if (moduleSlot.Restrictions == Restrictions.I)
-                {
-                    ++this.number_Internal_modules;
-                    ++this.number_Alive_Internal_modules;
-                }
+                    ++this.number_Internal_slots;
+                if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
+                    continue;
                 if (moduleSlot.module.ECM > this.ECMValue)
                 {
                     this.ECMValue = moduleSlot.module.ECM;
@@ -2089,7 +2081,6 @@ namespace Ship_Game.Gameplay
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor)
                     this.armor_max += moduleSlot.module.HealthMax;
                 ++this.Size;
-                ++this.number_alive_modules;
                 this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                 if (moduleSlot.module.ModuleType != ShipModuleType.Shield)
@@ -2110,11 +2101,10 @@ namespace Ship_Game.Gameplay
             this.velocityMaximum = this.Thrust / this.mass;
             this.speed = this.velocityMaximum;
             this.rotationRadiansPerSecond = this.speed / 700f;
+            this.number_Alive_Internal_slots = this.number_Internal_slots;
             this.ShipMass = this.mass;
             if (this.FTLSpoolTime == 0)
                 this.FTLSpoolTime = 3f;
-            //Added by McShooterz: hull bonus cargo space
-            this.CargoSpace_Max += (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.shipData.Hull) ? ResourceManager.HullBonuses[this.shipData.Hull].CargoBonus * this.CargoSpace_Max : 0);
         }
 
         public static Ship LoadSavedShip(ShipData data)
@@ -3082,9 +3072,7 @@ namespace Ship_Game.Gameplay
                         this.Thrust = 0.0f;
                         this.Mass = this.Size / 2f;
                         this.shield_max = 0.0f;
-                        this.number_alive_modules = 0;
-                        this.number_Internal_modules = 0.0f;
-                        this.number_Alive_Internal_modules = 0.0f;
+                        this.number_Alive_Internal_slots = 0.0f;
                         this.BonusEMP_Protection = 0.0f;
                         this.PowerStoreMax = 0.0f;
                         this.PowerFlowMax = 0.0f;
@@ -3107,6 +3095,9 @@ namespace Ship_Game.Gameplay
                     }
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     {
+                        //Get total internal slots
+                        if (moduleSlot.Restrictions == Restrictions.I && moduleSlot.module.Active)
+                            ++this.number_Alive_Internal_slots;
                         if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
                             continue;
                         this.Health = (float)((double)this.Health + (double)moduleSlot.module.Health);
@@ -3130,7 +3121,6 @@ namespace Ship_Game.Gameplay
                                 //Checks to see if there is an active command module
                                 if (!this.hasCommand && moduleSlot.module.IsCommandModule)
                                     this.hasCommand = true;
-                                ++this.number_alive_modules;
                                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                                 this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                                 this.InhibitionRadius += moduleSlot.module.InhibitionRadius;
@@ -3177,12 +3167,6 @@ namespace Ship_Game.Gameplay
                                 this.WarpDraw += moduleSlot.module.PowerDrawAtWarp;
                                 if (moduleSlot.module.FTLSpoolTime > this.FTLSpoolTime)
                                     this.FTLSpoolTime = moduleSlot.module.FTLSpoolTime;
-                            }
-                            if (moduleSlot.Restrictions == Restrictions.I)
-                            {
-                                ++this.number_Internal_modules;
-                                if (moduleSlot.module.Active)
-                                    ++this.number_Alive_Internal_modules;
                             }
                         }
                     }
@@ -3508,7 +3492,7 @@ namespace Ship_Game.Gameplay
             }
             if ((double)this.Ordinance > (double)this.OrdinanceMax)
                 this.Ordinance = this.OrdinanceMax;
-            this.percent = this.number_Alive_Internal_modules / this.number_Internal_modules;
+            this.percent = this.number_Alive_Internal_slots / this.number_Internal_slots;
             if ((double)this.percent < 0.35)
                 this.Die(this.LastDamagedBy, false);
             if ((double)this.Mass < (double)(this.Size / 2))
@@ -3548,9 +3532,6 @@ namespace Ship_Game.Gameplay
             }
             if ((double)this.PowerCurrent > (double)this.PowerStoreMax)
                 this.PowerCurrent = this.PowerStoreMax;
-            this.hull_integrity = 100.0 * (double)this.number_alive_modules / (double)this.Size;
-            if (this.hull_integrity < 0.0)
-                this.hull_integrity = 0.0;
             if (this.shield_percent < 0.0)
                 this.shield_percent = 0.0;
             this.shield_percent = 100.0 * (double)this.shield_power / (double)this.shield_max;
