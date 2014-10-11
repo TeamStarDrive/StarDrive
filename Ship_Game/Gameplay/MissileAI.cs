@@ -72,19 +72,18 @@ namespace Ship_Game.Gameplay
                 GameplayObject sourceTarget = this.Owner.owner.GetAI().Target;
                 if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && (sourceTarget as Ship).loyalty != this.Owner.loyalty)
                 {
-                    this.SetTarget((sourceTarget as Ship).GetRandomInternalModule()); //use SetTarget function
+                    this.SetTarget((sourceTarget as Ship).GetRandomInternalModule());
                     return;
                 }
             }
-            this.Target = null;
-            this.SetTarget((this.TargetList.OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>()).GetRandomInternalModule()); //use SetTarget function
+            if(TargetList.Count > 0)
+                this.SetTarget((this.TargetList.OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>()).GetRandomInternalModule());
         }
 
-		public void ClearTargets()
+		public void ClearTarget()
 		{
             this.TargetSet = false;
 			this.Target = null;
-			this.TargetList.Clear();
 		}
 
 		private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
@@ -264,7 +263,7 @@ namespace Ship_Game.Gameplay
                 this.thinkTimer = 1f;
                 if (this.Target == null || !this.Target.Active || (this.Target is ShipModule && (this.Target as ShipModule).GetParent().dying))
                 {
-                    this.ClearTargets();
+                    this.ClearTarget();
                     this.ChooseTarget();
                 }
             }
