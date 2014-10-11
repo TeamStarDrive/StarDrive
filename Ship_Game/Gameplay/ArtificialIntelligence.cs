@@ -2169,7 +2169,7 @@ namespace Ship_Game.Gameplay
                         if (this.BadGuysNear && !weapon.TruePD)
                         {
                             //Is primary target valid
-                            if (this.Target != null && this.Target is Ship && this.CheckTargetValidity(weapon, (this.Target) as Ship))
+                            if (this.Target != null && this.Target is Ship && weapon.TargetValid((this.Target as Ship).Role))
                             {
                                 if (weapon.Tag_Guided && weapon.RotationRadsPerSecond > 2f && Vector2.Distance(this.Owner.Center, this.Target.Center) < weapon.GetModifiedRange())
                                     this.fireTarget = this.Target;
@@ -2183,7 +2183,7 @@ namespace Ship_Game.Gameplay
                                 for (int i = 0; i < this.PotentialTargets.Count; i++)
                                 {
                                     Ship ship = this.PotentialTargets[i];
-                                    if (!ship.Active || ship.dying || !this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || !this.CheckTargetValidity(weapon, ship))
+                                    if (!ship.Active || ship.dying || !this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || !weapon.TargetValid(ship.Role))
                                         continue;
                                     this.fireTarget = ship;
                                     break;
@@ -2254,19 +2254,6 @@ namespace Ship_Game.Gameplay
                 }
             }
 		}
-
-        public bool CheckTargetValidity(Weapon weapon, Ship Target)
-        {
-            if (weapon.Excludes_Fighters && (Target.Role == "fighter" || Target.Role == "scout" || Target.Role == "drone"))
-                return false;
-            if (weapon.Excludes_Corvettes && (Target.Role == "corvette"))
-                return false;
-            if (weapon.Excludes_Capitals && (Target.Role == "frigate" || Target.Role == "destroyer" || Target.Role == "cruiser" || Target.Role == "carrier" || Target.Role == "capital"))
-                return false;
-            if (weapon.Excludes_Stations && (Target.Role == "platform" || Target.Role == "station"))
-                return false;
-            return true;
-        }
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
