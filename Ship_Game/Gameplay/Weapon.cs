@@ -337,10 +337,6 @@ namespace Ship_Game.Gameplay
 		protected virtual void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
 		{
 			Beam beam = new Beam(source.Owner.Center, target.Center, this.BeamThickness, source.Owner, target);
-			if (source.Owner.owner != null && source.Owner.owner.InFrustum)
-			{
-				beam.InFrustumWhenFired = true;
-			}
 			beam.moduleAttachedTo = this.moduleAttachedTo;
 			beam.PowerCost = (float)this.BeamPowerCostPerSecond;
 			beam.range = this.Range;
