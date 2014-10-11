@@ -1443,5 +1443,18 @@ namespace Ship_Game.Gameplay
             }
             return modifiedRange;            
         }
+
+        public bool TargetValid(string Role)
+        {
+            if (this.Excludes_Fighters && (Role == "fighter" || Role == "scout" || Role == "drone"))
+                return false;
+            if (this.Excludes_Corvettes && (Role == "corvette"))
+                return false;
+            if (this.Excludes_Capitals && (Role == "frigate" || Role == "destroyer" || Role == "cruiser" || Role == "carrier" || Role == "capital"))
+                return false;
+            if (this.Excludes_Stations && (Role == "platform" || Role == "station"))
+                return false;
+            return true;
+        }
 	}
 }
