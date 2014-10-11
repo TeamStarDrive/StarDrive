@@ -2146,7 +2146,7 @@ namespace Ship_Game.Gameplay
 				return;
 			}
             //Target is dead or dying, will need a new one.
-			if (this.Target != null && !this.Target.Active)
+			if (this.Target != null && (!this.Target.Active || this.Target is Ship && (this.Target as Ship).dying))
 			{
 				this.Target = null;
 			}
