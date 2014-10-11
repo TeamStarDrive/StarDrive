@@ -10,8 +10,6 @@ namespace Ship_Game
 {
 	public class Beam : Projectile
 	{
-		public bool InFrustumWhenFired;
-
 		public Vector3 Origin;
 
 		public Vector3 UpperLeft;
@@ -80,7 +78,6 @@ namespace Ship_Game
 			if (Owner.InFrustum)
 			{
 				this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
-				this.InFrustumWhenFired = true;
 			}
 			if (this.owner.isInDeepSpace || this.owner.GetSystem() == null)
 			{
@@ -139,7 +136,6 @@ namespace Ship_Game
 			if (Owner.InFrustum)
 			{
 				this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
-				this.InFrustumWhenFired = true;
 			}
 			if (this.owner.isInDeepSpace || this.owner.GetSystem() == null)
 			{
@@ -325,15 +321,7 @@ namespace Ship_Game
 					{
 					}
 				}
-				if (!this.InFrustumWhenFired )
-				{
-					target.Damage(this, this.damageAmount * 90f);
-					this.Die(null, true);
-				}
-				else
-				{
-                    (target as ShipModule).Damage(this, this.damageAmount);
-				}
+                (target as ShipModule).Damage(this, this.damageAmount);
 			}
 			return true;
 		}
