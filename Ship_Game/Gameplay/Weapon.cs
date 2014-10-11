@@ -484,12 +484,6 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
 		{
-            if(this.Tag_Guided)
-            {
-                direction = new Vector2((float)Math.Sin((double)this.owner.Rotation + MathHelper.ToRadians(this.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.owner.Rotation + MathHelper.ToRadians(this.moduleAttachedTo.facing)));
-                if (this.owner.GetAI().Target != null)
-                    target = this.owner.GetAI().Target;
-            }
 			Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
 			{
 				range = this.Range,
@@ -845,8 +839,8 @@ namespace Ship_Game.Gameplay
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
 				return;
 			this.owner.InCombatTimer = 15f;
-            if (target is Ship)
-                (target as Ship).InCombatTimer = 15f;
+            if (target is ShipModule)
+                (target as ShipModule).GetParent().InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -960,8 +954,8 @@ namespace Ship_Game.Gameplay
 
         public virtual void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
         {
-            if (target is Ship)
-                (target as Ship).InCombatTimer = 15f;
+            if (target is ShipModule)
+                (target as ShipModule).GetParent().InCombatTimer = 15f;
             Vector2 StartPos = p.Position;
             if (this.FireArc != 0)
             {
@@ -1364,25 +1358,90 @@ namespace Ship_Game.Gameplay
 			{
 			}
 		}
+
+        public float GetModifiedRange()
+        {
+            if (this.GetOwner() == null || GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useWeaponModifiers)
+                return this.Range;
+            float modifiedRange = this.Range;
+            EmpireData loyaltyData = this.GetOwner().loyalty.data;
+            if (this.Tag_Beam)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Beam"].Range;
+            }
+            if (this.Tag_Energy)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Energy"].Range;
+            }
+            if (this.Tag_Explosive)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Explosive"].Range;
+            }
+            if (this.Tag_Guided)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Guided"].Range;
+            }
+            if (this.Tag_Hybrid)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Hybrid"].Range;
+            }
+            if (this.Tag_Intercept)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Intercept"].Range;
+            }
+            if (this.Tag_Kinetic)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Kinetic"].Range;
+            }
+            if (this.Tag_Missile)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Missile"].Range;
+            }
+            if (this.Tag_Railgun)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Railgun"].Range;
+            }
+            if (this.Tag_Cannon)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Cannon"].Range;
+            }
+            if (this.Tag_PD)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["PD"].Range;
+            }
+            if (this.Tag_SpaceBomb)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Spacebomb"].Range;
+            }
+            if (this.Tag_BioWeapon)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["BioWeapon"].Range;
+            }
+            if (this.Tag_Drone)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Drone"].Range;
+            }
+            if (this.Tag_Subspace)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Subspace"].Range;
+            }
+            if (this.Tag_Warp)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Warp"].Range;
+            }
+            if (this.Tag_Array)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Array"].Range;
+            }
+            if (this.Tag_Flak)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Flak"].Range;
+            }
+            if (this.Tag_Tractor)
+            {
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Tractor"].Range;
+            }
+            return modifiedRange;            
+        }
 	}
 }
-
-/*//Added by McShootez: Quadratic based targeting algorithm
-        private Vector2 findVectorToMovingTarget2(Vector2 OwnerPos, GameplayObject target)
-        {
-            Vector2 FireDirection = target.Center - OwnerPos;
-            float a = Vector2.Dot(target.Velocity, target.Velocity) - (this.ProjectileSpeed * this.ProjectileSpeed);
-            float b = 2f * Vector2.Dot(target.Velocity, FireDirection);
-            float c = Vector2.Dot(FireDirection, FireDirection);
-            float p = -b / (2f * a);
-            float q = (float)Math.Sqrt((b * b) - 4 * a * c) / (2 * a);
-            a = p - q;
-            b = p + q;
-            if (a > b && b > 0)
-                c = b;
-            else
-                c = a;
-            Vector2 ProjectedPosition = target.Center + target.Velocity * c;
-            FireDirection = ProjectedPosition - OwnerPos;
-            return Vector2.Normalize(FireDirection);
-        }*/
