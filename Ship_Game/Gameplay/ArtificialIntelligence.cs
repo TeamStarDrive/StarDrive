@@ -39,8 +39,6 @@ namespace Ship_Game.Gameplay
 
 		private GameplayObject fireTarget;
 
-		private float TryRepairsTimer;
-
 		protected Random random;
 
 		private Vector2 direction = Vector2.Zero;
@@ -155,7 +153,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin: new troopsout property. Change this to use actual troopsout 
         public bool troopsout = false;
 
-        private float RepairBeamTimer;
+        private float UtilityModuleCheckTimer;
 
 		public ArtificialIntelligence()
 		{
@@ -443,10 +441,24 @@ namespace Ship_Game.Gameplay
 				population.Population = population.Population + slot.module.numberOfColonists;
 			}
             //Added by McShooterz: Remove troops from planet
+            bool TroopsRemoved = false;
+            bool PlayerTroopsRemoved = false;
             for (int i = 0; i < this.ColonizeTarget.TilesList.Count; i++)
             {
                 if (this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()].AtWar)
+                {
                     this.ColonizeTarget.TilesList[i].TroopsHere[0].Launch();
+                    TroopsRemoved = true;
+                    if (this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner().isPlayer)
+                        PlayerTroopsRemoved = true;
+                }
+            }
+            if (TroopsRemoved)
+            {
+                if (PlayerTroopsRemoved)
+                    universeScreen.NotificationManager.AddTroopsRemovedNotification(this.ColonizeTarget);
+                else if (this.ColonizeTarget.Owner.isPlayer)
+                    universeScreen.NotificationManager.AddForeignTroopsRemovedNotification(this.ColonizeTarget);
             }
 			this.Owner.QueueTotalRemoval();
 		}
@@ -5970,34 +5982,47 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            //Added by McShooterz: logic for transporter moduels
-            if (this.Owner.hasTransporter)
+            this.UtilityModuleCheckTimer -= elapsedTime;
+            if (this.UtilityModuleCheckTimer <= 0f)
             {
-                foreach(ShipModule module in this.Owner.Transporters)
+                this.UtilityModuleCheckTimer = 1f;
+                //Added by McShooterz: logic for transporter moduels
+                if (this.Owner.hasTransporter)
                 {
-                    module.TransporterTimer -= elapsedTime;
-                    if (module.TransporterTimer <= 0f && module.Active && module.Powered && module.TransporterPower < this.Owner.PowerCurrent)
+                    foreach (ShipModule module in this.Owner.Transporters)
                     {
-                        module.TransporterTimer = 1f;
-                        if (module.TransporterOrdnance > 0 && this.Owner.Ordinance > 0)
-                            this.DoOrdinanceTransporterLogic(module);
-                        if (module.TransporterTroopAssault > 0 && this.Owner.TroopList.Count() > 0)
-                            this.DoAssaultTransporterLogic(module);
+                        if (module.TransporterTimer <= 0f && module.Active && module.Powered && module.TransporterPower < this.Owner.PowerCurrent)
+                        {
+                            if (this.FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && this.Owner.Ordinance > 0)
+                                this.DoOrdinanceTransporterLogic(module);
+                            if (module.TransporterTroopAssault > 0 && this.Owner.TroopList.Count() > 0)
+                                this.DoAssaultTransporterLogic(module);
+                        }
                     }
                 }
-            }
-            //Added by McShooterz: logic for repair beams
-            if (this.Owner.hasRepairBeam)
-            {
-                this.RepairBeamTimer -= elapsedTime;
-                if (this.RepairBeamTimer <= 0f)
+                //Do repair check if friendly ships around and no combat
+                if (!this.Owner.InCombat && this.FriendliesNearby.Count > 0)
                 {
-                    this.RepairBeamTimer = 2f;
-                    foreach (ShipModule module in this.Owner.RepairBeams)
+                    //Added by McShooterz: logic for repair beams
+                    if (this.Owner.hasRepairBeam)
                     {
-                        if (module.InstalledWeapon.timeToNextFire <= 0f && module.InstalledWeapon.moduleAttachedTo.Powered && this.Owner.Ordinance >= module.InstalledWeapon.OrdinanceRequiredToFire && this.Owner.PowerCurrent >= module.InstalledWeapon.PowerRequiredToFire)
+                        foreach (ShipModule module in this.Owner.RepairBeams)
                         {
-                            this.DoRepairBeamLogic(module.InstalledWeapon);
+                            if (module.InstalledWeapon.timeToNextFire <= 0f && module.InstalledWeapon.moduleAttachedTo.Powered && this.Owner.Ordinance >= module.InstalledWeapon.OrdinanceRequiredToFire && this.Owner.PowerCurrent >= module.InstalledWeapon.PowerRequiredToFire)
+                            {
+                                this.DoRepairBeamLogic(module.InstalledWeapon);
+                            }
+                        }
+                    }
+                    if (this.Owner.HasRepairModule)
+                    {
+                        foreach (Weapon weapon in this.Owner.Weapons)
+                        {
+                            if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || this.Owner.Ordinance < weapon.OrdinanceRequiredToFire || this.Owner.PowerCurrent < weapon.PowerRequiredToFire || !weapon.IsRepairDrone)
+                            {
+                                continue;
+                            }
+                            this.DoRepairDroneLogic(weapon);
                         }
                     }
                 }
@@ -6719,32 +6744,6 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                if (this.Owner.HasRepairModule)
-                {
-                    this.TryRepairsTimer -= elapsedTime;
-                    if (this.TryRepairsTimer <= 0f)
-                    {
-                        this.TryRepairsTimer = 5f;
-                        foreach (Weapon weapon in this.Owner.Weapons)
-                        //Parallel.ForEach(this.Owner.Weapons, weapon =>
-                        {
-                            Weapon weapon1 = weapon;
-                            weapon1.timeToNextFire = weapon1.timeToNextFire - elapsedTime;
-                            if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || this.Owner.Ordinance < weapon.OrdinanceRequiredToFire || this.Owner.PowerCurrent < weapon.PowerRequiredToFire || !weapon.IsRepairDrone)
-                            {
-                                //return;
-                                continue;
-                            }
-                            try
-                            {
-                                    this.DoRepairDroneLogic(weapon);
-                            }
-                            catch
-                            {
-                            }
-                        }//);
-                    }
-                }
                 if (this.Owner.GetHangars().Count > 0 && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
                 {
                     foreach (ShipModule hangar in this.Owner.GetHangars())
