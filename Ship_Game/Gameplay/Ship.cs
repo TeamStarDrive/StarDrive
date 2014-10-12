@@ -3219,11 +3219,14 @@ namespace Ship_Game.Gameplay
                     this.shield_power = 0f;
                 else
                 {
-                    this.shield_power = 0.0f;
-                    foreach (ShipModule shield in this.Shields)
-                        this.shield_power += shield.shield_power;
-                    if (this.shield_power > this.shield_max)
-                        this.shield_power = this.shield_max;
+                    if (this.shield_power != this.shield_max)
+                    {
+                        this.shield_power = 0.0f;
+                        foreach (ShipModule shield in this.Shields)
+                            this.shield_power += shield.shield_power;
+                        if (this.shield_power > this.shield_max)
+                            this.shield_power = this.shield_max;
+                    }
                 }
                 //Add ordnance
                 if (this.Ordinance < this.OrdinanceMax)
