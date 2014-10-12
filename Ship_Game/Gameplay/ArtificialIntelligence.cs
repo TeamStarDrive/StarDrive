@@ -442,7 +442,6 @@ namespace Ship_Game.Gameplay
 				Planet population = this.ColonizeTarget;
 				population.Population = population.Population + slot.module.numberOfColonists;
 			}
-            List<Troop> TroopsToLaunch = new List<Troop>();
             //Added by McShooterz: Remove troops from planet
             for (int i = 0; i < this.ColonizeTarget.TilesList.Count; i++)
             {
