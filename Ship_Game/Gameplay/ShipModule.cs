@@ -1592,19 +1592,6 @@ namespace Ship_Game.Gameplay
 			return colors2D;
 		}
 
-		public override bool Touch(GameplayObject target)
-		{
-			ShipModule testMod = target as ShipModule;
-			int test = 0;
-			if (testMod != null && testMod.Parent.loyalty != this.Parent.loyalty)
-			{
-				this.Damage(target, 10f);
-				target.Damage(this, 10f);
-				test++;
-			}
-			return base.Touch(target);
-		}
-
 		public override void Update(float elapsedTime)
 		{
             this.BombTimer -= elapsedTime;
@@ -1640,24 +1627,21 @@ namespace Ship_Game.Gameplay
             }
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power <= 0f || shieldsOff)
-			{
 				this.radius = 8f;
-			}
 			else
-			{
 				this.radius = this.shield_radius;
-			}
 			if ((this.hangarShip == null || !this.hangarShip.Active) && this.ModuleType == ShipModuleType.Hangar && this.Active)
                 this.hangarTimer -= elapsedTime;
             //Shield Recharge
-            if (this.Active && this.Powered && this.shield_power < this.GetShieldsMax())
+            float shieldMax = this.GetShieldsMax();
+            if (this.Active && this.Powered && this.shield_power < shieldMax)
 			{
                 if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
                     this.shield_power += this.shield_recharge_rate * elapsedTime;
                 else if (this.shield_power > 0)
                     this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
-                if (this.shield_power > this.GetShieldsMax())
-                    this.shield_power = this.GetShieldsMax();
+                if (this.shield_power > shieldMax)
+                    this.shield_power = shieldMax;
 			}
 			if (this.shield_power < 0f)
 			{
