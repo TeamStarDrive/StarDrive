@@ -806,7 +806,37 @@ namespace Ship_Game.Gameplay
                         if (remainder > 0)
                         {
                             this.damageAmount = remainder;
-                            return false;
+                            bool SlotFound = true;
+                            int depth = 8;
+                            Vector2 UnitVector = this.velocity;
+                            while (this.damageAmount > 0)
+                            {
+                                UnitVector.Normalize();
+                                UnitVector *= depth;
+                                SlotFound = false;
+                                foreach (ModuleSlot slot in module.GetParent().ModuleSlotList)
+                                {
+                                    if (Vector2.Distance(this.Center + UnitVector, slot.module.Center) < 10f)
+                                    {
+                                        SlotFound = true;
+                                        if (slot.module.Active)
+                                        {
+                                            remainder = 0;
+                                            slot.module.Damage(this, this.damageAmount, ref remainder);
+                                            if (remainder > 0)
+                                                this.damageAmount = remainder;
+                                            else
+                                                this.damageAmount = 0f;
+                                        }
+                                        break;
+                                    }
+                                }
+                                //Slot found means it is still in the ship
+                                if (SlotFound)
+                                    depth += 8;
+                                else
+                                    break;
+                            }
                         }
                     }
                     base.Health = 0f;
