@@ -441,10 +441,24 @@ namespace Ship_Game.Gameplay
 				population.Population = population.Population + slot.module.numberOfColonists;
 			}
             //Added by McShooterz: Remove troops from planet
+            bool TroopsRemoved = false;
+            bool PlayerTroopsRemoved = false;
             for (int i = 0; i < this.ColonizeTarget.TilesList.Count; i++)
             {
                 if (this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()].AtWar)
+                {
                     this.ColonizeTarget.TilesList[i].TroopsHere[0].Launch();
+                    TroopsRemoved = true;
+                    if (this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner().isPlayer)
+                        PlayerTroopsRemoved = true;
+                }
+            }
+            if (TroopsRemoved)
+            {
+                if (PlayerTroopsRemoved)
+                    universeScreen.NotificationManager.AddTroopsRemovedNotification(this.ColonizeTarget);
+                else if (this.ColonizeTarget.Owner.isPlayer)
+                    universeScreen.NotificationManager.AddForeignTroopsRemovedNotification(this.ColonizeTarget);
             }
 			this.Owner.QueueTotalRemoval();
 		}
