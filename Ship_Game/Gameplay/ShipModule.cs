@@ -1647,6 +1647,8 @@ namespace Ship_Game.Gameplay
 			{
 				this.shield_power = 0f;
 			}
+            if (this.TransporterTimer > 0)
+                this.TransporterTimer -= elapsedTime;
 			base.Update(elapsedTime);
 		}
 
