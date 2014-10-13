@@ -170,7 +170,7 @@ namespace Ship_Game
         {
             Notification cNote = new Notification()
             {
-                Message = string.Concat(where.Owner.data.Traits.Singular, " have colonized ", where.Name, " and your troops evacuated"),
+                Message = string.Concat("Your troops stationed on ", where.Name, " had to evacuate when ", where.Owner.data.Traits.Name, " colonized the planet"),
                 ReferencedItem1 = where,
                 IconPath = string.Concat("Planets/", where.planetType),
                 Action = "SnapToPlanet",
