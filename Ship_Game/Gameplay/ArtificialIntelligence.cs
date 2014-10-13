@@ -445,11 +445,12 @@ namespace Ship_Game.Gameplay
             bool PlayerTroopsRemoved = false;
             for (int i = 0; i < this.ColonizeTarget.TilesList.Count; i++)
             {
-                if (this.ColonizeTarget.TilesList[i].TroopsHere[0] != null && this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()].AtWar)
+                Troop troop = this.ColonizeTarget.TilesList[i].TroopsHere[0];
+                if (troop != null && troop.GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(troop.GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[troop.GetOwner()].AtWar)
                 {
-                    this.ColonizeTarget.TilesList[i].TroopsHere[0].Launch();
+                    troop.Launch();
                     TroopsRemoved = true;
-                    if (this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner().isPlayer)
+                    if (troop.GetOwner().isPlayer)
                         PlayerTroopsRemoved = true;
                 }
             }
