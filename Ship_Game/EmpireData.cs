@@ -50,6 +50,8 @@ namespace Ship_Game
 
         public string DefaultTroopShip;
 
+        public string DefaultShipyard = "Shipyard";
+
 		public bool Defeated;
 
 		public bool HasSecretTech;

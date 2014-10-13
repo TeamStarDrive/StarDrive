@@ -695,6 +695,7 @@ namespace Ship_Game
             empireData.DefaultColonyShip = data.DefaultColonyShip;
             empireData.DefaultSmallTransport = data.DefaultSmallTransport;
             empireData.DefaultTroopShip = data.DefaultTroopShip;
+            empireData.DefaultShipyard = data.DefaultShipyard;
             empireData.DiplomacyDialogPath = data.DiplomacyDialogPath;
             empireData.DiplomaticPersonality = data.DiplomaticPersonality;
             empireData.EconomicPersonality = data.EconomicPersonality;
