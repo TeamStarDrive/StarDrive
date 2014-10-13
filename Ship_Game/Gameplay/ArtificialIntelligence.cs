@@ -445,8 +445,11 @@ namespace Ship_Game.Gameplay
             bool PlayerTroopsRemoved = false;
             for (int i = 0; i < this.ColonizeTarget.TilesList.Count; i++)
             {
-                if (this.ColonizeTarget.TilesList[i].TroopsHere[0] != null && this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()].AtWar)
+                if (this.ColonizeTarget.TilesList[i].TroopsHere.Count >0 && this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()) 
+                    && !this.ColonizeTarget.Owner.GetRelations()[this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()].AtWar)
                 {
+                    if (this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner().isFaction)
+                        continue;
                     this.ColonizeTarget.TilesList[i].TroopsHere[0].Launch();
                     TroopsRemoved = true;
                     if (this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner().isPlayer)
