@@ -323,7 +323,7 @@ namespace Ship_Game.Gameplay
 
 		private void Colonize(Planet TargetPlanet)
 		{
-			if (Vector2.Distance(this.Owner.Center, TargetPlanet.Position) > 2000f)
+            if (Vector2.Distance(this.Owner.Center, TargetPlanet.Position) > 2000f)
 			{
 				this.OrderQueue.RemoveFirst();
 				this.OrderColonization(TargetPlanet);
@@ -443,15 +443,19 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: Remove troops from planet
             bool TroopsRemoved = false;
             bool PlayerTroopsRemoved = false;
-            for (int i = 0; i < this.ColonizeTarget.TilesList.Count; i++)
+            Troop troop;
+            for (int i = 0; i < this.ColonizeTarget.TroopsHere.Count; i++)
             {
-                Troop troop = this.ColonizeTarget.TilesList[i].TroopsHere[0];
-                if (troop != null && troop.GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(troop.GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[troop.GetOwner()].AtWar)
+                if (this.ColonizeTarget.TroopsHere[i] != null)
                 {
-                    troop.Launch();
-                    TroopsRemoved = true;
-                    if (troop.GetOwner().isPlayer)
-                        PlayerTroopsRemoved = true;
+                    troop = this.ColonizeTarget.TroopsHere[i];
+                    if (troop.GetOwner() != null && !troop.GetOwner().isFaction && troop.GetOwner() != this.ColonizeTarget.Owner && !this.ColonizeTarget.Owner.GetRelations()[troop.GetOwner()].AtWar)
+                    {
+                        troop.Launch();
+                        TroopsRemoved = true;
+                        if (troop.GetOwner().isPlayer)
+                            PlayerTroopsRemoved = true;
+                    }
                 }
             }
             if (TroopsRemoved)
