@@ -443,16 +443,14 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: Remove troops from planet
             bool TroopsRemoved = false;
             bool PlayerTroopsRemoved = false;
-            for (int i = 0; i < this.ColonizeTarget.TilesList.Count; i++)
+            for (int i = 0; i < this.ColonizeTarget.TroopsHere.Count; i++)
             {
-                if (this.ColonizeTarget.TilesList[i].TroopsHere.Count >0 && this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()) 
-                    && !this.ColonizeTarget.Owner.GetRelations()[this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner()].AtWar)
+                Troop troop = this.ColonizeTarget.TroopsHere[i];
+                if (troop != null && troop.GetOwner() != null && !troop.GetOwner().isFaction && troop.GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(troop.GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[troop.GetOwner()].AtWar)
                 {
-                    if (this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner().isFaction)
-                        continue;
-                    this.ColonizeTarget.TilesList[i].TroopsHere[0].Launch();
+                    troop.Launch();
                     TroopsRemoved = true;
-                    if (this.ColonizeTarget.TilesList[i].TroopsHere[0].GetOwner().isPlayer)
+                    if (troop.GetOwner().isPlayer)
                         PlayerTroopsRemoved = true;
                 }
             }
