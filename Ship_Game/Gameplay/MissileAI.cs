@@ -55,8 +55,11 @@ namespace Ship_Game.Gameplay
                     return;
                 }
             }
-            if(TargetList.Count > 0)
-                this.SetTarget((this.TargetList.Where(ship => ship.Active && !ship.dying).OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>()).GetRandomInternalModule());
+            if (TargetList.Count > 0)
+            {
+                Ship test = this.TargetList.Where(ship => ship.Active && !ship.dying).OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>();
+                if(test != null) this.SetTarget(test.GetRandomInternalModule());
+            }
         }
 
 		public void ClearTarget()
