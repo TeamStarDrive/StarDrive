@@ -3219,7 +3219,7 @@ namespace Ship_Game.Gameplay
                     this.shield_power = 0f;
                 else
                 {
-                    if (this.shield_power != this.shield_max)
+                    if (this.InCombat || this.shield_power != this.shield_max)
                     {
                         this.shield_power = 0.0f;
                         foreach (ShipModule shield in this.Shields)
