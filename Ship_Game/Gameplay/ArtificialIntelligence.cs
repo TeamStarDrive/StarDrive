@@ -2190,13 +2190,13 @@ namespace Ship_Game.Gameplay
                             //Is primary target valid
                             if (this.Target != null && this.Target is Ship && weapon.TargetValid((this.Target as Ship).Role))
                             {
-                                if (weapon.Tag_Guided && weapon.RotationRadsPerSecond > 2f && Vector2.Distance(this.Owner.Center, this.Target.Center) < weapon.GetModifiedRange())
+                                if (weapon.Tag_Guided && weapon.RotationRadsPerSecond > 3f && Vector2.Distance(this.Owner.Center, this.Target.Center) < weapon.GetModifiedRange())
                                     this.fireTarget = this.Target;
                                 else if(this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center))
                                     this.fireTarget = this.Target;
                             }
                             //Find alternate target to fire on
-                            else
+                            if(this.fireTarget == null)
                             {
                                 //foreach (Ship ship in this.PotentialTargets)
                                 for (int i = 0; i < this.PotentialTargets.Count; i++)
