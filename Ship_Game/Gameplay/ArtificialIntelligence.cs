@@ -2288,7 +2288,6 @@ namespace Ship_Game.Gameplay
                 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
                 timeToTarget = distance / dir.Length();
                 projectedPosition = target.Center + ((target.Velocity * timeToTarget) * 0.85f);
-                projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
             }
             else if ((target is ShipModule))
             {
@@ -2298,8 +2297,8 @@ namespace Ship_Game.Gameplay
                 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed) + this.Owner.Velocity;
                 timeToTarget = distance / dir.Length();
                 projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
-                projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
             }
+            projectedPosition = projectedPosition - (this.Owner.Velocity * timeToTarget);
             Vector2 FireDirection = this.findVectorToTarget(weapon.Center, projectedPosition);
             FireDirection.Y = FireDirection.Y * -1f;
             FireDirection = Vector2.Normalize(FireDirection);
