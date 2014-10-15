@@ -3134,10 +3134,8 @@ namespace Ship_Game
             float researcherPercentage = this.ResearcherPercentage / 10f;
             for (int i = 0; i < 10 && taxMod <= 0f; i++)
             {
-                Planet workerPercentage = this;
-                workerPercentage.WorkerPercentage = workerPercentage.WorkerPercentage + researcherPercentage;
-                Planet planet = this;
-                planet.ResearcherPercentage = planet.ResearcherPercentage - researcherPercentage;
+                this.WorkerPercentage += researcherPercentage;
+                this.ResearcherPercentage -= researcherPercentage;
                 single = this.EstimateNetWithWorkerPct(this.Owner.data.TaxRate, this.WorkerPercentage, this.ResearcherPercentage);
                 taxMod = single + this.Owner.data.Traits.TaxMod * single - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
             }
@@ -3317,156 +3315,82 @@ namespace Ship_Game
                 {
                     case Planet.ColonyType.Core:
                         {
-                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.5f);
-                            if ((double)this.NetFoodPerTurn - (double)this.consumption < 0.0 && (double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
+                            //Determine Food needs first
+                            if (this.DetermineIfSelfSufficient())
                             {
-                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                                float num = 1f - this.FarmerPercentage;
-                                //Added by McShooterz: No research percentage if not researching
-                                if (this.Owner.ResearchTopic != "")
-                                {
-                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                    {
-                                        this.WorkerPercentage = (float)(num * 2.0 / 5.0);
-                                        this.ResearcherPercentage = (float)(num * 3.0 / 5.0);
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = 0f;
-                                        this.ResearcherPercentage = num;
-                                    }
-                                }
-                                else
-                                {
-                                    this.WorkerPercentage = num;
-                                    this.ResearcherPercentage = 0.0f;
-                                }
-                            }
-                            else
-                                this.fs = (double)this.FoodHere >= (double)this.MAX_STORAGE * 0.25 ? Planet.GoodState.EXPORT : Planet.GoodState.STORE;
-                            if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
-                                this.fs = Planet.GoodState.IMPORT;
-                            if (this.DetermineIfSelfSufficient() && (double)this.FoodHere > 1.0 && (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
-                            {
-                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(-0.5f);
-                                float num = 1f - this.FarmerPercentage;
-                                //Added by McShooterz: No research percentage if not researching
-                                if (this.Owner.ResearchTopic != "")
-                                {
-                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                    {
-                                        this.WorkerPercentage = num / 2f;
-                                        this.ResearcherPercentage = num / 2f;
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = 0f;
-                                        this.ResearcherPercentage = num;
-                                    }
-                                }
-                                else
-                                {
-                                    this.WorkerPercentage = num;
-                                    this.ResearcherPercentage = 0.0f;
-                                }
-                                this.fs = Planet.GoodState.IMPORT;
-                            }
-                            else if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.75)
-                            {
-                                if ((double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
+                                this.fs = GoodState.EXPORT;
+                                //Determine if excess food
+                                if (this.FoodHere > this.MAX_STORAGE * 0.5)
                                 {
                                     this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                                    float num = 1f - this.FarmerPercentage;
-                                    //Added by McShooterz: No research percentage if not researching
-                                    if (this.Owner.ResearchTopic != "")
-                                    {
-                                        if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                        {
-                                            this.WorkerPercentage = num / 2f;
-                                            this.ResearcherPercentage = num / 2f;
-                                        }
-                                        else
-                                        {
-                                            this.WorkerPercentage = 0f;
-                                            this.ResearcherPercentage = num;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = num;
-                                        this.ResearcherPercentage = 0.0f;
-                                    }
                                 }
                                 else
                                 {
-                                    this.FarmerPercentage = 0.0f;
-                                    //Added by McShooterz: No research percentage if not researching
-                                    if (this.Owner.ResearchTopic != "")
+                                    //Food low buffer
+                                    if (this.FoodHere < this.MAX_STORAGE * 0.2)
                                     {
-                                        if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                        {
-                                            this.WorkerPercentage = 0.5f;
-                                            this.ResearcherPercentage = 0.5f;
-                                        }
-                                        else
-                                        {
-                                            this.WorkerPercentage = 0f;
-                                            this.ResearcherPercentage = 1f;
-                                        }
+                                        this.fs = GoodState.STORE;
+                                        this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(2f);
                                     }
                                     else
-                                    {
-                                        this.WorkerPercentage = 1f;
-                                        this.ResearcherPercentage = 0f;
-                                    }
+                                        this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(1f);
                                 }
-                            }
-                            else if ((double)this.FoodHere / (double)this.MAX_STORAGE > 0.75)
-                            {
-                                this.FarmerPercentage = 0.0f;
-                                //Added by McShooterz: No research percentage if not researching
+                                float Remainder = 1f - FarmerPercentage;
+                                //Research is happening
                                 if (this.Owner.ResearchTopic != "")
                                 {
-                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                    //Need for production
+                                    if (this.ConstructionQueue.Count > 0 || this.ProductionHere < this.MAX_STORAGE)
                                     {
-                                        this.WorkerPercentage = 0.7f;
-                                        this.ResearcherPercentage = 0.3f;
+                                        this.WorkerPercentage = Remainder / 2f;
+                                        this.ResearcherPercentage = Remainder / 2f;
                                     }
                                     else
                                     {
                                         this.WorkerPercentage = 0f;
-                                        this.ResearcherPercentage = 1f;
+                                        this.ResearcherPercentage = Remainder;
                                     }
                                 }
+                                //No research happening
                                 else
                                 {
-                                    this.WorkerPercentage = 1f;
+                                    this.WorkerPercentage = Remainder;
                                     this.ResearcherPercentage = 0f;
                                 }
                             }
+                            //Need to prioritize food
                             else
                             {
-                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                                float num = 1f - this.FarmerPercentage;
-                                //Added by McShooterz: No research percentage if not researching
-                                if (this.Owner.ResearchTopic != "")
+                                this.fs = GoodState.IMPORT;
+                                //build quick to prevent starvation
+                                if (this.ConstructionQueue.Count > 0)
                                 {
-                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
-                                    {
-                                        this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
-                                        this.ResearcherPercentage = num / 4f;
-                                    }
-                                    else
-                                    {
-                                        this.WorkerPercentage = 0f;
-                                        this.ResearcherPercentage = num;
-                                    }
+                                    this.FarmerPercentage = 0f;
+                                    this.WorkerPercentage = 1f;
+                                    this.ResearcherPercentage = 0f;
                                 }
+                                //Prevent as much starvation as possible
                                 else
                                 {
-                                    this.WorkerPercentage = num;
-                                    this.ResearcherPercentage = 0.0f;
+                                    this.FarmerPercentage = 1f;
+                                    this.WorkerPercentage = 0f;
+                                    this.ResearcherPercentage = 0f;
                                 }
+                            }
+                            //Control the import/export of production
+                            if (this.NetProductionPerTurn > 3f || this.developmentLevel > 2)
+                            {
+                                if (this.ProductionHere > this.MAX_STORAGE * 0.33f)
+                                    this.ps = Planet.GoodState.EXPORT;
+                                else if (this.ConstructionQueue.Count == 0)
+                                    this.ps = Planet.GoodState.STORE;
+                                else
+                                    this.ps = Planet.GoodState.IMPORT;
+                            }
+                            //Not enough production or development
+                            else
+                            {
+                                this.ps = Planet.GoodState.IMPORT;
                             }
                             if ((double)this.GrossMoneyPT - (double)this.TotalMaintenanceCostsPerTurn < 0.0 && ((double)this.MineralRichness >= 0.75 || (double)this.PlusProductionPerColonist >= 1.0) && (double)this.ResearcherPercentage > 0.0)
                             {
@@ -3491,16 +3415,6 @@ namespace Ship_Game
                                         Cost = ResourceManager.ShipsDict[this.Owner.data.DefaultShipyard].GetCost(this.Owner) * UniverseScreen.GamePaceStatic
                                     });
                             }
-                            //Control the import/export of production
-                            if (this.NetProductionPerTurn > 3f || this.developmentLevel > 2)
-                                if (this.ProductionHere > this.MAX_STORAGE * 0.33f)
-                                    this.ps = Planet.GoodState.EXPORT;
-                                else if (this.ConstructionQueue.Count == 0)
-                                    this.ps = Planet.GoodState.STORE;
-                                else
-                                    this.ps = Planet.GoodState.IMPORT;
-                            else
-                                this.ps = Planet.GoodState.IMPORT;
                             byte num5 = 0;
                             bool flag5 = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -5481,3 +5395,157 @@ namespace Ship_Game
         }
     }
 }
+
+/* Old core governor sliders calcs
+ * this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.5f);
+                            if ((double)this.NetFoodPerTurn - (double)this.consumption < 0.0 && (double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
+                            {
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
+                                float num = 1f - this.FarmerPercentage;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                    {
+                                        this.WorkerPercentage = (float)(num * 2.0 / 5.0);
+                                        this.ResearcherPercentage = (float)(num * 3.0 / 5.0);
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 0f;
+                                        this.ResearcherPercentage = num;
+                                    }
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = num;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
+                            }
+                            else
+                                this.fs = (double)this.FoodHere >= (double)this.MAX_STORAGE * 0.25 ? Planet.GoodState.EXPORT : Planet.GoodState.STORE;
+                            if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
+                                this.fs = Planet.GoodState.IMPORT;
+                            if (this.DetermineIfSelfSufficient() && (double)this.FoodHere > 1.0 && (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
+                            {
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(-0.5f);
+                                float num = 1f - this.FarmerPercentage;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                    {
+                                        this.WorkerPercentage = num / 2f;
+                                        this.ResearcherPercentage = num / 2f;
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 0f;
+                                        this.ResearcherPercentage = num;
+                                    }
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = num;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
+                                this.fs = Planet.GoodState.IMPORT;
+                            }
+                            else if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.75)
+                            {
+                                if ((double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
+                                {
+                                    this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
+                                    float num = 1f - this.FarmerPercentage;
+                                    //Added by McShooterz: No research percentage if not researching
+                                    if (this.Owner.ResearchTopic != "")
+                                    {
+                                        if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                        {
+                                            this.WorkerPercentage = num / 2f;
+                                            this.ResearcherPercentage = num / 2f;
+                                        }
+                                        else
+                                        {
+                                            this.WorkerPercentage = 0f;
+                                            this.ResearcherPercentage = num;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = num;
+                                        this.ResearcherPercentage = 0.0f;
+                                    }
+                                }
+                                else
+                                {
+                                    this.FarmerPercentage = 0.0f;
+                                    //Added by McShooterz: No research percentage if not researching
+                                    if (this.Owner.ResearchTopic != "")
+                                    {
+                                        if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                        {
+                                            this.WorkerPercentage = 0.5f;
+                                            this.ResearcherPercentage = 0.5f;
+                                        }
+                                        else
+                                        {
+                                            this.WorkerPercentage = 0f;
+                                            this.ResearcherPercentage = 1f;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 1f;
+                                        this.ResearcherPercentage = 0f;
+                                    }
+                                }
+                            }
+                            else if ((double)this.FoodHere / (double)this.MAX_STORAGE > 0.75)
+                            {
+                                this.FarmerPercentage = 0.0f;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                    {
+                                        this.WorkerPercentage = 0.7f;
+                                        this.ResearcherPercentage = 0.3f;
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 0f;
+                                        this.ResearcherPercentage = 1f;
+                                    }
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = 1f;
+                                    this.ResearcherPercentage = 0f;
+                                }
+                            }
+                            else
+                            {
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
+                                float num = 1f - this.FarmerPercentage;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                    {
+                                        this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
+                                        this.ResearcherPercentage = num / 4f;
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 0f;
+                                        this.ResearcherPercentage = num;
+                                    }
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = num;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
+                            }
+ */
