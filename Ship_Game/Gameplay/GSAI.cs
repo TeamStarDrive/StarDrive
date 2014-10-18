@@ -5636,14 +5636,15 @@ namespace Ship_Game.Gameplay
             float treasuryGoal = 50f * this.empire.GetPlanets().Sum(development => development.developmentLevel);
             if (money < treasuryGoal)
             {
-                float returnAmount = this.FindTaxRateToReturnAmount(Math.Abs(this.empire.GrossTaxes * .10f));
-                if (this.empire.data.TaxRate >= .50f) returnAmount += .10f;
+                float returnAmount = this.FindTaxRateToReturnAmount(Math.Abs(this.empire.GrossTaxes * this.empire.data.TaxRate * 0.10f));
+                if (this.empire.data.TaxRate >= 0.5f) returnAmount += 0.1f;
                 this.empire.data.TaxRate = returnAmount;
-
-                return;
             }
-            float single = this.FindTaxRateToReturnAmount(0);
-            this.empire.data.TaxRate = single;
+            else
+            {
+                float single = this.FindTaxRateToReturnAmount(0);
+                this.empire.data.TaxRate = single;
+            }
         }
 
 		public void RunEventChecker(KeyValuePair<Empire, Relationship> Them)
@@ -6761,7 +6762,7 @@ namespace Ship_Game.Gameplay
                             }
                             Ship current = enumerator1.Current;
                             bool scrapFleet = current.fleet == null;
-                            if (this.empire.Money < -this.empire.GrossTaxes)
+                            if (this.empire.Money < -this.empire.GrossTaxes * this.empire.data.TaxRate)
                             {
                                 scrapFleet = true;
                             }
