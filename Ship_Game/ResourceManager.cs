@@ -1722,11 +1722,7 @@ namespace Ship_Game
 
 		private static void LoadItAll()
 		{
-
-            //if (Ship_Game.ResourceManager.WhichModPath != "Content")
-            //    ResourceManager.OffSet = 10000;
-            //else
-                ResourceManager.OffSet = 0;
+            ResourceManager.OffSet = 0;
             Ship_Game.ResourceManager.LoadLanguage();
             Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
@@ -1753,8 +1749,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadExpEvents();
             Ship_Game.ResourceManager.LoadArtifacts();			
             Ship_Game.ResourceManager.LoadShipRoles();
-            
-            
+            Ship_Game.ResourceManager.LoadPlanetEdicts();
 		}
 
 		private static void LoadJunk()
@@ -1945,6 +1940,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.LoadSoundEffects();
             Ship_Game.ResourceManager.LoadShipRoles();
             Ship_Game.ResourceManager.LoadHullBonuses();
+            Ship_Game.ResourceManager.LoadPlanetEdicts();
             Localizer.cleanLocalizer();
             ResourceManager.OffSet = 0;
 		}
