@@ -2987,7 +2987,7 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 					this.build.AddTab(Localizer.Token(336));
 				}
 			}
-			if (!this.p.CanBuildShips())
+			if (!this.p.HasShipyard)
 			{
 				bool remove = false;
 				foreach (Submenu.Tab tab in this.build.Tabs)
