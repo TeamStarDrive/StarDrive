@@ -108,6 +108,7 @@ namespace Ship_Game
         public static MainMenuShipList MainMenuShipList;
         public static Dictionary<string, ShipRole> ShipRoles;
         public static Dictionary<string, HullBonus> HullBonuses;
+        public static Dictionary<string, PlanetEdict> PlanetaryEdicts;
 
 		static ResourceManager()
 		{
@@ -158,6 +159,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
             Ship_Game.ResourceManager.ShipRoles = new Dictionary<string, ShipRole>();
             Ship_Game.ResourceManager.HullBonuses = new Dictionary<string, HullBonus>();
+            Ship_Game.ResourceManager.PlanetaryEdicts = new Dictionary<string, PlanetEdict>();
             Ship_Game.ResourceManager.OffSet = 0;
 		}
 
@@ -2791,6 +2793,34 @@ namespace Ship_Game
             }
             if (Ship_Game.ResourceManager.HullBonuses.Count == 0)
                 GlobalStats.ActiveMod.mi.useHullBonuses = false;
+        }
+
+        //Added by McShooterz: Load planetary edicts
+        private static void LoadPlanetEdicts()
+        {
+            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/PlanetEdicts")) && GlobalStats.ActiveMod.mi.useHullBonuses)
+            {
+                FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/PlanetEdicts"));
+                XmlSerializer serializer1 = new XmlSerializer(typeof(HullBonus));
+                FileInfo[] fileInfoArray = textList;
+                for (int i = 0; i < (int)fileInfoArray.Length; i++)
+                {
+                    FileInfo FI = fileInfoArray[i];
+                    FileStream stream = FI.OpenRead();
+                    PlanetEdict data = (PlanetEdict)serializer1.Deserialize(stream);
+                    stream.Close();
+                    stream.Dispose();
+                    if (Ship_Game.ResourceManager.PlanetaryEdicts.ContainsKey(data.Name))
+                    {
+                        Ship_Game.ResourceManager.PlanetaryEdicts[data.Name] = data;
+                    }
+                    else
+                    {
+                        Ship_Game.ResourceManager.PlanetaryEdicts.Add(data.Name, data);
+                    }
+                }
+                textList = null;
+            }
         }
 
         //Added by McShooterz: Load hostileFleets.xml
