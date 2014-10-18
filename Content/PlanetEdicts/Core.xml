@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PlanetEdict xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Core</Name>
+  <Localization>120</Localization>
+  <Description>1</Description>
+  <PreventStarvation>true</PreventStarvation>
+  <FoodPriority>0.1</FoodPriority>
+  <ProductionPriority>0.45</ProductionPriority>
+  <ResearchPriority>0.45</ResearchPriority>
+  <FoodImportThreshold>0.2</FoodImportThreshold>
+  <FoodStoreThreshold>0.3</FoodStoreThreshold>
+  <FoodExportThreshold>1.0</FoodExportThreshold>
+  <ProductionImportThreshold>0.3</ProductionImportThreshold>
+  <ProductionStoreThreshold>0.4</ProductionStoreThreshold>
+  <ProductionExportThreshold>1.0</ProductionExportThreshold>
+  <BuildsTroops>true</BuildsTroops>
+  <BuildsDefensePlatforms>true</BuildsDefensePlatforms>
+</PlanetEdict>
