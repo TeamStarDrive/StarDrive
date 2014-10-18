@@ -71,7 +71,6 @@ namespace Ship_Game
         public float TradeMoneyAddedThisTurn;
         public float MoneyLastTurn;
         public int totalTradeIncome;
-        public float TotalTaxesCollected;
         public bool AutoBuild;
         public bool AutoExplore;
         public bool AutoColonize;
@@ -1255,34 +1254,33 @@ namespace Ship_Game
 
         public float GetPlanetIncomes()
         {
-            float num = 0.0f;
+            float income = 0.0f;
             for (int index = 0; index < this.OwnedPlanets.Count; ++index)
             {
                 Planet planet = this.OwnedPlanets[index];
                 if (planet != null)
                 {
                     planet.UpdateIncomes();
-                    num += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
+                    income += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
                 }
             }
-            return num;
+            return income;
         }
 
         private void DoMoney()
         {
             this.MoneyLastTurn = this.Money;
             ++this.numberForAverage;
-            this.GrossTaxes = 0.0f;
+            this.GrossTaxes = 0f;
             lock (GlobalStats.OwnedPlanetsLock)
             {
-                for (int local_0 = 0; local_0 < this.OwnedPlanets.Count; ++local_0)
+                for (int i = 0; i < this.OwnedPlanets.Count; ++i)
                 {
-                    Planet local_1 = this.OwnedPlanets[local_0];
-                    if (local_1 != null)
+                    Planet planet = this.OwnedPlanets[i];
+                    if (planet != null)
                     {
-                        local_1.UpdateIncomes();
-                        this.GrossTaxes += local_1.GrossMoneyPT + local_1.GrossMoneyPT * this.data.Traits.TaxMod;
-                        this.TotalTaxesCollected += local_1.GrossMoneyPT + local_1.GrossMoneyPT * this.data.Traits.TaxMod;
+                        planet.UpdateIncomes();
+                        this.GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
                     }
                 }
             }
@@ -1324,7 +1322,7 @@ namespace Ship_Game
             }
             this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
             this.AllTimeMaintTotal += this.totalMaint;
-            this.Money += this.GrossTaxes;
+            this.Money += this.GrossTaxes * this.data.TaxRate;
             this.Money += this.data.FlatMoneyBonus;
             this.Money += this.TradeMoneyAddedThisTurn;
             this.Money -= this.totalMaint;
@@ -1332,10 +1330,7 @@ namespace Ship_Game
 
         public float EstimateIncomeAtTaxRate(float Rate)
         {
-            float num = 0.0f;
-            foreach (Planet planet in this.OwnedPlanets)
-                num += planet.EstimateTaxes(Rate);
-            return num + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus - (this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance());
+            return this.GrossTaxes * Rate + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus - (this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance());
         }
 
         public float GetActualNetLastTurn()
@@ -1345,7 +1340,7 @@ namespace Ship_Game
 
         public float GetAverageNetIncome()
         {
-            return (this.TotalTaxesCollected + (float)this.totalTradeIncome - this.AllTimeMaintTotal) / (float)this.numberForAverage;
+            return (this.GrossTaxes * this.data.TaxRate + (float)this.totalTradeIncome - this.AllTimeMaintTotal) / (float)this.numberForAverage;
         }
 
         public void UpdateShipsWeCanBuild()
