@@ -1628,7 +1628,7 @@ namespace Ship_Game
                     influenceNode1.KeyedObject = (object)planet.system;
                     influenceNode1.Position = planet.system.Position;
                 }
-                influenceNode1.Radius = this.isFaction ? 1f : 1f;
+                influenceNode1.Radius = 1f;
                 for (int index = 0; index < planet.BuildingList.Count; ++index)
                 {
                     //if (planet.BuildingList[index].IsProjector)
@@ -1757,17 +1757,17 @@ namespace Ship_Game
                 if (this.data.TurnsBelowZero < 0)
                     this.data.TurnsBelowZero = 0;
             }
-            float num1 = 0.0f;
+            float MilitaryStrength = 0.0f;
             for (int index = 0; index < this.OwnedShips.Count; ++index)
             {
                 Ship ship = this.OwnedShips[index];
-                num1 += ship.GetStrength();
+                MilitaryStrength += ship.GetStrength();
                 if (!this.data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(Empire.universeScreen.StarDate.ToString("#.0")))
                     ++StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].ShipCount;
             }
             if (!this.data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(Empire.universeScreen.StarDate.ToString("#.0")))
             {
-                StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].MilitaryStrength = num1;
+                StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].MilitaryStrength = MilitaryStrength;
                 StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].TaxRate = this.data.TaxRate;
             }
             if (this.isPlayer)
