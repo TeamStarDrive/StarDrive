@@ -2176,7 +2176,7 @@ namespace Ship_Game.Gameplay
                 foreach (Weapon weapon in this.Owner.Weapons)
                 {
                     //Reasons for this weapon not to fire
-                    if (weapon.IsRepairDrone || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.isRepairBeam)
+                    if (!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                     {
                         continue;
                     }
