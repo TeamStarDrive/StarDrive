@@ -220,11 +220,10 @@ namespace Ship_Game.Gameplay
                     this.MoveTowardsTargetJammed(elapsedTime);
                     return;
                 }
-                if (GlobalStats.ActiveMod.mi.enableECM && !ECMRun && DistancetoTarget <= 4000)
+                if (GlobalStats.ActiveMod.mi.enableECM && (this.Target is ShipModule) && !this.ECMRun && DistancetoTarget <= 4000)
                 {
-                    ECMRun = true;
-                    Ship sTarget = this.Target as Ship;
-                    float TargetECM = sTarget.ECMValue;
+                    this.ECMRun = true;
+                    float TargetECM = (this.Target as ShipModule).GetParent().ECMValue;
                     float ECMResist = this.Owner.weapon.ECMResist;
                     if (RandomMath.RandomBetween(0f, 1f) + ECMResist < TargetECM)
                     {
