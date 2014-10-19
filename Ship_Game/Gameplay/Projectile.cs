@@ -32,8 +32,6 @@ namespace Ship_Game.Gameplay
 
 		private MissileAI missileAI;
 
-		public float life;
-
 		private Ship_Game.Planet planet;
 
 		public float velocityMaximum;
@@ -355,7 +353,7 @@ namespace Ship_Game.Gameplay
 		{
 			DebugInfoScreen.ProjCreated = DebugInfoScreen.ProjCreated + 1;
 			this.direction = direction;
-            this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
+            this.velocity = initialSpeed * direction;
 			if (this.moduleAttachedTo == null)
 			{
 				this.Center = pos;
@@ -367,13 +365,9 @@ namespace Ship_Game.Gameplay
 				this.rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.velocity));
 			}
 			this.radius = 1f;
-			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
+			this.velocityMaximum = initialSpeed;
 			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
-            this.duration = this.range / initialSpeed * 1.5f;
-			if (this.weapon.Tag_SpaceBomb)
-			{
-				this.duration = 5f;
-			}
+            this.duration = this.range / initialSpeed * 1.2f;
 			this.initialDuration = this.duration;
 			if (this.weapon.Animated == 1)
 			{
@@ -500,12 +494,8 @@ namespace Ship_Game.Gameplay
 			}
 			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			this.radius = 1f;
-			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
-            this.duration = this.range / initialSpeed * 1.5f;
-			if (this.weapon.Tag_SpaceBomb)
-			{
-				this.duration = 5f;
-			}
+			this.velocityMaximum = initialSpeed;
+            this.duration = this.range / initialSpeed * 2f;
 			this.initialDuration = this.duration;
 			if (this.moduleAttachedTo != null)
 			{
@@ -567,9 +557,7 @@ namespace Ship_Game.Gameplay
 			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			this.radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
-			this.duration = this.range / initialSpeed;
-			Projectile projectile = this;
-			projectile.duration = projectile.duration + this.duration * 0.25f;
+			this.duration = this.range / initialSpeed * 2f;
 			this.initialDuration = this.duration;
 			this.planet = p;
 			if (this.weapon.Animated == 1)
@@ -628,9 +616,7 @@ namespace Ship_Game.Gameplay
 			this.radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
 			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
-			this.duration = this.range / initialSpeed;
-			Projectile projectile = this;
-			projectile.duration = projectile.duration + this.duration * 0.25f;
+			this.duration = this.range / initialSpeed * 1.25f;
 			this.initialDuration = this.duration;
 			if (this.weapon.Animated == 1)
 			{
@@ -808,7 +794,37 @@ namespace Ship_Game.Gameplay
                         if (remainder > 0)
                         {
                             this.damageAmount = remainder;
-                            return false;
+                            bool SlotFound = true;
+                            int depth = 8;
+                            Vector2 UnitVector = this.velocity;
+                            while (this.damageAmount > 0)
+                            {
+                                UnitVector.Normalize();
+                                UnitVector *= depth;
+                                SlotFound = false;
+                                foreach (ModuleSlot slot in module.GetParent().ModuleSlotList)
+                                {
+                                    if (Vector2.Distance(this.Center + UnitVector, slot.module.Center) < 10f)
+                                    {
+                                        SlotFound = true;
+                                        if (slot.module.Active)
+                                        {
+                                            remainder = 0;
+                                            slot.module.Damage(this, this.damageAmount, ref remainder);
+                                            if (remainder > 0)
+                                                this.damageAmount = remainder;
+                                            else
+                                                this.damageAmount = 0f;
+                                        }
+                                        break;
+                                    }
+                                }
+                                //Slot found means it is still in the ship
+                                if (SlotFound)
+                                    depth += 8;
+                                else
+                                    break;
+                            }
                         }
                     }
                     base.Health = 0f;

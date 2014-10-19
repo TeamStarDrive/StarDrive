@@ -965,7 +965,6 @@ namespace Ship_Game.Gameplay
 					dieCue.Apply3D(GameplayObject.audioListener, this.Parent.emitter);
 					dieCue.Play();
 				}
-				//if (this.ModuleType == ShipModuleType.PowerPlant)
                 if (this.explodes)
 				{
 					if (this.Parent.GetSystem() == null)
@@ -976,9 +975,8 @@ namespace Ship_Game.Gameplay
 					{
                         this.Parent.GetSystem().spatialManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
 					}
-					this.Parent.NeedRecalculate = true;
 				}
-				if (this.ModuleType == ShipModuleType.PowerConduit)
+				if (this.PowerFlowMax > 0 || this.PowerRadius > 0)
 				{
 					this.Parent.NeedRecalculate = true;
 				}
@@ -1594,19 +1592,6 @@ namespace Ship_Game.Gameplay
 			return colors2D;
 		}
 
-		public override bool Touch(GameplayObject target)
-		{
-			ShipModule testMod = target as ShipModule;
-			int test = 0;
-			if (testMod != null && testMod.Parent.loyalty != this.Parent.loyalty)
-			{
-				this.Damage(target, 10f);
-				target.Damage(this, 10f);
-				test++;
-			}
-			return base.Touch(target);
-		}
-
 		public override void Update(float elapsedTime)
 		{
             this.BombTimer -= elapsedTime;
@@ -1642,29 +1627,28 @@ namespace Ship_Game.Gameplay
             }
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power <= 0f || shieldsOff)
-			{
 				this.radius = 8f;
-			}
 			else
-			{
 				this.radius = this.shield_radius;
-			}
 			if ((this.hangarShip == null || !this.hangarShip.Active) && this.ModuleType == ShipModuleType.Hangar && this.Active)
                 this.hangarTimer -= elapsedTime;
             //Shield Recharge
-            if (this.Active && this.Powered && this.shield_power < this.GetShieldsMax())
+            float shieldMax = this.GetShieldsMax();
+            if (this.Active && this.Powered && this.shield_power < shieldMax)
 			{
                 if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
                     this.shield_power += this.shield_recharge_rate * elapsedTime;
                 else if (this.shield_power > 0)
                     this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
-                if (this.shield_power > this.GetShieldsMax())
-                    this.shield_power = this.GetShieldsMax();
+                if (this.shield_power > shieldMax)
+                    this.shield_power = shieldMax;
 			}
 			if (this.shield_power < 0f)
 			{
 				this.shield_power = 0f;
 			}
+            if (this.TransporterTimer > 0)
+                this.TransporterTimer -= elapsedTime;
 			base.Update(elapsedTime);
 		}
 

@@ -83,10 +83,6 @@ namespace Ship_Game
 
 		private ScrollList buildSL;
 
-		//private ScrollList shipSL;
-
-		//private ScrollList facSL;
-
 		private ScrollList QSL;
 
 		private DropDownMenu foodDropDown;
@@ -146,8 +142,6 @@ namespace Ship_Game
 		private int editHoverState;
 
 		private Rectangle edit_name_button = new Rectangle();
-
-		//private string fmt = "0.#";
 
 		private List<Building> BuildingsCanBuild = new List<Building>();
 
@@ -1133,7 +1127,7 @@ namespace Ship_Game
       string nIncome = Localizer.Token(6127);
       string nLosses = Localizer.Token(6129);
 
-      float grossIncome = (float)((double)this.p.GrossMoneyPT + (double)this.p.Owner.data.Traits.TaxMod * (double)this.p.GrossMoneyPT);
+      float grossIncome = (float)((double)this.p.GrossMoneyPT + (double)this.p.Owner.data.Traits.TaxMod * (double)this.p.GrossMoneyPT) * this.p.Owner.data.TaxRate;
       float grossUpkeep = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn * (double)this.p.Owner.data.Traits.MaintMod);
       float netIncome = (float)(grossIncome - grossUpkeep);
 
@@ -2987,7 +2981,7 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 					this.build.AddTab(Localizer.Token(336));
 				}
 			}
-			if (!this.p.CanBuildShips())
+			if (!this.p.HasShipyard)
 			{
 				bool remove = false;
 				foreach (Submenu.Tab tab in this.build.Tabs)

@@ -484,15 +484,15 @@ namespace Ship_Game
                         }
                         if (planet1 == null)
                             break;
-                        if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) == this.empire && ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoColony))
+                        if (this.empire.isPlayer && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoColony))
                         {
                             planet1.ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
                                 QueueNumber = planet1.ConstructionQueue.Count,
-                                sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoColony].GetShipData(),
+                                sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoColony].GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoColony].GetCost(this.empire)
+                                Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoColony].GetCost(this.empire)
                             });
                             this.PlanetBuildingAt = planet1;
                             ++this.Step;
@@ -655,15 +655,15 @@ namespace Ship_Game
                         }
                         if (planet1 == null)
                             break;
-                        if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) == this.empire && EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).AutoFreighters && ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter))
+                        if (this.empire.isPlayer && this.empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoFreighter))
                         {
                             planet1.ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
                                 QueueNumber = planet1.ConstructionQueue.Count,
-                                sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetShipData(),
+                                sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetCost(this.empire),
+                                Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetCost(this.empire),
                                 NotifyOnEmpty =false
                             });
                             ++this.Step;
@@ -839,15 +839,15 @@ namespace Ship_Game
                         }
                         if (planet1 == null)
                             break;
-                        if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) == this.empire && EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).AutoFreighters && ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter))
+                        if (this.empire.isPlayer && this.empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoFreighter))
                         {
                             planet1.ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
                                 QueueNumber = planet1.ConstructionQueue.Count,
-                                sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetShipData(),
+                                sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetCost(this.empire),
+                                Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetCost(this.empire),
                                 NotifyOnEmpty=false
                             });
                             ++this.Step;

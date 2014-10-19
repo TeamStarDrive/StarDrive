@@ -85,6 +85,10 @@ namespace Ship_Game
 			{
 				e.isFaction = true;
 			}
+            if (data.isMinorRace)
+            {
+                e.MinorRace = true;
+            }
 			if (data.empireData == null)
 			{
 				e.data.Traits = data.Traits;
@@ -144,7 +148,7 @@ namespace Ship_Game
 				}
 				e.GetTDict()[tech.UID].Progress = tech.Progress;
 				e.GetTDict()[tech.UID].Discovered = tech.Discovered;
-
+                e.GetTDict()[tech.UID].level = tech.level;
 			}
 			return e;
 		}
@@ -599,15 +603,22 @@ namespace Ship_Game
 					Ship ship = Ship.LoadSavedShip(shipData.data);
 					ship.guid = shipData.guid;
 					ship.Name = shipData.Name;
-					if (ship.Name == "Troop Shuttle" || ship.Name == "Spider Tank")
-					{
-						ship.Name = d.empireData.StartingScout;
-						if (shipData.TroopList.Count > 0)
-						{
-							ship.VanityName = shipData.TroopList[0].Name;
-						}
-					}
-					ship.VanityName = shipData.Name;
+                    if (shipData.VanityName != "")
+                        ship.VanityName = shipData.VanityName;
+                    else
+                    {
+                        if (ship.Role == "troop")
+                        {
+                            if (shipData.TroopList.Count > 0)
+                            {
+                                ship.VanityName = shipData.TroopList[0].Name;
+                            }
+                            else
+                                ship.VanityName = shipData.Name;
+                        }
+                        else
+                            ship.VanityName = shipData.Name;
+                    }
 					ship.Position = shipData.Position;
 					if (shipData.IsPlayerShip)
 					{
@@ -630,25 +641,14 @@ namespace Ship_Game
 						newShip.IsPlayerDesign = false;
 						newShip.FromSave = true;
 						Ship_Game.ResourceManager.ShipsDict.Add(shipData.Name, newShip);
-					}
-					
+					}				
                     else if (Ship_Game.ResourceManager.ShipsDict[shipData.Name].FromSave)
 					{
 						ship.IsPlayerDesign = false;
 						ship.FromSave = true;
-
-
 					}
                     float oldbasestr = ship.BaseStrength;
                     float newbasestr = ResourceManager.CalculateBaseStrength(ship);
-                    //if (oldbasestr==0&& (ship.Name !="Subspace Projector" &&ship.Role !="troop"&&ship.Role !="freighter"))
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine(ship.Name);
-                    //    System.Diagnostics.Debug.WriteLine("BaseStrength: " + oldbasestr);
-                    //    System.Diagnostics.Debug.WriteLine("NewStrength: " + newbasestr);
-                    //    System.Diagnostics.Debug.WriteLine("");
-                        
-                    //}
                     ship.BaseStrength = newbasestr;
 
                     foreach(ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
@@ -794,14 +794,6 @@ namespace Ship_Game
 						if (ship.Position != shipData.Position)
 						{
 							continue;
-						}
-						foreach (Planet p in e.GetPlanets())
-						{
-							if (p.Name != shipData.HomePlanet)
-							{
-								continue;
-							}
-							ship.SetHome(p);
 						}
 					}
 				}

@@ -122,6 +122,8 @@ namespace Ship_Game
 
         public float ShipRepair;
 
+        public BuildingCategory Category = BuildingCategory.General;
+
 		public Building()
 		{
 		}
