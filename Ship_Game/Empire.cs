@@ -71,7 +71,6 @@ namespace Ship_Game
         public float TradeMoneyAddedThisTurn;
         public float MoneyLastTurn;
         public int totalTradeIncome;
-        public float TotalTaxesCollected;
         public bool AutoBuild;
         public bool AutoExplore;
         public bool AutoColonize;
@@ -763,6 +762,8 @@ namespace Ship_Game
                         this.data.PowerFlowMod += unlockedBonus.Bonus;
                     if (str == "Shield Power Bonus")
                         this.data.ShieldPowerMod += unlockedBonus.Bonus;
+                    if (str == "Ship Experience Bonus")
+                        this.data.ExperienceMod += unlockedBonus.Bonus;
                 }
             }
             //update ship stats if a bonus was unlocked
@@ -1253,34 +1254,33 @@ namespace Ship_Game
 
         public float GetPlanetIncomes()
         {
-            float num = 0.0f;
+            float income = 0.0f;
             for (int index = 0; index < this.OwnedPlanets.Count; ++index)
             {
                 Planet planet = this.OwnedPlanets[index];
                 if (planet != null)
                 {
                     planet.UpdateIncomes();
-                    num += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
+                    income += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
                 }
             }
-            return num;
+            return income;
         }
 
         private void DoMoney()
         {
             this.MoneyLastTurn = this.Money;
             ++this.numberForAverage;
-            this.GrossTaxes = 0.0f;
+            this.GrossTaxes = 0f;
             lock (GlobalStats.OwnedPlanetsLock)
             {
-                for (int local_0 = 0; local_0 < this.OwnedPlanets.Count; ++local_0)
+                for (int i = 0; i < this.OwnedPlanets.Count; ++i)
                 {
-                    Planet local_1 = this.OwnedPlanets[local_0];
-                    if (local_1 != null)
+                    Planet planet = this.OwnedPlanets[i];
+                    if (planet != null)
                     {
-                        local_1.UpdateIncomes();
-                        this.GrossTaxes += local_1.GrossMoneyPT + local_1.GrossMoneyPT * this.data.Traits.TaxMod;
-                        this.TotalTaxesCollected += local_1.GrossMoneyPT + local_1.GrossMoneyPT * this.data.Traits.TaxMod;
+                        planet.UpdateIncomes();
+                        this.GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
                     }
                 }
             }
@@ -1322,7 +1322,7 @@ namespace Ship_Game
             }
             this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
             this.AllTimeMaintTotal += this.totalMaint;
-            this.Money += this.GrossTaxes;
+            this.Money += this.GrossTaxes * this.data.TaxRate;
             this.Money += this.data.FlatMoneyBonus;
             this.Money += this.TradeMoneyAddedThisTurn;
             this.Money -= this.totalMaint;
@@ -1330,10 +1330,7 @@ namespace Ship_Game
 
         public float EstimateIncomeAtTaxRate(float Rate)
         {
-            float num = 0.0f;
-            foreach (Planet planet in this.OwnedPlanets)
-                num += planet.EstimateTaxes(Rate);
-            return num + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus - (this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance());
+            return this.GrossTaxes * Rate + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus - (this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance());
         }
 
         public float GetActualNetLastTurn()
@@ -1343,7 +1340,7 @@ namespace Ship_Game
 
         public float GetAverageNetIncome()
         {
-            return (this.TotalTaxesCollected + (float)this.totalTradeIncome - this.AllTimeMaintTotal) / (float)this.numberForAverage;
+            return (this.GrossTaxes * this.data.TaxRate + (float)this.totalTradeIncome - this.AllTimeMaintTotal) / (float)this.numberForAverage;
         }
 
         public void UpdateShipsWeCanBuild()
@@ -1631,7 +1628,7 @@ namespace Ship_Game
                     influenceNode1.KeyedObject = (object)planet.system;
                     influenceNode1.Position = planet.system.Position;
                 }
-                influenceNode1.Radius = this.isFaction ? 1f : 1f;
+                influenceNode1.Radius = 1f;
                 for (int index = 0; index < planet.BuildingList.Count; ++index)
                 {
                     //if (planet.BuildingList[index].IsProjector)
@@ -1760,17 +1757,17 @@ namespace Ship_Game
                 if (this.data.TurnsBelowZero < 0)
                     this.data.TurnsBelowZero = 0;
             }
-            float num1 = 0.0f;
+            float MilitaryStrength = 0.0f;
             for (int index = 0; index < this.OwnedShips.Count; ++index)
             {
                 Ship ship = this.OwnedShips[index];
-                num1 += ship.GetStrength();
+                MilitaryStrength += ship.GetStrength();
                 if (!this.data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(Empire.universeScreen.StarDate.ToString("#.0")))
                     ++StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].ShipCount;
             }
             if (!this.data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(Empire.universeScreen.StarDate.ToString("#.0")))
             {
-                StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].MilitaryStrength = num1;
+                StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].MilitaryStrength = MilitaryStrength;
                 StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].TaxRate = this.data.TaxRate;
             }
             if (this.isPlayer)
@@ -2193,24 +2190,32 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
+            int freighterLimit = (this.OwnedPlanets.Count() * 2 > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : this.OwnedPlanets.Count() * 2);
+            int TradeLimit = (int)(freighterLimit * 0.8f);
+            int PassLimit = freighterLimit - TradeLimit;
             List<Ship> unusedFreighters = new List<Ship>();
             List<Ship> assignedShips = new List<Ship>();
-            List<Ship> TradeShips = new List<Ship>();
-            List<Ship> PassengerShips = new List<Ship>();
             foreach (Ship ship in (List<Ship>)this.OwnedShips)
             {
-                if (((ship.shipData == null || ship.shipData.ShipCategory == ShipData.Category.Civilian) && ship.Role == "freighter") && !ship.isColonyShip && (double)ship.CargoSpace_Max > 0.0)
+                if (ship.Role != "freighter" || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                    continue;
+                if (ship.GetAI().State == AIState.SystemTrader)
                 {
-                    if (ship.GetAI() != null && ship.GetAI().State == AIState.SystemTrader)
-                        TradeShips.Add(ship);
-                    else if (ship.GetAI() != null && ship.GetAI().State == AIState.PassengerTransport)
-                        PassengerShips.Add(ship);
-                    else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
-                        unusedFreighters.Add(ship);
+                    if (tradeShips < TradeLimit)
+                        tradeShips++;
+                    else
+                        ship.GetAI().OrderScrapShip();
                 }
+                else if (ship.GetAI().State == AIState.PassengerTransport)
+                {
+                    if (passengerShips < PassLimit)
+                        passengerShips++;
+                    else
+                        ship.GetAI().OrderScrapShip();
+                }
+                else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
+                    unusedFreighters.Add(ship);
             }
-            tradeShips = TradeShips.Count();
-            passengerShips = PassengerShips.Count();
             //get number of freighters being built
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
@@ -2219,39 +2224,16 @@ namespace Ship_Game
                 else if (goal.GoalName == "IncreasePassengerShips")
                     ++passengerShips;
             }
-            //Set freighter limit based on number of planets in need
-            int freighterLimit = this.OwnedPlanets.Count() + 3 > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : this.OwnedPlanets.Count() + 3;
-            int TradeLimit = 2 + this.OwnedPlanets.Where(planet => planet.ps == Planet.GoodState.IMPORT || planet.fs == Planet.GoodState.IMPORT).Count();
-            if (TradeLimit >= freighterLimit)
-                TradeLimit = freighterLimit - 1;
-            int PassengerLimit = 1 + this.OwnedPlanets.Where(planet => planet.Population < planet.MaxPopulation * 0.5f).Count();
-            if (TradeLimit + PassengerLimit > freighterLimit)
-            {
-                PassengerLimit = freighterLimit - TradeLimit;
-            }
-            //Recycle unneeded trade ships
-            if (tradeShips > TradeLimit)
-            {
-                for (int i = 0; i < TradeShips.Count() && tradeShips > TradeLimit; i++)
-                {
-                    if (TradeShips[i].GetAI().OrderQueue.Count <= 0)
-                    {
-                        TradeShips[i].GetAI().OrderScrapShip();
-                        tradeShips--;
-                    }
-                }
-            }
-            else if (tradeShips < TradeLimit)
+            if (tradeShips < TradeLimit)
             {
                 //Do trade ships
                 foreach (Ship ship in unusedFreighters)
                 {
-                    if (tradeShips >= TradeLimit)
+                    if (tradeShips > TradeLimit)
                         break;
                     if (ship.GetAI().State != AIState.Flee)
                     {
                         ship.GetAI().OrderTrade();
-
                     }
                     assignedShips.Add(ship);
                     ++tradeShips;
@@ -2259,31 +2241,19 @@ namespace Ship_Game
                 foreach (Ship ship in assignedShips)
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
-                for (; tradeShips <= TradeLimit; ++tradeShips)
+                for (; tradeShips < TradeLimit; ++tradeShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
                         GoalName = "IncreaseFreighters",
                         type = GoalType.BuildShips
                     });          
             }
-            //Recycle unneeded passenger ships
-            if (passengerShips > PassengerLimit)
-            {
-                for (int i = 0; i < PassengerShips.Count() && passengerShips > PassengerLimit; i++)
-                {
-                    if (PassengerShips[i].GetAI().OrderQueue.Count <= 0)
-                    {
-                        PassengerShips[i].GetAI().OrderScrapShip();
-                        passengerShips--;
-                    }
-                }
-            }
-            else if (passengerShips < PassengerLimit)
+            if (passengerShips < PassLimit)
             {
                 //Do passenger ships
                 foreach (Ship ship in unusedFreighters)
                 {
-                    if (passengerShips >= PassengerLimit)
+                    if (passengerShips > PassLimit)
                         break;
                     ship.GetAI().OrderTransportPassengers();
                     assignedShips.Add(ship);
@@ -2292,7 +2262,7 @@ namespace Ship_Game
                 foreach (Ship ship in assignedShips)
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
-                for (; passengerShips <= PassengerLimit; ++passengerShips)
+                for (; passengerShips < PassLimit; ++passengerShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
                         type = GoalType.BuildShips,

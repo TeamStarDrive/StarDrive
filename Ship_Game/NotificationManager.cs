@@ -148,6 +148,42 @@ namespace Ship_Game
 			}
 		}
 
+        public void AddForeignTroopsRemovedNotification(Planet where)
+        {
+            Notification cNote = new Notification()
+            {
+                Message = string.Concat("Foreign troops evacuated from ", where.Name),
+                ReferencedItem1 = where,
+                IconPath = string.Concat("Planets/", where.planetType),
+                Action = "SnapToPlanet",
+                ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
+                DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
+            };
+            AudioManager.PlayCue("sd_notify_alert");
+            lock (GlobalStats.NotificationLocker)
+            {
+                this.NotificationList.Add(cNote);
+            }
+        }
+
+        public void AddTroopsRemovedNotification(Planet where)
+        {
+            Notification cNote = new Notification()
+            {
+                Message = string.Concat("Your troops stationed on ", where.Name, " had to evacuate when ", where.Owner.data.Traits.Name, " colonized the planet"),
+                ReferencedItem1 = where,
+                IconPath = string.Concat("Planets/", where.planetType),
+                Action = "SnapToPlanet",
+                ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
+                DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
+            };
+            AudioManager.PlayCue("sd_notify_alert");
+            lock (GlobalStats.NotificationLocker)
+            {
+                this.NotificationList.Add(cNote);
+            }
+        }
+
 		public void AddEventNotification(ExplorationEvent expEvent)
 		{
 			Notification cNote = new Notification()

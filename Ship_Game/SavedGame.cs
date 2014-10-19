@@ -207,6 +207,7 @@ namespace Ship_Game
 				SavedGame.EmpireSaveData empireToSave = new SavedGame.EmpireSaveData()
 				{
 					IsFaction = e.isFaction,
+                    isMinorRace = e.MinorRace,
 					Relations = new List<Relationship>()
 				};
 				foreach (KeyValuePair<Empire, Relationship> relation in e.GetRelations())
@@ -364,7 +365,8 @@ namespace Ship_Game
 						sdata.TetheredTo = ship.GetTether().guid;
 						sdata.TetherOffset = ship.TetherOffset;
 					}
-					sdata.Name = ship.VanityName;
+					sdata.Name = ship.Name;
+                    sdata.VanityName = ship.VanityName;
 					if (ship.PlayerShip)
 					{
 						sdata.IsPlayerShip = true;
@@ -455,10 +457,6 @@ namespace Ship_Game
 					{
 						sdata.AISave.EscortTarget = ship.GetAI().EscortTarget.guid;
 					}
-					if (ship.GetHome() != null)
-					{
-						sdata.HomePlanet = ship.GetHome().Name;
-					}
 					sdata.Projectiles = new List<SavedGame.ProjectileSaveData>();
 					for (int i = 0; i < ship.Projectiles.Count; i++)
 					{
@@ -540,6 +538,8 @@ namespace Ship_Game
 			public List<SavedGame.SpaceRoadSave> SpaceRoadData;
 
 			public bool IsFaction;
+
+            public bool isMinorRace;
 
 			public RacialTrait Traits;
 
@@ -849,6 +849,8 @@ namespace Ship_Game
 
 			public string Name;
 
+            public string VanityName;
+
 			public bool IsPlayerShip;
 
 			public float yRotation;
@@ -856,8 +858,6 @@ namespace Ship_Game
 			public float Power;
 
 			public float Ordnance;
-
-			public string HomePlanet;
 
 			public float InCombatTimer;
 
