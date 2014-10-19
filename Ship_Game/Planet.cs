@@ -4094,6 +4094,7 @@ namespace Ship_Game
                 this.ApplyProductiontoQueue(this.NetProductionPerTurn + amount, 0);
             }
             else
+            {
                 //Only store 25% if exporting
                 if (this.ps == GoodState.EXPORT)
                 {
@@ -4102,8 +4103,13 @@ namespace Ship_Game
                 }
                 else
                     this.ApplyProductiontoQueue(this.NetProductionPerTurn, 0);
-            if ((double)this.ProductionHere > (double)this.MAX_STORAGE)
+            }
+            //Lost production converted into 50% money
+            if (this.ProductionHere > this.MAX_STORAGE)
+            {
+                this.Owner.Money += (this.ProductionHere - this.MAX_STORAGE) * 0.5f;
                 this.ProductionHere = this.MAX_STORAGE;
+            }
         }
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
