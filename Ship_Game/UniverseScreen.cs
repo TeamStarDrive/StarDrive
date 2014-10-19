@@ -552,8 +552,6 @@ namespace Ship_Game
             {
                 this.playerShip.PlayerShip = false;
                 this.playerShip.GetAI().State = AIState.AwaitingOrders;
-                if (this.playerShip.GetHome() != null)
-                    this.SelectedShip.SetHome(this.playerShip.GetHome());
                 this.playerShip = (Ship)null;
             }
             else
@@ -568,8 +566,6 @@ namespace Ship_Game
                 {
                     this.playerShip.PlayerShip = false;
                     this.playerShip.GetAI().State = AIState.AwaitingOrders;
-                    if (this.playerShip.GetHome() != null)
-                        this.SelectedShip.SetHome(this.playerShip.GetHome());
                     this.playerShip = this.SelectedShip;
                     this.playerShip.PlayerShip = true;
                     this.playerShip.GetAI().State = AIState.ManualControl;

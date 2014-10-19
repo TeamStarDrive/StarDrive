@@ -25,8 +25,6 @@ namespace Ship_Game.Gameplay
 
         private bool ECMRun = false;
 
-
-
 		public MissileAI(Projectile owner)
 		{
 			this.Owner = owner;
@@ -38,29 +36,8 @@ namespace Ship_Game.Gameplay
 					if (GPO[i] is Ship)
 					{
 						Ship target = GPO[i] as Ship;
-						if (target != null && target.loyalty != this.Owner.loyalty)
-                        {
-                            if ((target.Role == "scout" || target.Role == "fighter" || target.Role == "drone") && this.Owner.weapon.Excludes_Fighters)
-                            {
-                                continue;
-                            }
-                            if (target.Role == "corvette" && this.Owner.weapon.Excludes_Corvettes)
-                            {
-                                continue;
-                            }
-                            if ((target.Role == "frigate" || target.Role == "destroyer" || target.Role == "cruiser" || target.Role == "carrier" || target.Role == "capital") && this.Owner.weapon.Excludes_Capitals)
-                            {
-                                continue;
-                            }
-                            if ((target.Role == "platform" || target.Role == "station") && this.Owner.weapon.Excludes_Stations)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                this.TargetList.Add(target);
-                            }
-						}
+                        if (target != null && target.loyalty != this.Owner.loyalty && this.Owner.weapon.TargetValid(target.Role))
+                            this.TargetList.Add(target);
 					}
 				}
 			}
@@ -74,19 +51,21 @@ namespace Ship_Game.Gameplay
                 GameplayObject sourceTarget = this.Owner.owner.GetAI().Target;
                 if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && (sourceTarget as Ship).loyalty != this.Owner.loyalty)
                 {
-                    this.SetTarget(sourceTarget); //use SetTarget function
+                    this.SetTarget((sourceTarget as Ship).GetRandomInternalModule());
                     return;
                 }
             }
-            this.Target = null;
-            this.SetTarget(this.TargetList.OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>()); //use SetTarget function
+            if (TargetList.Count > 0)
+            {
+                Ship test = this.TargetList.Where(ship => ship.Active && !ship.dying).OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>();
+                if(test != null) this.SetTarget(test.GetRandomInternalModule());
+            }
         }
 
-		public void ClearTargets()
+		public void ClearTarget()
 		{
             this.TargetSet = false;
 			this.Target = null;
-			this.TargetList.Clear();
 		}
 
 		private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
@@ -233,48 +212,43 @@ namespace Ship_Game.Gameplay
         //added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
-
-            float DistancetoTarget = 0; 
-            if(this.Target !=null)
-                DistancetoTarget=Vector2.Distance(this.Owner.Center, this.Target.Center);
-
-            if ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM) && this.Target != null && this.Jammed)
+            if (this.Target != null && GlobalStats.ActiveMod != null && (GlobalStats.ActiveMod.mi.enableECM || this.Owner.weapon.TerminalPhaseAttack))
             {
-                this.MoveTowardsTargetJammed(elapsedTime);
-                return;
-            }
-
-            if ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM) && this.Target != null && !ECMRun && DistancetoTarget <= 4000)
-            {
-                ECMRun = true;
-                Ship sTarget = this.Target as Ship;
-                float TargetECM = sTarget.ECMValue;
-                float ECMResist = this.Owner.weapon.ECMResist;
-                if (RandomMath.RandomBetween(0f, 1f) + ECMResist < TargetECM)
+                float DistancetoTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
+                if (this.Jammed)
                 {
-                    this.Jammed = true;
                     this.MoveTowardsTargetJammed(elapsedTime);
                     return;
                 }
+                if (GlobalStats.ActiveMod.mi.enableECM && (this.Target is ShipModule) && !this.ECMRun && DistancetoTarget <= 4000)
+                {
+                    this.ECMRun = true;
+                    float TargetECM = (this.Target as ShipModule).GetParent().ECMValue;
+                    float ECMResist = this.Owner.weapon.ECMResist;
+                    if (RandomMath.RandomBetween(0f, 1f) + ECMResist < TargetECM)
+                    {
+                        this.Jammed = true;
+                        this.MoveTowardsTargetJammed(elapsedTime);
+                        return;
+                    }
+                }
+                if (this.Owner.weapon.TerminalPhaseAttack && DistancetoTarget <= this.Owner.weapon.TerminalPhaseDistance)
+                {
+                    this.MoveTowardsTargetTerminal(elapsedTime);
+                    return;
+                }
             }
-
-            if (this.Owner.weapon.TerminalPhaseAttack && DistancetoTarget <= this.Owner.weapon.TerminalPhaseDistance)
-            {
-                this.MoveTowardsTargetTerminal(elapsedTime);
-                return;
-            }
-
             this.thinkTimer -= elapsedTime;
-            if (this.thinkTimer <= 0f) //check time interval
+            if (this.thinkTimer <= 0f)
             {
                 this.thinkTimer = 1f;
-                if (this.Target == null || !this.Target.Active || (this.Target is Ship && (this.Target as Ship).dying)) //Check if new target is needed
+                if (this.Target == null || !this.Target.Active || (this.Target is ShipModule && (this.Target as ShipModule).GetParent().dying))
                 {
-                    this.ClearTargets();
+                    this.ClearTarget();
                     this.ChooseTarget();
                 }
             }
-            if (TargetSet)  //if SetTarget() was used then TargetSet=true
+            if (TargetSet)
             {
                 this.MoveTowardsTarget(elapsedTime);
                 return;
