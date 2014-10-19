@@ -1895,8 +1895,7 @@ namespace Ship_Game
 		}
 
 		public static void LoadMods(string ModPath)
-		{
-			
+		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
             ResourceManager.OffSet = 32000;
             //if (Ship_Game.ResourceManager.WhichModPath != "Content")
@@ -2794,10 +2793,10 @@ namespace Ship_Game
         //Added by McShooterz: Load planetary edicts
         private static void LoadPlanetEdicts()
         {
-            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/PlanetEdicts")) && GlobalStats.ActiveMod.mi.useHullBonuses)
+            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/PlanetEdicts")))
             {
                 FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/PlanetEdicts"));
-                XmlSerializer serializer1 = new XmlSerializer(typeof(HullBonus));
+                XmlSerializer serializer1 = new XmlSerializer(typeof(PlanetEdict));
                 FileInfo[] fileInfoArray = textList;
                 for (int i = 0; i < (int)fileInfoArray.Length; i++)
                 {
