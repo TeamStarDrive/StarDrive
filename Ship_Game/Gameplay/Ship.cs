@@ -2929,6 +2929,8 @@ namespace Ship_Game.Gameplay
                 this.EMPDamage = 0.0f;
             else if ((double)this.EMPDamage > (double)this.Size + (double)this.BonusEMP_Protection)
                 this.disabled = true;
+            else
+                this.disabled = false;
             this.CargoMass = 0.0f;
             if ((double)this.rotation > 2.0 * Math.PI)
             {
