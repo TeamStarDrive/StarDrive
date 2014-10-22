@@ -7375,8 +7375,7 @@ namespace Ship_Game.Gameplay
                                             this.res_strat = GSAI.ResearchStrategy.Scripted;
                                             ScriptIndex++;
                                             return;
-                                        }
-                                
+                                        }                  
                                 default:
                                     {
                                         foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
