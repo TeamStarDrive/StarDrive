@@ -2874,7 +2874,6 @@ namespace Ship_Game
                 if ((double)this.Fertility > 1.0)
                     this.Fertility = 1f;
             }
-            this.UpdateIncomes();
             if (this.GovernorOn)
                 this.DoGoverning();
             this.UpdateIncomes();
@@ -2934,7 +2933,7 @@ namespace Ship_Game
             this.ApplyProductionTowardsConstruction();
             this.GrowPopulation();
             //Added by McShooterz         
-            this.HealBuildingsAndTroops();
+            this.HealTroops();
             if ((double)this.FoodHere > (double)this.MAX_STORAGE)
                 this.FoodHere = this.MAX_STORAGE;
             if ((double)this.ProductionHere <= (double)this.MAX_STORAGE)
@@ -4007,7 +4006,6 @@ namespace Ship_Game
                     }
                 }
                 //Added by McShooterz: build defense platforms
-                //< ShipCountLimit * GlobalStats.spaceroadlimit
                 if (this.Owner.data.TaxRate < .40f && (double)this.NetProductionPerTurn > 4.0 && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < (this.developmentLevel - 1) * 2 && this.Shipyards.Count < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                 {
                     string platform = this.Owner.GetGSAI().GetDefenceSatellite();
@@ -4354,22 +4352,22 @@ namespace Ship_Game
         {
             if (this.Owner == null)
                 return;
-            this.PlusFlatPopulationPerTurn = 0.0f;
-            this.ShieldStrengthMax = 0.0f;
-            this.TotalMaintenanceCostsPerTurn = 0.0f;
+            this.PlusFlatPopulationPerTurn = 0f;
+            this.ShieldStrengthMax = 0f;
+            this.TotalMaintenanceCostsPerTurn = 0f;
             this.StorageAdded = 0;
             this.AllowInfantry = false;
             this.TotalDefensiveStrength = 0;
-            this.GrossFood = 0.0f;
-            this.PlusResearchPerColonist = 0.0f;
-            this.PlusFlatResearchPerTurn = 0.0f;
-            this.PlusFlatProductionPerTurn = 0.0f;
-            this.PlusProductionPerColonist = 0.0f;
-            this.FlatFoodAdded = 0.0f;
-            this.PlusFoodPerColonist = 0.0f;
+            this.GrossFood = 0f;
+            this.PlusResearchPerColonist = 0f;
+            this.PlusFlatResearchPerTurn = 0f;
+            this.PlusFlatProductionPerTurn = 0f;
+            this.PlusProductionPerColonist = 0f;
+            this.FlatFoodAdded = 0f;
+            this.PlusFoodPerColonist = 0f;
             this.HasShipyard = false;
-            this.PlusFlatPopulationPerTurn = 0.0f;
-            this.ShipBuildingModifier = 0.0f;
+            this.PlusFlatPopulationPerTurn = 0f;
+            this.ShipBuildingModifier = 0f;
             this.CommoditiesPresent.Clear();
             List<Guid> list = new List<Guid>();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
@@ -4404,11 +4402,11 @@ namespace Ship_Game
                 //if (building.NameTranslationIndex == 458)
                 if (building.AllowShipBuilding || building.Name == "Space Port")
                     this.HasShipyard = true;
-                if ((double)building.PlusFlatPopulation > 0.0)
+                if (building.PlusFlatPopulation > 0)
                     this.PlusFlatPopulationPerTurn += building.PlusFlatPopulation;
                 this.ShieldStrengthMax += building.PlanetaryShieldStrengthAdded;
                 this.PlusCreditsPerColonist += building.CreditsPerColonist;
-                if ((double)building.PlusTerraformPoints > 0.0)
+                if (building.PlusTerraformPoints > 0)
                     this.TerraformToAdd += building.PlusTerraformPoints;
                 if (building.Strength > 0)
                     this.TotalDefensiveStrength += building.CombatStrength;
@@ -4419,27 +4417,29 @@ namespace Ship_Game
                     this.AllowInfantry = true;
                 if (building.StorageAdded > 0)
                     this.StorageAdded += building.StorageAdded;
-                if ((double)building.PlusFoodPerColonist > 0.0)
+                if (building.PlusFoodPerColonist > 0)
                     this.PlusFoodPerColonist += building.PlusFoodPerColonist;
-                if ((double)building.PlusResearchPerColonist > 0.0)
+                if (building.PlusResearchPerColonist > 0)
                     this.PlusResearchPerColonist += building.PlusResearchPerColonist;
-                if ((double)building.PlusFlatResearchAmount > 0.0)
+                if (building.PlusFlatResearchAmount > 0)
                     this.PlusFlatResearchPerTurn += building.PlusFlatResearchAmount;
-                if ((double)building.PlusProdPerRichness > 0.0)
+                if (building.PlusProdPerRichness > 0)
                     this.PlusFlatProductionPerTurn += building.PlusProdPerRichness * this.MineralRichness;
                 this.PlusFlatProductionPerTurn += building.PlusFlatProductionAmount;
-                if ((double)building.PlusProdPerColonist > 0.0)
+                if (building.PlusProdPerColonist > 0)
                     this.PlusProductionPerColonist += building.PlusProdPerColonist;
-                if ((double)building.MaxPopIncrease > 0.0)
+                if (building.MaxPopIncrease > 0)
                     this.MaxPopBonus += building.MaxPopIncrease;
-                if ((double)building.Maintenance > 0.0)
+                if (building.Maintenance > 0)
                     this.TotalMaintenanceCostsPerTurn += building.Maintenance;
                 this.FlatFoodAdded += building.PlusFlatFoodAmount;
                 this.RepairPerTurn += building.ShipRepair;
-            }
-            for (int index = 0; index < this.TroopsHere.Count; ++index)
-            {
-                Troop troop = this.TroopsHere[index];
+                //Repair if no combat
+                if(!this.RecentCombat)
+                {
+                    building.CombatStrength = Ship_Game.ResourceManager.BuildingsDict[building.Name].CombatStrength;
+                    building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
+                }
             }
             //Research
             this.NetResearchPerTurn = (float)((double)this.ResearcherPercentage * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
@@ -4924,11 +4924,6 @@ namespace Ship_Game
             }
         }
 
-        public int TurnsUntilOutOfFood()
-        {
-            return 0;
-        }
-
         private void UpdateDevelopmentStatus()
         {
             this.Density = this.Population / 1000f;
@@ -5071,24 +5066,14 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: heal builds and troops every turn
-        public void HealBuildingsAndTroops()
+        public void HealTroops()
         {
             if (this.RecentCombat)
                 return;
             //heal troops
-            //Gremlin Dont heal enemy troops
             foreach (Troop troop in this.TroopsHere)
             {
-                if (troop.GetOwner() != this.Owner)
-                    continue;
-                if(troop.StrengthMax>0)
-                    troop.Strength = troop.GetStrengthMax();
-            }
-            //Repair buildings
-            foreach (Building building in this.BuildingList)
-            {
-                building.CombatStrength = Ship_Game.ResourceManager.BuildingsDict[building.Name].CombatStrength;
-                building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
+                troop.Strength = troop.GetStrengthMax();
             }
         }
 
