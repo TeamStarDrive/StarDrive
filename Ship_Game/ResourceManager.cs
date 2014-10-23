@@ -2732,9 +2732,7 @@ namespace Ship_Game
                 FileStream stream = FI.OpenRead();
                 ShipRole data = (ShipRole)serializer1.Deserialize(stream);
                 stream.Close();
-                stream.Dispose();
-
-                                
+                stream.Dispose();                              
                 if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
                 {
                     data.Localization += ResourceManager.OffSet;
@@ -2742,7 +2740,7 @@ namespace Ship_Game
                 }
                 for (int j = 0; j < data.RaceList.Count(); j++)
                 {
-                    if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
+                    if (Localizer.LocalizerDict.ContainsKey(data.RaceList[j].Localization + ResourceManager.OffSet))
                     {
                         data.RaceList[j].Localization += ResourceManager.OffSet;
                         Localizer.used[data.RaceList[j].Localization] = true;
