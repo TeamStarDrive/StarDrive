@@ -1072,7 +1072,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>264</Index>
-      <Text>Taxes are collected from your planets as a portion of their Production and Research outputs. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets. Your empire will gain the lost production and research as credits.</Text>
+      <Text>Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets.</Text>
     </Token>
     <Token>
       <Index>265</Index>
