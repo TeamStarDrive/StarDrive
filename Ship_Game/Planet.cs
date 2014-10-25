@@ -4545,7 +4545,6 @@ namespace Ship_Game
                     }
                 }
             }
-            this.Owner.Research += this.NetResearchPerTurn;
         }
 
         public int GetGoodAmount(string good)
