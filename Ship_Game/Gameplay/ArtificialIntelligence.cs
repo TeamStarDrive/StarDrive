@@ -896,6 +896,7 @@ namespace Ship_Game.Gameplay
                 this.Owner.RecoverAssaultShips();
             }
         }
+
         //added by gremlin : troop asssault planet
         public void OrderAssaultPlanet(Planet p)
         {
@@ -1209,7 +1210,6 @@ namespace Ship_Game.Gameplay
 		private void DoLandTroop(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
 			this.DoOrbit(goal.TargetPlanet, elapsedTime);
-
             //added by gremlin.
 
 			if (this.Owner.Role == "troop" && this.Owner.TroopList.Count > 0 )
@@ -1267,33 +1267,6 @@ namespace Ship_Game.Gameplay
                     }
 				}
 			}
-		}
-
-		private void DoMineAsteroids(float elapsedTime)
-		{
-			if (this.Owner.CargoSpace_Used != this.Owner.CargoSpace_Max && this.countdown > 0f)
-			{
-				ArtificialIntelligence artificialIntelligence = this;
-				artificialIntelligence.countdown = artificialIntelligence.countdown - elapsedTime;
-				return;
-			}
-			IOrderedEnumerable<Planet> sortedList = 
-				from planet in this.Owner.loyalty.GetPlanets()
-				orderby Vector2.Distance(this.Owner.Center, planet.Position)
-				select planet;
-			if (sortedList.Count<Planet>() <= 0)
-			{
-				this.State = AIState.AwaitingOrders;
-				return;
-			}
-			Planet p = sortedList.First<Planet>();
-			this.OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false);
-			this.IgnoreCombat = true;
-			ArtificialIntelligence.ShipGoal oredrop = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOre, Vector2.Zero, 0f)
-			{
-				TargetPlanet = p
-			};
-			this.OrderQueue.AddLast(oredrop);
 		}
 
         private void DoNonFleetArtillery(float elapsedTime)
@@ -1374,65 +1347,9 @@ namespace Ship_Game.Gameplay
             this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, forward) > 0f ? 1f : -1f));
         }
 
-
-		private void DoOrbit(Planet OrbitTarget, float OrbitalDistance, float elapsedTime)
-		{
-			this.OrbitTarget = OrbitTarget;
-			if (this.findNewPosTimer > 0f)
-			{
-				ArtificialIntelligence artificialIntelligence = this;
-				artificialIntelligence.findNewPosTimer = artificialIntelligence.findNewPosTimer - elapsedTime;
-			}
-			else
-			{
-				this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, OrbitalDistance);
-				if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500f)
-				{
-					ArtificialIntelligence orbitalAngle = this;
-					orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle + 15f;
-					if (this.OrbitalAngle >= 360f)
-					{
-						ArtificialIntelligence orbitalAngle1 = this;
-						orbitalAngle1.OrbitalAngle = orbitalAngle1.OrbitalAngle - 360f;
-					}
-					this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, OrbitalDistance);
-				}
-				this.findNewPosTimer = 0.5f;
-			}
-			if (this.moveTimer > 0f)
-			{
-				ArtificialIntelligence artificialIntelligence1 = this;
-				artificialIntelligence1.moveTimer = artificialIntelligence1.moveTimer - elapsedTime;
-			}
-			else
-			{
-				this.MovePosition = this.OrbitPos;
-				this.moveTimer = 1f;
-			}
-			this.direction = this.findVectorToTarget(this.Owner.Center, this.MovePosition);
-			float od = Vector2.Distance(this.Owner.Center, OrbitTarget.Position);
-			if (!this.Owner.isSpooling && od > 10000f)
-			{
-				this.Owner.EngageStarDrive();
-				return;
-			}
-			if (this.Owner.isSpooling)
-			{
-				this.MoveInDirection(this.direction, elapsedTime);
-				return;
-			}
-			if (this.Owner.speed > 1200f)
-			{
-				this.MoveInDirectionAtSpeed(this.direction, elapsedTime, this.Owner.speed / 3.5f);
-				return;
-			}
-			this.MoveInDirectionAtSpeed(this.direction, elapsedTime, this.Owner.speed / 2f);
-		}
         //added by gremlin devksmod doorbit
         private void DoOrbit(Planet OrbitTarget, float elapsedTime)
-        {
-
-            
+        {            
             if (this.findNewPosTimer > 0f)
             {
                 ArtificialIntelligence artificialIntelligence = this;
@@ -1518,12 +1435,6 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			this.MoveTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
-		}
-
-		private void DoOreDrop(float elapsedTime)
-		{
-			this.OrderQueue.Clear();
-			this.OrderMineAsteroids();
 		}
 
 		private void DoRebase(ArtificialIntelligence.ShipGoal Goal)
@@ -1659,7 +1570,7 @@ namespace Ship_Game.Gameplay
                 {
                     Vector2 target = this.findVectorToTarget(w.Center, ship.Center);
                     target.Y = target.Y * -1f;
-                    w.FireTargetedBeam(Vector2.Normalize(target), ship);
+                    w.FireTargetedBeam(ship);
                     return;
                 }
             }
@@ -2257,7 +2168,7 @@ namespace Ship_Game.Gameplay
                         if (this.fireTarget != null)
                         {
                             if (weapon.isBeam)
-                                weapon.FireTargetedBeam(this.fireTarget.Center, this.fireTarget);
+                                weapon.FireTargetedBeam(this.fireTarget);
                             else if (weapon.Tag_Guided)
                                 weapon.Fire(new Vector2((float)Math.Sin((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing))), this.fireTarget);
                             else
@@ -2296,13 +2207,13 @@ namespace Ship_Game.Gameplay
                 timeToTarget = distance / dir.Length();
                 projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
             }
-            Vector2 FireDirection = this.findVectorToTarget(weapon.Center, projectedPosition);
-            FireDirection.Y = FireDirection.Y * -1f;
-            FireDirection = Vector2.Normalize(FireDirection);
+            dir = this.findVectorToTarget(weapon.Center, projectedPosition);
+            dir.Y = dir.Y * -1f;
+            dir = Vector2.Normalize(dir);
             if (SalvoFire)
-                weapon.FireSalvo(FireDirection, target);
+                weapon.FireSalvo(dir, target);
             else
-                weapon.Fire(FireDirection, target);
+                weapon.Fire(dir, target);
         }
 
 		private void FireOnTargetNonVisible(Weapon w, GameplayObject fireTarget)
@@ -3063,34 +2974,6 @@ namespace Ship_Game.Gameplay
                 this.State = AIState.Bombard;
                 this.OrderBombardTroops(target);
             }
-		}
-
-		public void OrderMineAsteroids()
-		{
-			this.OrderQueue.Clear();
-			this.HasPriorityOrder = true;
-			this.CombatState = Ship_Game.Gameplay.CombatState.Evade;
-			this.State = AIState.MineAsteroids;
-			if (this.Owner.GetSystem() != null && this.Owner.GetSystem().AsteroidsList.Count > 0)
-			{
-				if (this.Target == null || this.Target != null && !(this.Target is Asteroid))
-				{
-					IOrderedEnumerable<Asteroid> sortedList = 
-						from roid in this.Owner.GetSystem().AsteroidsList
-						orderby Vector2.Distance(this.Owner.Center, roid.Center)
-						select roid;
-					if (sortedList.Count<Asteroid>() > 0)
-					{
-						this.Target = sortedList.First<Asteroid>();
-					}
-				}
-				if (this.Target != null)
-				{
-					this.OrderQueue.Clear();
-					this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.MoveToWithin1000, this.Target.Center, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, this.Target.Center))));
-					this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.MineAsteroid, Vector2.Zero, 0f));
-				}
-			}
 		}
 
 		public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool ClearOrders)
@@ -6532,12 +6415,6 @@ namespace Ship_Game.Gameplay
                                 this.MoveTowardsPosition(this.MovePosition, elapsedTime);
                                 break;
                             }
-
-                        case ArtificialIntelligence.Plan.DropOre:
-                            {
-                                this.DoOreDrop(elapsedTime);
-                                break;
-                            }
                         case ArtificialIntelligence.Plan.PickupPassengers:
                             {
                                 this.PickupPassengers();
@@ -6566,11 +6443,6 @@ namespace Ship_Game.Gameplay
                         case ArtificialIntelligence.Plan.ReturnToHangar:
                             {
                                 this.DoReturnToHangar(elapsedTime);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.MineAsteroid:
-                            {
-                                this.DoMineAsteroids(elapsedTime);
                                 break;
                             }
                         case ArtificialIntelligence.Plan.TroopToShip:
@@ -6821,7 +6693,6 @@ namespace Ship_Game.Gameplay
 			MoveTowards,
 			Trade,
 			DefendSystem,
-			DropOre,
 			TransportPassengers,
 			PickupPassengers,
 			DropoffPassengers,
@@ -6829,7 +6700,6 @@ namespace Ship_Game.Gameplay
 			PickupGoods,
 			DropOffGoods,
 			ReturnToHangar,
-			MineAsteroid,
 			TroopToShip,
 			BoardShip,
 			SupplyShip,
