@@ -373,9 +373,9 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-        protected virtual void CreateTargetedBeam(Vector2 destination, GameplayObject target)
+        protected virtual void CreateTargetedBeam(GameplayObject target)
         {
-            Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+            Beam beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
             {
                 moduleAttachedTo = this.moduleAttachedTo,
                 PowerCost = (float)this.BeamPowerCostPerSecond,
@@ -1034,7 +1034,7 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		public virtual void FireTargetedBeam(Vector2 direction, GameplayObject target)
+		public virtual void FireTargetedBeam(GameplayObject target)
 		{
 			if (this.timeToNextFire > 0f)
 			{
@@ -1046,7 +1046,7 @@ namespace Ship_Game.Gameplay
 			{
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
-				this.CreateTargetedBeam(direction, target);
+				this.CreateTargetedBeam(target);
 			}
 		}
 
@@ -1333,7 +1333,12 @@ namespace Ship_Game.Gameplay
 				}
                 //this.FireSalvo(salvo.Direction, this.SalvoTarget);
                 if (this.SalvoTarget != null)
-                    this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
+                {
+                    if (this.Tag_Guided)
+                        this.FireSalvo(salvo.Direction, SalvoTarget);
+                    else
+                        this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
+                }
                 else
                     this.FireSalvo(salvo.Direction, null);
 				this.SalvoList.QueuePendingRemoval(salvo);

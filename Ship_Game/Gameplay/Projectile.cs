@@ -20,8 +20,6 @@ namespace Ship_Game.Gameplay
 
 		public byte ArmorPiercing;
 
-		public List<ShipModule> ArmorsPierced = new List<ShipModule>();
-
 		public static ContentManager contentManager;
 
 		public Ship owner;
@@ -751,15 +749,6 @@ namespace Ship_Game.Gameplay
                     }
                     if (module.ModuleType == ShipModuleType.Armor)
 					{
-                        if (!this.ArmorsPierced.Contains(module) && this.ArmorsPierced.Count < this.ArmorPiercing)
-						{
-                            this.ArmorsPierced.Add(module);
-							return false;
-						}
-                        if (this.ArmorsPierced.Count > 0 && this.ArmorsPierced.Contains(module))
-						{
-							return false;
-						}
                         this.damageRadius -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageRadius;
                         this.damageAmount -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageAmount;
                         this.damageAmount *= (this.weapon.EffectVsArmor + this.ArmorDamageBonus);
@@ -789,12 +778,21 @@ namespace Ship_Game.Gameplay
                     //Non exploding projectiles should go through multiple modules if it has enough damage
                     if (!this.explodes)
                     {
-                        float remainder = 0;
-                        module.Damage(this, this.damageAmount, ref remainder);
+                        float remainder;
+                        if (this.ArmorPiercing == 0 || (module.ModuleType != ShipModuleType.Armor && module.ParentOfDummy.ModuleType != ShipModuleType.Armor))
+                        {
+                            remainder = 0;
+                            module.Damage(this, this.damageAmount, ref remainder);
+                        }
+                        else
+                        {
+                            this.ArmorPiercing--;
+                            remainder = this.damageAmount;
+                        }
                         if (remainder > 0)
                         {
                             this.damageAmount = remainder;
-                            bool SlotFound = true;
+                            bool SlotFound;
                             int depth = 8;
                             Vector2 UnitVector = this.velocity;
                             while (this.damageAmount > 0)
@@ -804,17 +802,25 @@ namespace Ship_Game.Gameplay
                                 SlotFound = false;
                                 foreach (ModuleSlot slot in module.GetParent().ModuleSlotList)
                                 {
-                                    if (Vector2.Distance(this.Center + UnitVector, slot.module.Center) < 10f)
+                                    if (Vector2.Distance(this.Center + UnitVector, slot.module.Center) < 8f)
                                     {
                                         SlotFound = true;
+                                        this.ArmorPiercing--;
                                         if (slot.module.Active)
                                         {
-                                            remainder = 0;
-                                            slot.module.Damage(this, this.damageAmount, ref remainder);
-                                            if (remainder > 0)
-                                                this.damageAmount = remainder;
+                                            if (this.ArmorPiercing > 0 && (slot.module.ModuleType == ShipModuleType.Armor || slot.module.ParentOfDummy.ModuleType == ShipModuleType.Armor))
+                                            {
+                                                break;
+                                            }
                                             else
-                                                this.damageAmount = 0f;
+                                            {
+                                                remainder = 0;
+                                                slot.module.Damage(this, this.damageAmount, ref remainder);
+                                                if (remainder > 0)
+                                                    this.damageAmount = remainder;
+                                                else
+                                                    this.damageAmount = 0f;
+                                            }
                                         }
                                         break;
                                     }
