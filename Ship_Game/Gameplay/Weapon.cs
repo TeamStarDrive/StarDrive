@@ -1367,81 +1367,43 @@ namespace Ship_Game.Gameplay
             float modifiedRange = this.Range;
             EmpireData loyaltyData = this.GetOwner().loyalty.data;
             if (this.Tag_Beam)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Beam"].Range;
-            }
             if (this.Tag_Energy)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Energy"].Range;
-            }
             if (this.Tag_Explosive)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Explosive"].Range;
-            }
             if (this.Tag_Guided)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Guided"].Range;
-            }
             if (this.Tag_Hybrid)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Hybrid"].Range;
-            }
             if (this.Tag_Intercept)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Intercept"].Range;
-            }
             if (this.Tag_Kinetic)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Kinetic"].Range;
-            }
             if (this.Tag_Missile)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Missile"].Range;
-            }
             if (this.Tag_Railgun)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Railgun"].Range;
-            }
             if (this.Tag_Cannon)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Cannon"].Range;
-            }
             if (this.Tag_PD)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["PD"].Range;
-            }
             if (this.Tag_SpaceBomb)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Spacebomb"].Range;
-            }
             if (this.Tag_BioWeapon)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["BioWeapon"].Range;
-            }
             if (this.Tag_Drone)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Drone"].Range;
-            }
             if (this.Tag_Subspace)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Subspace"].Range;
-            }
             if (this.Tag_Warp)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Warp"].Range;
-            }
             if (this.Tag_Array)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Array"].Range;
-            }
             if (this.Tag_Flak)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Flak"].Range;
-            }
             if (this.Tag_Tractor)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Tractor"].Range;
-            }
             return modifiedRange;            
         }
 
