@@ -16,10 +16,6 @@ namespace Ship_Game
 
 		public float ExplosionRadius;
 
-		public float Accuracy;
-
-		public float Arc;
-
 		public float ShieldDamage;
 
 		public float ArmorDamage;
