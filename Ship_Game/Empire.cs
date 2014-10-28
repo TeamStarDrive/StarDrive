@@ -656,13 +656,16 @@ namespace Ship_Game
                                     this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
                                     continue;
                                 case "Weapon_ShieldDamage":
-                                    this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
+                                    this.data.WeaponTags[index].ShieldDamage += unlockedBonus.Bonus;
                                     continue;
                                 case "Weapon_ArmorDamage":
-                                    this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
+                                    this.data.WeaponTags[index].ArmorDamage += unlockedBonus.Bonus;
                                     continue;
                                 case "Weapon_HP":
                                     this.data.WeaponTags[index].HitPoints += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_ShieldPenetration":
+                                    this.data.WeaponTags[index].ShieldPenetration += unlockedBonus.Bonus;
                                     continue;
                                 default:
                                     continue;
