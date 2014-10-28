@@ -3462,7 +3462,7 @@ namespace Ship_Game.Gameplay
                     this.FTLmodifier = 1f;
                 //Apply inboarders bonus through ftl modifier
                 if (this.inborders && this.loyalty.data.Traits.InBordersSpeedBonus > 0)
-                    this.FTLmodifier += this.FTLmodifier * this.loyalty.data.Traits.InBordersSpeedBonus;
+                    this.FTLmodifier += this.loyalty.data.Traits.InBordersSpeedBonus;
             }
             else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || (double)this.MoveModulesTimer > 0.0 || this.InCombat && GlobalStats.ForceFullSim)
             {
