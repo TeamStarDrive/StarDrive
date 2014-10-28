@@ -2188,14 +2188,14 @@ namespace Ship_Game.Gameplay
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
             float distance = Vector2.Distance(weapon.Center, target.Center);
-            Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * weapon.ProjectileSpeed);
+            Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
             float timeToTarget = distance / dir.Length();
             Vector2 projectedPosition = target.Center;
             if (target is Projectile)
             {
                 projectedPosition = target.Center + (target.Velocity * timeToTarget);
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
-                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed);
+                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
                 timeToTarget = distance / dir.Length();
                 projectedPosition = target.Center + ((target.Velocity * timeToTarget) * 0.85f);
             }
@@ -2203,7 +2203,7 @@ namespace Ship_Game.Gameplay
             {
                 projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
-                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * weapon.ProjectileSpeed);
+                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
                 timeToTarget = distance / dir.Length();
                 projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
             }
