@@ -363,7 +363,7 @@ namespace Ship_Game.Gameplay
 				this.rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.velocity));
 			}
 			this.radius = 1f;
-			this.velocityMaximum = initialSpeed;
+            this.velocityMaximum = initialSpeed + (this.Owner != null ? this.Owner.Velocity.Length() : 0f);
 			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
             this.duration = this.range / initialSpeed * 1.2f;
 			this.initialDuration = this.duration;
@@ -492,7 +492,7 @@ namespace Ship_Game.Gameplay
 			}
 			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			this.radius = 1f;
-			this.velocityMaximum = initialSpeed;
+            this.velocityMaximum = initialSpeed + (this.Owner != null ? this.Owner.Velocity.Length() : 0f);
             this.duration = this.range / initialSpeed * 2f;
 			this.initialDuration = this.duration;
 			if (this.moduleAttachedTo != null)
