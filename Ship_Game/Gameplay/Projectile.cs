@@ -82,7 +82,7 @@ namespace Ship_Game.Gameplay
 
 		private float frameTimer;
 
-		public float RotationRadsPerSecond;
+        public float RotationRadsPerSecond;
 
 		private DroneAI droneAI;
 
@@ -779,7 +779,7 @@ namespace Ship_Game.Gameplay
                     if (!this.explodes)
                     {
                         float remainder;
-                        if (this.ArmorPiercing == 0 || (module.ModuleType != ShipModuleType.Armor && module.ParentOfDummy.ModuleType != ShipModuleType.Armor))
+                        if (this.ArmorPiercing == 0 || !(module.ModuleType == ShipModuleType.Armor || (module.ModuleType == ShipModuleType.Dummy && module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
                         {
                             remainder = 0;
                             module.Damage(this, this.damageAmount, ref remainder);
@@ -793,7 +793,7 @@ namespace Ship_Game.Gameplay
                         {
                             this.damageAmount = remainder;
                             bool SlotFound;
-                            int depth = 8;
+                            int depth = 10;
                             Vector2 UnitVector = this.velocity;
                             while (this.damageAmount > 0)
                             {
@@ -805,13 +805,10 @@ namespace Ship_Game.Gameplay
                                     if (Vector2.Distance(this.Center + UnitVector, slot.module.Center) < 8f)
                                     {
                                         SlotFound = true;
-                                        this.ArmorPiercing--;
                                         if (slot.module.Active)
                                         {
-                                            if (this.ArmorPiercing > 0 && (slot.module.ModuleType == ShipModuleType.Armor || slot.module.ParentOfDummy.ModuleType == ShipModuleType.Armor))
-                                            {
+                                            if (this.ArmorPiercing > 0 && (slot.module.ModuleType == ShipModuleType.Armor || (slot.module.ModuleType == ShipModuleType.Dummy && slot.module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
                                                 break;
-                                            }
                                             else
                                             {
                                                 remainder = 0;
@@ -827,7 +824,10 @@ namespace Ship_Game.Gameplay
                                 }
                                 //Slot found means it is still in the ship
                                 if (SlotFound)
+                                {
                                     depth += 8;
+                                    this.ArmorPiercing--;
+                                }
                                 else
                                     break;
                             }
