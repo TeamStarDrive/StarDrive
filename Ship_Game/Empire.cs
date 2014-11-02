@@ -656,13 +656,16 @@ namespace Ship_Game
                                     this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
                                     continue;
                                 case "Weapon_ShieldDamage":
-                                    this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
+                                    this.data.WeaponTags[index].ShieldDamage += unlockedBonus.Bonus;
                                     continue;
                                 case "Weapon_ArmorDamage":
-                                    this.data.WeaponTags[index].Range += unlockedBonus.Bonus;
+                                    this.data.WeaponTags[index].ArmorDamage += unlockedBonus.Bonus;
                                     continue;
                                 case "Weapon_HP":
                                     this.data.WeaponTags[index].HitPoints += unlockedBonus.Bonus;
+                                    continue;
+                                case "Weapon_ShieldPenetration":
+                                    this.data.WeaponTags[index].ShieldPenetration += unlockedBonus.Bonus;
                                     continue;
                                 default:
                                     continue;
@@ -1904,36 +1907,35 @@ namespace Ship_Game
                 }
             }
             this.CalculateScore();
+            //Process technology research
             if (this.ResearchTopic != "")
             {
-                float num2 = 0.0f;
                 foreach (Planet planet in this.OwnedPlanets)
-                    num2 += planet.NetResearchPerTurn;
-                try
+                    this.Research += planet.NetResearchPerTurn;
+                TechEntry tech;
+                if(this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
                 {
-                    this.TechnologyDict[this.ResearchTopic].Progress += num2;
-                }
-                catch (Exception e)
-                {
-                    e.Data.Add("missing Key: ", this.ResearchTopic);
-                    throw e;
-                }
-                float num3 = this.TechnologyDict[this.ResearchTopic].Progress - this.TechnologyDict[this.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic;
-                if (this.TechnologyDict[this.ResearchTopic].Progress >= this.TechnologyDict[this.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic)
-                {
-                    this.UnlockTech(this.ResearchTopic);
-                    if (this.isPlayer)
-                        Empire.universeScreen.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
-                    this.data.ResearchQueue.Remove(this.ResearchTopic);
-                    if (this.data.ResearchQueue.Count > 0)
+                    if (tech.GetTech().Cost * UniverseScreen.GamePaceStatic - tech.Progress > this.Research)
                     {
-                        this.ResearchTopic = this.data.ResearchQueue[0];
-                        this.TechnologyDict[this.ResearchTopic].Progress += num3;
-                        this.data.ResearchQueue.RemoveAt(0);
+                        tech.Progress += this.Research;
+                        this.Research = 0f;
                     }
                     else
-                        this.ResearchTopic = "";
-                    this.Research = 0.0f;
+                    {
+                        this.Research -= tech.GetTech().Cost * UniverseScreen.GamePaceStatic - tech.Progress;
+                        tech.Progress = tech.GetTech().Cost * UniverseScreen.GamePaceStatic;
+                        this.UnlockTech(this.ResearchTopic);
+                        if (this.isPlayer)
+                            Empire.universeScreen.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
+                        this.data.ResearchQueue.Remove(this.ResearchTopic);
+                        if (this.data.ResearchQueue.Count > 0)
+                        {
+                            this.ResearchTopic = this.data.ResearchQueue[0];
+                            this.data.ResearchQueue.RemoveAt(0);
+                        }
+                        else
+                            this.ResearchTopic = "";
+                    }
                 }
             }
             else if (this.data.ResearchQueue.Count > 0)
