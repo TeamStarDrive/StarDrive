@@ -225,6 +225,8 @@ namespace Ship_Game.Gameplay
 
         public float TerminalPhaseSpeedMod;
 
+        public float ArmourPen = 0f;
+
 
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
@@ -252,13 +254,18 @@ namespace Ship_Game.Gameplay
             p.damageAmount += this.owner.loyalty.data.WeaponTags[Tag].Damage * projectile.damageAmount;
             p.ShieldDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ShieldDamage;
             p.ArmorDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ArmorDamage;
+            p.ArmorPiercing += (byte)this.owner.loyalty.data.WeaponTags[Tag].ArmourPenetration;
+
             float actualShieldPenChance = this.moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
             actualShieldPenChance += this.owner.loyalty.data.WeaponTags[Tag].ShieldPenetration;
+            actualShieldPenChance += this.ShieldPenChance;
+
             if (actualShieldPenChance > 0f && (float)((int)RandomMath2.RandomBetween(0f, 100f)) < actualShieldPenChance)
             {
                 p.IgnoresShields = true;
             }
             //Added by McShooterz: Beams cannot use these
+            //Doctor: Beams don't even use ModifyProjectiles or AddModifiers, so..?
             if (Tag != "Beam")
             {
                 p.Health += this.HitPoints * this.owner.loyalty.data.WeaponTags[Tag].HitPoints;
@@ -390,6 +397,7 @@ namespace Ship_Game.Gameplay
             {
                 beam.damageAmount += beam.damageAmount * (float)this.owner.Level * 0.05f;
             }
+
             if (this.ShieldPenChance > 0)
             {
                 beam.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
@@ -492,10 +500,11 @@ namespace Ship_Game.Gameplay
 			{
                 projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
 			}
-            if (this.ShieldPenChance > 0)
+            /* if (this.ShieldPenChance > 0)
             {
                 projectile.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
-            }
+            } */
+
             //Hull bonus damage increase
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
             {
@@ -512,6 +521,7 @@ namespace Ship_Game.Gameplay
 			projectile.WeaponType = this.WeaponType;
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
 			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
+            projectile.ArmorPiercing = (byte)this.ArmourPen;
 			this.ModifyProjectile(projectile);
             if(this.Tag_Guided)
                 projectile.InitializeMissile(projectile.speed, direction, target);
@@ -607,10 +617,12 @@ namespace Ship_Game.Gameplay
 			projectile.WeaponType = this.WeaponType;
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
 			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
+            projectile.ArmorPiercing = (byte)this.ArmourPen;
+            /*
             if (this.ShieldPenChance > 0)
             {
                 projectile.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
-            }
+            } */
 			this.ModifyProjectile(projectile);
             if(this.Tag_Guided)
                 projectile.InitializeMissilePlanet(projectile.speed, direction, target, p);

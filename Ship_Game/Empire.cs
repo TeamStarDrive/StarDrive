@@ -667,6 +667,9 @@ namespace Ship_Game
                                 case "Weapon_ShieldPenetration":
                                     this.data.WeaponTags[index].ShieldPenetration += unlockedBonus.Bonus;
                                     continue;
+                                case "Weapon_ArmourPenetration":
+                                    this.data.WeaponTags[index].ArmourPenetration += unlockedBonus.Bonus;
+                                    continue;
                                 default:
                                     continue;
                             }
