@@ -1014,9 +1014,10 @@ namespace Ship_Game
 				isWeapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].isWeapon,
 				PlusTerraformPoints = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusTerraformPoints,
                 SensorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].SensorRange,
-                ProjectorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ProjectorRange
+                ProjectorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ProjectorRange,
+                Category = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Category
 			};
-            //comp fix to ensure functionality of vanialla buildings
+            //comp fix to ensure functionality of vanilla buildings
             if ((newB.Name == "Outpost" || newB.Name =="Capital City") && newB.IsProjector==false && newB.ProjectorRange==0.0f)
             {
                 newB.ProjectorRange = Empire.ProjectorRadius;
@@ -1456,7 +1457,8 @@ namespace Ship_Game
                 ExplosionRadiusVisual = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionRadiusVisual,
                 TerminalPhaseAttack = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseAttack,
                 TerminalPhaseDistance = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseDistance,
-                TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod
+                TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
+                ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen
 			};
 			return w;
 		}
@@ -1897,7 +1899,7 @@ namespace Ship_Game
 		public static void LoadMods(string ModPath)
 		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
-            ResourceManager.OffSet = 32000;
+            ResourceManager.OffSet = 0;
             //if (Ship_Game.ResourceManager.WhichModPath != "Content")
             //    ResourceManager.OffSet = 10000;
             //else
