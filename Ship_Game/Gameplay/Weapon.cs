@@ -373,9 +373,9 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-        protected virtual void CreateTargetedBeam(Vector2 destination, GameplayObject target)
+        protected virtual void CreateTargetedBeam(GameplayObject target)
         {
-            Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+            Beam beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
             {
                 moduleAttachedTo = this.moduleAttachedTo,
                 PowerCost = (float)this.BeamPowerCostPerSecond,
@@ -1034,7 +1034,7 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		public virtual void FireTargetedBeam(Vector2 direction, GameplayObject target)
+		public virtual void FireTargetedBeam(GameplayObject target)
 		{
 			if (this.timeToNextFire > 0f)
 			{
@@ -1046,7 +1046,7 @@ namespace Ship_Game.Gameplay
 			{
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
-				this.CreateTargetedBeam(direction, target);
+				this.CreateTargetedBeam(target);
 			}
 		}
 
@@ -1333,7 +1333,12 @@ namespace Ship_Game.Gameplay
 				}
                 //this.FireSalvo(salvo.Direction, this.SalvoTarget);
                 if (this.SalvoTarget != null)
-                    this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
+                {
+                    if (this.Tag_Guided)
+                        this.FireSalvo(salvo.Direction, SalvoTarget);
+                    else
+                        this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
+                }
                 else
                     this.FireSalvo(salvo.Direction, null);
 				this.SalvoList.QueuePendingRemoval(salvo);
@@ -1362,81 +1367,43 @@ namespace Ship_Game.Gameplay
             float modifiedRange = this.Range;
             EmpireData loyaltyData = this.GetOwner().loyalty.data;
             if (this.Tag_Beam)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Beam"].Range;
-            }
             if (this.Tag_Energy)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Energy"].Range;
-            }
             if (this.Tag_Explosive)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Explosive"].Range;
-            }
             if (this.Tag_Guided)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Guided"].Range;
-            }
             if (this.Tag_Hybrid)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Hybrid"].Range;
-            }
             if (this.Tag_Intercept)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Intercept"].Range;
-            }
             if (this.Tag_Kinetic)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Kinetic"].Range;
-            }
             if (this.Tag_Missile)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Missile"].Range;
-            }
             if (this.Tag_Railgun)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Railgun"].Range;
-            }
             if (this.Tag_Cannon)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Cannon"].Range;
-            }
             if (this.Tag_PD)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["PD"].Range;
-            }
             if (this.Tag_SpaceBomb)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Spacebomb"].Range;
-            }
             if (this.Tag_BioWeapon)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["BioWeapon"].Range;
-            }
             if (this.Tag_Drone)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Drone"].Range;
-            }
             if (this.Tag_Subspace)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Subspace"].Range;
-            }
             if (this.Tag_Warp)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Warp"].Range;
-            }
             if (this.Tag_Array)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Array"].Range;
-            }
             if (this.Tag_Flak)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Flak"].Range;
-            }
             if (this.Tag_Tractor)
-            {
                 modifiedRange += this.Range * loyaltyData.WeaponTags["Tractor"].Range;
-            }
             return modifiedRange;            
         }
 
