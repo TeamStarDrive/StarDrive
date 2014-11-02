@@ -71,10 +71,11 @@ namespace Ship_Game
 		{
 		}
 
-		public Beam(Vector2 srcCenter, Vector2 destination, int Thickness, Ship Owner, GameplayObject target)
+		public Beam(Vector2 srcCenter, int Thickness, Ship Owner, GameplayObject target)
 		{
 			this.Target = target;
 			this.owner = Owner;
+            Vector2 TargetPosition = Vector2.Normalize(target.Center);
 			if (Owner.InFrustum)
 			{
 				this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
@@ -89,13 +90,13 @@ namespace Ship_Game
 				this.system.spatialManager.BeamList.Add(this);
 			}
 			this.Source = srcCenter;
-			this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, destination));
+            this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, TargetPosition));
 			this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
 			this.ActualHitDestination = this.Destination;
 			this.Vertices = new VertexPositionNormalTexture[4];
 			this.Indexes = new int[6];
 			this.BeamZ = RandomMath2.RandomBetween(-1f, 1f);
-			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, destination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, TargetPosition, (float)Thickness, new Vector2[4], 0, this.BeamZ);
 			this.UpperLeft = points[0];
 			this.UpperRight = points[1];
 			this.LowerLeft = points[2];
