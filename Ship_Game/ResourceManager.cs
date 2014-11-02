@@ -1899,7 +1899,7 @@ namespace Ship_Game
 		public static void LoadMods(string ModPath)
 		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
-            ResourceManager.OffSet = 0;
+            ResourceManager.OffSet = 32000;
             //if (Ship_Game.ResourceManager.WhichModPath != "Content")
             //    ResourceManager.OffSet = 10000;
             //else
