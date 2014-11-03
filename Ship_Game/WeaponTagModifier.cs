@@ -24,6 +24,8 @@ namespace Ship_Game
 
 		public float HitPoints;
 
+        public float ArmourPenetration;
+
 		public WeaponTagModifier()
 		{
 		}

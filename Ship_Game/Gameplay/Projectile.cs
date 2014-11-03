@@ -384,7 +384,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.owner.loyalty.data.ArmorPiercingBonus > 0 && (this.weapon.WeaponType == "Missile" || this.weapon.WeaponType == "Ballistic Cannon"))
 			{
-				this.ArmorPiercing = (byte)this.owner.loyalty.data.ArmorPiercingBonus;
+				this.ArmorPiercing += (byte)this.owner.loyalty.data.ArmorPiercingBonus;
 			}
 			Projectile projectile1 = this;
 			projectile1.particleDelay = projectile1.particleDelay + this.weapon.particleDelay;
