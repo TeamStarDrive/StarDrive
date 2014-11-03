@@ -3699,6 +3699,8 @@ namespace Ship_Game.Gameplay
         public void AddKill(Ship killed)
         {
             ++this.kills;
+            if (this.loyalty == null)
+                return;
             //Added by McShooterz: a way to prevent remnant story in mods
             if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory)))
                 GlobalStats.IncrementRemnantKills();
@@ -3981,7 +3983,7 @@ namespace Ship_Game.Gameplay
             List<ShipModule> InternalModules = new List<ShipModule>();
             foreach (ModuleSlot slot in this.ModuleSlotList)
             {
-                if (slot.Restrictions == Restrictions.I || slot.module.Active)
+                if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active)
                     InternalModules.Add(slot.module);
             }
             if (InternalModules.Count > 0)
