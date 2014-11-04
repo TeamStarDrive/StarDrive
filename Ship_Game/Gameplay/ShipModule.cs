@@ -301,74 +301,6 @@ namespace Ship_Game.Gameplay
 					Ship parent = this.Parent;
 					parent.EMPDamage = parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
 				}
-				if (source is Beam)
-				{
-                    Vector2 vel = Vector2.Normalize((source as Beam).Source - this.Center);
-					if (RandomMath.RandomBetween(0f, 100f) > 90f && this.Parent.InFrustum)
-					{
-						ShipModule.universeScreen.flash.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), Vector3.Zero);
-					}
-					if (this.Parent.InFrustum)
-					{
-						for (int i = 0; i < 20; i++)
-						{
-							ShipModule.universeScreen.sparks.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-						}
-					}
-					if ((source as Beam).weapon.PowerDamage > 0f)
-					{
-                        this.Parent.PowerCurrent -= (source as Beam).weapon.PowerDamage;
-						if (this.Parent.PowerCurrent < 0f)
-						{
-							this.Parent.PowerCurrent = 0f;
-						}
-					}
-					if ((source as Beam).weapon.TroopDamageChance > 0f)
-					{
-						if (this.Parent.TroopList.Count > 0)
-						{
-							if (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
-							{
-								Troop item = this.Parent.TroopList[0];
-								item.Strength = item.Strength - 1;
-								if (this.Parent.TroopList[0].Strength <= 0)
-								{
-									this.Parent.TroopList.RemoveAt(0);
-								}
-							}
-						}
-						else if (this.Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
-						{
-                            this.Parent.MechanicalBoardingDefense -= 1f;
-						}
-					}
-					if ((source as Beam).weapon.SiphonDamage > 0f)
-					{
-                        this.Parent.PowerCurrent -= (source as Beam).weapon.SiphonDamage;
-						if (this.Parent.PowerCurrent < 0f)
-						{
-							this.Parent.PowerCurrent = 0f;
-						}
-                        (source as Beam).owner.PowerCurrent += (source as Beam).weapon.SiphonDamage;
-						if ((source as Beam).owner.PowerCurrent > (source as Beam).owner.PowerStoreMax)
-						{
-							(source as Beam).owner.PowerCurrent = (source as Beam).owner.PowerStoreMax;
-						}
-					}
-					if ((source as Beam).weapon.MassDamage > 0f)
-					{
-                        this.Parent.Mass += (source as Beam).weapon.MassDamage;
-						this.Parent.velocityMaximum = this.Parent.Thrust / this.Parent.Mass;
-						this.Parent.speed = this.Parent.velocityMaximum;
-						this.Parent.rotationRadiansPerSecond = this.Parent.speed / 700f;
-					}
-					if ((source as Beam).weapon.RepulsionDamage > 0f)
-					{
-						Vector2 vtt = this.Center - (source as Beam).Owner.Center;
-						Ship velocity = this.Parent;
-                        this.Parent.Velocity += (vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass;
-					}
-				}
 				if (this.shield_power_max > 0f && !this.isExternal)
 				{
 					return false;
@@ -416,43 +348,8 @@ namespace Ship_Game.Gameplay
 					{
 						ShipModule.universeScreen.ScreenManager.inter.LightManager.Remove(this.shield.pointLight);
 						ShipModule.universeScreen.ScreenManager.inter.LightManager.Submit(this.shield.pointLight);
-					}
-					if (source is Beam)
-					{
-						this.shield.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Center, (source as Beam).Source));
-						this.shield.pointLight.World = Matrix.CreateTranslation(new Vector3((source as Beam).ActualHitDestination, 0f));
-						this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-						this.shield.pointLight.Radius = this.shield_radius * 2f;
-						this.shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
-						this.shield.displacement = 0f;
-						this.shield.Radius = this.radius;
-						this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-						this.shield.texscale = 2.8f;
-						this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-						this.shield.pointLight.Enabled = true;
-						Vector2 vel = (source as Beam).Source - this.Center;
-						vel = Vector2.Normalize(vel);
-						if (RandomMath.RandomBetween(0f, 100f) > 90f && this.Parent.InFrustum)
-						{
-							ShipModule.universeScreen.flash.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), Vector3.Zero);
-						}
-						if (this.Parent.InFrustum)
-						{
-							for (int i = 0; i < 20; i++)
-							{
-								ShipModule.universeScreen.sparks.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-							}
-						}
-						if ((source as Beam).weapon.SiphonDamage > 0f)
-						{
-                            this.shield_power -= (source as Beam).weapon.SiphonDamage;
-							if (this.shield_power < 0f)
-							{
-								this.shield_power = 0f;
-							}
-						}
-					}
-					else if (source is Projectile && !(source as Projectile).IgnoresShields && this.Parent.InFrustum)
+					}					
+					if (source is Projectile && !(source as Projectile).IgnoresShields && this.Parent.InFrustum)
 					{
 						Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
 						shieldcue.Apply3D(ShipModule.universeScreen.listener, this.Parent.emitter);
@@ -565,19 +462,6 @@ namespace Ship_Game.Gameplay
                             this.Parent.MechanicalBoardingDefense -= 1f;
                         }
                     }
-                    if ((source as Beam).weapon.SiphonDamage > 0f)
-                    {
-                        this.Parent.PowerCurrent -= (source as Beam).weapon.SiphonDamage;
-                        if (this.Parent.PowerCurrent < 0f)
-                        {
-                            this.Parent.PowerCurrent = 0f;
-                        }
-                        (source as Beam).owner.PowerCurrent += (source as Beam).weapon.SiphonDamage;
-                        if ((source as Beam).owner.PowerCurrent > (source as Beam).owner.PowerStoreMax)
-                        {
-                            (source as Beam).owner.PowerCurrent = (source as Beam).owner.PowerStoreMax;
-                        }
-                    }
                     if ((source as Beam).weapon.MassDamage > 0f)
                     {
                         this.Parent.Mass += (source as Beam).weapon.MassDamage;
@@ -639,6 +523,19 @@ namespace Ship_Game.Gameplay
                     }
                     if (source is Beam)
                     {
+                        if ((source as Beam).weapon.SiphonDamage > 0f)
+                        {
+                            this.shield_power -= (source as Beam).weapon.SiphonDamage;
+                            if (this.shield_power < 0f)
+                            {
+                                this.shield_power = 0f;
+                            }
+                            (source as Beam).owner.PowerCurrent += (source as Beam).weapon.SiphonDamage;
+                            if ((source as Beam).owner.PowerCurrent > (source as Beam).owner.PowerStoreMax)
+                            {
+                                (source as Beam).owner.PowerCurrent = (source as Beam).owner.PowerStoreMax;
+                            }
+                        }
                         this.shield.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Center, (source as Beam).Source));
                         this.shield.pointLight.World = Matrix.CreateTranslation(new Vector3((source as Beam).ActualHitDestination, 0f));
                         this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
