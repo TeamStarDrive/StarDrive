@@ -249,29 +249,25 @@ namespace Ship_Game.Gameplay
 
         private void AddModifiers(string Tag, Projectile projectile)
         {
-            Projectile p = projectile;
-
-            p.damageAmount += this.owner.loyalty.data.WeaponTags[Tag].Damage * projectile.damageAmount;
-            p.ShieldDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ShieldDamage;
-            p.ArmorDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ArmorDamage;
-            p.ArmorPiercing += (byte)this.owner.loyalty.data.WeaponTags[Tag].ArmourPenetration;
-
+            projectile.damageAmount += this.owner.loyalty.data.WeaponTags[Tag].Damage * projectile.damageAmount;
+            projectile.ShieldDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ShieldDamage;
+            projectile.ArmorDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ArmorDamage;
+            //Shield Penetration
             float actualShieldPenChance = this.moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
             actualShieldPenChance += this.owner.loyalty.data.WeaponTags[Tag].ShieldPenetration;
             actualShieldPenChance += this.ShieldPenChance;
-
             if (actualShieldPenChance > 0f && (float)((int)RandomMath2.RandomBetween(0f, 100f)) < actualShieldPenChance)
             {
-                p.IgnoresShields = true;
+                projectile.IgnoresShields = true;
             }
-            //Added by McShooterz: Beams cannot use these
-            //Doctor: Beams don't even use ModifyProjectiles or AddModifiers, so..?
-            if (Tag != "Beam")
+            //Projectile specific
+            if (!this.isBeam)
             {
-                p.Health += this.HitPoints * this.owner.loyalty.data.WeaponTags[Tag].HitPoints;
-                p.RotationRadsPerSecond += this.owner.loyalty.data.WeaponTags[Tag].Turn * this.RotationRadsPerSecond;
-                p.speed += this.owner.loyalty.data.WeaponTags[Tag].Speed * this.ProjectileSpeed;
-                p.damageRadius += this.owner.loyalty.data.WeaponTags[Tag].ExplosionRadius * this.DamageRadius;
+                projectile.ArmorPiercing += (byte)this.owner.loyalty.data.WeaponTags[Tag].ArmourPenetration;
+                projectile.Health += this.HitPoints * this.owner.loyalty.data.WeaponTags[Tag].HitPoints;
+                projectile.RotationRadsPerSecond += this.owner.loyalty.data.WeaponTags[Tag].Turn * this.RotationRadsPerSecond;
+                projectile.speed += this.owner.loyalty.data.WeaponTags[Tag].Speed * this.ProjectileSpeed;
+                projectile.damageRadius += this.owner.loyalty.data.WeaponTags[Tag].ExplosionRadius * this.DamageRadius;
             }
         }
 
@@ -397,11 +393,6 @@ namespace Ship_Game.Gameplay
             {
                 beam.damageAmount += beam.damageAmount * (float)this.owner.Level * 0.05f;
             }
-
-            if (this.ShieldPenChance > 0)
-            {
-                beam.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
-            }
             //Hull bonus damage increase
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
             {
@@ -409,6 +400,7 @@ namespace Ship_Game.Gameplay
                 if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
                     beam.damageAmount += beam.damageAmount * mod.DamageBonus;
             }
+            this.ModifyProjectile(beam);
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
             beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
             this.ToggleSoundOn = false;
@@ -493,18 +485,21 @@ namespace Ship_Game.Gameplay
 				range = this.Range,
 				weapon = this,
 				explodes = this.explodes,
-				damageAmount = this.DamageAmount
+				damageAmount = this.DamageAmount,
+                damageRadius = this.DamageRadius,
+                explosionradiusmod = this.ExplosionRadiusVisual,
+                Health = this.HitPoints,
+                speed = this.ProjectileSpeed,
+                WeaponEffectType = this.WeaponEffectType,
+                WeaponType = this.WeaponType,
+                RotationRadsPerSecond = this.RotationRadsPerSecond,
+                ArmorPiercing = (byte)this.ArmourPen
 			};
             //damage increase by level
 			if (this.owner.Level > 0)
 			{
                 projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
 			}
-            /* if (this.ShieldPenChance > 0)
-            {
-                projectile.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
-            } */
-
             //Hull bonus damage increase
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
             {
@@ -512,16 +507,7 @@ namespace Ship_Game.Gameplay
                 if(ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
                     projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
             }
-			projectile.explodes = this.explodes;
-			projectile.damageRadius = this.DamageRadius;
-            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
-			projectile.Health = this.HitPoints;
-			projectile.speed = this.ProjectileSpeed;
-			projectile.WeaponEffectType = this.WeaponEffectType;
-			projectile.WeaponType = this.WeaponType;
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
-            projectile.ArmorPiercing = (byte)this.ArmourPen;
 			this.ModifyProjectile(projectile);
             if(this.Tag_Guided)
                 projectile.InitializeMissile(projectile.speed, direction, target);
@@ -1220,8 +1206,7 @@ namespace Ship_Game.Gameplay
 			}
             if (this.owner.loyalty.data.Traits.Pack)
             {
-                Projectile projectile1 = projectile;
-                projectile1.damageAmount = projectile1.damageAmount + projectile.damageAmount * this.owner.DamageModifier;
+                projectile.damageAmount += projectile.damageAmount * this.owner.DamageModifier;
             }
             //Added by McShooterz: Check if mod uses weapon modifiers
             if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useWeaponModifiers)
