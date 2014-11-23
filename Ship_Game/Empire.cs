@@ -66,6 +66,7 @@ namespace Ship_Game
         public float AllTimeMaintTotal;
         public float totalMaint;
         public float GrossTaxes;
+        public float OtherIncome;
         public float DisplayIncome;
         public float ActualNetLastTurn;
         public float TradeMoneyAddedThisTurn;
@@ -1267,7 +1268,8 @@ namespace Ship_Game
                 if (planet != null)
                 {
                     planet.UpdateIncomes();
-                    income += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
+                    income += (planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod) * this.data.TaxRate;
+                    income += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
                 }
             }
             return income;
@@ -1278,6 +1280,7 @@ namespace Ship_Game
             this.MoneyLastTurn = this.Money;
             ++this.numberForAverage;
             this.GrossTaxes = 0f;
+            this.OtherIncome = 0f;
             lock (GlobalStats.OwnedPlanetsLock)
             {
                 for (int i = 0; i < this.OwnedPlanets.Count; ++i)
@@ -1287,6 +1290,7 @@ namespace Ship_Game
                     {
                         planet.UpdateIncomes();
                         this.GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
+                        this.OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
                     }
                 }
             }
@@ -1328,7 +1332,7 @@ namespace Ship_Game
             }
             this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
             this.AllTimeMaintTotal += this.totalMaint;
-            this.Money += this.GrossTaxes * this.data.TaxRate;
+            this.Money += (this.GrossTaxes * this.data.TaxRate) + this.OtherIncome;
             this.Money += this.data.FlatMoneyBonus;
             this.Money += this.TradeMoneyAddedThisTurn;
             this.Money -= this.totalMaint;
@@ -1336,7 +1340,7 @@ namespace Ship_Game
 
         public float EstimateIncomeAtTaxRate(float Rate)
         {
-            return this.GrossTaxes * Rate + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus - (this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance());
+            return this.GrossTaxes * Rate + this.OtherIncome + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus - (this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance());
         }
 
         public float GetActualNetLastTurn()

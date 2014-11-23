@@ -283,7 +283,7 @@ namespace Ship_Game
             Vector2 TextCursorMoney = new Vector2((float)this.moneyRect.X + 24, (float)TextCursor3.Y);
 
             float taxRate = this.p.Owner.data.TaxRate;
-            float grossIncome = this.p.GrossMoneyPT * this.p.Owner.data.TaxRate;
+            float grossIncome = (this.p.GrossMoneyPT + this.p.GrossMoneyPT * this.p.Owner.data.Traits.TaxMod) * this.p.Owner.data.TaxRate + this.p.PlusFlatMoneyPerTurn + (this.p.Population / 1000f * this.p.PlusCreditsPerColonist);
             float grossIncomePI = (float)((double)this.p.GrossMoneyPT + (double)this.p.Owner.data.Traits.TaxMod * (double)this.p.GrossMoneyPT);
             float grossUpkeepPI = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn * (double)this.p.Owner.data.Traits.MaintMod);
             float netIncomePI = (float)(grossIncome - grossUpkeepPI);
