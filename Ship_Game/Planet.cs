@@ -120,7 +120,7 @@ namespace Ship_Game
         public int TotalDefensiveStrength;
         public float GrossFood;
         public float GrossMoneyPT;
-        private float PlusCreditsPerColonist;
+        public float PlusCreditsPerColonist;
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
         public float consumption;
@@ -4085,7 +4085,7 @@ namespace Ship_Game
         private void ApplyProductionTowardsConstruction()
         {
             //Anything beyond 60% always use if able
-            if (this.ProductionHere > this.MAX_STORAGE * 0.6f)
+            if (this.ProductionHere > this.MAX_STORAGE * 0.6f && this.GovernorOn)
             {
                 float amount = this.ProductionHere - (this.MAX_STORAGE * 0.6f);
                 this.ProductionHere = this.MAX_STORAGE * 0.6f;
@@ -4103,11 +4103,13 @@ namespace Ship_Game
                     this.ApplyProductiontoQueue(this.NetProductionPerTurn, 0);
             }
             //Lost production converted into 50% money
+            //The Doctor: disabling until this can be more smoothly integrated into the economic predictions, UI and AI
+            /*
             if (this.ProductionHere > this.MAX_STORAGE)
             {
                 this.Owner.Money += (this.ProductionHere - this.MAX_STORAGE) * 0.5f;
                 this.ProductionHere = this.MAX_STORAGE;
-            }
+            } */
         }
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
@@ -4465,7 +4467,8 @@ namespace Ship_Game
             //Money
             this.GrossMoneyPT = this.Population / 1000f;
             this.GrossMoneyPT += this.PlusTaxPercentage * this.GrossMoneyPT;
-            this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.Population / 1000f * this.PlusCreditsPerColonist;
+            //this.GrossMoneyPT += this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
+            //this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.Population / 1000f * this.PlusCreditsPerColonist;
             this.MAX_STORAGE = (float)this.StorageAdded;
             if (this.MAX_STORAGE < 10)
                 this.MAX_STORAGE = 10f;
