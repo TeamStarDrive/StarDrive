@@ -520,7 +520,7 @@ namespace Ship_Game
             this.buildSL.Reset();
             foreach(string ship in this.p.Owner.ShipsWeCanBuild)
             {
-                if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected)
+                if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected || ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].NoBuild)
                     continue;
                 if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner)))
                 {
