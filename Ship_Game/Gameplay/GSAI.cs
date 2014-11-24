@@ -4760,7 +4760,7 @@ namespace Ship_Game.Gameplay
             }
             if (this.empire.canBuildCapitals)
             {
-                ratio_Fighters = 0f;
+                ratio_Fighters = 3f;
                 ratio_Frigates = 4f;
                 ratio_Cruisers = 3f;
                 ratio_Capitals = 1f;
@@ -4768,14 +4768,14 @@ namespace Ship_Game.Gameplay
             else if (this.empire.canBuildCruisers)
             {
 
-                ratio_Fighters = 0f;
+                ratio_Fighters = 3.5f;
                 ratio_Frigates = 5f;
                 ratio_Cruisers = 2f;
                 ratio_Capitals = 1f;
             }
             else if (this.empire.canBuildFrigates)
             {
-                ratio_Fighters =5.5f;
+                ratio_Fighters = 4f;
                 ratio_Frigates = 3f;
                 ratio_Cruisers = 1f;
                 ratio_Capitals = 1f;
@@ -4788,7 +4788,7 @@ namespace Ship_Game.Gameplay
             int DesiredCapitals = (int)(TotalMilShipCount / 10f * ratio_Capitals);
 
             int DesiredCarriers= (int)(TotalMilShipCount / 10f * 1f);
-            int DesiredTroopShips = (int)(TotalMilShipCount / 10f * 1f);  
+            int DesiredTroopShips = (int)(TotalMilShipCount / 10f * 0.9f);  
             if(Capacity ==0)
             {
                 int scrapFighters = (int)DesiredFighters-(int)numFighters  ;
@@ -7264,28 +7264,26 @@ namespace Ship_Game.Gameplay
                                             goto Start;
                                         }
                                 case "CHEAPEST":
-                                        {
-
-
-                                                                                    string modifier ="";
+                                        {                                            
+                                        string modifier ="";
                                         string[] script =scriptentry.Split(':');
                                         
                                         if(script.Count() ==1)
                                         {
-                                                                                        this.res_strat = GSAI.ResearchStrategy.Random;
+                                            this.res_strat = GSAI.ResearchStrategy.Random;
                                             this.RunResearchPlanner();
                                             this.res_strat = GSAI.ResearchStrategy.Scripted;
                                             ScriptIndex++;
                                             return;
                                             
                                         }
-                                            string[] modifiers = new string[script.Count()-1];
-                                            for(int i=1; i <script.Count();i++)
-                                            {
-                                                modifiers[i-1] =script[i];
-                                            }
+                                        string[] modifiers = new string[script.Count()-1];
+                                        for(int i=1; i <script.Count();i++)
+                                        {
+                                            modifiers[i-1] =script[i];
+                                        }
                                             modifier =String.Join(":",modifiers);
-                                        ScriptIndex++;
+                                            ScriptIndex++;
                                         if (ScriptedResearch(script[1], modifier))                                            
                                             return;
                                         loopcount++;
@@ -7378,9 +7376,23 @@ namespace Ship_Game.Gameplay
                                         }                  
                                 default:
                                     {
+                                        if (scriptentry != null && !this.empire.GetTDict()[scriptentry].Unlocked && this.empire.HavePreReq(scriptentry))
+                                        {
+                                            this.empire.ResearchTopic = scriptentry;
+                                            ScriptIndex++;
+                                            if (scriptentry != "")
+                                                return;
+                                        }
+                                        else if (scriptentry != null && this.empire.GetTDict()[scriptentry].Unlocked)
+                                        {
+                                            ScriptIndex++;
+                                            goto Start;
+                                        }
+
                                         foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
                                         {
-                                            if (this.empire.GetTDict()[tech.id].Unlocked || !this.empire.GetTDict().ContainsKey(tech.id) || !this.empire.HavePreReq(tech.id))
+
+                                            if (!this.empire.GetTDict().ContainsKey(tech.id) || this.empire.GetTDict()[tech.id].Unlocked || !this.empire.HavePreReq(tech.id))
                                             {
                           
                                                     continue;
