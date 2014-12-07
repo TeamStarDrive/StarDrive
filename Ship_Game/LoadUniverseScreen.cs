@@ -230,9 +230,16 @@ namespace Ship_Game
 				p.TilesList.Add(pgs);
 				foreach (Troop t in d.TroopsHere)
 				{
-					pgs.TroopsHere.Add(t);
-					p.TroopsHere.Add(t);
-					t.SetPlanet(p);
+                    if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(t.Name))
+                    {
+                        pgs.TroopsHere.Add(t);
+                        p.TroopsHere.Add(t);
+                        t.SetPlanet(p);
+                    }
+                    else
+                    {
+                        d.TroopsHere.Remove(t);
+                    }
 				}
 				if (pgs.building == null)
 				{
