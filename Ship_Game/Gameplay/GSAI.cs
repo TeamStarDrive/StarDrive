@@ -4781,14 +4781,14 @@ namespace Ship_Game.Gameplay
                 ratio_Capitals = 1f;
             }
             float single = TotalMilShipCount / 10f;
-            int DesiredFighters = (int)(TotalMilShipCount / 10f * ratio_Fighters );
-            int DesiredBombers = (int)(TotalMilShipCount / 10f * ratio_Fighters != 0 ? ratio_Fighters *.25f : ratio_Frigates*.25f);
-            int DesiredFrigates = (int)(TotalMilShipCount / 10f * ratio_Frigates);
-            int DesiredCruisers = (int)(TotalMilShipCount / 10f * ratio_Cruisers);
-            int DesiredCapitals = (int)(TotalMilShipCount / 10f * ratio_Capitals);
+            int DesiredFighters = (int)((TotalMilShipCount / 10f) * ratio_Fighters );
+            int DesiredBombers = (int)((TotalMilShipCount / 10f) * ratio_Fighters != 0 ? ratio_Fighters *.25f : ratio_Frigates*.25f);
+            int DesiredFrigates = (int)((TotalMilShipCount / 10f) * ratio_Frigates);
+            int DesiredCruisers = (int)((TotalMilShipCount / 10f) * ratio_Cruisers);
+            int DesiredCapitals = (int)((TotalMilShipCount / 10f) * ratio_Capitals);
 
             int DesiredCarriers= (int)(TotalMilShipCount / 10f * 1f);
-            int DesiredTroopShips = (int)(TotalMilShipCount / 10f * 0.9f);  
+            int DesiredTroopShips = (int)(TotalMilShipCount / 20f * 1f);  
             if(Capacity ==0)
             {
                 int scrapFighters = (int)DesiredFighters-(int)numFighters  ;
