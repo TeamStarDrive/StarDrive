@@ -7376,18 +7376,30 @@ namespace Ship_Game.Gameplay
                                         }                  
                                 default:
                                     {
-                                        if (scriptentry != null && !this.empire.GetTDict()[scriptentry].Unlocked && this.empire.HavePreReq(scriptentry))
+                                        
+                                        TechEntry defaulttech;
+                                        if(this.empire.GetTDict().TryGetValue(scriptentry, out defaulttech))
                                         {
-                                            this.empire.ResearchTopic = scriptentry;
-                                            ScriptIndex++;
-                                            if (scriptentry != "")
-                                                return;
+                                            if (defaulttech.Unlocked)
+                                                
+                                            {
+                                                ScriptIndex++;
+                                                goto Start;
+                                            }
+                                            if ( !defaulttech.Unlocked && this.empire.HavePreReq(defaulttech.UID))
+                                            {
+                                                this.empire.ResearchTopic = defaulttech.UID;
+                                                ScriptIndex++;
+                                                if (scriptentry != "")
+                                                    return;
+                                            }
                                         }
-                                        else if (scriptentry != null && this.empire.GetTDict()[scriptentry].Unlocked)
+                                        else
                                         {
-                                            ScriptIndex++;
-                                            goto Start;
+                                            System.Diagnostics.Debug.WriteLine("TechNotFound");
+                                            System.Diagnostics.Debug.WriteLine(scriptentry);
                                         }
+
 
                                         foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
                                         {
