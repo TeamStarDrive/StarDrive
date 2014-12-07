@@ -2563,6 +2563,7 @@ namespace Ship_Game
                     }
                 }
                 data.UID = Path.GetFileNameWithoutExtension(FI.Name);
+               
                 
                 if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
