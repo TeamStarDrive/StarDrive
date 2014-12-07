@@ -2679,7 +2679,7 @@ namespace Ship_Game
 				stream.Close();
 				stream.Dispose();
 				//no localization
-                
+                data.Name = Path.GetFileNameWithoutExtension(FI.Name);
                 if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
