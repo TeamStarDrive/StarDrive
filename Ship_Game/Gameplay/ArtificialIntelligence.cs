@@ -3602,7 +3602,9 @@ namespace Ship_Game.Gameplay
 
 		public void OrderScrapShip()
 		{
-            System.Diagnostics.Debug.WriteLine(string.Concat(this.Owner.loyalty.PortraitName," : " , this.Owner.Role));
+#if SHOWSCRUB
+            System.Diagnostics.Debug.WriteLine(string.Concat(this.Owner.loyalty.PortraitName, " : ", this.Owner.Role)); 
+#endif
            
             if(this.Owner.Role=="platform" && this.Owner.ScuttleTimer<1)
             {
@@ -3671,8 +3673,11 @@ namespace Ship_Game.Gameplay
                 inSystem = this.Owner.GetSystem() == this.SystemToDefend;
             if (!inSystem || this.State != AIState.SystemDefender )
 			{
-                if (this.Target !=null &&(this.Target as Ship).Name == "Subspace Projector")
-                    System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", (this.Target as Ship).Name));
+
+#if SHOWSCRUB
+                if (this.Target != null && (this.Target as Ship).Name == "Subspace Projector")
+                    System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", (this.Target as Ship).Name)); 
+#endif
                 this.HasPriorityOrder = false;
 				this.SystemToDefend = system;
 				this.OrderQueue.Clear();

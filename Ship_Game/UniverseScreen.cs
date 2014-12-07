@@ -1281,7 +1281,8 @@ namespace Ship_Game
 
         public void DoAutoSave()
         {
-            GC.GetTotalMemory(true);
+            //GC.GetTotalMemory(true);
+            GC.Collect();
             SavedGame savedGame = new SavedGame(this, "Autosave " + this.Auto.ToString());
             ++this.Auto;
             if (this.Auto <= 3)
