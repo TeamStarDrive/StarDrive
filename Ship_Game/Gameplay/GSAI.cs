@@ -4781,14 +4781,14 @@ namespace Ship_Game.Gameplay
                 ratio_Capitals = 1f;
             }
             float single = TotalMilShipCount / 10f;
-            int DesiredFighters = (int)(TotalMilShipCount / 10f * ratio_Fighters );
-            int DesiredBombers = (int)(TotalMilShipCount / 10f * ratio_Fighters != 0 ? ratio_Fighters *.25f : ratio_Frigates*.25f);
-            int DesiredFrigates = (int)(TotalMilShipCount / 10f * ratio_Frigates);
-            int DesiredCruisers = (int)(TotalMilShipCount / 10f * ratio_Cruisers);
-            int DesiredCapitals = (int)(TotalMilShipCount / 10f * ratio_Capitals);
+            int DesiredFighters = (int)((TotalMilShipCount / 10f) * ratio_Fighters );
+            int DesiredBombers = (int)((TotalMilShipCount / 10f) * ratio_Fighters != 0 ? ratio_Fighters *.25f : ratio_Frigates*.25f);
+            int DesiredFrigates = (int)((TotalMilShipCount / 10f) * ratio_Frigates);
+            int DesiredCruisers = (int)((TotalMilShipCount / 10f) * ratio_Cruisers);
+            int DesiredCapitals = (int)((TotalMilShipCount / 10f) * ratio_Capitals);
 
             int DesiredCarriers= (int)(TotalMilShipCount / 10f * 1f);
-            int DesiredTroopShips = (int)(TotalMilShipCount / 10f * 0.9f);  
+            int DesiredTroopShips = (int)(TotalMilShipCount / 20f * 1f);  
             if(Capacity ==0)
             {
                 int scrapFighters = (int)DesiredFighters-(int)numFighters  ;
@@ -7376,18 +7376,30 @@ namespace Ship_Game.Gameplay
                                         }                  
                                 default:
                                     {
-                                        if (scriptentry != null && !this.empire.GetTDict()[scriptentry].Unlocked && this.empire.HavePreReq(scriptentry))
+                                        
+                                        TechEntry defaulttech;
+                                        if(this.empire.GetTDict().TryGetValue(scriptentry, out defaulttech))
                                         {
-                                            this.empire.ResearchTopic = scriptentry;
-                                            ScriptIndex++;
-                                            if (scriptentry != "")
-                                                return;
+                                            if (defaulttech.Unlocked)
+                                                
+                                            {
+                                                ScriptIndex++;
+                                                goto Start;
+                                            }
+                                            if ( !defaulttech.Unlocked && this.empire.HavePreReq(defaulttech.UID))
+                                            {
+                                                this.empire.ResearchTopic = defaulttech.UID;
+                                                ScriptIndex++;
+                                                if (scriptentry != "")
+                                                    return;
+                                            }
                                         }
-                                        else if (scriptentry != null && this.empire.GetTDict()[scriptentry].Unlocked)
+                                        else
                                         {
-                                            ScriptIndex++;
-                                            goto Start;
+                                            System.Diagnostics.Debug.WriteLine("TechNotFound");
+                                            System.Diagnostics.Debug.WriteLine(scriptentry);
                                         }
+
 
                                         foreach (EconomicResearchStrategy.Tech tech in this.empire.getResStrat().TechPath)
                                         {
