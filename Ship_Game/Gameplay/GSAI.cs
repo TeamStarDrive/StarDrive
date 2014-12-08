@@ -4671,11 +4671,13 @@ namespace Ship_Game.Gameplay
         {
             string name;
             float ratio_Fighters = 7f;
+            float ratio_Corvettes = 5f;
             float ratio_Frigates = 7f;
             float ratio_Cruisers = 5f;
             float ratio_Capitals = 3f;
             float TotalMilShipCount = 0f;
             float numFighters = 0f;
+            float numCorvettes = 0f;
             float numFrigates = 0f;
             float numCruisers = 0f;
             float numCapitals = 0f;
@@ -4701,11 +4703,11 @@ namespace Ship_Game.Gameplay
                         }
                         else if (str == "corvette")
                         {
-                            numFighters = numFighters + 1f;
+                            numCorvettes = numCorvettes + 1f;
                             TotalMilShipCount = TotalMilShipCount + 1f;
     
                         }
-                        else if (str == "frigate")
+                        else if (str == "frigate" || str == "destroyer")
                         {
                             numFrigates = numFrigates + 1f;
                             TotalMilShipCount = TotalMilShipCount + 1f;
@@ -4742,13 +4744,15 @@ namespace Ship_Game.Gameplay
                 this.empire.canBuildCruisers = this.empire.GetTDict()["Cruisers"].Unlocked;
             if (!this.empire.canBuildFrigates && Ship_Game.ResourceManager.TechTree.ContainsKey("FrigateConstruction"))
                 this.empire.canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
+            if (!this.empire.canBuildCorvettes && Ship_Game.ResourceManager.TechTree.ContainsKey("HeavyFighterHull"))
+                this.empire.canBuildCorvettes = this.empire.GetTDict()["HeavyFighterHull"].Unlocked;
 
             //Added by McShooterz: Used to find alternate techs that allow roles to be used by AI.
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useAlternateTech)
             {
                 foreach (KeyValuePair<string, TechEntry> techEntry in this.empire.GetTDict().Where(entry => entry.Value.Unlocked))
                 {
-                    if (this.empire.canBuildCapitals && this.empire.canBuildCruisers && this.empire.canBuildFrigates)
+                    if (this.empire.canBuildCapitals && this.empire.canBuildCruisers && this.empire.canBuildFrigates && this.empire.canBuildCorvettes)
                         break;
                     if (!this.empire.canBuildCapitals && techEntry.Value.GetTech().unlockBattleships)
                         this.empire.canBuildCapitals = true;
@@ -4756,11 +4760,14 @@ namespace Ship_Game.Gameplay
                         this.empire.canBuildCruisers = true;
                     else if (!this.empire.canBuildFrigates && techEntry.Value.GetTech().unlockFrigates)
                         this.empire.canBuildFrigates = true;
+                    else if (!this.empire.canBuildCorvettes && techEntry.Value.GetTech().unlockCorvettes)
+                        this.empire.canBuildCorvettes = true;
                 }
             }
             if (this.empire.canBuildCapitals)
             {
                 ratio_Fighters = 3f;
+                ratio_Corvettes = 4f;
                 ratio_Frigates = 4f;
                 ratio_Cruisers = 3f;
                 ratio_Capitals = 1f;
@@ -4768,7 +4775,8 @@ namespace Ship_Game.Gameplay
             else if (this.empire.canBuildCruisers)
             {
 
-                ratio_Fighters = 3.5f;
+                ratio_Fighters = 3f;
+                ratio_Corvettes = 3f;
                 ratio_Frigates = 5f;
                 ratio_Cruisers = 2f;
                 ratio_Capitals = 1f;
@@ -4776,22 +4784,34 @@ namespace Ship_Game.Gameplay
             else if (this.empire.canBuildFrigates)
             {
                 ratio_Fighters = 4f;
+                ratio_Corvettes = 2f;
                 ratio_Frigates = 3f;
                 ratio_Cruisers = 1f;
                 ratio_Capitals = 1f;
             }
+            else if (this.empire.canBuildCorvettes)
+            {
+                ratio_Fighters = 4f;
+                ratio_Corvettes = 3f;
+                ratio_Frigates = 1f;
+                ratio_Cruisers = 1f;
+                ratio_Capitals = 1f;
+            }
+
             float single = TotalMilShipCount / 10f;
             int DesiredFighters = (int)((TotalMilShipCount / 10f) * ratio_Fighters );
             int DesiredBombers = (int)((TotalMilShipCount / 10f) * ratio_Fighters != 0 ? ratio_Fighters *.25f : ratio_Frigates*.25f);
+            int DesiredCorvettes = (int)((TotalMilShipCount / 10f)* ratio_Corvettes);
             int DesiredFrigates = (int)((TotalMilShipCount / 10f) * ratio_Frigates);
             int DesiredCruisers = (int)((TotalMilShipCount / 10f) * ratio_Cruisers);
             int DesiredCapitals = (int)((TotalMilShipCount / 10f) * ratio_Capitals);
 
             int DesiredCarriers= (int)(TotalMilShipCount / 10f * 1f);
-            int DesiredTroopShips = (int)(TotalMilShipCount / 20f * 1f);  
+            int DesiredTroopShips = (int)(TotalMilShipCount / 18f * 1f);  
             if(Capacity ==0)
             {
                 int scrapFighters = (int)numFighters-(int)DesiredFighters  ;
+                int scrapCorvettes = (int)numCorvettes-(int)DesiredCorvettes ;
                 int scrapFrigates = (int)numFrigates-(int)DesiredFrigates  ;
                 int scrapCruisers = (int)numCruisers-(int)DesiredCruisers  ;
                 if (scrapCruisers + scrapFighters + scrapFrigates > 0 && this.empire.canBuildFrigates)
@@ -4804,7 +4824,12 @@ namespace Ship_Game.Gameplay
                         ship.GetAI().OrderScrapShip();
                         scrapFighters--;
                     }
-                    if (scrapFrigates > 0 && ship.Role == "frigate")
+                    if(scrapCorvettes >0 && ship.Role =="corvette")
+                    {
+                        ship.GetAI().OrderScrapShip();
+                        scrapCorvettes--;
+                    }
+                    if (scrapFrigates > 0 && ship.Role == "frigate" || ship.Role == "destroyer")
                     {
                         ship.GetAI().OrderScrapShip();
                         scrapFrigates--;
@@ -5008,6 +5033,52 @@ namespace Ship_Game.Gameplay
                             continue;
                         }
                         name = ship9.Name;
+                        return name;
+                    }
+                }
+            }
+            if (this.empire.canBuildCorvettes && numCorvettes < (float)DesiredCorvettes)
+            {
+                foreach (string str999 in this.empire.ShipsWeCanBuild)
+                {
+                    Ship ship = ResourceManager.ShipsDict[str999];
+                    if (GlobalStats.ActiveMod != null&& GlobalStats.ActiveMod.mi.useProportionalUpkeep )
+                    {
+                        if (ship.Role != "corvette" || Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (ship.Role != "corvette" || Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship))
+                        {
+                            continue;
+                        }
+                    }
+                    PotentialShips.Add(ResourceManager.ShipsDict[str999]);
+                }
+                if (PotentialShips.Count > 0)
+                {
+                    IOrderedEnumerable<Ship> sortedList =
+                        from ship in PotentialShips
+                        orderby ship.BaseStrength
+                        select ship;
+                    float totalStrength = 0f;
+                    foreach (Ship ship999 in sortedList)
+                    {
+                        totalStrength = totalStrength + ship999.BaseStrength;
+                    }
+                    float ran = RandomMath.RandomBetween(0f, totalStrength);
+                    float strcounter = 0f;
+                    foreach (Ship ship998 in sortedList)
+                    {
+                        strcounter = strcounter + ship998.BaseStrength;
+                        if (strcounter <= ran)
+                        {
+                            continue;
+                        }
+                        name = ship998.Name;
                         return name;
                     }
                 }
