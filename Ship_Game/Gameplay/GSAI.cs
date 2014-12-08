@@ -4791,9 +4791,9 @@ namespace Ship_Game.Gameplay
             int DesiredTroopShips = (int)(TotalMilShipCount / 20f * 1f);  
             if(Capacity ==0)
             {
-                int scrapFighters = (int)DesiredFighters-(int)numFighters  ;
-                int scrapFrigates = (int)DesiredFrigates-(int)numFrigates  ;
-                int scrapCruisers = (int)DesiredCruisers-(int)numCruisers  ;
+                int scrapFighters = (int)numFighters-(int)DesiredFighters  ;
+                int scrapFrigates = (int)numFrigates-(int)DesiredFrigates  ;
+                int scrapCruisers = (int)numCruisers-(int)DesiredCruisers  ;
                 if (scrapCruisers + scrapFighters + scrapFrigates > 0 && this.empire.canBuildFrigates)
                 foreach (Ship ship in this.empire.GetShips().Where(ship => !ship.InCombat && ship.inborders).OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense)).ThenByDescending(ship=> ship.Level).ThenByDescending(ship=> ship.BaseStrength))
                 //foreach(Ship ship in this.DefensiveCoordinator.DefensiveForcePool)
