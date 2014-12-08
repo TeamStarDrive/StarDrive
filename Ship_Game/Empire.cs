@@ -92,6 +92,7 @@ namespace Ship_Game
         public bool canBuildCapitals;
         public bool canBuildCruisers;
         public bool canBuildFrigates;
+        public bool canBuildCorvettes;
 
         static Empire()
         {
@@ -564,6 +565,9 @@ namespace Ship_Game
                 this.canBuildCruisers = true;
             if (this.TechnologyDict[techID].GetTech().unlockFrigates || techID == "FrigateConstruction")
                 this.canBuildFrigates = true;
+            if (this.TechnologyDict[techID].GetTech().unlockCorvettes || techID == "HeavyFighterHull")
+                this.canBuildCorvettes = true;
+
             //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {
