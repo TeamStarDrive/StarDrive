@@ -110,7 +110,10 @@ namespace Ship_Game.Gameplay
 			{
 				foreach (Ship ship in this.empire.GetShips())
 				{
-					if (ship.GetStrength() == 0f || Vector2.Distance(ship.Center, area.Position) >= area.Radius || ship.InCombat || ship.fleet != null && ship.fleet != null & ship.fleet.Task == null)
+					if (ship.GetStrength() == 0f 
+                        || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
+                        || ship.InCombat 
+                        || ship.fleet != null ) //&& ship.fleet != null & ship.fleet.Task == null)
 					{
 						continue;
 					}
@@ -188,7 +191,7 @@ namespace Ship_Game.Gameplay
 					PotentialTroops.Add(t);
 					troopStr = troopStr + (float)t.Strength;
 				}
-				while (troopStr <= EnemyTroopStr * 1.25f || numOfTroops <15);
+				while (troopStr <= EnemyTroopStr * 1.25f || numOfTroops <15 );
 			}
 			finally
 			{
@@ -336,7 +339,11 @@ namespace Ship_Game.Gameplay
             {
                 foreach (Ship ship in this.empire.GetShips().OrderBy(str=> str.BaseStrength))
                 {
-                    if ((ship.Role == "station" || ship.Role == "platform") || ship.BaseStrength == 0f || Vector2.Distance(ship.Center, area.Position) >= area.Radius || ship.InCombat || ship.fleet != null && ship.fleet != null & ship.fleet.Task == null)
+                    if ((ship.Role == "station" || ship.Role == "platform") 
+                        || ship.BaseStrength == 0f 
+                        || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
+                        || ship.InCombat
+                        || ship.fleet != null && ship.fleet.Task == null) //&& ship.fleet != null && ship.fleet.Task == null)
                     {
                         continue;
                     }
