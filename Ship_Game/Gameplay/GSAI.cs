@@ -5397,14 +5397,14 @@ namespace Ship_Game.Gameplay
                 Ship ship = ResourceManager.ShipsDict[shipsWeCanBuild3];
                 if (GlobalStats.ActiveMod != null&& GlobalStats.ActiveMod.mi.useProportionalUpkeep )
                 {
-                    if (ship.Role != "scout" || (Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship)))
+                    if ((ship.Role != "scout" && ship.Role != "fighter") || (Capacity <= ship.GetMaintCostRealism() || !shipIsGoodForGoals(ship)))
                     {
                         continue;
                     }
                 }
                 else
                 {
-                    if (ship.Role != "scout" || (Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship)))
+                    if ((ship.Role != "scout" && ship.Role != "fighter") || (Capacity <= ship.GetMaintCost() || !shipIsGoodForGoals(ship)))
                     {
                         continue;
                     }
