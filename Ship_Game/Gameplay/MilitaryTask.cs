@@ -1157,14 +1157,16 @@ namespace Ship_Game.Gameplay
 				}
 				OurPresentStrength = OurPresentStrength + ship.GetStrength();
 			}
-			MinimumEscortStrength = MinimumEscortStrength + 0.4f * MinimumEscortStrength;
+			MinimumEscortStrength *= 1.5f;
+            // I'm unsure on ball-park figures for ship strengths. Given it used to build up to 1500, sticking flat +300 on seems a good start
+            MinimumEscortStrength += 300;
 			if (MinimumEscortStrength + OurPresentStrength < this.empire.MilitaryScore *.1f) //+1500
 			{
-                MinimumEscortStrength = this.empire.MilitaryScore * .1f - OurPresentStrength; //1500f - OurPresentStrength;
+                MinimumEscortStrength = this.empire.MilitaryScore * .15f - OurPresentStrength; //1500f - OurPresentStrength;
 			}
-            if (MinimumEscortStrength < this.empire.MilitaryScore * .1f)
+            if (MinimumEscortStrength < this.empire.MilitaryScore * .15f)
 			{
-                MinimumEscortStrength = this.empire.MilitaryScore * .1f;
+                MinimumEscortStrength = this.empire.MilitaryScore * .15f;
 			}
 			this.MinimumTaskForceStrength = MinimumEscortStrength;
 			BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
