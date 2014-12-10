@@ -4786,16 +4786,16 @@ namespace Ship_Game.Gameplay
             }
             if (this.empire.canBuildCapitals)
             {
-                ratio_Fighters = 3f;
+                ratio_Fighters = 2f;
                 ratio_Corvettes = 4f;
                 ratio_Frigates = 4f;
                 ratio_Cruisers = 3f;
-                ratio_Capitals = 1f;
+                ratio_Capitals = 2f;
             }
             else if (this.empire.canBuildCruisers)
             {
 
-                ratio_Fighters = 3f;
+                ratio_Fighters = 2f;
                 ratio_Corvettes = 3f;
                 ratio_Frigates = 5f;
                 ratio_Cruisers = 2f;
@@ -4803,15 +4803,15 @@ namespace Ship_Game.Gameplay
             }
             else if (this.empire.canBuildFrigates)
             {
-                ratio_Fighters = 4f;
-                ratio_Corvettes = 2f;
+                ratio_Fighters = 2f;
+                ratio_Corvettes = 3f;
                 ratio_Frigates = 3f;
                 ratio_Cruisers = 0f;
                 ratio_Capitals = 0f;
             }
             else if (this.empire.canBuildCorvettes)
             {
-                ratio_Fighters = 4f;
+                ratio_Fighters = 2f;
                 ratio_Corvettes = 3f;
                 ratio_Frigates = 0f;
                 ratio_Cruisers = 0f;
@@ -4853,28 +4853,28 @@ namespace Ship_Game.Gameplay
             float DesiredCarrierSpending = ((DesiredCruiserSpending + DesiredCapitalSpending) / 4f);
             float DesiredMarineSpending = (TotalCapacity / totalRatio);
 
-                        
+
+            float fighterOverspend = capFighters - DesiredFighterSpending;
+            float corvetteOverspend = this.empire.canBuildCorvettes ? capCorvettes - DesiredCorvetteSpending : 0f;
+            float frigateOverspend = this.empire.canBuildFrigates ? capFrigates - DesiredFrigateSpending : 0f;
+            float cruiserOverspend = this.empire.canBuildCruisers ? capCruisers - DesiredCruiserSpending : 0f;
+            float capitalOverspend = this.empire.canBuildCapitals ? capCapitals - DesiredCapitalSpending : 0f;
           
             // this used to be if (Capacity == 0)... Well (if you check the calculation elsewhere) it could very easily be a negative value if capacity was insufficient for fleet due to changes. Made it <=, also made it less than 2 so AI more pro-actively re-arranges fleets.
             if (Capacity <= 0)            
             {
-                float fighterOverspend = capFighters - DesiredFighterSpending;
-                float corvetteOverspend = this.empire.canBuildCorvettes ? capCorvettes - DesiredCorvetteSpending : 0f;
-                float frigateOverspend = this.empire.canBuildFrigates ? capFrigates - DesiredFrigateSpending : 0f;
-                float cruiserOverspend = this.empire.canBuildCruisers ? capCruisers - DesiredCruiserSpending : 0f;
-                float capitalOverspend = this.empire.canBuildCapitals ? capCapitals - DesiredCapitalSpending : 0f;
 
                 int scrapFighters = (int)numFighters-(int)DesiredFighters  ;
                 int scrapCorvettes = (int)numCorvettes-(int)DesiredCorvettes ;
                 int scrapFrigates = (int)numFrigates-(int)DesiredFrigates  ;
                 int scrapCruisers = (int)numCruisers-(int)DesiredCruisers  ;
 
-                // because we actually care about corvettes now. Will trigger only if the overspend on a class is more than 20% over-budget for that class to avoid constant correction over the value of a single ship. The scrapping takes it below 5% when triggered.
-                if (fighterOverspend >= (DesiredFighterSpending * 0.2f) 
-                    || corvetteOverspend >= (DesiredCorvetteSpending * 0.2f) 
-                    || frigateOverspend >= (DesiredFrigateSpending * 0.2f) 
-                    || cruiserOverspend >= (DesiredCruiserSpending * 0.2f) 
-                    || capitalOverspend >= (DesiredCapitalSpending * 0.2f))
+                // because we actually care about corvettes now. Will trigger only if the overspend on a class is more than 10% over-budget for that class to avoid constant correction over the value of a single ship. The scrapping takes it below 5% when triggered.
+                if (fighterOverspend >= (DesiredFighterSpending * 0.1f) 
+                    || corvetteOverspend >= (DesiredCorvetteSpending * 0.1f) 
+                    || frigateOverspend >= (DesiredFrigateSpending * 0.1f) 
+                    || cruiserOverspend >= (DesiredCruiserSpending * 0.1f) 
+                    || capitalOverspend >= (DesiredCapitalSpending * 0.1f))
                 {
                     foreach (Ship ship in this.empire.GetShips().Where(ship => !ship.InCombat && ship.inborders).OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense)).ThenByDescending(ship => ship.Level).ThenByDescending(ship => ship.BaseStrength))
                     //foreach(Ship ship in this.DefensiveCoordinator.DefensiveForcePool)
@@ -4955,11 +4955,16 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            if (!this.empire.canBuildCorvettes && numFighters > 50f) 
-                return null;
-
             List<Ship> PotentialShips = new List<Ship>();
-            if (this.empire.canBuildCapitals && capCapitals < DesiredCapitalSpending)
+
+
+
+            // Always prioritise the construction of the most UNDERSPENT (hence <) budget going down the list.
+            if (this.empire.canBuildCapitals && capCapitals < DesiredCapitalSpending 
+                && capitalOverspend < cruiserOverspend
+                && capitalOverspend < frigateOverspend
+                && capitalOverspend < corvetteOverspend
+                && capitalOverspend < fighterOverspend)
             {
                 foreach (string shipsWeCanBuild in this.empire.ShipsWeCanBuild)
                 {
@@ -5006,7 +5011,10 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (this.empire.canBuildCruisers && capCruisers < DesiredCruiserSpending)
+            if (this.empire.canBuildCruisers && capCruisers < DesiredCruiserSpending
+                && cruiserOverspend < frigateOverspend
+                && cruiserOverspend < corvetteOverspend
+                && cruiserOverspend < fighterOverspend)
             {
                 foreach (string shipsWeCanBuild1 in this.empire.ShipsWeCanBuild)
                 {
@@ -5147,7 +5155,9 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (this.empire.canBuildFrigates && capFrigates < DesiredFrigateSpending)
+            if (this.empire.canBuildFrigates && capFrigates < DesiredFrigateSpending
+                && frigateOverspend < corvetteOverspend
+                && frigateOverspend < fighterOverspend)
             {
                 foreach (string str2 in this.empire.ShipsWeCanBuild)
                 {
@@ -5194,7 +5204,8 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (this.empire.canBuildCorvettes && capCorvettes < DesiredCorvetteSpending)
+            if (this.empire.canBuildCorvettes && capCorvettes < DesiredCorvetteSpending
+                && corvetteOverspend < fighterOverspend)
             {
                 foreach (string str999 in this.empire.ShipsWeCanBuild)
                 {
@@ -6898,7 +6909,7 @@ namespace Ship_Game.Gameplay
             prepareWar += this.empire.GetRelations().Where(angry => angry.Value.Threat > 0).Count();
             float noIncome = this.FindTaxRateToReturnAmount(UnderConstruction);
 
-            float tax = atWar ? .40f + (prepareWar * .05f) : .20f + (prepareWar * .5f);  //.45f - (tasks);
+            float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .5f);  //.45f - (tasks);
 
 
             float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
