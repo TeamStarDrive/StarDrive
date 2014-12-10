@@ -405,7 +405,7 @@ namespace Ship_Game
                 //if (entry.Value.TroopStrengthNeeded >= maxtroops - 120)
                 //    entry.Value.TroopStrengthNeeded = maxtroops - 120;
                     //entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops(this.us) / (6 - planet.developmentLevel)) *10; //entry.Value.PercentageOfValue * TotalTroopStrength;
-                entry.Value.IdealTroopStr = developmentlevel *(1+(int)Empire.universeScreen.GameDifficulty);
+                entry.Value.IdealTroopStr = (developmentlevel - 1) * (1+(int)Empire.universeScreen.GameDifficulty);
                 if (entry.Value.IdealTroopStr > maxtroops)
                     entry.Value.IdealTroopStr = maxtroops;
                 entry.Value.TroopStrengthNeeded = entry.Value.IdealTroopStr - currentTroops;
