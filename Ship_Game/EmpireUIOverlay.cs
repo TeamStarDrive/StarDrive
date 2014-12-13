@@ -585,6 +585,21 @@ namespace Ship_Game
 								ToolTip.CreateTooltip(Localizer.Token(2299), Ship.universeScreen.ScreenManager, "I");
 								break;
 							}
+                            case "Espionage":
+                            {
+                                ToolTip.CreateTooltip(Localizer.Token(7043), Ship.universeScreen.ScreenManager, "E");
+                                break;
+                            }
+                            case "ShipList":
+                            {
+                                ToolTip.CreateTooltip(Localizer.Token(7044), Ship.universeScreen.ScreenManager, "K");
+                                break;
+                            }
+                            case "Fleets":
+                            {
+                                ToolTip.CreateTooltip(Localizer.Token(7045), Ship.universeScreen.ScreenManager, "J");
+                                break;
+                            }
 							case "?":
 							{
 								ToolTip.CreateTooltip(Localizer.Token(2302), Ship.universeScreen.ScreenManager, "P");
