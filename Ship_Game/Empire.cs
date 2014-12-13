@@ -1643,11 +1643,18 @@ namespace Ship_Game
                     influenceNode1.Position = planet.system.Position;
                 }
                 influenceNode1.Radius = 1f;
-                for (int index = 0; index < planet.BuildingList.Count; ++index)
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.usePlanetaryProjection)
                 {
-                    //if (planet.BuildingList[index].IsProjector)
-                    if(influenceNode1.Radius < planet.BuildingList[index].ProjectorRange)
-                        influenceNode1.Radius = planet.BuildingList[index].ProjectorRange;
+                    for (int index = 0; index < planet.BuildingList.Count; ++index)
+                    {
+                        //if (planet.BuildingList[index].IsProjector)
+                        if (influenceNode1.Radius < planet.BuildingList[index].ProjectorRange)
+                            influenceNode1.Radius = planet.BuildingList[index].ProjectorRange;
+                    }
+                }
+                else
+                {
+                    influenceNode1.Radius = this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
                 }
                 lock (GlobalStats.BorderNodeLocker)
                     this.BorderNodes.Add(influenceNode1);
