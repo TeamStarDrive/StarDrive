@@ -180,7 +180,7 @@ namespace Ship_Game
 			{
 				this.ExitScreen();
 			}
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.O) && !input.LastKeyboardState.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !input.LastKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
             {
                 AudioManager.PlayCue("echo_affirm");
                 this.ExitScreen();
