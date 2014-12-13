@@ -542,6 +542,12 @@ namespace Ship_Game
 					}
 				}
 			}
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.L) && !input.LastKeyboardState.IsKeyDown(Keys.L) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+                return;
+            }
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
 			{
 				this.ExitScreen();
