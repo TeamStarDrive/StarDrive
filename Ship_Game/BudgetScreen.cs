@@ -222,6 +222,12 @@ namespace Ship_Game
 		{
 			this.currentMouse = input.CurrentMouseState;
 			Vector2 vector2 = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+                return;
+            }
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();
