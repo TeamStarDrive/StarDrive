@@ -936,6 +936,12 @@ namespace Ship_Game
 				this.ExitScreen();
 				return;
 			}
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.J) && !input.LastKeyboardState.IsKeyDown(Keys.J) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+                return;
+            }
 			this.current = Mouse.GetState();
 			Vector2 MousePos = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
 			if (this.SelectedNodeList.Count != 1 && this.FleetToEdit != -1)
