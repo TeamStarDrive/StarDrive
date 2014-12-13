@@ -5895,7 +5895,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 float single = this.FindTaxRateToReturnAmount(0);
-                //single += 0.1f;
+                single += 0.05f;
                 this.empire.data.TaxRate = single;
             }
         }
