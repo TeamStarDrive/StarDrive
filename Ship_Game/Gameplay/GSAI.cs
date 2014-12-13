@@ -4961,10 +4961,10 @@ namespace Ship_Game.Gameplay
 
             // Always prioritise the construction of the most UNDERSPENT (hence <) budget going down the list.
             if (this.empire.canBuildCapitals && capCapitals < DesiredCapitalSpending 
-                && capitalOverspend < cruiserOverspend
-                && capitalOverspend < frigateOverspend
-                && capitalOverspend < corvetteOverspend
-                && capitalOverspend < fighterOverspend)
+                && capitalOverspend / ratio_Capitals < cruiserOverspend / ratio_Cruisers
+                && capitalOverspend / ratio_Capitals < frigateOverspend / ratio_Frigates
+                && capitalOverspend / ratio_Capitals < corvetteOverspend / ratio_Corvettes
+                && capitalOverspend / ratio_Capitals < fighterOverspend / ratio_Fighters)
             {
                 foreach (string shipsWeCanBuild in this.empire.ShipsWeCanBuild)
                 {
@@ -5012,9 +5012,9 @@ namespace Ship_Game.Gameplay
                 }
             }
             if (this.empire.canBuildCruisers && capCruisers < DesiredCruiserSpending
-                && cruiserOverspend < frigateOverspend
-                && cruiserOverspend < corvetteOverspend
-                && cruiserOverspend < fighterOverspend)
+                && cruiserOverspend / ratio_Cruisers < frigateOverspend / ratio_Frigates
+                && cruiserOverspend / ratio_Cruisers < corvetteOverspend / ratio_Corvettes
+                && cruiserOverspend / ratio_Cruisers < fighterOverspend / ratio_Fighters)
             {
                 foreach (string shipsWeCanBuild1 in this.empire.ShipsWeCanBuild)
                 {
@@ -5156,8 +5156,8 @@ namespace Ship_Game.Gameplay
                 }
             }
             if (this.empire.canBuildFrigates && capFrigates < DesiredFrigateSpending
-                && frigateOverspend < corvetteOverspend
-                && frigateOverspend < fighterOverspend)
+                && frigateOverspend / ratio_Frigates < corvetteOverspend / ratio_Corvettes
+                && frigateOverspend / ratio_Frigates < fighterOverspend / ratio_Fighters)
             {
                 foreach (string str2 in this.empire.ShipsWeCanBuild)
                 {
@@ -5205,7 +5205,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             if (this.empire.canBuildCorvettes && capCorvettes < DesiredCorvetteSpending
-                && corvetteOverspend < fighterOverspend)
+                && corvetteOverspend / ratio_Corvettes < fighterOverspend / ratio_Fighters)
             {
                 foreach (string str999 in this.empire.ShipsWeCanBuild)
                 {
