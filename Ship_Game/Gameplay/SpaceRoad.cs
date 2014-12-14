@@ -26,13 +26,13 @@ namespace Ship_Game.Gameplay
 			float Distance = Vector2.Distance(Origin.Position, Destination.Position);
 
             int galaxySizeMod = (int)((Empire.universeScreen.Size.X ) / 250);
-            float offset = Empire.ProjectorRadius * 1.6f; // +galaxySizeMod;
+            float offset = Empire.ProjectorRadius + galaxySizeMod;
             this.NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
 			for (int i = 0; i < this.NumberOfProjectors; i++)
 			{
 				RoadNode node = new RoadNode();
 				float angle = HelperFunctions.findAngleToTarget(Origin.Position, Destination.Position);
-                node.Position = HelperFunctions.GeneratePointOnCircle(angle, Origin.Position,  (float)i * offset );
+                node.Position = HelperFunctions.GeneratePointOnCircle(angle, Origin.Position,  (float)i * (Distance / this.NumberOfProjectors));
 				bool reallyAdd = true;
 				lock (GlobalStats.BorderNodeLocker)
 				{
