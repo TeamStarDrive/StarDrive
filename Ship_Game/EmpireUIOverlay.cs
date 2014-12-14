@@ -529,7 +529,7 @@ namespace Ship_Game
                 AudioManager.PlayCue("echo_affirm");
                 this.screen.ScreenManager.AddScreen(new EspionageScreen(Ship.universeScreen));
             }
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
+			if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !input.LastKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("sd_ui_tactical_pause");
 				InGameWiki wiki = new InGameWiki(new Rectangle(0, 0, 750, 600))
