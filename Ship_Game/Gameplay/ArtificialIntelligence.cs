@@ -206,7 +206,7 @@ namespace Ship_Game.Gameplay
 					{
 						foreach (Empire.InfluenceNode node in this.Owner.loyalty.BorderNodes)
 						{
-							if (Vector2.Distance(node.Position, pointToCheck) > node.Radius)
+							if (Vector2.Distance(node.Position, pointToCheck) > (node.Radius * 0.85))
 							{
 								continue;
 							}
