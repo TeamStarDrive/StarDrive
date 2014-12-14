@@ -2666,7 +2666,7 @@ namespace Ship_Game.Gameplay
 			}
 			else if (this.Owner.engineState == Ship.MoveState.Warp)
 			{
-				if (Distance <= 10000f)
+				if (this.Owner.GetFTLSpeed() > 30000 && Distance <= 25000f)
 				{
 					lock (GlobalStats.WayPointLock)
 					{
@@ -2677,7 +2677,18 @@ namespace Ship_Game.Gameplay
 						}
 					}
 				}
-			}
+                else if (Distance <= 15000f)
+                {
+                    lock (GlobalStats.WayPointLock)
+                    {
+                        this.ActiveWayPoints.Dequeue();
+                        if (this.OrderQueue.Count > 0)
+                        {
+                            this.OrderQueue.RemoveFirst();
+                        }
+                    }
+                }
+            }
 			else if (Distance <= 1500f)
 			{
 				lock (GlobalStats.WayPointLock)
