@@ -26,7 +26,7 @@ namespace Ship_Game.Gameplay
 			float Distance = Vector2.Distance(Origin.Position, Destination.Position);
 
             int galaxySizeMod = (int)((Empire.universeScreen.Size.X ) / 250);
-            float offset = Empire.ProjectorRadius * 1.8f + galaxySizeMod;
+            float offset = Empire.ProjectorRadius * 1.6f; // +galaxySizeMod;
             this.NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
 			for (int i = 0; i < this.NumberOfProjectors; i++)
 			{
