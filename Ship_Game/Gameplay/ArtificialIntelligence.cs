@@ -2666,7 +2666,7 @@ namespace Ship_Game.Gameplay
 			}
 			else if (this.Owner.engineState == Ship.MoveState.Warp)
 			{
-				if (Distance <= 15000f)
+				if (Distance <= 10000f)
 				{
 					lock (GlobalStats.WayPointLock)
 					{
