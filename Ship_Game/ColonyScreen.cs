@@ -485,7 +485,8 @@ namespace Ship_Game
                   // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
 
                   position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                  string maintenance = (entry.item as Building).Maintenance.ToString("F2");
+                  float actualMaint = (entry.item as Building).Maintenance + (entry.item as Building).Maintenance * this.p.Owner.data.Traits.MaintMod;
+                  string maintenance = actualMaint.ToString("F2");
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
                   // ~~~

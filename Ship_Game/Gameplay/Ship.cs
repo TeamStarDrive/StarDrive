@@ -1025,6 +1025,7 @@ namespace Ship_Game.Gameplay
                 maintModReduction = GlobalStats.OptionIncreaseShipMaintenance;
                 maint *= (float)maintModReduction;
             }
+            maint += maint * empire.data.Traits.MaintMod;
             return maint;
 
         }
