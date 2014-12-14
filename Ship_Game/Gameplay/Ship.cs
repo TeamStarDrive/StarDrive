@@ -3461,7 +3461,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                     this.FTLmodifier = 1f;
-                //Apply inboarders bonus through ftl modifier
+                //Apply in borders bonus through ftl modifier
                 if (this.inborders && this.loyalty.data.Traits.InBordersSpeedBonus > 0)
                     this.FTLmodifier += this.loyalty.data.Traits.InBordersSpeedBonus;
             }
