@@ -54,7 +54,7 @@ namespace Ship_Game
 
             foreach(Ship ship in this.DefensiveForcePool)
             {
-                strength += (int)ship.BaseStrength;
+                strength += (int)ship.GetStrength();
             }
             return (float)strength;
 
