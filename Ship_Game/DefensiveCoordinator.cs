@@ -262,12 +262,17 @@ namespace Ship_Game
             }
             foreach (Ship defensiveForcePool in this.DefensiveForcePool)
             {
-                if ((!defensiveForcePool.GetAI().HasPriorityOrder || defensiveForcePool.GetAI().State == AIState.Resupply) && defensiveForcePool.loyalty == this.us)
+                if (
+                    (!defensiveForcePool.GetAI().HasPriorityOrder 
+                    || defensiveForcePool.GetAI().State == AIState.Resupply
+                    ) && defensiveForcePool.loyalty == this.us)
                 {
-                    //if (defensiveForcePool.GetAI().SystemToDefend != null)
-                    //{
-                    //    continue;
-                    //}
+
+
+                    if (defensiveForcePool.GetAI().SystemToDefend != null || (defensiveForcePool.GetAI().Target != null && defensiveForcePool.InCombat))
+                    {
+                        continue;
+                    }
                     ShipsAvailableForAssignment.Add(defensiveForcePool);
                 }
                 else
