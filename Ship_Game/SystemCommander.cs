@@ -45,7 +45,7 @@ namespace Ship_Game
                 Ship ship = entry.Value;
                 //if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
 
-                if (ship == null || ship.GetSystem() != this.system )
+                if ((ship == null || ship.GetSystem() != this.system) || (ship.GetAI().Target != null && ship.InCombat ))
                 {
                     continue;
                 }

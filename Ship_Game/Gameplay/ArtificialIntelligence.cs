@@ -6613,7 +6613,8 @@ namespace Ship_Game.Gameplay
             {
                 //int oqc = this.OrderQueue.Count;
                 bool docombat = false;
-                ShipGoal firstgoal = this.OrderQueue.FirstOrDefault<ArtificialIntelligence.ShipGoal>();
+                LinkedListNode<ArtificialIntelligence.ShipGoal> tempShipGoal = this.OrderQueue.First ;
+                ShipGoal firstgoal = tempShipGoal !=null  ? tempShipGoal.Value : null;  //.FirstOrDefault<ArtificialIntelligence.ShipGoal>();
                 if (this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0)
 #if !DEBUG
                     try
