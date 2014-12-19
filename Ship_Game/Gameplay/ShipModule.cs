@@ -891,6 +891,7 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
+            //this.SetNewExternals();
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
