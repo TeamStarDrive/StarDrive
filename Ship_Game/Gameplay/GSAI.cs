@@ -4680,6 +4680,9 @@ namespace Ship_Game.Gameplay
             float numCruisers = 0f;
             float numCapitals = 0f;
             float num_Bombers = 0f;
+            int scrapFighters = 0;
+            int scrapFrigates = 0;
+            int scrapCruisers = 0;
             
             for (int i = 0; i < this.empire.GetShips().Where(ship=> ship.GetAI().State !=AIState.Scrap)  .Count(); i++)
             {
@@ -4697,24 +4700,32 @@ namespace Ship_Game.Gameplay
                         {
                             numFighters = numFighters + 1f;
                             TotalMilShipCount = TotalMilShipCount + 1f;
+                            if (item.GetAI().State != AIState.Scrap)
+                                scrapFighters--;
      
                         }
                         else if (str == "corvette")
                         {
                             numFighters = numFighters + 1f;
                             TotalMilShipCount = TotalMilShipCount + 1f;
+                            if (item.GetAI().State != AIState.Scrap)
+                                scrapFighters--;
     
                         }
                         else if (str == "frigate")
                         {
                             numFrigates = numFrigates + 1f;
                             TotalMilShipCount = TotalMilShipCount + 1f;
+                            if (item.GetAI().State != AIState.Scrap)
+                                scrapFrigates--;
 
                         }
                         else if (str == "cruiser")
                         {
                             numCruisers = numCruisers + 1f;
                             TotalMilShipCount = TotalMilShipCount + 1f;
+                            if (item.GetAI().State != AIState.Scrap)
+                                scrapCruisers--;
   
                         }
                         else if (str == "capital")
@@ -4791,26 +4802,36 @@ namespace Ship_Game.Gameplay
             int DesiredTroopShips = (int)(TotalMilShipCount / 20f * 1f);  
             if(Capacity ==0)
             {
-                int scrapFighters = (int)DesiredFighters-(int)numFighters  ;
-                int scrapFrigates = (int)DesiredFrigates-(int)numFrigates  ;
-                int scrapCruisers = (int)DesiredCruisers-(int)numCruisers  ;
+                //scrap logic. #wanted - #have = number to scrap.
+                
+                 scrapFighters = (int)numFighters -(int)DesiredFighters ; //wanted 10 - having 5 = 5
+                 scrapFrigates = (int)numFrigates-(int)DesiredFrigates  ;
+                 scrapCruisers = (int)numCruisers - (int)DesiredCruisers;
                 if (scrapCruisers + scrapFighters + scrapFrigates > 0 && this.empire.canBuildFrigates)
-                foreach (Ship ship in this.empire.GetShips().Where(ship => !ship.InCombat && ship.inborders).OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense)).ThenByDescending(ship=> ship.Level).ThenByDescending(ship=> ship.BaseStrength))
+                foreach (Ship ship in this.empire.GetShips().Where(ship => 
+                    !ship.InCombat && ship.inborders )
+                    .OrderByDescending(defense => 
+                        this.DefensiveCoordinator.DefensiveForcePool.Contains(defense))
+                        .ThenByDescending(ship=> ship.Level)
+                            .ThenByDescending(ship=> ship.BaseStrength))
                 //foreach(Ship ship in this.DefensiveCoordinator.DefensiveForcePool)
                 {
 
                     if(scrapFighters >0 && ship.Role =="fighter")
                     {
+                        
                         ship.GetAI().OrderScrapShip();
                         scrapFighters--;
                     }
                     if (scrapFrigates > 0 && ship.Role == "frigate")
                     {
+                        
                         ship.GetAI().OrderScrapShip();
                         scrapFrigates--;
                     }
                     if (scrapCruisers > 0 && ship.Role == "cruiser")
                     {
+                        
                         ship.GetAI().OrderScrapShip();
                         scrapCruisers--;
                     }
