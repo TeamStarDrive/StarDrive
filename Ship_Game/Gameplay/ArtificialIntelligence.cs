@@ -5268,10 +5268,10 @@ namespace Ship_Game.Gameplay
             }
             else if (!this.hasPriorityTarget)
             {
-#if DEBUG
-                if (this.State == AIState.Intercept && this.Target != null)
-                    System.Diagnostics.Debug.WriteLine(this.Target); 
-#endif
+//#if DEBUG
+//                if (this.State == AIState.Intercept && this.Target != null)
+//                    System.Diagnostics.Debug.WriteLine(this.Target); 
+//#endif
                 this.Target = this.ScanForCombatTargets(senseCenter, radius);
             }
             else
@@ -6624,6 +6624,12 @@ namespace Ship_Game.Gameplay
 
 
                     docombat = (firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat);
+
+#if !DEBUG
+                                if (docombat || this.OrderQueue.Count == 0)
+                        System.Diagnostics.Debug.WriteLine("Nulled combat"); 
+#endif
+
 
                     if (!this.HasPriorityOrder && (docombat || this.OrderQueue.Count == 0))
                     {

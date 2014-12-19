@@ -343,7 +343,7 @@ namespace Ship_Game.Gameplay
                         || ship.BaseStrength == 0f 
                         || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
                         || ship.InCombat
-                        || ship.fleet != null && ship.fleet.Task == null) //&& ship.fleet != null && ship.fleet.Task == null)
+                        || ship.fleet != null )//&& ship.fleet.Task == null) //&& ship.fleet != null && ship.fleet.Task == null)
                     {
                         continue;
                     }
