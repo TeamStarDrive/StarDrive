@@ -674,6 +674,25 @@ namespace Ship_Game.Gameplay
 				{
 					this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.flameParticles, 500f, new Vector3(this.Center, 0f));
 				}
+                if (this.weapon.WeaponEffectType == "SmokeTrail")
+                {
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 600f, new Vector3(this.Center, 0f));
+                }
+                if (this.weapon.WeaponEffectType == "MuzzleSmoke")
+                {
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 1000f, new Vector3(this.Center, 0f));
+                }
+                if (this.weapon.WeaponEffectType == "MuzzleSmokeFire")
+                {
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 1000f, new Vector3(this.Center, 0f));
+                    this.trailEmitter = new ParticleEmitter(Projectile.universeScreen.fireTrailParticles, 750f, new Vector3(this.Center, -this.zStart));
+                }
+                if (this.weapon.WeaponEffectType == "FullSmokeMuzzleFire")
+                {
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 600f, new Vector3(this.Center, 0f));
+                    this.trailEmitter = new ParticleEmitter(Projectile.universeScreen.fireTrailParticles, 750f, new Vector3(this.Center, -this.zStart));
+                }
+
 			}
 			if (this.weapon.Animated == 1)
 			{
@@ -849,6 +868,20 @@ namespace Ship_Game.Gameplay
 						Projectile.universeScreen.flameParticles.AddParticleThreadA(center, random);
 					}
 				}
+                if (this.WeaponEffectType == "MuzzleBlast") // currently unused
+                {
+                    Vector3 center = new Vector3(this.Center.X, this.Center.Y, -100f);
+                    Vector2 forward = new Vector2((float)Math.Sin((double)base.Rotation), -(float)Math.Cos((double)base.Rotation));
+                    Vector2 right = new Vector2(-forward.Y, forward.X);
+                    right = Vector2.Normalize(right);
+                    for (int i = 0; i < 20; i++)
+                    {
+                        Vector3 random = new Vector3(right.X * ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), right.Y * ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f));
+                        Projectile.universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
+                        random = new Vector3(-forward.X + ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), -forward.Y + ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f));
+                        Projectile.universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
+                    }
+                }
 				else if (this.WeaponType == "Ballistic" && target is ShipModule && (target as ShipModule).ModuleType != ShipModuleType.Shield)
 				{
 					Cue impact = AudioManager.GetCue("sd_impact_bullet_small_01");
@@ -941,10 +974,37 @@ namespace Ship_Game.Gameplay
                 Vector3 newPosition = new Vector3(this.Center.X, this.Center.Y, -this.zStart);
                 if (this.firetrailEmitter != null && this.WeaponEffectType == "Plasma" && ((double)this.duration > (double)this.initialDuration * 0.699999988079071 && (double)this.particleDelay <= 0.0))
                     this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
+
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "MuzzleSmoke" && ((double)this.duration > (double)this.initialDuration * 0.97 && (double)this.particleDelay <= 0.0))
+                    this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
+
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "MuzzleSmokeFire" && ((double)this.duration > (double)this.initialDuration * 0.97 && (double)this.particleDelay <= 0.0))
+                {
+                    this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
+                }
+                if (this.trailEmitter != null && this.WeaponEffectType == "MuzzleSmokeFire" && ((double)this.duration > (double)this.initialDuration * 0.96 && (double)this.particleDelay <= 0.0))
+                {
+                    this.trailEmitter.Update(elapsedTime, newPosition);
+                }
+
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "FullSmokeMuzzleFire")
+                {
+                    this.firetrailEmitter.Update(elapsedTime, newPosition);
+                }
+                if (this.trailEmitter != null && this.WeaponEffectType == "FullSmokeMuzzleFire" && ((double)this.duration > (double)this.initialDuration * 0.96 && (double)this.particleDelay <= 0.0))
+                {
+                    this.trailEmitter.Update(elapsedTime, newPosition);
+                }
+
                 if (this.firetrailEmitter != null && this.WeaponEffectType == "RocketTrail")
                     this.firetrailEmitter.Update(elapsedTime, newPosition);
-                if (this.trailEmitter != null)
+
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "SmokeTrail")
+                    this.firetrailEmitter.Update(elapsedTime, newPosition);
+
+                if (this.trailEmitter != null && this.WeaponEffectType != "MuzzleSmokeFire" && this.WeaponEffectType != "FullSmokeMuzzleFire")
                     this.trailEmitter.Update(elapsedTime, newPosition);
+
                 if (this.system != null && this.system.isVisible && (this.light == null && this.weapon.Light != null) && (Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.LightWasAddedToSceneGraph))
                 {
                     this.LightWasAddedToSceneGraph = true;
