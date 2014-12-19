@@ -3479,7 +3479,7 @@ namespace Ship_Game.Gameplay
                         {
                             ++GlobalStats.ModuleUpdates;
                             moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        }
+                        }//);
                     }
                 }
                 else if ((double)elapsedTime < 0.0 && !this.UpdatedModulesOnce)
@@ -3982,8 +3982,10 @@ namespace Ship_Game.Gameplay
         {
             List<ShipModule> InternalModules = new List<ShipModule>();
             foreach (ModuleSlot slot in this.ModuleSlotList)
+            //    foreach (ModuleSlot slot in this.ExternalSlots)
             {
-                if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active)
+                if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
+                //    if ( slot.module.ModuleType != ShipModuleType.Dummy && slot.ModuleHealth >0)
                     InternalModules.Add(slot.module);
             }
             if (InternalModules.Count > 0)
