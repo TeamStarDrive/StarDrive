@@ -4764,6 +4764,11 @@ namespace Ship_Game
                 if (input.Up)
                     this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Normal);
             }
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.Y) && !input.LastKeyboardState.IsKeyDown(Keys.Y) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+            }
             if (this.close.HandleInput(input))
                 this.ExitScreen();
             else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && input.LastKeyboardState.IsKeyUp(Keys.Z) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))

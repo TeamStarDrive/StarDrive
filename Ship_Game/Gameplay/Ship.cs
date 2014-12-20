@@ -1025,6 +1025,7 @@ namespace Ship_Game.Gameplay
                 maintModReduction = GlobalStats.OptionIncreaseShipMaintenance;
                 maint *= (float)maintModReduction;
             }
+            maint += maint * empire.data.Traits.MaintMod;
             return maint;
 
         }
@@ -3460,7 +3461,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                     this.FTLmodifier = 1f;
-                //Apply inboarders bonus through ftl modifier
+                //Apply in borders bonus through ftl modifier
                 if (this.inborders && this.loyalty.data.Traits.InBordersSpeedBonus > 0)
                     this.FTLmodifier += this.loyalty.data.Traits.InBordersSpeedBonus;
             }
@@ -3615,6 +3616,7 @@ namespace Ship_Game.Gameplay
         //added by Gremlin : active ship strength calculator
         public float GetStrength()
         {
+            
             if (this.Health >= this.HealthMax * .90)
                 return this.BaseStrength;
             float Str = 0f;

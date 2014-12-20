@@ -425,6 +425,12 @@ namespace Ship_Game
 				this.ExitScreen();
 				return;
 			}
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.E) && !input.LastKeyboardState.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+                return;
+            }
 			this.AgentComponent.HandleInput(input);
 			//this.showExecuteButton = false;
 			bool GotRace = false;

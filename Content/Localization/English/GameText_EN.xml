@@ -7942,5 +7942,17 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7042</Index>
       <Text>The duration a beam will last from a beam type weapon.</Text>
     </Token>
+	<Token>
+      <Index>7043</Index>
+      <Text>Opens the Espionage Management Screen</Text>
+    </Token>
+	<Token>
+      <Index>7044</Index>
+      <Text>Opens the Ship Roster</Text>
+    </Token>
+	<Token>
+      <Index>7045</Index>
+      <Text>Opens the Fleet Manager</Text>
+    </Token>
   </TokenList>
 </LocalizationFile>

@@ -59,22 +59,22 @@ namespace Ship_Game
 			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 150, 18));
 
             Ref<bool> abRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoBuild, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoBuild = x);
-            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 145)), string.Concat(Localizer.Token(307), " Projectors"), abRef, Fonts.Arial12Bold);
+            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 160)), string.Concat(Localizer.Token(307), " Projectors"), abRef, Fonts.Arial12Bold);
             this.Checkboxes.Add(cb);
             cb.Tip_Token = 2228;
 
 			Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.AutoCombat, (bool x) => GlobalStats.AutoCombat = x);
-            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 145 + Fonts.Arial12Bold.LineSpacing + 3)), Localizer.Token(2207), acomRef, Fonts.Arial12Bold);
+            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 160 + Fonts.Arial12Bold.LineSpacing + 3)), Localizer.Token(2207), acomRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2230;
 
             Ref<bool> arRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoResearch, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoResearch = x);
-            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 145 + Fonts.Arial12Bold.LineSpacing * 2 + 3)), Localizer.Token(6136), arRef, Fonts.Arial12Bold);
+            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 160 + Fonts.Arial12Bold.LineSpacing * 2 + 6)), Localizer.Token(6136), arRef, Fonts.Arial12Bold);
             this.Checkboxes.Add(cb);
             cb.Tip_Token = 7039;
 
             Ref<bool> atRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoTaxes, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoTaxes = x);
-            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 145 + Fonts.Arial12Bold.LineSpacing * 3 + 3)), Localizer.Token(6138), atRef, Fonts.Arial12Bold);
+            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 160 + Fonts.Arial12Bold.LineSpacing * 3 + 9)), Localizer.Token(6138), atRef, Fonts.Arial12Bold);
             this.Checkboxes.Add(cb);
             cb.Tip_Token = 7040;
 
@@ -234,14 +234,30 @@ namespace Ship_Game
 			{
 				CurrentScout = this.ScoutDropDown.Options[this.ScoutDropDown.ActiveIndex].Name;
 			}
-			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
-			{
-                if (!(ResourceManager.ShipsDict[ship].Role == "scout") && !(ResourceManager.ShipsDict[ship].Role == "fighter") && (ResourceManager.ShipsDict[ship].shipData ==null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
-				{
-					continue;
-				}
-				this.ScoutDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
-			}
+
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.reconDropDown)
+            {
+                foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
+                {
+                    if (!(ResourceManager.ShipsDict[ship].Role == "scout") && (ResourceManager.ShipsDict[ship].shipData == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+                    {
+                        continue;
+                    }
+                    this.ScoutDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
+                }
+            }
+            else
+            {
+                foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
+                {
+                    if (!(ResourceManager.ShipsDict[ship].Role == "scout") && !(ResourceManager.ShipsDict[ship].Role == "fighter") && (ResourceManager.ShipsDict[ship].shipData == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+                    {
+                        continue;
+                    }
+                    this.ScoutDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
+                }
+            }
+
 			if (!(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout != "") || !ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout))
 			{
 				EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout = this.ScoutDropDown.Options[this.ScoutDropDown.ActiveIndex].Name;
