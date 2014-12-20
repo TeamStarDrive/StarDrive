@@ -2513,6 +2513,9 @@
     <None Include="Content\Textures\UI\icon_troop_shipUI.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\UI\nodecorrected.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Resources\StarTrek-SA.ico" />
   </ItemGroup>
