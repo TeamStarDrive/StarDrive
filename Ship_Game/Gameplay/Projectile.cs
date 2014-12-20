@@ -750,6 +750,7 @@ namespace Ship_Game.Gameplay
                     ShipModule module = target as ShipModule;
                     if (module != null && module.GetParent().loyalty == this.loyalty && !this.weapon.HitsFriendlies || module == null)
                         return false;
+
 					if (this.weapon.TruePD)
 					{
 						this.DieNextFrame = true;
@@ -801,7 +802,7 @@ namespace Ship_Game.Gameplay
                     }
                      */
                     //Non exploding projectiles should go through multiple modules if it has enough damage
-                    if (!this.explodes)
+                    if (!this.explodes && module.Active)
                     {
                         float remainder;
                         if (this.ArmorPiercing == 0 || !(module.ModuleType == ShipModuleType.Armor || (module.ModuleType == ShipModuleType.Dummy && module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
