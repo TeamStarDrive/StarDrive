@@ -748,10 +748,6 @@ namespace Ship_Game.Gameplay
 				if (target is ShipModule)
 				{
                     ShipModule module = target as ShipModule;
-                    if (module != null && module.Health <= 0)
-                    {
-                        return false;
-                    }
                     if (module != null && module.GetParent().loyalty == this.loyalty && !this.weapon.HitsFriendlies || module == null)
                         return false;
 					if (this.weapon.TruePD)
@@ -770,13 +766,16 @@ namespace Ship_Game.Gameplay
                     {
                         return false;
                     }
-                    if (module.ModuleType == ShipModuleType.Armor)
+                    // Moving this to the Damage function - doesn't seem to be working? Also seems nonsensical.
+                    /*
+                    if (module.ModuleType == ShipModuleType.Armor || (module.ModuleType == ShipModuleType.Dummy && module.ParentOfDummy.ModuleType == ShipModuleType.Armor))
 					{
                         this.damageRadius -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageRadius;
                         this.damageAmount -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageAmount;
                         this.damageAmount *= this.weapon.EffectVsArmor;
                         this.damageAmount *= this.damageAmount + this.ArmorDamageBonus;
 					}
+                    
                     if (module.ModuleType == ShipModuleType.Shield && module.shield_power > 0)
                     {
                         this.damageAmount *= this.weapon.EffectVSShields;
@@ -800,6 +799,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
+                     */
                     //Non exploding projectiles should go through multiple modules if it has enough damage
                     if (!this.explodes)
                     {
