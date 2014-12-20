@@ -3987,7 +3987,7 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot slot in this.ExternalSlots)
             {
                 //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
-                if ( slot.module.ModuleType != ShipModuleType.Dummy && slot.ModuleHealth >0)
+                if (slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active)
                     InternalModules.Add(slot.module);
             }
             if (InternalModules.Count > 0)
