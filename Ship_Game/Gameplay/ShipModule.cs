@@ -321,6 +321,10 @@ namespace Ship_Game.Gameplay
 					this.Active = true;
 					this.onFire = false;
 				}
+                if (base.Health <= 0)
+                {
+                    this.Active = false;
+                }
 				foreach (ShipModule dummy in this.LinkedModulesList)
 				{
 					dummy.DamageDummy(damageAmount);
@@ -493,6 +497,10 @@ namespace Ship_Game.Gameplay
                     base.Health = this.HealthMax;
                     this.Active = true;
                     this.onFire = false;
+                }
+                if (base.Health <= 0)
+                {
+                    this.Active = false;
                 }
                 foreach (ShipModule dummy in this.LinkedModulesList)
                 {
@@ -717,6 +725,10 @@ namespace Ship_Game.Gameplay
 					this.Active = true;
 					this.onFire = false;
 				}
+                if (base.Health <= 0)
+                {
+                    this.Active = false;
+                }
 				foreach (ShipModule dummy in this.LinkedModulesList)
 				{
 					dummy.DamageDummy(damageAmount);

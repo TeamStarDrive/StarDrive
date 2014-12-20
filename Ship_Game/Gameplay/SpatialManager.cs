@@ -760,6 +760,13 @@ namespace Ship_Game.Gameplay
                                                     if ((double)Vector2.Distance(ExplosionCenter, shipModule.Center) <= (double)damageRadius + (double)shipModule.shield_radius && (double)shipModule.shield_power > 0.0)
                                                     {
                                                         num2 = damageAmount - shipModule.shield_power;
+                                                        
+                                                        // Make sure explosions don't apply full damage when weapon is set to have penalty. Equally, applies bonus against armour from weapon.
+                                                        if (shipModule.ModuleType == ShipModuleType.Armor)
+                                                        {
+                                                            damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                                                        }
+                                                        // doesn't this mean explosions hit through shields? It's not applying the 'bleed' if shields drop from damage, but half of all damage impacting...
                                                         shipModule.Damage(source, damageAmount / 2f);
                                                         break;
                                                     }
@@ -814,6 +821,10 @@ namespace Ship_Game.Gameplay
                                                                     if ((double)explosionRay.Damage > 0.0)
                                                                     {
                                                                         float health = (gameplayObject2 as ShipModule).Health;
+                                                                        if ((gameplayObject2 as ShipModule).ModuleType == ShipModuleType.Armor)
+                                                                        {
+                                                                            explosionRay.Damage *= (source as Projectile).weapon.EffectVsArmor;
+                                                                        }
                                                                         (gameplayObject2 as ShipModule).Damage(source, explosionRay.Damage);
                                                                         explosionRay.Damage -= health;
                                                                     }
