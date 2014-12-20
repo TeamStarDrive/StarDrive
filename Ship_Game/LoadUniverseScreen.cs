@@ -464,6 +464,7 @@ namespace Ship_Game
 		}*/
         ~LoadUniverseScreen() {
             //should implicitly do the same thing as the original bad finalize
+            this.Dispose(false);
         }
 
 		public void Go()

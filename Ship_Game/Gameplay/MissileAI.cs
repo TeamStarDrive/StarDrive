@@ -49,9 +49,10 @@ namespace Ship_Game.Gameplay
             if (this.Owner.owner != null)
             {
                 GameplayObject sourceTarget = this.Owner.owner.GetAI().Target;
-                if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && (sourceTarget as Ship).loyalty != this.Owner.loyalty)
+                Ship sourceTargetShip = sourceTarget as Ship;
+                if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && sourceTargetShip.loyalty != this.Owner.loyalty)
                 {
-                    this.SetTarget((sourceTarget as Ship).GetRandomInternalModule());
+                    this.SetTarget(sourceTargetShip.GetRandomInternalModule());
                     return;
                 }
             }

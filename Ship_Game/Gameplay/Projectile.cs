@@ -756,9 +756,9 @@ namespace Ship_Game.Gameplay
 						this.DieNextFrame = true;
 						return true;
 					}
-                    if ((target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
+                    if (module.GetParent().Role == "fighter" && module.GetParent().loyalty.data.Traits.DodgeMod > 0f)
                     {
-                        if ((((target as ShipModule).GetParent().GetSystem() != null ? (target as ShipModule).GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod * 100f)
+                        if (((module.GetParent().GetSystem() != null ? module.GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < module.GetParent().loyalty.data.Traits.DodgeMod * 100f)
                         {
                             this.Miss = true;
                         }
@@ -889,12 +889,16 @@ namespace Ship_Game.Gameplay
                         Projectile.universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
                     }
                 }
-				else if (this.WeaponType == "Ballistic" && target is ShipModule && (target as ShipModule).ModuleType != ShipModuleType.Shield)
-				{
-					Cue impact = AudioManager.GetCue("sd_impact_bullet_small_01");
-					impact.Apply3D(Projectile.universeScreen.listener, this.emitter);
-					impact.Play();
-				}
+                else if (this.WeaponType == "Ballistic Cannon")
+                {
+                    ShipModule SMtarget = target as ShipModule;
+                    if (SMtarget != null && SMtarget.ModuleType != ShipModuleType.Shield)
+                    {
+                        Cue impact = AudioManager.GetCue("sd_impact_bullet_small_01");
+                        impact.Apply3D(Projectile.universeScreen.listener, this.emitter);
+                        impact.Play();
+                    }
+                }
 			}
 			this.DieNextFrame = true;
 			return base.Touch(target);
