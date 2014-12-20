@@ -1538,7 +1538,7 @@ namespace Ship_Game
                 catch(NullReferenceException ex)
                 {
                     ex.Data["Building Lookup"] = newB.Name;
-                    throw ex;
+                    throw;// ex;
                 }
 			}
 			textList = null;

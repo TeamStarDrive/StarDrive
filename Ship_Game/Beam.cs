@@ -292,7 +292,9 @@ namespace Ship_Game
 		{
 			if (target != null)
 			{
-				if (target == this.owner && !this.weapon.HitsFriendlies)
+                bool isShipModule = target is ShipModule;
+                ShipModule targetShipmodule = target as ShipModule;
+                if (target == this.owner && !this.weapon.HitsFriendlies)
 				{
 					return false;
 				}
@@ -304,11 +306,11 @@ namespace Ship_Game
 				{
 					return false;
 				}
-				if (this.damageAmount < 0f && target is ShipModule && (target as ShipModule).shield_power > 0f)
+                if (this.damageAmount < 0f && isShipModule && targetShipmodule.shield_power > 0f)
 				{
 					return false;
 				}
-				if (!this.DamageToggleOn && target is ShipModule)
+                if (!this.DamageToggleOn && isShipModule)
 				{
 					this.DamageToggleOn = true;
 				}
@@ -322,7 +324,7 @@ namespace Ship_Game
 					{
 					}
 				}
-                (target as ShipModule).Damage(this, this.damageAmount);
+                targetShipmodule.Damage(this, this.damageAmount);
 			}
 			return true;
 		}

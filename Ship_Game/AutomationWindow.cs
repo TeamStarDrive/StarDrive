@@ -175,7 +175,7 @@ namespace Ship_Game
 		{
             this.resetDropDowns();
 			string Current;
-            if (this.screen.player.data.CurrentAutoFreighter != "")
+            if (!String.IsNullOrEmpty(this.screen.player.data.CurrentAutoFreighter))
                 Current = this.screen.player.data.CurrentAutoFreighter;
             else
                 Current = this.screen.player.data.DefaultSmallTransport;
