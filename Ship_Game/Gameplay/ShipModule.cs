@@ -305,6 +305,10 @@ namespace Ship_Game.Gameplay
 				{
 					return false;
 				}
+                if (this.ModuleType == ShipModuleType.Armor && source is Projectile)
+                {
+                    damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                }
                 if (damageAmount > this.Health)
                 {
                     damageRemainder = damageAmount - this.Health;
@@ -332,16 +336,23 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-                if (damageAmount > this.shield_power)
+                float damageAmountvsShields = damageAmount;
+                if (source is Projectile)
                 {
-                    damageRemainder = damageAmount - this.shield_power;
+                    damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                }
+
+                if (damageAmountvsShields > this.shield_power)
+                {
+                    damageRemainder = damageAmountvsShields - this.shield_power;
                     this.shield_power = 0;
                 }
                 else
                 {
                     damageRemainder = 0;
-                    this.shield_power -= damageAmount;
+                    this.shield_power -= damageAmountvsShields;
                 }
+
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
 					base.findAngleToTarget(this.Parent.Center, source.Center);
@@ -484,6 +495,10 @@ namespace Ship_Game.Gameplay
                 {
                     return false;
                 }
+                if (this.ModuleType == ShipModuleType.Armor && source is Projectile)
+                {
+                    damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                }
                 if (damageAmount > this.Health)
                 {
                     this.Health = 0;
@@ -510,14 +525,22 @@ namespace Ship_Game.Gameplay
             else
             {
                 //Damage module health if shields fail from damage
-                if (damageAmount > this.shield_power)
+                float damageAmountvsShields = damageAmount;
+
+                if (source is Projectile)
+                {
+                    damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                }
+
+                if (damageAmountvsShields > this.shield_power)
                 {
                     this.shield_power = 0;
                 }
                 else
                 {
-                    this.shield_power -= damageAmount;
+                    this.shield_power -= damageAmountvsShields;
                 }
+
                 if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
                 {
                     base.findAngleToTarget(this.Parent.Center, source.Center);
@@ -705,8 +728,13 @@ namespace Ship_Game.Gameplay
 					}
 				}
                 //Added by McShooterz: shields keep charge when manually turned off
+
 				if (this.shield_power <= 0f || shieldsOff)
 				{
+                    if (source is Projectile && this.ModuleType == ShipModuleType.Armor)
+                    {
+                        damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                    }
 					ShipModule health = this;
 					health.Health = health.Health - damageAmount;
 				}
@@ -737,6 +765,10 @@ namespace Ship_Game.Gameplay
 			else
 			{
 				ShipModule shipModule = this;
+                if (source is Projectile)
+                {
+                    damageAmount *= (source as Projectile).weapon.EffectVSShields;
+                }
 				shipModule.shield_power = shipModule.shield_power - damageAmount;
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
