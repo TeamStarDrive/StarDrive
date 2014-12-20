@@ -104,7 +104,8 @@ namespace Ship_Game.Gameplay
 				Vector2 wantedForward = Vector2.Normalize(LeftStick);
 				float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
 				float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
-				if (angleDiff > 0.2f)
+                // I suspect this is in radians - so 0.2f angle difference is actually about 11 degrees; can be problematic for missile AI guidance trying to hit target as it won't adjust early enough. Trying 0.1f
+				if (angleDiff > 0.1f)
 				{
 					Projectile owner = this.Owner;
 					owner.Rotation = owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
@@ -150,7 +151,7 @@ namespace Ship_Game.Gameplay
                 Vector2 wantedForward = Vector2.Normalize(LeftStick);
                 float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                 float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
-                if (angleDiff > 0.2f)
+                if (angleDiff > 0.1f)
                 {
                     Projectile owner = this.Owner;
                     owner.Rotation = owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
@@ -186,7 +187,7 @@ namespace Ship_Game.Gameplay
                 Vector2 wantedForward = Vector2.Normalize(LeftStick);
                 float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                 float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
-                if (angleDiff > 0.2f)
+                if (angleDiff > 0.1f)
                 {
                     Projectile owner = this.Owner;
                     owner.Rotation = owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);

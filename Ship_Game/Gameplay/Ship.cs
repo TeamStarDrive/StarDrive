@@ -3985,7 +3985,7 @@ namespace Ship_Game.Gameplay
             List<ShipModule> InternalModules = new List<ShipModule>();
             foreach (ModuleSlot slot in this.ModuleSlotList)
             {
-                if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active && slot.module.Health > 0)
+                if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active)
                     InternalModules.Add(slot.module);
             }
             if (InternalModules.Count > 0)
