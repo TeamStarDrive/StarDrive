@@ -86,6 +86,7 @@ namespace Ship_Game
 							ProdLock = ring.planet.ProdLocked,
 							ResLock = ring.planet.ResLocked,
 							Name = ring.planet.Name,
+                            Scale = ring.planet.scale,
 							ShieldStrength = ring.planet.ShieldStrengthCurrent,
 							Population = ring.planet.Population,
 							PopulationMax = ring.planet.MaxPopulation,
@@ -661,6 +662,8 @@ namespace Ship_Game
 			public Guid guid;
 
 			public string Name;
+
+            public float Scale;
 
 			public string Owner;
 
