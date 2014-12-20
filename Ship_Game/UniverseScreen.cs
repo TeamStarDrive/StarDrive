@@ -4499,6 +4499,8 @@ namespace Ship_Game
                                     Rectangle local_8 = new Rectangle((int)local_3.X, (int)local_3.Y, (int)local_7 * 5, (int)local_7 * 5);
                                     Vector2 local_9 = new Vector2((float)(ResourceManager.TextureDict["UI/nodecorrected"].Width / 2), (float)(ResourceManager.TextureDict["UI/nodecorrected"].Height / 2));
                                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/nodecorrected"], local_8, new Rectangle?(), index.EmpireColor, 0.0f, local_9, SpriteEffects.None, 1f);
+                                    //Vector2 local_9 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
+                                    //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, 0.0f, local_9, SpriteEffects.None, 1f);
                                     foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)index.BorderNodes)
                                     {
                                         if (!(item_1.Position == item_0.Position) && (double)item_1.Radius <= (double)item_0.Radius && (double)Vector2.Distance(item_1.Position, item_0.Position) <= (double)item_1.Radius + (double)item_0.Radius + 150000.0)
@@ -4513,6 +4515,7 @@ namespace Ship_Game
                                             float local_14 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(local_13_1, local_3));
                                             local_8 = new Rectangle((int)local_13_1.X, (int)local_13_1.Y, (int)local_7, (int)Vector2.Distance(local_13_1, local_3));
                                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/nodeconnect"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
+                                            //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
                                         }
                                     }
                                 }
