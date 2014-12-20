@@ -676,7 +676,7 @@ namespace Ship_Game.Gameplay
 				}
                 if (this.weapon.WeaponEffectType == "SmokeTrail")
                 {
-                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 600f, new Vector3(this.Center, 0f));
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 700f, new Vector3(this.Center, 0f));
                 }
                 if (this.weapon.WeaponEffectType == "MuzzleSmoke")
                 {
@@ -689,7 +689,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.weapon.WeaponEffectType == "FullSmokeMuzzleFire")
                 {
-                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 600f, new Vector3(this.Center, 0f));
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 700f, new Vector3(this.Center, 0f));
                     this.trailEmitter = new ParticleEmitter(Projectile.universeScreen.fireTrailParticles, 750f, new Vector3(this.Center, -this.zStart));
                 }
 
@@ -748,6 +748,10 @@ namespace Ship_Game.Gameplay
 				if (target is ShipModule)
 				{
                     ShipModule module = target as ShipModule;
+                    if (module != null && module.Health <= 0)
+                    {
+                        return false;
+                    }
                     if (module != null && module.GetParent().loyalty == this.loyalty && !this.weapon.HitsFriendlies || module == null)
                         return false;
 					if (this.weapon.TruePD)
@@ -770,11 +774,13 @@ namespace Ship_Game.Gameplay
 					{
                         this.damageRadius -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageRadius;
                         this.damageAmount -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageAmount;
-                        this.damageAmount *= (this.weapon.EffectVsArmor + this.ArmorDamageBonus);
+                        this.damageAmount *= this.weapon.EffectVsArmor;
+                        this.damageAmount *= this.damageAmount + this.ArmorDamageBonus;
 					}
                     if (module.ModuleType == ShipModuleType.Shield && module.shield_power > 0)
                     {
-                        this.damageAmount *= (this.weapon.EffectVSShields + this.ShieldDamageBonus);
+                        this.damageAmount *= this.weapon.EffectVSShields;
+                        this.damageAmount *= this.damageAmount + this.ShieldDamageBonus;
                         //projectiles penetrate weak shields
                         if (this.damageAmount > module.shield_power)
                         {

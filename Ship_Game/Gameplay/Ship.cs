@@ -2221,7 +2221,7 @@ namespace Ship_Game.Gameplay
                 {
                     moduleSlot.module.Health = moduleSlot.ModuleHealth;
                     moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                    if ((double)moduleSlot.module.Health == 0.0)
+                    if ((double)moduleSlot.module.Health <= 0.0)
                         moduleSlot.module.Active = false;
                 }
             }
@@ -2230,7 +2230,7 @@ namespace Ship_Game.Gameplay
                 moduleSlot.Initialize();
                 moduleSlot.module.Health = moduleSlot.ModuleHealth;
                 moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                if ((double)moduleSlot.module.Health == 0.0)
+                if ((double)moduleSlot.module.Health <= 0.0)
                     moduleSlot.module.Active = false;
             }
             this.RecalculatePower();
@@ -2252,7 +2252,7 @@ namespace Ship_Game.Gameplay
                 moduleSlot.InitializeForLoad();
                 moduleSlot.module.Health = moduleSlot.ModuleHealth;
                 moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                if ((double)moduleSlot.module.Health == 0.0)
+                if ((double)moduleSlot.module.Health <= 0.0)
                     moduleSlot.module.Active = false;
             }
             this.RecalculatePower();
@@ -3985,7 +3985,7 @@ namespace Ship_Game.Gameplay
             List<ShipModule> InternalModules = new List<ShipModule>();
             foreach (ModuleSlot slot in this.ModuleSlotList)
             {
-                if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active)
+                if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active && slot.module.Health > 0)
                     InternalModules.Add(slot.module);
             }
             if (InternalModules.Count > 0)

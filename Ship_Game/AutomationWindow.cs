@@ -234,14 +234,30 @@ namespace Ship_Game
 			{
 				CurrentScout = this.ScoutDropDown.Options[this.ScoutDropDown.ActiveIndex].Name;
 			}
-			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
-			{
-                if (!(ResourceManager.ShipsDict[ship].Role == "scout") && !(ResourceManager.ShipsDict[ship].Role == "fighter") && (ResourceManager.ShipsDict[ship].shipData ==null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
-				{
-					continue;
-				}
-				this.ScoutDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
-			}
+
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.reconDropDown)
+            {
+                foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
+                {
+                    if (!(ResourceManager.ShipsDict[ship].Role == "scout") && (ResourceManager.ShipsDict[ship].shipData == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+                    {
+                        continue;
+                    }
+                    this.ScoutDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
+                }
+            }
+            else
+            {
+                foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
+                {
+                    if (!(ResourceManager.ShipsDict[ship].Role == "scout") && !(ResourceManager.ShipsDict[ship].Role == "fighter") && (ResourceManager.ShipsDict[ship].shipData == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+                    {
+                        continue;
+                    }
+                    this.ScoutDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
+                }
+            }
+
 			if (!(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout != "") || !ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout))
 			{
 				EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout = this.ScoutDropDown.Options[this.ScoutDropDown.ActiveIndex].Name;
