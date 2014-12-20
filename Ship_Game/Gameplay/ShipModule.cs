@@ -325,6 +325,14 @@ namespace Ship_Game.Gameplay
 					this.Active = true;
 					this.onFire = false;
 				}
+                if (base.Health / this.HealthMax < 0.5f)
+                {
+                    this.onFire = true;
+                }
+                if ((double)(this.Parent.Health / this.Parent.HealthMax) < 0.5 && (double)base.Health < 0.5 * (double)this.HealthMax)
+                {
+                    this.reallyFuckedUp = true;
+                }
 				foreach (ShipModule dummy in this.LinkedModulesList)
 				{
 					dummy.DamageDummy(damageAmount);
@@ -508,6 +516,14 @@ namespace Ship_Game.Gameplay
                     base.Health = this.HealthMax;
                     this.Active = true;
                     this.onFire = false;
+                }
+                if (base.Health / this.HealthMax < 0.5f)
+                {
+                    this.onFire = true;
+                }
+                if ((double)(this.Parent.Health / this.Parent.HealthMax) < 0.5 && (double)base.Health < 0.5 * (double)this.HealthMax)
+                {
+                    this.reallyFuckedUp = true;
                 }
                 foreach (ShipModule dummy in this.LinkedModulesList)
                 {
@@ -1534,25 +1550,14 @@ namespace Ship_Game.Gameplay
 			{
 				this.isExternal = true;
 			}
+            if (base.Health <= 0f && this.Active)
+            {
+                this.Die(base.LastDamagedBy, false);
+            }
             if (base.Health >= this.HealthMax)
             {
                 base.Health = this.HealthMax;
                 this.onFire = false;
-            }
-            else
-            {
-                if (base.Health / this.HealthMax < 0.5f)
-                {
-                    this.onFire = true;
-                    if ((double)(this.Parent.Health / this.Parent.HealthMax) < 0.5 && (double)base.Health < 0.5 * (double)this.HealthMax)
-                    {
-                        this.reallyFuckedUp = true;
-                        if (base.Health <= 0f && this.Active)
-                        {
-                            this.Die(base.LastDamagedBy, false);
-                        }
-                    }
-                }
             }
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power <= 0f || shieldsOff)
