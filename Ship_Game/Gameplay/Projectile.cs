@@ -676,7 +676,7 @@ namespace Ship_Game.Gameplay
 				}
                 if (this.weapon.WeaponEffectType == "SmokeTrail")
                 {
-                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 700f, new Vector3(this.Center, 0f));
+                    this.trailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
                 }
                 if (this.weapon.WeaponEffectType == "MuzzleSmoke")
                 {
@@ -689,8 +689,8 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.weapon.WeaponEffectType == "FullSmokeMuzzleFire")
                 {
-                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 700f, new Vector3(this.Center, 0f));
-                    this.trailEmitter = new ParticleEmitter(Projectile.universeScreen.fireTrailParticles, 750f, new Vector3(this.Center, -this.zStart));
+                    this.trailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.fireTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
                 }
 
 			}
@@ -996,11 +996,11 @@ namespace Ship_Game.Gameplay
 
                 if (this.firetrailEmitter != null && this.WeaponEffectType == "FullSmokeMuzzleFire")
                 {
-                    this.firetrailEmitter.Update(elapsedTime, newPosition);
+                    this.trailEmitter.Update(elapsedTime, newPosition);
                 }
                 if (this.trailEmitter != null && this.WeaponEffectType == "FullSmokeMuzzleFire" && ((double)this.duration > (double)this.initialDuration * 0.96 && (double)this.particleDelay <= 0.0))
                 {
-                    this.trailEmitter.Update(elapsedTime, newPosition);
+                    this.firetrailEmitter.Update(elapsedTime, newPosition);
                 }
 
                 if (this.firetrailEmitter != null && this.WeaponEffectType == "RocketTrail")
