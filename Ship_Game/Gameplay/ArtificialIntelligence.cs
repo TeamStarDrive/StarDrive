@@ -4326,7 +4326,7 @@ namespace Ship_Game.Gameplay
             }
 
             #endregion
-            if (this.start != null && this.end != null && this.FoodOrProd != "")
+            if (this.start != null && this.end != null &&  !String.IsNullOrEmpty(this.FoodOrProd))
             {
                 this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
