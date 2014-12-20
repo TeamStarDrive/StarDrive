@@ -164,6 +164,15 @@ namespace Ship_Game
 			}
 			p.guid = data.guid;
 			p.Name = data.Name;
+            if (data.Scale != null && data.Scale != 0)
+            {
+                p.scale = data.Scale;
+            }
+            else
+            {
+                float scale = RandomMath.RandomBetween(1f, 2f);
+                p.scale = scale;
+            }
 			p.colonyType = data.ColonyType;
 			if (!data.GovernorOn)
 			{
@@ -188,9 +197,7 @@ namespace Ship_Game
 			p.LoadAttributes();
 			p.Crippled_Turns = data.Crippled_Turns;
 			p.planetTilt = RandomMath.RandomBetween(45f, 135f);
-			float scale = RandomMath.RandomBetween(1f, 2f);
-			p.scale = scale;
-			p.ObjectRadius = 100f * scale;
+			p.ObjectRadius = 100f * p.scale;
 			foreach (Guid guid in data.StationsList)
 			{
 				p.Shipyards.Add(guid, new Ship());
