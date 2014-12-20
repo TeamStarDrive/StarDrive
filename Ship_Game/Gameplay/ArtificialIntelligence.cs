@@ -3781,557 +3781,575 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-
-            //if starting or ending system in combat... clear order...
-            if ( this.Owner.CargoSpace_Used>0 && (
-                (this.start != null && this.start.ParentSystem.combatTimer >0) 
-                || (this.end !=null && this.end.ParentSystem.combatTimer >0)))
+            try
             {
+
+                //if starting or ending system in combat... clear order...
+                if (this.Owner.CargoSpace_Used > 0 && (
+                    (this.start != null && this.start.ParentSystem.combatTimer > 0)
+                    || (this.end != null && this.end.ParentSystem.combatTimer > 0)))
+                {
+                    this.start = null;
+                    this.end = null;
+                    this.OrderQueue.Clear();
+                    this.State = AIState.AwaitingOrders;
+
+                }
+                //if system all systems in combat... OMG no trade.
+
+                if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer <= 0).Count() == 0)
+                    return;
+
+
+                //int allincombat = 0;
+                //for (int p = 0; p < this.Owner.loyalty.GetPlanets().Count; p++)
+                //{
+                //    Planet planet = this.Owner.loyalty.GetPlanets()[p];
+                //    if (planet.CombatTimer > 0)
+                //        continue;
+                //    allincombat++;
+
+                //}
+                //if (allincombat == 0)
+                //    return;
+                lock (GlobalStats.WayPointLock)
+                {
+                    this.ActiveWayPoints.Clear();
+                }
+                this.OrderQueue.Clear();
+                if (this.Owner.CargoSpace_Used > 0f && this.Owner.GetCargo()["Colonists_1000"] == 0f)
+                {
+                    #region Deliver Food if already have food
+
+                    if (this.Owner.TradingFood && this.Owner.GetCargo()["Food"] > 0f)
+                    {
+                        List<Planet> planets = new List<Planet>();
+                        for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
+                        {
+                            Planet item = this.Owner.loyalty.GetPlanets()[i];
+                            if (item != null)
+                            {
+                                #region Food AO
+
+                                if (this.Owner.AreaOfOperation.Count > 0)
+                                {
+                                    foreach (Rectangle areaOfOperation in this.Owner.AreaOfOperation)
+                                    {
+                                        if (!HelperFunctions.CheckIntersection(areaOfOperation, item.Position) || item.fs != Planet.GoodState.IMPORT || item.FoodHere >= item.MAX_STORAGE * 0.6f)
+                                        {
+                                            continue;
+                                        }
+                                        bool flag = false;
+                                        float mAXSTORAGE = item.MAX_STORAGE - item.FoodHere;
+                                        for (int j = 0; j < this.Owner.loyalty.GetShips().Count; j++)
+                                        {
+                                            Ship ship = this.Owner.loyalty.GetShips()[j];
+                                            if (ship != null && ship.Role == "freighter" && ship != this.Owner)
+                                            {
+                                                if (ship.GetAI().State == AIState.SystemTrader && ship.GetAI().end == item && ship.GetAI().FoodOrProd == "Food")
+                                                {
+                                                    mAXSTORAGE = mAXSTORAGE - ship.CargoSpace_Max;
+                                                }
+                                                if (mAXSTORAGE <= 0f)
+                                                {
+                                                    flag = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (flag)
+                                        {
+                                            continue;
+                                        }
+                                        planets.Add(item);
+                                    }
+                                }
+
+                                #endregion
+
+                                else if (item.fs == Planet.GoodState.IMPORT && item.FoodHere < item.MAX_STORAGE * 0.6f)
+                                {
+                                    bool flag1 = false;
+                                    float netFoodPerTurn = item.MAX_STORAGE - item.FoodHere;
+                                    if (item.NetFoodPerTurn < item.Population / 1000f)
+                                    {
+                                        netFoodPerTurn = netFoodPerTurn + item.NetFoodPerTurn * 20f;
+                                    }
+                                    for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
+                                    {
+                                        Ship item1 = this.Owner.loyalty.GetShips()[k];
+                                        if (item1 != null && item1.Role == "freighter" && item1 != this.Owner)
+                                        {
+                                            if (item1.GetAI().State == AIState.SystemTrader && item1.GetAI().end == item && item1.GetAI().FoodOrProd == "Food")
+                                            {
+                                                netFoodPerTurn = netFoodPerTurn - item1.CargoSpace_Max;
+                                            }
+                                            if (netFoodPerTurn <= 0f)
+                                            {
+                                                flag1 = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (!flag1)
+                                    {
+                                        planets.Add(item);
+                                    }
+                                }
+                            }
+                        }
+                        if (planets.Count > 0)
+                        {
+
+
+                            //(dest => (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 1f ? 0 : (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 3f ? 1 : (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 6f ? 2 : 3).ThenBy(dest => dest.MAX_STORAGE - dest.FoodHere);
+                            IOrderedEnumerable<Planet> foodHere = planets.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.FoodHere / dest.MAX_STORAGE);
+                            //this.Owner.WarpThrust;                                     
+
+                            //from dest in planets
+                            //where dest.fs.CompareTo(Planet.GoodState.IMPORT)
+                            //orderby dest.FoodHere
+                            //dest.ProductionHere / dest.MAX_STORAGE
+                            //select dest;
+                            //dest => (Vector2.Distance(this.Owner.Position,dest.Position))
+                            //if(dest.ProductionHere / dest.MAX_STORAGE < .5 {1} else {0})
+                            //dest => dest.FoodHere / dest.MAX_STORAGE < .10f ? 0 : dest.FoodHere / dest.MAX_STORAGE < .3f ?1:2
+                            this.end = foodHere.First<Planet>();
+                            this.FoodOrProd = "Food";
+                            this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true);
+                            this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
+                            this.State = AIState.SystemTrader;
+                            return;
+                        }
+                    }
+
+                    #endregion
+
+                    #region deliver Production
+
+                    else if (this.Owner.TradingProd && this.Owner.GetCargo()["Production"] > 0f)
+                    {
+                        List<Planet> planets1 = new List<Planet>();
+                        this.end = null;
+                        for (int l = 0; l < this.Owner.loyalty.GetPlanets().Count; l++)
+                        {
+                            Planet planet = this.Owner.loyalty.GetPlanets()[l];
+                            if (planet != null && planet.ParentSystem.combatTimer < 1)
+                            {
+                                if (this.Owner.AreaOfOperation.Count > 0)
+                                {
+                                    foreach (Rectangle rectangle in this.Owner.AreaOfOperation)
+                                    {
+                                        if (!HelperFunctions.CheckIntersection(rectangle, planet.Position) || planet.ps != Planet.GoodState.IMPORT || planet.ProductionHere >= planet.MAX_STORAGE * 0.75f)
+                                        {
+                                            continue;
+                                        }
+                                        bool flag2 = false;
+                                        float cargoSpaceMax = planet.MAX_STORAGE - planet.ProductionHere;
+                                        for (int m = 0; m < this.Owner.loyalty.GetShips().Count; m++)
+                                        {
+                                            Ship ship1 = this.Owner.loyalty.GetShips()[m];
+                                            if (ship1 != null)
+                                            {
+                                                if (ship1.Role == "freighter")
+                                                {
+                                                    if (ship1 == this.Owner)
+                                                    {
+                                                        goto Label1;
+                                                    }
+                                                    if (ship1.GetAI().State == AIState.SystemTrader && ship1.GetAI().end == planet && ship1.GetAI().FoodOrProd == "Prod")
+                                                    {
+                                                        cargoSpaceMax = cargoSpaceMax - ship1.CargoSpace_Max;
+                                                    }
+                                                }
+                                                if (cargoSpaceMax <= 0f)
+                                                {
+                                                    flag2 = true;
+                                                    break;
+                                                }
+                                            }
+                                        Label1:
+                                            continue;
+                                        }
+
+                                        if (flag2)
+                                        {
+                                            continue;
+                                        }
+                                        planets1.Add(planet);
+                                    }
+                                }
+                                else if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere < planet.MAX_STORAGE * 0.75f)
+                                {
+                                    bool flag3 = false;
+                                    float single = planet.MAX_STORAGE - planet.ProductionHere;
+                                    for (int n = 0; n < this.Owner.loyalty.GetShips().Count; n++)
+                                    {
+                                        Ship item2 = this.Owner.loyalty.GetShips()[n];
+                                        if (item2 != null)
+                                        {
+                                            if (item2.Role == "freighter")
+                                            {
+                                                if (item2 == this.Owner)
+                                                {
+                                                    goto Label0;
+                                                }
+                                                if (item2.GetAI().State == AIState.SystemTrader && item2.GetAI().end == planet && item2.GetAI().FoodOrProd == "Prod")
+                                                {
+                                                    single = single - item2.CargoSpace_Max;
+                                                }
+                                            }
+                                            if (single <= 0f)
+                                            {
+                                                flag3 = true;
+                                                break;
+                                            }
+                                        }
+                                    Label0:
+                                        continue;
+                                    }
+
+                                    if (!flag3)
+                                    {
+                                        planets1.Add(planet);
+                                    }
+                                }
+                            }
+                        }
+                        if (planets1.Count > 0)
+                        {
+                            IOrderedEnumerable<Planet> productionHere = planets1.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.ProductionHere / dest.MAX_STORAGE);
+                            //IOrderedEnumerable<Planet> productionHere =
+                            //from dest in planets1
+
+                            //orderby dest.ProductionHere / dest.MAX_STORAGE
+                            //select dest;
+                            this.end = productionHere.First<Planet>();
+                            this.FoodOrProd = "Prod";
+                            this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true);
+                            this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
+                            this.State = AIState.SystemTrader;
+                            return;
+                        }
+                    }
+
+                    #endregion
+                }
+                #region deliver Food2
                 this.start = null;
                 this.end = null;
-                this.OrderQueue.Clear();
-                this.State = AIState.AwaitingOrders;
-                
-            }
-            //if system all systems in combat... OMG no trade.
-            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
-                return;
-            lock (GlobalStats.WayPointLock)
-            {
-                this.ActiveWayPoints.Clear();
-            }
-            this.OrderQueue.Clear();
-            if (this.Owner.CargoSpace_Used > 0f && this.Owner.GetCargo()["Colonists_1000"] == 0f)
-            {
-                #region Deliver Food if already have food
-
-                if (this.Owner.TradingFood && this.Owner.GetCargo()["Food"] > 0f)
+                this.FoodOrProd = "";
+                List<Planet> planets2 = new List<Planet>();
+                if (this.Owner.loyalty.data.Traits.Cybernetic == 1)
                 {
-                    List<Planet> planets = new List<Planet>();
-                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat=>combat.ParentSystem.combatTimer <=0).Count(); i++)
+                    this.Owner.TradingFood = false;
+                }
+                if (this.Owner.TradingFood)
+                {
+                    for (int o = 0; o < this.Owner.loyalty.GetPlanets().Count(); o++)
                     {
-                        Planet item = this.Owner.loyalty.GetPlanets()[i];
-                        if (item != null)
+                        Planet planet1 = this.Owner.loyalty.GetPlanets()[o];
+                        if (planet1 != null && planet1.ParentSystem.combatTimer < 1)
                         {
-                            #region Food AO
-
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
-                                foreach (Rectangle areaOfOperation in this.Owner.AreaOfOperation)
+                                foreach (Rectangle areaOfOperation1 in this.Owner.AreaOfOperation)
                                 {
-                                    if (!HelperFunctions.CheckIntersection(areaOfOperation, item.Position) || item.fs != Planet.GoodState.IMPORT || item.FoodHere >= item.MAX_STORAGE * 0.6f)
+                                    if (!HelperFunctions.CheckIntersection(areaOfOperation1, planet1.Position) || planet1.fs != Planet.GoodState.IMPORT || planet1.FoodHere >= planet1.MAX_STORAGE * 0.6f)
                                     {
                                         continue;
                                     }
-                                    bool flag = false;
-                                    float mAXSTORAGE = item.MAX_STORAGE - item.FoodHere;
-                                    for (int j = 0; j < this.Owner.loyalty.GetShips().Count; j++)
+                                    bool flag4 = false;
+                                    float mAXSTORAGE1 = planet1.MAX_STORAGE - planet1.FoodHere;
+                                    for (int p = 0; p < this.Owner.loyalty.GetShips().Count; p++)
                                     {
-                                        Ship ship = this.Owner.loyalty.GetShips()[j];
-                                        if (ship != null && ship.Role == "freighter" && ship != this.Owner)
+                                        Ship ship2 = this.Owner.loyalty.GetShips()[p];
+                                        if (ship2 != null && ship2.Role == "freighter" && ship2 != this.Owner)
                                         {
-                                            if (ship.GetAI().State == AIState.SystemTrader && ship.GetAI().end == item && ship.GetAI().FoodOrProd == "Food")
+                                            if (ship2.GetAI().State == AIState.SystemTrader && ship2.GetAI().end == planet1 && ship2.CargoSpace_Max + planet1.FoodHere > 0.75f * planet1.MAX_STORAGE && ship2.GetAI().FoodOrProd == "Food")
                                             {
-                                                mAXSTORAGE = mAXSTORAGE - ship.CargoSpace_Max;
+                                                mAXSTORAGE1 = mAXSTORAGE1 - ship2.CargoSpace_Max;
                                             }
-                                            if (mAXSTORAGE <= 0f)
+                                            if (mAXSTORAGE1 <= 0f)
                                             {
-                                                flag = true;
+                                                flag4 = true;
                                                 break;
                                             }
                                         }
                                     }
-                                    if (flag)
+                                    if (flag4)
                                     {
                                         continue;
                                     }
-                                    planets.Add(item);
+                                    planets2.Add(planet1);
                                 }
                             }
-
-                            #endregion
-
-                            else if (item.fs == Planet.GoodState.IMPORT && item.FoodHere < item.MAX_STORAGE * 0.6f)
+                            else if (planet1.fs == Planet.GoodState.IMPORT && planet1.FoodHere < planet1.MAX_STORAGE * 0.6f)
                             {
-                                bool flag1 = false;
-                                float netFoodPerTurn = item.MAX_STORAGE - item.FoodHere;
-                                if (item.NetFoodPerTurn < item.Population / 1000f)
+                                bool flag5 = false;
+                                float netFoodPerTurn1 = planet1.MAX_STORAGE - planet1.FoodHere;
+                                if (planet1.NetFoodPerTurn < planet1.Population / 1000f)
                                 {
-                                    netFoodPerTurn = netFoodPerTurn + item.NetFoodPerTurn * 20f;
+                                    netFoodPerTurn1 = netFoodPerTurn1 + planet1.NetFoodPerTurn * 20f;
                                 }
-                                for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
+                                for (int q = 0; q < this.Owner.loyalty.GetShips().Count; q++)
                                 {
-                                    Ship item1 = this.Owner.loyalty.GetShips()[k];
-                                    if (item1 != null && item1.Role == "freighter" && item1 != this.Owner)
+                                    Ship item3 = this.Owner.loyalty.GetShips()[q];
+                                    if (item3 != null && item3.Role == "freighter" && item3 != this.Owner)
                                     {
-                                        if (item1.GetAI().State == AIState.SystemTrader && item1.GetAI().end == item && item1.GetAI().FoodOrProd == "Food")
+                                        if (item3.GetAI().State == AIState.SystemTrader && item3.GetAI().end == planet1 && item3.GetAI().FoodOrProd == "Food")
                                         {
-                                            netFoodPerTurn = netFoodPerTurn - item1.CargoSpace_Max;
+                                            netFoodPerTurn1 = netFoodPerTurn1 - item3.CargoSpace_Max;
                                         }
-                                        if (netFoodPerTurn <= 0f)
+                                        if (netFoodPerTurn1 <= 0f)
                                         {
-                                            flag1 = true;
+                                            flag5 = true;
                                             break;
                                         }
                                     }
                                 }
-                                if (!flag1)
+                                if (!flag5)
                                 {
-                                    planets.Add(item);
+                                    planets2.Add(planet1);
                                 }
                             }
                         }
                     }
-                    if (planets.Count > 0)
+                    if (planets2.Count > 0)
                     {
-
-
-                        //(dest => (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 1f ? 0 : (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 3f ? 1 : (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 6f ? 2 : 3).ThenBy(dest => dest.MAX_STORAGE - dest.FoodHere);
-                        IOrderedEnumerable<Planet> foodHere = planets.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.FoodHere / dest.MAX_STORAGE);
-                        //this.Owner.WarpThrust;                                     
-
-                        //from dest in planets
-                        //where dest.fs.CompareTo(Planet.GoodState.IMPORT)
-                        //orderby dest.FoodHere
-                        //dest.ProductionHere / dest.MAX_STORAGE
-                        //select dest;
-                        //dest => (Vector2.Distance(this.Owner.Position,dest.Position))
-                        //if(dest.ProductionHere / dest.MAX_STORAGE < .5 {1} else {0})
-                        //dest => dest.FoodHere / dest.MAX_STORAGE < .10f ? 0 : dest.FoodHere / dest.MAX_STORAGE < .3f ?1:2
+                        //IOrderedEnumerable<Planet> foodHere = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.FoodHere / dest.MAX_STORAGE);
+                        IOrderedEnumerable<Planet> foodHere = planets2.OrderBy(dest => (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 5f ? 0 : (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 10f ? 1 : 2).ThenBy(dest => dest.FoodHere / dest.MAX_STORAGE);
+                        //IOrderedEnumerable<Planet> foodHere1 =
+                        //                                      from dest in planets2
+                        //                                      orderby dest.FoodHere / dest.MAX_STORAGE
+                        //                                      select dest;
                         this.end = foodHere.First<Planet>();
                         this.FoodOrProd = "Food";
-                        this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true);
-                        this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
-                        this.State = AIState.SystemTrader;
-                        return;
                     }
-                }
-
                 #endregion
-
-                #region deliver Production
-
-                else if (this.Owner.TradingProd && this.Owner.GetCargo()["Production"] > 0f)
-                {
-                    List<Planet> planets1 = new List<Planet>();
-                    this.end = null;
-                    for (int l = 0; l < this.Owner.loyalty.GetPlanets().Count; l++)
+                    #region Get Food
+                    if (this.end != null)
                     {
-                        Planet planet = this.Owner.loyalty.GetPlanets()[l];
-                        if (planet != null && planet.ParentSystem.combatTimer < 1)
+                        planets2 = new List<Planet>();
+                        for (int r = 0; r < this.Owner.loyalty.GetPlanets().Count(); r++)
                         {
-                            if (this.Owner.AreaOfOperation.Count > 0)
+                            Planet planet2 = this.Owner.loyalty.GetPlanets()[r];
+                            if (planet2 != null && planet2 != this.end && planet2.ParentSystem.combatTimer < 1)
                             {
-                                foreach (Rectangle rectangle in this.Owner.AreaOfOperation)
+                                #region AO
+                                if (this.Owner.AreaOfOperation.Count > 0)
                                 {
-                                    if (!HelperFunctions.CheckIntersection(rectangle, planet.Position) || planet.ps != Planet.GoodState.IMPORT || planet.ProductionHere >= planet.MAX_STORAGE * 0.75f)
+                                    foreach (Rectangle rectangle1 in this.Owner.AreaOfOperation)
                                     {
-                                        continue;
-                                    }
-                                    bool flag2 = false;
-                                    float cargoSpaceMax = planet.MAX_STORAGE - planet.ProductionHere;
-                                    for (int m = 0; m < this.Owner.loyalty.GetShips().Count; m++)
-                                    {
-                                        Ship ship1 = this.Owner.loyalty.GetShips()[m];
-                                        if (ship1 != null)
+                                        if (!HelperFunctions.CheckIntersection(rectangle1, planet2.Position) || !(this.FoodOrProd == "Food"))
                                         {
-                                            if (ship1.Role == "freighter")
-                                            {
-                                                if (ship1 == this.Owner)
-                                                {
-                                                    goto Label1;
-                                                }
-                                                if (ship1.GetAI().State == AIState.SystemTrader && ship1.GetAI().end == planet && ship1.GetAI().FoodOrProd == "Prod")
-                                                {
-                                                    cargoSpaceMax = cargoSpaceMax - ship1.CargoSpace_Max;
-                                                }
-                                            }
-                                            if (cargoSpaceMax <= 0f)
-                                            {
-                                                flag2 = true;
-                                                break;
-                                            }
+                                            continue;
                                         }
-                                    Label1:
-                                        continue;
-                                    }
-
-                                    if (flag2)
-                                    {
-                                        continue;
-                                    }
-                                    planets1.Add(planet);
-                                }
-                            }
-                            else if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere < planet.MAX_STORAGE * 0.75f)
-                            {
-                                bool flag3 = false;
-                                float single = planet.MAX_STORAGE - planet.ProductionHere;
-                                for (int n = 0; n < this.Owner.loyalty.GetShips().Count; n++)
-                                {
-                                    Ship item2 = this.Owner.loyalty.GetShips()[n];
-                                    if (item2 != null)
-                                    {
-                                        if (item2.Role == "freighter")
+                                        if (planet2.fs == Planet.GoodState.EXPORT && planet2.FoodHere > 10f)
                                         {
-                                            if (item2 == this.Owner)
-                                            {
-                                                goto Label0;
-                                            }
-                                            if (item2.GetAI().State == AIState.SystemTrader && item2.GetAI().end == planet && item2.GetAI().FoodOrProd == "Prod")
-                                            {
-                                                single = single - item2.CargoSpace_Max;
-                                            }
+                                            planets2.Add(planet2);
                                         }
-                                        if (single <= 0f)
+                                        if (planets2.Count <= 0)
                                         {
-                                            flag3 = true;
-                                            break;
+                                            continue;
                                         }
-                                    }
-                                Label0:
-                                    continue;
-                                }
-
-                                if (!flag3)
-                                {
-                                    planets1.Add(planet);
-                                }
-                            }
-                        }
-                    }
-                    if (planets1.Count > 0)
-                    {
-                        IOrderedEnumerable<Planet> productionHere = planets1.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.ProductionHere / dest.MAX_STORAGE);
-                        //IOrderedEnumerable<Planet> productionHere =
-                        //from dest in planets1
-
-                        //orderby dest.ProductionHere / dest.MAX_STORAGE
-                        //select dest;
-                        this.end = productionHere.First<Planet>();
-                        this.FoodOrProd = "Prod";
-                        this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true);
-                        this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
-                        this.State = AIState.SystemTrader;
-                        return;
-                    }
-                }
-
-                #endregion
-            }
-            #region deliver Food2
-            this.start = null;
-            this.end = null;
-            this.FoodOrProd = "";
-            List<Planet> planets2 = new List<Planet>();
-            if (this.Owner.loyalty.data.Traits.Cybernetic == 1)
-            {
-                this.Owner.TradingFood = false;
-            }
-            if (this.Owner.TradingFood)
-            {
-                for (int o = 0; o < this.Owner.loyalty.GetPlanets().Count(); o++)
-                {
-                    Planet planet1 = this.Owner.loyalty.GetPlanets()[o];
-                    if (planet1 != null && planet1.ParentSystem.combatTimer < 1)
-                    {
-                        if (this.Owner.AreaOfOperation.Count > 0)
-                        {
-                            foreach (Rectangle areaOfOperation1 in this.Owner.AreaOfOperation)
-                            {
-                                if (!HelperFunctions.CheckIntersection(areaOfOperation1, planet1.Position) || planet1.fs != Planet.GoodState.IMPORT || planet1.FoodHere >= planet1.MAX_STORAGE * 0.6f)
-                                {
-                                    continue;
-                                }
-                                bool flag4 = false;
-                                float mAXSTORAGE1 = planet1.MAX_STORAGE - planet1.FoodHere;
-                                for (int p = 0; p < this.Owner.loyalty.GetShips().Count; p++)
-                                {
-                                    Ship ship2 = this.Owner.loyalty.GetShips()[p];
-                                    if (ship2 != null && ship2.Role == "freighter" && ship2 != this.Owner)
-                                    {
-                                        if (ship2.GetAI().State == AIState.SystemTrader && ship2.GetAI().end == planet1 && ship2.CargoSpace_Max + planet1.FoodHere > 0.75f * planet1.MAX_STORAGE && ship2.GetAI().FoodOrProd == "Food")
-                                        {
-                                            mAXSTORAGE1 = mAXSTORAGE1 - ship2.CargoSpace_Max;
-                                        }
-                                        if (mAXSTORAGE1 <= 0f)
-                                        {
-                                            flag4 = true;
-                                            break;
-                                        }
+                                        IOrderedEnumerable<Planet> mAXSTORAGE2 =
+                                                                                from dest in planets2
+                                                                                orderby dest.MAX_STORAGE - dest.FoodHere
+                                                                                select dest;
+                                        this.start = mAXSTORAGE2.First<Planet>();
                                     }
                                 }
-                                if (flag4)
+                                #endregion
+                                else if (this.FoodOrProd == "Food")
                                 {
-                                    continue;
-                                }
-                                planets2.Add(planet1);
-                            }
-                        }
-                        else if (planet1.fs == Planet.GoodState.IMPORT && planet1.FoodHere < planet1.MAX_STORAGE * 0.6f)
-                        {
-                            bool flag5 = false;
-                            float netFoodPerTurn1 = planet1.MAX_STORAGE - planet1.FoodHere;
-                            if (planet1.NetFoodPerTurn < planet1.Population / 1000f)
-                            {
-                                netFoodPerTurn1 = netFoodPerTurn1 + planet1.NetFoodPerTurn * 20f;
-                            }
-                            for (int q = 0; q < this.Owner.loyalty.GetShips().Count; q++)
-                            {
-                                Ship item3 = this.Owner.loyalty.GetShips()[q];
-                                if (item3 != null && item3.Role == "freighter" && item3 != this.Owner)
-                                {
-                                    if (item3.GetAI().State == AIState.SystemTrader && item3.GetAI().end == planet1 && item3.GetAI().FoodOrProd == "Food")
-                                    {
-                                        netFoodPerTurn1 = netFoodPerTurn1 - item3.CargoSpace_Max;
-                                    }
-                                    if (netFoodPerTurn1 <= 0f)
-                                    {
-                                        flag5 = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (!flag5)
-                            {
-                                planets2.Add(planet1);
-                            }
-                        }
-                    }
-                }
-                if (planets2.Count > 0)
-                {
-                    //IOrderedEnumerable<Planet> foodHere = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.FoodHere / dest.MAX_STORAGE);
-                    IOrderedEnumerable<Planet> foodHere = planets2.OrderBy(dest => (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 5f ? 0 : (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 10f ? 1 : 2).ThenBy(dest => dest.FoodHere / dest.MAX_STORAGE);
-                    //IOrderedEnumerable<Planet> foodHere1 =
-                    //                                      from dest in planets2
-                    //                                      orderby dest.FoodHere / dest.MAX_STORAGE
-                    //                                      select dest;
-                    this.end = foodHere.First<Planet>();
-                    this.FoodOrProd = "Food";
-                }
-            #endregion
-                #region Get Food
-                if (this.end != null)
-                {
-                    planets2 = new List<Planet>();
-                    for (int r = 0; r < this.Owner.loyalty.GetPlanets().Count(); r++)
-                    {
-                        Planet planet2 = this.Owner.loyalty.GetPlanets()[r];
-                        if (planet2 != null && planet2 != this.end && planet2.ParentSystem.combatTimer < 1)
-                        {
-                            #region AO
-                            if (this.Owner.AreaOfOperation.Count > 0)
-                            {
-                                foreach (Rectangle rectangle1 in this.Owner.AreaOfOperation)
-                                {
-                                    if (!HelperFunctions.CheckIntersection(rectangle1, planet2.Position) || !(this.FoodOrProd == "Food"))
-                                    {
-                                        continue;
-                                    }
                                     if (planet2.fs == Planet.GoodState.EXPORT && planet2.FoodHere > 10f)
                                     {
                                         planets2.Add(planet2);
                                     }
-                                    if (planets2.Count <= 0)
+                                    if (planets2.Count > 0)
                                     {
-                                        continue;
-                                    }
-                                    IOrderedEnumerable<Planet> mAXSTORAGE2 =
-                                                                            from dest in planets2
-                                                                            orderby dest.MAX_STORAGE - dest.FoodHere
-                                                                            select dest;
-                                    this.start = mAXSTORAGE2.First<Planet>();
-                                }
-                            }
-                            #endregion
-                            else if (this.FoodOrProd == "Food")
-                            {
-                                if (planet2.fs == Planet.GoodState.EXPORT && planet2.FoodHere > 10f)
-                                {
-                                    planets2.Add(planet2);
-                                }
-                                if (planets2.Count > 0)
-                                {
 
-                                    IOrderedEnumerable<Planet> mAXSTORAGE = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.FoodHere);
+                                        IOrderedEnumerable<Planet> mAXSTORAGE = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.FoodHere);
 
-                                    //IOrderedEnumerable<Planet> mAXSTORAGE =
-                                    //                                        from dest in planets2
-                                    //                                        orderby dest.MAX_STORAGE - dest.FoodHere
-                                    //                                        select dest;
-                                    if (mAXSTORAGE.First<Planet>() != null)
-                                    {
-                                        this.start = mAXSTORAGE.First<Planet>();
+                                        //IOrderedEnumerable<Planet> mAXSTORAGE =
+                                        //                                        from dest in planets2
+                                        //                                        orderby dest.MAX_STORAGE - dest.FoodHere
+                                        //                                        select dest;
+                                        if (mAXSTORAGE.First<Planet>() != null)
+                                        {
+                                            this.start = mAXSTORAGE.First<Planet>();
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    #endregion
                 }
-                #endregion
-            }
-            #region Get Production
+                #region Get Production
 
-            if (this.Owner.TradingProd && this.start == null)
-            {
-                this.end = null;
-                for (int s = 0; s < this.Owner.loyalty.GetPlanets().Count(); s++)
+                if (this.Owner.TradingProd && this.start == null)
                 {
-                    Planet planet3 = this.Owner.loyalty.GetPlanets()[s];
-                    if (planet3 != null && planet3.ParentSystem.combatTimer < 1)
+                    this.end = null;
+                    for (int s = 0; s < this.Owner.loyalty.GetPlanets().Count(); s++)
                     {
-                        if (this.Owner.AreaOfOperation.Count > 0)
-                        {
-                            foreach (Rectangle areaOfOperation2 in this.Owner.AreaOfOperation)
-                            {
-                                if (!HelperFunctions.CheckIntersection(areaOfOperation2, planet3.Position) || planet3.ps != Planet.GoodState.IMPORT || planet3.ProductionHere >= planet3.MAX_STORAGE * 0.75f)
-                                {
-                                    continue;
-                                }
-                                bool flag6 = false;
-                                float cargoSpaceMax1 = planet3.MAX_STORAGE - planet3.ProductionHere;
-                                for (int t = 0; t < this.Owner.loyalty.GetShips().Count; t++)
-                                {
-                                    Ship ship3 = this.Owner.loyalty.GetShips()[t];
-                                    if (ship3 != null)
-                                    {
-                                        if (ship3.Role == "freighter")
-                                        {
-                                            if (ship3 == this.Owner)
-                                            {
-                                                goto Label3;
-                                            }
-                                            if (ship3.GetAI().State == AIState.SystemTrader && ship3.GetAI().end == planet3 && ship3.GetAI().FoodOrProd == "Prod")
-                                            {
-                                                cargoSpaceMax1 = cargoSpaceMax1 - ship3.CargoSpace_Max;
-                                            }
-                                        }
-                                        if (cargoSpaceMax1 <= 0f)
-                                        {
-                                            flag6 = true;
-                                            break;
-                                        }
-                                    }
-                                Label3:
-                                    continue;
-                                }
-                                if (flag6)
-                                {
-                                    continue;
-                                }
-                                planets2.Add(planet3);
-                            }
-                        }
-                        else if (planet3.ps == Planet.GoodState.IMPORT && planet3.ProductionHere < planet3.MAX_STORAGE * 0.75f)
-                        {
-                            bool flag7 = false;
-                            float single1 = planet3.MAX_STORAGE - planet3.ProductionHere;
-                            for (int u = 0; u < this.Owner.loyalty.GetShips().Count; u++)
-                            {
-                                Ship item4 = this.Owner.loyalty.GetShips()[u];
-                                if (item4 != null)
-                                {
-                                    if (item4.Role == "freighter")
-                                    {
-                                        if (item4 == this.Owner)
-                                        {
-                                            goto Label2;
-                                        }
-                                        if (item4.GetAI().State == AIState.SystemTrader && item4.GetAI().end == planet3 && item4.GetAI().FoodOrProd == "Prod")
-                                        {
-                                            single1 = single1 - item4.CargoSpace_Max;
-                                        }
-                                    }
-                                    if (single1 <= 0f)
-                                    {
-                                        flag7 = true;
-                                        break;
-                                    }
-                                }
-                            Label2:
-                                continue;
-                            }
-                            if (!flag7)
-                            {
-                                planets2.Add(planet3);
-                            }
-                        }
-                    }
-                }
-                if (planets2.Count > 0)
-                {
-
-                    IOrderedEnumerable<Planet> productionHere1 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.ProductionHere / dest.MAX_STORAGE);
-                    //                                            from dest in planets2
-                    //                                            orderby dest.ProductionHere / dest.MAX_STORAGE
-                    //                                            select dest;
-                    if (productionHere1.Count() > 0)
-                    {
-                        this.end = productionHere1.First<Planet>();
-                        this.FoodOrProd = "Prod";
-                    }
-                }
-                if (this.end != null)
-                {
-                    planets2 = new List<Planet>();
-                    for (int v = 0; v < this.Owner.loyalty.GetPlanets().Count(); v++)
-                    {
-                        Planet planet4 = this.Owner.loyalty.GetPlanets()[v];
-                        if (planet4 != null && planet4 != this.end && planet4.ParentSystem.combatTimer < 1)
+                        Planet planet3 = this.Owner.loyalty.GetPlanets()[s];
+                        if (planet3 != null && planet3.ParentSystem.combatTimer < 1)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
-                                foreach (Rectangle rectangle2 in this.Owner.AreaOfOperation)
+                                foreach (Rectangle areaOfOperation2 in this.Owner.AreaOfOperation)
                                 {
-                                    if (!HelperFunctions.CheckIntersection(rectangle2, planet4.Position) || !(this.FoodOrProd == "Prod"))
+                                    if (!HelperFunctions.CheckIntersection(areaOfOperation2, planet3.Position) || planet3.ps != Planet.GoodState.IMPORT || planet3.ProductionHere >= planet3.MAX_STORAGE * 0.75f)
                                     {
                                         continue;
                                     }
+                                    bool flag6 = false;
+                                    float cargoSpaceMax1 = planet3.MAX_STORAGE - planet3.ProductionHere;
+                                    for (int t = 0; t < this.Owner.loyalty.GetShips().Count; t++)
+                                    {
+                                        Ship ship3 = this.Owner.loyalty.GetShips()[t];
+                                        if (ship3 != null)
+                                        {
+                                            if (ship3.Role == "freighter")
+                                            {
+                                                if (ship3 == this.Owner)
+                                                {
+                                                    goto Label3;
+                                                }
+                                                if (ship3.GetAI().State == AIState.SystemTrader && ship3.GetAI().end == planet3 && ship3.GetAI().FoodOrProd == "Prod")
+                                                {
+                                                    cargoSpaceMax1 = cargoSpaceMax1 - ship3.CargoSpace_Max;
+                                                }
+                                            }
+                                            if (cargoSpaceMax1 <= 0f)
+                                            {
+                                                flag6 = true;
+                                                break;
+                                            }
+                                        }
+                                    Label3:
+                                        continue;
+                                    }
+                                    if (flag6)
+                                    {
+                                        continue;
+                                    }
+                                    planets2.Add(planet3);
+                                }
+                            }
+                            else if (planet3.ps == Planet.GoodState.IMPORT && planet3.ProductionHere < planet3.MAX_STORAGE * 0.75f)
+                            {
+                                bool flag7 = false;
+                                float single1 = planet3.MAX_STORAGE - planet3.ProductionHere;
+                                for (int u = 0; u < this.Owner.loyalty.GetShips().Count; u++)
+                                {
+                                    Ship item4 = this.Owner.loyalty.GetShips()[u];
+                                    if (item4 != null)
+                                    {
+                                        if (item4.Role == "freighter")
+                                        {
+                                            if (item4 == this.Owner)
+                                            {
+                                                goto Label2;
+                                            }
+                                            if (item4.GetAI().State == AIState.SystemTrader && item4.GetAI().end == planet3 && item4.GetAI().FoodOrProd == "Prod")
+                                            {
+                                                single1 = single1 - item4.CargoSpace_Max;
+                                            }
+                                        }
+                                        if (single1 <= 0f)
+                                        {
+                                            flag7 = true;
+                                            break;
+                                        }
+                                    }
+                                Label2:
+                                    continue;
+                                }
+                                if (!flag7)
+                                {
+                                    planets2.Add(planet3);
+                                }
+                            }
+                        }
+                    }
+                    if (planets2.Count > 0)
+                    {
+
+                        IOrderedEnumerable<Planet> productionHere1 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.ProductionHere / dest.MAX_STORAGE);
+                        //                                            from dest in planets2
+                        //                                            orderby dest.ProductionHere / dest.MAX_STORAGE
+                        //                                            select dest;
+                        if (productionHere1.Count() > 0)
+                        {
+                            this.end = productionHere1.First<Planet>();
+                            this.FoodOrProd = "Prod";
+                        }
+                    }
+                    if (this.end != null)
+                    {
+                        planets2 = new List<Planet>();
+                        for (int v = 0; v < this.Owner.loyalty.GetPlanets().Count(); v++)
+                        {
+                            Planet planet4 = this.Owner.loyalty.GetPlanets()[v];
+                            if (planet4 != null && planet4 != this.end && planet4.ParentSystem.combatTimer < 1)
+                            {
+                                if (this.Owner.AreaOfOperation.Count > 0)
+                                {
+                                    foreach (Rectangle rectangle2 in this.Owner.AreaOfOperation)
+                                    {
+                                        if (!HelperFunctions.CheckIntersection(rectangle2, planet4.Position) || !(this.FoodOrProd == "Prod"))
+                                        {
+                                            continue;
+                                        }
+                                        if (planet4.ps == Planet.GoodState.EXPORT && planet4.ProductionHere > 10f)
+                                        {
+                                            planets2.Add(planet4);
+                                        }
+                                        if (planets2.Count <= 0)
+                                        {
+                                            continue;
+                                        }
+                                        IOrderedEnumerable<Planet> planets3 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.ProductionHere);
+                                        //IOrderedEnumerable<Planet> planets3 =
+                                        //                                     from dest in planets2
+                                        //                                     orderby dest.MAX_STORAGE - dest.ProductionHere
+                                        //                                     select dest;
+                                        this.start = planets3.First<Planet>();
+                                    }
+                                }
+                                else if (this.FoodOrProd == "Prod")
+                                {
                                     if (planet4.ps == Planet.GoodState.EXPORT && planet4.ProductionHere > 10f)
                                     {
                                         planets2.Add(planet4);
                                     }
-                                    if (planets2.Count <= 0)
+                                    if (planets2.Count > 0)
                                     {
-                                        continue;
+                                        IOrderedEnumerable<Planet> mAXSTORAGE4 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.ProductionHere);
+                                        //IOrderedEnumerable<Planet> mAXSTORAGE4 =
+                                        //                                        from dest in planets2
+                                        //                                        orderby dest.MAX_STORAGE - dest.ProductionHere
+                                        //                                        select dest;
+                                        this.start = mAXSTORAGE4.First<Planet>();
                                     }
-                                    IOrderedEnumerable<Planet> planets3 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.ProductionHere);
-                                    //IOrderedEnumerable<Planet> planets3 =
-                                    //                                     from dest in planets2
-                                    //                                     orderby dest.MAX_STORAGE - dest.ProductionHere
-                                    //                                     select dest;
-                                    this.start = planets3.First<Planet>();
-                                }
-                            }
-                            else if (this.FoodOrProd == "Prod")
-                            {
-                                if (planet4.ps == Planet.GoodState.EXPORT && planet4.ProductionHere > 10f)
-                                {
-                                    planets2.Add(planet4);
-                                }
-                                if (planets2.Count > 0)
-                                {
-                                    IOrderedEnumerable<Planet> mAXSTORAGE4 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.ProductionHere);
-                                    //IOrderedEnumerable<Planet> mAXSTORAGE4 =
-                                    //                                        from dest in planets2
-                                    //                                        orderby dest.MAX_STORAGE - dest.ProductionHere
-                                    //                                        select dest;
-                                    this.start = mAXSTORAGE4.First<Planet>();
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            #endregion
-            if (this.start != null && this.end != null &&  !String.IsNullOrEmpty(this.FoodOrProd))
-            {
-                this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true);
-                this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
+                #endregion
+                if (this.start != null && this.end != null && !String.IsNullOrEmpty(this.FoodOrProd))
+                {
+                    this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true);
+                    this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
+                }
+                this.State = AIState.SystemTrader;
             }
-            this.State = AIState.SystemTrader;
+            catch { }
         }
 
 
