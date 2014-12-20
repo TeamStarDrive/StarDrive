@@ -2493,7 +2493,7 @@ namespace Ship_Game.Gameplay
 				EntireStrength = EntireStrength + ship.GetStrength();
 			}
 			//added by gremlin dont add zero strength ships to defensive force pool
-            if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct && (toAdd.BombBays.Count < toAdd.Weapons.Count || toAdd.WarpThrust <= 0f)) //&&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
+            if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct && (toAdd.BombBays.Count < toAdd.Weapons.Count || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
             {
                 this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
                 toAdd.GetAI().SystemToDefend = null;
