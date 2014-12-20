@@ -1040,7 +1040,7 @@ namespace Ship_Game.Gameplay
 			}
 			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
-			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
+			if (this.moduleAttachedTo.Active && this.moduleAttachedTo.Health > 0 && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
