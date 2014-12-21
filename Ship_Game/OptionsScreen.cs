@@ -238,6 +238,7 @@ namespace Ship_Game
                 System.Configuration.ConfigurationManager.AppSettings.Set("IconSize",GlobalStats.IconSize.ToString());
                 System.Configuration.ConfigurationManager.AppSettings.Set("PauseOnNotification", GlobalStats.PauseOnNotification.ToString());
                 System.Configuration.ConfigurationManager.AppSettings.Set("MemoryLimiter", GlobalStats.MemoryLimiter.ToString());
+                System.Configuration.ConfigurationManager.AppSettings.Set("shipcountlimit", GlobalStats.ShipCountLimit.ToString());
                 
 			}
 			catch
