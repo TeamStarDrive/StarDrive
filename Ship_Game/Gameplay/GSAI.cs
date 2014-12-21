@@ -64,8 +64,7 @@ namespace Ship_Game.Gameplay
         bool modSupport = bool.Parse( ConfigurationManager.AppSettings["ModSupport"]);
         float minimumWarpRange = GlobalStats.MinimumWarpRange;
         //SizeLimiter
-        private float SizeLimiter = GlobalStats.MemoryLimiter;
-        private int ShipCountLimit = GlobalStats.ShipCountLimit;
+
         public int recyclepool =0;
 
 		public GSAI(Empire e)
@@ -4876,7 +4875,13 @@ namespace Ship_Game.Gameplay
                     || cruiserOverspend >= (DesiredCruiserSpending * 0.1f) 
                     || capitalOverspend >= (DesiredCapitalSpending * 0.1f))
                 {
-                    foreach (Ship ship in this.empire.GetShips().Where(ship => !ship.InCombat && ship.inborders).OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense)).ThenByDescending(ship => ship.Level).ThenByDescending(ship => ship.BaseStrength))
+                    foreach (Ship ship in this.empire.GetShips()
+                        .Where(ship => !ship.InCombat && ship.inborders)
+                        .OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense))
+                        .ThenByDescending(ship => ship.Level)
+                        .ThenByDescending(ship => ship.BaseStrength)
+                        .ThenByDescending(ship => ship.fleet==null)
+                        )
                     //foreach(Ship ship in this.DefensiveCoordinator.DefensiveForcePool)
                     {
                         if (fighterOverspend > (DesiredFighterSpending * 0.05f) && (ship.Role == "fighter" || ship.Role == "scout"))
@@ -4889,6 +4894,7 @@ namespace Ship_Game.Gameplay
                             {
                                 fighterOverspend -= ship.GetMaintCost();
                             }
+                            if(ship.GetAI().State != AIState.Scrap)
                             ship.GetAI().OrderScrapShip();
                         }
                         if (corvetteOverspend > (DesiredCorvetteSpending * 0.05f) && ship.Role == "corvette")
@@ -4901,6 +4907,7 @@ namespace Ship_Game.Gameplay
                             {
                                 fighterOverspend -= ship.GetMaintCost();
                             }
+                            if (ship.GetAI().State != AIState.Scrap)
                             ship.GetAI().OrderScrapShip();
                         }
                         if (frigateOverspend > (DesiredFrigateSpending * 0.05f) && (ship.Role == "frigate" || ship.Role == "destroyer"))
@@ -4913,6 +4920,7 @@ namespace Ship_Game.Gameplay
                             {
                                 fighterOverspend -= ship.GetMaintCost();
                             }
+                            if (ship.GetAI().State != AIState.Scrap)
                             ship.GetAI().OrderScrapShip();
                         }
                         if (cruiserOverspend > (DesiredCruiserSpending * 0.05f) && ship.Role == "cruiser")
@@ -4925,6 +4933,7 @@ namespace Ship_Game.Gameplay
                             {
                                 fighterOverspend -= ship.GetMaintCost();
                             }
+                            if (ship.GetAI().State != AIState.Scrap)
                             ship.GetAI().OrderScrapShip();
                         }
                         if (capitalOverspend > (DesiredCapitalSpending * 0.05f) && ship.Role == "capital")
@@ -4937,6 +4946,7 @@ namespace Ship_Game.Gameplay
                             {
                                 fighterOverspend -= ship.GetMaintCost();
                             }
+                            if (ship.GetAI().State != AIState.Scrap)
                             ship.GetAI().OrderScrapShip();
                         }
                         if (fighterOverspend <= (DesiredFighterSpending * 0.05f)
@@ -6069,10 +6079,10 @@ namespace Ship_Game.Gameplay
 							r.planet = planetList;
 							if (this.empire.data.Traits.Cybernetic != 0)
 							{
-								if (planetList.MineralRichness < 1f)
-								{
-									continue;
-								}
+                                //if (planetList.MineralRichness < 1f)
+                                //{
+                                //    continue;
+                                //}
 								r.PV = (planetList.MineralRichness + planetList.MaxPopulation / 1000f) / DistanceInJumps;
 							}
 							else
@@ -6246,7 +6256,13 @@ namespace Ship_Game.Gameplay
                 {
                     //added by gremlin make non offensive races act like it.
                     bool systemOK = true;
-                    if (!this.empire.isFaction && this.empire.data != null && this.empire.data.DiplomaticPersonality != null && !((this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0 && this.empire.data.DiplomaticPersonality.Name != "Honorable") || this.empire.data.DiplomaticPersonality.Name == "Agressive" || this.empire.data.DiplomaticPersonality.Name == "Ruthless" || this.empire.data.DiplomaticPersonality.Name == "Cunning"))
+                    if (!this.empire.isFaction && this.empire.data != null && this.empire.data.DiplomaticPersonality != null 
+                        && !(
+                        (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0 && this.empire.data.DiplomaticPersonality.Name != "Honorable") 
+                        || this.empire.data.DiplomaticPersonality.Name == "Agressive" 
+                        || this.empire.data.DiplomaticPersonality.Name == "Ruthless" 
+                        || this.empire.data.DiplomaticPersonality.Name == "Cunning")
+                        )
                     {
                         foreach (Empire enemy in s.OwnerList)
                         {
@@ -6302,9 +6318,12 @@ namespace Ship_Game.Gameplay
                         }
 
 
-                        if (planetList.ExploredDict[this.empire] && (planetList.habitable || this.empire.data.Traits.Cybernetic != 0) && planetList.Owner == null)
+                        if (planetList.ExploredDict[this.empire] 
+                            && (planetList.habitable || this.empire.data.Traits.Cybernetic != 0) 
+                            && planetList.Owner == null)
                         {
-                            if (this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire) > 0f)
+                            if (this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) 
+                                && this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire) > 0f)
                             {
                                 continue;
                             }
@@ -6318,7 +6337,7 @@ namespace Ship_Game.Gameplay
                                 DistanceInJumps = 1f;
                             }
                             r2.planet = planetList;
-
+//Cyberbernetic planet picker
                             if (this.empire.data.Traits.Cybernetic != 0)
                             {
                                 if (planetList.MineralRichness < .5f)
@@ -6342,11 +6361,19 @@ namespace Ship_Game.Gameplay
                             }
 
                             //if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetTDict()["Biospheres"].Unlocked || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
-                            if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict()["Biospheres"] || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
+                            if (planetList.Type == "Barren" 
+                                && commodities > 0 
+                                    || this.empire.GetBDict()["Biospheres"] 
+                                    || this.empire.data.Traits.Cybernetic != 0 
+                            )
                             {
                                 ranker.Add(r2);
                             }
-                            else if (planetList.Type != "Barren" && (commodities > 0 || (double)planetList.Fertility >= .5f || this.empire.GetTDict()["Aeroponics"].Unlocked || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
+                            else if (planetList.Type != "Barren" 
+                                && commodities > 0 
+                                    || (double)planetList.Fertility >= .5f 
+                                    || this.empire.GetTDict()["Aeroponics"].Unlocked 
+                                    || this.empire.data.Traits.Cybernetic != 0  ) 
                             {
                                 ranker.Add(r2);
                             }
@@ -6364,7 +6391,11 @@ namespace Ship_Game.Gameplay
 
 
                         }
-                        if (!planetList.ExploredDict[this.empire] || !planetList.habitable || planetList.Owner == this.empire || this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire) > 0f)
+                        if (!planetList.ExploredDict[this.empire] 
+                            || !planetList.habitable 
+                            || planetList.Owner == this.empire 
+                            || this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) 
+                                && this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire) > 0f)
                         {
                             continue;
                         }
@@ -6388,9 +6419,16 @@ namespace Ship_Game.Gameplay
                         }
                         //if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetTDict()["Biospheres"].Unlocked || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
                         //if (!(planetList.Type == "Barren") || !this.empire.GetTDict()["Biospheres"].Unlocked)
-                        if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetBDict()["Biospheres"] || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
+                        if (planetList.Type == "Barren" 
+                            && commodities > 0 
+                            || this.empire.GetBDict()["Biospheres"] 
+                            || this.empire.data.Traits.Cybernetic != 0)
+                                   
                         {
-                            if (!(planetList.Type != "Barren") || (double)planetList.Fertility < .5 && !this.empire.GetTDict()["Aeroponics"].Unlocked && this.empire.data.Traits.Cybernetic == 0)
+                            if (!(planetList.Type != "Barren") 
+                                || (double)planetList.Fertility < .5 
+                                && !this.empire.GetTDict()["Aeroponics"].Unlocked 
+                                && this.empire.data.Traits.Cybernetic == 0)
                             {
 
                                 foreach (Planet food in this.empire.GetPlanets())
@@ -6654,7 +6692,7 @@ namespace Ship_Game.Gameplay
 
 		private void RunInfrastructurePlanner()
 		{
-            if (this.empire.SpaceRoadsList.Sum(node=> node.NumberOfProjectors) < ShipCountLimit * GlobalStats.spaceroadlimit)
+            //if (this.empire.SpaceRoadsList.Sum(node=> node.NumberOfProjectors) < ShipCountLimit * GlobalStats.spaceroadlimit)
             foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
 			{
 				
@@ -6851,6 +6889,8 @@ namespace Ship_Game.Gameplay
         //added by gremlin deveksmod military planner
         private void RunMilitaryPlanner()
         {
+                     float SizeLimiter = GlobalStats.MemoryLimiter;
+         int ShipCountLimit = GlobalStats.ShipCountLimit;
             List<AO>.Enumerator enumerator;
             if(!this.empire.MinorRace)
                 this.RunGroundPlanner();
@@ -7059,9 +7099,9 @@ namespace Ship_Game.Gameplay
 
             Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
 
-            int Memory = (int)GC.GetTotalMemory(false);
+            //int Memory = (int)GC.GetTotalMemory(false);
 
-            Memory = Memory / 1000;
+            //Memory = Memory / 1000;
             //added by gremlin shipsize limit
             //i think this could be made dynamic to reduce when memory constraints come into play
             //&& Memory < SizeLimiter
