@@ -60,43 +60,46 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
 			this.win = new Rectangle(30, 200, 1200, 700);
-            
-            foreach (Empire empire in EmpireManager.EmpireList)
+            try
             {
-                if (empire == Empire.universeScreen.player || empire.isFaction || empire.MinorRace)
-                    continue;
-                bool flag=false;
-                foreach (Ship ship in empire.GetShips())
+                foreach (Empire empire in EmpireManager.EmpireList)
                 {
-                    if (!empire.GetForcePool().Contains(ship))
+                    if (empire == Empire.universeScreen.player || empire.isFaction || empire.MinorRace)
+                        continue;
+                    bool flag = false;
+                    foreach (Ship ship in empire.GetShips())
                     {
-
-                        foreach (AO ao in empire.GetGSAI().AreasOfOperations)
+                        if (!empire.GetForcePool().Contains(ship))
                         {
-                            if (ao.GetOffensiveForcePool().Contains(ship))
-                                if (ship.Role != "troop" && ship.BaseStrength>0)
 
-                                    flag = true;
+                            foreach (AO ao in empire.GetGSAI().AreasOfOperations)
+                            {
+                                if (ao.GetOffensiveForcePool().Contains(ship))
+                                    if (ship.Role != "troop" && ship.BaseStrength > 0)
+
+                                        flag = true;
+                            }
+
+                            if (!flag)
+
+                                if (!empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
+                                {
+                                    if (ship.Role != "troop" && ship.BaseStrength > 0)
+                                        ++this.shipsnotinDefforcepool;
+                                }
+                                else
+                                {
+                                    if (ship.Role != "troop" && ship.BaseStrength > 0)
+                                        ++this.shipsnotinforcepool;
+                                }
+
                         }
 
-                        if (!flag)
-
-                            if (!empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
-                            {
-                                if (ship.Role != "troop" && ship.BaseStrength > 0)
-                                    ++this.shipsnotinDefforcepool;
-                            }
-                            else
-                            {
-                                if (ship.Role != "troop" && ship.BaseStrength > 0)
-                                ++this.shipsnotinforcepool;
-                            }
 
                     }
-
-
                 }
             }
+            catch { }
 		}
 
 		public void Dispose()
@@ -340,6 +343,8 @@ namespace Ship_Game
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Fleet pos: ", ship.fleet.Position.ToString()), Cursor, Color.White);
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Fleet speed: ", ship.fleet.speed), Cursor, Color.White);
+                    Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Ship speed: ", ship.Velocity.Length()), Cursor, Color.White);
 				}
 				if (!this.screen.SelectedShip.loyalty.GetForcePool().Contains(this.screen.SelectedShip))
 				{
