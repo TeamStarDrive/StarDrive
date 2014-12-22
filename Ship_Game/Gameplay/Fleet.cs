@@ -794,7 +794,7 @@ namespace Ship_Game.Gameplay
             //Parallel.ForEach(this.Ships, ship =>
             {
                 pos2 = pos2 + ship.Position;
-                if (!ship.EnginesKnockedOut && ship.Active && (!ship.Inhibited || ship.Inhibited && Vector2.Distance(this.Position,ship.Position)<300000)  )
+                if (!ship.EnginesKnockedOut && ship.Active )//&& (!ship.Inhibited || ship.Inhibited && Vector2.Distance(this.Position,ship.Position)<300000)  )
                 {
                     pos = pos + ship.Position;
                     shipcount++;
@@ -810,7 +810,52 @@ namespace Ship_Game.Gameplay
             else
                 return Vector2.Zero;
         }
+        public float findavgtodestination(Ship shipToCheck)
+        {
+            float closest = 0f;
+            int count = 0;
+            int nearClump =0;
+            int farClump=0;
+            float closestClump =0f;
+            //foreach (Ship ship in (List<Ship>)this.Ships)
+            //{
+            //    if (ship.GetAI().State != AIState.FormationWarp || ship.engineState != Ship.MoveState.Warp) 
+            //        continue;
+            //    float distanceToship =Vector2.Distance(ship.Center, shipToCheck.Center);
+            //    if(distanceToship >15000)
+            //    {
+            //    float tempdistance = Vector2.Distance(ship.Center, this.Position + ship.FleetOffset); //this.Position + ship.FleetOffset);//Vector2.Add(destination,ship.FleetOffset));
+            //    closest += tempdistance;
+            //    count++;
+            //    farClump++;
+            //    }
 
+            //}
+            //if (count > 0)
+            //    return closest / count;
+            //else
+            //    return Vector2.Distance(this.findAveragePosition(), destination);
+
+            
+            List<float> distances = new List<float>();
+            foreach (Ship distance in (List<Ship>)this.Ships)
+            {
+                if (distance.EnginesKnockedOut || !distance.Active)
+                    continue;
+                distances.Add(Vector2.Distance(distance.Center, this.Position + distance.FleetOffset));
+            }
+
+            if(distances.Count <=2) 
+                return Vector2.Distance(this.findAveragePosition(), this.Position); 
+            float avgdistance = distances.Average();
+            float sum = (float)distances.Sum(distance => Math.Pow(distance -avgdistance, 2));
+            float stddev = (float)Math.Sqrt((sum) / (distances.Count  - 1));
+            return
+                distances.Where(distance => distance <avgdistance+stddev && distance> avgdistance-stddev).Average();
+                
+
+            
+        }
         public void TrackEnemies()
         {
             Fleet.quadrantscan quadrantscan1 = new Fleet.quadrantscan();
