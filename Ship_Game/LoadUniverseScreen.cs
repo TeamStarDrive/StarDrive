@@ -235,19 +235,25 @@ namespace Ship_Game
 					p.BuildingList.Add(Ship_Game.ResourceManager.GetBuilding("Biospheres"));
 				}
 				p.TilesList.Add(pgs);
-				foreach (Troop t in d.TroopsHere)
-				{
+                //List<Troop> toremove = new List<Troop>();
+                foreach (Troop t in d.TroopsHere)
+                {
                     if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(t.Name))
                     {
                         pgs.TroopsHere.Add(t);
                         p.TroopsHere.Add(t);
                         t.SetPlanet(p);
                     }
-                    else
-                    {
-                        d.TroopsHere.Remove(t);
-                    }
-				}
+                }
+                //    else
+                //    {
+                //        toremove.Add(t);
+                //    }
+                //}
+                //foreach(Troop killit in toremove)
+                //{
+
+                //}
 				if (pgs.building == null)
 				{
 					continue;

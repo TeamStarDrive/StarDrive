@@ -2152,13 +2152,26 @@ namespace Ship_Game.Gameplay
                             {
                                 foreach (Ship ship in PotentialTargets)
                                 {
-                                    foreach (Projectile proj in ship.Projectiles)
+                                    //foreach (Projectile proj in ship.Projectiles)
+                                    Parallel.For(0, ship.Projectiles.Count , (x ,loopstate) => //)
                                     {
+
+                                        Projectile proj; ;
+                                        try
+                                        {
+                                             proj = ship.Projectiles[x];
+                                        }
+                                        catch
+                                        {
+                                            return;
+                                        }
+                                        if (proj == null)
+                                            return;
                                         if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj.Center))
-                                            continue;
+                                            return;// continue;
                                         this.fireTarget = proj;
-                                        break;
-                                    }
+                                        loopstate.Stop();  //break;
+                                    });
                                     if (this.fireTarget != null)
                                         break;
                                 }
@@ -5791,22 +5804,13 @@ namespace Ship_Game.Gameplay
                         speedLimit = this.Owner.fleet.speed * this.Owner.loyalty.data.FTLModifier;
                         //if (Distance > 15000)
                         {
-                            //Vector2 fleetAVG = this.Owner.fleet.findAveragePosition();
 
-                            //float distanceShipToFleetCenter = Vector2.Distance(this.Owner.Center, Vector2.Add(fleetAVG, this.Owner.FleetOffset));
-                            //float distanceFleetCenterToDistance = Vector2.Distance(Vector2.Add(fleetAVG, this.Owner.FleetOffset), Position); //
                             float distanceFleetCenterToDistance = this.Owner.fleet.findavgtodestination(this.Owner); //
 
-                            //float distanceToTarget
-                            //Vector2 wantedForward2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, fleetAVG));
-                            //Vector2 forward2 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-                            ////Vector2 right = new Vector2(-forward.Y, forward.X);
-                            //float angleDifftofleetcenter = (float)Math.Acos((double)Vector2.Dot(wantedForward2, forward2));
 
                             #region FleetGrouping
 
-                            //if (distanceShipToFleetCenter > radius && Distance < distanceFleetCenterToDistance)
-                            //if (Distance < distanceFleetCenterToDistance)
+
                             float fleetPosistionDistance = Vector2.Distance(this.Owner.Center,Position);
                             if(fleetPosistionDistance < distanceFleetCenterToDistance)
                             {
