@@ -4877,9 +4877,10 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Ship ship in this.empire.GetShips()
                         .Where(ship => !ship.InCombat && ship.inborders)
-                        .OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense))
-                        .ThenByDescending(ship => ship.Level)
-                        .ThenByDescending(ship => ship.BaseStrength)
+                        .OrderByDescending(ship => ship.GetAI().State == AIState.Scrap)
+                        .ThenByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense))
+                        .ThenBy(ship => ship.Level)
+                        .ThenBy(ship => ship.BaseStrength)
                         .ThenByDescending(ship => ship.fleet==null)
                         )
                     //foreach(Ship ship in this.DefensiveCoordinator.DefensiveForcePool)
@@ -6949,7 +6950,7 @@ namespace Ship_Game.Gameplay
             prepareWar += this.empire.GetRelations().Where(angry => angry.Value.Threat > 0).Count();
             float noIncome = this.FindTaxRateToReturnAmount(UnderConstruction);
 
-            float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .5f);  //.45f - (tasks);
+            float tax = atWar ? .50f + (prepareWar * .05f) : .25f + (prepareWar * .5f);  //.45f - (tasks);
 
 
             float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
@@ -7041,6 +7042,7 @@ namespace Ship_Game.Gameplay
                     this.Goals.ApplyPendingRemovals();
                     IOrderedEnumerable<Ship> sortedList =
                         from ship in this.empire.GetShips()
+                        where ship.GetAI().State != AIState.Scrap
                         orderby this.DefensiveCoordinator.DefensiveForcePool.Contains(ship) descending
                         orderby ship.BaseStrength
                         select ship;
