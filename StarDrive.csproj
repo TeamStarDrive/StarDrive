@@ -83,7 +83,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|x86'">
     <OutputPath>D:\Program Files\steam\steamapps\common\StarDrive\</OutputPath>
-    <DefineConstants>STEAM</DefineConstants>
+    <DefineConstants>STEAM PERF</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>

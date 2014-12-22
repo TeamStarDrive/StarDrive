@@ -5244,6 +5244,7 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
             lock (GlobalStats.KnownShipsLock)
             {
+                
                 for (int i = 0; i < this.player.KnownShips.Count; ++i)
                 {
                     Ship ship = this.player.KnownShips[i];
@@ -5267,6 +5268,7 @@ namespace Ship_Game
             lock (GlobalStats.KnownShipsLock)
             {
                 foreach (Ship ship in this.player.KnownShips)
+                //Parallel.ForEach(this.player.KnownShips, ship =>
                 {
                     if (ship.Active)
                     {
@@ -5287,7 +5289,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                }
+                }//);
             }
             if (this.ProjectingPosition)
                 this.DrawProjectedGroup();

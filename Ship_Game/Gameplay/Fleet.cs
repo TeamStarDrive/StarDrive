@@ -812,29 +812,7 @@ namespace Ship_Game.Gameplay
         }
         public float findavgtodestination(Ship shipToCheck)
         {
-            float closest = 0f;
-            int count = 0;
-            int nearClump =0;
-            int farClump=0;
-            float closestClump =0f;
-            //foreach (Ship ship in (List<Ship>)this.Ships)
-            //{
-            //    if (ship.GetAI().State != AIState.FormationWarp || ship.engineState != Ship.MoveState.Warp) 
-            //        continue;
-            //    float distanceToship =Vector2.Distance(ship.Center, shipToCheck.Center);
-            //    if(distanceToship >15000)
-            //    {
-            //    float tempdistance = Vector2.Distance(ship.Center, this.Position + ship.FleetOffset); //this.Position + ship.FleetOffset);//Vector2.Add(destination,ship.FleetOffset));
-            //    closest += tempdistance;
-            //    count++;
-            //    farClump++;
-            //    }
 
-            //}
-            //if (count > 0)
-            //    return closest / count;
-            //else
-            //    return Vector2.Distance(this.findAveragePosition(), destination);
 
             
             List<float> distances = new List<float>();
