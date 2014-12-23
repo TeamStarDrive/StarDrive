@@ -32,6 +32,9 @@ and more.
 * your game should be vanilla after it replaces the gigabyte of data in the content folder. 
 * When installing normal mods do not overwrite content folder items with the mod files. mods content must exist all in the mod folder for it work right with blackbox. properly formatted it will. all the mods in the mod super pack are formatted this way.
 * go to the download section and download the latest release version or the latest monthly version (preferred). Do not download the top option for the repository. You don't need that. Download the test version if your level of patience can take it.
+* currently recommended to use the latest test build.
+* The downloaded executable is a self extracting EXE that will extract to the default steam installation location. If you have the game in some other location you will need to adjust the extraction path.
+* or by using 7zip the exe can be opened like a zip file and extract manually by the steps below.
 * extract the zip into the the game directory usually located in Program Files (x86)\Steam\SteamApps\common\StarDrive
 * Overwrite files when asked. If you do not get prompted to overwrite files. You are doing it wrong.
 * To Uninstall follow the revert to vanilla instructions above.
