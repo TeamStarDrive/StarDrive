@@ -5798,14 +5798,14 @@ namespace Ship_Game.Gameplay
                             fleetReady = false;
                             break;
                         }
-
+                        if (Distance > 15000)
+                        {
                         //added by Gremlin fleet group speed changes
                         speedLimit = this.Owner.fleet.speed;
                         speedLimit = this.Owner.fleet.speed * this.Owner.loyalty.data.FTLModifier;
-                        //if (Distance > 15000)
-                        {
 
-                            float distanceFleetCenterToDistance = this.Owner.fleet.findavgtodestination(this.Owner); //
+
+                            float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove; //
 
 
                             #region FleetGrouping
@@ -5840,6 +5840,8 @@ namespace Ship_Game.Gameplay
 
                             #endregion
                         }
+                        //else
+                        //    speedLimit = this.Owner.fleet.speed;
                         if (fleetReady)
                         {
                             this.Owner.EngageStarDrive();
