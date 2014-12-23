@@ -798,6 +798,7 @@ namespace Ship_Game
 					fleet.TaskStep = fleetsave.TaskStep;
 					fleet.Owner = e;
 					fleet.Position = fleetsave.Position;
+
 					if (e.GetFleetsDict().ContainsKey(fleetsave.Key))
 					{
 						e.GetFleetsDict()[fleetsave.Key] = fleet;
@@ -807,6 +808,9 @@ namespace Ship_Game
 						e.GetFleetsDict().Add(fleetsave.Key, fleet);
 					}
 					e.GetFleetsDict()[fleetsave.Key].SetSpeed();
+                    fleet.findAveragePositionset();
+                    fleet.Setavgtodestination();
+                    
 				}
 				foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
 				{

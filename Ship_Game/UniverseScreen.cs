@@ -1230,22 +1230,7 @@ namespace Ship_Game
                     this.NotificationManager.Update((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                     this.AutoSaveTimer -= 0.01666667f;
                     
-                    //added by gremlin forced garbage collection to hlep ship building issues.
-                    //this.garbageCollector -= 0.01666667f;
-                    //if (this.garbageCollector <= 0.0f )
-                    //{
-                    //    this.garbageCollector = this.garbargeCollectorBase;
-                    //    float memory = GC.GetTotalMemory(false);
-                    //    if (memory > GlobalStats.MemoryLimiter)
-                    //    {
-                    //        //GC.Collect(GC.MaxGeneration,GCCollectionMode.Optimized);
-                    //        GC.Collect();
-                    //        if (memory > GlobalStats.MemoryLimiter && GlobalStats.ShipCountLimit > this.globalshipCount)
-                    //            GlobalStats.ShipCountLimit = this.globalshipCount;
-                    //        //GlobalStats.MemoryLimiter=(GC.GetTotalMemory(true)/1000) +500;
-                            
-                    //    }
-                    //}
+
                     if (this.AutoSaveTimer <= 0.0f)
                     {
                         this.AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
@@ -1589,6 +1574,26 @@ namespace Ship_Game
                 GlobalStats.DSCombatScans = 0;
                 GlobalStats.ModulesMoved = 0;
                 GlobalStats.WeaponArcChecks = 0;
+                
+
+
+                foreach (Empire empire in EmpireManager.EmpireList)
+                {
+                    try
+                    {
+                        foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
+                        {
+                            if (keyValuePair.Value.Ships.Count > 0)
+                            {
+                                keyValuePair.Value.Setavgtodestination();
+
+
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
                 for (int i = 0; i < this.MasterShipList.Count; i++)
                 {
                     Ship item = this.MasterShipList[i];
@@ -1636,7 +1641,8 @@ namespace Ship_Game
             {
                 this.SystemGateKeeper[list[0].IndexOfResetEvent].WaitOne();
                 float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-                foreach (SolarSystem system in list)
+                //foreach (SolarSystem system in list)
+                Parallel.ForEach(list, system =>
                 {
                     system.DangerTimer -= elapsedTime;
                     system.DangerUpdater -= elapsedTime;
@@ -1701,7 +1707,25 @@ namespace Ship_Game
                         if (planet.HasShipyard && system.isVisible)
                             planet.Station.Update(elapsedTime);
                     }
-                    foreach (Ship ship in (List<Ship>)system.ShipList)
+                    //foreach (Empire empire in EmpireManager.EmpireList)
+                    //{
+                    //    try
+                    //    {
+                    //        foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
+                    //        {
+                    //            if (keyValuePair.Value.Ships.Count > 0)
+                    //            {
+
+                    //                keyValuePair.Value.Setavgtodestination();
+
+
+                    //            }
+                    //        }
+                    //    }
+                    //    catch { }
+                    //}
+                    //foreach (Ship ship in (List<Ship>)system.ShipList)
+                    Parallel.ForEach(system.ShipList, ship =>
                     {
                         try
                         {
@@ -1725,12 +1749,12 @@ namespace Ship_Game
                         catch
                         {
                         }
-                    }
+                    });
                     if (!this.Paused && this.IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();
                     system.ShipList.ApplyPendingRemovals();
-                }
+                });
                 this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
             }
         }
@@ -1765,8 +1789,37 @@ namespace Ship_Game
                                 this.DeepSpaceShips.Add(local_3);
                         }
                     }
-                    foreach (Ship item_0 in this.DeepSpaceShips)
+                    foreach (Empire empire in EmpireManager.EmpireList)
                     {
+                        try
+                        {
+                            foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
+                            {
+                                if (keyValuePair.Value.Ships.Count > 0)
+                                {
+                                    keyValuePair.Value.Setavgtodestination();
+
+
+                                }
+                            }
+                        }
+                        catch { }
+                    }
+                    //foreach (Ship item_0 in this.DeepSpaceShips)
+                    //Parallel.ForEach(this.DeepSpaceShips, item_0 =>
+                    Parallel.For(0,this.DeepSpaceShips.Count, x=>
+                    {
+                        Ship item_0;
+                        try
+                        {
+                            item_0 = this.DeepSpaceShips[x];
+                        }
+                        catch
+                        {
+                            return;
+                        }
+                        if (item_0 == null)
+                            return;
                         if (!item_0.Active)
                         {
                             this.MasterShipList.QueuePendingRemoval(item_0);
@@ -1783,7 +1836,7 @@ namespace Ship_Game
                             if (item_0.PlayerShip)
                                 item_0.ProcessInput(elapsedTime);
                         }
-                    }
+                    });
                 }
                 this.DeepSpaceDone.Set();
             }
@@ -4850,7 +4903,9 @@ namespace Ship_Game
                         if (keyValuePair.Value.Ships.Count > 0)
                         {
                             bool flag = false;
-                            Vector2 averagePosition = keyValuePair.Value.findAveragePosition();
+                            Vector2 averagePosition = keyValuePair.Value.findAveragePositionset();
+                            
+
                             lock (GlobalStats.SensorNodeLocker)
                             {
                                 foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.player.SensorNodes)

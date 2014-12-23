@@ -1252,6 +1252,9 @@ namespace Ship_Game
                     if ((double)this.FleetUpdateTimer <= 0.0)
                     {
                         keyValuePair.Value.SetSpeed();
+                        keyValuePair.Value.StoredFleetPosistion = keyValuePair.Value.findAveragePositionset();
+                        keyValuePair.Value.Setavgtodestination();
+                        
                         keyValuePair.Value.UpdateAI(elapsedTime, keyValuePair.Key);
                     }
                 }
