@@ -1834,14 +1834,14 @@ namespace Ship_Game
                             planet.Station.Update(elapsedTime);
                     }
 
-                   //foreach (Ship ship in (List<Ship>)system.ShipList)
-                   Parallel.ForEach(system.ShipList, ship =>
+                   foreach (Ship ship in (List<Ship>)system.ShipList)
+                   //Parallel.ForEach(system.ShipList, ship =>
                     {
                         //try
                         {
                             if (ship.GetSystem() == null)
-                                //continue;
-                                return;
+                                continue;
+                                //return;
                             if (!ship.Active)
                             {
                                 this.MasterShipList.QueuePendingRemoval(ship);
@@ -1869,7 +1869,7 @@ namespace Ship_Game
                         //catch
                         {
                         }
-                    });
+                    }//);
                     if (!this.Paused && this.IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();
@@ -1898,8 +1898,8 @@ namespace Ship_Game
                 this.DeepSpaceGateKeeper.WaitOne();
                 float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
 
-                Parallel.ForEach(EmpireManager.EmpireList, empire =>
-                //foreach (Empire empire in EmpireManager.EmpireList)
+                //Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                foreach (Empire empire in EmpireManager.EmpireList)
                 {
                     //try
                     {
@@ -1933,7 +1933,7 @@ namespace Ship_Game
                         empire.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
                     }
                     ////catch { }
-                });
+                }//);
                 
                 this.DeepSpaceShips.Clear();
 
@@ -1953,8 +1953,8 @@ namespace Ship_Game
                         }
                     }
 
-                    //foreach (Ship deepSpaceShip in this.DeepSpaceShips)
-                    Parallel.ForEach(this.DeepSpaceShips, deepSpaceShip =>
+                    foreach (Ship deepSpaceShip in this.DeepSpaceShips)
+                    //Parallel.ForEach(this.DeepSpaceShips, deepSpaceShip =>
                     {
                         if (deepSpaceShip.Active)
                         {
@@ -1970,7 +1970,7 @@ namespace Ship_Game
                                 
                                 if (!deepSpaceShip.PlayerShip)
                                 {
-                                    return;
+                                    continue;
                                 }
                                 deepSpaceShip.ProcessInput(elapsedTime);
                             }
@@ -1983,7 +1983,7 @@ namespace Ship_Game
                         {
                             this.MasterShipList.QueuePendingRemoval(deepSpaceShip);
                         }
-                    });
+                    }//);
                 }
                 
                 this.DeepSpaceDone.Set();

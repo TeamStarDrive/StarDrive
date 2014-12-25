@@ -296,9 +296,9 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.ProjSO != null && this.Active)
 			{
-				lock (GlobalStats.ObjectManagerLocker)
+                lock (GlobalStats.ObjectManagerLocker)
 				{
-					Projectile.universeScreen.ScreenManager.inter.ObjectManager.Remove(this.ProjSO);
+                    Projectile.universeScreen.ScreenManager.inter.ObjectManager.Remove(this.ProjSO);
 				}
 				this.ProjSO.Clear();
 			}
