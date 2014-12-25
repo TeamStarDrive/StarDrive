@@ -885,6 +885,106 @@ namespace Ship_Game
             return this.GetGSAI().ThreatMatrix.GetAllShipsInOurBorders();
         }
 
+        public void UpdateKnownShipsold()
+        {
+            lock (GlobalStats.KnownShipsLock)
+            {
+                if (this.isPlayer && Empire.universeScreen.Debug)
+                {
+                    for (int i = 0; i < Empire.universeScreen.MasterShipList.Count; i++)
+                    {
+                        Ship item = Empire.universeScreen.MasterShipList[i];
+                        item.inSensorRange = true;
+                        this.KnownShips.Add(item);
+                        this.GSAI.ThreatMatrix.UpdatePin(item);
+                    }
+                    return;
+                }
+            }
+            for (int j = 0; j < Empire.universeScreen.MasterShipList.Count; j++)
+            {
+                Ship ship = Empire.universeScreen.MasterShipList[j];
+                if (ship.loyalty != this)
+                {
+                    List<Ship> ships = new List<Ship>();
+                    lock (GlobalStats.SensorNodeLocker)
+                    {
+                        foreach (Empire.InfluenceNode sensorNode in this.SensorNodes)
+                        {
+                            if (Vector2.Distance(sensorNode.Position, ship.Center) >= sensorNode.Radius)
+                            {
+                                continue;
+                            }
+                            if (!this.Relationships[ship.loyalty].Known)
+                            {
+                                this.DoFirstContact(ship.loyalty);
+                            }
+                            ships.Add(ship);
+                            this.GSAI.ThreatMatrix.UpdatePin(ship);
+                            if (!this.isPlayer)
+                            {
+                                break;
+                            }
+                            ship.inSensorRange = true;
+                            if (ship.GetSystem() == null || !this.isFaction && !ship.loyalty.isFaction && !this.Relationships[ship.loyalty].AtWar)
+                            {
+                                break;
+                            }
+                            ship.GetSystem().DangerTimer = 120f;
+                            break;
+                        }
+                    }
+                    lock (GlobalStats.KnownShipsLock)
+                    {
+                        foreach (Ship ship1 in ships)
+                        {
+                            this.KnownShips.Add(ship1);
+                        }
+                        ships.Clear();
+                    }
+                }
+                else
+                {
+                    ship.inborders = false;
+                    lock (GlobalStats.KnownShipsLock)
+                    {
+                        this.KnownShips.Add(ship);
+                    }
+                    if (this.isPlayer)
+                    {
+                        ship.inSensorRange = true;
+                    }
+                    lock (GlobalStats.BorderNodeLocker)
+                    {
+                        foreach (Empire.InfluenceNode borderNode in this.BorderNodes)
+                        {
+                            if (Vector2.Distance(borderNode.Position, ship.Center) >= borderNode.Radius)
+                            {
+                                continue;
+                            }
+                            ship.inborders = true;
+                            break;
+                        }
+                        foreach (KeyValuePair<Empire, Relationship> relationship in this.Relationships)
+                        {
+                            if (relationship.Key != this || !relationship.Value.Treaty_OpenBorders)
+                            {
+                                continue;
+                            }
+                            foreach (Empire.InfluenceNode influenceNode in relationship.Key.BorderNodes)
+                            {
+                                if (Vector2.Distance(influenceNode.Position, ship.Center) >= influenceNode.Radius)
+                                {
+                                    continue;
+                                }
+                                ship.inborders = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         public void UpdateKnownShips()
         {
