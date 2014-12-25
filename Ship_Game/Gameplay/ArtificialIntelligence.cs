@@ -1536,18 +1536,24 @@ namespace Ship_Game.Gameplay
 
 		private void DoRepairDroneLogic(Weapon w)
 		{
-            if (this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
+            try
             {
-                if (ship.Health / ship.HealthMax >= 0.95f)
+                if (this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
+                    {
+                        if (ship.Health / ship.HealthMax >= 0.95f)
+                        {
+                            return false;
+                        }
+                        return Vector2.Distance(this.Owner.Center, ship.Center) < 20000f;
+                    }).Count<Ship>() == 0)
                 {
-                    return false;
+                    return;
                 }
-                return Vector2.Distance(this.Owner.Center, ship.Center) < 20000f;
-            }).Count<Ship>() == 0)
+            }
+            catch
             {
                 return;
             }
-            
             //bool flag = false;
             //for (int x = 0; x < this.Owner.loyalty.GetShips().Count; x++)
             //{
@@ -2178,7 +2184,7 @@ namespace Ship_Game.Gameplay
                                 foreach (Ship ship in PotentialTargets)
                                 {
                                     //foreach (Projectile proj in ship.Projectiles)
-                                    Parallel.For(0, ship.Projectiles.Count , (x ,loopstate) => //)
+                                    Parallel.For(0, ship.Projectiles.Count-1, (x ,loopstate) => //)
                                     {
 
                                         Projectile proj; ;

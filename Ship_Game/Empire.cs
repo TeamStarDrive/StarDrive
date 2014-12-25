@@ -1152,19 +1152,19 @@ namespace Ship_Game
 
             this.ShipsToAdd.Clear();
             {
-                Empire empire = this;
-                empire.updateContactsTimer = empire.updateContactsTimer - elapsedTime;
-                if (this.updateContactsTimer <= 0f && !this.data.Defeated)
-                {
-                    this.ResetBorders();
-                    lock (GlobalStats.KnownShipsLock)
-                    {
-                        this.KnownShips.Clear();
-                    }
-                    //this.UnownedShipsInOurBorders.Clear();
-                    this.UpdateKnownShips();
-                    this.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
-                }
+                //Empire empire = this;
+                //empire.updateContactsTimer = empire.updateContactsTimer - elapsedTime;
+                //if (this.updateContactsTimer <= 0f && !this.data.Defeated)
+                //{
+                //    this.ResetBorders();
+                //    lock (GlobalStats.KnownShipsLock)
+                //    {
+                //        this.KnownShips.Clear();
+                //    }
+                //    //this.UnownedShipsInOurBorders.Clear();
+                //    this.UpdateKnownShips();
+                //    this.updateContactsTimer =elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
+                //}
             }
 
             this.UpdateTimer -= elapsedTime;
@@ -2224,8 +2224,20 @@ namespace Ship_Game
             int PassLimit = freighterLimit - TradeLimit;
             List<Ship> unusedFreighters = new List<Ship>();
             List<Ship> assignedShips = new List<Ship>();
-            foreach (Ship ship in (List<Ship>)this.OwnedShips)
+            //foreach (Ship ship in (List<Ship>)this.OwnedShips)
+            for (int x = 0; x < this.OwnedShips.Count; x++)
             {
+                Ship ship;
+                try
+                {
+                    ship = this.OwnedShips[x];
+                }
+                catch
+                {
+                    continue;
+                }
+                if (ship == null)
+                    continue;
                 if (ship.Role != "freighter" || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
                     continue;
                 if (ship.GetAI().State == AIState.SystemTrader)
