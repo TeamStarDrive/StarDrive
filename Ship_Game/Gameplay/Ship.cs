@@ -3987,10 +3987,34 @@ namespace Ship_Game.Gameplay
         {
             List<ShipModule> InternalModules = new List<ShipModule>();
             //foreach (ModuleSlot slot in this.ModuleSlotList)
-            foreach (ModuleSlot slot in this.ExternalSlots)
+            //foreach (ModuleSlot slot in this.ExternalSlots)
+            for (int x=0; x< this.ExternalSlots.Count;x++ )
             {
+                ModuleSlot slot;
+                try
+                {
+                    slot = this.ExternalSlots[x];
+                }
+                catch
+                {
+                    continue;
+                }
+                if (slot == null)
+                    continue;
+                ShipModule slot2;
+                try
+                {
+                    slot2 = slot.module;
+                }
+                catch
+                {
+                    continue;
+                }
+                if (slot2 == null)
+                    continue;
+
                 //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
-                if (slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active)
+                if (slot2.ModuleType != ShipModuleType.Dummy && slot2.Active)
                     InternalModules.Add(slot.module);
             }
             if (InternalModules.Count > 0)
