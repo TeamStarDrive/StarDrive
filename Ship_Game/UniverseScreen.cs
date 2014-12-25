@@ -1374,8 +1374,10 @@ namespace Ship_Game
                 return;
             if (!this.Paused)
             {
-                for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
-                    EmpireManager.EmpireList[index].Update(elapsedTime);
+
+ 
+                //for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
+                //    EmpireManager.EmpireList[index].Update(elapsedTime);
                 //Parallel.For(0, EmpireManager.EmpireList.Count, index =>
                 //    {
                 //        EmpireManager.EmpireList[index].Update(elapsedTime);
@@ -1412,6 +1414,12 @@ namespace Ship_Game
                             s.ShipList.Add(ship);
                             if (!s.spatialManager.CollidableObjects.Contains((GameplayObject)ship))
                                 s.spatialManager.CollidableObjects.Add((GameplayObject)ship);
+                            if (!s.spatialManager.CollidableObjects.Contains((GameplayObject)ship))
+                            {
+                                Exception ex = new Exception();
+                                ex.Source = "ship not in SM CO";
+                                throw (ex);
+                            }
                         }
                     }
                     if (ship.GetSystem() == null)
@@ -1419,6 +1427,14 @@ namespace Ship_Game
                         ship.isInDeepSpace = true;
                         if (!UniverseScreen.DeepSpaceManager.CollidableObjects.Contains((GameplayObject)ship))
                             UniverseScreen.DeepSpaceManager.CollidableObjects.Add((GameplayObject)ship);
+                        if (!UniverseScreen.DeepSpaceManager.CollidableObjects.Contains((GameplayObject)ship))
+                        {
+                            {
+                                Exception ex = new Exception();
+                                ex.Source = "ship not in DS CO";
+                                throw (ex);
+                            }
+                        }
                     }
                 }
             }
@@ -1707,28 +1723,15 @@ namespace Ship_Game
                         if (planet.HasShipyard && system.isVisible)
                             planet.Station.Update(elapsedTime);
                     }
-                    //foreach (Empire empire in EmpireManager.EmpireList)
-                    //{
-                    //    try
-                    //    {
-                    //        foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
-                    //        {
-                    //            if (keyValuePair.Value.Ships.Count > 0)
-                    //            {
 
-                    //                keyValuePair.Value.Setavgtodestination();
-
-
-                    //            }
-                    //        }
-                    //    }
-                    //    catch { }
-                    //}
-                    //foreach (Ship ship in (List<Ship>)system.ShipList)
-                    Parallel.ForEach(system.ShipList, ship =>
+                   //foreach (Ship ship in (List<Ship>)system.ShipList)
+                   Parallel.ForEach(system.ShipList, ship =>
                     {
-                        try
+                        //try
                         {
+                            if (ship.GetSystem() == null)
+                                //continue;
+                                return;
                             if (!ship.Active)
                             {
                                 this.MasterShipList.QueuePendingRemoval(ship);
@@ -1740,13 +1743,20 @@ namespace Ship_Game
                                     ship.Inhibited = true;
                                     ship.InhibitedTimer = 10f;
                                 }
-                                ship.PauseUpdate = true;
-                                ship.Update(elapsedTime);
-                                if (ship.PlayerShip)
-                                    ship.ProcessInput(elapsedTime);
+                                try
+                                {
+                                    ship.PauseUpdate = true;
+                                    ship.Update(elapsedTime);
+                                    if (ship.PlayerShip)
+                                        ship.ProcessInput(elapsedTime);
+                                }
+                                catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                                }
                             }
                         }
-                        catch
+                        //catch
                         {
                         }
                     });
@@ -1774,70 +1784,92 @@ namespace Ship_Game
         {
             while (true)
             {
+                
                 this.DeepSpaceGateKeeper.WaitOne();
                 float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-                this.DeepSpaceShips.Clear();
-                lock (GlobalStats.DeepSpaceLock)
+                Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                //foreach (Empire empire in EmpireManager.EmpireList)
                 {
-                    for (int local_1 = 0; local_1 < UniverseScreen.DeepSpaceManager.CollidableObjects.Count; ++local_1)
+                    //try
                     {
-                        GameplayObject local_2 = UniverseScreen.DeepSpaceManager.CollidableObjects[local_1];
-                        if (local_2 is Ship)
+                        foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
                         {
-                            Ship local_3 = local_2 as Ship;
-                            if (local_3.Active && local_3.isInDeepSpace && local_3.GetSystem() == null)
-                                this.DeepSpaceShips.Add(local_3);
-                        }
-                    }
-                    foreach (Empire empire in EmpireManager.EmpireList)
-                    {
-                        try
-                        {
-                            foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
+                            if (keyValuePair.Value.Ships.Count > 0)
                             {
-                                if (keyValuePair.Value.Ships.Count > 0)
+                                keyValuePair.Value.Setavgtodestination();
+                                keyValuePair.Value.SetSpeed();
+                                try
                                 {
-                                    keyValuePair.Value.Setavgtodestination();
-
-
+                                    keyValuePair.Value.StoredFleetPosistion = keyValuePair.Value.findAveragePositionset();
                                 }
+                                catch
+                                {
+                                    System.Diagnostics.Debug.WriteLine("crash at find average posisiton");
+                                }
+
+
+
                             }
                         }
-                        catch { }
                     }
-                    //foreach (Ship item_0 in this.DeepSpaceShips)
-                    //Parallel.ForEach(this.DeepSpaceShips, item_0 =>
-                    Parallel.For(0,this.DeepSpaceShips.Count, x=>
+                    //empire.updateContactsTimer -= elapsedTime;
+                    //if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
+                    //{
+                    //    empire.ResetBorders();
+                    //    lock (GlobalStats.KnownShipsLock)
+                    //        empire.KnownShips.Clear();
+                    //    empire.UpdateKnownShips();
+                    //    empire.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
+                    //}
+                    ////catch { }
+                });
+
+                for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
+                    EmpireManager.EmpireList[index].Update(elapsedTime);
+                
+                this.DeepSpaceShips.Clear();
+
+                lock (GlobalStats.DeepSpaceLock)
+                {
+                    for (int i = 0; i < UniverseScreen.DeepSpaceManager.CollidableObjects.Count; i++)
                     {
-                        Ship item_0;
-                        try
+                        GameplayObject item = UniverseScreen.DeepSpaceManager.CollidableObjects[i];
+                        if (item is Ship)
                         {
-                            item_0 = this.DeepSpaceShips[x];
+                            Ship ship = item as Ship;
+                            if (ship.Active && ship.isInDeepSpace && ship.GetSystem() == null)
+                            {
+                                this.DeepSpaceShips.Add(ship);
+                            }
+
                         }
-                        catch
-                        {
-                            return;
-                        }
-                        if (item_0 == null)
-                            return;
-                        if (!item_0.Active)
-                        {
-                            this.MasterShipList.QueuePendingRemoval(item_0);
-                        }
-                        else
+                    }
+
+                    //foreach (Ship deepSpaceShip in this.DeepSpaceShips)
+                    Parallel.ForEach(this.DeepSpaceShips, deepSpaceShip =>
+                    {
+                        if (deepSpaceShip.Active)
                         {
                             if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
                             {
-                                item_0.Inhibited = true;
-                                item_0.InhibitedTimer = 10f;
+                                deepSpaceShip.Inhibited = true;
+                                deepSpaceShip.InhibitedTimer = 10f;
                             }
-                            item_0.PauseUpdate = true;
-                            item_0.Update(elapsedTime);
-                            if (item_0.PlayerShip)
-                                item_0.ProcessInput(elapsedTime);
+                            deepSpaceShip.PauseUpdate = true;
+                            deepSpaceShip.Update(elapsedTime);
+                            if (!deepSpaceShip.PlayerShip)
+                            {
+                                return;
+                            }
+                            deepSpaceShip.ProcessInput(elapsedTime);
+                        }
+                        else
+                        {
+                            this.MasterShipList.QueuePendingRemoval(deepSpaceShip);
                         }
                     });
                 }
+                
                 this.DeepSpaceDone.Set();
             }
         }

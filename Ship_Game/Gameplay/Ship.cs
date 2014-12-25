@@ -1471,9 +1471,10 @@ namespace Ship_Game.Gameplay
             this.InitializeModules();
             if (Ship_Game.ResourceManager.ShipsDict.ContainsKey(this.Name) && Ship_Game.ResourceManager.ShipsDict[this.Name].IsPlayerDesign)
                 this.IsPlayerDesign = true;
+
+            this.InitializeStatus();
             if (this.AI == null)
                 this.InitializeAI();
-            this.InitializeStatus();
             this.AI.CombatState = Ship_Game.ResourceManager.ShipsDict[this.Name].shipData.CombatState;
             this.FillExternalSlots();
             this.hyperspace = (Cue)null;
@@ -2957,7 +2958,7 @@ namespace Ship_Game.Gameplay
                 if (troop.GetOwner() == this.loyalty)
                     this.TroopBoardingDefense += (float)troop.Strength;
             }
-            if ((double)this.updateTimer < 0.0)
+            if ((double)this.updateTimer <= 0.0)
             {
                 if ((this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip) && this.Weapons.Count > 0)
                 {

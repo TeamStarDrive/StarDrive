@@ -370,7 +370,7 @@ namespace Ship_Game
 						if (!UniverseScreen.DeepSpaceManager.CollidableObjects.Contains(ship))
 						{
 							Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "ERROR", Cursor, Color.LightPink);
+							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "ERROR-DS CO", Cursor, Color.LightPink);
 						}
 						else
 						{
@@ -386,7 +386,7 @@ namespace Ship_Game
 					if (!ship.GetSystem().spatialManager.CollidableObjects.Contains(ship))
 					{
 						Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "ERROR", Cursor, Color.LightPink);
+						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "ERROR -SM CO", Cursor, Color.LightPink);
 					}
 					else
 					{
@@ -418,7 +418,7 @@ namespace Ship_Game
 					Cursor = new Vector2((float)(this.win.X + 150), 600f);
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Target: ", (ship.GetAI().Target as Ship).Name), Cursor, Color.White);
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((ship.GetAI().Target as Ship).Active ? "Active" : "Error"), Cursor, Color.White);
+					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((ship.GetAI().Target as Ship).Active ? "Active" : "Error - Active"), Cursor, Color.White);
 				}
 				Cursor = new Vector2((float)(this.win.X + 250), 600f);
 				foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetGSAI().DefensiveCoordinator.DefenseDict)
