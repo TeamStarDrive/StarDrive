@@ -275,16 +275,17 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.BeamEffectLocker)
 			{
-				this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+                Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
+                this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
 				{
 					World = Matrix.Identity,
 					View = view,
 					Projection = projection,
 					TextureEnabled = true,
-					Texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+					Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
 				};
 				this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-				Beam.BeamEffect.Parameters["tex"].SetValue(ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+                Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
 			}
 		}
 

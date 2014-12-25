@@ -862,17 +862,17 @@ namespace Ship_Game.Gameplay
             float stddevx = (float)Math.Sqrt((sumx) / (distancesx.Count -1));
             float stddevy = (float)Math.Sqrt((sumy) / (distancesy.Count -1 ));
 
-            try
+            //try
             {
-                center = new Vector2(distancesx.Where(distance => distance < avgdistancex + stddevx && distance > avgdistancex - stddevx).Average()
-                    , distancesy.Where(distance => distance < avgdistancey + stddevy && distance > avgdistancey - stddevy).Average());
+                center = new Vector2(distancesx.Where(distance => distance <= avgdistancex + stddevx && distance >= avgdistancex - stddevx).Average()
+                    , distancesy.Where(distance => distance <= avgdistancey + stddevy && distance >= avgdistancey - stddevy).Average());
 
                 return center;
             }
-            catch
-            {
-                return Vector2.Zero;
-            }
+            //catch
+            //{
+            //    return Vector2.Zero;
+            //}
 
         }
         //added by gremlin. make fleet center not count warpless ships.
@@ -925,7 +925,7 @@ namespace Ship_Game.Gameplay
             float stddev = (float)Math.Sqrt((sum) / (distances.Count  - 1));
             //return
                 //distances.Where(distance => distance <avgdistance+stddev && distance> avgdistance-stddev).Average();
-            this.StoredFleetDistancetoMove = distances.Where(distance => distance < avgdistance + stddev).Average(); //&& && distance > avgdistance - stddev
+            this.StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average(); //&& && distance > avgdistance - stddev
                 
 
             

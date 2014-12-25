@@ -61,7 +61,7 @@ namespace Ship_Game
         public bool isPlayer;
         private float totalShipMaintenance;
         private float totalBuildingMaintenance;
-        private float updateContactsTimer;
+        public float updateContactsTimer;
         private bool InitialziedHostilesDict;
         public float AllTimeMaintTotal;
         public float totalMaint;
@@ -1149,17 +1149,24 @@ namespace Ship_Game
                 if (!this.isPlayer)
                     this.ForcePoolAdd(s);
             }
-            
+
             this.ShipsToAdd.Clear();
-            this.updateContactsTimer -= elapsedTime;
-            if ((double)this.updateContactsTimer <= 0.0 && !this.data.Defeated)
             {
-                this.ResetBorders();
-                lock (GlobalStats.KnownShipsLock)
-                    this.KnownShips.Clear();
-                this.UpdateKnownShips();
-                this.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
+                Empire empire = this;
+                empire.updateContactsTimer = empire.updateContactsTimer - elapsedTime;
+                if (this.updateContactsTimer <= 0f && !this.data.Defeated)
+                {
+                    this.ResetBorders();
+                    lock (GlobalStats.KnownShipsLock)
+                    {
+                        this.KnownShips.Clear();
+                    }
+                    //this.UnownedShipsInOurBorders.Clear();
+                    this.UpdateKnownShips();
+                    this.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
+                }
             }
+
             this.UpdateTimer -= elapsedTime;
             if ((double)this.UpdateTimer <= 0.0)
             {
@@ -1210,8 +1217,8 @@ namespace Ship_Game
                 //added by gremlin. empire ship reserve.
 
                 this.EmpireShipCountReserve = 0;
-                
-                if(!this.isPlayer)
+
+                if (!this.isPlayer)
                     foreach (Planet planet in this.GetPlanets())
                     {
 
@@ -1234,7 +1241,7 @@ namespace Ship_Game
                 }
                 this.UpdateTimer = (float)GlobalStats.TurnTimer;
                 this.DoMoney();
-                this.TakeTurn();             
+                this.TakeTurn();
             }
             this.UpdateFleets(elapsedTime);
             this.OwnedShips.ApplyPendingRemovals();
@@ -1251,9 +1258,7 @@ namespace Ship_Game
                     keyValuePair.Value.Update(elapsedTime);
                     if ((double)this.FleetUpdateTimer <= 0.0)
                     {
-                        keyValuePair.Value.SetSpeed();
-                        keyValuePair.Value.StoredFleetPosistion = keyValuePair.Value.findAveragePositionset();
-                        keyValuePair.Value.Setavgtodestination();
+                        
                         
                         keyValuePair.Value.UpdateAI(elapsedTime, keyValuePair.Key);
                     }
