@@ -1131,11 +1131,15 @@ namespace Ship_Game.Gameplay
 					}
 					if (Distance > 15000f)
 					{
-						this.ThrustTowardsPosition(this.MovePosition, elapsedTime, this.Owner.speed);
+                        if (this.Owner.GetFTLSpeed() > Distance && this.Owner.speed >=this.Owner.GetFTLSpeed())
+                            this.Owner.speed = Distance;
+                        this.ThrustTowardsPosition(this.MovePosition, elapsedTime, this.Owner.speed);
 					}
 					else if (Distance >= 5500f)
 					{
-						this.ThrustTowardsPosition(this.MovePosition, elapsedTime, this.Owner.speed);
+                        if (this.Owner.GetFTLSpeed() > Distance && this.Owner.speed >= this.Owner.GetFTLSpeed())
+                            this.Owner.speed = Distance;
+                        this.ThrustTowardsPosition(this.MovePosition, elapsedTime, this.Owner.speed);
 					}
 					else
 					{
