@@ -988,7 +988,7 @@ namespace Ship_Game
 
         public void UpdateKnownShips()
         {
-            this.GetGSAI().ThreatMatrix.ScrubMatrix(true);
+           // this.GetGSAI().ThreatMatrix.ScrubMatrix(true);
             lock (GlobalStats.KnownShipsLock)
             {
                 if (this.isPlayer && Empire.universeScreen.Debug)
