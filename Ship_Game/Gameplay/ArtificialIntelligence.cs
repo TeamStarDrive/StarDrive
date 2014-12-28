@@ -2691,11 +2691,7 @@ namespace Ship_Game.Gameplay
 		{
 			float Distance = Vector2.Distance(this.Owner.Center, goal.MovePosition);
 		
-            if(this.Owner.fleet!=null)
-            {
-                this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, goal.SpeedLimit);
-            }
-            else
+
             this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, this.Owner.speed);
 			if (this.ActiveWayPoints.Count <= 1)
 			{
