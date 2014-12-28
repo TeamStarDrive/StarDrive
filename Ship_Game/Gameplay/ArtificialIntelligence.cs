@@ -2690,7 +2690,13 @@ namespace Ship_Game.Gameplay
 		private void MoveToWithin1000(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
 			float Distance = Vector2.Distance(this.Owner.Center, goal.MovePosition);
-			this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, this.Owner.speed);
+		
+            if(this.Owner.fleet!=null)
+            {
+                this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, goal.SpeedLimit);
+            }
+            else
+            this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, this.Owner.speed);
 			if (this.ActiveWayPoints.Count <= 1)
 			{
 				if (Distance <= 1500f)
@@ -2710,7 +2716,9 @@ namespace Ship_Game.Gameplay
 			}
 			else if (this.Owner.engineState == Ship.MoveState.Warp)
 			{
-				if (this.Owner.GetFTLSpeed() > 30000 && Distance <= 25000f)
+				//if (this.Owner.GetFTLSpeed() > 30000 && Distance <= 25000f)
+                if (this.Owner.GetFTLSpeed()  > Distance +1000)
+
 				{
 					lock (GlobalStats.WayPointLock)
 					{
@@ -5820,7 +5828,8 @@ namespace Ship_Game.Gameplay
                         bool fleetReady = true;
                         foreach (Ship ship in this.Owner.fleet.Ships)
                         {
-                            if (ship.GetAI().ReadyToWarp && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f || ship.isSpooling))
+                            if (ship.GetAI().ReadyToWarp && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f || ship.isSpooling)
+                                )
                             {
                                 continue;
                             }
@@ -5828,7 +5837,7 @@ namespace Ship_Game.Gameplay
                             fleetReady = false;
                             break;
                         }
-                        //if (Distance > 15000)
+                        if (Distance > 150000)
                         {
                         //added by Gremlin fleet group speed changes
                         speedLimit = this.Owner.fleet.speed;
@@ -5870,8 +5879,8 @@ namespace Ship_Game.Gameplay
 
                             #endregion
                         }
-                        //else
-                        //    speedLimit = this.Owner.fleet.speed;
+                        else
+                            speedLimit = this.Owner.fleet.speed;
                         if (fleetReady)
                         {
                             this.Owner.EngageStarDrive();
@@ -6030,8 +6039,15 @@ namespace Ship_Game.Gameplay
             this.Owner.isTurning = false;
 
 
-            if (!this.HasPriorityOrder && (this.BadGuysNear || this.Owner.InCombat) && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 && this.Owner.Transporters.Count() == 0
-                && (this.Owner.Role !="troop" && this.Owner.Role != "construction" && this.State !=AIState.Colonize && !this.IgnoreCombat && this.State != AIState.Rebase) && (this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
+            if (!this.HasPriorityOrder 
+                && (this.BadGuysNear || this.Owner.InCombat) 
+                && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) 
+                && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 && this.Owner.Transporters.Count() == 0
+                && (this.Owner.Role !="troop" 
+                && this.Owner.Role != "construction" 
+                && this.State !=AIState.Colonize 
+                && !this.IgnoreCombat && this.State != AIState.Rebase) 
+                && (this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
             {
                 if (this.State != AIState.Flee )
                 {
