@@ -5828,7 +5828,7 @@ namespace Ship_Game.Gameplay
                             fleetReady = false;
                             break;
                         }
-                        if (Distance > 15000)
+                        //if (Distance > 15000)
                         {
                         //added by Gremlin fleet group speed changes
                         speedLimit = this.Owner.fleet.speed;
