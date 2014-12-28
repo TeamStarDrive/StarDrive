@@ -1712,9 +1712,10 @@ namespace Ship_Game
                             this.SensorNodes.Add(influenceNode2);
                     }
                 }
-                for (int index = 0; index < empire.GetShips().Count; ++index)
+                var clonedList = new List<Ship>(empire.GetShips());
+                for (int index = 0; index < clonedList.Count; ++index)
                 {   //loop over all ALLIED ships
-                    Ship ship = empire.GetShips()[index];
+                    Ship ship = clonedList[index];
                     if (ship != null)
                     {
                         if (ship.Name == "Subspace Projector")
@@ -1737,6 +1738,7 @@ namespace Ship_Game
                         }
                     }
                 }
+                
             }
             foreach (Planet planet in this.OwnedPlanets)
             {   //loop over OWN planets

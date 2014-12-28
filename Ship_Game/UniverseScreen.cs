@@ -1037,7 +1037,8 @@ namespace Ship_Game
                 {
                     //try
                     {
-                        foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
+                        var fleetdictClone = new Dictionary<int,Fleet>(empire.GetFleetsDict());
+                        foreach (KeyValuePair<int, Fleet> keyValuePair in fleetdictClone)
                         {
                             if (keyValuePair.Value.Ships.Count > 0)
                             {
