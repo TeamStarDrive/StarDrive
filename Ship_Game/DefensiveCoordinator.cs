@@ -54,7 +54,7 @@ namespace Ship_Game
 
             foreach(Ship ship in this.DefensiveForcePool)
             {
-                strength += (int)ship.BaseStrength;
+                strength += (int)ship.GetStrength();
             }
             return (float)strength;
 
@@ -69,6 +69,26 @@ namespace Ship_Game
 		{
 			return this.DefenseDict[system].PercentageOfValue;
 		}
+
+        public void remove(Ship ship)
+        {
+            Ship removed = null;
+            KeyValuePair<Guid,Ship> item;
+            this.DefensiveForcePool.Remove(ship);
+            foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
+            {
+                 item=entry.Value.ShipsDict.FirstOrDefault(kvp=> kvp.Value == ship);
+
+                 if (item.Value == ship && entry.Value.ShipsDict.TryRemove(item.Key, out removed))
+                {
+                    
+
+                    break;
+                }
+
+                
+            }
+        }
 
         public void ManageForcePool()
         {
@@ -129,6 +149,9 @@ namespace Ship_Game
                         //added by gremlin commodities increase defense desire
                         value1.ValueToUs = value1.ValueToUs + p.MineralRichness;
                         value.ValueToUs += p.BuildingList.Where(commodity => commodity.IsCommodity).Count();
+                        value.ValueToUs += p.CombatTimer;
+                        value.ValueToUs += entry.Value.system.combatTimer;
+
                         if (this.us.data.Traits.Cybernetic > 0)
                         {
                             value1.ValueToUs += p.MineralRichness;
@@ -254,7 +277,8 @@ namespace Ship_Game
                             break;
                         }
                         Ship current = enumerator.Current;
-                        this.DefenseDict[defenseDict.Key].ShipsDict.Remove(current.guid);
+                        Ship remove;
+                        this.DefenseDict[defenseDict.Key].ShipsDict.TryRemove(current.guid,out remove);
                         ShipsAvailableForAssignment.Add(current);
                     }
                     while (this.DefenseDict[defenseDict.Key].GetOurStrength() >= this.DefenseDict[defenseDict.Key].IdealShipStrength + this.DefenseDict[defenseDict.Key].IdealShipStrength * 0.1f);
@@ -303,8 +327,10 @@ namespace Ship_Game
                             {
                                 continue;
                             }
+                            var t = this.DefenseDict[solarSystem1].ShipsDict;
                             if (StartingStr <= 0f || this.StrengthOf(this.DefenseDict[solarSystem1].ShipsDict) >= this.DefenseDict[solarSystem1].IdealShipStrength)
                             {
+                            
                                 break;
                             }
                             AssignedShips.Add(ship1.guid, ship1);
@@ -312,7 +338,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            this.DefenseDict[solarSystem1].ShipsDict.Add(ship1.guid, ship1);
+                            this.DefenseDict[solarSystem1].ShipsDict.TryAdd(ship1.guid, ship1);
                             StartingStr = StartingStr - ship1.GetStrength();
                             if (ship1.InCombat || ship1.GetAI().State == AIState.Resupply)
                             {
@@ -675,7 +701,7 @@ namespace Ship_Game
   
             
         }
-		private float StrengthOf(Dictionary<Guid, Ship> dict)
+		private float StrengthOf(ConcurrentDictionary<Guid, Ship> dict)
 		{
 			float str = 0f;
 			foreach (KeyValuePair<Guid, Ship> entry in dict)

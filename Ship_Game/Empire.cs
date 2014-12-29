@@ -93,6 +93,7 @@ namespace Ship_Game
         public bool canBuildCruisers;
         public bool canBuildFrigates;
         public bool canBuildCorvettes;
+        public float currentMilitaryStrength;
 
         static Empire()
         {
@@ -2146,12 +2147,19 @@ namespace Ship_Game
                 foreach (Building building in planet.BuildingList)
                     this.IndustrialScore += building.Cost / 20f;
             }
+            this.currentMilitaryStrength =0;
             for (int index = 0; index < this.OwnedShips.Count; ++index)
             {
                 Ship ship = this.OwnedShips[index];
                 if (ship != null)
-                    this.data.MilitaryScoreTotal += ship.GetStrength();
+                {
+                    
+                    
+                    this.currentMilitaryStrength += ship.GetStrength();
+                }
+                
             }
+            this.data.MilitaryScoreTotal += this.currentMilitaryStrength;
             this.TotalScore = (int)((double)this.MilitaryScore / 100.0 + (double)this.IndustrialScore + (double)this.TechScore + (double)this.ExpansionScore);
             this.MilitaryScore = this.data.MilitaryScoreTotal / (float)this.data.ScoreAverage;
             ++this.data.ScoreAverage;
