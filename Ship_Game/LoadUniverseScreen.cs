@@ -201,6 +201,7 @@ namespace Ship_Game
 			foreach (Guid guid in data.StationsList)
 			{
 				p.Shipyards.Add(guid, new Ship());
+                
 			}
 			p.FarmerPercentage = data.farmerPercentage;
 			p.WorkerPercentage = data.workerPercentage;

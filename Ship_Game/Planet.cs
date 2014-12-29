@@ -129,7 +129,7 @@ namespace Ship_Game
         public float FoodHere;
         public byte developmentLevel;
         public bool CorsairPresence;
-        public bool queueEmptySent ;
+        public bool queueEmptySent =true ;
         public float RepairPerTurn = 50;
         public List<string> PlanetFleets = new List<string>();
         
@@ -2878,7 +2878,8 @@ namespace Ship_Game
                 this.DoGoverning();
             this.UpdateIncomes();
             // ADDED BY SHAHMATT (notification about empty queue)
-            if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
+            if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) 
+                && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
             {
                 if (this.colonyType == Planet.ColonyType.Colony || this.colonyType == Planet.ColonyType.Core || this.colonyType == Planet.ColonyType.Industrial || !this.GovernorOn)
                 {
@@ -2900,7 +2901,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.ConstructionQueue.Count > 0)
+            else if (GlobalStats.ExtraNotiofications && this.Owner.isPlayer && this.ConstructionQueue.Count > 0)
             {
                 this.queueEmptySent = false;
             }
@@ -2917,15 +2918,20 @@ namespace Ship_Game
             if (this.ShieldStrengthCurrent < this.ShieldStrengthMax)
             {
                 Planet shieldStrengthCurrent = this;
-                shieldStrengthCurrent.ShieldStrengthCurrent = shieldStrengthCurrent.ShieldStrengthCurrent + 1f;
-                if (this.ShieldStrengthCurrent > this.ShieldStrengthMax)
+                
+                if(this.RecentCombat)
                 {
-                    this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+                    shieldStrengthCurrent.ShieldStrengthCurrent = shieldStrengthCurrent.ShieldStrengthCurrent + 1f;
+                    if (this.ShieldStrengthCurrent > this.ShieldStrengthMax)
+                    {
+                        this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+                    }
                 }
-                if (this.ShieldStrengthCurrent > this.ShieldStrengthMax / 10 && !this.RecentCombat)
-                {
-                    shieldStrengthCurrent.ShieldStrengthCurrent += shieldStrengthCurrent.ShieldStrengthMax / 10;
-                }
+                else
+                    if (this.ShieldStrengthCurrent > this.ShieldStrengthMax / 10)
+                    {
+                        shieldStrengthCurrent.ShieldStrengthCurrent += shieldStrengthCurrent.ShieldStrengthMax / 10;
+                    }
             }
 
             //this.UpdateTimer = 10f;
@@ -3289,6 +3295,7 @@ namespace Ship_Game
                 switch (this.colonyType)
                 {
                     case Planet.ColonyType.Core:
+                        #region MyRegion
                         {
                             //Determine Food needs first
                             if (this.DetermineIfSelfSufficient())
@@ -3508,8 +3515,10 @@ namespace Ship_Game
                                 }
                             }
                             break;
-                        }
+                        } 
+                        #endregion
                     case Planet.ColonyType.Industrial:
+                        #region MyRegion
                         this.fs = Planet.GoodState.IMPORT;
                         this.FarmerPercentage = 0.0f;
                         this.WorkerPercentage = 1f;
@@ -3666,8 +3675,10 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                         }
-                        break;
+                        break; 
+                        #endregion
                     case Planet.ColonyType.Research:
+                        #region MyRegion
                         this.fs = Planet.GoodState.IMPORT;
                         this.ps = Planet.GoodState.IMPORT;
                         this.FarmerPercentage = 0.0f;
@@ -3743,8 +3754,10 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                         }
-                        break;
+                        break; 
+                        #endregion
                     case Planet.ColonyType.Agricultural:
+                        #region MyRegion
                         this.fs = Planet.GoodState.EXPORT;
                         this.ps = Planet.GoodState.IMPORT;
                         this.FarmerPercentage = 1f;
@@ -3851,8 +3864,10 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                         }
-                        break;
+                        break; 
+                        #endregion
                     case Planet.ColonyType.Military:
+                        #region MyRegion
                         this.fs = Planet.GoodState.IMPORT;
                         if ((double)this.MAX_STORAGE - (double)this.FoodHere < 25.0)
                             this.fs = Planet.GoodState.EXPORT;
@@ -3970,13 +3985,14 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                         }
-                        break;
+                        break; 
+                        #endregion
                 }
             }
             if (this.ConstructionQueue.Count == 0 && this.ProductionHere > this.MAX_STORAGE * .75f)
             {
                 //Added by McShooterz: Colony build troops
-                if (this.CanBuildInfantry() && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+                if (this.Owner.isPlayer && this.colonyType== ColonyType.Military)
                 {
                     bool addTroop = false;
                     foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -4006,7 +4022,11 @@ namespace Ship_Game
                     }
                 }
                 //Added by McShooterz: build defense platforms
-                if (this.Owner.data.TaxRate < .40f && (double)this.NetProductionPerTurn > 4.0 && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < (this.developmentLevel - 1) * 2 && this.Shipyards.Count < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                if ((!this.Owner.isPlayer || this.Owner.isPlayer && this.colonyType== ColonyType.Military ) 
+                    && (this.Owner.data.TaxRate < .40f || this.Owner.Money >this.Owner.GrossTaxes*2) 
+                    && (double)this.NetProductionPerTurn > 4.0 
+                    && this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0).Count() < (this.developmentLevel - 1) * 2 
+                    && this.Shipyards.Count < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                 {
                     string platform = this.Owner.GetGSAI().GetDefenceSatellite();
                     if (platform != "")
