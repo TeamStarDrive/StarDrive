@@ -81,8 +81,8 @@ namespace Ship_Game
 
                  if (item.Value == ship && entry.Value.ShipsDict.TryRemove(item.Key, out removed))
                 {
-                    
-
+                    item.Value.GetAI().SystemToDefend = null;
+    
                     break;
                 }
 

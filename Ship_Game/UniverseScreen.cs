@@ -1035,10 +1035,10 @@ namespace Ship_Game
                 Parallel.ForEach(EmpireManager.EmpireList, empire =>
                 //foreach (Empire empire in EmpireManager.EmpireList)
                 {
-                    //try
+                    try
                     {
-                        var fleetdictClone = new Dictionary<int,Fleet>(empire.GetFleetsDict());
-                        foreach (KeyValuePair<int, Fleet> keyValuePair in fleetdictClone)
+                        //var fleetdictClone = new Dictionary<int,Fleet>(empire.GetFleetsDict());
+                        foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict() )//leetdictClone)
                         {
                             if (keyValuePair.Value.Ships.Count > 0)
                             {
@@ -1058,6 +1058,7 @@ namespace Ship_Game
                             }
                         }
                     }
+                    catch { };
                     empire.updateContactsTimer -= elapsedTime;
                     if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
                     {
