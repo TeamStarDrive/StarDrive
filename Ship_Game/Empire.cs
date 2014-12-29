@@ -1474,10 +1474,23 @@ namespace Ship_Game
                     continue;
                 if (this.WeCanBuildThis(keyValuePair.Key))
                 {
-                    if (!this.structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.Role == "platform" || keyValuePair.Value.Role == "station" && !keyValuePair.Value.shipData.IsShipyard)
-                        this.structuresWeCanBuild.Add(keyValuePair.Key);
-                    if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.Role].Protected && keyValuePair.Value.Name != "Subspace Projector")
-                        this.ShipsWeCanBuild.Add(keyValuePair.Key);
+
+
+                    try
+                    {
+                        if (!this.structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.Role == "platform" || keyValuePair.Value.Role == "station" && !keyValuePair.Value.shipData.IsShipyard)
+                            this.structuresWeCanBuild.Add(keyValuePair.Key);
+                        if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.Role].Protected && keyValuePair.Value.Name != "Subspace Projector")
+                            this.ShipsWeCanBuild.Add(keyValuePair.Key);
+                    }
+                    catch (Exception ex)
+                    {
+
+                        ex.Data["Ship Key"] = keyValuePair.Key;
+                        ex.Data["Role Name"] = keyValuePair.Value.Role;
+                        ex.Data["Ship Name"] = keyValuePair.Value.Name;
+                        throw ex;
+                    }
                 }
             }
             if (Empire.universeScreen == null || this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
