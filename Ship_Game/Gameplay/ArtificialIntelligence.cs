@@ -2757,7 +2757,13 @@ namespace Ship_Game.Gameplay
 		private void MoveToWithin1000Fleet(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
 			float Distance = Vector2.Distance(this.Owner.Center, goal.fleet.Position + this.Owner.FleetOffset);
-			if (Distance > 10000f)
+            float speedLimit = goal.SpeedLimit;
+            if(this.Owner.GetFTLSpeed()>=Distance)
+            {
+                speedLimit = Distance;
+            }
+            
+            if (Distance > 10000f)
 			{
 				this.Owner.EngageStarDrive();
 			}
@@ -2767,7 +2773,7 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.RemoveFirst();
 				return;
 			}
-			this.MoveTowardsPosition(goal.fleet.Position + this.Owner.FleetOffset, elapsedTime, goal.SpeedLimit);
+            this.MoveTowardsPosition(goal.fleet.Position + this.Owner.FleetOffset, elapsedTime, speedLimit);
 		}
 
 		private void OrbitShip(Ship ship, float elapsedTime)
@@ -5837,12 +5843,18 @@ namespace Ship_Game.Gameplay
                             fleetReady = false;
                             break;
                         }
-                        if (Distance > 150000)
+                        //if (Distance > this.Owner.GetFTLSpeed())
                         {
                         //added by Gremlin fleet group speed changes
-                        speedLimit = this.Owner.fleet.speed;
+                        if (Distance > this.Owner.GetFTLSpeed())
+                        {
+                            speedLimit = this.Owner.fleet.speed;
                         speedLimit = this.Owner.fleet.speed * this.Owner.loyalty.data.FTLModifier;
-
+                        }
+                            else
+                            {
+                                speedLimit=Distance;
+                        }
 
                             float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove; //
 
@@ -5879,8 +5891,7 @@ namespace Ship_Game.Gameplay
 
                             #endregion
                         }
-                        else
-                            speedLimit = this.Owner.fleet.speed;
+
                         if (fleetReady)
                         {
                             this.Owner.EngageStarDrive();
