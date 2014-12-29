@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Ship_Game
 {
@@ -24,11 +25,12 @@ namespace Ship_Game
 		public float PercentageOfValue;
         public float incomingThreatTime;
 
-		public Dictionary<Guid, Ship> ShipsDict = new Dictionary<Guid, Ship>();
+		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
 		public Dictionary<Ship, List<Ship>> EnemyClumpsDict = new Dictionary<Ship, List<Ship>>();
 
 		private Empire us;
+        //public ReaderWriterLockSlim 
 
 		public SystemCommander(Empire e, SolarSystem system)
 		{
