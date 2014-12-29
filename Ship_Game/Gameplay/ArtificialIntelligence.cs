@@ -14,6 +14,7 @@ namespace Ship_Game.Gameplay
 	{
         public bool UseSensorsForTargets =true;
         public bool ClearOrdersNext;
+        private int loopcounter =0;
 
 		private Vector2 aiNewDir;
 
@@ -2694,9 +2695,10 @@ namespace Ship_Game.Gameplay
 		private void MoveToWithin1000(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
 			float Distance = Vector2.Distance(this.Owner.Center, goal.MovePosition);
-		
+            float speedlimit = this.Owner.speed;
 
-            this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, this.Owner.speed);
+
+            this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, speedlimit);
 			if (this.ActiveWayPoints.Count <= 1)
 			{
 				if (Distance <= 1500f)
@@ -2711,13 +2713,14 @@ namespace Ship_Game.Gameplay
 						{
 							this.OrderQueue.RemoveFirst();
 						}
+                        
 					}
 				}
 			}
 			else if (this.Owner.engineState == Ship.MoveState.Warp)
 			{
-				//if (this.Owner.GetFTLSpeed() > 30000 && Distance <= 25000f)
-                if (this.Owner.GetFTLSpeed()  > Distance +1000)
+				if (this.Owner.GetFTLSpeed() > 30000 && Distance <= 25000f)
+                //if (this.Owner.GetFTLSpeed()  > Distance +1000)
 
 				{
 					lock (GlobalStats.WayPointLock)
@@ -2727,6 +2730,7 @@ namespace Ship_Game.Gameplay
 						{
 							this.OrderQueue.RemoveFirst();
 						}
+                        
 					}
 				}
                 else if (Distance <= 15000f)
@@ -2738,6 +2742,7 @@ namespace Ship_Game.Gameplay
                         {
                             this.OrderQueue.RemoveFirst();
                         }
+                        
                     }
                 }
             }
@@ -2750,6 +2755,7 @@ namespace Ship_Game.Gameplay
 					{
 						this.OrderQueue.RemoveFirst();
 					}
+                    
 				}
 			}
 		}
@@ -5705,6 +5711,7 @@ namespace Ship_Game.Gameplay
                 speedLimit = this.Owner.speed;
             }
             float Distance = Vector2.Distance(Position, this.Owner.Center);
+ 
             if (this.Owner.engineState != Ship.MoveState.Warp)
             {
                 Position = Position - this.Owner.Velocity;
@@ -5725,14 +5732,16 @@ namespace Ship_Game.Gameplay
                         Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                        if (d < 50000f)
+                        //if (d < 50000f)
+                        if(d<this.Owner.GetFTLSpeed())
                         {
                             if (angleDiffToNext > 0.65f)
                             {
                                 this.Owner.HyperspaceReturn();
                             }
                         }
-                        else if (d > 50000f && angleDiffToNext > 1.65f)
+                       // else if (d > 50000f && angleDiffToNext > 1.65f)
+                        else if (d > Owner.GetFTLSpeed() && angleDiffToNext > 1.65f)
                         {
                             this.Owner.HyperspaceReturn();
                         }
@@ -5756,7 +5765,7 @@ namespace Ship_Game.Gameplay
                     else if (this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet != null)
                     {
                         float d = Vector2.Distance(this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet.Position, this.Owner.Center);
-                        if (angleDiff > 0.4f)
+                        if (angleDiff > 0.65f)
                         {
                             this.Owner.HyperspaceReturn();
                         }
@@ -5843,27 +5852,19 @@ namespace Ship_Game.Gameplay
                             fleetReady = false;
                             break;
                         }
-                        //if (Distance > this.Owner.GetFTLSpeed())
-                        {
-                        //added by Gremlin fleet group speed changes
-                        if (Distance > this.Owner.GetFTLSpeed())
-                        {
-                            speedLimit = this.Owner.fleet.speed;
-                        speedLimit = this.Owner.fleet.speed * this.Owner.loyalty.data.FTLModifier;
-                        }
-                            else
-                            {
-                                speedLimit=Distance;
-                        }
-
+                        //if (angleDiff >0.25&&  Distance < this.Owner.GetFTLSpeed())
+                        //{
+                        //    this.Owner.HyperspaceReturn();
+                        //}
+     
                             float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove; //
-
+                            speedLimit = this.Owner.fleet.speed;
 
                             #region FleetGrouping
 
 
-                            float fleetPosistionDistance = Vector2.Distance(this.Owner.Center,Position);
-                            if(fleetPosistionDistance < distanceFleetCenterToDistance)
+                            float fleetPosistionDistance = Vector2.Distance(this.Owner.Center, Position);
+                            if (fleetPosistionDistance <= distanceFleetCenterToDistance)
                             {
                                 float speedreduction = distanceFleetCenterToDistance - Distance;
                                 speedLimit = this.Owner.fleet.speed - speedreduction; //this.Owner.fleet.speed 
@@ -5875,22 +5876,19 @@ namespace Ship_Game.Gameplay
                             //else if (Distance > distanceFleetCenterToDistance) //radius * 4f
                             else if (fleetPosistionDistance > distanceFleetCenterToDistance)
                             {
+
                                 float speedIncrease = Distance - distanceFleetCenterToDistance;
                                 //distanceShipToFleetCenter > this.Owner.fleet.speed && 
                                 speedLimit = this.Owner.fleet.speed + speedIncrease;
-                                if (speedLimit > this.Owner.velocityMaximum)
-                                    speedLimit = this.Owner.velocityMaximum;
-                                else if (speedLimit < 0)
-                                    speedLimit = 0;
-
-
                             }
-                            else
-                                // if (distanceShipToFleetCenter < this.Owner.fleet.speed) 
-                                speedLimit = this.Owner.fleet.speed;
+
+
+
 
                             #endregion
-                        }
+
+                        
+                        
 
                         if (fleetReady)
                         {
@@ -5905,6 +5903,12 @@ namespace Ship_Game.Gameplay
                     {
                         this.Owner.HyperspaceReturn();
                     }
+           
+
+                    if (speedLimit > this.Owner.velocityMaximum)
+                        speedLimit = this.Owner.velocityMaximum;
+                    else if (speedLimit < 0)
+                        speedLimit = 0;
                     Ship velocity1 = this.Owner;
                     velocity1.Velocity = velocity1.Velocity + (Vector2.Normalize(forward) * (elapsedTime * speedLimit));
                     if (this.Owner.Velocity.Length() > speedLimit)

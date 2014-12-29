@@ -1699,62 +1699,70 @@ namespace Ship_Game
                 if (keyValuePair.Value.Treaty_Alliance)
                     list.Add(keyValuePair.Key);
             }
-            foreach (Empire empire in list)
+            try
             {
-                for (int index = 0; index < empire.GetPlanets().Count; ++index)
-                {   //loops over all planets by all ALLIED empires
-                    Planet planet = empire.GetPlanets()[index];
-                    if (planet != null)
-                    {
-                        Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
-                        influenceNode1.KeyedObject = (object)planet;
-                        influenceNode1.Position = planet.Position;
-                        influenceNode1.Radius = 1f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
-                        // influenceNode1.Radius = this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
-                        lock (GlobalStats.SensorNodeLocker)
-                            this.SensorNodes.Add(influenceNode1);
-                        Empire.InfluenceNode influenceNode2 = new Empire.InfluenceNode();
-                        influenceNode2.Position = planet.Position;
-                        influenceNode2.Radius = this.isFaction ? 1f : (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * empire.data.SensorModifier : 600000f * empire.data.SensorModifier);
-                        foreach (Building building in planet.BuildingList)
+                foreach (Empire empire in list)
+                {
+                    List<Planet> tempPlanets = empire.GetPlanets();// new List<Planet>(empire.GetPlanets());
+                    for (int index = 0; index < tempPlanets.Count; ++index)
+                    {   //loops over all planets by all ALLIED empires
+                        Planet planet = tempPlanets[index];
+                        if (planet != null)
                         {
-                            //if (building.IsSensor)
-                            if(building.SensorRange * this.data.SensorModifier > influenceNode2.Radius)
-                                influenceNode2.Radius = building.SensorRange * this.data.SensorModifier;
-                        }
-                        lock (GlobalStats.SensorNodeLocker)
-                            this.SensorNodes.Add(influenceNode2);
-                    }
-                }
-                var clonedList = new List<Ship>(empire.GetShips());
-                for (int index = 0; index < clonedList.Count; ++index)
-                {   //loop over all ALLIED ships
-                    Ship ship = clonedList[index];
-                    if (ship != null)
-                    {
-                        if (ship.Name == "Subspace Projector")
-                        {
-                            /*Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
-                            influenceNode.Position = ship.Center;
-                            influenceNode.Radius = Empire.ProjectorRadius;  //projectors currently use their projection radius as sensors
+                            Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
+                            influenceNode1.KeyedObject = (object)planet;
+                            influenceNode1.Position = planet.Position;
+                            influenceNode1.Radius = 1f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
+                            // influenceNode1.Radius = this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
                             lock (GlobalStats.SensorNodeLocker)
-                                this.SensorNodes.Add(influenceNode);
-                            influenceNode.KeyedObject = (object)ship; */ //disabled until we figure out something better for projectors
-                        }
-                        else
-                        {
-                            Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
-                            influenceNode.Position = ship.Center;
-                            influenceNode.Radius = ship.SensorRange;
+                                this.SensorNodes.Add(influenceNode1);
+                            Empire.InfluenceNode influenceNode2 = new Empire.InfluenceNode();
+                            influenceNode2.Position = planet.Position;
+                            influenceNode2.Radius = this.isFaction ? 1f : (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * empire.data.SensorModifier : 600000f * empire.data.SensorModifier);
+                            foreach (Building building in planet.BuildingList)
+                            {
+                                //if (building.IsSensor)
+                                if (building.SensorRange * this.data.SensorModifier > influenceNode2.Radius)
+                                    influenceNode2.Radius = building.SensorRange * this.data.SensorModifier;
+                            }
                             lock (GlobalStats.SensorNodeLocker)
-                                this.SensorNodes.Add(influenceNode);
-                            influenceNode.KeyedObject = (object)ship;
+                                this.SensorNodes.Add(influenceNode2);
                         }
                     }
+                        var clonedList = empire.GetShips();// new List<Ship>(empire.GetShips());
+                        for (int index = 0; index < clonedList.Count; ++index)
+                        {   //loop over all ALLIED ships
+                            Ship ship = clonedList[index];
+                            if (ship != null)
+                            {
+                                if (ship.Name == "Subspace Projector")
+                                {
+                                    /*Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
+                                    influenceNode.Position = ship.Center;
+                                    influenceNode.Radius = Empire.ProjectorRadius;  //projectors currently use their projection radius as sensors
+                                    lock (GlobalStats.SensorNodeLocker)
+                                        this.SensorNodes.Add(influenceNode);
+                                    influenceNode.KeyedObject = (object)ship; */
+                                    //disabled until we figure out something better for projectors
+                                }
+                                else
+                                {
+                                    Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
+                                    influenceNode.Position = ship.Center;
+                                    influenceNode.Radius = ship.SensorRange;
+                                    lock (GlobalStats.SensorNodeLocker)
+                                        this.SensorNodes.Add(influenceNode);
+                                    influenceNode.KeyedObject = (object)ship;
+                                }
+                            }
+                        }
+              
+
                 }
-                
             }
-            foreach (Planet planet in this.OwnedPlanets)
+            catch { }
+            List<Planet> tempPlanets2 = new List<Planet>(this.GetPlanets());
+            foreach (Planet planet in tempPlanets2)
             {   //loop over OWN planets
                 Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
                 if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.usePlanetaryProjection)
