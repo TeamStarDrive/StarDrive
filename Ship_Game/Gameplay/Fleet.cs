@@ -147,13 +147,13 @@ namespace Ship_Game.Gameplay
         }
 
         //added by gremlin make fleet speed average not include warpless ships.
-        public void SetSpeed() //stddev()
+        public void SetSpeedstddev()
         {
             List<float> distances = new List<float>();
 
             foreach (Ship distance in (List<Ship>)this.Ships)
             {
-                if (distance.EnginesKnockedOut || !distance.Active || distance.InCombat)
+                if (distance.EnginesKnockedOut || !distance.Active ||  distance.GetAI().State != AIState.FormationWarp)//  distance.engineState != Ship.MoveState.Warp)
                     continue;
                 distances.Add(distance  .speed);
             }
@@ -186,7 +186,7 @@ namespace Ship_Game.Gameplay
 
         }
 
-        public void SetSpeedbad()
+        public void SetSpeed()
         {//Vector2.Distance(this.findAveragePosition(),ship.Center) <10000 
             
 
@@ -195,7 +195,7 @@ namespace Ship_Game.Gameplay
             
             IOrderedEnumerable<Ship> speedSorted =
                 from ship in this.Ships
-                where !ship.EnginesKnockedOut && !ship.InCombat && !ship.Inhibited && ship.Active
+                where !ship.EnginesKnockedOut && !ship.InCombat && !ship.Inhibited && ship.Active && ship.GetAI().State == AIState.FormationWarp
                 orderby ship.speed
                 select ship;
             this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
