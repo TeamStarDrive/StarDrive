@@ -1062,6 +1062,7 @@ namespace Ship_Game
                     empire.updateContactsTimer -= elapsedTime;
                     if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
                     {
+                        empire.GetGSAI().ThreatMatrix.ScrubMatrix();
                         empire.ResetBorders();
                         lock (GlobalStats.KnownShipsLock)
                             empire.KnownShips.Clear();

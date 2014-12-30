@@ -3677,6 +3677,8 @@ namespace Ship_Game.Gameplay
 			{
 				this.ActiveWayPoints.Clear();
 			}
+            this.Owner.loyalty.ForcePoolRemove(this.Owner);
+            
             if (this.Owner.fleet != null)
                 this.Owner.fleet = null;
             this.HasPriorityOrder = true;
