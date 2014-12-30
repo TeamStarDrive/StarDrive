@@ -898,15 +898,28 @@ namespace Ship_Game.Gameplay
 			float currentStrength = 0f;
 			foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
 			{
-				if (!ship.Active|| (ship.InCombat && this.Step <1))
+				if (!ship.Active
+                    || (ship.InCombat && this.Step <1) 
+                    || ship.GetAI().State == AIState.Scrap)
 				{
 					this.empire.GetFleetsDict()[this.WhichFleet].Ships.QueuePendingRemoval(ship);
-                    if (ship.Active)
+                    if (ship.Active && ship.GetAI().State != AIState.Scrap)
                     {
-                        ship.fleet = null;
-                        ship.fleet.Ships.Remove(ship);
+                        if (ship.fleet != null)
+                        {
+                            this.empire.GetFleetsDict()[this.WhichFleet].Ships.QueuePendingRemoval(ship);
+
+                        }
+                        
                         this.empire.ForcePoolAdd(ship);
                         
+                    }
+                    else if (ship.GetAI().State == AIState.Scrap)
+                    {
+                        if (ship.fleet != null)
+                        {
+                            this.empire.GetFleetsDict()[this.WhichFleet].Ships.QueuePendingRemoval(ship);
+                        }
                     }
 				}
 				else
@@ -1212,7 +1225,7 @@ namespace Ship_Game.Gameplay
             if (!this.empire.isFaction
                 && this.empire.data.DiplomaticPersonality.Name == "Aggressive"
                 || empire.data.DiplomaticPersonality.Name == "Ruthless"
-                || empire.GetRelations().Where(war => war.Value.ActiveWar !=null).Count() <2
+                //|| empire.GetRelations().Where(war => war.Value.ActiveWar !=null).Count() <2
                 )
             {
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.empire.GetGSAI().DefensiveCoordinator.DefenseDict
@@ -1455,7 +1468,7 @@ namespace Ship_Game.Gameplay
                     this.Step = 1;
                 }
             }
-            else if (ourAvailableStrength > EnemyTroopStrength * 1.5f)
+            else if (ourAvailableStrength > EnemyTroopStrength )
             {
                 if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.GetRelations().ContainsKey(this.TargetPlanet.Owner))
                 {
@@ -1983,7 +1996,7 @@ namespace Ship_Game.Gameplay
             int shipCount = 0;
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool().OrderBy(str=>str.GetStrength()))
             {
-                if (shipCount >= 3 && tfstrength >= this.empire.MilitaryScore*.1)
+                if (shipCount >= 3 && tfstrength >= this.empire.currentMilitaryStrength * .1)
                 {
                     break;
                 }
@@ -1995,7 +2008,7 @@ namespace Ship_Game.Gameplay
                 elTaskForce.Add(ship);
                 tfstrength = tfstrength + ship.GetStrength();
             }
-            if (shipCount < 3 && tfstrength < this.empire.MilitaryScore * .1)//|| tfstrength < 500f)
+            if (shipCount < 3 && tfstrength < this.empire.currentMilitaryStrength *.1)//|| tfstrength < 500f)
             {
                 return;
             }
@@ -2030,6 +2043,7 @@ namespace Ship_Game.Gameplay
                             Ship ship = enumerator.Current;
                             ClosestAO.GetOffensiveForcePool().Remove(ship);
                             ClosestAO.GetWaitingShips().Remove(ship);
+                            this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
                         }
                         break;
                     }
@@ -2046,10 +2060,8 @@ namespace Ship_Game.Gameplay
 			float forcePoolStr = 0f;
 			float tfstrength = 0f;
 			BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
-			foreach (Ship ship in this.empire.GetForcePool())
-			{
-				forcePoolStr = forcePoolStr + ship.GetStrength();
-			}
+            forcePoolStr = this.empire.GetForcePoolStrength();
+            
 			foreach (Ship ship in this.empire.GetForcePool().OrderBy(strength=> strength.GetStrength()))
 			{
 				if (ship.fleet != null)
@@ -2513,7 +2525,8 @@ namespace Ship_Game.Gameplay
 			this.EnemyStrength = 0f;
 			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.empire.GetGSAI().ThreatMatrix.Pins)
 			{
-				if (Vector2.Distance(this.AO, pin.Value.Position) >= this.AORadius)
+				
+                if (Vector2.Distance(this.AO, pin.Value.Position) >= this.AORadius)
 				{
 					continue;
 				}
