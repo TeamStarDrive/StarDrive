@@ -150,7 +150,9 @@ namespace Ship_Game
                         value1.ValueToUs = value1.ValueToUs + p.MineralRichness;
                         value.ValueToUs += p.BuildingList.Where(commodity => commodity.IsCommodity).Count();
                         value.ValueToUs += p.CombatTimer;
-                        value.ValueToUs += entry.Value.system.combatTimer;
+                        value.ValueToUs += p.developmentLevel;
+                        value.ValueToUs += p.GovBuildings ? 1 : 0;
+                        //value.ValueToUs += entry.Value.system.combatTimer;
 
                         if (this.us.data.Traits.Cybernetic > 0)
                         {
