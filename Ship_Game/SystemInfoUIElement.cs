@@ -275,11 +275,10 @@ namespace Ship_Game
 							if (p.Owner != null && p.Owner == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
 							{
 								this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rIcon, Color.White);
-                                if (hastroops)
-                                {
+
                                     
                                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], tIcon, Color.White);
-                                }
+                                
 
 							}
 							Vector2 ft = new Vector2((float)(fIcon.X + 12), (float)fIcon.Y);

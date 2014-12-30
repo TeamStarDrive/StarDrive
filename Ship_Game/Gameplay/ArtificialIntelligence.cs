@@ -2699,47 +2699,29 @@ namespace Ship_Game.Gameplay
 		}
 
 		private void MoveToWithin1000(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
-		{
-			float Distance = Vector2.Distance(this.Owner.Center, goal.MovePosition);
-            float speedlimit = this.Owner.speed;
-
-
-            this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, speedlimit);
-			if (this.ActiveWayPoints.Count <= 1)
-			{
-				if (Distance <= 1500f)
-				{
-					lock (GlobalStats.WayPointLock)
-					{
-						if (this.ActiveWayPoints.Count > 1)
-						{
-							this.ActiveWayPoints.Dequeue();
-						}
-						if (this.OrderQueue.Count > 0)
-						{
-							this.OrderQueue.RemoveFirst();
-						}
-                        
-					}
-				}
-			}
-			else if (this.Owner.engineState == Ship.MoveState.Warp)
-			{
-				if (this.Owner.GetFTLSpeed() > 30000 && Distance <= 25000f)
-                //if (this.Owner.GetFTLSpeed()  > Distance +1000)
-
-				{
-					lock (GlobalStats.WayPointLock)
-					{
-						this.ActiveWayPoints.Dequeue();
-						if (this.OrderQueue.Count > 0)
-						{
-							this.OrderQueue.RemoveFirst();
-						}
-                        
-					}
-				}
-                else if (Distance <= 15000f)
+        {
+            float single = Vector2.Distance(this.Owner.Center, goal.MovePosition);
+            this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, this.Owner.speed);
+            if (this.ActiveWayPoints.Count <= 1)
+            {
+                if (single <= 1500f)
+                {
+                    lock (GlobalStats.WayPointLock)
+                    {
+                        if (this.ActiveWayPoints.Count > 1)
+                        {
+                            this.ActiveWayPoints.Dequeue();
+                        }
+                        if (this.OrderQueue.Count > 0)
+                        {
+                            this.OrderQueue.RemoveFirst();
+                        }
+                    }
+                }
+            }
+            else if (this.Owner.engineState == Ship.MoveState.Warp)
+            {
+                if (single <= 15000f)
                 {
                     lock (GlobalStats.WayPointLock)
                     {
@@ -2748,23 +2730,21 @@ namespace Ship_Game.Gameplay
                         {
                             this.OrderQueue.RemoveFirst();
                         }
-                        
                     }
                 }
             }
-			else if (Distance <= 1500f)
-			{
-				lock (GlobalStats.WayPointLock)
-				{
-					this.ActiveWayPoints.Dequeue();
-					if (this.OrderQueue.Count > 0)
-					{
-						this.OrderQueue.RemoveFirst();
-					}
-                    
-				}
-			}
-		}
+            else if (single <= 1500f)
+            {
+                lock (GlobalStats.WayPointLock)
+                {
+                    this.ActiveWayPoints.Dequeue();
+                    if (this.OrderQueue.Count > 0)
+                    {
+                        this.OrderQueue.RemoveFirst();
+                    }
+                }
+            }
+        }
 
 		private void MoveToWithin1000Fleet(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
