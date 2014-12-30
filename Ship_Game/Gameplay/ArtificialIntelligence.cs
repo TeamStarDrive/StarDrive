@@ -1792,17 +1792,16 @@ namespace Ship_Game.Gameplay
 
 		private void DoSystemDefense(float elapsedTime)
 		{
-            if (this.Owner.InCombat || this.State == AIState.Intercept)
-                //if (this.State == AIState.Intercept)
-                    return;
-                //else
-                //this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f)); 
+            //if (this.Owner.InCombat || this.State == AIState.Intercept)
+                
+            //        return;
+      
             if (this.SystemToDefend == null)
 			{
 				this.SystemToDefend = this.Owner.GetSystem();
 			}
-			//added by gremlin Prevent constant switching to await orders while defending.
-            if (this.Target == null )//&& this.State != AIState.Intercept)
+			
+           
                 this.AwaitOrders(elapsedTime);
 		}
 
@@ -5852,7 +5851,13 @@ namespace Ship_Game.Gameplay
                         bool fleetReady = true;
                         foreach (Ship ship in this.Owner.fleet.Ships)
                         {
-                            if (ship.GetAI().ReadyToWarp && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f || ship.isSpooling || ship.GetAI().State != AIState.FormationWarp )
+                            if(ship.GetAI().State != AIState.FormationWarp)
+                                continue;
+                            if (ship.GetAI().ReadyToWarp
+                                
+                                && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f || ship.isSpooling ) 
+                                
+                                
                                 )
                             {
                                 continue;
@@ -5861,10 +5866,7 @@ namespace Ship_Game.Gameplay
                             fleetReady = false;
                             break;
                         }
-                        //if (angleDiff >0.25&&  Distance < this.Owner.GetFTLSpeed())
-                        //{
-                        //    this.Owner.HyperspaceReturn();
-                        //}
+
      
                             float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove; //
                             speedLimit = this.Owner.fleet.speed;
@@ -5883,14 +5885,15 @@ namespace Ship_Game.Gameplay
                                     speedLimit = this.Owner.fleet.speed;
                             }
                             //else if (Distance > distanceFleetCenterToDistance) //radius * 4f
-                            else if (fleetPosistionDistance > distanceFleetCenterToDistance && this.Owner.isInDeepSpace)
+                            else if (fleetPosistionDistance > distanceFleetCenterToDistance )
                             {
 
                                 float speedIncrease = Distance - distanceFleetCenterToDistance;
                                 //distanceShipToFleetCenter > this.Owner.fleet.speed && 
                                 speedLimit = this.Owner.fleet.speed + speedIncrease;
                             }
-
+                            if (Distance < speedLimit)
+                                speedLimit = Distance;
 
 
 
