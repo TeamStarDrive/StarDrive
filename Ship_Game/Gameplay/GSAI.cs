@@ -4876,12 +4876,12 @@ namespace Ship_Game.Gameplay
                     || capitalOverspend >= (DesiredCapitalSpending * 0.1f))
                 {
                     foreach (Ship ship in this.empire.GetShips()
-                        .Where(ship => !ship.InCombat && ship.inborders)
+                        .Where(ship => !ship.InCombat && ship.inborders && ship.fleet==null)
                         .OrderByDescending(ship => ship.GetAI().State == AIState.Scrap)
                         .ThenByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense))
                         .ThenBy(ship => ship.Level)
                         .ThenBy(ship => ship.BaseStrength)
-                        .ThenByDescending(ship => ship.fleet==null)
+                        //.ThenByDescending(ship => ship.fleet==null)
                         )
                     //foreach(Ship ship in this.DefensiveCoordinator.DefensiveForcePool)
                     {

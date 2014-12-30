@@ -188,47 +188,24 @@ namespace Ship_Game.Gameplay
             this.Pins[ship.guid].Velocity = ship.Center - this.Pins[ship.guid].Position;
             this.Pins[ship.guid].Position = ship.Center;
         }
-        public void ScrubMatrix(bool scrubborders)
+        public void ScrubMatrix()
         {
-            if (!scrubborders && Empire.universeScreen.MasterShipList.Count > this.Pins.Count )
+
+            if (this.Pins.Count < Empire.universeScreen.MasterShipList.Count)
                 return;
-            //List<Guid> guids = new List<Guid>();
+            HashSet<Ship> shiphash = new HashSet<Ship>(Empire.universeScreen.MasterShipList);
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
-            {
 
-                if (scrubborders && pin.Value.InBorders)
-                {
-                    if ((pin.Value.ship != null && pin.Value.ship.Active) && pin.Value.ship.Name == "Subspace Projector")
-                    {
-                        //System.Diagnostics.Debug.WriteLine(string.Concat("Skipped", pin.Value.ship.Name));
-                        continue;
-                    }
-                    pin.Value.InBorders = false;
-
-
-
-                }
-                //if (Empire.universeScreen.MasterShipList.Count < this.Pins.Count)
-
-                if (Empire.universeScreen.MasterShipList.Select(guid => guid.guid).Contains(pin.Key))
+                if (shiphash.Select(guid => guid.guid).Contains(pin.Key))
                     continue;
                 else
                 {
-                   // guids.Add(pin.Key);
-                    
-                       ThreatMatrix.Pin remove = null;
-                       this.Pins.TryRemove(pin.Key, out remove);
-                    
+
+                    ThreatMatrix.Pin remove = null;
+                    this.Pins.TryRemove(pin.Key, out remove);
                 }
-            }
 
-        //    foreach (Guid kill in guids)
-        //    {
 
-        //        ThreatMatrix.Pin remove = null;
-        //        this.Pins.TryRemove(kill,out remove);
-        //    }
-        //    guids.Clear();
         }
 
         public bool ShipInOurBorders(Ship ship)
