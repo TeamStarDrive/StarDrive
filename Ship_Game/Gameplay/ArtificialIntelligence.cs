@@ -1832,42 +1832,45 @@ namespace Ship_Game.Gameplay
 			{
 				this.Owner.loyalty.AddTradeMoney(this.Owner.CargoSpace_Used * this.Owner.loyalty.data.Traits.Mercantile);
 			}
-			if (this.FoodOrProd == "Food")
-			{
-				int maxfood = (int)this.end.MAX_STORAGE - (int)this.end.FoodHere;
-				if (this.end.FoodHere + this.Owner.CargoSpace_Used <= this.end.MAX_STORAGE)
-				{
-					Planet foodHere = this.end;
-					foodHere.FoodHere = foodHere.FoodHere + (float)((int)this.Owner.CargoSpace_Used);
-					this.Owner.GetCargo()["Food"] = 0f;
-				}
-				else
-				{
-					Planet planet = this.end;
-					planet.FoodHere = planet.FoodHere + (float)maxfood;
-					Dictionary<string, float> cargo = this.Owner.GetCargo();
-					Dictionary<string, float> strs = cargo;
-					cargo["Food"] = strs["Food"] - (float)maxfood;
-				}
-			}
-			else if (this.FoodOrProd == "Prod")
-			{
-				int maxprod = (int)this.end.MAX_STORAGE - (int)this.end.ProductionHere;
-				if (this.end.ProductionHere + this.Owner.CargoSpace_Used <= this.end.MAX_STORAGE)
-				{
-					Planet productionHere = this.end;
-					productionHere.ProductionHere = productionHere.ProductionHere + (float)((int)this.Owner.CargoSpace_Used);
-					this.Owner.GetCargo()["Production"] = 0f;
-				}
-				else
-				{
-					Planet productionHere1 = this.end;
-					productionHere1.ProductionHere = productionHere1.ProductionHere + (float)maxprod;
-					Dictionary<string, float> item = this.Owner.GetCargo();
-					Dictionary<string, float> strs1 = item;
-					item["Production"] = strs1["Production"] - (float)maxprod;
-				}
-			}
+            if (this.end != null)
+            {
+                if (this.FoodOrProd == "Food")
+                {
+                    int maxfood = (int)this.end.MAX_STORAGE - (int)this.end.FoodHere;
+                    if (this.end.FoodHere + this.Owner.CargoSpace_Used <= this.end.MAX_STORAGE)
+                    {
+                        Planet foodHere = this.end;
+                        foodHere.FoodHere = foodHere.FoodHere + (float)((int)this.Owner.CargoSpace_Used);
+                        this.Owner.GetCargo()["Food"] = 0f;
+                    }
+                    else
+                    {
+                        Planet planet = this.end;
+                        planet.FoodHere = planet.FoodHere + (float)maxfood;
+                        Dictionary<string, float> cargo = this.Owner.GetCargo();
+                        Dictionary<string, float> strs = cargo;
+                        cargo["Food"] = strs["Food"] - (float)maxfood;
+                    }
+                }
+                else if (this.FoodOrProd == "Prod")
+                {
+                    int maxprod = (int)this.end.MAX_STORAGE - (int)this.end.ProductionHere;
+                    if (this.end.ProductionHere + this.Owner.CargoSpace_Used <= this.end.MAX_STORAGE)
+                    {
+                        Planet productionHere = this.end;
+                        productionHere.ProductionHere = productionHere.ProductionHere + (float)((int)this.Owner.CargoSpace_Used);
+                        this.Owner.GetCargo()["Production"] = 0f;
+                    }
+                    else
+                    {
+                        Planet productionHere1 = this.end;
+                        productionHere1.ProductionHere = productionHere1.ProductionHere + (float)maxprod;
+                        Dictionary<string, float> item = this.Owner.GetCargo();
+                        Dictionary<string, float> strs1 = item;
+                        item["Production"] = strs1["Production"] - (float)maxprod;
+                    }
+                }
+            }
 			this.OrderTrade();
 			this.State = AIState.SystemTrader;
 		}
@@ -2106,8 +2109,12 @@ namespace Ship_Game.Gameplay
         public void FireOnTarget(float elapsedTime)
 		{
             //Reasons not to fire
+            Relationship enemy;
+            //this.Owner.loyalty.GetRelations().ContainsKey((this.Target as Ship).loyalty)
             if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled || !this.Owner.hasCommand || 
-                this.Target != null && !this.Owner.loyalty.isFaction && this.Target is Ship && this.Owner.loyalty.GetRelations().ContainsKey((this.Target as Ship).loyalty) && this.Owner.loyalty.GetRelations()[(this.Target as Ship).loyalty].Treaty_Peace)
+                this.Target != null && !this.Owner.loyalty.isFaction 
+                && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue((this.Target as Ship).loyalty, out enemy) 
+                && enemy.Treaty_Peace)
 			{
 				return;
 			}
@@ -5125,8 +5132,9 @@ namespace Ship_Game.Gameplay
                         {
                             this.FriendliesNearby.Add(item1);
                         }
-                        else if (item1.loyalty != this.Owner.loyalty && item1.GetAI().Target != null && item1.GetAI().Target == this.EscortTarget)
+                        else if (item1.loyalty != this.Owner.loyalty && item1.GetAI().Target != null && item1.GetAI().Target == this.EscortTarget &&item1.engineState != Ship.MoveState.Warp )
                         {
+                            
                             ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
                             sw.ship = item1;
                             sw.weight = 1f;
@@ -5732,16 +5740,16 @@ namespace Ship_Game.Gameplay
                         Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                        //if (d < 50000f)
-                        if(d<this.Owner.GetFTLSpeed())
+                        if (d < 50000f)
+                        //if(d<this.Owner.GetFTLSpeed())
                         {
                             if (angleDiffToNext > 0.65f)
                             {
                                 this.Owner.HyperspaceReturn();
                             }
                         }
-                       // else if (d > 50000f && angleDiffToNext > 1.65f)
-                        else if (d > Owner.GetFTLSpeed() && angleDiffToNext > 1.65f)
+                       else if (d > 50000f && angleDiffToNext > 1.65f)
+                       // else if (d > Owner.GetFTLSpeed() && angleDiffToNext > 1.65f)
                         {
                             this.Owner.HyperspaceReturn();
                         }
@@ -5839,11 +5847,12 @@ namespace Ship_Game.Gameplay
                 else
                 {
                     if (Distance > 7500f)
+                    //if(Distance > this.Owner.speed -1000)
                     {
                         bool fleetReady = true;
                         foreach (Ship ship in this.Owner.fleet.Ships)
                         {
-                            if (ship.GetAI().ReadyToWarp && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f || ship.isSpooling)
+                            if (ship.GetAI().ReadyToWarp && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f || ship.isSpooling || ship.GetAI().State != AIState.FormationWarp )
                                 )
                             {
                                 continue;
@@ -5874,7 +5883,7 @@ namespace Ship_Game.Gameplay
                                     speedLimit = this.Owner.fleet.speed;
                             }
                             //else if (Distance > distanceFleetCenterToDistance) //radius * 4f
-                            else if (fleetPosistionDistance > distanceFleetCenterToDistance)
+                            else if (fleetPosistionDistance > distanceFleetCenterToDistance && this.Owner.isInDeepSpace)
                             {
 
                                 float speedIncrease = Distance - distanceFleetCenterToDistance;
@@ -5909,6 +5918,8 @@ namespace Ship_Game.Gameplay
                         speedLimit = this.Owner.velocityMaximum;
                     else if (speedLimit < 0)
                         speedLimit = 0;
+                    //if (Distance < 100000)
+                    //    speedLimit *= .5f;
                     Ship velocity1 = this.Owner;
                     velocity1.Velocity = velocity1.Velocity + (Vector2.Normalize(forward) * (elapsedTime * speedLimit));
                     if (this.Owner.Velocity.Length() > speedLimit)

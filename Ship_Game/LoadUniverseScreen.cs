@@ -200,7 +200,7 @@ namespace Ship_Game
 			p.ObjectRadius = 100f * p.scale;
 			foreach (Guid guid in data.StationsList)
 			{
-				p.Shipyards.Add(guid, new Ship());
+				p.Shipyards.TryAdd(guid, new Ship());
                 
 			}
 			p.FarmerPercentage = data.farmerPercentage;
