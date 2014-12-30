@@ -3624,18 +3624,23 @@ namespace Ship_Game
                     if (planet.Owner != null && planet.Owner == this.player && !ship.HasTroopBay && !ship.hasTransporter)
                     {
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                            ship.GetAI().OrderRebase(planet, false);
+                            ship.GetAI().OrderToOrbit(planet, false);
                         else
                             ship.GetAI().OrderRebase(planet, true);
                     }
+                    else
                     //add new right click troop and troop ship options on planets
                     if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)))
                     {
-                        ship.GetAI().State = AIState.AssaultPlanet;
-                        ship.GetAI().OrderLandAllTroops(planet);
+                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                            ship.GetAI().OrderToOrbit(planet, false);
+                        else
+                        {
+                            ship.GetAI().State = AIState.AssaultPlanet;
+                            ship.GetAI().OrderLandAllTroops(planet);
+                        }
                     }
-                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                        ship.GetAI().OrderToOrbit(planet, false);
+                   
                     else
                         ship.GetAI().OrderToOrbit(planet, true);
                 }
