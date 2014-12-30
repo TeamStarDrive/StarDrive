@@ -3029,23 +3029,32 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-                foreach (Empire index1 in EmpireManager.EmpireList)
+
+                try
                 {
-                    if (index1 != this.loyalty && !this.loyalty.GetRelations()[index1].Treaty_OpenBorders)
+                    foreach (Empire index1 in EmpireManager.EmpireList)
                     {
-                        for (int index2 = 0; index2 < index1.Inhibitors.Count; ++index2)
+                        if (index1 != this.loyalty && !this.loyalty.GetRelations()[index1].Treaty_OpenBorders)
                         {
-                            Ship ship = index1.Inhibitors[index2];
-                            if (ship != null && (double)Vector2.Distance(this.Center, ship.Position) <= (double)ship.InhibitionRadius)
+                            for (int index2 = 0; index2 < index1.Inhibitors.Count; ++index2)
                             {
-                                this.Inhibited = true;
-                                this.InhibitedTimer = 5f;
-                                break;
+                                Ship ship = index1.Inhibitors[index2];
+                                if (ship != null && (double)Vector2.Distance(this.Center, ship.Position) <= (double)ship.InhibitionRadius)
+                                {
+                                    this.Inhibited = true;
+                                    this.InhibitedTimer = 5f;
+                                    break;
+                                }
                             }
+                            if (this.Inhibited)
+                                break;
                         }
-                        if (this.Inhibited)
-                            break;
                     }
+                }
+                catch 
+                {
+
+                    System.Diagnostics.Debug.WriteLine("Inhibitor blew up");
                 }
                 this.inSensorRange = false;
                 if (Ship.universeScreen.Debug || this.loyalty == Ship.universeScreen.player || this.loyalty != Ship.universeScreen.player && Ship.universeScreen.player.GetRelations()[this.loyalty].Treaty_Alliance)

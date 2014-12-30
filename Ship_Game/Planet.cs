@@ -12,6 +12,7 @@ using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
@@ -33,7 +34,7 @@ namespace Ship_Game
         public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
         public List<Building> BuildingList = new List<Building>();
         public SpaceStation Station = new SpaceStation();
-        public Dictionary<Guid, Ship> Shipyards = new Dictionary<Guid, Ship>();
+        public ConcurrentDictionary<Guid, Ship> Shipyards = new ConcurrentDictionary<Guid, Ship>();
         public List<Troop> TroopsHere = new List<Troop>();
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         private float ZrotateAmount = 0.03f;
@@ -2606,8 +2607,9 @@ namespace Ship_Game
                 if (!keyValuePair.Value.Active || keyValuePair.Value.ModuleSlotList.Count == 0)
                     list.Add(keyValuePair.Key);
             }
+            Ship remove;
             foreach (Guid key in list)
-                this.Shipyards.Remove(key);
+                this.Shipyards.TryRemove(key,out remove);
             if (!Planet.universeScreen.Paused)
             {
                 if (this.TroopsHere.Count > 0)
@@ -4274,7 +4276,7 @@ namespace Ship_Game
                         shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 40), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
                         shipAt.Center = shipAt.Position;
                         shipAt.TetherToPlanet(this);
-                        this.Shipyards.Add(shipAt.guid, shipAt);
+                        this.Shipyards.TryAdd(shipAt.guid, shipAt);
                     }
                     if (queueItem.Goal != null)
                     {
@@ -4410,8 +4412,12 @@ namespace Ship_Game
                 else if (!keyValuePair.Value.Active)
                     list.Add(keyValuePair.Key);
             }
+            Ship remove;
             foreach (Guid key in list)
-                this.Shipyards.Remove(key);
+            {
+                
+                this.Shipyards.TryRemove(key, out remove);
+            }
             this.PlusCreditsPerColonist = 0f;
             this.MaxPopBonus = 0f;
             this.PlusTaxPercentage = 0f;
