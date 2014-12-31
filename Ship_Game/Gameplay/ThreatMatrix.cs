@@ -95,7 +95,10 @@ namespace Ship_Game.Gameplay
 			float str = 0f;
 			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
 			{
-				if (Vector2.Distance(Position, pin.Value.Position) >= Radius || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Us || !Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction && !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].AtWar)
+				if (Vector2.Distance(Position, pin.Value.Position) >= Radius 
+                    || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Us 
+                    || !Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction 
+                    && !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].AtWar)
 				{
 					continue;
 				}
@@ -191,8 +194,6 @@ namespace Ship_Game.Gameplay
         public void ScrubMatrix()
         {
 
-            if (this.Pins.Count < Empire.universeScreen.MasterShipList.Count)
-                return;
             HashSet<Ship> shiphash = new HashSet<Ship>(Empire.universeScreen.MasterShipList);
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
 

@@ -31,6 +31,7 @@ namespace Ship_Game
 
 		private Empire us;
         //public ReaderWriterLockSlim 
+        public Dictionary<Planet, PlanetTracker> planetTracker = new Dictionary<Planet, PlanetTracker>();
 
 		public SystemCommander(Empire e, SolarSystem system)
 		{
@@ -164,5 +165,39 @@ namespace Ship_Game
 			}
 			return retlist;
 		}
+        public void updatePlanetTracker()
+        {
+            List<Planet> planetsHere = this.system.PlanetList.Where(planet => planet.Owner == this.us).ToList();
+            foreach(Planet planet in  planetsHere)
+            {
+                PlanetTracker currentValue = null;
+                if(!planetTracker.TryGetValue(planet, out currentValue))
+                {
+                    PlanetTracker newEntry = new PlanetTracker(planet);
+                    
+
+                    planetTracker.Add(planet, newEntry);
+                    continue;
+                }
+                if(currentValue.planet.Owner != this.us)
+                {
+                    planetTracker.Remove(currentValue.planet);
+
+                }
+            }
+        }
 	}
+    public class PlanetTracker
+    {
+        public float value;
+        public int troopsWanted;
+        public int troopsHere ;
+        public Planet planet;
+        public PlanetTracker(Planet toTrack)
+        {
+            this.planet = toTrack;
+
+        }
+    }
+
 }

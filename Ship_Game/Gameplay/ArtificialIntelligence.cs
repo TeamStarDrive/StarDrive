@@ -5721,16 +5721,16 @@ namespace Ship_Game.Gameplay
                         Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                        if (d < 50000f)
-                        //if(d<this.Owner.GetFTLSpeed())
+                        //if (d < 50000f)
+                        if(d<this.Owner.GetFTLSpeed())
                         {
-                            if (angleDiffToNext > 0.65f)
+                            if (angleDiffToNext > 0.4f)
                             {
                                 this.Owner.HyperspaceReturn();
                             }
                         }
-                       else if (d > 50000f && angleDiffToNext > 1.65f)
-                       // else if (d > Owner.GetFTLSpeed() && angleDiffToNext > 1.65f)
+                       //else if (d > 50000f && angleDiffToNext > 1.65f)
+                        else if (d > Owner.GetFTLSpeed() && angleDiffToNext > 1.4)
                         {
                             this.Owner.HyperspaceReturn();
                         }
