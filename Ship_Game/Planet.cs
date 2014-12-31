@@ -3172,7 +3172,9 @@ namespace Ship_Game
                 bool flag3 = false;
                 foreach (Building building1 in this.BuildingsCanBuild)
                 {
-                    if ((double)building1.PlusFlatProductionAmount > 0.0 || (double)building1.PlusProdPerColonist > 0.0 || (building1.Name == "Space Port" || (double)building1.PlusProdPerRichness > 0.0) || building1.Name == "Outpost")
+                    if ((double)building1.PlusFlatProductionAmount > 0.0 
+                        || (double)building1.PlusProdPerColonist > 0.0 
+                        || (building1.Name == "Space Port" || (double)building1.PlusProdPerRichness > 0.0) || building1.Name == "Outpost")
                     {
                         int num2 = 0;
                         foreach (Building building2 in this.BuildingList)
@@ -3189,7 +3191,10 @@ namespace Ship_Game
                 {
                     foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                     {
-                        if (queueItem.isBuilding && ((double)queueItem.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem.Building.PlusProdPerColonist > 0.0 || (double)queueItem.Building.PlusProdPerRichness > 0.0))
+                        if (queueItem.isBuilding 
+                            && ((double)queueItem.Building.PlusFlatProductionAmount > 0.0 
+                            || (double)queueItem.Building.PlusProdPerColonist > 0.0 
+                            || (double)queueItem.Building.PlusProdPerRichness > 0.0))
                         {
                             flag4 = false;
                             break;
@@ -3434,7 +3439,12 @@ namespace Ship_Game
                                 Building b = (Building)null;
                                 foreach (Building building in this.BuildingsCanBuild)
                                 {
-                                    if (((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population <= 1000.0) && ((double)building.MinusFertilityOnBuild <= 0.0 && !(building.Name == "Biospheres")) && (!(building.Name == "Terraformer") || !flag5 && (double)this.Fertility < 1.0) && (!(building.Name == "Deep Core Mine") && ((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population / (double)this.MaxPopulation <= 0.25)))
+                                    if (((double)building.PlusFlatPopulation <= 0.0 
+                                        || (double)this.Population <= 1000.0) 
+                                        && ((double)building.MinusFertilityOnBuild <= 0.0 && !(building.Name == "Biospheres")) 
+                                        && (!(building.Name == "Terraformer") || !flag5 && (double)this.Fertility < 1.0) 
+                                        && (!(building.Name == "Deep Core Mine") && ((double)building.PlusFlatPopulation <= 0.0 
+                                        || (double)this.Population / (double)this.MaxPopulation <= 0.25)))
                                     {
                                         if ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost")
                                         {

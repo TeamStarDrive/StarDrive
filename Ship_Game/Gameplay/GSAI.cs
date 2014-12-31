@@ -6530,13 +6530,21 @@ namespace Ship_Game.Gameplay
         {
             foreach(SolarSystem system in this.empire.GetOwnedSystems())
             {
+                
                 SystemCommander defenseSystem =  this.DefensiveCoordinator.DefenseDict[system];
-                if(defenseSystem.TroopStrengthNeeded <=0)
+                int planetcount = system.PlanetList.Where(planet => planet.Owner == empire).Count();
+                planetcount = planetcount == 0 ? 1 : planetcount;
+                if (defenseSystem.TroopStrengthNeeded <= defenseSystem.IdealShipStrength)
                 {
                     continue;
                 }
-                Planet targetBuild = this.empire.GetPlanets().Where(planet => planet.ConstructionQueue.Count ==0 || planet.ConstructionQueue.Where(goal => goal.Goal !=null && goal.Goal.type == GoalType.BuildTroop).Count() <3).OrderByDescending(build => build.NetProductionPerTurn).FirstOrDefault();
-                if (targetBuild == null || targetBuild.NetProductionPerTurn <2)
+                Planet targetBuild = this.empire.GetPlanets()
+                    .Where(planet => planet.ConstructionQueue.Count ==0 
+                        || planet.ConstructionQueue.Where(goal => goal.Goal !=null 
+                            && goal.Goal.type == GoalType.BuildTroop).Count() <3
+                            && planet.GetGroundLandingSpots() > 25 -2*(float)(Empire.universeScreen.GameDifficulty))
+                            .OrderByDescending(build => build.NetProductionPerTurn).FirstOrDefault();
+                if (targetBuild == null || targetBuild.NetProductionPerTurn <1 ||targetBuild.GetGroundLandingSpots()<=0)
                     return;
                 Troop troop=new Troop();
                 foreach(KeyValuePair<String,Troop> troops in ResourceManager.TroopsDict.OrderByDescending(cost=> cost.Value.Cost))

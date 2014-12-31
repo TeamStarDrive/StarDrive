@@ -1152,9 +1152,22 @@ namespace Ship_Game.Gameplay
                 return;
             }
             IOrderedEnumerable<Planet> sortedList =
-                from planet in ClosestAO.GetPlanets()
+                //from planet in ClosestAO.GetPlanets()
+                from planet in empire.GetPlanets()
+                where planet.system.CombatInSystem ==false
+//                orderby empire.GetGSAI().DefensiveCoordinator.DefenseDict.Values)
                 orderby Vector2.Distance(planet.Position, planets.First<Planet>().Position)
                 select planet;
+    //        IOrderedEnumerable<SolarSystem> sortedSystems =
+    //from system in systems
+    //orderby this.DefenseDict[system].ValueToUs descending
+    //orderby Vector2.Distance(system.Position, ship4.Center)
+    //select system;
+
+            //foreach(SolarSystem system in this.empire.GetOwnedSystems())
+            //{
+
+            //}
             foreach (Planet planet2 in sortedList)
             {
                 foreach (Troop t in planet2.TroopsHere)
@@ -1196,7 +1209,7 @@ namespace Ship_Game.Gameplay
                 }
                 OurPresentStrength = OurPresentStrength + ship.GetStrength();
             }
-            MinimumEscortStrength *= 1.3f + (int)Ship.universeScreen.GameDifficulty * .1f;
+            MinimumEscortStrength *= (1.3f + (int)Ship.universeScreen.GameDifficulty * .1f);
             // I'm unsure on ball-park figures for ship strengths. Given it used to build up to 1500, sticking flat +300 on seems a good start
             //updated. Now it will use 1/10th of the current military strength escort strength needed is under 1000
             if (MinimumEscortStrength < 1000)
@@ -1996,7 +2009,7 @@ namespace Ship_Game.Gameplay
             int shipCount = 0;
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool().OrderBy(str=>str.GetStrength()))
             {
-                if (shipCount >= 3 && tfstrength >= this.empire.currentMilitaryStrength * .1)
+                if (shipCount >= 3 && tfstrength >= this.empire.currentMilitaryStrength * .02)
                 {
                     break;
                 }
@@ -2008,7 +2021,7 @@ namespace Ship_Game.Gameplay
                 elTaskForce.Add(ship);
                 tfstrength = tfstrength + ship.GetStrength();
             }
-            if (shipCount < 3 && tfstrength < this.empire.currentMilitaryStrength *.1)//|| tfstrength < 500f)
+            if (shipCount < 3 && tfstrength < this.empire.currentMilitaryStrength *.02)//|| tfstrength < 500f)
             {
                 return;
             }

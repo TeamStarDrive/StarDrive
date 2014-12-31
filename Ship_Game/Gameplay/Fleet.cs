@@ -931,6 +931,7 @@ namespace Ship_Game.Gameplay
 
             
         }
+        #region unused
         public void TrackEnemies()
         {
             Fleet.quadrantscan quadrantscan1 = new Fleet.quadrantscan();
@@ -980,7 +981,8 @@ namespace Ship_Game.Gameplay
             if (!this.InCombat || (double)Vector2.Distance(quadrantscan5.avgPos, this.Position) <= 7500.0)
                 return;
             this.InCombat = false;
-        }
+        } 
+        #endregion
 
         public void Reset()
         {
@@ -1007,6 +1009,7 @@ namespace Ship_Game.Gameplay
                     this.DoAssaultPlanet(this.Task);
                     break;
                 case MilitaryTask.TaskType.CorsairRaid:
+                    #region MyRegion
                     if (this.TaskStep != 0)
                         break;
                     this.Task.TaskTimer -= elapsedTime;
@@ -1033,7 +1036,8 @@ namespace Ship_Game.Gameplay
                     if (this.Ships.Count != 0)
                         break;
                     this.Task.EndTask();
-                    break;
+                    break; 
+                    #endregion
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies:
                     this.DoCohesiveClearAreaOfEnemies(this.Task);
                     break;
