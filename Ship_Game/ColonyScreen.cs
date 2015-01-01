@@ -435,12 +435,14 @@ namespace Ship_Game
         {
           if (index < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay)
           {
-            try
-            {
+#if !DEBUG
+              try
+              { 
+#endif
               ScrollList.Entry entry = this.buildSL.Copied[index];
-              if (entry != null)
+              if (entry != null && entry.item is Building)
               {
-                if (entry.clickRectHover == 0 && entry.item is Building)
+                if (entry.clickRectHover == 0 )
                 {
                   vector2_1.Y = (float) entry.clickRect.Y;
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as Building).Icon + "_48x48"], new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), Color.White);
@@ -504,10 +506,12 @@ namespace Ship_Game
                 if (HelperFunctions.CheckIntersection(entry.clickRect, new Vector2((float) this.currentMouse.X, (float) this.currentMouse.Y)))
                   entry.clickRectHover = 1;
               }
-            }
+#if !DEBUG
+		            }
             catch
             {
-            }
+            }  
+	#endif
           }
           else
             break;
