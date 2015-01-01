@@ -7,41 +7,43 @@ right click enemy planets to land troops, from troop carriers too.
 Fighters will return to carriers when out of ammo or badly damaged.
 and more.
 
-#feature list#
-Larger Maps.
-Many many crash fixes.
-troop management improvements.
-troops will autoland on planets you send them to. orbit a planet with a shift right click.
-planets will auto resupply troop ships.
-solar system info expansion will show special resource marker and player troop counts.
-Large Access Aware exe to reduce out of memory issues.
-Performance increases.
-more multi threading.
-AI ship count limiter
-* Which allows the game to have more ships for the AI and adjust the ship performance load for your system.
-AI improvements
-* AI will chose techs by what it needs and will choose ship techs that it can use and give it the best ship.
-* AI will manage its troops better.
-* AI will use more diverse fleets.
-* AI can use carrier designs.
-* Fighters will return to carrier when out of ammo.
-* Fighters will more effectively return to carrier when warping.
-* Fleets will stay together when formation warping.
-* AI can build defensive platforms
-* ship sensors effect target picking radius
-* fighters use carrier sensor range
-* freighters can flee from combat
-many mod only additions.
-* mods can run entirely from the mod directory.
-money based on population rather than production.
-Much better ship targeting code.
-Reduced volume when warping and launching troops.
-More automation controls.
-* Auto Taxes
-* Auto Technology
-New Espionage screen
-* more info about other empires
-* New spy code.
+# Feature list #
+
+* **General Game Things**
+* * Larger Maps.
+* * Many many crash fixes.
+* * troop management improvements.
+* * troops will autoland on planets you send them to. orbit a planet with a shift right click.
+* * planets will auto resupply troop ships.
+* * solar system info expansion will show special resource marker and player troop counts.
+* * Large Access Aware exe to reduce out of memory issues.
+* * Performance increases.
+* * more multi threading.
+* **AI ship count limite**r
+* * allows the game to have more ships for the AI and adjust the ship performance load for your system.
+* **AI improvements**
+* * AI will chose techs by what it needs and will choose ship techs that it can use and give it the best ship.
+* * AI will manage its troops better.
+* * AI will use more diverse fleets.
+* * AI can use carrier designs.
+* * Fighters will return to carrier when out of ammo.
+* * Fighters will more effectively return to carrier when warping.
+* * Fleets will stay together when formation warping.
+* * AI can build defensive platforms
+* * ship sensors effect target picking radius
+* * fighters use carrier sensor range
+* * freighters can flee from combat
+* **many mod only additions**
+* * mods can run entirely from the mod directory.
+* money based on population rather than production.
+* Much better ship targeting code.
+* Reduced volume when warping and launching troops.
+* **More automation controls.**
+* * Auto Taxes
+* * Auto Technology
+* **New Espionage screen**
+* * more info about other empires
+* * New spy code.
 
 ###I just want to play the mod Crunchy!###
 
@@ -104,9 +106,6 @@ This is a blackbox download that includes these mods reformatted to work with bl
 * Some modders have put together blackbox compatible downloads for their mods. here is a list. Well.. Its short...
 * TechLevel: http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=7091
 * if the mod has a "starter ships" folder and crashes on load copy the contents of the starterships folder into the mods ship designs folder and delete the mods starterships folder.
-
-#Future Features#
-[Future Features](https://bitbucket.org/CrunchyGremlin/sd-idk/issues?component=%21Code+Project+Not+game.&status=resolved&status=closed&version=%210.1+Gravity)
 
 ### Yeah thats great but i want to add my own features or change some issue that bugs me###
 * even better!!!
