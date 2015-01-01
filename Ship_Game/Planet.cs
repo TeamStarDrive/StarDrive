@@ -138,6 +138,7 @@ namespace Ship_Game
         {
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
                 this.AddGood(keyValuePair.Key, 0);
+            this.HasShipyard = false;
         }
 
         public void DropBombORIG(Bomb bomb)
@@ -4399,7 +4400,7 @@ namespace Ship_Game
             this.PlusProductionPerColonist = 0f;
             this.FlatFoodAdded = 0f;
             this.PlusFoodPerColonist = 0f;
-            this.HasShipyard = false;
+            
             this.PlusFlatPopulationPerTurn = 0f;
             this.ShipBuildingModifier = 0f;
             this.CommoditiesPresent.Clear();
@@ -4432,14 +4433,16 @@ namespace Ship_Game
             this.MaxPopBonus = 0f;
             this.PlusTaxPercentage = 0f;
             this.TerraformToAdd = 0f;
+            bool shipyard =false;
             for (int index = 0; index < this.BuildingList.Count; ++index)
             {
                 Building building = this.BuildingList[index];
                 if (building.WinsGame)
                     this.HasWinBuilding = true;
                 //if (building.NameTranslationIndex == 458)
-                if (building.AllowShipBuilding || building.Name == "Space Port")
-                    this.HasShipyard = true;
+                if (building.AllowShipBuilding || building.Name == "Space Port" )
+                    shipyard= true;
+                
                 if (building.PlusFlatPopulation > 0)
                     this.PlusFlatPopulationPerTurn += building.PlusFlatPopulation;
                 this.ShieldStrengthMax += building.PlanetaryShieldStrengthAdded;
@@ -4479,6 +4482,10 @@ namespace Ship_Game
                     building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
                 }
             }
+            if (shipyard)
+                this.HasShipyard = true;
+            else
+                this.HasShipyard = false;
             //Research
             this.NetResearchPerTurn = (float)((double)this.ResearcherPercentage * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
             this.NetResearchPerTurn = this.NetResearchPerTurn + this.ResearchPercentAdded * this.NetResearchPerTurn;
