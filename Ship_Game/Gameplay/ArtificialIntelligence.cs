@@ -4462,8 +4462,8 @@ namespace Ship_Game.Gameplay
         // PLEASE FIX ME CRUNCHY I DON'T WORK ANYMORE
 		public void OrderTransportPassengers()
         {
-
-            if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
+            List<SolarSystem> OwnedSystems = new List<SolarSystem>(this.Owner.loyalty.GetOwnedSystems());
+            if (OwnedSystems.Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
             if (this.Owner.CargoSpace_Max > 0
                 && (this.start != null && this.start.ParentSystem.combatTimer > 0)
@@ -4479,7 +4479,8 @@ namespace Ship_Game.Gameplay
             {
                 this.Owner.GetCargo().Add("Colonists_1000", 0f);
             }
-            List<Planet> SafePlanets = this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).ToList();
+            List<Planet> SafePlanets = new List<Planet>(this.Owner.loyalty.GetPlanets());
+            SafePlanets = SafePlanets.Where(combat => combat.ParentSystem.combatTimer <= 0).ToList();
             if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
             {
                 List<Planet> PossibleEnds = new List<Planet>();
