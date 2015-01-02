@@ -1059,16 +1059,16 @@ namespace Ship_Game
                         }
                     }
                     catch { };
-                    empire.updateContactsTimer -= elapsedTime;
-                    if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
-                    {
-                        empire.GetGSAI().ThreatMatrix.ScrubMatrix();
-                        empire.ResetBorders();
-                        lock (GlobalStats.KnownShipsLock)
-                            empire.KnownShips.Clear();
-                        empire.UpdateKnownShips();
-                        empire.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
-                    }
+                    //empire.updateContactsTimer -= elapsedTime;
+                    //if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
+                    //{
+                    //    empire.GetGSAI().ThreatMatrix.ScrubMatrix();
+                    //    empire.ResetBorders();
+                    //    lock (GlobalStats.KnownShipsLock)
+                    //        empire.KnownShips.Clear();
+                    //    empire.UpdateKnownShips();
+                    //    empire.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
+                    //}
                     //catch { }
                 });
 
@@ -1444,7 +1444,7 @@ namespace Ship_Game
             if (!this.Paused)
             {
 
-
+                this.EmpireGateKeeper.Set();
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 //Parallel.For(0, EmpireManager.EmpireList.Count, index =>
@@ -1514,8 +1514,9 @@ namespace Ship_Game
             GlobalStats.ModulesMoved = 0;
 
 
-
-            this.EmpireGateKeeper.Set();
+            this.EmpireDone.WaitOne();
+            this.EmpireDone.Reset();
+            
             this.DeepSpaceGateKeeper.Set();
             this.SystemGateKeeper[0].Set();
             this.SystemGateKeeper[1].Set();
@@ -1535,8 +1536,7 @@ namespace Ship_Game
             this.SystemResetEvents[3].Reset();
 
             this.DeepSpaceDone.Reset();
-            this.EmpireDone.WaitOne();
-            this.EmpireDone.Reset();
+
 
             lock (GlobalStats.ClickableItemLocker)
                 this.UpdateClickableItems();
@@ -4630,12 +4630,21 @@ namespace Ship_Game
 
         protected void DrawInfluenceNodes()
         {
-            lock (GlobalStats.SensorNodeLocker)
+            List<Empire.InfluenceNode> influenceNodes;
+            this.player.SensorNodeLocker.EnterReadLock();
+            {
+                influenceNodes = new List<Empire.InfluenceNode>(this.player.SensorNodes);
+            }
+            this.player.SensorNodeLocker.ExitReadLock();
             {
                 try
                 {
-                    foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.player.SensorNodes)
+                    
+                    //foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.player.SensorNodes)
+                    foreach (Empire.InfluenceNode item_0 in influenceNodes)
                     {
+                        if (item_0 == null)
+                            continue;
                         Vector3 local_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_2 = new Vector2(local_1.X, local_1.Y);
                         Vector3 local_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_0.Position, item_0.Radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
@@ -4660,7 +4669,7 @@ namespace Ship_Game
                     if (this.Debug || index == this.player || this.player.GetRelations()[index].Known)
                     {
                         List<Circle> list = new List<Circle>();
-                        lock (GlobalStats.BorderNodeLocker)
+                        index.BorderNodeLocker.EnterReadLock();
                         {
                             foreach (Empire.InfluenceNode item_1 in (List<Empire.InfluenceNode>)index.BorderNodes)
                             {
@@ -4695,6 +4704,7 @@ namespace Ship_Game
                                 }
                             }
                         }
+                        index.BorderNodeLocker.ExitReadLock();
                     }
                 }
             }
@@ -5025,9 +5035,9 @@ namespace Ship_Game
                         {
                             bool flag = false;
                             Vector2 averagePosition = keyValuePair.Value.findAveragePositionset();
-                            
 
-                            lock (GlobalStats.SensorNodeLocker)
+
+                            this.player.SensorNodeLocker.EnterReadLock();
                             {
                                 foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.player.SensorNodes)
                                 {
@@ -5035,6 +5045,7 @@ namespace Ship_Game
                                         flag = true;
                                 }
                             }
+                            this.player.SensorNodeLocker.ExitReadLock();
                             if (flag || this.Debug || keyValuePair.Value.Owner == this.player)
                             {
                                 Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(averagePosition, 0.0f), this.projection, this.view, Matrix.Identity);
