@@ -2,6 +2,8 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -125,9 +127,11 @@ namespace Ship_Game
         public static int ScriptedTechWithin = 6;
         public static bool perf;
         public static float DefensePlatformLimit = .025f;
+        public static ReaderWriterLockSlim SlimSensorNodeLocker;
 		static GlobalStats()
-		{       
-			GlobalStats.ComparisonCounter = 1;
+		{
+            GlobalStats.SlimSensorNodeLocker = new ReaderWriterLockSlim();
+            GlobalStats.ComparisonCounter = 1;
 			GlobalStats.Comparisons = 0;
 			GlobalStats.HardcoreRuleset = false;
 			GlobalStats.TakingInput = false;

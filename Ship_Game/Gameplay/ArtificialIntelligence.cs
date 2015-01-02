@@ -181,7 +181,7 @@ namespace Ship_Game.Gameplay
 			}
 			bool startInBorders = false;
 			bool endInBorders = false;
-			lock (GlobalStats.BorderNodeLocker)
+            this.Owner.loyalty.BorderNodeLocker.EnterReadLock();
 			{
 				foreach (Empire.InfluenceNode node in this.Owner.loyalty.BorderNodes)
 				{
@@ -196,6 +196,7 @@ namespace Ship_Game.Gameplay
 					endInBorders = true;
 				}
 			}
+            this.Owner.loyalty.BorderNodeLocker.ExitReadLock();
 			if (startInBorders && endInBorders)
 			{
 				bool AllTravelIsInBorders = true;
@@ -205,7 +206,7 @@ namespace Ship_Game.Gameplay
 				{
 					bool goodPoint = false;
 					Vector2 pointToCheck = HelperFunctions.findPointFromAngleAndDistance(startPos, angle, (float)(2500 * i));
-					lock (GlobalStats.BorderNodeLocker)
+                    this.Owner.loyalty.BorderNodeLocker.EnterReadLock();
 					{
 						foreach (Empire.InfluenceNode node in this.Owner.loyalty.BorderNodes)
 						{
@@ -221,6 +222,7 @@ namespace Ship_Game.Gameplay
 							AllTravelIsInBorders = false;
 						}
 					}
+                    this.Owner.loyalty.BorderNodeLocker.ExitReadLock();
 				}
 				if (AllTravelIsInBorders)
 				{
@@ -2466,13 +2468,13 @@ namespace Ship_Game.Gameplay
 
             ShipGoal preserveGoal = this.OrderQueue.Last();
 
-            if ((preserveGoal.TargetPlanet != null && this.Owner.fleet == null && Vector2.Distance(preserveGoal.TargetPlanet.Position, this.Owner.Center) > 7500) || this.DistanceLast == Distance)
-            {
+            //if ((preserveGoal.TargetPlanet != null && this.Owner.fleet == null && Vector2.Distance(preserveGoal.TargetPlanet.Position, this.Owner.Center) > 7500) || this.DistanceLast == Distance)
+            //{
 
-                this.OrderQueue.Clear();
-                this.OrderQueue.AddFirst(preserveGoal);
-                return;
-            }
+            //    this.OrderQueue.Clear();
+            //    this.OrderQueue.AddFirst(preserveGoal);
+            //    return;
+            //}
 
             if (Distance / (Goal.SpeedLimit) <= timetostop + .005f) //(Distance  / (velocity.Length() ) <= timetostop)//
             {
@@ -2700,8 +2702,15 @@ namespace Ship_Game.Gameplay
 
 		private void MoveToWithin1000(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
         {
+            float speedLimit = this.Owner.speed;
             float single = Vector2.Distance(this.Owner.Center, goal.MovePosition);
-            this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, this.Owner.speed);
+            if (this.ActiveWayPoints.Count <= 1)
+            {
+                if (single + 1000 < this.Owner.speed)
+                    speedLimit = single ;
+      
+            }
+            this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, speedLimit);
             if (this.ActiveWayPoints.Count <= 1)
             {
                 if (single <= 1500f)
@@ -2718,6 +2727,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
+
             }
             else if (this.Owner.engineState == Ship.MoveState.Warp)
             {

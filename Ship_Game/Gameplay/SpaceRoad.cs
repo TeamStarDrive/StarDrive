@@ -34,7 +34,7 @@ namespace Ship_Game.Gameplay
 				float angle = HelperFunctions.findAngleToTarget(Origin.Position, Destination.Position);
                 node.Position = HelperFunctions.GeneratePointOnCircle(angle, Origin.Position,  (float)i * (Distance / this.NumberOfProjectors));
 				bool reallyAdd = true;
-				lock (GlobalStats.BorderNodeLocker)
+                empire.BorderNodeLocker.EnterReadLock();
 				{
 					foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
 					{
@@ -45,6 +45,7 @@ namespace Ship_Game.Gameplay
 						reallyAdd = false;
 					}
 				}
+                empire.BorderNodeLocker.ExitReadLock();
 				if (reallyAdd)
 				{
 					this.RoadNodesList.Add(node);
