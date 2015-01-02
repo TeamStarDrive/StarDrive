@@ -6789,7 +6789,7 @@ namespace Ship_Game.Gameplay
 							}
 							AddNew = false;
 						}
-						lock (GlobalStats.BorderNodeLocker)
+                        this.empire.BorderNodeLocker.EnterReadLock();
 						{
 							foreach (Empire.InfluenceNode bordernode in this.empire.BorderNodes)
 							{
@@ -6800,6 +6800,7 @@ namespace Ship_Game.Gameplay
 								AddNew = false;
 							}
 						}
+                        this.empire.BorderNodeLocker.ExitReadLock();
 						if (!AddNew)
 						{
 							continue;
@@ -8155,9 +8156,15 @@ namespace Ship_Game.Gameplay
             {
                 bool flag1 = true;
                 bool flag2 = false;
-                lock (GlobalStats.SensorNodeLocker)
+                List<Empire.InfluenceNode> influenceNodes;
+                this.empire.SensorNodeLocker.EnterReadLock();
                 {
-                    foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.empire.SensorNodes)
+                    influenceNodes = new List<Empire.InfluenceNode>(this.empire.SensorNodes);
+                }
+                this.empire.SensorNodeLocker.ExitReadLock();
+                {
+                    //foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.empire.SensorNodes)
+                    foreach (Empire.InfluenceNode item_0 in this.empire.SensorNodes)
                     {
                         if ((double)Vector2.Distance(item_0.Position, keyValuePair.Value.Position) <= (double)item_0.Radius)
                             flag2 = true;
