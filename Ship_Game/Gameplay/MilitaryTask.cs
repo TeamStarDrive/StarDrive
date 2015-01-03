@@ -658,7 +658,7 @@ namespace Ship_Game.Gameplay
 					List<Troop> toLaunch = new List<Troop>();
 					foreach (Troop t in this.TargetPlanet.TroopsHere)
 					{
-						if (t.GetOwner() != this.empire ||this.TargetPlanet.CombatTimer >0 ||t.AvailableAttackActions==0 ||t.MoveTimer>0) 
+						if (t.GetOwner() != this.empire ||this.TargetPlanet.system.CombatInSystem ||t.AvailableAttackActions==0 ||t.MoveTimer>0) 
 						{
 							continue;
 						}
@@ -1237,13 +1237,13 @@ namespace Ship_Game.Gameplay
             }
             if (!this.empire.isFaction
                 && this.empire.data.DiplomaticPersonality.Name == "Aggressive"
-                || empire.data.DiplomaticPersonality.Name == "Ruthless"
+                || empire.data.DiplomaticPersonality.Name == "Xenophobic"
                 //|| empire.GetRelations().Where(war => war.Value.ActiveWar !=null).Count() <2
                 )
             {
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.empire.GetGSAI().DefensiveCoordinator.DefenseDict
                     .OrderByDescending(system => system.Key.CombatInSystem)
-                    .ThenByDescending(ship => ship.Value.GetOurStrength() - ship.Value.IdealShipStrength < 1000)
+                    .ThenByDescending(ship => (ship.Value.GetOurStrength() - ship.Value.IdealShipStrength) < 1000)
                     .ThenByDescending(system => Vector2.Distance(system.Key.Position, this.TargetPlanet.Position))
 
     )
@@ -1263,7 +1263,7 @@ namespace Ship_Game.Gameplay
 
 
             //if (ourAvailableStrength > EnemyTroopStrength * 1.65f && tfstrength >= this.MinimumTaskForceStrength)
-            if (this.TargetPlanet.GetGroundLandingSpots() <15 && tfstrength >= this.MinimumTaskForceStrength)
+            if (this.TargetPlanet.GetGroundLandingSpots() >5 && tfstrength >= this.MinimumTaskForceStrength)
             {
                 if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.GetRelations().ContainsKey(this.TargetPlanet.Owner))
                 {
@@ -2377,7 +2377,7 @@ namespace Ship_Game.Gameplay
             List<Planet> shipyards = new List<Planet>();
             foreach (Planet planet1 in ClosestAO.GetPlanets())
             {
-                if (!planet1.HasShipyard)
+                if (!planet1.CanBuildInfantry())
                 {
                     continue;
                 }
