@@ -532,7 +532,7 @@ namespace Ship_Game
                 Planet current = troop.GetPlanet();
                 //int troopshere = current.TroopsHere.Where(us=> us.GetOwner() == this.us).Count();
 
-                //SystemCommander defenseSystem = this.DefenseDict[current.ParentSystem];
+                SystemCommander defenseSystem = this.DefenseDict[current.ParentSystem];
                 //int troopshere = defenseSystem.
                 //current.TroopsHere.Where(us => us.GetOwner() == this.us).Count();
                 //bool inneed = troopshere < defenseSystem.IdealTroopStr;
@@ -543,14 +543,14 @@ namespace Ship_Game
 
                     continue;
                 }
-                //if (defenseSystem.TroopStrengthNeeded <= -1)
-                if(current.GetGroundLandingSpots() < 5)
-                {
-                    troopship = troop.Launch();
-                    //defenseSystem.TroopStrengthNeeded++;
-                }
-                else
-                    continue;
+                if (defenseSystem.TroopStrengthNeeded >0)
+                    if (current.GetGroundLandingSpots() < 5)
+                    {
+                        troopship = troop.Launch();
+                        defenseSystem.TroopStrengthNeeded++;
+                    }
+                    else
+                        continue;
                 if (troopship == null)
                 {
                     continue;
