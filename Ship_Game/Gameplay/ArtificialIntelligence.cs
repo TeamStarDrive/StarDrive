@@ -2706,10 +2706,10 @@ namespace Ship_Game.Gameplay
             float single = Vector2.Distance(this.Owner.Center, goal.MovePosition);
             if (this.ActiveWayPoints.Count <= 1)
             {
-                if (single + 1000 < this.Owner.speed)
+                if (single  < this.Owner.speed)
                 {
                     speedLimit = single;
-                    this.Owner.speed = single;
+                    this.Owner.speed =this.Owner.speed < single ? this.Owner.speed: single;
                 }
       
             }
@@ -3539,7 +3539,19 @@ namespace Ship_Game.Gameplay
 			{
 				this.OrderQueue.Clear();
 			}
-			this.OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false);
+            int troops = this.Owner.loyalty.GetShips()
+    .Where(troop => troop.TroopList.Count > 0)
+    .Where(troopAI => troopAI.GetAI().OrderQueue
+        .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() > 0).Count();
+
+if(troops >= p.GetGroundLandingSpots())
+{
+    this.OrderQueue.Clear();
+    this.State = AIState.AwaitingOrders;
+    return;
+}
+            
+            this.OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false);
 			this.IgnoreCombat = true;
 			ArtificialIntelligence.ShipGoal rebase = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Rebase, Vector2.Zero, 0f)
 			{
@@ -3562,11 +3574,24 @@ namespace Ship_Game.Gameplay
             
             IOrderedEnumerable<Planet> sortedList = 
 				from planet in this.Owner.loyalty.GetPlanets()
-                //added by gremlin if the planet is full of troops dont rebase there.
-                where planet.TroopsHere.Count + this.Owner.loyalty.GetShips().Where(troop => troop.Role == "troop" && troop.GetAI().State == AIState.Rebase && troop.GetAI().OrbitTarget == planet).Count() < planet.TilesList.Sum(space => space.number_allowed_troops)
+                //added by gremlin if the planet is full of troops dont rebase there. RERC2 I dont think the about looking at incoming troops works.
+                where this.Owner.loyalty.GetShips()
+    .Where(troop => troop.TroopList.Count > 0 )
+    .Where(troopAI => troopAI.GetAI().OrderQueue
+        .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet).Count() > 0).Count() <= planet.GetGroundLandingSpots()
+
+
+                /*where planet.TroopsHere.Count + this.Owner.loyalty.GetShips()
+                .Where(troop => troop.Role == "troop" 
+                    
+                    && troop.GetAI().State == AIState.Rebase 
+                    && troop.GetAI().OrbitTarget == planet).Count() < planet.TilesList.Sum(space => space.number_allowed_troops)*/
 				orderby Vector2.Distance(this.Owner.Center, planet.Position)
 				select planet;
-            
+
+           
+
+
 			if (sortedList.Count<Planet>() <= 0)
 			{
 				this.State = AIState.AwaitingOrders;
@@ -5735,16 +5760,20 @@ namespace Ship_Game.Gameplay
                         Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                        //if (d < 50000f)
-                        if(d<this.Owner.GetFTLSpeed())
+                        if (d < 50000f)
+                        //if(d<this.Owner.GetFTLSpeed())
                         {
                             if (angleDiffToNext > 0.4f)
                             {
                                 this.Owner.HyperspaceReturn();
                             }
+                            else if(angleDiff > this.Owner.maxBank)
+                            {
+
+                            }
                         }
-                       //else if (d > 50000f && angleDiffToNext > 1.65f)
-                        else if (d > Owner.GetFTLSpeed() && angleDiffToNext > 1.4)
+                       else if (d > 50000f && angleDiffToNext > 1.65f)
+                       // else if (d > Owner.GetFTLSpeed() && angleDiffToNext > 1.4)
                         {
                             this.Owner.HyperspaceReturn();
                         }

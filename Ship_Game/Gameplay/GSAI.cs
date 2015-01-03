@@ -6320,7 +6320,7 @@ namespace Ship_Game.Gameplay
 
 
                         if (planetList.ExploredDict[this.empire] 
-                            && (planetList.habitable || this.empire.data.Traits.Cybernetic != 0) 
+                            && (planetList .habitable || this.empire.data.Traits.Cybernetic != 0) 
                             && planetList.Owner == null)
                         {
                             if (this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) 
@@ -6341,12 +6341,12 @@ namespace Ship_Game.Gameplay
 //Cyberbernetic planet picker
                             if (this.empire.data.Traits.Cybernetic != 0)
                             {
-                                if (planetList.MineralRichness < .5f)
+                                if (planetList.MineralRichness < .5f && !this.empire.GetBDict()["Biospheres"])
                                 {
                                     bool flag = false;
                                     foreach (Planet food in this.empire.GetPlanets())
                                     {
-                                        if (food.ProductionHere < food.MAX_STORAGE * .7f || food.ps != Planet.GoodState.EXPORT)
+                                        if (food.ProductionHere > food.MAX_STORAGE * .5f || food.ps == Planet.GoodState.EXPORT)
                                         {
                                             flag = true;
                                             break;
