@@ -39,12 +39,20 @@ namespace Ship_Game
         }
         public void UpdateCombatAI(Ship_Game.Gameplay.Ship ship)
         {
-            int Size = ship.Size;
-            this.LargeAttackWeight = Size / 100 > 1 ? Size / 200 > 1 ? 4 : 3 : .5f;  
-            this.SmallAttackWeight = 30 / Size > 1 ? 3 : 0;
-            this.MediumAttackWeight = Size / 100 < 1 && 30 / Size > 1 ? 3 : .5f ;
-            float stlspeed = ship.GetSTLSpeed();
-            if (stlspeed > 500) this.VultureWeight = (int)(stlspeed / 250);
+            try
+            {
+                int Size = ship.Size;
+                this.LargeAttackWeight = Size / 100 > 1 ? Size / 200 > 1 ? 4 : 3 : .5f;
+                this.SmallAttackWeight = 30 / Size > 1 ? 3 : 0;
+                this.MediumAttackWeight = Size / 100 < 1 && 30 / Size > 1 ? 3 : .5f;
+                float stlspeed = ship.GetSTLSpeed();
+                if (stlspeed > 500) this.VultureWeight = (int)(stlspeed / 250);
+            }
+            catch 
+            {
+                
+                ;
+            }
         }
 	}
 }
