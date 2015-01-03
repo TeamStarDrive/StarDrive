@@ -3933,7 +3933,8 @@ namespace Ship_Game.Gameplay
             this.AI.start = (Planet)null;
             this.AI.end = (Planet)null;
             Ship.universeScreen.MasterShipList.QueuePendingRemoval(this);
-            UniverseScreen.ShipSpatialManager.CollidableObjects.Remove((GameplayObject)this);
+            //UniverseScreen.ShipSpatialManager.CollidableObjects.Remove((GameplayObject)this);
+            UniverseScreen.ShipSpatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
             if (Ship.universeScreen.SelectedShip == this)
                 Ship.universeScreen.SelectedShip = (Ship)null;
             if (Ship.universeScreen.SelectedShipList.Contains(this))
@@ -3941,7 +3942,7 @@ namespace Ship_Game.Gameplay
             if (this.system != null)
             {
                 this.system.ShipList.QueuePendingRemoval(this);
-                this.system.spatialManager.CollidableObjects.Remove((GameplayObject)this);
+                this.system.spatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
             }
             if (this.Mothership != null)
             {
@@ -3952,7 +3953,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             else if (this.isInDeepSpace)
-                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove((GameplayObject)this);
+                UniverseScreen.DeepSpaceManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
             for (int index = 0; index < this.projectiles.Count; ++index)
                 this.projectiles[index].Die((GameplayObject)this, false);
             this.projectiles.Clear();

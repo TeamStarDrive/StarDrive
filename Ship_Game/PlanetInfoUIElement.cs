@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -260,6 +261,34 @@ namespace Ship_Game
 					};
 					this.ToolTipItems.Add(ti);
 				}
+                ti = new PlanetInfoUIElement.TippedItem()
+                {
+                    r = pIcon,
+                    TIP_ID = 21
+                };
+                int troops = 0;
+                this.ToolTipItems.Add(ti);
+
+                Rectangle Troop = new Rectangle(this.Mark.X, this.Mark.Y - this.Mark.Height -5, 182, 25);
+                Text = new Vector2((float)(Troop.X +25 ), (float)(Troop.Y   ));
+                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], Troop, Color.White);
+                 //Ship troopShip; 
+                List<Ship> troopShips = new List<Ship>(this.screen.player.GetShips()
+                     .Where(troop => troop.TroopList.Count > 0 
+                         && troop.GetAI().State == AIState.AwaitingOrders 
+                         && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Position)));
+                
+                troops= this.screen.player.GetShips()
+                     .Where(troop => troop.TroopList.Count > 0 )
+                     .Where(troopAI => troopAI.GetAI().OrderQueue
+                         .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() >0).Count();
+                    
+                     
+          
+
+
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,String.Concat("Invading : ",troops) , Text, new Color(88, 108, 146)); // Localizer.Token(1425)
+
 				this.Inspect.Draw(this.ScreenManager);
 				this.Invade.Draw(this.ScreenManager);
 				return;

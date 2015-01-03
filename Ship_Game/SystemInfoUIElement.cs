@@ -110,7 +110,8 @@ namespace Ship_Game
 				}
 				for (int i = 0; i < this.s.PlanetList.Count; i++)
 				{
-					Vector2 planetPos = HelperFunctions.findPointFromAngleAndDistance(pPos, this.s.PlanetList[i].OrbitalAngle, (float)(40 + 40 * i));
+					Planet planet = this.s.PlanetList[i];
+                    Vector2 planetPos = HelperFunctions.findPointFromAngleAndDistance(pPos, this.s.PlanetList[i].OrbitalAngle, (float)(40 + 40 * i));
 					planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (float)(40 + 40 * i)) * transitionOffset);
                     float fIconScale = 1.0f + ((float)(Math.Log(this.s.PlanetList[i].scale)));
 					Rectangle PlanetRect = new Rectangle((int)planetPos.X - (int)(16 * fIconScale / 2), (int)planetPos.Y - (int)(16 * fIconScale / 2), (int)(16 * fIconScale), (int)(16 * fIconScale));
@@ -179,12 +180,13 @@ namespace Ship_Game
 
                         }
                         j = 0;
+                        if (planet.Owner != null && planet.Owner.isPlayer)
                         while (j < this.s.PlanetList[i].TroopsHere.Count)
                         {
                             if (!this.s.PlanetList[i].TroopsHere[j].GetOwner().isPlayer)
                             {
                                 hasEnemyTroop = true;
-                                
+
                             }
                             else
                             {
@@ -224,7 +226,7 @@ namespace Ship_Game
                             }
                             sideSpacing += flashRect.Width;
                         }
-                        if (hasEnemyTroop)
+                        if (hastroops)
                         {
 
                             sideSpacing += 4;
