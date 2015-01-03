@@ -2707,7 +2707,10 @@ namespace Ship_Game.Gameplay
             if (this.ActiveWayPoints.Count <= 1)
             {
                 if (single + 1000 < this.Owner.speed)
-                    speedLimit = single ;
+                {
+                    speedLimit = single;
+                    this.Owner.speed = single;
+                }
       
             }
             this.ThrustTowardsPosition(goal.MovePosition, elapsedTime, speedLimit);
