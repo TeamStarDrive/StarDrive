@@ -6534,7 +6534,7 @@ namespace Ship_Game.Gameplay
                 SystemCommander defenseSystem =  this.DefensiveCoordinator.DefenseDict[system];
                 int planetcount = system.PlanetList.Where(planet => planet.Owner == empire).Count();
                 planetcount = planetcount == 0 ? 1 : planetcount;
-                if (defenseSystem.TroopStrengthNeeded <= defenseSystem.IdealShipStrength)
+                if (defenseSystem.TroopStrengthNeeded <=0)
                 {
                     continue;
                 }
@@ -6552,7 +6552,7 @@ namespace Ship_Game.Gameplay
                     if (!this.empire.WeCanBuildTroop(troops.Key))
                         continue;
                     troop =troops.Value;
-                    if(targetBuild.NetProductionPerTurn > troop.Cost*.1 )
+                    if(targetBuild.NetProductionPerTurn > 1 )//troop.Cost*.1 )
                     {
                         break;
                     }

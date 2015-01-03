@@ -1029,53 +1029,56 @@ namespace Ship_Game
                 this.EmpireGateKeeper.WaitOne();
                 //float elapsedTime = this.ztimeSnapShot;
                 float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-                //this.ztimeSnapShot = elapsedTime;
-                //elapsedTime += !this.Paused ? 0.01666667f : 0.0f;
-                //float elapsedTime = this.ztimeSnapShot;
-                Parallel.ForEach(EmpireManager.EmpireList, empire =>
-                //foreach (Empire empire in EmpireManager.EmpireList)
+                if (!this.Paused)
                 {
-                    try
+                    //this.ztimeSnapShot = elapsedTime;
+                    //elapsedTime += !this.Paused ? 0.01666667f : 0.0f;
+                    //float elapsedTime = this.ztimeSnapShot;
+                    Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                    //foreach (Empire empire in EmpireManager.EmpireList)
                     {
-                        //var fleetdictClone = new Dictionary<int,Fleet>(empire.GetFleetsDict());
-                        foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict() )//leetdictClone)
+                        try
                         {
-                            if (keyValuePair.Value.Ships.Count > 0)
+                            //var fleetdictClone = new Dictionary<int,Fleet>(empire.GetFleetsDict());
+                            foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())//leetdictClone)
                             {
-                                keyValuePair.Value.Setavgtodestination();
-                                keyValuePair.Value.SetSpeed();
-                                try
+                                if (keyValuePair.Value.Ships.Count > 0)
                                 {
-                                    keyValuePair.Value.StoredFleetPosistion = keyValuePair.Value.findAveragePositionset();
+                                    keyValuePair.Value.Setavgtodestination();
+                                    keyValuePair.Value.SetSpeed();
+                                    try
+                                    {
+                                        keyValuePair.Value.StoredFleetPosistion = keyValuePair.Value.findAveragePositionset();
+                                    }
+                                    catch
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("crash at find average posisiton");
+                                    }
+
+
+
                                 }
-                                catch
-                                {
-                                    System.Diagnostics.Debug.WriteLine("crash at find average posisiton");
-                                }
-
-
-
                             }
                         }
-                    }
-                    catch { };
-                    //empire.updateContactsTimer -= elapsedTime;
-                    //if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
-                    //{
-                    //    empire.GetGSAI().ThreatMatrix.ScrubMatrix();
-                    //    empire.ResetBorders();
-                    //    lock (GlobalStats.KnownShipsLock)
-                    //        empire.KnownShips.Clear();
-                    //    empire.UpdateKnownShips();
-                    //    empire.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
-                    //}
-                    //catch { }
-                });
+                        catch { };
+                        //empire.updateContactsTimer -= elapsedTime;
+                        //if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
+                        //{
+                        //    empire.GetGSAI().ThreatMatrix.ScrubMatrix();
+                        //    empire.ResetBorders();
+                        //    lock (GlobalStats.KnownShipsLock)
+                        //        empire.KnownShips.Clear();
+                        //    empire.UpdateKnownShips();
+                        //    empire.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
+                        //}
+                        //catch { }
+                    });
 
-                //for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
-                //    EmpireManager.EmpireList[index].Update(elapsedTime);
-
-                this.EmpireDone.Set();
+                    //for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
+                    //    EmpireManager.EmpireList[index].Update(elapsedTime);
+                }
+                    this.EmpireDone.Set();
+                
             }
 
         }
@@ -1441,10 +1444,11 @@ namespace Ship_Game
             this.MasterShipList.ApplyPendingRemovals();
             if (!this.IsActive)
                 return;
+            this.EmpireGateKeeper.Set();
             if (!this.Paused)
             {
 
-                this.EmpireGateKeeper.Set();
+                
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 //Parallel.For(0, EmpireManager.EmpireList.Count, index =>

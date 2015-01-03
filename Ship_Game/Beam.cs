@@ -275,17 +275,24 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.BeamEffectLocker)
 			{
-                Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
-                this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
-				{
-					World = Matrix.Identity,
-					View = view,
-					Projection = projection,
-					TextureEnabled = true,
-					Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
-				};
-				this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+                try
+                {
+                    Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
+                    this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+                    {
+                        World = Matrix.Identity,
+                        View = view,
+                        Projection = projection,
+                        TextureEnabled = true,
+                        Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+                    };
+                    this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+                    Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+                }
+                catch
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed", this.weapon.UID));
+                }
 			}
 		}
 
