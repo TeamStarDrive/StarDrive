@@ -2605,7 +2605,10 @@ namespace Ship_Game
             List<Guid> list = new List<Guid>();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
             {
-                if (!keyValuePair.Value.Active || keyValuePair.Value.ModuleSlotList.Count == 0)
+                if (!keyValuePair.Value.Active 
+                    || keyValuePair.Value.ModuleSlotList.Count == 0
+                    //|| keyValuePair.Value.loyalty != this.Owner
+                    )
                     list.Add(keyValuePair.Key);
             }
             Ship remove;
@@ -3202,7 +3205,10 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) && (double)this.GrossMoneyPT > 5.0 && (double)this.NetProductionPerTurn > 6.0)
+                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) 
+                    && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 
+                    && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) && (double)this.GrossMoneyPT > 5.0 
+                    && (double)this.NetProductionPerTurn > 6.0)
                 {
                     bool hasShipyard = false;
                     foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -3382,7 +3388,10 @@ namespace Ship_Game
                             {
                                 this.ps = Planet.GoodState.IMPORT;
                             }
-                            if (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) && (double)this.Owner.MoneyLastTurn > 5.0 && (double)this.NetProductionPerTurn > 4.0)
+                            if (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) 
+                                && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0 
+                                && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) 
+                                && (double)this.Owner.MoneyLastTurn > 5.0 && (double)this.NetProductionPerTurn > 4.0)
                             {
                                 bool hasShipyard = false;
                                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
