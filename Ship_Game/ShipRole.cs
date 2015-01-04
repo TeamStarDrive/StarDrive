@@ -23,6 +23,8 @@ namespace Ship_Game
 
         public bool Protected;
 
+        public bool NoBuild = false;
+
         public List<Race> RaceList;
 
         public class Race

@@ -239,7 +239,19 @@ namespace Ship_Game
 			{
 				FileInfo FI = filesFromDirectoryNoSub[i];
 				Stream file = FI.OpenRead();
-				ModInformation data = (ModInformation)ResourceManager.ModSerializer.Deserialize(file);
+                ModInformation data;
+                if(FI.Name.Contains(".txt"))
+                    continue;
+                try
+                {
+                    data = (ModInformation)ResourceManager.ModSerializer.Deserialize(file);
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add("Load Error in file", FI.Name);
+                    
+                    throw ex;
+                }
 				file.Close();
 				file.Dispose();
 				ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));

@@ -402,7 +402,7 @@ namespace Ship_Game
                 }
                 foreach (Ship ship in (List<Ship>)this.data.SolarSystemsList[this.systemToMake].ShipList)
                 {
-                    ship.Position = ship.GetHome().Position + new Vector2(6000f, 2000f);
+                    ship.Position = ship.loyalty.GetPlanets()[0].Position + new Vector2(6000f, 2000f);
                     ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0.0f));
                     ship.Initialize();
                     this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)ship.GetSO());
@@ -490,7 +490,6 @@ namespace Ship_Game
                                 //Added by McShooterz: Starting ship support for automatic naming
                                 if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship1.loyalty.data.Traits.ShipType, ship1.Role))
                                     ship1.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship1.loyalty.data.Traits.ShipType, ship1.Role);
-                                ship1.SetHome(planet1);
                                 ship1.DoOrbit(planet1);
                                 ship1.GetSO().World = Matrix.CreateTranslation(new Vector3(ship1.Position, 0.0f));
                                 ship1.isInDeepSpace = false;
@@ -515,7 +514,6 @@ namespace Ship_Game
                                 //Added by McShooterz: Starting ship support for automatic naming
                                 if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship2.loyalty.data.Traits.ShipType, ship2.Role))
                                     ship2.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship2.loyalty.data.Traits.ShipType, ship2.Role);
-                                ship2.SetHome(planet1);
                                 ship2.DoOrbit(planet1);
                                 ship2.GetSO().World = Matrix.CreateTranslation(new Vector3(ship2.Position, 0.0f));
                                 ship2.isInDeepSpace = false;
@@ -540,7 +538,6 @@ namespace Ship_Game
                                     this.playerShip.loyalty.AddShip(this.playerShip);
                                     this.playerShip.Initialize();
                                     //this.playerShip.GetAI().State = AIState.ManualControl;
-                                    this.playerShip.SetHome(planet1);
                                     this.playerShip.DoOrbit(planet1);
                                     //Added by McShooterz: Starting ship support for automatic naming
                                     if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
@@ -577,7 +574,6 @@ namespace Ship_Game
                                     //Added by McShooterz: Starting ship support for automatic naming
                                     if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
                                         ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.Role);
-                                    ship3.SetHome(planet1);
                                     ship3.DoOrbit(planet1);
                                     ship3.GetSO().World = Matrix.CreateTranslation(new Vector3(ship3.Position, 0.0f));
                                     this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)ship3.GetSO());
@@ -699,6 +695,7 @@ namespace Ship_Game
             empireData.DefaultColonyShip = data.DefaultColonyShip;
             empireData.DefaultSmallTransport = data.DefaultSmallTransport;
             empireData.DefaultTroopShip = data.DefaultTroopShip;
+            empireData.DefaultShipyard = data.DefaultShipyard;
             empireData.DiplomacyDialogPath = data.DiplomacyDialogPath;
             empireData.DiplomaticPersonality = data.DiplomaticPersonality;
             empireData.EconomicPersonality = data.EconomicPersonality;

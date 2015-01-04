@@ -533,6 +533,7 @@ namespace Ship_Game
 		}*/
         ~EmpireScreen() {
             //should implicitly do the same thing as the original bad finalize
+            this.Dispose(false);
         }
 
 		public override void HandleInput(InputState input)
@@ -731,6 +732,11 @@ namespace Ship_Game
 					this.SelectedPlanet.ResLocked = false;
 				}
 			}
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.U) && !input.LastKeyboardState.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+            }                
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
 			{
 				this.ExitScreen();

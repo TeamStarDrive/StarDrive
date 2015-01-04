@@ -277,6 +277,12 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+                return;
+            }
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();

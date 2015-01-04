@@ -20,8 +20,6 @@ namespace Ship_Game.Gameplay
 
 		public byte ArmorPiercing;
 
-		public List<ShipModule> ArmorsPierced = new List<ShipModule>();
-
 		public static ContentManager contentManager;
 
 		public Ship owner;
@@ -31,8 +29,6 @@ namespace Ship_Game.Gameplay
 		public string WeaponType;
 
 		private MissileAI missileAI;
-
-		public float life;
 
 		private Ship_Game.Planet planet;
 
@@ -86,7 +82,7 @@ namespace Ship_Game.Gameplay
 
 		private float frameTimer;
 
-		public float RotationRadsPerSecond;
+        public float RotationRadsPerSecond;
 
 		private DroneAI droneAI;
 
@@ -300,9 +296,9 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.ProjSO != null && this.Active)
 			{
-				lock (GlobalStats.ObjectManagerLocker)
+                lock (GlobalStats.ObjectManagerLocker)
 				{
-					Projectile.universeScreen.ScreenManager.inter.ObjectManager.Remove(this.ProjSO);
+                    Projectile.universeScreen.ScreenManager.inter.ObjectManager.Remove(this.ProjSO);
 				}
 				this.ProjSO.Clear();
 			}
@@ -355,7 +351,7 @@ namespace Ship_Game.Gameplay
 		{
 			DebugInfoScreen.ProjCreated = DebugInfoScreen.ProjCreated + 1;
 			this.direction = direction;
-            this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
+            this.velocity = initialSpeed * direction;
 			if (this.moduleAttachedTo == null)
 			{
 				this.Center = pos;
@@ -367,13 +363,9 @@ namespace Ship_Game.Gameplay
 				this.rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.velocity));
 			}
 			this.radius = 1f;
-			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
+            this.velocityMaximum = initialSpeed + (this.Owner != null ? this.Owner.Velocity.Length() : 0f);
 			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
-            this.duration = this.range / initialSpeed * 1.5f;
-			if (this.weapon.Tag_SpaceBomb)
-			{
-				this.duration = 5f;
-			}
+            this.duration = this.range / initialSpeed * 1.2f;
 			this.initialDuration = this.duration;
 			if (this.weapon.Animated == 1)
 			{
@@ -392,7 +384,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.owner.loyalty.data.ArmorPiercingBonus > 0 && (this.weapon.WeaponType == "Missile" || this.weapon.WeaponType == "Ballistic Cannon"))
 			{
-				this.ArmorPiercing = (byte)this.owner.loyalty.data.ArmorPiercingBonus;
+				this.ArmorPiercing += (byte)this.owner.loyalty.data.ArmorPiercingBonus;
 			}
 			Projectile projectile1 = this;
 			projectile1.particleDelay = projectile1.particleDelay + this.weapon.particleDelay;
@@ -500,12 +492,8 @@ namespace Ship_Game.Gameplay
 			}
 			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			this.radius = 1f;
-			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
-            this.duration = this.range / initialSpeed * 1.5f;
-			if (this.weapon.Tag_SpaceBomb)
-			{
-				this.duration = 5f;
-			}
+            this.velocityMaximum = initialSpeed + (this.Owner != null ? this.Owner.Velocity.Length() : 0f);
+            this.duration = this.range / initialSpeed * 2f;
 			this.initialDuration = this.duration;
 			if (this.moduleAttachedTo != null)
 			{
@@ -567,9 +555,7 @@ namespace Ship_Game.Gameplay
 			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
 			this.radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
-			this.duration = this.range / initialSpeed;
-			Projectile projectile = this;
-			projectile.duration = projectile.duration + this.duration * 0.25f;
+			this.duration = this.range / initialSpeed * 2f;
 			this.initialDuration = this.duration;
 			this.planet = p;
 			if (this.weapon.Animated == 1)
@@ -628,9 +614,7 @@ namespace Ship_Game.Gameplay
 			this.radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
 			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
-			this.duration = this.range / initialSpeed;
-			Projectile projectile = this;
-			projectile.duration = projectile.duration + this.duration * 0.25f;
+			this.duration = this.range / initialSpeed * 1.25f;
 			this.initialDuration = this.duration;
 			if (this.weapon.Animated == 1)
 			{
@@ -690,6 +674,25 @@ namespace Ship_Game.Gameplay
 				{
 					this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.flameParticles, 500f, new Vector3(this.Center, 0f));
 				}
+                if (this.weapon.WeaponEffectType == "SmokeTrail")
+                {
+                    this.trailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
+                }
+                if (this.weapon.WeaponEffectType == "MuzzleSmoke")
+                {
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 1000f, new Vector3(this.Center, 0f));
+                }
+                if (this.weapon.WeaponEffectType == "MuzzleSmokeFire")
+                {
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 1000f, new Vector3(this.Center, 0f));
+                    this.trailEmitter = new ParticleEmitter(Projectile.universeScreen.fireTrailParticles, 750f, new Vector3(this.Center, -this.zStart));
+                }
+                if (this.weapon.WeaponEffectType == "FullSmokeMuzzleFire")
+                {
+                    this.trailEmitter = new ParticleEmitter(Projectile.universeScreen.projectileTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
+                    this.firetrailEmitter = new ParticleEmitter(Projectile.universeScreen.fireTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
+                }
+
 			}
 			if (this.weapon.Animated == 1)
 			{
@@ -747,14 +750,15 @@ namespace Ship_Game.Gameplay
                     ShipModule module = target as ShipModule;
                     if (module != null && module.GetParent().loyalty == this.loyalty && !this.weapon.HitsFriendlies || module == null)
                         return false;
+
 					if (this.weapon.TruePD)
 					{
 						this.DieNextFrame = true;
 						return true;
 					}
-                    if ((target as ShipModule).GetParent().Role == "fighter" && (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod > 0f)
+                    if (module.GetParent().Role == "fighter" && module.GetParent().loyalty.data.Traits.DodgeMod > 0f)
                     {
-                        if ((((target as ShipModule).GetParent().GetSystem() != null ? (target as ShipModule).GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (target as ShipModule).GetParent().loyalty.data.Traits.DodgeMod * 100f)
+                        if (((module.GetParent().GetSystem() != null ? module.GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < module.GetParent().loyalty.data.Traits.DodgeMod * 100f)
                         {
                             this.Miss = true;
                         }
@@ -763,24 +767,20 @@ namespace Ship_Game.Gameplay
                     {
                         return false;
                     }
-                    if (module.ModuleType == ShipModuleType.Armor)
+                    // Moving this to the Damage function - doesn't seem to be working? Also seems nonsensical.
+                    /*
+                    if (module.ModuleType == ShipModuleType.Armor || (module.ModuleType == ShipModuleType.Dummy && module.ParentOfDummy.ModuleType == ShipModuleType.Armor))
 					{
-                        if (!this.ArmorsPierced.Contains(module) && this.ArmorsPierced.Count < this.ArmorPiercing)
-						{
-                            this.ArmorsPierced.Add(module);
-							return false;
-						}
-                        if (this.ArmorsPierced.Count > 0 && this.ArmorsPierced.Contains(module))
-						{
-							return false;
-						}
                         this.damageRadius -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageRadius;
                         this.damageAmount -= module.GetParent().loyalty.data.ExplosiveRadiusReduction * this.damageAmount;
-                        this.damageAmount *= (this.weapon.EffectVsArmor + this.ArmorDamageBonus);
+                        this.damageAmount *= this.weapon.EffectVsArmor;
+                        this.damageAmount *= this.damageAmount + this.ArmorDamageBonus;
 					}
+                    
                     if (module.ModuleType == ShipModuleType.Shield && module.shield_power > 0)
                     {
-                        this.damageAmount *= (this.weapon.EffectVSShields + this.ShieldDamageBonus);
+                        this.damageAmount *= this.weapon.EffectVSShields;
+                        this.damageAmount *= this.damageAmount + this.ShieldDamageBonus;
                         //projectiles penetrate weak shields
                         if (this.damageAmount > module.shield_power)
                         {
@@ -800,15 +800,63 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
+                     */
                     //Non exploding projectiles should go through multiple modules if it has enough damage
-                    if (!this.explodes)
+                    if (!this.explodes && module.Active)
                     {
-                        float remainder = 0;
-                        module.Damage(this, this.damageAmount, ref remainder);
+                        float remainder;
+                        if (this.ArmorPiercing == 0 || !(module.ModuleType == ShipModuleType.Armor || (module.ModuleType == ShipModuleType.Dummy && module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
+                        {
+                            remainder = 0;
+                            module.Damage(this, this.damageAmount, ref remainder);
+                        }
+                        else
+                        {
+                            this.ArmorPiercing--;
+                            remainder = this.damageAmount;
+                        }
                         if (remainder > 0)
                         {
                             this.damageAmount = remainder;
-                            return false;
+                            bool SlotFound;
+                            int depth = 10;
+                            Vector2 UnitVector = this.velocity;
+                            while (this.damageAmount > 0)
+                            {
+                                UnitVector.Normalize();
+                                UnitVector *= depth;
+                                SlotFound = false;
+                                foreach (ModuleSlot slot in module.GetParent().ModuleSlotList)
+                                {
+                                    if (Vector2.Distance(this.Center + UnitVector, slot.module.Center) < 8f)
+                                    {
+                                        SlotFound = true;
+                                        if (slot.module.Active)
+                                        {
+                                            if (this.ArmorPiercing > 0 && (slot.module.ModuleType == ShipModuleType.Armor || (slot.module.ModuleType == ShipModuleType.Dummy && slot.module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
+                                                break;
+                                            else
+                                            {
+                                                remainder = 0;
+                                                slot.module.Damage(this, this.damageAmount, ref remainder);
+                                                if (remainder > 0)
+                                                    this.damageAmount = remainder;
+                                                else
+                                                    this.damageAmount = 0f;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                                //Slot found means it is still in the ship
+                                if (SlotFound)
+                                {
+                                    depth += 8;
+                                    this.ArmorPiercing--;
+                                }
+                                else
+                                    break;
+                            }
                         }
                     }
                     base.Health = 0f;
@@ -827,12 +875,30 @@ namespace Ship_Game.Gameplay
 						Projectile.universeScreen.flameParticles.AddParticleThreadA(center, random);
 					}
 				}
-				else if (this.WeaponType == "Ballistic" && target is ShipModule && (target as ShipModule).ModuleType != ShipModuleType.Shield)
-				{
-					Cue impact = AudioManager.GetCue("sd_impact_bullet_small_01");
-					impact.Apply3D(Projectile.universeScreen.listener, this.emitter);
-					impact.Play();
-				}
+                if (this.WeaponEffectType == "MuzzleBlast") // currently unused
+                {
+                    Vector3 center = new Vector3(this.Center.X, this.Center.Y, -100f);
+                    Vector2 forward = new Vector2((float)Math.Sin((double)base.Rotation), -(float)Math.Cos((double)base.Rotation));
+                    Vector2 right = new Vector2(-forward.Y, forward.X);
+                    right = Vector2.Normalize(right);
+                    for (int i = 0; i < 20; i++)
+                    {
+                        Vector3 random = new Vector3(right.X * ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), right.Y * ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f));
+                        Projectile.universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
+                        random = new Vector3(-forward.X + ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), -forward.Y + ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f));
+                        Projectile.universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
+                    }
+                }
+                else if (this.WeaponType == "Ballistic Cannon")
+                {
+                    ShipModule SMtarget = target as ShipModule;
+                    if (SMtarget != null && SMtarget.ModuleType != ShipModuleType.Shield)
+                    {
+                        Cue impact = AudioManager.GetCue("sd_impact_bullet_small_01");
+                        impact.Apply3D(Projectile.universeScreen.listener, this.emitter);
+                        impact.Play();
+                    }
+                }
 			}
 			this.DieNextFrame = true;
 			return base.Touch(target);
@@ -919,10 +985,37 @@ namespace Ship_Game.Gameplay
                 Vector3 newPosition = new Vector3(this.Center.X, this.Center.Y, -this.zStart);
                 if (this.firetrailEmitter != null && this.WeaponEffectType == "Plasma" && ((double)this.duration > (double)this.initialDuration * 0.699999988079071 && (double)this.particleDelay <= 0.0))
                     this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
+
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "MuzzleSmoke" && ((double)this.duration > (double)this.initialDuration * 0.97 && (double)this.particleDelay <= 0.0))
+                    this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
+
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "MuzzleSmokeFire" && ((double)this.duration > (double)this.initialDuration * 0.97 && (double)this.particleDelay <= 0.0))
+                {
+                    this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
+                }
+                if (this.trailEmitter != null && this.WeaponEffectType == "MuzzleSmokeFire" && ((double)this.duration > (double)this.initialDuration * 0.96 && (double)this.particleDelay <= 0.0))
+                {
+                    this.trailEmitter.Update(elapsedTime, newPosition);
+                }
+
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "FullSmokeMuzzleFire")
+                {
+                    this.trailEmitter.Update(elapsedTime, newPosition);
+                }
+                if (this.trailEmitter != null && this.WeaponEffectType == "FullSmokeMuzzleFire" && ((double)this.duration > (double)this.initialDuration * 0.96 && (double)this.particleDelay <= 0.0))
+                {
+                    this.firetrailEmitter.Update(elapsedTime, newPosition);
+                }
+
                 if (this.firetrailEmitter != null && this.WeaponEffectType == "RocketTrail")
                     this.firetrailEmitter.Update(elapsedTime, newPosition);
-                if (this.trailEmitter != null)
+
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "SmokeTrail")
+                    this.firetrailEmitter.Update(elapsedTime, newPosition);
+
+                if (this.trailEmitter != null && this.WeaponEffectType != "MuzzleSmokeFire" && this.WeaponEffectType != "FullSmokeMuzzleFire")
                     this.trailEmitter.Update(elapsedTime, newPosition);
+
                 if (this.system != null && this.system.isVisible && (this.light == null && this.weapon.Light != null) && (Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.LightWasAddedToSceneGraph))
                 {
                     this.LightWasAddedToSceneGraph = true;

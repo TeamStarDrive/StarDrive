@@ -135,8 +135,6 @@ namespace Ship_Game.Gameplay
 
 		public bool isMainGun;
 
-		public bool requiresOrdinance;
-
 		public float OrdinanceRequiredToFire;
 
 		public Vector2 Center;
@@ -191,7 +189,7 @@ namespace Ship_Game.Gameplay
 
 		public string Name;
 
-		public int LoopAnimation;
+		public byte LoopAnimation;
 
 		public float Scale = 1f;
 
@@ -227,6 +225,8 @@ namespace Ship_Game.Gameplay
 
         public float TerminalPhaseSpeedMod;
 
+        public float ArmourPen = 0f;
+
 
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
@@ -249,24 +249,25 @@ namespace Ship_Game.Gameplay
 
         private void AddModifiers(string Tag, Projectile projectile)
         {
-            Projectile p = projectile;
-
-            p.damageAmount += this.owner.loyalty.data.WeaponTags[Tag].Damage * projectile.damageAmount;
-            p.ShieldDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ShieldDamage;
-            p.ArmorDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ArmorDamage;
+            projectile.damageAmount += this.owner.loyalty.data.WeaponTags[Tag].Damage * projectile.damageAmount;
+            projectile.ShieldDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ShieldDamage;
+            projectile.ArmorDamageBonus += this.owner.loyalty.data.WeaponTags[Tag].ArmorDamage;
+            //Shield Penetration
             float actualShieldPenChance = this.moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
             actualShieldPenChance += this.owner.loyalty.data.WeaponTags[Tag].ShieldPenetration;
+            actualShieldPenChance += this.ShieldPenChance;
             if (actualShieldPenChance > 0f && (float)((int)RandomMath2.RandomBetween(0f, 100f)) < actualShieldPenChance)
             {
-                p.IgnoresShields = true;
+                projectile.IgnoresShields = true;
             }
-            //Added by McShooterz: Beams cannot use these
-            if (Tag != "Beam")
+            //Projectile specific
+            if (!this.isBeam)
             {
-                p.Health += this.HitPoints * this.owner.loyalty.data.WeaponTags[Tag].HitPoints;
-                p.RotationRadsPerSecond += this.owner.loyalty.data.WeaponTags[Tag].Turn * this.RotationRadsPerSecond;
-                p.speed += this.owner.loyalty.data.WeaponTags[Tag].Speed * this.ProjectileSpeed;
-                p.damageRadius += this.owner.loyalty.data.WeaponTags[Tag].ExplosionRadius * this.DamageRadius;
+                projectile.ArmorPiercing += (byte)this.owner.loyalty.data.WeaponTags[Tag].ArmourPenetration;
+                projectile.Health += this.HitPoints * this.owner.loyalty.data.WeaponTags[Tag].HitPoints;
+                projectile.RotationRadsPerSecond += this.owner.loyalty.data.WeaponTags[Tag].Turn * this.RotationRadsPerSecond;
+                projectile.speed += this.owner.loyalty.data.WeaponTags[Tag].Speed * this.ProjectileSpeed;
+                projectile.damageRadius += this.owner.loyalty.data.WeaponTags[Tag].ExplosionRadius * this.DamageRadius;
             }
         }
 
@@ -339,10 +340,6 @@ namespace Ship_Game.Gameplay
 		protected virtual void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
 		{
 			Beam beam = new Beam(source.Owner.Center, target.Center, this.BeamThickness, source.Owner, target);
-			if (source.Owner.owner != null && source.Owner.owner.InFrustum)
-			{
-				beam.InFrustumWhenFired = true;
-			}
 			beam.moduleAttachedTo = this.moduleAttachedTo;
 			beam.PowerCost = (float)this.BeamPowerCostPerSecond;
 			beam.range = this.Range;
@@ -379,9 +376,9 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-        protected virtual void CreateTargetedBeam(Vector2 destination, GameplayObject target)
+        protected virtual void CreateTargetedBeam(GameplayObject target)
         {
-            Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+            Beam beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
             {
                 moduleAttachedTo = this.moduleAttachedTo,
                 PowerCost = (float)this.BeamPowerCostPerSecond,
@@ -391,14 +388,19 @@ namespace Ship_Game.Gameplay
                 damageAmount = this.DamageAmount,
                 weapon = this
             };
+            //damage increase by level
             if (this.owner.Level > 0)
             {
                 beam.damageAmount += beam.damageAmount * (float)this.owner.Level * 0.05f;
             }
-            if (this.ShieldPenChance > 0)
+            //Hull bonus damage increase
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
             {
-                beam.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
+                HullBonus mod;
+                if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
+                    beam.damageAmount += beam.damageAmount * mod.DamageBonus;
             }
+            this.ModifyProjectile(beam);
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
             beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
             this.ToggleSoundOn = false;
@@ -478,36 +480,34 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
 		{
-            if(this.Tag_Guided)
-            {
-                direction = new Vector2((float)Math.Sin((double)this.owner.Rotation + MathHelper.ToRadians(this.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.owner.Rotation + MathHelper.ToRadians(this.moduleAttachedTo.facing)));
-                if (this.owner.GetAI().Target != null)
-                    target = this.owner.GetAI().Target;
-            }
 			Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
 			{
 				range = this.Range,
 				weapon = this,
 				explodes = this.explodes,
-				damageAmount = this.DamageAmount
+				damageAmount = this.DamageAmount,
+                damageRadius = this.DamageRadius,
+                explosionradiusmod = this.ExplosionRadiusVisual,
+                Health = this.HitPoints,
+                speed = this.ProjectileSpeed,
+                WeaponEffectType = this.WeaponEffectType,
+                WeaponType = this.WeaponType,
+                RotationRadsPerSecond = this.RotationRadsPerSecond,
+                ArmorPiercing = (byte)this.ArmourPen
 			};
+            //damage increase by level
 			if (this.owner.Level > 0)
 			{
                 projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
 			}
-            if (this.ShieldPenChance > 0)
+            //Hull bonus damage increase
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
             {
-                projectile.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
+                HullBonus mod;
+                if(ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
+                    projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
             }
-			projectile.explodes = this.explodes;
-			projectile.damageRadius = this.DamageRadius;
-            projectile.explosionradiusmod = this.ExplosionRadiusVisual;
-			projectile.Health = this.HitPoints;
-			projectile.speed = this.ProjectileSpeed;
-			projectile.WeaponEffectType = this.WeaponEffectType;
-			projectile.WeaponType = this.WeaponType;
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
 			this.ModifyProjectile(projectile);
             if(this.Tag_Guided)
                 projectile.InitializeMissile(projectile.speed, direction, target);
@@ -587,9 +587,6 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
 		{
-            //Force target into combat
-            if (target is Ship)
-                (target as Ship).InCombatTimer = 15f;
 			Projectile projectile = new Projectile(p, direction)
 			{
 				range = this.Range,
@@ -606,10 +603,12 @@ namespace Ship_Game.Gameplay
 			projectile.WeaponType = this.WeaponType;
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
 			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
+            projectile.ArmorPiercing = (byte)this.ArmourPen;
+            /*
             if (this.ShieldPenChance > 0)
             {
                 projectile.IgnoresShields = RandomMath.RandomBetween(0, 100) <= this.ShieldPenChance;
-            }
+            } */
 			this.ModifyProjectile(projectile);
             if(this.Tag_Guided)
                 projectile.InitializeMissilePlanet(projectile.speed, direction, target, p);
@@ -833,7 +832,9 @@ namespace Ship_Game.Gameplay
 		{
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
 				return;
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
+            if (target is ShipModule)
+                (target as ShipModule).GetParent().InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -922,7 +923,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -947,6 +948,8 @@ namespace Ship_Game.Gameplay
 
         public virtual void FireFromPlanet(Vector2 direction, Planet p, GameplayObject target)
         {
+            if (target is ShipModule)
+                (target as ShipModule).GetParent().InCombatTimer = 15f;
             Vector2 StartPos = p.Position;
             if (this.FireArc != 0)
             {
@@ -993,7 +996,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
@@ -1029,19 +1032,19 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		public virtual void FireTargetedBeam(Vector2 direction, GameplayObject target)
+		public virtual void FireTargetedBeam(GameplayObject target)
 		{
 			if (this.timeToNextFire > 0f)
 			{
 				return;
 			}
-			this.owner.InCombatTimer = 5f;
+			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
 			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
-				this.CreateTargetedBeam(direction, target);
+				this.CreateTargetedBeam(target);
 			}
 		}
 
@@ -1051,7 +1054,7 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-            this.owner.InCombatTimer = 5f;
+            this.owner.InCombatTimer = 15f;
             this.timeToNextFire = this.fireDelay;
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
             {
@@ -1065,7 +1068,7 @@ namespace Ship_Game.Gameplay
         {
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
                 return;
-            this.owner.InCombatTimer = 5f;
+            this.owner.InCombatTimer = 15f;
             this.timeToNextFire = this.fireDelay;
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
             {
@@ -1203,8 +1206,7 @@ namespace Ship_Game.Gameplay
 			}
             if (this.owner.loyalty.data.Traits.Pack)
             {
-                Projectile projectile1 = projectile;
-                projectile1.damageAmount = projectile1.damageAmount + projectile.damageAmount * this.owner.DamageModifier;
+                projectile.damageAmount += projectile.damageAmount * this.owner.DamageModifier;
             }
             //Added by McShooterz: Check if mod uses weapon modifiers
             if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useWeaponModifiers)
@@ -1328,7 +1330,12 @@ namespace Ship_Game.Gameplay
 				}
                 //this.FireSalvo(salvo.Direction, this.SalvoTarget);
                 if (this.SalvoTarget != null)
-                    this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
+                {
+                    if (this.Tag_Guided)
+                        this.FireSalvo(salvo.Direction, SalvoTarget);
+                    else
+                        this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
+                }
                 else
                     this.FireSalvo(salvo.Direction, null);
 				this.SalvoList.QueuePendingRemoval(salvo);
@@ -1349,25 +1356,65 @@ namespace Ship_Game.Gameplay
 			{
 			}
 		}
+
+        public float GetModifiedRange()
+        {
+            if (this.GetOwner() == null || GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useWeaponModifiers)
+                return this.Range;
+            float modifiedRange = this.Range;
+            EmpireData loyaltyData = this.GetOwner().loyalty.data;
+            if (this.Tag_Beam)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Beam"].Range;
+            if (this.Tag_Energy)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Energy"].Range;
+            if (this.Tag_Explosive)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Explosive"].Range;
+            if (this.Tag_Guided)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Guided"].Range;
+            if (this.Tag_Hybrid)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Hybrid"].Range;
+            if (this.Tag_Intercept)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Intercept"].Range;
+            if (this.Tag_Kinetic)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Kinetic"].Range;
+            if (this.Tag_Missile)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Missile"].Range;
+            if (this.Tag_Railgun)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Railgun"].Range;
+            if (this.Tag_Cannon)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Cannon"].Range;
+            if (this.Tag_PD)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["PD"].Range;
+            if (this.Tag_SpaceBomb)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Spacebomb"].Range;
+            if (this.Tag_BioWeapon)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["BioWeapon"].Range;
+            if (this.Tag_Drone)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Drone"].Range;
+            if (this.Tag_Subspace)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Subspace"].Range;
+            if (this.Tag_Warp)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Warp"].Range;
+            if (this.Tag_Array)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Array"].Range;
+            if (this.Tag_Flak)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Flak"].Range;
+            if (this.Tag_Tractor)
+                modifiedRange += this.Range * loyaltyData.WeaponTags["Tractor"].Range;
+            return modifiedRange;            
+        }
+
+        public bool TargetValid(string Role)
+        {
+            if (this.Excludes_Fighters && (Role == "fighter" || Role == "scout" || Role == "drone"))
+                return false;
+            if (this.Excludes_Corvettes && (Role == "corvette"))
+                return false;
+            if (this.Excludes_Capitals && (Role == "frigate" || Role == "destroyer" || Role == "cruiser" || Role == "carrier" || Role == "capital"))
+                return false;
+            if (this.Excludes_Stations && (Role == "platform" || Role == "station"))
+                return false;
+            return true;
+        }
 	}
 }
-
-/*//Added by McShootez: Quadratic based targeting algorithm
-        private Vector2 findVectorToMovingTarget2(Vector2 OwnerPos, GameplayObject target)
-        {
-            Vector2 FireDirection = target.Center - OwnerPos;
-            float a = Vector2.Dot(target.Velocity, target.Velocity) - (this.ProjectileSpeed * this.ProjectileSpeed);
-            float b = 2f * Vector2.Dot(target.Velocity, FireDirection);
-            float c = Vector2.Dot(FireDirection, FireDirection);
-            float p = -b / (2f * a);
-            float q = (float)Math.Sqrt((b * b) - 4 * a * c) / (2 * a);
-            a = p - q;
-            b = p + q;
-            if (a > b && b > 0)
-                c = b;
-            else
-                c = a;
-            Vector2 ProjectedPosition = target.Center + target.Velocity * c;
-            FireDirection = ProjectedPosition - OwnerPos;
-            return Vector2.Normalize(FireDirection);
-        }*/
