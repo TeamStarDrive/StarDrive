@@ -486,7 +486,7 @@ namespace Ship_Game
 
                 IOrderedEnumerable<SolarSystem> sortedSystems =
                     from system in systems
-                    orderby this.DefenseDict[system].TroopStrengthNeeded > 0
+                    orderby this.DefenseDict[system].TroopStrengthNeeded > 0 descending
                     orderby (int)(this.DefenseDict[system].ValueToUs * .2f) descending
 
                     orderby Vector2.Distance(system.Position, ship4.Center) / (UniverseData.UniverseWidth / 5f)
@@ -508,13 +508,13 @@ namespace Ship_Game
 
 
                     //send troops to the first planet in the system with the lowest troop count.
-                    Planet target = solarSystem2.PlanetList.OrderBy(planet => planet.TroopsHere.Where(troops => troops.GetOwner() == this.us).Count() + TroopsSent).First();
+                    Planet target = solarSystem2.PlanetList.OrderBy(planet => planet.TroopsHere.Where(troops => troops.GetOwner() == this.us).Count() ).First();
                     if (target != tempPlanet)
                     {
                         tempPlanet = target;
                         TroopsSent = 0;
                     }
-                    TroopsSent++;
+                    
                     ship4.GetAI().OrderRebase(target, true);
 
                 }
@@ -543,8 +543,8 @@ namespace Ship_Game
 
                     continue;
                 }
-                if (defenseSystem.TroopStrengthNeeded >0)
-                    if (current.GetGroundLandingSpots() < 5)
+                if (current.GetGroundLandingSpots() < 5)
+                    
                     {
                         troopship = troop.Launch();
                         defenseSystem.TroopStrengthNeeded++;
