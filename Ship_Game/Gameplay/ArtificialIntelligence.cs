@@ -5757,25 +5757,31 @@ if(troops >= p.GetGroundLandingSpots())
                 {
                     if (this.ActiveWayPoints.Count > 1)
                     {
-                        Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
+                        wantedForward= Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                        if (d < 50000f)
-                        //if(d<this.Owner.GetFTLSpeed())
+                        //if (d < 50000f)
+                        if(d<=this.Owner.speed)
                         {
-                            if (angleDiffToNext > 0.4f)
+                            if (angleDiffToNext >  this.Owner.maxBank) //  0.4f)
                             {
                                 this.Owner.HyperspaceReturn();
-                            }
-                            else if(angleDiff > this.Owner.maxBank)
-                            {
+                                //float reduction =d / this.Owner.speed ;
+                                //speedLimit = this.Owner.speed * reduction;
+                                //this.Owner.speed = speedLimit;
+                                ////speedLimit--;
+                                ////this.Owner.speed--;
 
+                                
                             }
+
                         }
-                       else if (d > 50000f && angleDiffToNext > 1.65f)
-                       // else if (d > Owner.GetFTLSpeed() && angleDiffToNext > 1.4)
+                       //else if (d > 50000f && angleDiffToNext > 1.65f)
+                        else if (d > this.Owner.speed && angleDiffToNext>1.5707963f)//*(d/this.Owner.speed ))
                         {
                             this.Owner.HyperspaceReturn();
+                            
+
                         }
                     }
                     else if (this.Target != null)
@@ -5797,11 +5803,12 @@ if(troops >= p.GetGroundLandingSpots())
                     else if (this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet != null)
                     {
                         float d = Vector2.Distance(this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet.Position, this.Owner.Center);
-                        if (angleDiff > 0.65f)
+                        //if (angleDiff > 0.65f)
+                        if (angleDiff > this.Owner.maxBank )
                         {
                             this.Owner.HyperspaceReturn();
                         }
-                        else if (d > 25000f)
+                        else if (d > this.Owner.speed)//25000f)
                         {
                             this.Owner.HyperspaceReturn();
                         }
@@ -6616,7 +6623,12 @@ if(troops >= p.GetGroundLandingSpots())
                             }
                         case ArtificialIntelligence.Plan.PickupGoods:
                             {
-                                this.PickupGoods();
+                                try
+                                {
+                                    this.PickupGoods();
+                                }
+                                catch
+                                { }
                                 break;
                             }
                         case ArtificialIntelligence.Plan.DropOffGoods:
