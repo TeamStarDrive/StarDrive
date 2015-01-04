@@ -3031,7 +3031,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderLandAllTroops(Planet target)
 		{
-            if ((this.Owner.Role == "troop" || !this.Owner.HasTroopBay) &&  this.Owner.TroopList.Count > 0  && target.GetGroundLandingSpots() >15 )
+            if ((this.Owner.Role == "troop" || !this.Owner.HasTroopBay) &&  this.Owner.TroopList.Count > 0  && target.GetGroundLandingSpots() >0 )
             {
                 this.HasPriorityOrder = true;
                 this.State = AIState.AssaultPlanet;
