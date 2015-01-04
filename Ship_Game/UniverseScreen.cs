@@ -1441,9 +1441,19 @@ namespace Ship_Game
             }
             foreach (Ship ship in this.ShipsToRemove)
                 ship.TotallyRemove();
+            UniverseScreen.DeepSpaceManager.CollidableObjects.ApplyPendingRemovals();
             this.MasterShipList.ApplyPendingRemovals();
             if (!this.IsActive)
                 return;
+#if DEBUG
+            List<Ship> inactive =  this.MasterShipList.Where(active => !active.Active).ToList();
+            if(inactive.Count >0)
+            System.Diagnostics.Debug.WriteLine(inactive.Count);
+            List<GameplayObject> Coinactive = UniverseScreen.DeepSpaceManager.CollidableObjects.Where(active => !active.Active).ToList();
+                        if(Coinactive.Count >0)
+            System.Diagnostics.Debug.WriteLine(Coinactive.Count);
+                
+#endif
             this.EmpireGateKeeper.Set();
             if (!this.Paused)
             {

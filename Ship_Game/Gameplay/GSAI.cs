@@ -6320,7 +6320,7 @@ namespace Ship_Game.Gameplay
 
 
                         if (planetList.ExploredDict[this.empire] 
-                            && (planetList .habitable || this.empire.data.Traits.Cybernetic != 0) 
+                            && planetList .habitable 
                             && planetList.Owner == null)
                         {
                             if (this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) 
@@ -6341,19 +6341,7 @@ namespace Ship_Game.Gameplay
 //Cyberbernetic planet picker
                             if (this.empire.data.Traits.Cybernetic != 0)
                             {
-                                if (planetList.MineralRichness < .5f && !this.empire.GetBDict()["Biospheres"])
-                                {
-                                    bool flag = false;
-                                    foreach (Planet food in this.empire.GetPlanets())
-                                    {
-                                        if (food.ProductionHere > food.MAX_STORAGE * .5f || food.ps == Planet.GoodState.EXPORT)
-                                        {
-                                            flag = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!flag) continue;
-                                }
+
                                 r2.PV = (commodities + planetList.MineralRichness + planetList.MaxPopulation / 1000f) / DistanceInJumps;
                             }
                             else
@@ -6361,32 +6349,58 @@ namespace Ship_Game.Gameplay
                                 r2.PV = (commodities + planetList.MineralRichness + planetList.Fertility + planetList.MaxPopulation / 1000f) / DistanceInJumps;
                             }
 
-                            //if (planetList.Type == "Barren" && (commodities > 0 || this.empire.GetTDict()["Biospheres"].Unlocked || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f)))
-                            if (planetList.Type == "Barren" 
-                                && commodities > 0 
-                                    || this.empire.GetBDict()["Biospheres"] 
-                                    || this.empire.data.Traits.Cybernetic != 0 
-                            )
-                            {
+                            if (commodities > 0)
                                 ranker.Add(r2);
-                            }
-                            else if (planetList.Type != "Barren" 
-                                && commodities > 0 
-                                    || (double)planetList.Fertility >= .5f 
-                                    || this.empire.GetTDict()["Aeroponics"].Unlocked 
-                                    || this.empire.data.Traits.Cybernetic != 0  ) 
-                            {
-                                ranker.Add(r2);
-                            }
+
+                            //if (planetList.Type == "Barren" 
+                            //    && commodities > 0 
+                            //        || this.empire.GetBDict()["Biospheres"] 
+                            //        || this.empire.data.Traits.Cybernetic != 0 
+                            //)
+                            //{
+                            //    ranker.Add(r2);
+                            //}
+                            //else if (planetList.Type != "Barren" 
+                            //    && commodities > 0 
+                            //        || ((double)planetList.Fertility >= .5f ||(this.empire.data.Traits.Cybernetic != 0  &&(double)planetList.MineralRichness >= .5f ))
+                            //        || (this.empire.GetTDict()["Aeroponics"].Unlocked
+                            //        || this.empire.data.Traits.Cybernetic != 0 && this.empire.GetBDict()["Biospheres"])) 
+                            //{
+                            //    ranker.Add(r2);
+                            //}
                             else if (planetList.Type != "Barren")
                             {
-                                foreach (Planet food in this.empire.GetPlanets())
+                                if (this.empire.data.Traits.Cybernetic == 0)
+                                    foreach (Planet food in this.empire.GetPlanets())
+                                    {
+                                        if (food.FoodHere > food.MAX_STORAGE * .7f && food.fs == Planet.GoodState.EXPORT)
+                                        {
+                                            ranker.Add(r2);
+                                            break;
+                                        }
+                                    }
+                                else
                                 {
-                                    if (food.FoodHere > food.MAX_STORAGE * .7f && food.fs == Planet.GoodState.EXPORT)
+
+                                    if (planetList.MineralRichness < .3f)
+                                    {
+                                        
+                                        foreach (Planet food in this.empire.GetPlanets())
+                                        {
+                                            if (food.ProductionHere > food.MAX_STORAGE * .7f || food.ps == Planet.GoodState.EXPORT)
+                                            {
+                                                ranker.Add(r2);
+                                                break;
+                                            }
+                                        }
+                                        
+                                    }
+                                    else
                                     {
                                         ranker.Add(r2);
-                                        break;
                                     }
+
+                                    
                                 }
                             }
 
@@ -6907,7 +6921,7 @@ namespace Ship_Game.Gameplay
             this.numberOfShipGoals = 0;
             foreach (Planet p in this.empire.GetPlanets())
             {
-                if (!p.HasShipyard || p.GetNetProductionPerTurn() < 2f)
+                if (!p.HasShipyard || (p.GetNetProductionPerTurn() < 2f && this.empire.data.Traits.Cybernetic ==0 && p.GetNetProductionPerTurn() < .5f))
                 {
                     continue;
                 }
@@ -6951,7 +6965,7 @@ namespace Ship_Game.Gameplay
                     UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
                 }
             }
-            this.GetAShip(0);
+            //this.GetAShip(0);
             float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
 
             bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;

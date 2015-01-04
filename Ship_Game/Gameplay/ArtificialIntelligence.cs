@@ -4801,7 +4801,9 @@ if(troops >= p.GetGroundLandingSpots())
 
 		private void PickupGoods()
 		{
-			if (this.FoodOrProd == "Food")
+            if (this.start == null)
+                return;
+            if (this.FoodOrProd == "Food")
 			{
 				if (this.Owner.GetCargo()["Production"] > 0f)
 				{
@@ -5089,7 +5091,7 @@ if(troops >= p.GetGroundLandingSpots())
 
 
                 else if (
-                    !this.Intercepting && this.Target.isInDeepSpace && (this.Target as Ship).engineState == Ship.MoveState.Warp ) //||((double)Vector2.Distance(Position, this.Target.Center) > (double)Radius ||
+                    !this.Intercepting && (this.Target as Ship).engineState == Ship.MoveState.Warp ) //||((double)Vector2.Distance(Position, this.Target.Center) > (double)Radius ||
                 {
                     this.Target = (GameplayObject)null;
                     if (!this.HasPriorityOrder  && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
@@ -5273,11 +5275,17 @@ if(troops >= p.GetGroundLandingSpots())
                 }
             }   
             //}           
-            foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips)
+            foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips .Where(Target=>  Target.ship.engineState != Ship.MoveState.Warp))
             //Parallel.ForEach(this.NearbyShips, nearbyShip =>
             {
                 if (nearbyShip.ship.loyalty != this.Owner.loyalty)
                 {
+                    if (nearbyShip.ship.Weapons.Count ==0)
+                    {
+                        ArtificialIntelligence.ShipWeight vultureWeight = nearbyShip;
+                        vultureWeight.weight = vultureWeight.weight + this.CombatAI.PirateWeight;
+                    }
+                    
                     if (nearbyShip.ship.Health / nearbyShip.ship.HealthMax < 0.5f)
                     {
                         ArtificialIntelligence.ShipWeight vultureWeight = nearbyShip;
@@ -5298,12 +5306,12 @@ if(troops >= p.GetGroundLandingSpots())
                         ArtificialIntelligence.ShipWeight largeAttackWeight = nearbyShip;
                         largeAttackWeight.weight = largeAttackWeight.weight + this.CombatAI.LargeAttackWeight;
                     }
-                    if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) <= this.CombatAI.PreferredEngagementDistance + 500f && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) > this.CombatAI.PreferredEngagementDistance - 500f)
+                    if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) <= this.CombatAI.PreferredEngagementDistance  && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
                         shipWeight.weight = shipWeight.weight + 2.5f;
                     }
-                    else if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) > 5000f)
+                    else if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
                         shipWeight1.weight = shipWeight1.weight - 2.5f;
@@ -5766,13 +5774,7 @@ if(troops >= p.GetGroundLandingSpots())
                             if (angleDiffToNext >  this.Owner.maxBank) //  0.4f)
                             {
                                 this.Owner.HyperspaceReturn();
-                                //float reduction =d / this.Owner.speed ;
-                                //speedLimit = this.Owner.speed * reduction;
-                                //this.Owner.speed = speedLimit;
-                                ////speedLimit--;
-                                ////this.Owner.speed--;
 
-                                
                             }
 
                         }
@@ -5803,8 +5805,11 @@ if(troops >= p.GetGroundLandingSpots())
                     else if (this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet != null)
                     {
                         float d = Vector2.Distance(this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet.Position, this.Owner.Center);
+                        wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet.Position));
+                         angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                        //float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (angleDiff > 0.65f)
-                        if (angleDiff > this.Owner.maxBank )
+                        if (angleDiff >= this.Owner.maxBank )
                         {
                             this.Owner.HyperspaceReturn();
                         }
@@ -6613,7 +6618,16 @@ if(troops >= p.GetGroundLandingSpots())
                             }
                         case ArtificialIntelligence.Plan.DropoffPassengers:
                             {
-                                this.DropoffPassengers();
+
+                                try
+                                {
+                                    this.DropoffPassengers();
+                                }
+                                catch 
+                                {
+                                    System.Diagnostics.Debug.WriteLine("DropoffPassengers failed");
+
+                                }
                                 break;
                             }
                         case ArtificialIntelligence.Plan.DeployStructure:
