@@ -39,6 +39,8 @@ namespace Ship_Game
         }
         public void UpdateCombatAI(Ship_Game.Gameplay.Ship ship)
         {
+            
+            
             try
             {
                 int Size = ship.Size;
@@ -51,7 +53,7 @@ namespace Ship_Game
             catch 
             {
                 
-                ;
+                
             }
         }
 	}
