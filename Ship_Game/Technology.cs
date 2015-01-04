@@ -54,6 +54,7 @@ namespace Ship_Game
         public bool unlockFrigates;
         public bool unlockCruisers;
         public bool unlockBattleships;
+        public bool unlockCorvettes;
 
 		public Technology()
 		{

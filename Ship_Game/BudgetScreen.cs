@@ -203,25 +203,40 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~BudgetScreen() {
+        //protected override void Finalize()
+        //{
+        //    try
+        //    {
+        //        this.Dispose(false);
+        //    }
+        //    catch
+        //    {
+        //        //base.Finalize();
+        //    }
+        //}
+        ~BudgetScreen()
+        {
             //should implicitly do the same thing as the original bad finalize
+                //try
+                //{
+                    this.Dispose(false);
+                //}
+                //catch
+                //{
+                    //base.Finalize();
+                //}
         }
 
 		public override void HandleInput(InputState input)
 		{
 			this.currentMouse = input.CurrentMouseState;
 			Vector2 vector2 = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+                return;
+            }
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();

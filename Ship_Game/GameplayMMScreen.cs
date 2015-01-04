@@ -166,12 +166,18 @@ namespace Ship_Game
 		}*/
         ~GameplayMMScreen() {
             //should implicitly do the same thing as the original bad finalize
+            this.Dispose(false);
         }
 
 		public override void HandleInput(InputState input)
 		{
 			this.currentMouse = input.CurrentMouseState;
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.O) && !input.LastKeyboardState.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+            }
 			if (input.Escaped || input.RightMouseClick)
 			{
 				this.ExitScreen();

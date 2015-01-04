@@ -5,13 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 namespace Ship_Game.Gameplay
 {
 	public class ThreatMatrix
 	{
-		public Dictionary<Guid, ThreatMatrix.Pin> Pins = new Dictionary<Guid, ThreatMatrix.Pin>();
-        public Dictionary<Guid, Ship> ship = new Dictionary<Guid, Ship>();
+		//public Dictionary<Guid, ThreatMatrix.Pin> Pins = new Dictionary<Guid, ThreatMatrix.Pin>();
+        public ConcurrentDictionary<Guid, ThreatMatrix.Pin> Pins = new ConcurrentDictionary<Guid, ThreatMatrix.Pin>();
+        //public Dictionary<Guid, Ship> ship = new Dictionary<Guid, Ship>();
+        public ConcurrentDictionary<Guid, Ship> ship = new ConcurrentDictionary<Guid, Ship>();
 		private object thislock = new object();
 
 		public ThreatMatrix()
@@ -92,7 +95,10 @@ namespace Ship_Game.Gameplay
 			float str = 0f;
 			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
 			{
-				if (Vector2.Distance(Position, pin.Value.Position) >= Radius || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Us || !Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction && !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].AtWar)
+				if (Vector2.Distance(Position, pin.Value.Position) >= Radius 
+                    || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Us 
+                    || !Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction 
+                    && !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].AtWar)
 				{
 					continue;
 				}
@@ -111,7 +117,7 @@ namespace Ship_Game.Gameplay
 					Strength = ship.GetStrength(),
 					EmpireName = ship.loyalty.data.Traits.Name
 				};
-				this.Pins.Add(ship.guid, pin);
+				this.Pins.TryAdd(ship.guid, pin);
 				return;
 			}
 			this.Pins[ship.guid].Velocity = ship.Center - this.Pins[ship.guid].Position;
@@ -152,8 +158,8 @@ namespace Ship_Game.Gameplay
             }
 
 
-            lock (this.Pins)            
-                this.Pins.Add(ship.guid, pin);
+            //lock (this.Pins)            
+                this.Pins.TryAdd(ship.guid, pin);
 
             
 
@@ -179,45 +185,28 @@ namespace Ship_Game.Gameplay
                     Strength = ship.GetStrength(),
                     EmpireName = ship.loyalty.data.Traits.Name
                 };
-                this.Pins.Add(ship.guid, pin);
+                this.Pins.TryAdd(ship.guid, pin);
                 return;
             }
             this.Pins[ship.guid].Velocity = ship.Center - this.Pins[ship.guid].Position;
             this.Pins[ship.guid].Position = ship.Center;
         }
-        public void ScrubMatrix(bool scrubborders)
+        public void ScrubMatrix()
         {
-            if (!scrubborders && Empire.universeScreen.MasterShipList.Count > this.Pins.Count )
-                return;
-            List<Guid> guids = new List<Guid>();
+
+            HashSet<Ship> shiphash = new HashSet<Ship>(Empire.universeScreen.MasterShipList);
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
-            {
 
-                if (scrubborders && pin.Value.InBorders)
+                if (shiphash.Select(guid => guid.guid).Contains(pin.Key))
+                    continue;
+                else
                 {
-                    if ((pin.Value.ship != null && pin.Value.ship.Active) && pin.Value.ship.Name == "Subspace Projector")
-                    {
-                        //System.Diagnostics.Debug.WriteLine(string.Concat("Skipped", pin.Value.ship.Name));
-                        continue;
-                    }
-                    pin.Value.InBorders = false;
 
-
-
+                    ThreatMatrix.Pin remove = null;
+                    this.Pins.TryRemove(pin.Key, out remove);
                 }
-                if (Empire.universeScreen.MasterShipList.Count < this.Pins.Count)
 
-                    if (Empire.universeScreen.MasterShipList.Select(guid => guid.guid).Contains(pin.Key))
-                        continue;
-                    else
-                        guids.Add(pin.Key);
-            }
 
-            foreach (Guid kill in guids)
-            {
-                this.Pins.Remove(kill);
-            }
-            guids.Clear();
         }
 
         public bool ShipInOurBorders(Ship ship)

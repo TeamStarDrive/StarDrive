@@ -494,37 +494,42 @@ namespace Ship_Game
 		{
 			this.currentMouse = Mouse.GetState();
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
 				this.screen.ScreenManager.AddScreen(new ResearchScreenNew(this));
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
 				this.screen.ScreenManager.AddScreen(new BudgetScreen(Ship.universeScreen));
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.Y) && !GlobalStats.TakingInput)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.Y) && !input.LastKeyboardState.IsKeyDown(Keys.Y) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
 				this.screen.ScreenManager.AddScreen(new ShipDesignScreen(this));
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.U) && !input.LastKeyboardState.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
 				this.screen.ScreenManager.AddScreen(new EmpireScreen(Ship.universeScreen.ScreenManager, this));
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.I) && !input.LastKeyboardState.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
 				this.screen.ScreenManager.AddScreen(new MainDiplomacyScreen(Ship.universeScreen));
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.O) && !input.LastKeyboardState.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
 				this.screen.ScreenManager.AddScreen(new GameplayMMScreen(Ship.universeScreen));
 			}
-			if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.E) && !input.LastKeyboardState.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.screen.ScreenManager.AddScreen(new EspionageScreen(Ship.universeScreen));
+            }
+			if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !input.LastKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("sd_ui_tactical_pause");
 				InGameWiki wiki = new InGameWiki(new Rectangle(0, 0, 750, 600))
@@ -580,6 +585,21 @@ namespace Ship_Game
 								ToolTip.CreateTooltip(Localizer.Token(2299), Ship.universeScreen.ScreenManager, "I");
 								break;
 							}
+                            case "Espionage":
+                            {
+                                ToolTip.CreateTooltip(Localizer.Token(7043), Ship.universeScreen.ScreenManager, "E");
+                                break;
+                            }
+                            case "ShipList":
+                            {
+                                ToolTip.CreateTooltip(Localizer.Token(7044), Ship.universeScreen.ScreenManager, "K");
+                                break;
+                            }
+                            case "Fleets":
+                            {
+                                ToolTip.CreateTooltip(Localizer.Token(7045), Ship.universeScreen.ScreenManager, "J");
+                                break;
+                            }
 							case "?":
 							{
 								ToolTip.CreateTooltip(Localizer.Token(2302), Ship.universeScreen.ScreenManager, "P");

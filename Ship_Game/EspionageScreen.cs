@@ -85,7 +85,7 @@ namespace Ship_Game
 			Color color = new Color(118, 102, 67, 50);
 			foreach (RaceEntry race in this.Races)
 			{
-				if (race.e.isFaction)
+				if (race.e.isFaction || race.e.MinorRace)
 				{
 					continue;
 				}
@@ -425,6 +425,12 @@ namespace Ship_Game
 				this.ExitScreen();
 				return;
 			}
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.E) && !input.LastKeyboardState.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+                return;
+            }
 			this.AgentComponent.HandleInput(input);
 			//this.showExecuteButton = false;
 			bool GotRace = false;
@@ -501,7 +507,7 @@ namespace Ship_Game
 			{
 				if (e != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
 				{
-					if (e.isFaction && (e.isFaction || !e.data.Defeated))
+					if (e.isFaction || e.MinorRace)
 					{
 						continue;
 					}

@@ -107,6 +107,8 @@ namespace Ship_Game
         public static AgentMissionData AgentMissionData;
         public static MainMenuShipList MainMenuShipList;
         public static Dictionary<string, ShipRole> ShipRoles;
+        public static Dictionary<string, HullBonus> HullBonuses;
+        public static Dictionary<string, PlanetEdict> PlanetaryEdicts;
 
 		static ResourceManager()
 		{
@@ -156,6 +158,8 @@ namespace Ship_Game
             Ship_Game.ResourceManager.AgentMissionData = new AgentMissionData();
             Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
             Ship_Game.ResourceManager.ShipRoles = new Dictionary<string, ShipRole>();
+            Ship_Game.ResourceManager.HullBonuses = new Dictionary<string, HullBonus>();
+            Ship_Game.ResourceManager.PlanetaryEdicts = new Dictionary<string, PlanetEdict>();
             Ship_Game.ResourceManager.OffSet = 0;
 		}
 
@@ -395,7 +399,6 @@ namespace Ship_Game
 			}
 			newShip.SetSO(newSO);
 			newShip.Position = p.Position;
-			newShip.SetHome(p);
 			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
 			{
 				Thruster thr = new Thruster()
@@ -1011,9 +1014,10 @@ namespace Ship_Game
 				isWeapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].isWeapon,
 				PlusTerraformPoints = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusTerraformPoints,
                 SensorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].SensorRange,
-                ProjectorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ProjectorRange
+                ProjectorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ProjectorRange,
+                Category = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Category
 			};
-            //comp fix to ensure functionality of vanialla buildings
+            //comp fix to ensure functionality of vanilla buildings
             if ((newB.Name == "Outpost" || newB.Name =="Capital City") && newB.IsProjector==false && newB.ProjectorRange==0.0f)
             {
                 newB.ProjectorRange = Empire.ProjectorRadius;
@@ -1403,7 +1407,6 @@ namespace Ship_Game
 				ProjectileTexturePath = Ship_Game.ResourceManager.WeaponsDict[uid].ProjectileTexturePath,
 				Range = Ship_Game.ResourceManager.WeaponsDict[uid].Range,
 				RepulsionDamage = Ship_Game.ResourceManager.WeaponsDict[uid].RepulsionDamage,
-				requiresOrdinance = Ship_Game.ResourceManager.WeaponsDict[uid].requiresOrdinance,
 				Scale = Ship_Game.ResourceManager.WeaponsDict[uid].Scale,
 				ShieldPenChance = Ship_Game.ResourceManager.WeaponsDict[uid].ShieldPenChance,
 				SiphonDamage = Ship_Game.ResourceManager.WeaponsDict[uid].SiphonDamage,
@@ -1454,7 +1457,8 @@ namespace Ship_Game
                 ExplosionRadiusVisual = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionRadiusVisual,
                 TerminalPhaseAttack = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseAttack,
                 TerminalPhaseDistance = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseDistance,
-                TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod
+                TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
+                ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen
 			};
 			return w;
 		}
@@ -1720,11 +1724,7 @@ namespace Ship_Game
 
 		private static void LoadItAll()
 		{
-
-            //if (Ship_Game.ResourceManager.WhichModPath != "Content")
-            //    ResourceManager.OffSet = 10000;
-            //else
-                ResourceManager.OffSet = 0;
+            ResourceManager.OffSet = 0;
             Ship_Game.ResourceManager.LoadLanguage();
             Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
@@ -1751,8 +1751,7 @@ namespace Ship_Game
 			Ship_Game.ResourceManager.LoadExpEvents();
             Ship_Game.ResourceManager.LoadArtifacts();			
             Ship_Game.ResourceManager.LoadShipRoles();
-            
-            
+            Ship_Game.ResourceManager.LoadPlanetEdicts();
 		}
 
 		private static void LoadJunk()
@@ -1898,8 +1897,7 @@ namespace Ship_Game
 		}
 
 		public static void LoadMods(string ModPath)
-		{
-			
+		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
             ResourceManager.OffSet = 32000;
             //if (Ship_Game.ResourceManager.WhichModPath != "Content")
@@ -1942,6 +1940,8 @@ namespace Ship_Game
             Ship_Game.ResourceManager.LoadMainMenuShipList();
             Ship_Game.ResourceManager.LoadSoundEffects();
             Ship_Game.ResourceManager.LoadShipRoles();
+            Ship_Game.ResourceManager.LoadHullBonuses();
+            Ship_Game.ResourceManager.LoadPlanetEdicts();
             Localizer.cleanLocalizer();
             ResourceManager.OffSet = 0;
 		}
@@ -2394,9 +2394,6 @@ namespace Ship_Game
                 if (!fighters && !weapons) Str = 0;
                 if (def > Str) def = Str;
                 entry.Value.BaseStrength = Str + def;
-
-
-
             }
 		}
 
@@ -2566,6 +2563,7 @@ namespace Ship_Game
                     }
                 }
                 data.UID = Path.GetFileNameWithoutExtension(FI.Name);
+               
                 
                 if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -2681,7 +2679,7 @@ namespace Ship_Game
 				stream.Close();
 				stream.Dispose();
 				//no localization
-                
+                data.Name = Path.GetFileNameWithoutExtension(FI.Name);
                 if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -2737,9 +2735,7 @@ namespace Ship_Game
                 FileStream stream = FI.OpenRead();
                 ShipRole data = (ShipRole)serializer1.Deserialize(stream);
                 stream.Close();
-                stream.Dispose();
-
-                                
+                stream.Dispose();                              
                 if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
                 {
                     data.Localization += ResourceManager.OffSet;
@@ -2747,7 +2743,7 @@ namespace Ship_Game
                 }
                 for (int j = 0; j < data.RaceList.Count(); j++)
                 {
-                    if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
+                    if (Localizer.LocalizerDict.ContainsKey(data.RaceList[j].Localization + ResourceManager.OffSet))
                     {
                         data.RaceList[j].Localization += ResourceManager.OffSet;
                         Localizer.used[data.RaceList[j].Localization] = true;
@@ -2763,6 +2759,64 @@ namespace Ship_Game
                 }
             }
             textList = null;
+        }
+
+        //Added by McShooterz: Load hull bonuses
+        private static void LoadHullBonuses()
+        {
+            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveMod.mi.useHullBonuses)
+            {
+                FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses"));
+                XmlSerializer serializer1 = new XmlSerializer(typeof(HullBonus));
+                FileInfo[] fileInfoArray = textList;
+                for (int i = 0; i < (int)fileInfoArray.Length; i++)
+                {
+                    FileInfo FI = fileInfoArray[i];
+                    FileStream stream = FI.OpenRead();
+                    HullBonus data = (HullBonus)serializer1.Deserialize(stream);
+                    stream.Close();
+                    stream.Dispose();
+                    if (Ship_Game.ResourceManager.HullBonuses.ContainsKey(data.Hull))
+                    {
+                        Ship_Game.ResourceManager.HullBonuses[data.Hull] = data;
+                    }
+                    else
+                    {
+                        Ship_Game.ResourceManager.HullBonuses.Add(data.Hull, data);
+                    }
+                }
+                textList = null;
+            }
+            if (Ship_Game.ResourceManager.HullBonuses.Count == 0)
+                GlobalStats.ActiveMod.mi.useHullBonuses = false;
+        }
+
+        //Added by McShooterz: Load planetary edicts
+        private static void LoadPlanetEdicts()
+        {
+            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/PlanetEdicts")))
+            {
+                FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/PlanetEdicts"));
+                XmlSerializer serializer1 = new XmlSerializer(typeof(PlanetEdict));
+                FileInfo[] fileInfoArray = textList;
+                for (int i = 0; i < (int)fileInfoArray.Length; i++)
+                {
+                    FileInfo FI = fileInfoArray[i];
+                    FileStream stream = FI.OpenRead();
+                    PlanetEdict data = (PlanetEdict)serializer1.Deserialize(stream);
+                    stream.Close();
+                    stream.Dispose();
+                    if (Ship_Game.ResourceManager.PlanetaryEdicts.ContainsKey(data.Name))
+                    {
+                        Ship_Game.ResourceManager.PlanetaryEdicts[data.Name] = data;
+                    }
+                    else
+                    {
+                        Ship_Game.ResourceManager.PlanetaryEdicts.Add(data.Name, data);
+                    }
+                }
+                textList = null;
+            }
         }
 
         //Added by McShooterz: Load hostileFleets.xml
