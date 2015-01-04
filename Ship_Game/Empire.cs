@@ -2436,7 +2436,24 @@ namespace Ship_Game
                 else if (goal.GoalName == "IncreasePassengerShips")
                     ++passengerShips;
             }
-            if (tradeShips < TradeLimit)
+            int doesntHelp = 0;
+            int extraFrieghters =0;
+            //foreach (Planet needs in this.GetPlanets())
+            //{
+            //    if (needs.fs == Planet.GoodState.IMPORT && needs.FoodHere > needs.MAX_STORAGE * .7f
+            //        || needs.ps == Planet.GoodState.IMPORT && needs.ProductionHere > needs.MAX_STORAGE * .7f)
+            //        moreFrieghters++;
+            //    else
+            //        doesntHelp++;
+                    
+            
+
+            //}
+            //if (doesntHelp < moreFrieghters)
+            //    moreFrieghters = doesntHelp;
+
+
+            if (tradeShips < TradeLimit )
             {
                 //Do trade ships
                 foreach (Ship ship in unusedFreighters)
@@ -2453,13 +2470,17 @@ namespace Ship_Game
                 foreach (Ship ship in assignedShips)
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
-                for (; tradeShips < TradeLimit; ++tradeShips)
+
+                extraFrieghters = unusedFreighters.Count;
+                if(unusedFreighters.Count ==0)
+                //for (; tradeShips < TradeLimit; ++tradeShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
                         GoalName = "IncreaseFreighters",
                         type = GoalType.BuildShips
                     });          
             }
+            
             if (passengerShips < PassLimit)
             {
                 //Do passenger ships
@@ -2474,7 +2495,8 @@ namespace Ship_Game
                 foreach (Ship ship in assignedShips)
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
-                for (; passengerShips < PassLimit; ++passengerShips)
+                if(unusedFreighters.Count ==0)
+                //for (; passengerShips < PassLimit; ++passengerShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
                         type = GoalType.BuildShips,
