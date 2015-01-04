@@ -1072,7 +1072,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>264</Index>
-      <Text>Taxes are collected from your planets as a portion of their Production and Research outputs. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets. Your empire will gain the lost production and research as credits.</Text>
+      <Text>Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets.</Text>
     </Token>
     <Token>
       <Index>265</Index>
@@ -7763,6 +7763,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6139</Index>
       <Text>In-System Enemy FTL Speed Modifier</Text>
     </Token>
+	<Token>
+      <Index>6140</Index>
+      <Text>Food Consumption Modifier</Text>
+    </Token>
+	<Token>
+      <Index>6141</Index>
+      <Text>Shield Strength Modifier</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -7925,10 +7933,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7040</Index>
       <Text>Your Empire will automatically manage taxes and treasury.</Text>
-    </Token>
+  </Token>
 	<Token>
       <Index>7041</Index>
       <Text>Using this slider, you can lower the FTL speeds of enemy ships that are within the gravity wells of Solar Systems. A value of 100% provides no penalty, whereas a value of 0% will completely inhibit warp of enemy ships in system.</Text>
+  </Token>
+    <Token>
+      <Index>7042</Index>
+      <Text>The duration a beam will last from a beam type weapon.</Text>
+    </Token>
+	<Token>
+      <Index>7043</Index>
+      <Text>Opens the Espionage Management Screen</Text>
+    </Token>
+	<Token>
+      <Index>7044</Index>
+      <Text>Opens the Ship Roster</Text>
+    </Token>
+	<Token>
+      <Index>7045</Index>
+      <Text>Opens the Fleet Manager</Text>
     </Token>
   </TokenList>
 </LocalizationFile>

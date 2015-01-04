@@ -83,10 +83,6 @@ namespace Ship_Game
 
 		private ScrollList buildSL;
 
-		//private ScrollList shipSL;
-
-		//private ScrollList facSL;
-
 		private ScrollList QSL;
 
 		private DropDownMenu foodDropDown;
@@ -146,8 +142,6 @@ namespace Ship_Game
 		private int editHoverState;
 
 		private Rectangle edit_name_button = new Rectangle();
-
-		//private string fmt = "0.#";
 
 		private List<Building> BuildingsCanBuild = new List<Building>();
 
@@ -441,12 +435,14 @@ namespace Ship_Game
         {
           if (index < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay)
           {
-            try
-            {
+#if !DEBUG
+              try
+              { 
+#endif
               ScrollList.Entry entry = this.buildSL.Copied[index];
-              if (entry != null)
+              if (entry != null && entry.item is Building)
               {
-                if (entry.clickRectHover == 0 && entry.item is Building)
+                if (entry.clickRectHover == 0 )
                 {
                   vector2_1.Y = (float) entry.clickRect.Y;
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as Building).Icon + "_48x48"], new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), Color.White);
@@ -491,7 +487,8 @@ namespace Ship_Game
                   // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
 
                   position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                  string maintenance = (entry.item as Building).Maintenance.ToString("F2");
+                  float actualMaint = (entry.item as Building).Maintenance + (entry.item as Building).Maintenance * this.p.Owner.data.Traits.MaintMod;
+                  string maintenance = actualMaint.ToString("F2");
                   this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
                   // ~~~
@@ -509,10 +506,12 @@ namespace Ship_Game
                 if (HelperFunctions.CheckIntersection(entry.clickRect, new Vector2((float) this.currentMouse.X, (float) this.currentMouse.Y)))
                   entry.clickRectHover = 1;
               }
-            }
+#if !DEBUG
+		            }
             catch
             {
-            }
+            }  
+	#endif
           }
           else
             break;
@@ -526,7 +525,7 @@ namespace Ship_Game
             this.buildSL.Reset();
             foreach(string ship in this.p.Owner.ShipsWeCanBuild)
             {
-                if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected)
+                if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected || ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].NoBuild)
                     continue;
                 if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner)))
                 {
@@ -1133,7 +1132,7 @@ namespace Ship_Game
       string nIncome = Localizer.Token(6127);
       string nLosses = Localizer.Token(6129);
 
-      float grossIncome = (float)((double)this.p.GrossMoneyPT + (double)this.p.Owner.data.Traits.TaxMod * (double)this.p.GrossMoneyPT);
+      float grossIncome = (this.p.GrossMoneyPT + this.p.GrossMoneyPT * this.p.Owner.data.Traits.TaxMod) * this.p.Owner.data.TaxRate + this.p.PlusFlatMoneyPerTurn + (this.p.Population / 1000f * this.p.PlusCreditsPerColonist);
       float grossUpkeep = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn * (double)this.p.Owner.data.Traits.MaintMod);
       float netIncome = (float)(grossIncome - grossUpkeep);
 
@@ -2987,7 +2986,7 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 					this.build.AddTab(Localizer.Token(336));
 				}
 			}
-			if (!this.p.CanBuildShips())
+			if (!this.p.HasShipyard)
 			{
 				bool remove = false;
 				foreach (Submenu.Tab tab in this.build.Tabs)
