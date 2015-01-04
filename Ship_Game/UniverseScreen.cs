@@ -3651,6 +3651,7 @@ namespace Ship_Game
                             ship.GetAI().OrderToOrbit(planet, false);
                         else
                         {
+                            
                             ship.GetAI().State = AIState.AssaultPlanet;
                             ship.GetAI().OrderLandAllTroops(planet);
                         }
