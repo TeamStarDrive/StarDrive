@@ -134,7 +134,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BlackBox_RadicalElements_test_|x86'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_RadicalElements_RC_|x86' ">
     <OutputPath>..\stardrive mod\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
