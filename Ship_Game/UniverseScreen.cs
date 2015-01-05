@@ -1442,6 +1442,8 @@ namespace Ship_Game
             foreach (Ship ship in this.ShipsToRemove)
                 ship.TotallyRemove();
             UniverseScreen.DeepSpaceManager.CollidableObjects.ApplyPendingRemovals();
+            UniverseScreen.ShipSpatialManager.CollidableObjects.ApplyPendingRemovals();
+            
             this.MasterShipList.ApplyPendingRemovals();
             if (!this.IsActive)
                 return;

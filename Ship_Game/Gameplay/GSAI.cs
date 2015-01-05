@@ -6542,38 +6542,58 @@ namespace Ship_Game.Gameplay
 
         private void RunGroundPlanner()
         {
-            foreach(SolarSystem system in this.empire.GetOwnedSystems())
+            float totalideal = 0;
+            float totalwanted = 0;
+            Troop troop;
+            Troop LowCosttroop = new Troop();
+            Troop highCosttroop = new Troop();
+            foreach (KeyValuePair<String, Troop> troops in ResourceManager.TroopsDict.OrderBy(cost => cost.Value.Cost))
             {
-                
-                SystemCommander defenseSystem =  this.DefensiveCoordinator.DefenseDict[system];
-                int planetcount = system.PlanetList.Where(planet => planet.Owner == empire).Count();
-                planetcount = planetcount == 0 ? 1 : planetcount;
-                if (defenseSystem.TroopStrengthNeeded <=0)
+                if (!this.empire.WeCanBuildTroop(troops.Key))
+                    continue;
+                if (troops.Value.Cost > highCosttroop.Cost)
+                    highCosttroop = troops.Value;
+                if (LowCosttroop.Cost == 0)
+                    LowCosttroop = troops.Value;
+                else if (troops.Value.Cost < LowCosttroop.Cost)
+                    LowCosttroop = troops.Value;
+            }
+            troop = highCosttroop;
+
+            foreach (SolarSystem system in this.empire.GetOwnedSystems())
+            {
+
+                SystemCommander defenseSystem = this.DefensiveCoordinator.DefenseDict[system];
+                //int planetcount = system.PlanetList.Where(planet => planet.Owner == empire).Count();
+                //planetcount = planetcount == 0 ? 1 : planetcount;
+
+                if (defenseSystem.TroopStrengthNeeded <= 0)
                 {
                     continue;
                 }
-                Planet targetBuild = this.empire.GetPlanets()
-                    .Where(planet => planet.ConstructionQueue.Count ==0 
-                        || planet.ConstructionQueue.Where(goal => goal.Goal !=null 
-                            && goal.Goal.type == GoalType.BuildTroop).Count() <3
-                            && planet.GetGroundLandingSpots() > 25 -2*(float)(Empire.universeScreen.GameDifficulty))
-                            .OrderByDescending(build => build.NetProductionPerTurn).FirstOrDefault();
-                if (targetBuild == null || targetBuild.NetProductionPerTurn <1 ||targetBuild.GetGroundLandingSpots()<=0)
-                    return;
-                Troop troop=new Troop();
-                foreach(KeyValuePair<String,Troop> troops in ResourceManager.TroopsDict.OrderByDescending(cost=> cost.Value.Cost))
-                {
-                    if (!this.empire.WeCanBuildTroop(troops.Key))
-                        continue;
-                    troop =troops.Value;
-                    if(targetBuild.NetProductionPerTurn > 1 )//troop.Cost*.1 )
-                    {
-                        break;
-                    }
-                }
-                Goal g = new Goal(troop, this.empire, targetBuild);
-                this.Goals.Add(g);
+                totalwanted += defenseSystem.TroopStrengthNeeded >0 ?defenseSystem.TroopStrengthNeeded : 1;
+                totalideal += defenseSystem.IdealTroopStr >0 ? defenseSystem.IdealTroopStr : 1;
             }
+            if (totalwanted / totalideal < .5f)
+            {
+                troop = LowCosttroop;
+            }
+            if (totalwanted / totalideal < .1f)
+                return;
+            Planet targetBuild = this.empire.GetPlanets()
+                .Where(planet => planet.CanBuildInfantry()
+                    && planet.NetProductionPerTurn > 0
+                    && (planet.ConstructionQueue.Where(goal => goal.Goal != null
+                        && goal.Goal.type == GoalType.BuildTroop).Sum(cost => cost.Cost) + 1) / troop.GetCost() <= planet.NetProductionPerTurn * .3f//30% of planet production to troops 
+                        )
+                        .OrderByDescending(build => build.NetProductionPerTurn).FirstOrDefault();
+            if (targetBuild == null)
+                return;
+
+
+            Goal g = new Goal(troop, this.empire, targetBuild);
+            this.Goals.Add(g);
+
         }
 
 		private void RunGroundPlanner2()

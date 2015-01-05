@@ -1986,13 +1986,22 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 			}
 			if ((input.Right || this.RightColony.HandleInput(input)) && (PlanetScreen.screen.Debug || this.p.Owner == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty)))
 			{
-				int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);
-				thisindex = (thisindex >= this.p.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
-				if (this.p.Owner.GetPlanets()[thisindex] != this.p)
-				{
-					this.p = this.p.Owner.GetPlanets()[thisindex];
-					PlanetScreen.screen.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
-				}
+
+                try
+                {
+                    int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);
+                    thisindex = (thisindex >= this.p.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
+                    if (this.p.Owner.GetPlanets()[thisindex] != this.p)
+                    {
+                        this.p = this.p.Owner.GetPlanets()[thisindex];
+                        PlanetScreen.screen.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
+                    }
+                }
+                catch 
+                {
+
+                    System.Diagnostics.Debug.WriteLine("Colony Screen Handle Inpu. Likely null reference.");
+                }
 				return;
 			}
 			if ((input.Left || this.LeftColony.HandleInput(input)) && (PlanetScreen.screen.Debug || this.p.Owner == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty)))
