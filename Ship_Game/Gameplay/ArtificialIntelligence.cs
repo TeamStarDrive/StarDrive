@@ -3528,39 +3528,39 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		public void OrderRebase(Planet p, bool ClearOrders)
-		{
+        public void OrderRebase(Planet p, bool ClearOrders)
+        {
 
             lock (GlobalStats.WayPointLock)
-			{
-				this.ActiveWayPoints.Clear();
-			}
-			if (ClearOrders)
-			{
-				this.OrderQueue.Clear();
-			}
+            {
+                this.ActiveWayPoints.Clear();
+            }
+            if (ClearOrders)
+            {
+                this.OrderQueue.Clear();
+            }
             int troops = this.Owner.loyalty.GetShips()
     .Where(troop => troop.TroopList.Count > 0)
     .Where(troopAI => troopAI.GetAI().OrderQueue
         .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() > 0).Count();
 
-if(troops >= p.GetGroundLandingSpots())
-{
-    this.OrderQueue.Clear();
-    this.State = AIState.AwaitingOrders;
-    return;
-}
-            
+            if (troops >= p.GetGroundLandingSpots())
+            {
+                this.OrderQueue.Clear();
+                this.State = AIState.AwaitingOrders;
+                return;
+            }
+
             this.OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false);
-			this.IgnoreCombat = true;
-			ArtificialIntelligence.ShipGoal rebase = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Rebase, Vector2.Zero, 0f)
-			{
-				TargetPlanet = p
-			};
-			this.OrderQueue.AddLast(rebase);
-			this.State = AIState.Rebase;
-			this.HasPriorityOrder = true;
-		}
+            this.IgnoreCombat = true;
+            ArtificialIntelligence.ShipGoal rebase = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Rebase, Vector2.Zero, 0f)
+            {
+                TargetPlanet = p
+            };
+            this.OrderQueue.AddLast(rebase);
+            this.State = AIState.Rebase;
+            this.HasPriorityOrder = true;
+        }
 
 		public void OrderRebaseToNearest()
 		{
