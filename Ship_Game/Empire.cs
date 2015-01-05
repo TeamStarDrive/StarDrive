@@ -1766,12 +1766,14 @@ namespace Ship_Game
                             {
                                 if (ship.Name == "Subspace Projector")
                                 {
-                                    /*Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
+                                    Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
                                     influenceNode.Position = ship.Center;
                                     influenceNode.Radius = Empire.ProjectorRadius;  //projectors currently use their projection radius as sensors
-                                    lock (GlobalStats.SensorNodeLocker)
+                                    //lock (GlobalStats.SensorNodeLocker)
+                                    this.SensorNodeLocker.EnterWriteLock();
                                         this.SensorNodes.Add(influenceNode);
-                                    influenceNode.KeyedObject = (object)ship; */
+                                        this.SensorNodeLocker.ExitWriteLock();
+                                    influenceNode.KeyedObject = (object)ship; //*/
                                     //disabled until we figure out something better for projectors
                                 }
                                 else
@@ -1844,12 +1846,15 @@ namespace Ship_Game
                     this.SensorNodes.Add(influenceNode3);
                     this.SensorNodeLocker.ExitWriteLock();
             }
+            this.SensorNodeLocker.EnterWriteLock();
             foreach (Mole mole in (List<Mole>)this.data.MoleList)   // Moles are spies who have successfuly been planted during 'Infiltrate' type missions, I believe - Doctor
+                
                 this.SensorNodes.Add(new Empire.InfluenceNode()
                 {
                     Position = Empire.universeScreen.PlanetsDict[mole.PlanetGuid].Position,
                     Radius = 100000f * this.data.SensorModifier
                 });
+            this.SensorNodeLocker.ExitWriteLock();
             this.Inhibitors.Clear();
             for (int index = 0; index < this.OwnedShips.Count; ++index)
             {   //loop over your own ships
@@ -1864,7 +1869,7 @@ namespace Ship_Game
                         influenceNode.Position = ship.Center;
                         influenceNode.Radius = Empire.ProjectorRadius;  //projectors used as sensors again
                         influenceNode.KeyedObject = (object)ship;
-                        //this.SensorNodes.Add(influenceNode);
+                        this.SensorNodes.Add(influenceNode);
                         this.BorderNodeLocker.EnterWriteLock();
                             this.BorderNodes.Add(influenceNode);
                             this.BorderNodeLocker.ExitWriteLock();
