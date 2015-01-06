@@ -1389,7 +1389,7 @@ namespace Ship_Game
             }
         }
 
-        protected virtual void DoWorknew(float elapsedTime)
+        protected virtual void DoWork(float elapsedTime)
         {
             
             
@@ -1711,247 +1711,7 @@ namespace Ship_Game
   
         }
 
-        protected virtual void DoWork(float elapsedTime)
-        {
-            if (!this.IsActive)
-            {
-                this.ShowingSysTooltip = false;
-                this.ShowingPlanetToolTip = false;
-            }
-            this.RecomputeFleetButtons(false);
-            if (this.SelectedShip != null)
-            {
-                try
-                {
-                    Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-                    this.pieMenu.Position = new Vector2(vector3.X, vector3.Y);
-                    this.pieMenu.Radius = 75f;
-                    this.pieMenu.ScaleFactor = 1f;
-                }
-                catch
-                {
-                }
-            }
-            else if (this.SelectedPlanet != null)
-            {
-                try
-                {
-                    Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedPlanet != null ? this.SelectedPlanet.Position : Vector2.Zero, 2500f), this.projection, this.view, Matrix.Identity);
-                    this.pieMenu.Position = new Vector2(vector3.X, vector3.Y);
-                    this.pieMenu.Radius = 75f;
-                    this.pieMenu.ScaleFactor = 1f;
-                }
-                catch
-                {
-                }
-            }
-            if (GlobalStats.RemnantArmageddon)
-            {
-                if (!this.Paused)
-                    this.ArmageddonTimer -= elapsedTime;
-                if ((double)this.ArmageddonTimer < 0.0)
-                {
-                    this.ArmageddonTimer = 300f;
-                    ++this.ArmageddonCounter;
-                    if (this.ArmageddonCounter > 5)
-                        this.ArmageddonCounter = 5;
-                    for (int index = 0; index < this.ArmageddonCounter; ++index)
-                        ResourceManager.CreateShipAtPoint("Remnant Exterminator", EmpireManager.GetEmpireByName("The Remnant"), this.player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f), RandomMath.RandomBetween(-500000f, 500000f))).GetAI().DefaultAIState = AIState.Exterminate;
-                }
-            }
-            foreach (Ship ship in this.ShipsToRemove)
-                ship.TotallyRemove();
-            this.MasterShipList.ApplyPendingRemovals();
-            if (!this.IsActive)
-                return;
-            if (!this.Paused)
-            {
-                for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
-                    EmpireManager.EmpireList[index].Update(elapsedTime);
-                this.MasterShipList.ApplyPendingRemovals();
-                lock (GlobalStats.AddShipLocker)
-                {
-                    foreach (Ship item_1 in this.ShipsToAdd)
-                    {
-                        this.MasterShipList.Add(item_1);
-                        UniverseScreen.ShipSpatialManager.CollidableObjects.Add((GameplayObject)item_1);
-                    }
-                    this.ShipsToAdd.Clear();
-                }
-                this.ShipsToRemove.Clear();
-                this.shiptimer -= elapsedTime;
-            }
-            if ((double)elapsedTime > 0.0 && (double)this.shiptimer <= 0.0)
-            {
-                this.shiptimer = 1f;
-                foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
-                    solarSystem.ShipList.Clear();
-                foreach (Ship ship in (List<Ship>)this.MasterShipList)
-                {
-                    ship.Updated = false;
-                    ship.isInDeepSpace = false;
-                    ship.SetSystem((SolarSystem)null);
-                    foreach (SolarSystem s in UniverseScreen.SolarSystemList)
-                    {
-                        if ((double)Vector2.Distance(ship.Position, s.Position) < 100000.0)
-                        {
-                            s.ExploredDict[ship.loyalty] = true;
-                            ship.SetSystem(s);
-                            s.ShipList.Add(ship);
-                            if (!s.spatialManager.CollidableObjects.Contains((GameplayObject)ship))
-                                s.spatialManager.CollidableObjects.Add((GameplayObject)ship);
-                        }
-                    }
-                    if (ship.GetSystem() == null)
-                    {
-                        ship.isInDeepSpace = true;
-                        if (!UniverseScreen.DeepSpaceManager.CollidableObjects.Contains((GameplayObject)ship))
-                            UniverseScreen.DeepSpaceManager.CollidableObjects.Add((GameplayObject)ship);
-                    }
-                }
-            }
-            GlobalStats.BeamTests = 0;
-            GlobalStats.Comparisons = 0;
-            ++GlobalStats.ComparisonCounter;
-            GlobalStats.ModuleUpdates = 0;
-            GlobalStats.ModulesMoved = 0;
-            this.DeepSpaceGateKeeper.Set();
-            this.SystemGateKeeper[0].Set();
-            this.SystemGateKeeper[1].Set();
-            this.SystemGateKeeper[2].Set();
-            this.SystemGateKeeper[3].Set();
-            this.DeepSpaceDone.WaitOne();
-            this.SystemResetEvents[0].WaitOne();
-            this.SystemResetEvents[1].WaitOne();
-            this.SystemResetEvents[2].WaitOne();
-            this.SystemResetEvents[3].WaitOne();
-            this.SystemResetEvents[0].Reset();
-            this.SystemResetEvents[1].Reset();
-            this.SystemResetEvents[2].Reset();
-            this.SystemResetEvents[3].Reset();
-            this.DeepSpaceDone.Reset();
-            if ((double)elapsedTime > 0.0)
-            {
-                this.SpatManUpdate2(elapsedTime);
-                UniverseScreen.ShipSpatialManager.UpdateBucketsOnly(elapsedTime);
-            }
-            lock (GlobalStats.ClickableItemLocker)
-                this.UpdateClickableItems();
-            if (this.LookingAtPlanet)
-                this.workersPanel.Update(elapsedTime);
-            bool flag1 = false;
-            lock (GlobalStats.ClickableSystemsLock)
-            {
-                for (int local_11 = 0; local_11 < this.ClickPlanetList.Count; ++local_11)
-                {
-                    try
-                    {
-                        UniverseScreen.ClickablePlanets local_12 = this.ClickPlanetList[local_11];
-                        if ((double)Vector2.Distance(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y), local_12.ScreenPos) <= (double)local_12.Radius)
-                        {
-                            flag1 = true;
-                            this.TooltipTimer -= 0.01666667f;
-                            this.tippedPlanet = local_12;
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-            if ((double)this.TooltipTimer <= 0.0 && !this.LookingAtPlanet)
-                this.TooltipTimer = 0.5f;
-            if (!flag1)
-            {
-                this.ShowingPlanetToolTip = false;
-                this.TooltipTimer = 0.5f;
-            }
-            bool flag2 = false;
-            if (this.viewState > UniverseScreen.UnivScreenState.SectorView)
-            {
-                lock (GlobalStats.ClickableSystemsLock)
-                {
-                    for (int local_15 = 0; local_15 < this.ClickableSystems.Count; ++local_15)
-                    {
-                        UniverseScreen.ClickableSystem local_16 = this.ClickableSystems[local_15];
-                        if ((double)Vector2.Distance(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y), local_16.ScreenPos) <= (double)local_16.Radius)
-                        {
-                            this.sTooltipTimer -= 0.01666667f;
-                            this.tippedSystem = local_16;
-                            flag2 = true;
-                        }
-                    }
-                }
-                if ((double)this.sTooltipTimer <= 0.0)
-                    this.sTooltipTimer = 0.5f;
-            }
-            if (!flag2)
-                this.ShowingSysTooltip = false;
-            this.Zrotate += 0.03f * elapsedTime;
-            UniverseScreen.JunkList.ApplyPendingRemovals();
-            if ((double)elapsedTime > 0.0)
-            {
-                lock (GlobalStats.ExplosionLocker)
-                {
-                    ExplosionManager.Update(elapsedTime);
-                    ExplosionManager.ExplosionList.ApplyPendingRemovals();
-                }
-                MuzzleFlashManager.Update(elapsedTime);
-            }
-            lock (GlobalStats.ExplosionLocker)
-                MuzzleFlashManager.FlashList.ApplyPendingRemovals();
-            foreach (Anomaly anomaly in (List<Anomaly>)this.anomalyManager.AnomaliesList)
-                anomaly.Update(elapsedTime);
-            if ((double)elapsedTime > 0.0)
-            {
-                lock (GlobalStats.BombLock)
-                {
-                    for (int local_19 = 0; local_19 < this.BombList.Count; ++local_19)
-                    {
-                        Bomb local_20 = this.BombList[local_19];
-                        if (local_20 != null)
-                            local_20.Update(elapsedTime);
-                    }
-                    this.BombList.ApplyPendingRemovals();
-                }
-            }
-            this.anomalyManager.AnomaliesList.ApplyPendingRemovals();
-            if ((double)elapsedTime > 0.0)
-            {
-                ShieldManager.Update();
-                lock (GlobalStats.ShieldLocker)
-                {
-                    for (int local_21 = 0; local_21 < ShieldManager.shieldList.Count; ++local_21)
-                    {
-                        Shield local_22 = ShieldManager.shieldList[local_21];
-                        if (local_22.Owner != null && !local_22.Owner.Active)
-                        {
-                            ShieldManager.shieldList.QueuePendingRemoval(local_22);
-                            lock (GlobalStats.ObjectManagerLocker)
-                                this.ScreenManager.inter.LightManager.Remove((ILight)local_22.pointLight);
-                        }
-                    }
-                    ShieldManager.shieldList.ApplyPendingRemovals();
-                }
-                lock (FTLManager.FTLLock)
-                {
-                    FTLManager.Update(elapsedTime);
-                    FTLManager.FTLList.ApplyPendingRemovals();
-                }
-                for (int index = 0; index < UniverseScreen.JunkList.Count; ++index)
-                    UniverseScreen.JunkList[index].Update(elapsedTime);
-            }
-            this.SelectedShipList.ApplyPendingRemovals();
-            this.MasterShipList.ApplyPendingRemovals();
-            UniverseScreen.ShipSpatialManager.CollidableObjects.ApplyPendingRemovals();
-            if (this.perStarDateTimer <= this.StarDate)
-            {
-                this.perStarDateTimer = this.StarDate + .1f;
-                this.perStarDateTimer = (float)Math.Round((double)this.perStarDateTimer, 1);
-                this.empireShipCountReserve = EmpireManager.EmpireList.Where(empire => empire != this.player && !empire.data.Defeated && !empire.isFaction).Sum(empire => empire.EmpireShipCountReserve);
-                this.globalshipCount = this.MasterShipList.Where(ship => (ship.loyalty != null && ship.loyalty != this.player) && ship.Role != "troop" && ship.Mothership == null).Count();
-            }
-        }
+    
 
 
 
@@ -5098,7 +4858,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.End();
             this.view = matrix;
             if (this.drawBloom)
-                this.bloomComponent.Draw(gameTime);
+            this.bloomComponent.Draw(gameTime);
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
             Color color = Color.White;
             float num = (float)(75.0 * (double)this.camHeight / 1800000.0);
@@ -6848,8 +6608,8 @@ namespace Ship_Game
                         {
                             if ((double)Vector2.Distance(beam.Source, beam.ActualHitDestination) < (double)beam.range + 10.0)
                                 beam.Draw(this.ScreenManager);
-                            else
-                                beam.Die((GameplayObject)null, true);
+                            //else
+                            //    beam.Die((GameplayObject)null, true);
                         }
                     }
                 }
