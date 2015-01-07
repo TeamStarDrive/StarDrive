@@ -2618,8 +2618,8 @@ namespace Ship_Game.Gameplay
                         else
                             this.Projectiles.QueuePendingRemoval(projectile);
                      }//);
-                    foreach (Beam beam in (List<Beam>)this.beams)
-                    //Parallel.ForEach<Beam>(this.beams, beam =>
+                    
+                    foreach (Beam beam in (List<Beam>)this.beams)                    
                     {
                         Vector2 origin = new Vector2();
                         if (beam.moduleAttachedTo != null)
@@ -2639,7 +2639,7 @@ namespace Ship_Game.Gameplay
                         beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                         if ((double)beam.duration < 0.0 && !beam.infinite)
                             this.beams.QueuePendingRemoval(beam);
-                    }//);
+                    }
                     this.beams.ApplyPendingRemovals();
                 }
             }
