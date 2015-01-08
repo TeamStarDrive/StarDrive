@@ -4843,6 +4843,8 @@ namespace Ship_Game.Gameplay
             float tax = atWar ? .40f + (prepareWar * .05f) : .20f + (prepareWar * .5f);  //.45f - (tasks);
 
             float TotalCapacity = this.empire.EstimateIncomeAtTaxRate(tax);
+            if (this.empire.Money > this.empire.GrossTaxes)
+                TotalCapacity = this.empire.GrossTaxes;
 
             float DesiredFighterSpending = (TotalCapacity / totalRatio) * ratio_Fighters;
             float DesiredCorvetteSpending = (TotalCapacity / totalRatio) * ratio_Corvettes;
