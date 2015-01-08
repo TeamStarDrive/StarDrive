@@ -12,6 +12,7 @@ namespace Ship_Game.Gameplay
 {
 	public class ArtificialIntelligence
 	{
+        public Task fireTask;
         public bool UseSensorsForTargets =true;
         public bool ClearOrdersNext;
         private int loopcounter =0;
@@ -2107,7 +2108,7 @@ namespace Ship_Game.Gameplay
 			return Vec2Target;
 		}
 
-        public void FireOnTarget(float elapsedTime)
+        public void FireOnTarget() //(float elapsedTime)
 		{
             //Reasons not to fire
             Relationship enemy;
@@ -2136,18 +2137,19 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     //Visible weapon firing
-                    if (GlobalStats.ForceFullSim || this.Owner.InFrustum || this.Target is Ship && (this.Target as Ship).InFrustum)
+                    Ship TargetShip = this.Target as Ship;
+                    if (GlobalStats.ForceFullSim || this.Owner.InFrustum || TargetShip != null && TargetShip.InFrustum)
                     {
                         this.fireTarget = null;
                         //Can this weapon fire on ships
                         if (this.BadGuysNear && !weapon.TruePD)
                         {
                             //Is primary target valid
-                            if (this.Target != null && this.Target is Ship && weapon.TargetValid((this.Target as Ship).Role))
+                            if (TargetShip != null && weapon.TargetValid(TargetShip.Role))
                             {
                                 if (weapon.Tag_Guided && weapon.RotationRadsPerSecond > 3f && Vector2.Distance(this.Owner.Center, this.Target.Center) < weapon.GetModifiedRange())
                                     this.fireTarget = this.Target;
-                                else if(this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center))
+                                else if(this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center)) 
                                     this.fireTarget = this.Target;
                             }
                             //Find alternate target to fire on
@@ -2157,7 +2159,7 @@ namespace Ship_Game.Gameplay
                                 for (int i = 0; i < this.PotentialTargets.Count; i++)
                                 {
                                     Ship ship = this.PotentialTargets[i];
-                                    if (!ship.Active || ship.dying || !this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || !weapon.TargetValid(ship.Role))
+                                    if (ship ==null || !ship.Active || ship.dying || !this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || !weapon.TargetValid(ship.Role) )
                                         continue;
                                     this.fireTarget = ship;
                                     break;
@@ -2195,30 +2197,37 @@ namespace Ship_Game.Gameplay
                             if (this.fireTarget == null)
                             {
                                 foreach (Ship ship in PotentialTargets)
+                                //Parallel.ForEach(PotentialTargets, (ship,loopstate) =>
                                 {
                                     //foreach (Projectile proj in ship.Projectiles)
-                                    Parallel.For(0, ship.Projectiles.Count-1, (x ,loopstate) => //)
+                                    for (int i = 0; i < ship.Projectiles.Count; i++)
+                                    //Parallel.For(0, ship.Projectiles.Count-1, (x ,loopstate) => //)
                                     {
 
                                         Projectile proj; ;
                                         try
                                         {
-                                             proj = ship.Projectiles[x];
+                                            proj = ship.Projectiles[i];
                                         }
                                         catch
                                         {
-                                            return;
+                                            continue;
                                         }
                                         if (proj == null)
                                             return;
                                         if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj.Center))
                                             return;// continue;
                                         this.fireTarget = proj;
-                                        loopstate.Stop();  //break;
-                                    });
-                                    if (this.fireTarget != null)
+                                        //loopstate.Stop();  
                                         break;
-                                }
+                                    }//);
+                                    if (this.fireTarget != null)
+                                    break;
+                                    //{
+                                    //    loopstate.Stop();
+                                    //    return;
+                                    //}
+                                }//);
                             }
                         }
                         //If a target was aquired fire on it
@@ -6816,7 +6825,8 @@ namespace Ship_Game.Gameplay
                     {
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }
-                    this.FireOnTarget(elapsedTime);
+                    this.fireTask = new Task(new Action(this.FireOnTarget));
+                    this.fireTask.Start();
 
                 }
 #if !DEBUG
