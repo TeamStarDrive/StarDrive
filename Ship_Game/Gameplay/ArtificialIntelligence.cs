@@ -1239,7 +1239,7 @@ namespace Ship_Game.Gameplay
 				this.HasPriorityOrder = false;
                 this.State = this.DefaultAIState;
 				this.OrderQueue.Clear();
-                System.Diagnostics.Debug.WriteLine("Troop Assault Canceled");
+                System.Diagnostics.Debug.WriteLine("Do Land Troop: Troop Assault Canceled");
 			}
 			else
 			{
@@ -5790,7 +5790,7 @@ namespace Ship_Game.Gameplay
 
                         }
                        //else if (d > 50000f && angleDiffToNext > 1.65f)
-                        else if (d > this.Owner.speed && angleDiffToNext>1.5707963f)//*(d/this.Owner.speed ))
+                        else if (d > this.Owner.speed && angleDiffToNext>1.4f)//*(d/this.Owner.speed ))
                         {
                             this.Owner.HyperspaceReturn();
                             
@@ -5820,11 +5820,11 @@ namespace Ship_Game.Gameplay
                          angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         //float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (angleDiff > 0.65f)
-                        if (angleDiff >= this.Owner.maxBank )
+                        if (angleDiff >= 0.25f)// this.Owner.maxBank )
                         {
                             this.Owner.HyperspaceReturn();
                         }
-                        else if (d > this.Owner.speed)//25000f)
+                        else if (d > 25000f)
                         {
                             this.Owner.HyperspaceReturn();
                         }
@@ -5857,6 +5857,7 @@ namespace Ship_Game.Gameplay
                     {
                         Ship owner1 = this.Owner;
                         owner1.yRotation = owner1.yRotation + this.Owner.yBankAmount;
+                        
                     }
 
                     this.Owner.isTurning = true;
@@ -5872,14 +5873,21 @@ namespace Ship_Game.Gameplay
                     }
                     else if (Distance > 15000f && this.Owner.InCombat && angleDiff < 0.25f)
                     {
+
                         this.Owner.EngageStarDrive();
                     }
                     if (this.Owner.engineState == Ship.MoveState.Warp)
                     {
+                        if (this.Owner.Rotation >= angleDiff)
+                            this.Owner.speed--;
+                        else
                         speedLimit = this.Owner.velocityMaximum;
                     }
                     else if (Distance > this.Owner.speed * 10f)
                     {
+                        if (this.Owner.Rotation >= angleDiff)
+                            this.Owner.speed--;
+                        else
                         speedLimit = this.Owner.speed;
                     }
 
@@ -6386,8 +6394,8 @@ namespace Ship_Game.Gameplay
                             target = toEvaluate.TargetPlanet;
                             if ((double)this.Owner.Ordinance < 0.0500000007450581 * (double)this.Owner.OrdinanceMax
                                 || (target.BuildingList.Count == 0 && target.TroopsHere.Count == 0)
-                                || target.GetGroundStrength(this.Owner.loyalty) * 1.5 +3
-                                >= target.GetGroundStrength(target.Owner)
+                                || target.GetGroundStrength(this.Owner.loyalty) * 1.5
+                                > target.GetGroundStrength(target.Owner)
                                 )
                             {
                                 this.OrderQueue.Clear();

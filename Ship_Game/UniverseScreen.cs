@@ -941,6 +941,7 @@ namespace Ship_Game
                 this.WorkerThread.Start();
                 this.ShipUpdateThread = new Thread(new ThreadStart(this.ShipUpdater));
                 this.ShipUpdateThread.IsBackground = true;
+#if !ALTERTHREAD
                 this.SystemResetEvents = new ManualResetEvent[4];
                 this.SystemGateKeeper = new AutoResetEvent[4];
                 List<SolarSystem> list1 = new List<SolarSystem>();
@@ -997,7 +998,8 @@ namespace Ship_Game
                 Thread thread4 = new Thread(new ParameterizedThreadStart(this.SystemUpdater));
                 this.SystemUpdateThreadList.Add(thread4);
                 thread4.Start((object)list4);
-                thread4.IsBackground = true;
+                thread4.IsBackground = true; 
+#endif
                 Thread thread5 = new Thread(new ThreadStart(this.DeepSpaceThread));
                 this.SystemUpdateThreadList.Add(thread5);
                 thread5.Start();
@@ -1335,6 +1337,19 @@ namespace Ship_Game
                                     this.DoWork((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                             }
                         }
+#if PERF
+                        if (this.perfavg2.Count >0 && this.perfavg2.Average() < .05f)
+                        {
+                            this.GameSpeed++;
+
+                        }
+                        else
+                        {
+                            this.GameSpeed--;
+                            if ((double)this.GameSpeed <= 1.0)
+                                this.GameSpeed = 0.5f;
+                        } 
+#endif
                     }
                     this.WorkerCompletedEvent.Set();
                 }
@@ -1398,6 +1413,7 @@ namespace Ship_Game
         {
 
             float beginTime =this.zgameTime.ElapsedGameTime.Seconds;
+            this.zTime = elapsedTime;
             if (!this.IsActive)
             {
                 this.ShowingSysTooltip = false;
@@ -1992,7 +2008,7 @@ namespace Ship_Game
                 //this.SystemGateKeeper[list[0].IndexOfResetEvent].WaitOne();
                 //float elapsedTime = this.ztimeSnapShot;
                 float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-                float realTime = this.zgameTime.ElapsedGameTime.Seconds;
+                float realTime = this.zTime;// this.zgameTime.ElapsedGameTime.Seconds;
                 foreach (SolarSystem system in list)
                 //Parallel.ForEach(list, system =>
                 {
