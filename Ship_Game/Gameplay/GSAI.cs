@@ -6985,7 +6985,7 @@ namespace Ship_Game.Gameplay
                     UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
                 }
             }
-            //this.GetAShip(0);
+            this.GetAShip(0);
             float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
 
             bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
