@@ -1488,7 +1488,7 @@ namespace Ship_Game
                     this.ShipsToAdd.Clear();
                 }
                 this.ShipsToRemove.Clear();
-                this.shiptimer -= 0.01666667f;//elapsedTime;
+                this.shiptimer -= elapsedTime; //0.01666667f;//
             }
             if ((double)elapsedTime > 0.0 && (double)this.shiptimer <= 0.0)
             {
@@ -1623,7 +1623,7 @@ namespace Ship_Game
              else
              {
 
-                 this.perfavg.Add(beginTime - elapsedTime);
+                 this.perfavg.Add(elapsedTime - this.zgameTime.ElapsedGameTime.Seconds);
 
              }
              if (this.perfavg2.Count > 10)
@@ -1992,17 +1992,18 @@ namespace Ship_Game
                 //this.SystemGateKeeper[list[0].IndexOfResetEvent].WaitOne();
                 //float elapsedTime = this.ztimeSnapShot;
                 float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
+                float realTime = this.zgameTime.ElapsedGameTime.Seconds;
                 foreach (SolarSystem system in list)
                 //Parallel.ForEach(list, system =>
                 {
-                    system.DangerTimer -= elapsedTime;
-                    system.DangerUpdater -= elapsedTime;
+                    system.DangerTimer -= realTime;
+                    system.DangerUpdater -= realTime;
                     if ((double)system.DangerUpdater < 0.0)
                     {
                         system.DangerUpdater = 10f;
                         system.DangerTimer = (double)this.player.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0 ? 0.0f : 120f;
                     }
-                    system.combatTimer -= elapsedTime;
+                    system.combatTimer -= realTime;
 
 
                     if ((double)system.combatTimer <= 0.0)
@@ -3852,20 +3853,23 @@ namespace Ship_Game
                     }
                     else
                     //add new right click troop and troop ship options on planets
-                    if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)))
-                    {
-                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                            ship.GetAI().OrderToOrbit(planet, false);
+                        if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated || planet.Owner == null)))
+                        {
+                            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                ship.GetAI().OrderToOrbit(planet, false);
+                            else
+                            {
+
+                                ship.GetAI().State = AIState.AssaultPlanet;
+                                ship.GetAI().OrderLandAllTroops(planet);
+                            }
+                        }
+
                         else
                         {
-                            
-                            ship.GetAI().State = AIState.AssaultPlanet;
-                            ship.GetAI().OrderLandAllTroops(planet);
+
+                                ship.GetAI().OrderRebase(planet, true);
                         }
-                    }
-                   
-                    else
-                        ship.GetAI().OrderToOrbit(planet, true);
                 }
                 else if (planet.Owner != null)
                 {
