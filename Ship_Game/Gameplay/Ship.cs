@@ -792,8 +792,17 @@ namespace Ship_Game.Gameplay
 
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos)
-        {
+        {            
             GlobalStats.WeaponArcChecks = GlobalStats.WeaponArcChecks + 1;
+            float modifyRangeAR = 50f;
+            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
+            {
+                modifyRangeAR = this.speed * w.SalvoTimer;
+            }
+            if (Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) > w.GetModifiedRange() + modifyRangeAR)
+            {
+                return false;
+            }
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
             Vector2 toTarget = PickedPos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
@@ -817,12 +826,12 @@ namespace Ship_Game.Gameplay
                 }
                 difference = Math.Abs(angleToMouse - facing);
             }
-            float modifyRangeAR = 50f;
-            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
-            {
-                modifyRangeAR = this.speed * w.SalvoTimer;
-            }
-            if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + modifyRangeAR)
+            //float modifyRangeAR = 50f;
+            //if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
+            //{
+            //    modifyRangeAR = this.speed * w.SalvoTimer;
+            //}
+            if (difference < halfArc )//&& Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + modifyRangeAR)
             {
                 return true;
             }
@@ -2609,6 +2618,11 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
+                    if (this.GetAI().fireTask != null)
+                    {
+                        this.GetAI().fireTask.Wait();
+                        //this.GetAI().fireTask.Dispose();
+                    }
                     //task gremlin look at parallel here for weapons
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
                     //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
@@ -2620,6 +2634,7 @@ namespace Ship_Game.Gameplay
                      }//);
                     
                     foreach (Beam beam in (List<Beam>)this.beams)                    
+                    
                     {
                         Vector2 origin = new Vector2();
                         if (beam.moduleAttachedTo != null)
