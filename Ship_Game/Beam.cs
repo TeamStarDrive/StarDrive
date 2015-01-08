@@ -356,11 +356,19 @@ namespace Ship_Game
 				this.Duration = 0f;
 				return;
 			}
+            Ship ship = this.Target as Ship;
+            if(this.owner.engineState == Ship.MoveState.Warp || ship !=null && ship.engineState== Ship.MoveState.Warp)
+            {
+                this.Die(null, false);
+                this.Duration = 0f;
+                return;
+            }
             this.Duration -= elapsedTime;
 			this.Source = srcCenter;
 			if (this.Target == null)
 			{
 				this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
+                
 			}
 			else if (!this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
 			{
@@ -379,6 +387,10 @@ namespace Ship_Game
 			{
 				this.Destination = this.Target.Center;
 			}
+            if (Vector2.Distance(this.Destination, this.owner.Center) > this.range)
+            {
+                this.Destination = this.Destination - (this.Destination - this.owner.Center);
+            }
 			this.quadEffect.View = view;
 			this.quadEffect.Projection = projection;
 			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.ActualHitDestination, (float)Thickness, new Vector2[4], 0, this.BeamZ);

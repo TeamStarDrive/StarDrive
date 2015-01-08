@@ -5474,12 +5474,14 @@ namespace Ship_Game.Gameplay
                     this.OrderQueue.AddFirst(combat);
                     return;
                 }
-                if (this.HasPriorityOrder && this.CombatState != CombatState.HoldPosition && this.OrderQueue.Count == 0)
+                else 
                 {
+                    if (!this.HasPriorityOrder || this.CombatState == CombatState.HoldPosition || this.OrderQueue.Count != 0)
+                        return;
                     ArtificialIntelligence.ShipGoal combat = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f);
                     this.State = AIState.Combat;
                     this.OrderQueue.AddFirst(combat);
-                    return;
+                    
                 }
             }
         }
@@ -6813,15 +6815,10 @@ namespace Ship_Game.Gameplay
 
 
 
-                    docombat = (firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat);
-
-#if !DEBUG
-                                if (docombat || this.OrderQueue.Count == 0)
-                        System.Diagnostics.Debug.WriteLine("Nulled combat"); 
-#endif
+                    docombat = (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat);
 
 
-                    if (!this.HasPriorityOrder && (docombat || this.OrderQueue.Count == 0))
+                    if (!this.HasPriorityOrder && docombat )//|| this.OrderQueue.Count == 0))
                     {
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }
