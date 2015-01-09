@@ -6717,7 +6717,7 @@ namespace Ship_Game
                     }
                     if (this.SelectedShip.GetAI().State == AIState.Rebase || this.SelectedShip.GetAI().State == AIState.AssaultPlanet)
                     {
-                        lock (GlobalStats.WayPointLock)
+                        lock (this.SelectedShip.GetAI().wayPointLocker)
                         {
                             for (int local_23 = 0; local_23 < this.SelectedShip.GetAI().ActiveWayPoints.Count; ++local_23)
                             {
@@ -6738,7 +6738,7 @@ namespace Ship_Game
                     }
                     if (this.SelectedShip.GetAI().ActiveWayPoints.Count > 0 && (this.SelectedShip.GetAI().State == AIState.MoveTo || this.SelectedShip.GetAI().State == AIState.PassengerTransport || this.SelectedShip.GetAI().State == AIState.SystemTrader))
                     {
-                        lock (GlobalStats.WayPointLock)
+                        lock (this.SelectedShip.GetAI().wayPointLocker)
                         {
                             for (int local_28 = 0; local_28 < this.SelectedShip.GetAI().ActiveWayPoints.Count; ++local_28)
                             {
@@ -6858,7 +6858,7 @@ namespace Ship_Game
                         {
                             if (ship.GetAI().ActiveWayPoints.Count > 0)
                             {
-                                lock (GlobalStats.WayPointLock)
+                                lock (ship.GetAI().wayPointLocker)
                                 {
                                     for (int local_56 = 0; local_56 < ship.GetAI().ActiveWayPoints.Count; ++local_56)
                                     {
