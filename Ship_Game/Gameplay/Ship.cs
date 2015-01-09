@@ -2631,7 +2631,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
-                    if (this.GetAI().fireTask != null)
+                    if (this.GetAI().fireTask !=null && !this.GetAI().fireTask.IsCompleted)
                     {
                         this.GetAI().fireTask.Wait();
                         //this.GetAI().fireTask.Dispose();
@@ -3952,16 +3952,15 @@ namespace Ship_Game.Gameplay
         public void TotallyRemove()
         {
             this.Active = false;
-            this.AI.PotentialTargets.Clear();
-            this.AI.NearbyShips.Clear();
-            this.AI.FriendliesNearby.Clear();
             this.AI.Target = (GameplayObject)null;
             this.AI.ColonizeTarget = (Planet)null;
             this.AI.EscortTarget = (Ship)null;
             this.AI.start = (Planet)null;
             this.AI.end = (Planet)null;
+            this.AI.PotentialTargets.Clear();
+            this.AI.NearbyShips.Clear();
+            this.AI.FriendliesNearby.Clear();
             Ship.universeScreen.MasterShipList.QueuePendingRemoval(this);
-            //UniverseScreen.ShipSpatialManager.CollidableObjects.Remove((GameplayObject)this);
             UniverseScreen.ShipSpatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
             if (Ship.universeScreen.SelectedShip == this)
                 Ship.universeScreen.SelectedShip = (Ship)null;
@@ -3981,7 +3980,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             else if (this.isInDeepSpace)
-                UniverseScreen.DeepSpaceManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
+                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove((GameplayObject)this);
             for (int index = 0; index < this.projectiles.Count; ++index)
                 this.projectiles[index].Die((GameplayObject)this, false);
             this.projectiles.Clear();
