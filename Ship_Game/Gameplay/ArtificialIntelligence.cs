@@ -157,6 +157,7 @@ namespace Ship_Game.Gameplay
         public bool troopsout = false;
 
         private float UtilityModuleCheckTimer;
+        public object wayPointLocker;
 
 		public ArtificialIntelligence()
 		{
@@ -167,6 +168,7 @@ namespace Ship_Game.Gameplay
 			this.Owner = owner;
 			this.State = AIState.AwaitingOrders;
             this.CombatAI = new CombatAI(this.Owner);
+            this.wayPointLocker = new Object();
 		}
 
 		private void aPlotCourseToNew(Vector2 endPos, Vector2 startPos)
@@ -174,7 +176,7 @@ namespace Ship_Game.Gameplay
 			float Distance = Vector2.Distance(startPos, endPos);
 			if (Distance < this.Owner.CalculateRange())
 			{
-				lock (GlobalStats.WayPointLock)
+                lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(endPos);
 				}
@@ -227,7 +229,7 @@ namespace Ship_Game.Gameplay
 				}
 				if (AllTravelIsInBorders)
 				{
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Enqueue(endPos);
 					}
@@ -252,7 +254,7 @@ namespace Ship_Game.Gameplay
 					continue;
 				}
 				aCloserNodeExists = true;
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(ship1.Center);
 				}
@@ -261,7 +263,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (!aCloserNodeExists)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(endPos);
 				}
@@ -1358,61 +1360,105 @@ namespace Ship_Game.Gameplay
         }
 
         //added by gremlin devksmod doorbit
-        private void DoOrbit(Planet OrbitTarget, float elapsedTime)
-        {            
-            if (this.findNewPosTimer > 0f)
-            {
-                ArtificialIntelligence artificialIntelligence = this;
-                artificialIntelligence.findNewPosTimer = artificialIntelligence.findNewPosTimer - elapsedTime;
+        //private void DoOrbit(Planet OrbitTarget, float elapsedTime)
+        //{            
+        //    if (this.findNewPosTimer > 0f)
+        //    {
+        //        ArtificialIntelligence artificialIntelligence = this;
+        //        artificialIntelligence.findNewPosTimer = artificialIntelligence.findNewPosTimer - elapsedTime;
 
+        //    }
+        //    else
+        //    {
+        //        this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+        //        if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500f)
+        //        {
+        //            ArtificialIntelligence orbitalAngle = this;
+        //            orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle + 15f;
+        //            if (this.OrbitalAngle >= 360f)
+        //            {
+        //                ArtificialIntelligence orbitalAngle1 = this;
+        //                orbitalAngle1.OrbitalAngle = orbitalAngle1.OrbitalAngle - 360f;
+        //            }
+        //            this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+        //            if (this.inOrbit == false) this.inOrbit = true;
+        //        }
+        //        this.findNewPosTimer = 1.5f;
+
+        //    }
+        //    float single = Vector2.Distance(this.Owner.Center, this.OrbitPos);
+        //    if (single < 7500f)
+        //    {
+        //        this.Owner.HyperspaceReturn();
+        //        if (this.State != AIState.Bombard && this.State!=AIState.AssaultPlanet && this.State != AIState.BombardTroops && this.State!=AIState.Boarding && !this.IgnoreCombat)
+        //        {
+        //            this.HasPriorityOrder = false;
+        //        }
+
+        //    }
+        //    if (single <= 15000f)
+        //    {
+        //        if (this.Owner.speed > 150f && this.Owner.engineState != Ship.MoveState.Warp)
+        //        {
+        //            this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, 150f);//this.Owner.speed / 3.5f);
+        //            return;
+        //        }
+        //        if (this.Owner.engineState != Ship.MoveState.Warp)
+        //        {
+        //            this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
+        //        }
+        //        return;
+        //    }
+        //    Vector2 vector2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
+        //    Vector2 vector21 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+        //    Vector2 vector22 = new Vector2(-vector21.Y, vector21.X);
+        //    Math.Acos((double)Vector2.Dot(vector2, vector21));
+        //    Vector2.Dot(vector2, vector22);
+        //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
+        //}
+
+        private void DoOrbit(Planet OrbitTarget, float elapsedTime)
+        {
+            if ((double)this.findNewPosTimer <= 0.0)
+            {
+                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+                if ((double)Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500.0)
+                {
+                    this.OrbitalAngle += 15f;
+                    if ((double)this.OrbitalAngle >= 360.0)
+                        this.OrbitalAngle -= 360f;
+                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+                }
+                this.findNewPosTimer = 1.5f;
+            }
+            else
+                this.findNewPosTimer -= elapsedTime;
+            float num1 = Vector2.Distance(this.Owner.Center, this.OrbitPos);
+            if ((double)num1 < 7500.0)
+            {
+                this.Owner.HyperspaceReturn();
+                if (this.State != AIState.Bombard)
+                    this.HasPriorityOrder = false;
+            }
+            if ((double)num1 > 15000.0)
+            {
+                Vector2 vector2_1 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
+                Vector2 vector2_2 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                Vector2 vector2_3 = new Vector2(-vector2_2.Y, vector2_2.X);
+                Math.Acos((double)Vector2.Dot(vector2_1, vector2_2));
+                double num2 = (double)Vector2.Dot(vector2_1, vector2_3);
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
+            }
+            else if ((double)this.Owner.speed > 1200.0 && this.Owner.engineState != Ship.MoveState.Warp)
+            {
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 3.5f);
             }
             else
             {
-                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
-                if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500f)
-                {
-                    ArtificialIntelligence orbitalAngle = this;
-                    orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle + 15f;
-                    if (this.OrbitalAngle >= 360f)
-                    {
-                        ArtificialIntelligence orbitalAngle1 = this;
-                        orbitalAngle1.OrbitalAngle = orbitalAngle1.OrbitalAngle - 360f;
-                    }
-                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
-                    if (this.inOrbit == false) this.inOrbit = true;
-                }
-                this.findNewPosTimer = 1.5f;
-
-            }
-            float single = Vector2.Distance(this.Owner.Center, this.OrbitPos);
-            if (single < 7500f)
-            {
-                this.Owner.HyperspaceReturn();
-                if (this.State != AIState.Bombard && this.State!=AIState.AssaultPlanet && this.State != AIState.BombardTroops && this.State!=AIState.Boarding && !this.IgnoreCombat)
-                {
-                    this.HasPriorityOrder = false;
-                }
-
-            }
-            if (single <= 15000f)
-            {
-                if (this.Owner.speed > 150f && this.Owner.engineState != Ship.MoveState.Warp)
-                {
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, 150f);//this.Owner.speed / 3.5f);
+                if (this.Owner.engineState == Ship.MoveState.Warp)
                     return;
-                }
-                if (this.Owner.engineState != Ship.MoveState.Warp)
-                {
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
-                }
-                return;
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
             }
-            Vector2 vector2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
-            Vector2 vector21 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-            Vector2 vector22 = new Vector2(-vector21.Y, vector21.X);
-            Math.Acos((double)Vector2.Dot(vector2, vector21));
-            Vector2.Dot(vector2, vector22);
-            this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
         }
 
 		private void DoOrbitNoWarp(Planet OrbitTarget, float elapsedTime)
@@ -2727,7 +2773,7 @@ namespace Ship_Game.Gameplay
             {
                 if (single <= 1500f)
                 {
-                    lock (GlobalStats.WayPointLock)
+                    lock (this.wayPointLocker)
                     {
                         if (this.ActiveWayPoints.Count > 1)
                         {
@@ -2745,7 +2791,7 @@ namespace Ship_Game.Gameplay
             {
                 if (single <= 15000f)
                 {
-                    lock (GlobalStats.WayPointLock)
+                    lock (this.wayPointLocker)
                     {
                         this.ActiveWayPoints.Dequeue();
                         if (this.OrderQueue.Count > 0)
@@ -2757,7 +2803,7 @@ namespace Ship_Game.Gameplay
             }
             else if (single <= 1500f)
             {
-                lock (GlobalStats.WayPointLock)
+                lock (this.wayPointLocker)
                 {
                     this.ActiveWayPoints.Dequeue();
                     if (this.OrderQueue.Count > 0)
@@ -2827,7 +2873,7 @@ namespace Ship_Game.Gameplay
 		public void OrderAllStop()
 		{
 			this.OrderQueue.Clear();
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -2864,7 +2910,7 @@ namespace Ship_Game.Gameplay
 						return;
 					}
 					this.Intercepting = true;
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Clear();
 					}
@@ -2886,7 +2932,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderBombardPlanet(Planet toBombard)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -2903,7 +2949,7 @@ namespace Ship_Game.Gameplay
 
         public void OrderBombardTroops(Planet toBombard)
         {
-            lock (GlobalStats.WayPointLock)
+            lock (this.wayPointLocker)
             {
                 this.ActiveWayPoints.Clear();
             }
@@ -2952,7 +2998,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -2964,7 +3010,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderExterminatePlanet(Planet toBombard)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3009,7 +3055,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderFormationWarp(Vector2 destination, float facing, Vector2 fvec)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3027,7 +3073,7 @@ namespace Ship_Game.Gameplay
 		public void OrderInterceptShip(Ship toIntercept)
 		{
 			this.Intercepting = true;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3075,7 +3121,7 @@ namespace Ship_Game.Gameplay
 			this.OrderQueue.Clear();
 			if (ClearOrders)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -3086,13 +3132,13 @@ namespace Ship_Game.Gameplay
 			}
 			this.State = AIState.MoveTo;
 			this.MovePosition = position;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Enqueue(position);
 			}
 			this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				for (int i = 0; i < this.ActiveWayPoints.Count; i++)
 				{
@@ -3148,7 +3194,7 @@ namespace Ship_Game.Gameplay
 			this.OrderQueue.Clear();
 			if (ClearOrders)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -3159,13 +3205,13 @@ namespace Ship_Game.Gameplay
 			}
 			this.State = AIState.MoveTo;
 			this.MovePosition = position;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Enqueue(position);
 			}
 			this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				for (int i = 0; i < this.ActiveWayPoints.Count; i++)
 				{
@@ -3211,7 +3257,7 @@ namespace Ship_Game.Gameplay
 			if (ClearOrders)
 			{
 				this.OrderQueue.Clear();
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -3259,7 +3305,7 @@ namespace Ship_Game.Gameplay
 			this.OrderQueue.Clear();
 			if (ClearOrders)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -3276,14 +3322,14 @@ namespace Ship_Game.Gameplay
 			}
 			catch
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
 			}
 			this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				for (int i = 0; i < this.ActiveWayPoints.Count; i++)
 				{
@@ -3390,7 +3436,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderOrbitNearest(bool ClearOrders)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3438,7 +3484,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin to run away
         public void OrderFlee(bool ClearOrders)
         {
-            lock (GlobalStats.WayPointLock)
+            lock (this.wayPointLocker)
             {
                 this.ActiveWayPoints.Clear();
             }
@@ -3471,7 +3517,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderOrbitPlanet(Planet p)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3523,7 +3569,7 @@ namespace Ship_Game.Gameplay
 						return;
 					}
 					this.Intercepting = true;
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Clear();
 					}
@@ -3540,7 +3586,7 @@ namespace Ship_Game.Gameplay
         public void OrderRebase(Planet p, bool ClearOrders)
         {
 
-            lock (GlobalStats.WayPointLock)
+            lock (this.wayPointLocker)
             {
                 this.ActiveWayPoints.Clear();
             }
@@ -3576,7 +3622,7 @@ namespace Ship_Game.Gameplay
             ////added by gremlin if rebasing dont rebase.
             //if (this.State == AIState.Rebase && this.OrbitTarget.Owner == this.Owner.loyalty)
             //    return;
-            lock (GlobalStats.WayPointLock)
+            lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3620,7 +3666,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderRefitTo(string toRefit)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3662,7 +3708,7 @@ namespace Ship_Game.Gameplay
 			{
 				this.OrderQueue.Clear();
 			}
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3720,7 +3766,7 @@ namespace Ship_Game.Gameplay
                 this.State = AIState.Scuttle;
                 return;
             }
-            lock (GlobalStats.WayPointLock)
+            lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3822,14 +3868,14 @@ namespace Ship_Game.Gameplay
 			if (ClearOrders)
 			{
 				this.OrderQueue.Clear();
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
 			}
 			this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				for (int i = 0; i < this.ActiveWayPoints.Count; i++)
 				{
@@ -3857,7 +3903,7 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.Clear();
 			}
 			this.HasPriorityOrder = true;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3911,7 +3957,7 @@ namespace Ship_Game.Gameplay
                 //}
                 //if (allincombat == 0)
                 //    return;
-                lock (GlobalStats.WayPointLock)
+                lock (this.wayPointLocker)
                 {
                     this.ActiveWayPoints.Clear();
                 }
@@ -4912,7 +4958,7 @@ namespace Ship_Game.Gameplay
 			float Distance = Vector2.Distance(startPos, endPos);
 			if (Distance <= this.Owner.CalculateRange())
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(endPos);
 				}
@@ -4963,7 +5009,7 @@ namespace Ship_Game.Gameplay
 			{
 				if (Vector2.Distance(endPos, startPos) >= Vector2.Distance(startPos, sortedList.First<Vector2>()))
 				{
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Enqueue(sortedList.First<Vector2>());
 					}
@@ -4977,7 +5023,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (!gotWayPoint)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(endPos);
 				}
@@ -5641,7 +5687,7 @@ namespace Ship_Game.Gameplay
 			if (Distance < 100f && Distance < 25f)
 			{
 				this.OrderQueue.RemoveFirst();
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -5660,7 +5706,7 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.RemoveFirst();
 				if (this.ActiveWayPoints.Count > 0)
 				{
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Dequeue();
 					}
@@ -5702,7 +5748,7 @@ namespace Ship_Game.Gameplay
             if (Distance < 200)// && Distance > 25f)
             {
                 this.OrderQueue.RemoveFirst();
-                lock (GlobalStats.WayPointLock)
+                lock (this.wayPointLocker)
                 {
                     this.ActiveWayPoints.Clear();
                 }
@@ -5721,7 +5767,7 @@ namespace Ship_Game.Gameplay
                 this.OrderQueue.RemoveFirst();
                 if (this.ActiveWayPoints.Count > 0)
                 {
-                    lock (GlobalStats.WayPointLock)
+                    lock (this.wayPointLocker)
                     {
                         this.ActiveWayPoints.Dequeue();
                     }
@@ -6172,7 +6218,7 @@ namespace Ship_Game.Gameplay
                 {
                     if (this.Owner.fleet == null)
                     {
-                        lock (GlobalStats.WayPointLock)
+                        lock (this.wayPointLocker)
                         {
                             this.ActiveWayPoints.Clear();
                         }
@@ -6350,7 +6396,7 @@ namespace Ship_Game.Gameplay
                         else
                         {
                             this.ThrustTowardsPosition(this.Owner.fleet.Position + this.Owner.FleetOffset, elapsedTime, this.Owner.fleet.speed);
-                            lock (GlobalStats.WayPointLock)
+                            lock (this.wayPointLocker)
                             {
                                 this.ActiveWayPoints.Clear();
                                 this.ActiveWayPoints.Enqueue(this.Owner.fleet.Position + this.Owner.FleetOffset);

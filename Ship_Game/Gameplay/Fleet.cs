@@ -532,7 +532,7 @@ namespace Ship_Game.Gameplay
             {
                 if (!s.InCombat)
                 {
-                    lock (GlobalStats.WayPointLock)
+                    lock (s.GetAI().wayPointLocker)
                         s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
                 }
                 FleetDataNode fleetDataNode = new FleetDataNode();
