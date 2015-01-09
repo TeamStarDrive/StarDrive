@@ -24,10 +24,10 @@ namespace Ship_Game
         {
             //for (int i = 0; i < this.pendingRemovals.Count; i++)
             //foreach(T i in this.pendingRemovals)
-
+            T result;
             while (!this.pendingRemovals.IsEmpty)
             {
-                T result;
+               
                 this.pendingRemovals.TryPop(out result); //out T result);
                 //base.Remove(this.pendingRemovals(i));
                 this.Remove(result);
