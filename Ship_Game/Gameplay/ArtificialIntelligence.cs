@@ -6830,8 +6830,10 @@ namespace Ship_Game.Gameplay
                     {
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }
-                    this.fireTask = new Task(new Action(this.FireOnTarget));
-                    this.fireTask.Start();
+
+                    //Task fireTask = null;
+                    fireTask = Task.Factory.StartNew(this.FireOnTarget);
+                        
 
                 }
 #if !DEBUG

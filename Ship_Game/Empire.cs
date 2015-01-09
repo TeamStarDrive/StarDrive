@@ -1279,7 +1279,7 @@ namespace Ship_Game
             this.ShipsToAdd.Clear();
             {
                 Empire empire = this;
-                empire.updateContactsTimer = empire.updateContactsTimer - elapsedTime;
+                empire.updateContactsTimer = empire.updateContactsTimer -  0.01666667f;//elapsedTime;
                 if (this.updateContactsTimer <= 0f && !this.data.Defeated)
                 {
                     this.ResetBorders();
