@@ -1337,7 +1337,7 @@ namespace Ship_Game
                                     this.DoWork((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
                             }
                         }
-#if PERF
+#if AUTOTIME
                         if (this.perfavg2.Count >0 && this.perfavg2.Average() < .05f)
                         {
                             this.GameSpeed++;
