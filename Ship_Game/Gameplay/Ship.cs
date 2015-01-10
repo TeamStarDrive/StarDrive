@@ -806,8 +806,8 @@ namespace Ship_Game.Gameplay
             if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
             {
                 modifyRangeAR = this.speed * w.SalvoTimer;
-                if (modifyRangeAR < 0)
-                    modifyRangeAR = 0;
+                if (modifyRangeAR < 50f)
+                    modifyRangeAR = 50f;
             }                                   
             if (Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) > w.GetModifiedRange() + modifyRangeAR)
             {
