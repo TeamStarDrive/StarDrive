@@ -27,11 +27,11 @@ namespace Ship_Game
     public class UniverseScreen : GameScreen, IDisposable
     {
 
-        List<float> perfavg;
-        List<float> perfavg2;
-        List<float> perfavg3;
-        List<float> perfavg4;
-        List<float> perfavg5;
+        List<float> perfavg=new List<float>();
+        List<float> perfavg2=new List<float>();
+        List<float> perfavg3=new List<float>();
+        List<float> perfavg4=new List<float>();
+        List<float> perfavg5=new List<float>();
 
         public static float GamePaceStatic = 1f;
         public static float GameScaleStatic = 1f;
