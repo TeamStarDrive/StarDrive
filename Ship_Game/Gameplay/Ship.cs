@@ -759,8 +759,8 @@ namespace Ship_Game.Gameplay
             if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
                 modifyRangeAR = this.speed;
-                if (modifyRangeAR < w.Range)
-                    modifyRangeAR = w.Range;
+                if (modifyRangeAR < 0)
+                    modifyRangeAR = 0;
             }
             if (Vector2.Distance(pos, w.moduleAttachedTo.Center) > w.GetModifiedRange() + modifyRangeAR)
             {
@@ -806,9 +806,9 @@ namespace Ship_Game.Gameplay
             if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
             {
                 modifyRangeAR = this.speed * w.SalvoTimer;
-                if (modifyRangeAR < w.Range)
-                    modifyRangeAR = w.Range;
-            }
+                if (modifyRangeAR < 0)
+                    modifyRangeAR = 0;
+            }                                   
             if (Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) > w.GetModifiedRange() + modifyRangeAR)
             {
                 return false;
