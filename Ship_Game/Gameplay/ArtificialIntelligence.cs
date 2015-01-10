@@ -2888,10 +2888,12 @@ namespace Ship_Game.Gameplay
 		public void OrderAttackSpecificTarget(Ship toAttack)
 		{
 			this.TargetQueue.Clear();
+            
 			if (toAttack == null)
 			{
 				return;
 			}
+
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
 				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
@@ -5116,11 +5118,6 @@ namespace Ship_Game.Gameplay
         public GameplayObject ScanForCombatTargets(Vector2 Position, float Radius)
         {
 
-            //if(this.Owner.DoingSystemDefense)
-            //{
-            //    if (this.Target != null && this.Target.Active && this.Target.GetSystem() == this.SystemToDefend)
-            //        return this.Target;
-            //}
             RandomThreadMath randomThreadMath;
             this.BadGuysNear = false;
             this.FriendliesNearby.Clear();
@@ -5504,7 +5501,6 @@ namespace Ship_Game.Gameplay
             }
             if (this.Target != null && !this.Owner.InCombat)
             {
-                //this.Owner.ShieldsUp = true;
                 this.Owner.InCombatTimer = 15f;
                 if (!this.HasPriorityOrder && this.OrderQueue.Count > 0 && this.OrderQueue.ElementAt<ArtificialIntelligence.ShipGoal>(0).Plan != ArtificialIntelligence.Plan.DoCombat)
                 {
