@@ -269,6 +269,8 @@ namespace Ship_Game
         {
         }
 
+        
+
         public UniverseScreen()
         {
         }
@@ -287,7 +289,7 @@ namespace Ship_Game
             this.ShipToView = this.playerShip;
 
         }
-
+        
         public UniverseScreen(UniverseData data, string loyalty)
         {
             this.perfavg2   = new List<float>();
@@ -1427,8 +1429,8 @@ namespace Ship_Game
             {
                 incrementTimer = 0;
             }
-            float tempTimer = (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
-            float TotalTime = (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
+            float tempTimer = (float)this.zgameTime.TotalGameTime.TotalSeconds;
+            float TotalTime = (float)this.zgameTime.TotalGameTime.TotalSeconds;
             this.zTime = elapsedTime;
             #region PreEmpire
             
@@ -1508,16 +1510,16 @@ namespace Ship_Game
             this.MasterShipList.ApplyPendingRemovals();
             #endregion
             if (this.perfavg3.Count <= incrementTimer)
-                this.perfavg3.Add((float)this.zgameTime.ElapsedGameTime.TotalSeconds - tempTimer);
+                this.perfavg3.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer);
             else
-                this.perfavg3[incrementTimer] = (float)this.zgameTime.ElapsedGameTime.TotalSeconds - tempTimer;
+                this.perfavg3[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer;
             if (!this.IsActive)
                 return;
  
 
 
 
-            float elag = (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
+            float elag = (float)this.zgameTime.TotalGameTime.TotalSeconds;
             #region Empire
                         
             if (!this.Paused)
@@ -1543,11 +1545,11 @@ namespace Ship_Game
             #endregion
 
             if (this.perfavg.Count <= incrementTimer)
-                this.perfavg.Add((float)this.zgameTime.ElapsedGameTime.TotalSeconds - elag);
+                this.perfavg.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - elag);
             else
-                this.perfavg[incrementTimer] = (float)this.zgameTime.ElapsedGameTime.TotalSeconds - elag;
+                this.perfavg[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - elag;
 
-             tempTimer = (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
+             tempTimer = (float)this.zgameTime.TotalGameTime.TotalSeconds;
             #region Mid
             
             
@@ -1638,21 +1640,21 @@ namespace Ship_Game
             GlobalStats.ModuleUpdates = 0;
             GlobalStats.ModulesMoved = 0;
 
-            //tempTimer = (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
+            //tempTimer = (float)this.zgameTime.TotalGameTime.TotalSeconds;
             //foreach (Empire empire in EmpireManager.EmpireList)
            
             //if (this.perfavg5.Count <= incrementTimer)
-            //    this.perfavg5.Add((float)this.zgameTime.ElapsedGameTime.TotalSeconds - tempTimer);
+            //    this.perfavg5.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer);
             //else
-            //    this.perfavg5[incrementTimer] = (float)this.zgameTime.ElapsedGameTime.TotalSeconds - tempTimer;
+            //    this.perfavg5[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer;
             #endregion
             if (this.perfavg4.Count <= incrementTimer)
-                this.perfavg4.Add((float)this.zgameTime.ElapsedGameTime.TotalSeconds - tempTimer);
+                this.perfavg4.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer);
             else
-                this.perfavg4[incrementTimer] = (float)this.zgameTime.ElapsedGameTime.TotalSeconds - tempTimer;
+                this.perfavg4[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer;
 
 
-            float beginTime = (float)this.zgameTime.ElapsedGameTime.TotalSeconds;
+            float beginTime = (float)this.zgameTime.TotalGameTime.TotalSeconds;
             #region Ships
             this.DeepSpaceGateKeeper.Set();
 #if !ALTERTHREAD
@@ -1702,16 +1704,16 @@ namespace Ship_Game
             
             #endregion
              if (this.perfavg2.Count <= incrementTimer)
-                 this.perfavg2.Add((float)this.zgameTime.ElapsedGameTime.TotalSeconds - beginTime);
+                 this.perfavg2.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - beginTime);
              else
   
-                  this.perfavg2[incrementTimer]=(float)this.zgameTime.ElapsedGameTime.TotalSeconds - beginTime ;
+                  this.perfavg2[incrementTimer]=(float)this.zgameTime.TotalGameTime.TotalSeconds - beginTime ;
 
              
               #region end
 
               
-              //System.Diagnostics.Debug.WriteLine(this.zgameTime.ElapsedGameTime.Seconds - elapsedTime);
+              //System.Diagnostics.Debug.WriteLine(this.zgameTime.TotalGameTime.Seconds - elapsedTime);
               if ((double)elapsedTime > 0.0)
               {
                   this.SpatManUpdate2(elapsedTime);
@@ -1867,9 +1869,9 @@ namespace Ship_Game
               //        EmpireManager.EmpireList[index].Update(elapsedTime); 
               #endregion
               if (this.perfavg5.Count <= incrementTimer)
-                  this.perfavg5.Add((float)this.zgameTime.ElapsedGameTime.TotalSeconds - this.zTime);
+                  this.perfavg5.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - TotalTime);
               else
-                  this.perfavg5[incrementTimer] = (float)this.zgameTime.ElapsedGameTime.TotalSeconds - TotalTime;
+                  this.perfavg5[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - TotalTime;
             incrementTimer++;
             
         }
