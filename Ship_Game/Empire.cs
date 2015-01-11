@@ -1275,7 +1275,14 @@ namespace Ship_Game
                 if (!this.isPlayer)
                     this.ForcePoolAdd(s);
             }
+#if PLAYERONLY
+            if(!this.isPlayer)
+            foreach (Ship ship in this.GetShips())
+                ship.GetAI().OrderScrapShip();
+            if (this.GetShips().Count == 0)
+                return;
 
+#endif
             this.ShipsToAdd.Clear();
             {
                 Empire empire = this;

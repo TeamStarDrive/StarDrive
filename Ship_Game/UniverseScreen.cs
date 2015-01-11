@@ -1539,7 +1539,7 @@ namespace Ship_Game
                     }
                     this.ShipsToAdd.Clear();
                 }
-                this.shiptimer -= 0.01666667f;//elapsedTime; //
+                this.shiptimer -= elapsedTime; //0.01666667f;//
             }
 
             #endregion
