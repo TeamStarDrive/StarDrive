@@ -664,7 +664,7 @@ namespace Ship_Game.Gameplay
             if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
             {
 
-                if (this.Target != null && this.Owner.Mothership.GetAI().Target == null && !this.Owner.Mothership.GetAI().HasPriorityOrder && !this.Owner.Mothership.GetAI().hasPriorityTarget)
+                if (!this.hasPriorityTarget&& !this.HasPriorityOrder&& this.Target != null && this.Owner.Mothership.GetAI().Target == null && !this.Owner.Mothership.GetAI().HasPriorityOrder && !this.Owner.Mothership.GetAI().hasPriorityTarget)
                 {
                     this.Owner.Mothership.GetAI().Target = this.Target;
                     this.Owner.Mothership.GetAI().State = AIState.Combat;
@@ -1288,12 +1288,15 @@ namespace Ship_Game.Gameplay
             Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, this.Target.Center);
             float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
             float DistanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
-            if (DistanceToTarget > this.Owner.maxWeaponsRange)
+            float minRangeMod = this.Owner.maxWeaponsRange < 2000 ? .5f : .75f;
+            float maxRangeMod = this.Owner.maxWeaponsRange < 2000 ? .75f : .9f;
+            if (DistanceToTarget > this.Owner.maxWeaponsRange * maxRangeMod)
             {
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+
+            if (DistanceToTarget < this.Owner.maxWeaponsRange * minRangeMod && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
             {
                 Ship owner = this.Owner;
                 owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
@@ -2157,19 +2160,20 @@ namespace Ship_Game.Gameplay
         public void FireOnTarget() //(float elapsedTime)
 		{
             //Reasons not to fire
-            Relationship enemy;
-            //this.Owner.loyalty.GetRelations().ContainsKey((this.Target as Ship).loyalty)
+            Relationship enemy;    
+            Ship TargetShip = this.Target as Ship;
             if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled || !this.Owner.hasCommand || 
-                this.Target != null && !this.Owner.loyalty.isFaction 
-                && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue((this.Target as Ship).loyalty, out enemy) 
+                this.Target != null && !this.Owner.loyalty.isFaction
+                && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy) 
                 && enemy.Treaty_Peace)
 			{
 				return;
 			}
             //Target is dead or dying, will need a new one.
-			if (this.Target != null && (!this.Target.Active || this.Target is Ship && (this.Target as Ship).dying))
+            if (this.Target != null && (!this.Target.Active || TargetShip !=null && TargetShip.dying))
 			{
 				this.Target = null;
+                TargetShip = null;
 			}
             //Determine if there is something to shoot at
             if (this.BadGuysNear || this.Owner.InCombat)
@@ -2183,7 +2187,7 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     //Visible weapon firing
-                    Ship TargetShip = this.Target as Ship;
+                   
                     if (GlobalStats.ForceFullSim || this.Owner.InFrustum || TargetShip != null && TargetShip.InFrustum)
                     {
                         this.fireTarget = null;
@@ -2194,8 +2198,8 @@ namespace Ship_Game.Gameplay
                             if (TargetShip != null && weapon.TargetValid(TargetShip.Role))
                             {
                                 if (weapon.Tag_Guided && weapon.RotationRadsPerSecond > 3f && Vector2.Distance(this.Owner.Center, this.Target.Center) < weapon.GetModifiedRange())
-                                    this.fireTarget = this.Target;
-                                else if(this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center)) 
+                                    this.fireTarget = TargetShip;
+                                else if (this.Owner.CheckIfInsideFireArc(weapon, TargetShip)) 
                                     this.fireTarget = this.Target;
                             }
                             //Find alternate target to fire on
@@ -2205,7 +2209,7 @@ namespace Ship_Game.Gameplay
                                 for (int i = 0; i < this.PotentialTargets.Count; i++)
                                 {
                                     Ship ship = this.PotentialTargets[i];
-                                    if (ship ==null || !ship.Active || ship.dying || !this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || !weapon.TargetValid(ship.Role) )
+                                    if (ship ==null || !ship.Active || ship.dying || !this.Owner.CheckIfInsideFireArc(weapon, ship) || !weapon.TargetValid(ship.Role) )
                                         continue;
                                     this.fireTarget = ship;
                                     break;
@@ -2214,7 +2218,7 @@ namespace Ship_Game.Gameplay
                             //If a ship was found to fire on, change to target an internal module
                             if (this.fireTarget != null)
                             {
-                                this.fireTarget = (this.fireTarget as Ship).GetRandomInternalModule();
+                                this.fireTarget = (this.fireTarget as Ship).GetRandomInternalModule(weapon);
                             }
                         }
                         //No ship to target, check for projectiles
@@ -2230,7 +2234,7 @@ namespace Ship_Game.Gameplay
                                         continue;
                                     foreach (Projectile proj in p.Projectiles)
                                     {
-                                        if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj.Center))
+                                        if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj))
                                             continue;
                                         this.fireTarget = proj;
                                         break;
@@ -2261,7 +2265,7 @@ namespace Ship_Game.Gameplay
                                         }
                                         if (proj == null)
                                             return;
-                                        if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj.Center))
+                                        if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj))
                                             return;// continue;
                                         this.fireTarget = proj;
                                         //loopstate.Stop();  
@@ -2299,7 +2303,7 @@ namespace Ship_Game.Gameplay
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
-            float distance = Vector2.Distance(weapon.Center, target.Center);
+            float distance = Vector2.Distance(weapon.Center, target .Center) +500;
             Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
             float timeToTarget = distance / dir.Length();
             Vector2 projectedPosition = target.Center;
@@ -5392,6 +5396,7 @@ namespace Ship_Game.Gameplay
                 }
 
             }
+            this.PotentialTargets = this.NearbyShips.OrderBy(weight => weight.weight).Select(ship => ship.ship).ToList();
             if (this.Owner.Role == "platform")
             {
                 this.NearbyShips.ApplyPendingRemovals();

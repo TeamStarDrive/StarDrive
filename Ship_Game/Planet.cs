@@ -2651,7 +2651,7 @@ namespace Ship_Game
                                     Ship ship = this.system.ShipList[index2];
                                     if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && (double)Vector2.Distance(this.Position, ship.Center) < (double)building.theWeapon.Range)
                                     {
-                                        building.theWeapon.FireFromPlanet(ship.Center - this.Position, this, ship.GetRandomInternalModule());
+                                        building.theWeapon.FireFromPlanet(ship.Center - this.Position, this, ship.GetRandomInternalModule(building.theWeapon));
                                         building.WeaponTimer = building.theWeapon.fireDelay;
                                         break;
                                     }

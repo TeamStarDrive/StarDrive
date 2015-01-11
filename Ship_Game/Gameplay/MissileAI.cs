@@ -52,14 +52,14 @@ namespace Ship_Game.Gameplay
                 Ship sourceTargetShip = sourceTarget as Ship;
                 if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && sourceTargetShip.loyalty != this.Owner.loyalty)
                 {
-                    this.SetTarget(sourceTargetShip.GetRandomInternalModule());
+                    this.SetTarget(sourceTargetShip.GetRandomInternalModule(this.Owner));
                     return;
                 }
             }
             if (TargetList.Count > 0)
             {
                 Ship test = this.TargetList.Where(ship => ship.Active && !ship.dying).OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>();
-                if(test != null) this.SetTarget(test.GetRandomInternalModule());
+                if(test != null) this.SetTarget(test.GetRandomInternalModule(this.Owner));
             }
         }
 
