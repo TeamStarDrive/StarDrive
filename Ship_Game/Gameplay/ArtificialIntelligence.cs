@@ -670,6 +670,12 @@ namespace Ship_Game.Gameplay
                     this.Owner.Mothership.GetAI().State = AIState.Combat;
                     this.Owner.Mothership.InCombatTimer = 15f;
                 }
+                if(this.Owner.Role != "troop"
+                    && (this.Owner.Health/ this.Owner.HealthMax <.5f || this.Owner.shield_max>0 && this.Owner.shield_percent <=0.0)
+                    || (this.Owner.OrdinanceMax > 0 && this.Owner.Ordinance / this.Owner.OrdinanceMax <= .1f)
+                    || (this.Owner.PowerCurrent <=1f && this.Owner.PowerDraw / this.Owner.PowerFlowMax <=.1f)
+                    )
+                    this.OrderReturnToHangar();
             }
             if (this.Owner.OrdinanceMax > 0f && this.Owner.Ordinance / this.Owner.OrdinanceMax < 0.05f && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
             {
@@ -5247,7 +5253,13 @@ namespace Ship_Game.Gameplay
                 //}
                 //else
                 {
-                    sortedList = FriendliesNearby.Where(ship => ship != this.Owner && ship.engineState != Ship.MoveState.Warp && ship.Mothership == null && ship.OrdinanceMax > 0 && ship.Ordinance / ship.OrdinanceMax < .5 && !ship.IsTethered()).OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
+                    sortedList = FriendliesNearby.Where(ship => ship != this.Owner 
+                        && ship.engineState != Ship.MoveState.Warp 
+                        && ship.Mothership == null 
+                        && ship.OrdinanceMax > 0 
+                        && ship.Ordinance / ship.OrdinanceMax < .5 
+                        && !ship.IsTethered())
+                        .OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
                 }
 
                
@@ -5396,7 +5408,7 @@ namespace Ship_Game.Gameplay
                 }
 
             }
-            this.PotentialTargets = this.NearbyShips.OrderBy(weight => weight.weight).Select(ship => ship.ship).ToList();
+           // this.PotentialTargets = this.NearbyShips.OrderBy(weight => weight.weight).Select(ship => ship.ship).ToList();
             if (this.Owner.Role == "platform")
             {
                 this.NearbyShips.ApplyPendingRemovals();
@@ -5436,8 +5448,11 @@ namespace Ship_Game.Gameplay
             {
                 if (this.Owner.Mothership != null)
                 {
-                    senseCenter = this.Owner.Mothership.Center;
-                    radius = this.Owner.Mothership.SensorRange;
+                    if (Vector2.Distance(this.Owner.Center, this.Owner.Mothership.Center) <= this.Owner.Mothership.SensorRange - this.Owner.SensorRange)
+                    {
+                        senseCenter = this.Owner.Mothership.Center;
+                        radius = this.Owner.Mothership.SensorRange;
+                    }
                 }
                 else
                 {
@@ -5827,7 +5842,7 @@ namespace Ship_Game.Gameplay
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (d < 50000f)
-                        if(d<=this.Owner.speed)
+                        if(d<=this.Owner.GetFTLSpeed())
                         {
                             if (angleDiffToNext >  this.Owner.maxBank) //  0.4f)
                             {
@@ -5837,7 +5852,7 @@ namespace Ship_Game.Gameplay
 
                         }
                        //else if (d > 50000f && angleDiffToNext > 1.65f)
-                        else if (d > this.Owner.speed && angleDiffToNext>1.4f)//*(d/this.Owner.speed ))
+                        else if (d > this.Owner.GetFTLSpeed() && angleDiffToNext>1.65f)//*(d/this.Owner.speed ))
                         {
                             this.Owner.HyperspaceReturn();
                             
@@ -5847,7 +5862,7 @@ namespace Ship_Game.Gameplay
                     else if (this.Target != null)
                     {
                         float d = Vector2.Distance(this.Target.Center, this.Owner.Center);
-                        if (angleDiff > 0.4f)
+                        if (angleDiff > 0.65f)
                         {
                             this.Owner.HyperspaceReturn();
                         }
@@ -5867,7 +5882,7 @@ namespace Ship_Game.Gameplay
                          angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         //float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (angleDiff > 0.65f)
-                        if (angleDiff >= 0.25f)// this.Owner.maxBank )
+                        if (angleDiff >=  this.Owner.maxBank )
                         {
                             this.Owner.HyperspaceReturn();
                         }
@@ -5896,12 +5911,14 @@ namespace Ship_Game.Gameplay
                     {
                         if (this.Owner.yRotation > -this.Owner.maxBank)
                         {
+                            this.Owner.speed--;
                             Ship owner = this.Owner;
                             owner.yRotation = owner.yRotation - this.Owner.yBankAmount;
                         }
                     }
                     else if (RotAmount < 0f && this.Owner.yRotation < this.Owner.maxBank)
                     {
+                        this.Owner.speed--;
                         Ship owner1 = this.Owner;
                         owner1.yRotation = owner1.yRotation + this.Owner.yBankAmount;
                         
@@ -5925,15 +5942,15 @@ namespace Ship_Game.Gameplay
                     }
                     if (this.Owner.engineState == Ship.MoveState.Warp)
                     {
-                        if (this.Owner.Rotation >= angleDiff)
-                            this.Owner.speed--;
+                        if (angleDiff > .025f)
+                            speedLimit = this.Owner.speed;
                         else
-                        speedLimit = this.Owner.velocityMaximum;
+                            speedLimit = this.Owner.velocityMaximum;
                     }
                     else if (Distance > this.Owner.speed * 10f)
                     {
-                        if (this.Owner.Rotation >= angleDiff)
-                            this.Owner.speed--;
+                        if (angleDiff > .025f)
+                            speedLimit = this.Owner.speed;
                         else
                         speedLimit = this.Owner.speed;
                     }
@@ -6290,6 +6307,7 @@ namespace Ship_Game.Gameplay
                                                 }
                                                 else
                                                 {
+                                                    if(this.Target == null && !(this.hasPriorityTarget || this.HasPriorityOrder))
                                                     this.Target = this.Owner.Mothership.GetAI().Target;
                                                     this.DoCombat(elapsedTime);
                                                     break;
