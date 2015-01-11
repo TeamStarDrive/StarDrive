@@ -854,15 +854,18 @@ namespace Ship_Game.Gameplay
             float radius = ship.radius;
             GlobalStats.WeaponArcChecks = GlobalStats.WeaponArcChecks + 1;
             float modifyRangeAR = 50f;
-            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
+            float distance =Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) ;
+            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.GetOwner().speed) //&& this.maxWeaponsRange < 2000
             {
+                
+                
                 modifyRangeAR = this.speed * w.SalvoTimer;
 
                 if (modifyRangeAR < 50)
                     modifyRangeAR = 50;
 
-            }                                   
-            if (Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) > w.GetModifiedRange() + modifyRangeAR+radius)
+            }
+            if (distance > w.GetModifiedRange() + modifyRangeAR + radius)
             {
                 return false;
             }
@@ -4085,6 +4088,7 @@ namespace Ship_Game.Gameplay
             List<ShipModule> InternalModules = new List<ShipModule>();
             //foreach (ModuleSlot slot in this.ModuleSlotList)
             //foreach (ModuleSlot slot in this.ExternalSlots)
+           // ShipModule closest =null;
             for (int x=0; x< this.ExternalSlots.Count;x++ )
             {
                 ModuleSlot slot;
@@ -4109,8 +4113,22 @@ namespace Ship_Game.Gameplay
                 }
                 if (slot2 == null)
                     continue;
-                if (Vector2.Distance(source.Center, slot2.Center) > source.Range)
-                    continue;
+                //if(source.GetOwner().GetAI().CombatState == CombatState.AttackRuns)
+                //{
+                //    if(closest == null)
+                //        closest = slot2;
+                //    else
+                //    {
+                //        float distance = Vector2.Distance(source.Center, slot2.Center);//source.GetOwner().Center,slot2.Center);
+                //        float distancetoClosest = Vector2.Distance(source.Center,closest.Center);
+                //        if(distance < distancetoClosest)
+                //            closest = slot2;
+
+                //        }
+                    
+                //}
+                //if (Vector2.Distance(source.Center, slot2.Center) > source.Range)
+                //    continue;
  
                 //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
                 if (slot2.ModuleType != ShipModuleType.Dummy && slot2.Active)
