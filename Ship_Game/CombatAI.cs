@@ -42,10 +42,10 @@ namespace Ship_Game
         {
 
 
-            if (ship.Size > 0)
+            if (ship.Size > 0 )
             {
                 int Size = ship.Size;
-                this.LargeAttackWeight = Size / 100 > 1 ? Size / 200 > 1 ? 4 : 3 : .5f;
+                this.LargeAttackWeight = Size / 100 > 1 ? Size / 200 > 1 ? 3 : 2 : .5f;
                 this.SmallAttackWeight = 30 / Size > 1 ? 3 : 0;
                 this.MediumAttackWeight = Size / 100 < 1 && 30 / Size > 1 ? 3 : .5f;
                 float stlspeed = ship.GetSTLSpeed();
