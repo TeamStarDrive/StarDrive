@@ -66,6 +66,7 @@ namespace Ship_Game.Gameplay
         //SizeLimiter
 
         public int recyclepool =0;
+        private float buildCapacity = 0;
 
 		public GSAI(Empire e)
 		{
@@ -4785,33 +4786,33 @@ namespace Ship_Game.Gameplay
             }
             if (this.empire.canBuildCapitals)
             {
-                ratio_Fighters = 2f;
-                ratio_Corvettes = 4f;
-                ratio_Frigates = 4f;
-                ratio_Cruisers = 3f;
-                ratio_Capitals = 2f;
+                ratio_Fighters = .25f;
+                ratio_Corvettes = .5f;
+                ratio_Frigates = 2.25f;
+                ratio_Cruisers = 4f;
+                ratio_Capitals = 3f;
             }
             else if (this.empire.canBuildCruisers)
             {
 
-                ratio_Fighters = 2f;
-                ratio_Corvettes = 3f;
-                ratio_Frigates = 5f;
-                ratio_Cruisers = 2f;
+                ratio_Fighters = .5f;
+                ratio_Corvettes = 1f;
+                ratio_Frigates = 3f;
+                ratio_Cruisers = 5.5f;
                 ratio_Capitals = 0f;
             }
             else if (this.empire.canBuildFrigates)
             {
-                ratio_Fighters = 2f;
-                ratio_Corvettes = 3f;
-                ratio_Frigates = 3f;
+                ratio_Fighters = .5f;
+                ratio_Corvettes = 1f;
+                ratio_Frigates = 5f;
                 ratio_Cruisers = 0f;
                 ratio_Capitals = 0f;
             }
             else if (this.empire.canBuildCorvettes)
             {
                 ratio_Fighters = 2f;
-                ratio_Corvettes = 3f;
+                ratio_Corvettes = 6f;
                 ratio_Frigates = 0f;
                 ratio_Cruisers = 0f;
                 ratio_Capitals = 0f;
@@ -4837,15 +4838,16 @@ namespace Ship_Game.Gameplay
             int DesiredCarriers = (int)(TotalMilShipCount / totalRatio);
             int DesiredTroopShips = (int)(TotalMilShipCount / 15f);
 
-            bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
-            int prepareWar = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Count();
-            prepareWar += this.empire.GetRelations().Where(angry => angry.Value.Threat > 0).Count();
-            float tax = atWar ? .40f + (prepareWar * .05f) : .20f + (prepareWar * .5f);  //.45f - (tasks);
+            //bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
+            //int prepareWar = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Count();
+            //prepareWar += this.empire.GetRelations().Where(angry => angry.Value.Threat > 0).Count();
+            //float tax = atWar ? .40f + (prepareWar * .05f) : .20f + (prepareWar * .5f);  //.45f - (tasks);
 
-            float TotalCapacity = this.empire.EstimateIncomeAtTaxRate(tax);
-            if (this.empire.Money > this.empire.GrossTaxes)
-                TotalCapacity = this.empire.GrossTaxes;
-
+            //float TotalCapacity = this.empire.EstimateIncomeAtTaxRate(tax);
+            //if (this.empire.Money > this.empire.GrossTaxes)
+            //    TotalCapacity = this.empire.GrossTaxes;
+            float TotalCapacity = this.buildCapacity;
+           // float TotalCapacity = this.empire.GrossTaxes; //ship building is being severely restricted here. changing to increasing a bit.
             float DesiredFighterSpending = (TotalCapacity / totalRatio) * ratio_Fighters;
             float DesiredCorvetteSpending = (TotalCapacity / totalRatio) * ratio_Corvettes;
             float DesiredFrigateSpending = (TotalCapacity / totalRatio) * ratio_Frigates;
@@ -6354,22 +6356,22 @@ namespace Ship_Game.Gameplay
                             if (commodities > 0)
                                 ranker.Add(r2);
 
-                            //if (planetList.Type == "Barren" 
-                            //    && commodities > 0 
-                            //        || this.empire.GetBDict()["Biospheres"] 
-                            //        || this.empire.data.Traits.Cybernetic != 0 
-                            //)
-                            //{
-                            //    ranker.Add(r2);
-                            //}
-                            //else if (planetList.Type != "Barren" 
-                            //    && commodities > 0 
-                            //        || ((double)planetList.Fertility >= .5f ||(this.empire.data.Traits.Cybernetic != 0  &&(double)planetList.MineralRichness >= .5f ))
-                            //        || (this.empire.GetTDict()["Aeroponics"].Unlocked
-                            //        || this.empire.data.Traits.Cybernetic != 0 && this.empire.GetBDict()["Biospheres"])) 
-                            //{
-                            //    ranker.Add(r2);
-                            //}
+                            if (planetList.Type == "Barren"
+                                && commodities > 0
+                                    || this.empire.GetBDict()["Biospheres"]
+                                    || this.empire.data.Traits.Cybernetic != 0
+                            )
+                            {
+                                ranker.Add(r2);
+                            }
+                            else if (planetList.Type != "Barren"
+                                && commodities > 0
+                                    || ((double)planetList.Fertility >= .5f || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f))
+                                    || (this.empire.GetTDict()["Aeroponics"].Unlocked
+                                    || this.empire.data.Traits.Cybernetic != 0 && this.empire.GetBDict()["Biospheres"]))
+                            {
+                                ranker.Add(r2);
+                            }
                             else if (planetList.Type != "Barren")
                             {
                                 if (this.empire.data.Traits.Cybernetic == 0)
@@ -6987,7 +6989,7 @@ namespace Ship_Game.Gameplay
                     UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
                 }
             }
-            this.GetAShip(0);
+            //this.GetAShip(0);
             float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
 
             bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
@@ -7000,13 +7002,17 @@ namespace Ship_Game.Gameplay
 
             float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
             float allowable_deficit = -Capacity;//-this.empire.ShipsWeCanBuild.AsParallel().Max(main => ResourceManager.ShipsDict[main].GetMaintCost()); 
+            
             if (allowable_deficit >= 0f || noIncome > .35f)
             {
                 allowable_deficit = -this.empire.Money;// 0f;
             }
+            this.buildCapacity = Capacity - allowable_deficit;
+            this.GetAShip(0);
             if (Capacity <= allowable_deficit) //(Capacity <= 0f)
             {
                 float HowMuchWeAreScrapping = 0f;
+                
                 foreach (Ship ship1 in this.empire.GetShips())
                 {
                     if (ship1.GetAI().State != AIState.Scrap)
@@ -7083,68 +7089,70 @@ namespace Ship_Game.Gameplay
 
                         }
                     }
-
+                    //this.buildCapacity+= HowMuchWeAreScrapping;
                     this.Goals.ApplyPendingRemovals();
-                    IOrderedEnumerable<Ship> sortedList =
-                        from ship in this.empire.GetShips()
-                        where ship.GetAI().State != AIState.Scrap
-                        orderby this.DefensiveCoordinator.DefensiveForcePool.Contains(ship) descending
-                        orderby ship.BaseStrength
-                        select ship;
-                    using (IEnumerator<Ship> enumerator1 = sortedList.GetEnumerator())
-                    {
-                        do
-                        {
-                        Label0:
-                            if (!enumerator1.MoveNext())
-                            {
-                                break;
-                            }
-                            Ship current = enumerator1.Current;
-                            bool scrapFleet = current.fleet == null;
-                            if (this.empire.Money < -this.empire.GrossTaxes * this.empire.data.TaxRate)
-                            {
-                                scrapFleet = true;
-                            }
-                            if (current.Mothership == null && (current.shipData == null || current.shipData.ShipCategory != ShipData.Category.Civilian) && !(current.Role == "freighter") && !(current.Role == "construction")  && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
-                            {
-                                if (current.fleet == null || (current.fleet != null && current.fleet.Task == null)) //&&current.fleet.TaskStep <1))
-                                {
-                                    float maintcost = 1f;
-                                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
-                                    {
-                                        maintcost = current.GetMaintCostRealism();
-                                    }
-                                    else
-                                    {
-                                        maintcost = current.GetMaintCost();
-                                    }
+                    //IOrderedEnumerable<Ship> sortedList =
+                    //    from ship in this.empire.GetShips()
+                    //    where ship.GetAI().State != AIState.Scrap
+                    //    orderby this.DefensiveCoordinator.DefensiveForcePool.Contains(ship) descending
+                    //    orderby ship.BaseStrength
+                    //    select ship;
+                    //using (IEnumerator<Ship> enumerator1 = sortedList.GetEnumerator())
+                    //{
+                    //    do
+                    //    {
+                    //    Label0:
+                    //        if (!enumerator1.MoveNext())
+                    //        {
+                    //            break;
+                    //        }
+                    //        Ship current = enumerator1.Current;
+                    //        bool scrapFleet = current.fleet == null;
+                    //        if (this.empire.Money < -this.empire.GrossTaxes * this.empire.data.TaxRate)
+                    //        {
+                    //            scrapFleet = true;
+                    //        }
+                    //        if (current.Mothership == null && (current.shipData == null || current.shipData.ShipCategory != ShipData.Category.Civilian) && !(current.Role == "freighter") && !(current.Role == "construction")  && scrapFleet && !current.InCombat && !(current.Role == "troop") && current.GetAI().State != AIState.Explore)
+                    //        {
+                    //            if (current.fleet == null || (current.fleet != null && current.fleet.Task == null)) //&&current.fleet.TaskStep <1))
+                    //            {
+                    //                float maintcost = 1f;
+                    //                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+                    //                {
+                    //                    maintcost = current.GetMaintCostRealism();
+                    //                }
+                    //                else
+                    //                {
+                    //                    maintcost = current.GetMaintCost();
+                    //                }
 
-                                    if (maintcost > 0)
-                                    {
+                    //                if (maintcost > 0)
+                    //                {
                                         
-                                            current.GetAI().OrderScrapShip();
+                    //                        current.GetAI().OrderScrapShip();
       
-                                        Added = Added + maintcost;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                goto Label0;
-                            }
-                        }
-                        while (Added + HowMuchWeAreScrapping < Math.Abs(Capacity) + allowable_deficit);
-                    }
+                    //                    Added = Added + maintcost;
+                    //                }
+                    //            }
+                    //        }
+                    //        else
+                    //        {
+                    //            goto Label0;
+                    //        }
+                    //    }
+                    //    while (Added + HowMuchWeAreScrapping < Math.Abs(Capacity) + allowable_deficit);
+                    //}
                 }
 
             }
+            Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
+
             if (allowable_deficit > 0f || noIncome > tax)
             {
                 allowable_deficit = Math.Abs(allowable_deficit);
             }
 
-            Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
+            
 
             //int Memory = (int)GC.GetTotalMemory(false);
 

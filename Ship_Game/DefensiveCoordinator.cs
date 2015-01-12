@@ -301,7 +301,7 @@ namespace Ship_Game
             {
                 if ((!defensiveForcePool.GetAI().HasPriorityOrder || defensiveForcePool.GetAI().State == AIState.Resupply) && defensiveForcePool.loyalty == this.us)
                 {
-                    if (defensiveForcePool.GetAI().SystemToDefend != null)//||defensiveForcePool.GetAI().Target!=null)
+                    if (defensiveForcePool.GetAI().SystemToDefend != null || (defensiveForcePool.InCombat && defensiveForcePool.GetAI().BadGuysNear) || defensiveForcePool.GetAI().HasPriorityOrder)//||defensiveForcePool.GetAI().Target!=null)
                     {
                         continue;
                     }

@@ -831,7 +831,11 @@ namespace Ship_Game.Gameplay
 
         public Vector2 findAveragePosition()
         {
-            
+
+            if (StoredFleetPosistion == Vector2.Zero)
+                this.findAveragePositionset();
+            if (StoredFleetPosistion == Vector2.Zero)
+                return this.Ships.Any() ? this.Ships.First().Center : Vector2.Zero;
             return StoredFleetPosistion;
         }
         
