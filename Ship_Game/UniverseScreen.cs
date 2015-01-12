@@ -292,11 +292,11 @@ namespace Ship_Game
         
         public UniverseScreen(UniverseData data, string loyalty)
         {
-            this.perfavg2   = new List<float>();
-            this.perfavg3 = new List<float>();
-            this.perfavg4 = new List<float>();
-            this.perfavg5 = new List<float>();
-            this.perfavg = new List<float>();
+            //this.perfavg2   = new List<float>();
+            //this.perfavg3 = new List<float>();
+            //this.perfavg4 = new List<float>();
+            //this.perfavg5 = new List<float>();
+            //this.perfavg = new List<float>();
             this.Size = data.Size;
             this.FTLModifier = data.FTLSpeedModifier;
             this.EnemyFTLModifier = data.EnemyFTLSpeedModifier;
@@ -1351,7 +1351,7 @@ namespace Ship_Game
                             }
                         }
 #if AUTOTIME
-                        if (this.perfavg2.Count >0 && this.perfavg2.Average() < .05f)
+                        if (this.perfavg5.Count >0 && this.perfavg5.Average() *this.GameSpeed < .05f && this.GameSpeed <50)
                         {
                             this.GameSpeed++;
 
@@ -2786,6 +2786,8 @@ namespace Ship_Game
                         ResourceManager.CreateShipAtPoint("Kulrathi Assault Ship", this.player, this.mouseWorldPos);
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
                         HelperFunctions.CreateFleetAt("Fleet 2", this.player, this.mouseWorldPos);
+                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
+                        HelperFunctions.CreateFleetAt("Fleet 1", this.player, this.mouseWorldPos);
                     if (this.SelectedShip != null && this.Debug)
                     {
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
@@ -3461,6 +3463,13 @@ namespace Ship_Game
                                 }
                                 else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
                                     this.SelectedShip.GetAI().OrderMoveDirectlyTowardsPosition(vector2_1, num2, vector2_2, true);
+                                else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+                                {
+                                    this.SelectedShip.GetAI().OrderMoveTowardsPosition(vector2_1, num2, vector2_2, true);
+                                    this.SelectedShip.GetAI().OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.HoldPosition, vector2_1, num2));
+                                    this.SelectedShip.GetAI().HasPriorityOrder = true;
+                                    this.SelectedShip.GetAI().IgnoreCombat = true;
+                                }
                                 else
                                     this.SelectedShip.GetAI().OrderMoveTowardsPosition(vector2_1, num2, vector2_2, true);
                             }
