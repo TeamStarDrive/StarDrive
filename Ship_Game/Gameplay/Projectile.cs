@@ -136,6 +136,8 @@ namespace Ship_Game.Gameplay
 
         public bool flashExplode;
 
+        public bool isSecondary;
+
 
 		public Ship Owner
 		{
@@ -297,7 +299,10 @@ namespace Ship_Game.Gameplay
 				else if (this.weapon.FakeExplode && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 				{
 					ExplosionManager.AddExplosion(new Vector3(base.Position, -50f), this.damageRadius * this.explosionradiusmod, 2.5f, 0.2f);
-					Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
+                    if (this.flashExplode)
+                    {
+                        Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
+                    }
 				}
 			}
 			if (this.ProjSO != null && this.Active)
