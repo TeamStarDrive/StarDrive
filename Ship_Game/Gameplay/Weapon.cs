@@ -233,6 +233,10 @@ namespace Ship_Game.Gameplay
 
         public bool AltFireTriggerFighter;
 
+        public bool ExplosionFlash;
+
+        public bool RangeVariance;
+
 
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
@@ -486,10 +490,11 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
 		{
-            Projectile projectile;
-            Weapon AltFire = ResourceManager.GetWeapon(this.SecondaryFire);
-            if ((target is ShipModule) && (target as ShipModule).GetParent().Role == "fighter" && this.AltFireMode && this.AltFireTriggerFighter)
+
+            if (target != null && (target is ShipModule) && (target as ShipModule).GetParent().Role == "fighter" && this.AltFireMode && this.AltFireTriggerFighter && this.SecondaryFire != null)
             {
+                Weapon AltFire = ResourceManager.GetWeapon(this.SecondaryFire);
+                Projectile projectile;
                 projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
                 {
                     range = AltFire.Range,
@@ -504,13 +509,15 @@ namespace Ship_Game.Gameplay
                     WeaponType = AltFire.WeaponType,
                     RotationRadsPerSecond = AltFire.RotationRadsPerSecond,
                     ArmorPiercing = (byte)AltFire.ArmourPen,
-                    ArmourMit = AltFire.EffectVsArmor,
-                    ShieldMit = AltFire.EffectVSShields
                 };
                 //damage increase by level
                 if (this.owner.Level > 0)
                 {
                     projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
+                }
+                if (AltFire.RangeVariance)
+                {
+                    projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
                 }
                 //Hull bonus damage increase
                 if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
@@ -598,7 +605,7 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+                Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
                 {
                     range = this.Range,
                     weapon = this,
@@ -612,13 +619,15 @@ namespace Ship_Game.Gameplay
                     WeaponType = this.WeaponType,
                     RotationRadsPerSecond = this.RotationRadsPerSecond,
                     ArmorPiercing = (byte)this.ArmourPen,
-                    ArmourMit = this.EffectVsArmor,
-                    ShieldMit = this.EffectVSShields
                 };
                 //damage increase by level
                 if (this.owner.Level > 0)
                 {
                     projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
+                }
+                if (this.RangeVariance)
+                {
+                    projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
                 }
                 //Hull bonus damage increase
                 if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
@@ -704,6 +713,7 @@ namespace Ship_Game.Gameplay
                 this.owner.Projectiles.Add(projectile);
                 projectile = null;
             }
+            
 		}
 
 		protected virtual void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
@@ -715,6 +725,10 @@ namespace Ship_Game.Gameplay
 				explodes = this.explodes,
 				damageAmount = this.DamageAmount
 			};
+            if (this.RangeVariance)
+            {
+                projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
+            }
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
             projectile.explosionradiusmod = this.ExplosionRadiusVisual;
@@ -725,8 +739,6 @@ namespace Ship_Game.Gameplay
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
 			projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
             projectile.ArmorPiercing = (byte)this.ArmourPen;
-            projectile.ArmourMit = this.EffectVsArmor;
-            projectile.ShieldMit = this.EffectVSShields;
             /*
             if (this.ShieldPenChance > 0)
             {
