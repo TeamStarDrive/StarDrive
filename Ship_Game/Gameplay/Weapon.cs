@@ -227,10 +227,6 @@ namespace Ship_Game.Gameplay
 
         public float ArmourPen = 0f;
 
-        public bool ExplosionFlash;
-
-        public bool RangeVariance;
-
 
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
@@ -497,13 +493,8 @@ namespace Ship_Game.Gameplay
                 WeaponEffectType = this.WeaponEffectType,
                 WeaponType = this.WeaponType,
                 RotationRadsPerSecond = this.RotationRadsPerSecond,
-                ArmorPiercing = (byte)this.ArmourPen,
-                flashExplode = this.ExplosionFlash
+                ArmorPiercing = (byte)this.ArmourPen
 			};
-            if (this.RangeVariance)
-            {
-                projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
-            }
             //damage increase by level
 			if (this.owner.Level > 0)
 			{
