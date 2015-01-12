@@ -764,7 +764,7 @@ namespace Ship_Game.Gameplay
                                                         // Make sure explosions don't apply full damage when weapon is set to have penalty. Equally, applies bonus against armour from weapon.
                                                         if (shipModule.ModuleType == ShipModuleType.Armor)
                                                         {
-                                                            damageAmount *= (source as Projectile).ArmourMit;
+                                                            damageAmount *= (source as Projectile).weapon.EffectVSShields;
                                                         }
                                                         // doesn't this mean explosions hit through shields? It's not applying the 'bleed' if shields drop from damage, but half of all damage impacting...
                                                         shipModule.Damage(source, damageAmount / 2f);
@@ -823,7 +823,7 @@ namespace Ship_Game.Gameplay
                                                                         float health = (gameplayObject2 as ShipModule).Health;
                                                                         if ((gameplayObject2 as ShipModule).ModuleType == ShipModuleType.Armor)
                                                                         {
-                                                                            explosionRay.Damage *= (source as Projectile).ArmourMit;
+                                                                            explosionRay.Damage *= (source as Projectile).weapon.EffectVsArmor;
                                                                         }
                                                                         (gameplayObject2 as ShipModule).Damage(source, explosionRay.Damage);
                                                                         explosionRay.Damage -= health;
