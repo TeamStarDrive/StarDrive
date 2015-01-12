@@ -1458,7 +1458,9 @@ namespace Ship_Game
                 TerminalPhaseAttack = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseAttack,
                 TerminalPhaseDistance = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseDistance,
                 TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
-                ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen
+                ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen,
+                ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,
+                RangeVariance = Ship_Game.ResourceManager.WeaponsDict[uid].RangeVariance
 			};
 			return w;
 		}
