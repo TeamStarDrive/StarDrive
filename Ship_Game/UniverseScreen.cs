@@ -1667,6 +1667,7 @@ namespace Ship_Game
 
 #if ALTERTHREAD
             List<SolarSystem> solarsystems = this.SolarSystemDict.Values.ToList();
+#if !PLAYERONLY
             var source = Enumerable.Range(0, this.SolarSystemDict.Count).ToArray();
             var rangePartitioner = Partitioner.Create(0, source.Length);
 
@@ -1681,9 +1682,20 @@ namespace Ship_Game
                     SystemUpdater2(ss);
 
                 });
+            this.DeepSpaceDone.WaitOne();
+#endif
+#if PLAYERONLY
+            
+            foreach (SolarSystem solarsystem in solarsystems)
+            {
+                List<SolarSystem> ss = new List<SolarSystem>();
+                ss.Add(solarsystem);
+                SystemUpdater2(ss);
+            } 
+#endif
 #endif
 
-            this.DeepSpaceDone.WaitOne();
+            
 #if !ALTERTHREAD
             this.SystemResetEvents[0].WaitOne();
             this.SystemResetEvents[1].WaitOne();
@@ -2164,13 +2176,14 @@ namespace Ship_Game
                                     ship.Inhibited = true;
                                     ship.InhibitedTimer = 10f;
                                 }
+
                                 //try
-                                {
+                                //{
                                     ship.PauseUpdate = true;
                                     ship.Update(elapsedTime);
                                     if (ship.PlayerShip)
                                         ship.ProcessInput(elapsedTime);
-                                }
+                                //}
                                 //    catch (Exception ex)
                                 //    {
                                 //        System.Diagnostics.Debug.WriteLine(ex.StackTrace);
