@@ -237,7 +237,6 @@ namespace Ship_Game.Gameplay
 
         public bool RangeVariance;
 
-
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
 
@@ -600,6 +599,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
+                projectile.isSecondary = true;
                 this.owner.Projectiles.Add(projectile);
                 projectile = null;
             }
