@@ -134,6 +134,10 @@ namespace Ship_Game.Gameplay
 
         public bool ErrorSet = false;
 
+        public float ArmourMit;
+
+        public float ShieldMit;
+
 		public Ship Owner
 		{
 			get
