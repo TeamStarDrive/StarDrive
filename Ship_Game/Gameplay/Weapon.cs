@@ -227,6 +227,15 @@ namespace Ship_Game.Gameplay
 
         public float ArmourPen = 0f;
 
+        public string SecondaryFire;
+
+        public bool AltFireMode;
+
+        public bool AltFireTriggerFighter;
+
+        public bool ExplosionFlash;
+
+        public bool RangeVariance;
 
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
@@ -480,56 +489,208 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
 		{
-			Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
-			{
-				range = this.Range,
-				weapon = this,
-				explodes = this.explodes,
-				damageAmount = this.DamageAmount,
-                damageRadius = this.DamageRadius,
-                explosionradiusmod = this.ExplosionRadiusVisual,
-                Health = this.HitPoints,
-                speed = this.ProjectileSpeed,
-                WeaponEffectType = this.WeaponEffectType,
-                WeaponType = this.WeaponType,
-                RotationRadsPerSecond = this.RotationRadsPerSecond,
-                ArmorPiercing = (byte)this.ArmourPen
-			};
-            //damage increase by level
-			if (this.owner.Level > 0)
-			{
-                projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
-			}
-            //Hull bonus damage increase
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+
+            if (target != null && (target is ShipModule) && (target as ShipModule).GetParent().Role == "fighter" && this.AltFireMode && this.AltFireTriggerFighter && this.SecondaryFire != null)
             {
-                HullBonus mod;
-                if(ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
-                    projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
+                Weapon AltFire = ResourceManager.GetWeapon(this.SecondaryFire);
+                Projectile projectile;
+                projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+                {
+                    range = AltFire.Range,
+                    weapon = this,
+                    explodes = AltFire.explodes,
+                    damageAmount = AltFire.DamageAmount,
+                    damageRadius = AltFire.DamageRadius,
+                    explosionradiusmod = AltFire.ExplosionRadiusVisual,
+                    Health = AltFire.HitPoints,
+                    speed = AltFire.ProjectileSpeed,
+                    WeaponEffectType = AltFire.WeaponEffectType,
+                    WeaponType = AltFire.WeaponType,
+                    RotationRadsPerSecond = AltFire.RotationRadsPerSecond,
+                    ArmorPiercing = (byte)AltFire.ArmourPen,
+                };
+                //damage increase by level
+                if (this.owner.Level > 0)
+                {
+                    projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
+                }
+                if (AltFire.RangeVariance)
+                {
+                    projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
+                }
+                //Hull bonus damage increase
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+                {
+                    HullBonus mod;
+                    if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
+                        projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
+                }
+                projectile.LoadContent(AltFire.ProjectileTexturePath, AltFire.ModelPath);
+                AltFire.ModifyProjectile(projectile);
+                if (AltFire.Tag_Guided)
+                    projectile.InitializeMissile(projectile.speed, direction, target);
+                else
+                    projectile.Initialize(projectile.speed, direction, this.moduleAttachedTo.Center);
+                projectile.Radius = this.ProjectileRadius;
+                if (AltFire.Animated == 1)
+                {
+                    string remainder = 0.ToString("00000.##");
+                    projectile.texturePath = string.Concat(AltFire.AnimationPath, remainder);
+                }
+                if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
+                {
+                    projectile.DieSound = true;
+                    if (this.ToggleSoundName != "" && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
+                    {
+                        this.ToggleSoundOn = true;
+                        this.ToggleCue = AudioManager.GetCue(AltFire.ToggleSoundName);
+                        this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                        this.ToggleCue.Play();
+                        if (AltFire.fireCue != null)
+                        {
+                            //Added by McShooterz: Use sounds from new sound dictionary
+                            if (ResourceManager.SoundEffectDict.ContainsKey(AltFire.fireCueName))
+                            {
+                                AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
+                            }
+                            else
+                            {
+                                this.fireCue = AudioManager.GetCue(this.fireCueName);
+                                if (!this.owner.isPlayerShip())
+                                {
+                                    this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                                }
+                                this.lastFireSound = 0f;
+                                if (this.fireCue != null)
+                                {
+                                    this.fireCue.Play();
+                                }
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[AltFire.UID].dieCue))
+                    {
+                        projectile.dieCueName = ResourceManager.WeaponsDict[AltFire.UID].dieCue;
+                    }
+                    if (this.InFlightCue != "")
+                    {
+                        projectile.InFlightCue = AltFire.InFlightCue;
+                    }
+                    if (this.ToggleCue == null && this.owner.ProjectilesFired.Count < 30)
+                    {
+                        this.lastFireSound = 0f;
+                        this.owner.ProjectilesFired.Add(new ProjectileTracker());
+                        //Added by McShooterz: Use sounds from new sound dictionary
+                        if (ResourceManager.SoundEffectDict.ContainsKey(AltFire.fireCueName))
+                        {
+                            AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
+                        }
+                        else
+                        {
+                            this.fireCue = AudioManager.GetCue(this.fireCueName);
+                            if (!this.owner.isPlayerShip())
+                            {
+                                this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                            }
+                            if (this.fireCue != null)
+                            {
+                                this.fireCue.Play();
+                            }
+                        }
+                    }
+                }
+                projectile.isSecondary = true;
+                this.owner.Projectiles.Add(projectile);
+                projectile = null;
             }
-			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			this.ModifyProjectile(projectile);
-            if(this.Tag_Guided)
-                projectile.InitializeMissile(projectile.speed, direction, target);
             else
-			    projectile.Initialize(projectile.speed, direction, this.moduleAttachedTo.Center);
-			projectile.Radius = this.ProjectileRadius;
-			if (this.Animated == 1)
-			{
-				string remainder = 0.ToString("00000.##");
-				projectile.texturePath = string.Concat(this.AnimationPath, remainder);
-			}
-            if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
-			{
-				projectile.DieSound = true;
-				if (this.ToggleSoundName != "" && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
-				{
-					this.ToggleSoundOn = true;
-					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-					this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-					this.ToggleCue.Play();
-					if (this.fireCue != null)
-					{
+            {
+                Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+                {
+                    range = this.Range,
+                    weapon = this,
+                    explodes = this.explodes,
+                    damageAmount = this.DamageAmount,
+                    damageRadius = this.DamageRadius,
+                    explosionradiusmod = this.ExplosionRadiusVisual,
+                    Health = this.HitPoints,
+                    speed = this.ProjectileSpeed,
+                    WeaponEffectType = this.WeaponEffectType,
+                    WeaponType = this.WeaponType,
+                    RotationRadsPerSecond = this.RotationRadsPerSecond,
+                    ArmorPiercing = (byte)this.ArmourPen,
+                };
+                //damage increase by level
+                if (this.owner.Level > 0)
+                {
+                    projectile.damageAmount += projectile.damageAmount * (float)this.owner.Level * 0.05f;
+                }
+                if (this.RangeVariance)
+                {
+                    projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
+                }
+                //Hull bonus damage increase
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+                {
+                    HullBonus mod;
+                    if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
+                        projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
+                }
+                projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
+                this.ModifyProjectile(projectile);
+                if (this.Tag_Guided)
+                    projectile.InitializeMissile(projectile.speed, direction, target);
+                else
+                    projectile.Initialize(projectile.speed, direction, this.moduleAttachedTo.Center);
+                projectile.Radius = this.ProjectileRadius;
+                if (this.Animated == 1)
+                {
+                    string remainder = 0.ToString("00000.##");
+                    projectile.texturePath = string.Concat(this.AnimationPath, remainder);
+                }
+                if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
+                {
+                    projectile.DieSound = true;
+                    if (this.ToggleSoundName != "" && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
+                    {
+                        this.ToggleSoundOn = true;
+                        this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
+                        this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                        this.ToggleCue.Play();
+                        if (this.fireCue != null)
+                        {
+                            //Added by McShooterz: Use sounds from new sound dictionary
+                            if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                            {
+                                AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
+                            }
+                            else
+                            {
+                                this.fireCue = AudioManager.GetCue(this.fireCueName);
+                                if (!this.owner.isPlayerShip())
+                                {
+                                    this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                                }
+                                this.lastFireSound = 0f;
+                                if (this.fireCue != null)
+                                {
+                                    this.fireCue.Play();
+                                }
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
+                    {
+                        projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
+                    }
+                    if (this.InFlightCue != "")
+                    {
+                        projectile.InFlightCue = this.InFlightCue;
+                    }
+                    if (this.ToggleCue == null && this.owner.ProjectilesFired.Count < 30)
+                    {
+                        this.lastFireSound = 0f;
+                        this.owner.ProjectilesFired.Add(new ProjectileTracker());
                         //Added by McShooterz: Use sounds from new sound dictionary
                         if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
                         {
@@ -542,47 +703,17 @@ namespace Ship_Game.Gameplay
                             {
                                 this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
                             }
-                            this.lastFireSound = 0f;
                             if (this.fireCue != null)
                             {
                                 this.fireCue.Play();
                             }
                         }
-					}
-				}
-				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[this.UID].dieCue))
-				{
-					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
-				}
-				if (this.InFlightCue != "")
-				{
-					projectile.InFlightCue = this.InFlightCue;
-				}
-				if (this.ToggleCue == null && this.owner.ProjectilesFired.Count < 30)
-				{
-                    this.lastFireSound = 0f;
-					this.owner.ProjectilesFired.Add(new ProjectileTracker());
-                    //Added by McShooterz: Use sounds from new sound dictionary
-                    if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
-                    {
-                        AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
                     }
-                    else
-                    {
-                        this.fireCue = AudioManager.GetCue(this.fireCueName);
-                        if (!this.owner.isPlayerShip())
-                        {
-                            this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                        }
-                        if (this.fireCue != null)
-                        {
-                            this.fireCue.Play();
-                        }
-                    }
-				}
-			}
-			this.owner.Projectiles.Add(projectile);
-			projectile = null;
+                }
+                this.owner.Projectiles.Add(projectile);
+                projectile = null;
+            }
+            
 		}
 
 		protected virtual void CreateProjectilesFromPlanet(Vector2 direction, Planet p, GameplayObject target)
@@ -594,6 +725,10 @@ namespace Ship_Game.Gameplay
 				explodes = this.explodes,
 				damageAmount = this.DamageAmount
 			};
+            if (this.RangeVariance)
+            {
+                projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
+            }
 			projectile.explodes = this.explodes;
 			projectile.damageRadius = this.DamageRadius;
             projectile.explosionradiusmod = this.ExplosionRadiusVisual;
