@@ -299,9 +299,13 @@ namespace Ship_Game
             }
             foreach (Ship defensiveForcePool in this.DefensiveForcePool)
             {
-                if ((!defensiveForcePool.GetAI().HasPriorityOrder || defensiveForcePool.GetAI().State == AIState.Resupply) && defensiveForcePool.loyalty == this.us)
+                if ((!defensiveForcePool.GetAI().HasPriorityOrder ||  defensiveForcePool.GetAI().State == AIState.Resupply) 
+                    && defensiveForcePool.loyalty == this.us)
                 {
-                    if (defensiveForcePool.GetAI().SystemToDefend != null || (defensiveForcePool.InCombat && defensiveForcePool.GetAI().BadGuysNear) || defensiveForcePool.GetAI().HasPriorityOrder)//||defensiveForcePool.GetAI().Target!=null)
+                    if (defensiveForcePool.GetAI().SystemToDefend != null 
+                        || defensiveForcePool.GetAI().HasPriorityOrder 
+                        ||defensiveForcePool.GetAI().BadGuysNear
+                        || defensiveForcePool.engineState ==  Ship.MoveState.Warp)//||defensiveForcePool.GetAI().Target!=null)
                     {
                         continue;
                     }
