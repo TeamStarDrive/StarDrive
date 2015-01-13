@@ -576,7 +576,7 @@ namespace Ship_Game
 								{
                                     ExplorationEvent e = n.ReferencedItem1 as ExplorationEvent;
                                     Outcome triggeredOutcome = GetRandomOutcome(e);
-									this.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), n.ReferencedItem1 as ExplorationEvent, triggeredOutcome);
+									this.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), n.ReferencedItem1 as ExplorationEvent, triggeredOutcome));
 									(n.ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), triggeredOutcome);
 								}
 								else if (str == "ResearchScreen")
@@ -712,7 +712,7 @@ namespace Ship_Game
                 Timer = date;
                 ExplorationEvent ReferencedItem1 = ResourceManager.EventsDict[date.ToString()];
                 Outcome triggeredOutcome = GetRandomOutcome(ReferencedItem1);
-                this.screen.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), ReferencedItem1 as ExplorationEvent, triggeredOutcome);
+                this.screen.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), ReferencedItem1 as ExplorationEvent, triggeredOutcome));
                 (ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), triggeredOutcome);
             }
             
