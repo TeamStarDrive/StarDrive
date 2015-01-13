@@ -435,12 +435,14 @@ namespace Ship_Game
         {
           if (index < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay)
           {
-            try
-            {
+#if !DEBUG
+              try
+              { 
+#endif
               ScrollList.Entry entry = this.buildSL.Copied[index];
-              if (entry != null)
+              if (entry != null && entry.item is Building)
               {
-                if (entry.clickRectHover == 0 && entry.item is Building)
+                if (entry.clickRectHover == 0 )
                 {
                   vector2_1.Y = (float) entry.clickRect.Y;
                   this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as Building).Icon + "_48x48"], new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), Color.White);
@@ -504,10 +506,12 @@ namespace Ship_Game
                 if (HelperFunctions.CheckIntersection(entry.clickRect, new Vector2((float) this.currentMouse.X, (float) this.currentMouse.Y)))
                   entry.clickRectHover = 1;
               }
-            }
+#if !DEBUG
+		            }
             catch
             {
-            }
+            }  
+	#endif
           }
           else
             break;
@@ -1982,13 +1986,22 @@ if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
 			}
 			if ((input.Right || this.RightColony.HandleInput(input)) && (PlanetScreen.screen.Debug || this.p.Owner == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty)))
 			{
-				int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);
-				thisindex = (thisindex >= this.p.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
-				if (this.p.Owner.GetPlanets()[thisindex] != this.p)
-				{
-					this.p = this.p.Owner.GetPlanets()[thisindex];
-					PlanetScreen.screen.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
-				}
+
+                try
+                {
+                    int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);
+                    thisindex = (thisindex >= this.p.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
+                    if (this.p.Owner.GetPlanets()[thisindex] != this.p)
+                    {
+                        this.p = this.p.Owner.GetPlanets()[thisindex];
+                        PlanetScreen.screen.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
+                    }
+                }
+                catch 
+                {
+
+                    System.Diagnostics.Debug.WriteLine("Colony Screen Handle Inpu. Likely null reference.");
+                }
 				return;
 			}
 			if ((input.Left || this.LeftColony.HandleInput(input)) && (PlanetScreen.screen.Debug || this.p.Owner == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty)))

@@ -987,6 +987,7 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
+            //this.SetNewExternals();
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
@@ -1264,7 +1265,14 @@ namespace Ship_Game.Gameplay
             {
                 if (this.hangarShip != null && this.hangarShip.Active)
                 {
-                    if (this.hangarShip.GetAI().State == AIState.ReturnToHangar) return;
+                    if (this.hangarShip.GetAI().State == AIState.ReturnToHangar 
+                        || this.hangarShip.GetAI().HasPriorityOrder 
+                        || this.hangarShip.GetAI().hasPriorityTarget
+                        || this.hangarShip.GetAI().IgnoreCombat 
+                        || this.hangarShip.GetAI().Target!=null
+                        || Vector2.Distance(this.Parent.Center,this.hangarShip.Center) >this.Parent.SensorRange
+                        )
+                        return;
                     this.hangarShip.DoEscort(this.Parent);
                     return;
                 }
@@ -1297,7 +1305,8 @@ namespace Ship_Game.Gameplay
                     if (this.hangarShip != null)
                     {
                         this.GetHangarShip().DoEscort(this.Parent);
-                        this.GetHangarShip().Velocity = (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.GetHangarShip().speed) + this.Parent.Velocity;
+                        this.GetHangarShip().Velocity = 
+                            (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.GetHangarShip().speed) + this.Parent.Velocity;
                         if (this.GetHangarShip().Velocity.Length() > this.GetHangarShip().velocityMaximum)
                         {
                             this.GetHangarShip().Velocity = Vector2.Normalize(this.GetHangarShip().Velocity) * this.GetHangarShip().speed;

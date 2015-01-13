@@ -38,13 +38,17 @@ namespace Ship_Game.Gameplay
 			this.Target = null;
 			List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
 			List<Ship> Potentials = new List<Ship>();
+            
 			foreach (GameplayObject go in nearby)
 			{
-				if (!(go is Ship) || (go as Ship).loyalty != this.Owner.loyalty || (go as Ship).Health >= (go as Ship).HealthMax)
+                bool isShip = go is Ship;
+                
+                    Ship goShip = go as Ship;
+                    if (!isShip || goShip.loyalty != this.Owner.loyalty || goShip.Health >= goShip.HealthMax)
 				{
 					continue;
 				}
-				Potentials.Add(go as Ship);
+                    Potentials.Add(goShip);
 			}
 			IOrderedEnumerable<Ship> sortedList = 
 				from ship in Potentials

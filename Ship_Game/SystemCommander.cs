@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Ship_Game
 {
@@ -24,11 +25,13 @@ namespace Ship_Game
 		public float PercentageOfValue;
         public float incomingThreatTime;
 
-		public Dictionary<Guid, Ship> ShipsDict = new Dictionary<Guid, Ship>();
+		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
 		public Dictionary<Ship, List<Ship>> EnemyClumpsDict = new Dictionary<Ship, List<Ship>>();
 
 		private Empire us;
+        //public ReaderWriterLockSlim 
+        public Dictionary<Planet, PlanetTracker> planetTracker = new Dictionary<Planet, PlanetTracker>();
 
 		public SystemCommander(Empire e, SolarSystem system)
 		{
@@ -45,7 +48,8 @@ namespace Ship_Game
                 Ship ship = entry.Value;
                 //if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
 
-                if ((ship == null || ship.GetSystem() != this.system) || (ship.GetAI().Target != null && ship.InCombat ))
+                //if ((ship == null || ship.GetSystem() != this.system) || (ship.GetAI().Target != null && ship.InCombat ))
+                if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
                 {
                     continue;
                 }
@@ -161,5 +165,39 @@ namespace Ship_Game
 			}
 			return retlist;
 		}
+        public void updatePlanetTracker()
+        {
+            List<Planet> planetsHere = this.system.PlanetList.Where(planet => planet.Owner == this.us).ToList();
+            foreach(Planet planet in  planetsHere)
+            {
+                PlanetTracker currentValue = null;
+                if(!planetTracker.TryGetValue(planet, out currentValue))
+                {
+                    PlanetTracker newEntry = new PlanetTracker(planet);
+                    
+
+                    planetTracker.Add(planet, newEntry);
+                    continue;
+                }
+                if(currentValue.planet.Owner != this.us)
+                {
+                    planetTracker.Remove(currentValue.planet);
+
+                }
+            }
+        }
 	}
+    public class PlanetTracker
+    {
+        public float value;
+        public int troopsWanted;
+        public int troopsHere ;
+        public Planet planet;
+        public PlanetTracker(Planet toTrack)
+        {
+            this.planet = toTrack;
+
+        }
+    }
+
 }
