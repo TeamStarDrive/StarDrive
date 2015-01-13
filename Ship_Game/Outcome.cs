@@ -53,6 +53,10 @@ namespace Ship_Game
 
 		public string SpawnFleetInOrbitOfPlanet;
 
+        public bool onlyTriggerOnce;
+
+        public bool alreadyTriggered;
+
 		public Outcome()
 		{
 		}
