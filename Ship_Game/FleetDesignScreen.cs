@@ -247,6 +247,7 @@ namespace Ship_Game
 			{
 				lock (this)
 				{
+                    starfield.Dispose();
 				}
 			}
 		}

@@ -200,7 +200,8 @@ namespace Ship_Game
 			p.ObjectRadius = 100f * p.scale;
 			foreach (Guid guid in data.StationsList)
 			{
-				p.Shipyards.Add(guid, new Ship());
+				p.Shipyards.TryAdd(guid, new Ship());
+                
 			}
 			p.FarmerPercentage = data.farmerPercentage;
 			p.WorkerPercentage = data.workerPercentage;
@@ -235,19 +236,25 @@ namespace Ship_Game
 					p.BuildingList.Add(Ship_Game.ResourceManager.GetBuilding("Biospheres"));
 				}
 				p.TilesList.Add(pgs);
-				foreach (Troop t in d.TroopsHere)
-				{
+                //List<Troop> toremove = new List<Troop>();
+                foreach (Troop t in d.TroopsHere)
+                {
                     if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(t.Name))
                     {
                         pgs.TroopsHere.Add(t);
                         p.TroopsHere.Add(t);
                         t.SetPlanet(p);
                     }
-                    else
-                    {
-                        d.TroopsHere.Remove(t);
-                    }
-				}
+                }
+                //    else
+                //    {
+                //        toremove.Add(t);
+                //    }
+                //}
+                //foreach(Troop killit in toremove)
+                //{
+
+                //}
 				if (pgs.building == null)
 				{
 					continue;
@@ -464,6 +471,7 @@ namespace Ship_Game
 		}*/
         ~LoadUniverseScreen() {
             //should implicitly do the same thing as the original bad finalize
+            this.Dispose(false);
         }
 
 		public void Go()
@@ -474,7 +482,13 @@ namespace Ship_Game
 			}
 			foreach (Ship ship in this.us.MasterShipList)
 			{
-				ship.UpdateSystem(0f);
+                if (!ship.Active)
+                {
+                    this.us.MasterShipList.QueuePendingRemoval(ship);
+                    continue;
+                }
+
+                ship.UpdateSystem(0f);
 				if (ship.loyalty != EmpireManager.GetEmpireByName(this.us.PlayerLoyalty))
 				{
 					if (ship.AddedOnLoad)
@@ -493,6 +507,7 @@ namespace Ship_Game
 					ship.AddedOnLoad = true;
 				}
 			}
+            this.us.MasterShipList.ApplyPendingRemovals();
 			base.ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
 			this.ExitScreen();
 			this.us.EmpireUI.empire = this.us.player;
@@ -791,6 +806,7 @@ namespace Ship_Game
 					fleet.TaskStep = fleetsave.TaskStep;
 					fleet.Owner = e;
 					fleet.Position = fleetsave.Position;
+
 					if (e.GetFleetsDict().ContainsKey(fleetsave.Key))
 					{
 						e.GetFleetsDict()[fleetsave.Key] = fleet;
@@ -800,6 +816,9 @@ namespace Ship_Game
 						e.GetFleetsDict().Add(fleetsave.Key, fleet);
 					}
 					e.GetFleetsDict()[fleetsave.Key].SetSpeed();
+                    fleet.findAveragePositionset();
+                    fleet.Setavgtodestination();
+                    
 				}
 				foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
 				{
@@ -1230,6 +1249,8 @@ namespace Ship_Game
 							ship.GetAI().State = AIState.SystemDefender;
 						}
 					}
+                    if (ship.GetShipData().IsShipyard && !ship.IsTethered())
+                        ship.Active = false;
 					Guid escortTargetGuid = ship.GetAI().EscortTargetGuid;
 					foreach (Ship s in this.data.MasterShipList)
 					{

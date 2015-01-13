@@ -154,6 +154,7 @@ namespace Ship_Game
 		}*/
         ~DesignManager() {
             //should implicitly do the same thing as the original bad finalize
+            this.Dispose(false);
         }
 
 		public override void HandleInput(InputState input)

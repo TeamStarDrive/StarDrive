@@ -337,7 +337,7 @@ namespace Ship_Game
 									}
                                     else
                                     {
-                                        EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Remove(ship);
+                                        EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.remove(ship);
                                         ship.GetAI().OrderQueue.Clear();
                                         ship.GetAI().HasPriorityOrder = false;
                                         ship.GetAI().SystemToDefend = null;

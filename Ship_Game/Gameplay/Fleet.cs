@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
@@ -51,6 +52,12 @@ namespace Ship_Game.Gameplay
         private bool InCombat;
         public int TaskStep;
         public bool IsCoreFleet;
+        [XmlIgnore]
+        public Vector2 StoredFleetPosistion;
+        [XmlIgnore]
+        public float StoredFleetDistancetoMove;
+
+
 
         public Fleet()
         {
@@ -140,11 +147,55 @@ namespace Ship_Game.Gameplay
         }
 
         //added by gremlin make fleet speed average not include warpless ships.
+        public void SetSpeedstddev()
+        {
+            List<float> distances = new List<float>();
+
+            foreach (Ship distance in (List<Ship>)this.Ships)
+            {
+                if (distance.EnginesKnockedOut || !distance.Active ||  distance.GetAI().State != AIState.FormationWarp)//  distance.engineState != Ship.MoveState.Warp)
+                    continue;
+                distances.Add(distance  .speed);
+            }
+
+            if (distances.Count ==0)
+            {
+                this.speed = 200;
+                return;
+                
+            }
+            if(distances.Count ==1)
+            {
+                this.speed = distances.First();
+                return;
+            }
+            try
+            {
+                float avgdistance = distances.Average();
+                float sum = (float)distances.Sum(distance => Math.Pow(distance - avgdistance, 2));
+                float stddev = (float)Math.Sqrt((sum) / (distances.Count - 1));
+                this.speed = distances.Where(distance => distance >= avgdistance - stddev).Min();
+            }
+            catch { }
+            if (this.speed == 0f)
+            {
+                this.speed = 200f;
+            }
+                
+               
+
+        }
+
         public void SetSpeed()
         {//Vector2.Distance(this.findAveragePosition(),ship.Center) <10000 
+            
+
+            
+            
+            
             IOrderedEnumerable<Ship> speedSorted =
                 from ship in this.Ships
-                where !ship.EnginesKnockedOut && !ship.InCombat && !ship.Inhibited && ship.Active
+                where !ship.EnginesKnockedOut && !ship.InCombat && !ship.Inhibited && ship.Active && ship.GetAI().State == AIState.FormationWarp
                 orderby ship.speed
                 select ship;
             this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
@@ -481,7 +532,7 @@ namespace Ship_Game.Gameplay
             {
                 if (!s.InCombat)
                 {
-                    lock (GlobalStats.WayPointLock)
+                    lock (s.GetAI().wayPointLocker)
                         s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
                 }
                 FleetDataNode fleetDataNode = new FleetDataNode();
@@ -777,15 +828,60 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public Vector2 findAveragePositionORIG()
+
+        public Vector2 findAveragePosition()
         {
-            Vector2 zero = Vector2.Zero;
-            foreach (Ship ship in (List<Ship>)this.Ships)
-                zero += ship.Position;
-            return zero / (float)this.Ships.Count;
+
+            if (StoredFleetPosistion == Vector2.Zero)
+                this.findAveragePositionset();
+            if (StoredFleetPosistion == Vector2.Zero)
+                return this.Ships.Any() ? this.Ships.First().Center : Vector2.Zero;
+            return StoredFleetPosistion;
+        }
+        
+        public Vector2 findAveragePositionset()
+        {
+            List<float> distancesx = new List<float>();
+            List<float> distancesy = new List<float>();
+            float sumx = 0;
+            float sumy = 0f;
+            foreach (Ship distance in (List<Ship>)this.Ships)
+            {
+
+                distancesx.Add(distance.Center.X);
+                sumx+=distance.Center.X;
+                distancesy.Add(distance.Center.Y);
+                sumy+=distance.Center.Y;
+
+            }
+            if(this.Ships.Count ==0)
+                return Vector2.Zero;
+            Vector2 center = new Vector2(sumx, sumy);
+            if (this.Ships.Count == 1)
+                return center;
+            float avgdistancex = sumx / distancesx.Count;
+            float avgdistancey = sumy / distancesy.Count;
+            sumx = (float)distancesx.Sum(distance => Math.Pow(distance - avgdistancex , 2));
+            sumy = (float)distancesy.Sum(distance => Math.Pow(distance - avgdistancey , 2));            
+
+            float stddevx = (float)Math.Sqrt((sumx) / (distancesx.Count -1));
+            float stddevy = (float)Math.Sqrt((sumy) / (distancesy.Count -1 ));
+
+            //try
+            {
+                center = new Vector2(distancesx.Where(distance => distance <= avgdistancex + stddevx && distance >= avgdistancex - stddevx).Average()
+                    , distancesy.Where(distance => distance <= avgdistancey + stddevy && distance >= avgdistancey - stddevy).Average());
+
+                return center;
+            }
+            //catch
+            //{
+            //    return Vector2.Zero;
+            //}
+
         }
         //added by gremlin. make fleet center not count warpless ships.
-        public Vector2 findAveragePosition()
+        public Vector2 findAveragePositioncg()
         {
             Vector2 pos = Vector2.Zero;
             Vector2 pos2 = Vector2.Zero;
@@ -794,7 +890,7 @@ namespace Ship_Game.Gameplay
             //Parallel.ForEach(this.Ships, ship =>
             {
                 pos2 = pos2 + ship.Position;
-                if (!ship.EnginesKnockedOut && ship.Active && (!ship.Inhibited || ship.Inhibited && Vector2.Distance(this.Position,ship.Position)<300000)  )
+                if (!ship.EnginesKnockedOut && ship.Active )//&& (!ship.Inhibited || ship.Inhibited && Vector2.Distance(this.Position,ship.Position)<300000)  )
                 {
                     pos = pos + ship.Position;
                     shipcount++;
@@ -810,7 +906,36 @@ namespace Ship_Game.Gameplay
             else
                 return Vector2.Zero;
         }
+        public void Setavgtodestination()
+        {
 
+
+            
+            List<float> distances = new List<float>();
+            foreach (Ship distance in (List<Ship>)this.Ships)
+            {
+                if (distance.EnginesKnockedOut || !distance.Active || distance.InCombat)
+                    continue;
+                distances.Add(Vector2.Distance(distance.Center, this.Position + distance.FleetOffset) -100);
+            }
+
+            if (distances.Count <= 2)
+            {
+                //return Vector2.Distance(this.findAveragePosition(), this.Position); 
+                this.StoredFleetDistancetoMove = Vector2.Distance(this.StoredFleetPosistion, this.Position);
+                return;
+            }
+            float avgdistance = distances.Average();
+            float sum = (float)distances.Sum(distance => Math.Pow(distance -avgdistance, 2));
+            float stddev = (float)Math.Sqrt((sum) / (distances.Count  - 1));
+            //return
+                //distances.Where(distance => distance <avgdistance+stddev && distance> avgdistance-stddev).Average();
+            this.StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average(); //&& && distance > avgdistance - stddev
+                
+
+            
+        }
+        #region unused
         public void TrackEnemies()
         {
             Fleet.quadrantscan quadrantscan1 = new Fleet.quadrantscan();
@@ -860,7 +985,8 @@ namespace Ship_Game.Gameplay
             if (!this.InCombat || (double)Vector2.Distance(quadrantscan5.avgPos, this.Position) <= 7500.0)
                 return;
             this.InCombat = false;
-        }
+        } 
+        #endregion
 
         public void Reset()
         {
@@ -887,6 +1013,7 @@ namespace Ship_Game.Gameplay
                     this.DoAssaultPlanet(this.Task);
                     break;
                 case MilitaryTask.TaskType.CorsairRaid:
+                    #region MyRegion
                     if (this.TaskStep != 0)
                         break;
                     this.Task.TaskTimer -= elapsedTime;
@@ -913,7 +1040,8 @@ namespace Ship_Game.Gameplay
                     if (this.Ships.Count != 0)
                         break;
                     this.Task.EndTask();
-                    break;
+                    break; 
+                    #endregion
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies:
                     this.DoCohesiveClearAreaOfEnemies(this.Task);
                     break;
