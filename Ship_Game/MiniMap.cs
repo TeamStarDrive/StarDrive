@@ -60,7 +60,7 @@ namespace Ship_Game
 					continue;
 				}
 				List<Circle> circles = new List<Circle>();
-				lock (GlobalStats.BorderNodeLocker)
+                e.BorderNodeLocker.EnterReadLock();
 				{
 					foreach (Empire.InfluenceNode node in e.BorderNodes)
 					{
@@ -77,6 +77,7 @@ namespace Ship_Game
 						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], nodepos, nullable, ec, 0f, Origin, rscale, SpriteEffects.None, 1f);
 					}
 				}
+                e.BorderNodeLocker.ExitReadLock();
 			}
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{

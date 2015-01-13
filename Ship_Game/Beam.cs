@@ -162,41 +162,37 @@ namespace Ship_Game
 			this.FillVertices();
 		}
 
-		public override void Die(GameplayObject source, bool cleanupOnly)
-		{
-			if (this.DamageToggleSound != null)
-			{
-				this.DamageToggleSound.Stop(AudioStopOptions.Immediate);
-				this.DamageToggleSound = null;
-			}
-			if (this.owner != null)
-			{
-				this.owner.Beams.QueuePendingRemoval(this);
-				if (this.owner.GetSystem() == null)
-				{
-					UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
-				}
-				else
-				{
-					this.system = this.owner.GetSystem();
-					this.system.spatialManager.BeamList.QueuePendingRemoval(this);
-				}
-			}
-			else if (this.weapon.drowner != null)
-			{
-				(this.weapon.drowner as Projectile).GetDroneAI().Beams.QueuePendingRemoval(this);
-				if (this.weapon.drowner.GetSystem() == null)
-				{
-					UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
-				}
-				else
-				{
-					this.system = this.weapon.drowner.GetSystem();
-					this.system.spatialManager.BeamList.QueuePendingRemoval(this);
-				}
-			}
-			this.weapon.ResetToggleSound();
-		}
+        public override void Die(GameplayObject source, bool cleanupOnly)
+        {
+            if (this.DamageToggleSound != null)
+            {
+                this.DamageToggleSound.Stop(AudioStopOptions.Immediate);
+                this.DamageToggleSound = (Cue)null;
+            }
+            if (this.owner != null)
+            {
+                this.owner.Beams.QueuePendingRemoval(this);
+                if (this.owner.GetSystem() != null)
+                {
+                    this.system = this.owner.GetSystem();
+                    this.system.spatialManager.BeamList.QueuePendingRemoval(this);
+                }
+                else
+                    UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
+            }
+            else if (this.weapon.drowner != null)
+            {
+                (this.weapon.drowner as Projectile).GetDroneAI().Beams.QueuePendingRemoval(this);
+                if (this.weapon.drowner.GetSystem() != null)
+                {
+                    this.system = this.weapon.drowner.GetSystem();
+                    this.system.spatialManager.BeamList.QueuePendingRemoval(this);
+                }
+                else
+                    UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
+            }
+            this.weapon.ResetToggleSound();
+        }
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager)
 		{
@@ -275,16 +271,24 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.BeamEffectLocker)
 			{
-				this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
-				{
-					World = Matrix.Identity,
-					View = view,
-					Projection = projection,
-					TextureEnabled = true,
-					Texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
-				};
-				this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-				Beam.BeamEffect.Parameters["tex"].SetValue(ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+                try
+                {
+                    Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
+                    this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+                    {
+                        World = Matrix.Identity,
+                        View = view,
+                        Projection = projection,
+                        TextureEnabled = true,
+                        Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+                    };
+                    this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+                    Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+                }
+                catch
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed", this.weapon.UID));
+                }
 			}
 		}
 
@@ -292,7 +296,9 @@ namespace Ship_Game
 		{
 			if (target != null)
 			{
-				if (target == this.owner && !this.weapon.HitsFriendlies)
+                bool isShipModule = target is ShipModule;
+                ShipModule targetShipmodule = target as ShipModule;
+                if (target == this.owner && !this.weapon.HitsFriendlies)
 				{
 					return false;
 				}
@@ -304,11 +310,11 @@ namespace Ship_Game
 				{
 					return false;
 				}
-				if (this.damageAmount < 0f && target is ShipModule && (target as ShipModule).shield_power > 0f)
+                if (this.damageAmount < 0f && isShipModule && targetShipmodule.shield_power > 0f)
 				{
 					return false;
 				}
-				if (!this.DamageToggleOn && target is ShipModule)
+                if (!this.DamageToggleOn && isShipModule)
 				{
 					this.DamageToggleOn = true;
 				}
@@ -322,7 +328,7 @@ namespace Ship_Game
 					{
 					}
 				}
-                (target as ShipModule).Damage(this, this.damageAmount);
+                targetShipmodule.Damage(this, this.damageAmount);
 			}
 			return true;
 		}
@@ -350,11 +356,19 @@ namespace Ship_Game
 				this.Duration = 0f;
 				return;
 			}
+            Ship ship = this.Target as Ship;
+            if(this.owner.engineState == Ship.MoveState.Warp || ship !=null && ship.engineState== Ship.MoveState.Warp)
+            {
+                this.Die(null, false);
+                this.Duration = 0f;
+                return;
+            }
             this.Duration -= elapsedTime;
 			this.Source = srcCenter;
 			if (this.Target == null)
 			{
 				this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
+                
 			}
 			else if (!this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
 			{
@@ -373,6 +387,10 @@ namespace Ship_Game
 			{
 				this.Destination = this.Target.Center;
 			}
+            if (Vector2.Distance(this.Destination, this.owner.Center) > this.range)
+            {
+                this.Destination = this.Destination - (this.Destination - this.owner.Center);
+            }
 			this.quadEffect.View = view;
 			this.quadEffect.Projection = projection;
 			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.ActualHitDestination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
