@@ -14,6 +14,8 @@ namespace Ship_Game
 		{
 		}
 
+
+
 		public void TriggerOutcome(Empire Triggerer, Outcome triggeredOutcome)
 		{
 			if (triggeredOutcome.SecretTechDiscovered != null)
@@ -177,18 +179,44 @@ namespace Ship_Game
 
 		public void TriggerPlanetEvent(Planet p, Empire Triggerer, PlanetGridSquare eventLocation, Empire PlayerEmpire, UniverseScreen screen)
 		{
-			int Random = (int)RandomMath.RandomBetween(0f, 100f);
+            int ranMax = 0;
+            int ranMin = 0;
+            foreach (Outcome outcome in this.PotentialOutcomes)
+            {
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && Triggerer.isPlayer)
+                {
+                    continue;
+                }
+                else
+                {
+                    ranMax += outcome.Chance;
+                }
+            }
+
+			int Random = (int)RandomMath.RandomBetween(ranMin, ranMax);
+            
 			Outcome triggeredOutcome = new Outcome();
 			int cursor = 0;
 			foreach (Outcome outcome in this.PotentialOutcomes)
 			{
-				cursor = cursor + outcome.Chance;
-				if (Random > cursor)
-				{
-					continue;
-				}
-				triggeredOutcome = outcome;
-				break;
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && Triggerer.isPlayer)
+                {
+                    continue;
+                }
+                else
+                {
+                    cursor = cursor + outcome.Chance;
+                    if (Random > cursor)
+                    {
+                        continue;
+                    }
+                    triggeredOutcome = outcome;
+                    if (Triggerer.isPlayer)
+                    {
+                        outcome.alreadyTriggered = true;
+                    }
+                    break;
+                }
 			}
 			if (triggeredOutcome != null)
 			{
