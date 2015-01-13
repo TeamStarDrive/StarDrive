@@ -307,7 +307,15 @@ namespace Ship_Game.Gameplay
 				}
                 if (this.ModuleType == ShipModuleType.Armor && source is Projectile)
                 {
-                    damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                    }
+                    else
+                    {
+                        damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                    }
                 }
                 if (damageAmount > this.Health)
                 {
@@ -343,7 +351,15 @@ namespace Ship_Game.Gameplay
                 float damageAmountvsShields = damageAmount;
                 if (source is Projectile)
                 {
-                    damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                    }
+                    else
+                    {
+                        damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                    }
                 }
 
                 if (damageAmountvsShields > this.shield_power)
@@ -501,7 +517,15 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.ModuleType == ShipModuleType.Armor && source is Projectile)
                 {
-                    damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                    }
+                    else
+                    {
+                        damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                    }
                 }
                 if (damageAmount > this.Health)
                 {
@@ -537,7 +561,15 @@ namespace Ship_Game.Gameplay
 
                 if (source is Projectile)
                 {
-                    damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                    }
+                    else
+                    {
+                        damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                    }
                 }
 
                 if (damageAmountvsShields > this.shield_power)
@@ -741,7 +773,15 @@ namespace Ship_Game.Gameplay
 				{
                     if (source is Projectile && this.ModuleType == ShipModuleType.Armor)
                     {
-                        damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                        if ((source as Projectile).isSecondary)
+                        {
+                            Weapon shooter = (source as Projectile).weapon;
+                            damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                        }
+                        else
+                        {
+                            damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                        }
                     }
 					ShipModule health = this;
 					health.Health = health.Health - damageAmount;
@@ -771,7 +811,15 @@ namespace Ship_Game.Gameplay
 				ShipModule shipModule = this;
                 if (source is Projectile)
                 {
-                    damageAmount *= (source as Projectile).weapon.EffectVSShields;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                    }
+                    else
+                    {
+                        damageAmount *= (source as Projectile).weapon.EffectVSShields;
+                    }
                 }
 				shipModule.shield_power = shipModule.shield_power - damageAmount;
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
