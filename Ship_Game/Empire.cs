@@ -1427,55 +1427,67 @@ namespace Ship_Game
             ++this.numberForAverage;
             this.GrossTaxes = 0f;
             this.OtherIncome = 0f;
-            lock (GlobalStats.OwnedPlanetsLock)
-            {
-                for (int i = 0; i < this.OwnedPlanets.Count; ++i)
+
+            Parallel.Invoke(
+                () =>
                 {
-                    Planet planet = this.OwnedPlanets[i];
-                    if (planet != null)
+                    lock (GlobalStats.OwnedPlanetsLock)
                     {
-                        planet.UpdateIncomes();
-                        this.GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
-                        this.OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
+                        for (int i = 0; i < this.OwnedPlanets.Count; ++i)
+                        {
+                            Planet planet = this.OwnedPlanets[i];
+                            if (planet != null)
+                            {
+                                planet.UpdateIncomes();
+                                this.GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
+                                this.OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
+                            }
+                        }
                     }
-                }
-            }
-            this.TradeMoneyAddedThisTurn = 0.0f;
-            foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
+                    this.TradeMoneyAddedThisTurn = 0.0f;
+                    foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
+                    {
+                        if (keyValuePair.Value.Treaty_Trade)
+                        {
+                            float num = (float)(0.25 * (double)keyValuePair.Value.Treaty_Trade_TurnsExisted - 3.0);
+                            if ((double)num > 3.0)
+                                num = 3f;
+                            this.TradeMoneyAddedThisTurn += num;
+                        }
+                    }
+                },
+            () =>
             {
-                if (keyValuePair.Value.Treaty_Trade)
+                this.totalShipMaintenance = 0.0f;
+                this.totalBuildingMaintenance = 0.0f;
+                foreach (Ship ship in (List<Ship>)this.OwnedShips.ToList())
                 {
-                    float num = (float)(0.25 * (double)keyValuePair.Value.Treaty_Trade_TurnsExisted - 3.0);
-                    if ((double)num > 3.0)
-                        num = 3f;
-                    this.TradeMoneyAddedThisTurn += num;
+                    //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+                    {
+                        this.totalShipMaintenance += ship.GetMaintCostRealism();
+                    }
+                    else
+                    {
+                        this.totalShipMaintenance += ship.GetMaintCost();
+                    }
+                    //added by gremlin reset border stats.
+                    ship.IsInNeutralSpace = false;
+                    ship.IsIndangerousSpace = false;
+
+                    ship.IsInFriendlySpace = false;
+
                 }
-            }
-            this.totalShipMaintenance = 0.0f;
-            this.totalBuildingMaintenance = 0.0f;
-            foreach (Ship ship in (List<Ship>)this.OwnedShips)
+            },
+            () =>
             {
-                //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
-                if (GlobalStats.ActiveMod != null&&GlobalStats.ActiveMod.mi.useProportionalUpkeep  )
+                foreach (Planet planet in this.OwnedPlanets)
                 {
-                    this.totalShipMaintenance += ship.GetMaintCostRealism();
+                    planet.UpdateOwnedPlanet();
+                    this.totalBuildingMaintenance += planet.TotalMaintenanceCostsPerTurn;
                 }
-                else
-                {
-                    this.totalShipMaintenance += ship.GetMaintCost();
-                }
-                //added by gremlin reset border stats.
-                ship.IsInNeutralSpace = false;
-                ship.IsIndangerousSpace = false;
-                
-                ship.IsInFriendlySpace = false;
-                
             }
-            foreach (Planet planet in this.OwnedPlanets)
-            {
-                planet.UpdateOwnedPlanet();
-                this.totalBuildingMaintenance += planet.TotalMaintenanceCostsPerTurn;
-            }
+            );
             this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
             this.AllTimeMaintTotal += this.totalMaint;
             this.Money += (this.GrossTaxes * this.data.TaxRate) + this.OtherIncome;
@@ -2111,73 +2123,87 @@ namespace Ship_Game
             }
             this.CalculateScore();
             //Process technology research
-            if (this.ResearchTopic != "")
-            {
-                foreach (Planet planet in this.OwnedPlanets)
-                    this.Research += planet.NetResearchPerTurn;
-                TechEntry tech;
-                if(this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
+            Parallel.Invoke(
+                ()=>
                 {
-                    if (tech.GetTech().Cost * UniverseScreen.GamePaceStatic - tech.Progress > this.Research)
+                    if (this.ResearchTopic != "")
                     {
-                        tech.Progress += this.Research;
-                        this.Research = 0f;
+                        foreach (Planet planet in this.OwnedPlanets)
+                            this.Research += planet.NetResearchPerTurn;
+                        TechEntry tech;
+                        if (this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
+                        {
+                            if (tech.GetTech().Cost * UniverseScreen.GamePaceStatic - tech.Progress > this.Research)
+                            {
+                                tech.Progress += this.Research;
+                                this.Research = 0f;
+                            }
+                            else
+                            {
+                                this.Research -= tech.GetTech().Cost * UniverseScreen.GamePaceStatic - tech.Progress;
+                                tech.Progress = tech.GetTech().Cost * UniverseScreen.GamePaceStatic;
+                                this.UnlockTech(this.ResearchTopic);
+                                if (this.isPlayer)
+                                    Empire.universeScreen.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
+                                this.data.ResearchQueue.Remove(this.ResearchTopic);
+                                if (this.data.ResearchQueue.Count > 0)
+                                {
+                                    this.ResearchTopic = this.data.ResearchQueue[0];
+                                    this.data.ResearchQueue.RemoveAt(0);
+                                }
+                                else
+                                    this.ResearchTopic = "";
+                            }
+                        }
+                    }
+                    else if (this.data.ResearchQueue.Count > 0)
+                        this.ResearchTopic = this.data.ResearchQueue[0];
+                    
+                },
+                ()=>
+                {
+
+                    if (!this.isFaction && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                        this.UpdateRelationships();
+                    else if (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                    {
+                        foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
+                            keyValuePair.Value.UpdatePlayerRelations(this, keyValuePair.Key);
+                    }
+
+                    if (this.isFaction)
+                        this.GSAI.FactionUpdate();
+                    else if (!this.data.Defeated)
+                        this.GSAI.Update();
+                    if ((double)this.Money > (double)this.data.CounterIntelligenceBudget)
+                    {
+                        this.Money -= this.data.CounterIntelligenceBudget;
+                        foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
+                        {
+                            keyValuePair.Key.GetRelations()[this].IntelligencePenetration -= this.data.CounterIntelligenceBudget / 10f;
+                            if ((double)keyValuePair.Key.GetRelations()[this].IntelligencePenetration < 0.0)
+                                keyValuePair.Key.GetRelations()[this].IntelligencePenetration = 0.0f;
+                        }
+                    } 
+                },
+                ()=>
+                {
+                    if (this.isFaction || this.MinorRace)
+                        return;
+                    if (!this.isPlayer)
+                    {
+                        this.AssessFreighterNeeds();
+                        this.AssignExplorationTasks();
                     }
                     else
                     {
-                        this.Research -= tech.GetTech().Cost * UniverseScreen.GamePaceStatic - tech.Progress;
-                        tech.Progress = tech.GetTech().Cost * UniverseScreen.GamePaceStatic;
-                        this.UnlockTech(this.ResearchTopic);
-                        if (this.isPlayer)
-                            Empire.universeScreen.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
-                        this.data.ResearchQueue.Remove(this.ResearchTopic);
-                        if (this.data.ResearchQueue.Count > 0)
-                        {
-                            this.ResearchTopic = this.data.ResearchQueue[0];
-                            this.data.ResearchQueue.RemoveAt(0);
-                        }
-                        else
-                            this.ResearchTopic = "";
-                    }
+                        if (this.AutoFreighters)
+                            this.AssessFreighterNeeds();
+                        if (this.AutoExplore)
+                            this.AssignExplorationTasks();
+                    }  
                 }
-            }
-            else if (this.data.ResearchQueue.Count > 0)
-                this.ResearchTopic = this.data.ResearchQueue[0];
-            if (!this.isFaction && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
-                this.UpdateRelationships();
-            else if (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
-            {
-                foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
-                    keyValuePair.Value.UpdatePlayerRelations(this, keyValuePair.Key);
-            }
-            if (this.isFaction)
-                this.GSAI.FactionUpdate();
-            else if (!this.data.Defeated)
-                this.GSAI.Update();
-            if ((double)this.Money > (double)this.data.CounterIntelligenceBudget)
-            {
-                this.Money -= this.data.CounterIntelligenceBudget;
-                foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
-                {
-                    keyValuePair.Key.GetRelations()[this].IntelligencePenetration -= this.data.CounterIntelligenceBudget / 10f;
-                    if ((double)keyValuePair.Key.GetRelations()[this].IntelligencePenetration < 0.0)
-                        keyValuePair.Key.GetRelations()[this].IntelligencePenetration = 0.0f;
-                }
-            }
-            if (this.isFaction || this.MinorRace)
-                return;
-            if (!this.isPlayer)
-            {
-                this.AssessFreighterNeeds();
-                this.AssignExplorationTasks();
-            }
-            else 
-            {
-                if (this.AutoFreighters)
-                    this.AssessFreighterNeeds();
-                if (this.AutoExplore)
-                    this.AssignExplorationTasks();
-             }
+            );
              return;
         }
 
