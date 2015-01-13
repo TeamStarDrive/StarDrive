@@ -5882,6 +5882,7 @@ namespace Ship_Game.Gameplay
                 #region warp
                 if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
                 {
+                    this.Owner.speed *= 0.999f;
                     if (this.ActiveWayPoints.Count > 1)
                     {
                         wantedForward= Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
@@ -5928,8 +5929,7 @@ namespace Ship_Game.Gameplay
                          angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         //float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (angleDiff > 0.65f)
-                        if(angleDiff > .1f )
-                             this.Owner.speed *= .8f; 
+
                         if (angleDiff > 0.400000005960464f)
                         {
                             this.Owner.HyperspaceReturn();
@@ -5952,9 +5952,9 @@ namespace Ship_Game.Gameplay
                 {
                     this.Owner.HyperspaceReturn();
                 }
-                if (angleDiff > 0.125000000372529f)
-                    if (this.Owner.engineState == Ship.MoveState.Warp)
-                        this.Owner.speed *= .8f;
+                //if (angleDiff > 0.125000000372529f)
+                //    if (this.Owner.engineState == Ship.MoveState.Warp)
+                //        this.Owner.speed *= .8f;
                 if (angleDiff > 0.025000000372529f)
                 {
                     
@@ -5998,16 +5998,16 @@ namespace Ship_Game.Gameplay
                         if (angleDiff > .1f)
                         {
 
-                            speedLimit = this.Owner.speed*.5f; // this.Owner.speed;
+                            speedLimit = this.Owner.speed; // this.Owner.speed;
                         }
                         else
                             speedLimit = this.Owner.velocityMaximum;
                     }
                     else if (Distance > this.Owner.speed * 10f)
                     {
-                        if (angleDiff > .1f)
-                            speedLimit = this.Owner.speed;
-                        else
+                        //if (angleDiff > .1f)
+                        //    speedLimit = this.Owner.speed;
+                        //else
                         speedLimit = this.Owner.speed;
                     }
 
@@ -6053,7 +6053,7 @@ namespace Ship_Game.Gameplay
                             #region FleetGrouping
 
 
-                            float fleetPosistionDistance = Vector2.Distance(this.Owner.Center, Position);
+                            float fleetPosistionDistance = Distance;// Vector2.Distance(this.Owner.Center, Position);
                             if (fleetPosistionDistance <= distanceFleetCenterToDistance )
                             {
                                 float speedreduction = distanceFleetCenterToDistance - Distance;
@@ -6064,15 +6064,16 @@ namespace Ship_Game.Gameplay
                                     speedLimit = this.Owner.fleet.speed;
                             }
                             //else if (Distance > distanceFleetCenterToDistance) //radius * 4f
-                            else if (fleetPosistionDistance > distanceFleetCenterToDistance )
+                            else if (fleetPosistionDistance > distanceFleetCenterToDistance && Distance >this.Owner.speed)
                             {
 
-                                float speedIncrease = Distance - distanceFleetCenterToDistance;
+                                float speedIncrease = Distance - distanceFleetCenterToDistance ;
                                 //distanceShipToFleetCenter > this.Owner.fleet.speed && 
                                 speedLimit = this.Owner.fleet.speed + speedIncrease;
+  
                             }
-                            if (Distance < speedLimit)
-                                speedLimit = Distance;
+                            //if (Distance < speedimit)
+                            //    speedLimit = Distance;
 
 
 
