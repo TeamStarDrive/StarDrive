@@ -585,10 +585,12 @@ namespace Ship_Game.Gameplay
                 if (damageAmountvsShields > this.shield_power)
                 {
                     this.shield_power = 0;
+                    this.Parent.UpdateShields();
                 }
                 else
                 {
                     this.shield_power -= damageAmountvsShields;
+                    this.Parent.UpdateShields();
                 }
 
                 if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
