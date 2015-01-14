@@ -1425,7 +1425,7 @@ namespace Ship_Game
         protected virtual void DoWork(float elapsedTime)
         {
 
-            if (incrementTimer > 600)
+            if (incrementTimer > 900)
             {
                 incrementTimer = 0;
             }
@@ -5202,21 +5202,21 @@ namespace Ship_Game
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Ship Lag(s): " + (this.perfavg2.Average()*this.GameSpeed).ToString("#.000")
-                    + " ("+(this.perfavg2.Max()).ToString("#.000")+")", position, Color.White);
+                    + " ("+(this.perfavg2.Max()).ToString("#.00")+")", position, Color.White);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
 
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Empire Lag(s): " + (this.perfavg.Average() * this.GameSpeed).ToString("#.000")
-                     + " (" + (this.perfavg.Max()).ToString("#.000") + ")", position, Color.White);
+                     + " (" + (this.perfavg.Max()).ToString("#.00") + ")", position, Color.White);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "PreEmpire Lag(s): " + (this.perfavg3.Average()*this.GameSpeed).ToString("#.000")
-                     + " (" + (this.perfavg3.Max()).ToString("#.000") + ")", position, Color.White);
+                     + " (" + (this.perfavg3.Max()).ToString("#.00") + ")", position, Color.White);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Post Empire Lag(s): " + (this.perfavg4.Average() * this.GameSpeed).ToString("#.000")
-                     + " (" + (this.perfavg4.Max()).ToString("#.000") + ")", position, Color.White);
+                     + " (" + (this.perfavg4.Max()).ToString("#.00") + ")", position, Color.White);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Total Lag(s): " + (this.perfavg5.Average() * this.GameSpeed).ToString("#.000")
-                     + " (" + (this.perfavg5.Max()).ToString("#.000") + ")", position, Color.White);
+                     + " (" + (this.perfavg5.Max()).ToString("#.00") + ")", position, Color.White);
                 
             }
             if (this.IsActive)

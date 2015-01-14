@@ -4214,7 +4214,9 @@ namespace Ship_Game.Gameplay
                     level = source.Planet.developmentLevel;
                 else if (source.Owner != null)
                     level = source.Owner.Level;
-                else
+                else 
+                    return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+                if(level <2)
                     return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
 
                     int skill = InternalModules.Count / (level + 2);
