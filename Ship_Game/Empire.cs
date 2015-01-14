@@ -2123,8 +2123,8 @@ namespace Ship_Game
             }
             this.CalculateScore();
             //Process technology research
-            Parallel.Invoke(
-                ()=>
+            //Parallel.Invoke(
+            //    ()=>
                 {
                     if (this.ResearchTopic != "")
                     {
@@ -2159,8 +2159,9 @@ namespace Ship_Game
                     else if (this.data.ResearchQueue.Count > 0)
                         this.ResearchTopic = this.data.ResearchQueue[0];
                     
-                },
-                ()=>
+                }//,
+
+            //    ()=>
                 {
 
                     if (!this.isFaction && this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
@@ -2185,15 +2186,23 @@ namespace Ship_Game
                                 keyValuePair.Key.GetRelations()[this].IntelligencePenetration = 0.0f;
                         }
                     } 
-                },
-                ()=>
+                }//);
+                //()=>
                 {
                     if (this.isFaction || this.MinorRace)
                         return;
                     if (!this.isPlayer)
                     {
+                        //Parallel.Invoke(
+                        //  ()  =>
+                        {
                         this.AssessFreighterNeeds();
+                        }//,
+                        //()=>
+                        {
                         this.AssignExplorationTasks();
+                        }
+                        //);
                     }
                     else
                     {
@@ -2203,7 +2212,7 @@ namespace Ship_Game
                             this.AssignExplorationTasks();
                     }  
                 }
-            );
+            
              return;
         }
 

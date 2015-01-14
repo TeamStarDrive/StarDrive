@@ -5237,13 +5237,15 @@ namespace Ship_Game.Gameplay
                     Ship item1 = nearby[i] as Ship;
                     if (item1 != null && item1.Active && !item1.dying)
                     {
-                        if (item1.loyalty == Owner.loyalty)
+                        Empire empire = item1.loyalty;
+                        Ship shipTarget = item1.GetAI().Target as Ship;
+                        if (empire == Owner.loyalty)
                         {
                             this.FriendliesNearby.Add(item1);
                         }
-                        else if (item1.loyalty != this.Owner.loyalty 
-                            && item1.GetAI().Target != null 
-                            && item1.GetAI().Target == this.EscortTarget &&item1.engineState != Ship.MoveState.Warp )
+                        else if (empire != this.Owner.loyalty
+                            && shipTarget != null
+                            && shipTarget == this.EscortTarget && item1.engineState != Ship.MoveState.Warp)
                         {
                             
                             ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();

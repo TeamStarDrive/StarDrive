@@ -4133,7 +4133,7 @@ namespace Ship_Game.Gameplay
                 //    continue;
  
                 //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
-                if (slot2.ModuleType != ShipModuleType.Dummy&& slot2.Health>0)
+                if (slot2.ModuleType != ShipModuleType.Dummy&& slot2.Active)
                     InternalModules.Add(slot.module);
             }
             if (InternalModules.Count > 0)
