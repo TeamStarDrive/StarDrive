@@ -4235,6 +4235,18 @@ namespace Ship_Game.Gameplay
                 return null;
         }
 
+        public void UpdateShields()
+        {
+            this.shield_power = 0.0f;
+            foreach (ShipModule shield in this.Shields)
+            {
+                this.shield_power += shield.shield_power;
+            }
+            if (this.shield_power > this.shield_max)
+            {
+                this.shield_power = this.shield_max;
+            }
+        }
 
         public virtual void StopAllSounds()
         {
