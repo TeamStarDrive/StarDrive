@@ -515,6 +515,7 @@ namespace Ship_Game.Gameplay
                 {
                     return false;
                 }
+
                 if (this.ModuleType == ShipModuleType.Armor && source is Projectile)
                 {
                     if ((source as Projectile).isSecondary)
@@ -527,6 +528,11 @@ namespace Ship_Game.Gameplay
                         damageAmount *= (source as Projectile).weapon.EffectVsArmor;
                     }
                 }
+                else if (this.ModuleType == ShipModuleType.Armor && source is Beam)
+                {
+                    damageAmount *= (source as Beam).weapon.EffectVsArmor;
+                }
+
                 if (damageAmount > this.Health)
                 {
                     this.Health = 0;
@@ -571,14 +577,20 @@ namespace Ship_Game.Gameplay
                         damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
                     }
                 }
+                else if (source is Beam)
+                {
+                    damageAmountvsShields *= (source as Beam).weapon.EffectVSShields;
+                }
 
                 if (damageAmountvsShields > this.shield_power)
                 {
                     this.shield_power = 0;
+                    this.Parent.UpdateShields();
                 }
                 else
                 {
                     this.shield_power -= damageAmountvsShields;
+                    this.Parent.UpdateShields();
                 }
 
                 if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
@@ -821,6 +833,11 @@ namespace Ship_Game.Gameplay
                         damageAmount *= (source as Projectile).weapon.EffectVSShields;
                     }
                 }
+                else if (source is Beam)
+                {
+                    damageAmount *= (source as Beam).weapon.EffectVSShields;
+                }
+
 				shipModule.shield_power = shipModule.shield_power - damageAmount;
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
