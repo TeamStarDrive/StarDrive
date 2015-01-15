@@ -2749,10 +2749,24 @@ namespace Ship_Game
                 {
                     if (input.C)
                         ResourceManager.CreateShipAtPoint("Kulrathi Assault Ship", this.player, this.mouseWorldPos);
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
-                        HelperFunctions.CreateFleetAt("Fleet 2", this.player, this.mouseWorldPos);
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
-                        HelperFunctions.CreateFleetAt("Fleet 1", this.player, this.mouseWorldPos);
+                    else
+                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.C)
+                        ResourceManager.CreateShipAtPoint("Kulrathi Assault Ship", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+
+
+                    try
+                    {
+
+                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
+                            HelperFunctions.CreateFleetAt("Fleet 2", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
+                            HelperFunctions.CreateFleetAt("Fleet 1", this.player, this.mouseWorldPos);
+                    }
+                    catch (Exception e)
+                    {
+
+                        System.Diagnostics.Debug.WriteLine(e.InnerException);
+                    }
                     if (this.SelectedShip != null && this.Debug)
                     {
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
