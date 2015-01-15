@@ -6959,7 +6959,7 @@ namespace Ship_Game.Gameplay
                     break;
                 }
             }
-            if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat)
+            if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat )
             {
                 //int oqc = this.OrderQueue.Count;
                 bool docombat = false;
@@ -6973,10 +6973,10 @@ namespace Ship_Game.Gameplay
 
 
 
-                    docombat = (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat);
+                    docombat = (this.OrderQueue.Count == 0 || !this.HasPriorityOrder && firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat);
 
 
-                    if (!this.HasPriorityOrder && docombat )//|| this.OrderQueue.Count == 0))
+                    if ( docombat )//|| this.OrderQueue.Count == 0))
                     {
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }

@@ -1579,6 +1579,14 @@ namespace Ship_Game
 				{
 					rest = "I, O, or E";
 				}
+                else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.IE)
+                {
+                    rest = "I or E only";
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.OE)
+                {
+                    rest = "O or E only";
+                }
 
                 // Concat ship class restrictions
                 string shipRest = "";
@@ -6326,22 +6334,31 @@ namespace Ship_Game
 				{
 					s.ShowValid = true;
 				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.O && (s.Restrictions == Restrictions.O || s.Restrictions == Restrictions.IO))
-				{
-					s.ShowValid = true;
-				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.E && s.Restrictions == Restrictions.E)
-				{
-					s.ShowValid = true;
-				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions != Restrictions.IOE || s.Restrictions != Restrictions.I && s.Restrictions != Restrictions.IO && s.Restrictions != Restrictions.O && s.Restrictions != Restrictions.E)
-				{
-					s.ShowInvalid = true;
-				}
-				else
-				{
-					s.ShowValid = true;
-				}
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.IE && (s.Restrictions == Restrictions.I || s.Restrictions == Restrictions.E))
+                {
+                    s.ShowValid = true;
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.OE && (s.Restrictions == Restrictions.O || s.Restrictions == Restrictions.E))
+                {
+                    s.ShowValid = true;
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.O && (s.Restrictions == Restrictions.O || s.Restrictions == Restrictions.IO))
+                {
+                    s.ShowValid = true;
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.E && s.Restrictions == Restrictions.E)
+                {
+                    s.ShowValid = true;
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions != Restrictions.IOE || s.Restrictions != Restrictions.I && s.Restrictions != Restrictions.IO && s.Restrictions != Restrictions.O && s.Restrictions != Restrictions.E)
+                {
+                    s.ShowInvalid = true;
+                }
+
+                else
+                {
+                    s.ShowValid = true;
+                }
 			}
 			if (this.ActiveModule.ModuleType == ShipModuleType.Hangar)
 			{
