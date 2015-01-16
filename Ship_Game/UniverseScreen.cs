@@ -1425,7 +1425,7 @@ namespace Ship_Game
         protected virtual void DoWork(float elapsedTime)
         {
 
-            if (incrementTimer > 100)
+            if (incrementTimer > 900)
             {
                 incrementTimer = 0;
             }
@@ -1656,7 +1656,7 @@ namespace Ship_Game
             this.SystemGateKeeper[3].Set();  
 #endif
 
-
+            
 #if ALTERTHREAD
             List<SolarSystem> solarsystems = this.SolarSystemDict.Values.ToList();
 #if !PLAYERONLY
@@ -2749,10 +2749,24 @@ namespace Ship_Game
                 {
                     if (input.C)
                         ResourceManager.CreateShipAtPoint("Kulrathi Assault Ship", this.player, this.mouseWorldPos);
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
-                        HelperFunctions.CreateFleetAt("Fleet 2", this.player, this.mouseWorldPos);
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
-                        HelperFunctions.CreateFleetAt("Fleet 1", this.player, this.mouseWorldPos);
+                    else
+                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.C)
+                        ResourceManager.CreateShipAtPoint("Kulrathi Assault Ship", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+
+
+                    try
+                    {
+
+                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
+                            HelperFunctions.CreateFleetAt("Fleet 2", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
+                            HelperFunctions.CreateFleetAt("Fleet 1", this.player, this.mouseWorldPos);
+                    }
+                    catch (Exception e)
+                    {
+
+                        System.Diagnostics.Debug.WriteLine(e.InnerException);
+                    }
                     if (this.SelectedShip != null && this.Debug)
                     {
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
@@ -5201,16 +5215,22 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Ship Count: " + this.MasterShipList.Count.ToString(), position, Color.White);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Ship Lag(s): " + (Math.Abs(this.perfavg2.Average()*this.GameSpeed)).ToString("#.000"), position, Color.White);
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Ship Lag(s): " + (this.perfavg2.Average()*this.GameSpeed).ToString("#.000")
+                    + " ("+(this.perfavg2.Max()).ToString("#.00")+")", position, Color.White);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Empire Lag(s): " + (Math.Abs(this.perfavg.Average() * this.GameSpeed)).ToString("#.000"), position, Color.White);
+
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Empire Lag(s): " + (this.perfavg.Average() * this.GameSpeed).ToString("#.000")
+                     + " (" + (this.perfavg.Max()).ToString("#.00") + ")", position, Color.White);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "PreEmpire Lag(s): " + (Math.Abs(this.perfavg3.Average()*this.GameSpeed)).ToString("#.000"), position, Color.White);
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "PreEmpire Lag(s): " + (this.perfavg3.Average()*this.GameSpeed).ToString("#.000")
+                     + " (" + (this.perfavg3.Max()).ToString("#.00") + ")", position, Color.White);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Post Empire Lag(s): " + (Math.Abs(this.perfavg4.Average() * this.GameSpeed)).ToString("#.000"), position, Color.White);
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Post Empire Lag(s): " + (this.perfavg4.Average() * this.GameSpeed).ToString("#.000")
+                     + " (" + (this.perfavg4.Max()).ToString("#.00") + ")", position, Color.White);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 position.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Total Lag(s): " + (Math.Abs(this.perfavg5.Average() * this.GameSpeed)).ToString("#.000"), position, Color.White);
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Total Lag(s): " + (this.perfavg5.Average() * this.GameSpeed).ToString("#.000")
+                     + " (" + (this.perfavg5.Max()).ToString("#.00") + ")", position, Color.White);
                 
             }
             if (this.IsActive)
@@ -6781,7 +6801,8 @@ namespace Ship_Game
             this.DrawBombs();
             lock (GlobalStats.ObjectManagerLocker)
                 this.ScreenManager.inter.RenderManager.Render();
-            for (int index1 = 0; index1 < this.player.KnownShips.Count; ++index1)
+            //for (int index1 = 0; index1 < this.player.KnownShips.Count; ++index1)
+            Parallel.For(0, this.player.KnownShips.Count, index1 =>
             {
                 try
                 {
@@ -6800,15 +6821,15 @@ namespace Ship_Game
                         {
                             if ((double)Vector2.Distance(beam.Source, beam.ActualHitDestination) < (double)beam.range + 10.0)
                                 beam.Draw(this.ScreenManager);
-                            //else
-                            //    beam.Die((GameplayObject)null, true);
+                            else
+                                beam.Die((GameplayObject)null, true);
                         }
                     }
                 }
                 catch
                 {
                 }
-            }
+            });
             this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
             this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
             this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;

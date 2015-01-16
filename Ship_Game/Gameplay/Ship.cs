@@ -754,7 +754,7 @@ namespace Ship_Game.Gameplay
         public bool CheckIfInsideFireArc(Weapon w, GameplayObject target)
         {
             Vector2 PickedPos = target.Center;
-            radius = target.Radius;
+            //radius = target.Radius;
             //added by gremlin attackrun compensator
             float modifyRangeAR = 50f;
             Vector2 pos = PickedPos;
@@ -764,7 +764,7 @@ namespace Ship_Game.Gameplay
                 if (modifyRangeAR < 50)
                     modifyRangeAR = 50;
             }
-            if (Vector2.Distance(pos, w.moduleAttachedTo.Center) > w.GetModifiedRange() + modifyRangeAR+radius)
+            if (Vector2.Distance(pos, w.moduleAttachedTo.Center) > w.GetModifiedRange() + modifyRangeAR)//+radius)
             {
                 return false;
             }
@@ -4122,6 +4122,8 @@ namespace Ship_Game.Gameplay
                     else
                     {
                         float distance = Vector2.Distance(source.Center, slot2.Center);//source.GetOwner().Center,slot2.Center);
+                        if (distance > source.Range)
+                            continue;
                         float distancetoClosest = Vector2.Distance(source.Center, closest.Center);
                         if (distance < distancetoClosest)
                             closest = slot2;
@@ -4133,12 +4135,12 @@ namespace Ship_Game.Gameplay
                 //    continue;
  
                 //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
-                if (slot2.ModuleType != ShipModuleType.Dummy&& slot2.Health>0)
+                if (slot2.ModuleType != ShipModuleType.Dummy&& slot2.Active)
                     InternalModules.Add(slot.module);
             }
             if (InternalModules.Count > 0)
             {
-                if (source.GetOwner().Level <2)
+                if (source.GetOwner() ==null || source.GetOwner().Level <2)
                 return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
 
                 int skill = InternalModules.Count / (source.GetOwner().Level + 2);
@@ -4147,7 +4149,7 @@ namespace Ship_Game.Gameplay
                 //if (source.GetOwner().Level >1)
 
                 return InternalModules.OrderBy(damage => damage.Health)
-                    .ThenBy(close => Vector2.Distance(close.Center, closest.Center) )
+                    //.ThenBy(close => Vector2.Distance(close.Center, closest.Center) )
                     .ElementAt(random);
 
                 //return InternalModules.OrderBy(close => Vector2.Distance(close.Center, closest.Center)).First(); //[HelperFunctions.GetRandomIndex(InternalModules.Count)];
@@ -4214,7 +4216,9 @@ namespace Ship_Game.Gameplay
                     level = source.Planet.developmentLevel;
                 else if (source.Owner != null)
                     level = source.Owner.Level;
-                else
+                else 
+                    return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+                if(level <2)
                     return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
 
                     int skill = InternalModules.Count / (level + 2);
