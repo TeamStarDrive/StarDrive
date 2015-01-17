@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Configuration;
+using System.Threading;
 
 
 namespace Ship_Game.Gameplay
@@ -201,7 +202,7 @@ namespace Ship_Game.Gameplay
         public bool hasRepairBeam;
         public bool hasCommand;
         private float FTLmodifier = 1f;
-
+        public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public float CargoSpace_Used
         {
             get
@@ -2707,8 +2708,8 @@ namespace Ship_Game.Gameplay
                             this.Projectiles.QueuePendingRemoval(projectile);
                     });
 
-                    //foreach (Beam beam in (List<Beam>)this.beams)                    
-                    Parallel.ForEach(this.beams, beam =>
+                    foreach (Beam beam in (List<Beam>)this.beams)                    
+                    
                     {
                         Vector2 origin = new Vector2();
                         if (beam.moduleAttachedTo != null)
@@ -2728,7 +2729,7 @@ namespace Ship_Game.Gameplay
                         beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                         if ((double)beam.duration < 0.0 && !beam.infinite)
                             this.beams.QueuePendingRemoval(beam);
-                    });
+                    }
                     this.beams.ApplyPendingRemovals();
                 }
 
@@ -4084,23 +4085,28 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public class target
+        {
+            public ShipModule module;
+           public  int weight;
+
+            public target(ShipModule module, int weight)
+            {
+                this.module = module;
+                this.weight = weight;
+            }
+        }
         public ShipModule GetRandomInternalModule(Weapon source)
         {
-            List<ShipModule> InternalModules = new List<ShipModule>();
-            //foreach (ModuleSlot slot in this.ModuleSlotList)
-            //foreach (ModuleSlot slot in this.ExternalSlots)
-            ShipModule closest = null;
-            for (int x=0; x< this.ExternalSlots.Count;x++ )
+            int level = 0;
+            if (source.GetOwner() != null)
+                level = source.GetOwner().Level;
+            List<target> InternalModules = new List<target>();
+            int weight = 0;
+            Random random = new Random();
+            foreach (ModuleSlot slot in this.ModuleSlotList)                           
             {
-                ModuleSlot slot;
-                try
-                {
-                    slot = this.ExternalSlots[x];
-                }
-                catch
-                {
-                    continue;
-                }
+                weight = 0;
                 if (slot == null)
                     continue;
                 ShipModule slot2;
@@ -4114,46 +4120,105 @@ namespace Ship_Game.Gameplay
                 }
                 if (slot2 == null)
                     continue;
+                if (slot2.ModuleType == ShipModuleType.Dummy || !slot2.Active || slot2.Health <=0.0)
+                    continue;
 
-                //if (source.GetOwner().GetAI().CombatState == CombatState.AttackRuns)
+                switch (level)
                 {
-                    if (closest == null)
-                        closest = slot2;
-                    else
-                    {
-                        float distance = Vector2.Distance(source.Center, slot2.Center);//source.GetOwner().Center,slot2.Center);
-                        if (distance > source.Range)
-                            continue;
-                        float distancetoClosest = Vector2.Distance(source.Center, closest.Center);
-                        if (distance < distancetoClosest)
-                            closest = slot2;
+                    case 0:
+                        {
+                            weight = random.Next(0, this.ExternalSlots.Count);    //HelperFunctions.GetRandomIndex((int)this.number_Internal_slots);
+                        break;
+                        }
+                    case 1:
+                        {
+                            if (!slot2.isExternal)
+                                weight += 5;
+                            weight += random.Next(0, 5);
+                            
+                            break;
+                        }
+                    case 2:
+                        {
+                            weight += random.Next(0, 5);
+                            if (slot2.ModuleType != ShipModuleType.Armor)
+                                weight += 3;
+                            if (slot2.Health / slot2.HealthMax < .5f)
+                                weight += 3;
+                            if (!slot2.isExternal)
+                                weight += 5;
+                            
+                            break;
+                        }
+                    case 3:
+                        {
+                            weight += random.Next(0, 5);
+                            if (slot2.ModuleType != ShipModuleType.Armor)
+                                weight += 2;
+                            if (slot2.ModuleType == ShipModuleType.Engine)
+                                weight += 2;
+                            if (slot2.Health / slot2.HealthMax < .5f)
+                                weight += 2;
+                            if (!slot2.isExternal)
+                                weight += 5;
+                            if (slot2.explodes)
+                                weight += 3;
+                            break;
+                        }
+                    case 4:
+                        {
+                            if (slot2.isWeapon)
+                                weight += 2;
+                            weight += random.Next(0, 4);
+                            if (slot2.ModuleType != ShipModuleType.Armor)
+                                weight += 2;
+                            if (slot2.ModuleType == ShipModuleType.Engine)
+                                weight += 2;
+                            if (slot2.isWeapon)
+                                weight += 2;
+                            if (slot2.Health / slot2.HealthMax < .5f)
+                                weight += 2;
+                            if (!slot2.isExternal)
+                                weight += 5;
+                            if (slot2.explodes)
+                                weight += 3;
+                            break;
 
-                    }
-
+                        }
+                    default:
+                        {
+                            if(source.GetOwner().Level >4)
+                            {
+                                int a = 8 - level;
+                                if(a >1)
+                                    weight += random.Next(0, a);
+                                if (slot2.isWeapon)
+                                    weight += 2;
+                                if (slot2.ModuleType != ShipModuleType.Armor)
+                                    weight += 2;
+                                if (slot2.ModuleType == ShipModuleType.Engine)
+                                    weight += 2;
+                                if (slot2.isWeapon)
+                                    weight += 2;
+                                if (slot2.Health / slot2.HealthMax < .5f)
+                                    weight += 2;
+                                if (!slot2.isExternal)
+                                    weight += 5;
+                                if (slot2.explodes)
+                                    weight += 3;
+                            }
+                            break;
+                        }                        
                 }
-                //if (Vector2.Distance(source.Center, slot2.Center) > source.Range)
-                //    continue;
- 
-                //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
-                if (slot2.ModuleType != ShipModuleType.Dummy&& slot2.Active)
-                    InternalModules.Add(slot.module);
+                InternalModules.Add(new target(slot2,weight));
             }
             if (InternalModules.Count > 0)
             {
-                if (source.GetOwner() ==null || source.GetOwner().Level <2)
-                return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
-
-                int skill = InternalModules.Count / (source.GetOwner().Level + 2);
-                int random = HelperFunctions.GetRandomIndex((int)skill);
-                float healthTarget =1 / (source.GetOwner().Level+1);
-                //if (source.GetOwner().Level >1)
-
-                return InternalModules.OrderBy(damage => damage.Health)
-                    //.ThenBy(close => Vector2.Distance(close.Center, closest.Center) )
-                    .ElementAt(random);
-
-                //return InternalModules.OrderBy(close => Vector2.Distance(close.Center, closest.Center)).First(); //[HelperFunctions.GetRandomIndex(InternalModules.Count)];
-                // return closest;
+                
+                ShipModule target=  InternalModules.OrderBy(slot => slot.weight).ThenByDescending(distance=> Vector2.Distance(distance.module.Center, source.Center)).First().module;
+                //target.SetSystem(this.system);
+                //target.isInDeepSpace = this.isInDeepSpace;
+                return target;
             }
             else
                 return null;
@@ -4189,8 +4254,10 @@ namespace Ship_Game.Gameplay
                 }
                 if (slot2 == null)
                     continue;
-                if (Vector2.Distance(source.Center, slot2.Center) > source.range)
-                    continue;
+                //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
+                if (slot2.ModuleType != ShipModuleType.Dummy && slot2.Active)
+                    InternalModules.Add(slot.module);
+ 
                 {
                     if (closest == null)
                         closest = slot2;
@@ -4204,9 +4271,6 @@ namespace Ship_Game.Gameplay
                     }
 
                 }
-                //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
-                if (slot2.ModuleType != ShipModuleType.Dummy && slot2.Active)
-                    InternalModules.Add(slot.module);
             }
 
             if (InternalModules.Count > 0)

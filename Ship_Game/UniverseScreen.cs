@@ -1658,22 +1658,29 @@ namespace Ship_Game
 
             
 #if ALTERTHREAD
-            List<SolarSystem> solarsystems = this.SolarSystemDict.Values.ToList();
+           // List<SolarSystem> solarsystems = this.SolarSystemDict.Values.ToList();
 #if !PLAYERONLY
-            var source1 = Enumerable.Range(0, this.SolarSystemDict.Count).ToArray();
-            var rangePartitioner1 = Partitioner.Create(0, source1.Length);
+            //var source1 = Enumerable.Range(0, this.SolarSystemDict.Count).ToArray();
+            //var rangePartitioner1 = Partitioner.Create(0, source1.Length);
 
-            Parallel.ForEach(rangePartitioner1, (range, loopState) =>
+            //Parallel.ForEach(rangePartitioner1, (range, loopState) =>
+            //    {
+            //        List<SolarSystem> ss = new List<SolarSystem>();
+            //        for (int i = range.Item1; i < range.Item2; i++)
+            //        {
+            //            ss.Add(solarsystems[i]);
+
+            //        }
+            //        SystemUpdater2(ss);
+
+            //    });
+            Parallel.ForEach(this.SolarSystemDict.Values, SS =>
                 {
                     List<SolarSystem> ss = new List<SolarSystem>();
-                    for (int i = range.Item1; i < range.Item2; i++)
-                    {
-                        ss.Add(solarsystems[i]);
-
-                    }
+                    ss.Add(SS);
                     SystemUpdater2(ss);
-
                 });
+
             this.DeepSpaceDone.WaitOne();
 #endif
 #if PLAYERONLY

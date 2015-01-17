@@ -1122,7 +1122,9 @@ namespace Ship_Game
 			}
 			catch
 			{
+                
 				Model model = Game1.Instance.Content.Load<Model>(string.Concat("Mod Models/", path));
+                Ship_Game.ResourceManager.ModelDict.Add(path, model);
 				item = model;
 			}
 			return item;
