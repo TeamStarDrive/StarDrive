@@ -239,6 +239,7 @@ namespace Ship_Game.Gameplay
 
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
+       
 
 		public static AudioListener audioListener
 		{
@@ -968,13 +969,15 @@ namespace Ship_Game.Gameplay
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
 				return;
 			this.owner.InCombatTimer = 15f;
-            if (target is ShipModule)
-                (target as ShipModule).GetParent().InCombatTimer = 15f;
+
 			this.timeToNextFire = this.fireDelay;
-			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
+
+            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
+                //this.owner.supplyLock.EnterWriteLock();
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
+                //this.owner.supplyLock.ExitWriteLock();
 				if (this.SalvoCount == 1)
 				{
 					if (this.FireArc != 0)
@@ -1050,6 +1053,7 @@ namespace Ship_Game.Gameplay
 					return;
 				}
 			}
+
 		}
 
 		public virtual void FireDrone(Vector2 direction)
@@ -1175,12 +1179,14 @@ namespace Ship_Game.Gameplay
 			}
 			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
-			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
+            
+            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
-                this.owner.Ordinance -= this.OrdinanceRequiredToFire;
+                this.owner.Ordinance -= this.OrdinanceRequiredToFire;                
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
 				this.CreateTargetedBeam(target);
 			}
+            
 		}
 
         public virtual void FireMouseBeam(Vector2 direction)
