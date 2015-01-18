@@ -482,7 +482,13 @@ namespace Ship_Game
 			}
 			foreach (Ship ship in this.us.MasterShipList)
 			{
-				ship.UpdateSystem(0f);
+                if (!ship.Active)
+                {
+                    this.us.MasterShipList.QueuePendingRemoval(ship);
+                    continue;
+                }
+
+                ship.UpdateSystem(0f);
 				if (ship.loyalty != EmpireManager.GetEmpireByName(this.us.PlayerLoyalty))
 				{
 					if (ship.AddedOnLoad)
@@ -501,6 +507,7 @@ namespace Ship_Game
 					ship.AddedOnLoad = true;
 				}
 			}
+            this.us.MasterShipList.ApplyPendingRemovals();
 			base.ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
 			this.ExitScreen();
 			this.us.EmpireUI.empire = this.us.player;

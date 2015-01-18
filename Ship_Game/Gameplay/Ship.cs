@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Configuration;
+using System.Threading;
 
 
 namespace Ship_Game.Gameplay
@@ -201,7 +202,7 @@ namespace Ship_Game.Gameplay
         public bool hasRepairBeam;
         public bool hasCommand;
         private float FTLmodifier = 1f;
-
+        public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public float CargoSpace_Used
         {
             get
@@ -751,9 +752,24 @@ namespace Ship_Game.Gameplay
         }
 
         //Added by McShooterz
-        public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos)
+        public bool CheckIfInsideFireArc(Weapon w, GameplayObject target)
         {
-            Vector2 pos = new Vector2(PickedPos.X, PickedPos.Y);
+            Vector2 PickedPos = target.Center;
+            //radius = target.Radius;
+            //added by gremlin attackrun compensator
+            float modifyRangeAR = 50f;
+            Vector2 pos = PickedPos;
+            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoCount > 0)
+            {
+                modifyRangeAR = this.speed;
+                if (modifyRangeAR < 50)
+                    modifyRangeAR = 50;
+            }
+            if (Vector2.Distance(pos, w.moduleAttachedTo.Center) > w.GetModifiedRange() + modifyRangeAR)//+radius)
+            {
+                return false;
+            }
+            
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
@@ -777,13 +793,55 @@ namespace Ship_Game.Gameplay
                 }
                 difference = Math.Abs(angleToMouse - facing);
             }
+
+            if (difference < halfArc)// && Vector2.Distance(base.Position, pos) < w.GetModifiedRange() + modifyRangeAR)
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos )
+        {
+
             //added by gremlin attackrun compensator
             float modifyRangeAR = 50f;
+            Vector2 pos = new Vector2(PickedPos.X, PickedPos.Y);
             if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
                 modifyRangeAR = this.speed;
+                if (modifyRangeAR < 50)
+                    modifyRangeAR = 50;
             }
-            if (difference < halfArc && Vector2.Distance(base.Position, pos) < w.GetModifiedRange() + modifyRangeAR)
+            if (Vector2.Distance(pos, w.moduleAttachedTo.Center) > w.GetModifiedRange() + modifyRangeAR )
+            {
+                return false;
+            }
+
+            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            Vector2 toTarget = pos - w.Center;
+            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
+            float facing = w.moduleAttachedTo.facing + MathHelper.ToDegrees(base.Rotation);
+            if (facing > 360f)
+            {
+                facing = facing - 360f;
+            }
+            float difference = 0f;
+            difference = Math.Abs(angleToMouse - facing);
+            if (difference > halfArc)
+            {
+                if (angleToMouse > 180f)
+                {
+                    angleToMouse = -1f * (360f - angleToMouse);
+                }
+                if (facing > 180f)
+                {
+                    facing = -1f * (360f - facing);
+                }
+                difference = Math.Abs(angleToMouse - facing);
+            }
+
+            if (difference < halfArc)// && Vector2.Distance(base.Position, pos) < w.GetModifiedRange() + modifyRangeAR)
             {
                 return true;
             }
@@ -791,9 +849,27 @@ namespace Ship_Game.Gameplay
         }
 
         //Added by McShooterz
-        public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos)
+        public bool CheckIfInsideFireArc(Weapon w, Ship ship)
         {
+            Vector2 PickedPos = ship.Center;
+            float radius = ship.radius;
             GlobalStats.WeaponArcChecks = GlobalStats.WeaponArcChecks + 1;
+            float modifyRangeAR = 50f;
+            float distance =Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) ;
+            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.GetOwner().speed) //&& this.maxWeaponsRange < 2000
+            {
+                
+                
+                modifyRangeAR = this.speed * w.SalvoTimer;
+
+                if (modifyRangeAR < 50)
+                    modifyRangeAR = 50;
+
+            }
+            if (distance > w.GetModifiedRange() + modifyRangeAR + radius)
+            {
+                return false;
+            }
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
             Vector2 toTarget = PickedPos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
@@ -817,12 +893,12 @@ namespace Ship_Game.Gameplay
                 }
                 difference = Math.Abs(angleToMouse - facing);
             }
-            float modifyRangeAR = 50f;
-            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
-            {
-                modifyRangeAR = this.speed * w.SalvoTimer;
-            }
-            if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + modifyRangeAR)
+            //float modifyRangeAR = 50f;
+            //if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoTimer > 0)
+            //{
+            //    modifyRangeAR = this.speed * w.SalvoTimer;
+            //}
+            if (difference < halfArc )//&& Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + modifyRangeAR)
             {
                 return true;
             }
@@ -832,6 +908,10 @@ namespace Ship_Game.Gameplay
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos, float Rotation)
         {
+            if(Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) > w.GetModifiedRange() + 50f)
+            {
+                return false;
+            }
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
             Vector2 toTarget = PickedPos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
@@ -855,7 +935,7 @@ namespace Ship_Game.Gameplay
                 }
                 difference = Math.Abs(angleToMouse - facing);
             }
-            if (difference < halfArc && Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + 50f)
+            if (difference < halfArc )//&& Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) < w.GetModifiedRange() + 50f)
             {
                 return true;
             }
@@ -1369,6 +1449,7 @@ namespace Ship_Game.Gameplay
             if (this.shipData == null)
                 return;
             this.AI.CombatState = this.shipData.CombatState;
+            this.AI.CombatAI = new CombatAI(this);
         }
 
         public void LoadFromSave()
@@ -2486,7 +2567,10 @@ namespace Ship_Game.Gameplay
                             if (this.AI.State == AIState.Combat)
                             {
                                 if (this.loyalty != Ship.universeScreen.player)
+                                {
                                     this.AI.State = AIState.AwaitingOrders;
+                                    this.GetAI().OrderQueue.Clear();
+                                }
                             }
                         }
                         catch
@@ -2609,17 +2693,23 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
-                    //task gremlin look at parallel here for weapons
-                    foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
-                    //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
+                    if (this.GetAI().fireTask !=null && !this.GetAI().fireTask.IsCompleted)
                     {
-                        if (projectile !=null && projectile.Active)
+                        this.GetAI().fireTask.Wait();
+                        //this.GetAI().fireTask.Dispose();
+                    }
+                    //task gremlin look at parallel here for weapons
+                    //foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
+                    Parallel.ForEach<Projectile>(this.projectiles, projectile =>
+                    {
+                        if (projectile != null && projectile.Active)
                             projectile.Update(elapsedTime);
                         else
                             this.Projectiles.QueuePendingRemoval(projectile);
-                     }//);
-                    foreach (Beam beam in (List<Beam>)this.beams)
-                    //Parallel.ForEach<Beam>(this.beams, beam =>
+                    });
+
+                    foreach (Beam beam in (List<Beam>)this.beams)                    
+                    
                     {
                         Vector2 origin = new Vector2();
                         if (beam.moduleAttachedTo != null)
@@ -2639,9 +2729,10 @@ namespace Ship_Game.Gameplay
                         beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                         if ((double)beam.duration < 0.0 && !beam.infinite)
                             this.beams.QueuePendingRemoval(beam);
-                    }//);
+                    }
                     this.beams.ApplyPendingRemovals();
                 }
+
             }
             this.Projectiles.ApplyPendingRemovals();
             this.VelocityLast = this.Velocity;
@@ -3924,16 +4015,15 @@ namespace Ship_Game.Gameplay
         public void TotallyRemove()
         {
             this.Active = false;
-            this.AI.PotentialTargets.Clear();
-            this.AI.NearbyShips.Clear();
-            this.AI.FriendliesNearby.Clear();
             this.AI.Target = (GameplayObject)null;
             this.AI.ColonizeTarget = (Planet)null;
             this.AI.EscortTarget = (Ship)null;
             this.AI.start = (Planet)null;
             this.AI.end = (Planet)null;
+            this.AI.PotentialTargets.Clear();
+            this.AI.NearbyShips.Clear();
+            this.AI.FriendliesNearby.Clear();
             Ship.universeScreen.MasterShipList.QueuePendingRemoval(this);
-            //UniverseScreen.ShipSpatialManager.CollidableObjects.Remove((GameplayObject)this);
             UniverseScreen.ShipSpatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
             if (Ship.universeScreen.SelectedShip == this)
                 Ship.universeScreen.SelectedShip = (Ship)null;
@@ -3953,7 +4043,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             else if (this.isInDeepSpace)
-                UniverseScreen.DeepSpaceManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
+                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove((GameplayObject)this);
             for (int index = 0; index < this.projectiles.Count; ++index)
                 this.projectiles[index].Die((GameplayObject)this, false);
             this.projectiles.Clear();
@@ -3995,12 +4085,152 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public ShipModule GetRandomInternalModule()
+        public class target
+        {
+            public ShipModule module;
+           public  int weight;
+
+            public target(ShipModule module, int weight)
+            {
+                this.module = module;
+                this.weight = weight;
+            }
+        }
+        public ShipModule GetRandomInternalModule(Weapon source)
+        {
+            int level = 0;
+            if (source.GetOwner() != null)
+                level = source.GetOwner().Level;
+            List<target> InternalModules = new List<target>();
+            int weight = 0;
+            Random random = new Random();
+            foreach (ModuleSlot slot in this.ModuleSlotList)                           
+            {
+                weight = 0;
+                if (slot == null)
+                    continue;
+                ShipModule slot2;
+                try
+                {
+                    slot2 = slot.module;
+                }
+                catch
+                {
+                    continue;
+                }
+                if (slot2 == null)
+                    continue;
+                if (slot2.ModuleType == ShipModuleType.Dummy || !slot2.Active || slot2.Health <=0.0)
+                    continue;
+
+                switch (level)
+                {
+                    case 0:
+                        {
+                            weight = random.Next(0, this.ExternalSlots.Count);    //HelperFunctions.GetRandomIndex((int)this.number_Internal_slots);
+                        break;
+                        }
+                    case 1:
+                        {
+                            if (!slot2.isExternal)
+                                weight += 5;
+                            weight += random.Next(0, 5);
+                            
+                            break;
+                        }
+                    case 2:
+                        {
+                            weight += random.Next(0, 5);
+                            if (slot2.ModuleType != ShipModuleType.Armor)
+                                weight += 3;
+                            if (slot2.Health / slot2.HealthMax < .5f)
+                                weight += 3;
+                            if (!slot2.isExternal)
+                                weight += 5;
+                            
+                            break;
+                        }
+                    case 3:
+                        {
+                            weight += random.Next(0, 5);
+                            if (slot2.ModuleType != ShipModuleType.Armor)
+                                weight += 2;
+                            if (slot2.ModuleType == ShipModuleType.Engine)
+                                weight += 2;
+                            if (slot2.Health / slot2.HealthMax < .5f)
+                                weight += 2;
+                            if (!slot2.isExternal)
+                                weight += 5;
+                            if (slot2.explodes)
+                                weight += 3;
+                            break;
+                        }
+                    case 4:
+                        {
+                            if (slot2.isWeapon)
+                                weight += 2;
+                            weight += random.Next(0, 4);
+                            if (slot2.ModuleType != ShipModuleType.Armor)
+                                weight += 2;
+                            if (slot2.ModuleType == ShipModuleType.Engine)
+                                weight += 2;
+                            if (slot2.isWeapon)
+                                weight += 2;
+                            if (slot2.Health / slot2.HealthMax < .5f)
+                                weight += 2;
+                            if (!slot2.isExternal)
+                                weight += 5;
+                            if (slot2.explodes)
+                                weight += 3;
+                            break;
+
+                        }
+                    default:
+                        {
+                            if(source.GetOwner().Level >4)
+                            {
+                                int a = 8 - level;
+                                if(a >1)
+                                    weight += random.Next(0, a);
+                                if (slot2.isWeapon)
+                                    weight += 2;
+                                if (slot2.ModuleType != ShipModuleType.Armor)
+                                    weight += 2;
+                                if (slot2.ModuleType == ShipModuleType.Engine)
+                                    weight += 2;
+                                if (slot2.isWeapon)
+                                    weight += 2;
+                                if (slot2.Health / slot2.HealthMax < .5f)
+                                    weight += 2;
+                                if (!slot2.isExternal)
+                                    weight += 5;
+                                if (slot2.explodes)
+                                    weight += 3;
+                            }
+                            break;
+                        }                        
+                }
+                InternalModules.Add(new target(slot2,weight));
+            }
+            if (InternalModules.Count > 0)
+            {
+                
+                ShipModule target=  InternalModules.OrderBy(slot => slot.weight).ThenByDescending(distance=> Vector2.Distance(distance.module.Center, source.Center)).First().module;
+                //target.SetSystem(this.system);
+                //target.isInDeepSpace = this.isInDeepSpace;
+                return target;
+            }
+            else
+                return null;
+        }
+
+        public ShipModule GetRandomInternalModule(Projectile source)
         {
             List<ShipModule> InternalModules = new List<ShipModule>();
             //foreach (ModuleSlot slot in this.ModuleSlotList)
             //foreach (ModuleSlot slot in this.ExternalSlots)
-            for (int x=0; x< this.ExternalSlots.Count;x++ )
+            ShipModule closest = null;
+            for (int x = 0; x < this.ExternalSlots.Count; x++)
             {
                 ModuleSlot slot;
                 try
@@ -4024,15 +4254,64 @@ namespace Ship_Game.Gameplay
                 }
                 if (slot2 == null)
                     continue;
-
                 //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
                 if (slot2.ModuleType != ShipModuleType.Dummy && slot2.Active)
                     InternalModules.Add(slot.module);
+ 
+                {
+                    if (closest == null)
+                        closest = slot2;
+                    else
+                    {
+                        float distance = Vector2.Distance(source.Center, slot2.Center);//source.GetOwner().Center,slot2.Center);
+                        float distancetoClosest = Vector2.Distance(source.Center, closest.Center);
+                        if (distance < distancetoClosest)
+                            closest = slot2;
+
+                    }
+
+                }
             }
+
             if (InternalModules.Count > 0)
-                return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+            {
+                int level = 0;
+                if (source.Planet != null)
+                    level = source.Planet.developmentLevel;
+                else if (source.Owner != null)
+                    level = source.Owner.Level;
+                else 
+                    return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+                if(level <2)
+                    return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+
+                    int skill = InternalModules.Count / (level + 2);
+                int random = HelperFunctions.GetRandomIndex((int)skill);
+                float healthTarget = 1 / (level + 1);
+                //if (source.GetOwner().Level >1)
+
+                return InternalModules.OrderBy(damage => damage.Health)
+                    .ThenBy(close => Vector2.Distance(close.Center, closest.Center))
+                    .ElementAt(random);
+
+                //return InternalModules.OrderBy(close => Vector2.Distance(close.Center, closest.Center)).First(); //[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+                // return closest;
+            }
             else
                 return null;
+        }
+
+        public void UpdateShields()
+        {
+            this.shield_power = 0.0f;
+            foreach (ShipModule shield in this.Shields)
+            {
+                this.shield_power += shield.shield_power;
+            }
+            if (this.shield_power > this.shield_max)
+            {
+                this.shield_power = this.shield_max;
+            }
         }
 
         public virtual void StopAllSounds()

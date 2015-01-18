@@ -307,7 +307,15 @@ namespace Ship_Game.Gameplay
 				}
                 if (this.ModuleType == ShipModuleType.Armor && source is Projectile)
                 {
-                    damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                    }
+                    else
+                    {
+                        damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                    }
                 }
                 if (damageAmount > this.Health)
                 {
@@ -343,7 +351,15 @@ namespace Ship_Game.Gameplay
                 float damageAmountvsShields = damageAmount;
                 if (source is Projectile)
                 {
-                    damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                    }
+                    else
+                    {
+                        damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                    }
                 }
 
                 if (damageAmountvsShields > this.shield_power)
@@ -499,10 +515,24 @@ namespace Ship_Game.Gameplay
                 {
                     return false;
                 }
+
                 if (this.ModuleType == ShipModuleType.Armor && source is Projectile)
                 {
-                    damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                    }
+                    else
+                    {
+                        damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                    }
                 }
+                else if (this.ModuleType == ShipModuleType.Armor && source is Beam)
+                {
+                    damageAmount *= (source as Beam).weapon.EffectVsArmor;
+                }
+
                 if (damageAmount > this.Health)
                 {
                     this.Health = 0;
@@ -537,16 +567,30 @@ namespace Ship_Game.Gameplay
 
                 if (source is Projectile)
                 {
-                    damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                    }
+                    else
+                    {
+                        damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                    }
+                }
+                else if (source is Beam)
+                {
+                    damageAmountvsShields *= (source as Beam).weapon.EffectVSShields;
                 }
 
                 if (damageAmountvsShields > this.shield_power)
                 {
                     this.shield_power = 0;
+                    this.Parent.UpdateShields();
                 }
                 else
                 {
                     this.shield_power -= damageAmountvsShields;
+                    this.Parent.UpdateShields();
                 }
 
                 if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
@@ -741,7 +785,15 @@ namespace Ship_Game.Gameplay
 				{
                     if (source is Projectile && this.ModuleType == ShipModuleType.Armor)
                     {
-                        damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                        if ((source as Projectile).isSecondary)
+                        {
+                            Weapon shooter = (source as Projectile).weapon;
+                            damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                        }
+                        else
+                        {
+                            damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                        }
                     }
 					ShipModule health = this;
 					health.Health = health.Health - damageAmount;
@@ -771,8 +823,21 @@ namespace Ship_Game.Gameplay
 				ShipModule shipModule = this;
                 if (source is Projectile)
                 {
-                    damageAmount *= (source as Projectile).weapon.EffectVSShields;
+                    if ((source as Projectile).isSecondary)
+                    {
+                        Weapon shooter = (source as Projectile).weapon;
+                        damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                    }
+                    else
+                    {
+                        damageAmount *= (source as Projectile).weapon.EffectVSShields;
+                    }
                 }
+                else if (source is Beam)
+                {
+                    damageAmount *= (source as Beam).weapon.EffectVSShields;
+                }
+
 				shipModule.shield_power = shipModule.shield_power - damageAmount;
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
@@ -1217,7 +1282,14 @@ namespace Ship_Game.Gameplay
             {
                 if (this.hangarShip != null && this.hangarShip.Active)
                 {
-                    if (this.hangarShip.GetAI().State == AIState.ReturnToHangar) return;
+                    if (this.hangarShip.GetAI().State == AIState.ReturnToHangar 
+                        || this.hangarShip.GetAI().HasPriorityOrder 
+                        || this.hangarShip.GetAI().hasPriorityTarget
+                        || this.hangarShip.GetAI().IgnoreCombat 
+                        || this.hangarShip.GetAI().Target!=null
+                        || Vector2.Distance(this.Parent.Center,this.hangarShip.Center) >this.Parent.SensorRange
+                        )
+                        return;
                     this.hangarShip.DoEscort(this.Parent);
                     return;
                 }
@@ -1250,7 +1322,8 @@ namespace Ship_Game.Gameplay
                     if (this.hangarShip != null)
                     {
                         this.GetHangarShip().DoEscort(this.Parent);
-                        this.GetHangarShip().Velocity = (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.GetHangarShip().speed) + this.Parent.Velocity;
+                        this.GetHangarShip().Velocity = 
+                            (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.GetHangarShip().speed) + this.Parent.Velocity;
                         if (this.GetHangarShip().Velocity.Length() > this.GetHangarShip().velocityMaximum)
                         {
                             this.GetHangarShip().Velocity = Vector2.Normalize(this.GetHangarShip().Velocity) * this.GetHangarShip().speed;

@@ -574,8 +574,10 @@ namespace Ship_Game
 								}
 								else if (str == "LoadEvent")
 								{
-									this.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), n.ReferencedItem1 as ExplorationEvent, (n.ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]));
-									(n.ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), (n.ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]);
+                                    ExplorationEvent e = n.ReferencedItem1 as ExplorationEvent;
+                                    Outcome triggeredOutcome = GetRandomOutcome(e);
+									this.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), n.ReferencedItem1 as ExplorationEvent, triggeredOutcome));
+									(n.ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), triggeredOutcome);
 								}
 								else if (str == "ResearchScreen")
 								{
@@ -661,6 +663,46 @@ namespace Ship_Game
 			this.screen.SnapViewSystem(system);
 		}
 
+        public Outcome GetRandomOutcome(ExplorationEvent e)
+        {
+            int ranMax = 0;
+            foreach (Outcome outcome in e.PotentialOutcomes)
+            {
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered)
+                {
+                    continue;
+                }
+                else
+                {
+                    ranMax += outcome.Chance;
+                }
+            }
+
+            int Random = (int)RandomMath.RandomBetween(0, ranMax);
+            Outcome triggeredOutcome = new Outcome();
+            int cursor = 0;
+            foreach (Outcome outcome in e.PotentialOutcomes)
+            {
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered)
+                {
+                    continue;
+                }
+                else
+                {
+                    cursor = cursor + outcome.Chance;
+                    if (Random > cursor)
+                    {
+                        continue;
+                    }
+                    triggeredOutcome = outcome;
+                    outcome.alreadyTriggered = true;
+                    break;
+                }
+            }
+            return triggeredOutcome;
+        }
+
+
 		public void Update(float elapsedTime)
 		{
 
@@ -669,8 +711,9 @@ namespace Ship_Game
             {
                 Timer = date;
                 ExplorationEvent ReferencedItem1 = ResourceManager.EventsDict[date.ToString()];
-                this.screen.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), ReferencedItem1 as ExplorationEvent, (ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]));
-                (ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), (ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]);
+                Outcome triggeredOutcome = GetRandomOutcome(ReferencedItem1);
+                this.screen.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), ReferencedItem1 as ExplorationEvent, triggeredOutcome));
+                (ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), triggeredOutcome);
             }
             
 
