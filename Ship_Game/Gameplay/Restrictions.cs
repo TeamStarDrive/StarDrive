@@ -8,6 +8,8 @@ namespace Ship_Game.Gameplay
 		IO,
 		IOE,
 		O,
-		E
+		E,
+        IE,
+        OE
 	}
 }

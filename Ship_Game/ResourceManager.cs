@@ -1122,7 +1122,9 @@ namespace Ship_Game
 			}
 			catch
 			{
+                
 				Model model = Game1.Instance.Content.Load<Model>(string.Concat("Mod Models/", path));
+                Ship_Game.ResourceManager.ModelDict.Add(path, model);
 				item = model;
 			}
 			return item;
@@ -1458,7 +1460,12 @@ namespace Ship_Game
                 TerminalPhaseAttack = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseAttack,
                 TerminalPhaseDistance = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseDistance,
                 TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
-                ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen
+                ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen,
+                RangeVariance = Ship_Game.ResourceManager.WeaponsDict[uid].RangeVariance,
+                ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,
+                AltFireMode = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireMode,
+                AltFireTriggerFighter = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireTriggerFighter,
+                SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire
 			};
 			return w;
 		}
