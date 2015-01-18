@@ -12,6 +12,7 @@ namespace Ship_Game.Gameplay
 {
 	public class ArtificialIntelligence
 	{
+        public Task fireTask;
         public bool UseSensorsForTargets =true;
         public bool ClearOrdersNext;
         private int loopcounter =0;
@@ -156,6 +157,7 @@ namespace Ship_Game.Gameplay
         public bool troopsout = false;
 
         private float UtilityModuleCheckTimer;
+        public object wayPointLocker;
 
 		public ArtificialIntelligence()
 		{
@@ -165,7 +167,8 @@ namespace Ship_Game.Gameplay
 		{
 			this.Owner = owner;
 			this.State = AIState.AwaitingOrders;
-            this.CombatAI = new CombatAI(this.Owner);
+            
+            this.wayPointLocker = new Object();
 		}
 
 		private void aPlotCourseToNew(Vector2 endPos, Vector2 startPos)
@@ -173,7 +176,7 @@ namespace Ship_Game.Gameplay
 			float Distance = Vector2.Distance(startPos, endPos);
 			if (Distance < this.Owner.CalculateRange())
 			{
-				lock (GlobalStats.WayPointLock)
+                lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(endPos);
 				}
@@ -226,7 +229,7 @@ namespace Ship_Game.Gameplay
 				}
 				if (AllTravelIsInBorders)
 				{
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Enqueue(endPos);
 					}
@@ -251,7 +254,7 @@ namespace Ship_Game.Gameplay
 					continue;
 				}
 				aCloserNodeExists = true;
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(ship1.Center);
 				}
@@ -260,7 +263,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (!aCloserNodeExists)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(endPos);
 				}
@@ -272,6 +275,8 @@ namespace Ship_Game.Gameplay
             //if ((this.Owner.GetSystem() ==null && this.State == AIState.Intercept) 
             //    || this.Target != null && this.Owner.GetSystem()!=null && this.Target.GetSystem()!=null && this.Target.GetSystem()==this.Owner.GetSystem())
             //    return;
+            //if (this.Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
+            //    this.ScanForThreatTimer = 0;
             this.HasPriorityOrder = false;
 			if (this.awaitClosest != null)
 			{
@@ -309,7 +314,9 @@ namespace Ship_Game.Gameplay
 		private void AwaitOrdersPlayer(float elapsedTime)
 		{
 			this.HasPriorityOrder = false;
-			if (this.awaitClosest != null)
+            if (this.Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
+                this.ScanForThreatTimer = 0;
+            if (this.awaitClosest != null)
 			{
 				this.DoOrbit(this.awaitClosest, elapsedTime);
 				return;
@@ -640,6 +647,10 @@ namespace Ship_Game.Gameplay
         private void DoCombat(float elapsedTime)
         {
             this.awaitClosest = null;
+            this.State = AIState.Combat;
+            this.Owner.InCombat = true;
+            this.Owner.InCombatTimer = 15f;
+
             if (this.Target != null && !this.Target.Active)
             {
                 this.Target = null;
@@ -656,25 +667,39 @@ namespace Ship_Game.Gameplay
                 this.OrderQueue.Clear();
                 return;
             }
-            this.State = AIState.Combat;
-            this.Owner.InCombatTimer = 15f;
+   
             if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
             {
 
-                if (this.Target != null && this.Owner.Mothership.GetAI().Target == null && !this.Owner.Mothership.GetAI().HasPriorityOrder && !this.Owner.Mothership.GetAI().hasPriorityTarget)
-                {
-                    this.Owner.Mothership.GetAI().Target = this.Target;
-                    this.Owner.Mothership.GetAI().State = AIState.Combat;
-                    this.Owner.Mothership.InCombatTimer = 15f;
-                }
+                //if (!this.hasPriorityTarget
+                //    && !this.HasPriorityOrder&& this.Target != null 
+                //    && this.Owner.Mothership.GetAI().Target == null 
+                //    && !this.Owner.Mothership.GetAI().HasPriorityOrder 
+                //    && !this.Owner.Mothership.GetAI().hasPriorityTarget)
+                //{
+                //    this.Owner.Mothership.GetAI().Target = this.Target;
+                //    this.Owner.Mothership.GetAI().State = AIState.Combat;
+                //    this.Owner.Mothership.InCombatTimer = 15f;
+                //}
+                if(this.Owner.Role != "troop"
+                    && (this.Owner.Health/ this.Owner.HealthMax <.5f || this.Owner.shield_max>0 && this.Owner.shield_percent <=0.0)
+                    || (this.Owner.OrdinanceMax > 0 && this.Owner.Ordinance / this.Owner.OrdinanceMax <= .1f)
+                    || (this.Owner.PowerCurrent <=1f && this.Owner.PowerDraw / this.Owner.PowerFlowMax <=.1f)
+                    )
+                    this.OrderReturnToHangar();
             }
-            if (this.Owner.OrdinanceMax > 0f && this.Owner.Ordinance / this.Owner.OrdinanceMax < 0.05f && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+            if (this.Owner.OrdinanceMax > 0f && this.Owner.Ordinance / this.Owner.OrdinanceMax < 0.05f &&  !this.hasPriorityTarget)//this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
             {
                 if (FriendliesNearby.Where(supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() == 0)
                 {
                     this.OrderResupplyNearest();
                     return;
                 }
+            }
+            if(this.Owner.Level >2 && this.Owner.Health / this.Owner.HealthMax <.5f&&  !(this.HasPriorityOrder||this.hasPriorityTarget))
+            {
+                                 this.OrderResupplyNearest();
+                    return;
             }
             if (Vector2.Distance(this.Target.Center, this.Owner.Center) < 10000f)
             {
@@ -844,6 +869,9 @@ namespace Ship_Game.Gameplay
                             break;
                         }
                 }
+                if (this.Target != null)
+                    return;
+                this.Owner.InCombat = false;
             }
         }
 
@@ -1189,7 +1217,9 @@ namespace Ship_Game.Gameplay
 		{
 			if (this.Owner.Velocity.Length() > 0f)
 			{
-				Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                if (this.Owner.engineState == Ship.MoveState.Warp)
+                    this.Owner.HyperspaceReturn();
+                Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
 				Vector2 right = new Vector2(-forward.Y, forward.X);
 				float angleDiff = (float)Math.Acos((double)Vector2.Dot(Vector2.Normalize(this.Owner.Velocity), forward));
 				float facing = (Vector2.Dot(Vector2.Normalize(this.Owner.Velocity), right) > 0f ? 1f : -1f);
@@ -1238,7 +1268,7 @@ namespace Ship_Game.Gameplay
 				this.HasPriorityOrder = false;
                 this.State = this.DefaultAIState;
 				this.OrderQueue.Clear();
-                System.Diagnostics.Debug.WriteLine("Troop Assault Canceled");
+                System.Diagnostics.Debug.WriteLine("Do Land Troop: Troop Assault Canceled");
 			}
 			else
 			{
@@ -1285,12 +1315,15 @@ namespace Ship_Game.Gameplay
             Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, this.Target.Center);
             float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
             float DistanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
-            if (DistanceToTarget > this.Owner.maxWeaponsRange)
+            float minRangeMod = this.Owner.maxWeaponsRange < 2000 ? .5f : .75f;
+            float maxRangeMod = this.Owner.maxWeaponsRange < 2000 ? .75f : .9f;
+            if (DistanceToTarget > this.Owner.maxWeaponsRange * maxRangeMod)
             {
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-            if (DistanceToTarget < this.Owner.maxWeaponsRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+
+            if (DistanceToTarget < this.Owner.maxWeaponsRange * minRangeMod && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
             {
                 Ship owner = this.Owner;
                 owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
@@ -1357,61 +1390,105 @@ namespace Ship_Game.Gameplay
         }
 
         //added by gremlin devksmod doorbit
-        private void DoOrbit(Planet OrbitTarget, float elapsedTime)
-        {            
-            if (this.findNewPosTimer > 0f)
-            {
-                ArtificialIntelligence artificialIntelligence = this;
-                artificialIntelligence.findNewPosTimer = artificialIntelligence.findNewPosTimer - elapsedTime;
+        //private void DoOrbit(Planet OrbitTarget, float elapsedTime)
+        //{            
+        //    if (this.findNewPosTimer > 0f)
+        //    {
+        //        ArtificialIntelligence artificialIntelligence = this;
+        //        artificialIntelligence.findNewPosTimer = artificialIntelligence.findNewPosTimer - elapsedTime;
 
+        //    }
+        //    else
+        //    {
+        //        this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+        //        if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500f)
+        //        {
+        //            ArtificialIntelligence orbitalAngle = this;
+        //            orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle + 15f;
+        //            if (this.OrbitalAngle >= 360f)
+        //            {
+        //                ArtificialIntelligence orbitalAngle1 = this;
+        //                orbitalAngle1.OrbitalAngle = orbitalAngle1.OrbitalAngle - 360f;
+        //            }
+        //            this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+        //            if (this.inOrbit == false) this.inOrbit = true;
+        //        }
+        //        this.findNewPosTimer = 1.5f;
+
+        //    }
+        //    float single = Vector2.Distance(this.Owner.Center, this.OrbitPos);
+        //    if (single < 7500f)
+        //    {
+        //        this.Owner.HyperspaceReturn();
+        //        if (this.State != AIState.Bombard && this.State!=AIState.AssaultPlanet && this.State != AIState.BombardTroops && this.State!=AIState.Boarding && !this.IgnoreCombat)
+        //        {
+        //            this.HasPriorityOrder = false;
+        //        }
+
+        //    }
+        //    if (single <= 15000f)
+        //    {
+        //        if (this.Owner.speed > 150f && this.Owner.engineState != Ship.MoveState.Warp)
+        //        {
+        //            this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, 150f);//this.Owner.speed / 3.5f);
+        //            return;
+        //        }
+        //        if (this.Owner.engineState != Ship.MoveState.Warp)
+        //        {
+        //            this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
+        //        }
+        //        return;
+        //    }
+        //    Vector2 vector2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
+        //    Vector2 vector21 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+        //    Vector2 vector22 = new Vector2(-vector21.Y, vector21.X);
+        //    Math.Acos((double)Vector2.Dot(vector2, vector21));
+        //    Vector2.Dot(vector2, vector22);
+        //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
+        //}
+
+        private void DoOrbit(Planet OrbitTarget, float elapsedTime)
+        {
+            if ((double)this.findNewPosTimer <= 0.0)
+            {
+                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+                if ((double)Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500.0)
+                {
+                    this.OrbitalAngle += 15f;
+                    if ((double)this.OrbitalAngle >= 360.0)
+                        this.OrbitalAngle -= 360f;
+                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+                }
+                this.findNewPosTimer = 1.5f;
+            }
+            else
+                this.findNewPosTimer -= elapsedTime;
+            float num1 = Vector2.Distance(this.Owner.Center, this.OrbitPos);
+            if ((double)num1 < 7500.0)
+            {
+                this.Owner.HyperspaceReturn();
+                if (this.State != AIState.Bombard)
+                    this.HasPriorityOrder = false;
+            }
+            if ((double)num1 > 15000.0)
+            {
+                Vector2 vector2_1 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
+                Vector2 vector2_2 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                Vector2 vector2_3 = new Vector2(-vector2_2.Y, vector2_2.X);
+                Math.Acos((double)Vector2.Dot(vector2_1, vector2_2));
+                double num2 = (double)Vector2.Dot(vector2_1, vector2_3);
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
+            }
+            else if ((double)this.Owner.speed > 1200.0 && this.Owner.engineState != Ship.MoveState.Warp)
+            {
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 3.5f);
             }
             else
             {
-                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
-                if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500f)
-                {
-                    ArtificialIntelligence orbitalAngle = this;
-                    orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle + 15f;
-                    if (this.OrbitalAngle >= 360f)
-                    {
-                        ArtificialIntelligence orbitalAngle1 = this;
-                        orbitalAngle1.OrbitalAngle = orbitalAngle1.OrbitalAngle - 360f;
-                    }
-                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
-                    if (this.inOrbit == false) this.inOrbit = true;
-                }
-                this.findNewPosTimer = 1.5f;
-
-            }
-            float single = Vector2.Distance(this.Owner.Center, this.OrbitPos);
-            if (single < 7500f)
-            {
-                this.Owner.HyperspaceReturn();
-                if (this.State != AIState.Bombard && this.State!=AIState.AssaultPlanet && this.State != AIState.BombardTroops && this.State!=AIState.Boarding && !this.IgnoreCombat)
-                {
-                    this.HasPriorityOrder = false;
-                }
-
-            }
-            if (single <= 15000f)
-            {
-                if (this.Owner.speed > 150f && this.Owner.engineState != Ship.MoveState.Warp)
-                {
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, 150f);//this.Owner.speed / 3.5f);
+                if (this.Owner.engineState == Ship.MoveState.Warp)
                     return;
-                }
-                if (this.Owner.engineState != Ship.MoveState.Warp)
-                {
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
-                }
-                return;
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
             }
-            Vector2 vector2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
-            Vector2 vector21 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-            Vector2 vector22 = new Vector2(-vector21.Y, vector21.X);
-            Math.Acos((double)Vector2.Dot(vector2, vector21));
-            Vector2.Dot(vector2, vector22);
-            this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
         }
 
 		private void DoOrbitNoWarp(Planet OrbitTarget, float elapsedTime)
@@ -1582,8 +1659,8 @@ namespace Ship_Game.Gameplay
 
             //if (!flag)
             //    return;
-			using (IEnumerator<Ship> enumerator = this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) => {
-				if (Vector2.Distance(this.Owner.Center, ship.Center) >= 20000f)
+			using (IEnumerator<Ship> enumerator = this.Owner.GetAI().FriendliesNearby.Where<Ship>((Ship ship) => {
+				if (Vector2.Distance(this.Owner.Center, ship.Center) >= 20000f || !ship.Active)
 				{
 					return false;
 				}
@@ -1602,12 +1679,15 @@ namespace Ship_Game.Gameplay
 
         private void DoRepairBeamLogic(Weapon w)
         {
-            foreach (Ship ship in w.GetOwner().loyalty.GetShips().Where(ship => ship != w.GetOwner() && ship.Health < ship.HealthMax && Vector2.Distance(this.Owner.Center, ship.Center) <= w.Range + 500f).OrderBy(ship => ship.Health))
+            //foreach (Ship ship in w.GetOwner().loyalty.GetShips()
+            foreach (Ship ship in this.FriendliesNearby
+                .Where(ship => ship.Active && ship != w.GetOwner() 
+                    && ship.Health / ship.HealthMax <.9f
+                    && Vector2.Distance(this.Owner.Center, ship.Center) <= w.Range + 500f)
+                    .OrderBy(ship => ship.Health))
             {
                 if (ship != null)
                 {
-                    Vector2 target = this.findVectorToTarget(w.Center, ship.Center);
-                    target.Y = target.Y * -1f;
                     w.FireTargetedBeam(ship);
                     return;
                 }
@@ -2107,144 +2187,168 @@ namespace Ship_Game.Gameplay
 			return Vec2Target;
 		}
 
-        public void FireOnTarget(float elapsedTime)
+        public void FireOnTarget() //(float elapsedTime)
 		{
             //Reasons not to fire
-            Relationship enemy;
-            //this.Owner.loyalty.GetRelations().ContainsKey((this.Target as Ship).loyalty)
-            if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled || !this.Owner.hasCommand || 
-                this.Target != null && !this.Owner.loyalty.isFaction 
-                && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue((this.Target as Ship).loyalty, out enemy) 
-                && enemy.Treaty_Peace)
-			{
-				return;
-			}
-            //Target is dead or dying, will need a new one.
-			if (this.Target != null && (!this.Target.Active || this.Target is Ship && (this.Target as Ship).dying))
-			{
-				this.Target = null;
-			}
-            //Determine if there is something to shoot at
-            if (this.BadGuysNear || this.Owner.InCombat)
+            try
             {
-                //Go through each weapon
-                foreach (Weapon weapon in this.Owner.Weapons)
+                Relationship enemy;
+                Ship TargetShip = this.Target as Ship;
+                if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled || !this.Owner.hasCommand ||
+                    (this.Target != null && !this.Owner.loyalty.isFaction
+                    && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy)
+                    && enemy.Treaty_Peace))
                 {
-                    //Reasons for this weapon not to fire
-                    if (!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
+                    return;
+                }
+                //Target is dead or dying, will need a new one.
+                if (this.Target != null && (!this.Target.Active || TargetShip != null && TargetShip.dying))
+                {
+                    this.Target = null;
+                    TargetShip = null;
+                }
+                //Determine if there is something to shoot at
+                if (this.BadGuysNear || this.Owner.InCombat)
+                {
+                    //Go through each weapon
+                    //foreach (Weapon weapon in this.Owner.Weapons)
+                    Parallel.ForEach(this.Owner.Weapons, weapon =>
                     {
-                        continue;
-                    }
-                    //Visible weapon firing
-                    if (GlobalStats.ForceFullSim || this.Owner.InFrustum || this.Target is Ship && (this.Target as Ship).InFrustum)
-                    {
-                        this.fireTarget = null;
-                        //Can this weapon fire on ships
-                        if (this.BadGuysNear && !weapon.TruePD)
+                        GameplayObject fireTarget =  this.fireTarget;
+                        //Reasons for this weapon not to fire                    
+                        if (!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                         {
-                            //Is primary target valid
-                            if (this.Target != null && this.Target is Ship && weapon.TargetValid((this.Target as Ship).Role))
-                            {
-                                if (weapon.Tag_Guided && weapon.RotationRadsPerSecond > 3f && Vector2.Distance(this.Owner.Center, this.Target.Center) < weapon.GetModifiedRange())
-                                    this.fireTarget = this.Target;
-                                else if(this.Owner.CheckIfInsideFireArc(weapon, this.Target.Center))
-                                    this.fireTarget = this.Target;
-                            }
-                            //Find alternate target to fire on
-                            if(this.fireTarget == null)
-                            {
-                                //foreach (Ship ship in this.PotentialTargets)
-                                for (int i = 0; i < this.PotentialTargets.Count; i++)
-                                {
-                                    Ship ship = this.PotentialTargets[i];
-                                    if (!ship.Active || ship.dying || !this.Owner.CheckIfInsideFireArc(weapon, ship.Center) || !weapon.TargetValid(ship.Role))
-                                        continue;
-                                    this.fireTarget = ship;
-                                    break;
-                                }
-                            }
-                            //If a ship was found to fire on, change to target an internal module
-                            if (this.fireTarget != null)
-                            {
-                                this.fireTarget = (this.fireTarget as Ship).GetRandomInternalModule();
-                            }
+                            return;//continue;
                         }
-                        //No ship to target, check for projectiles
-                        if (this.fireTarget == null && weapon.Tag_PD)
+                        //Visible weapon firing
+
+                        if (GlobalStats.ForceFullSim || this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum)
                         {
-                            //Check for planetary projectiles to shoot down
-                            if (this.Owner.GetSystem() != null)
+                            fireTarget = null;
+                            //Can this weapon fire on ships
+                            if (this.BadGuysNear && !weapon.TruePD)
                             {
-                                //Find non friendly planets
-                                foreach (Planet p in this.Owner.GetSystem().PlanetList)
+                                //Is primary target valid
+                                if (TargetShip != null && this.Target.Active && !TargetShip.dying && weapon.TargetValid(TargetShip.Role))
                                 {
-                                    if (p.Owner == this.Owner.loyalty)
-                                        continue;
-                                    foreach (Projectile proj in p.Projectiles)
+                                    if (weapon.Tag_Guided && weapon.RotationRadsPerSecond > 3f && Vector2.Distance(this.Owner.Center, this.Target.Center) < weapon.GetModifiedRange())
+                                        fireTarget = this.Target;
+                                    else if (this.Owner.CheckIfInsideFireArc(weapon, TargetShip))
+                                        fireTarget = TargetShip;
+                                }
+                                //Find alternate target to fire on
+                                if (fireTarget == null)
+                                {
+                                    //foreach (Ship ship in this.PotentialTargets)
+                                    for (int i = 0; i < this.PotentialTargets.Count; i++)
                                     {
-                                        if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj.Center))
+                                        Ship ship = this.PotentialTargets[i];
+                                        if (ship == null || !ship.Active || ship.dying || !this.Owner.CheckIfInsideFireArc(weapon, ship) || !weapon.TargetValid(ship.Role))
                                             continue;
-                                        this.fireTarget = proj;
+                                        fireTarget = ship;
                                         break;
                                     }
-                                    if (this.fireTarget != null)
-                                        break;
                                 }
-                            }
-                            //If no projectiles from planets check for projectiles from ships
-                            if (this.fireTarget == null)
-                            {
-                                foreach (Ship ship in PotentialTargets)
+                                //If a ship was found to fire on, change to target an internal module
+                                if (fireTarget != null)
                                 {
-                                    //foreach (Projectile proj in ship.Projectiles)
-                                    Parallel.For(0, ship.Projectiles.Count-1, (x ,loopstate) => //)
-                                    {
-
-                                        Projectile proj; ;
-                                        try
-                                        {
-                                             proj = ship.Projectiles[x];
-                                        }
-                                        catch
-                                        {
-                                            return;
-                                        }
-                                        if (proj == null)
-                                            return;
-                                        if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj.Center))
-                                            return;// continue;
-                                        this.fireTarget = proj;
-                                        loopstate.Stop();  //break;
-                                    });
-                                    if (this.fireTarget != null)
-                                        break;
+                                    fireTarget = (fireTarget as Ship).GetRandomInternalModule(weapon);
+                                    
                                 }
                             }
+                            //No ship to target, check for projectiles
+                            if (fireTarget == null && weapon.Tag_PD)
+                            {
+                                //Check for planetary projectiles to shoot down
+                                if (this.Owner.GetSystem() != null)
+                                {
+                                    //Find non friendly planets
+                                    foreach (Planet p in this.Owner.GetSystem().PlanetList)
+                                    {
+                                        if (p.Owner == this.Owner.loyalty)
+                                            continue;
+                                        foreach (Projectile proj in p.Projectiles)
+                                        {
+                                            if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj))
+                                                continue;
+                                            fireTarget = proj;
+                                            break;
+                                        }
+                                        if (fireTarget != null)
+                                            break;
+                                    }
+                                }
+                                //If no projectiles from planets check for projectiles from ships
+                                if (fireTarget == null)
+                                {
+                                    foreach (Ship ship in PotentialTargets)
+                                    //Parallel.ForEach(PotentialTargets, (ship,loopstate) =>
+                                    {
+                                        //foreach (Projectile proj in ship.Projectiles)
+                                        for (int i = 0; i < ship.Projectiles.Count; i++)
+                                        //Parallel.For(0, ship.Projectiles.Count-1, (x ,loopstate) => //)
+                                        {
+
+                                            Projectile proj; ;
+                                            try
+                                            {
+                                                proj = ship.Projectiles[i];
+                                            }
+                                            catch
+                                            {
+                                                continue;
+                                            }
+                                            if (proj == null)
+                                                continue;
+                                            if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj))
+                                                return;// continue;
+                                            fireTarget = proj;
+                                            //loopstate.Stop();  
+                                            break;
+                                        }//);
+                                        if (fireTarget != null)
+                                            break;
+                                        //{
+                                        //    loopstate.Stop();
+                                        //    return;
+                                        //}
+                                    }//);
+                                }
+                            }
+                            //If a target was aquired fire on it
+                            if (fireTarget != null)
+                            {
+                                this.Owner.supplyLock.EnterWriteLock();
+                                if (weapon.isBeam)
+                                    weapon.FireTargetedBeam(fireTarget);
+                                else if (weapon.Tag_Guided)
+                                    weapon.Fire(new Vector2((float)Math.Sin((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing))), fireTarget);
+                                else
+                                    CalculateAndFire(weapon, fireTarget, false);
+                                this.Owner.supplyLock.ExitWriteLock();
+                            }
                         }
-                        //If a target was aquired fire on it
-                        if (this.fireTarget != null)
+                        //Do the simulated firing on targets
+                        else
                         {
-                            if (weapon.isBeam)
-                                weapon.FireTargetedBeam(this.fireTarget);
-                            else if (weapon.Tag_Guided)
-                                weapon.Fire(new Vector2((float)Math.Sin((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing))), this.fireTarget);
-                            else
-                                CalculateAndFire(weapon, this.fireTarget, false);
+                            ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
+                            this.FireOnTargetNonVisible(weapon, this.Target);
                         }
-                    }
-                    //Do the simulated firing on targets
-                    else
-                    {
-                        ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
-                        this.FireOnTargetNonVisible(weapon, this.Target);
-                    }
+                    });
                 }
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(e.InnerException); 
+#endif
+                
             }
 		}
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
-            float distance = Vector2.Distance(weapon.Center, target.Center);
+            float distance = Vector2.Distance(weapon.Center, target .Center) +500;
             Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
             float timeToTarget = distance / dir.Length();
             Vector2 projectedPosition = target.Center;
@@ -2431,7 +2535,7 @@ namespace Ship_Game.Gameplay
 
 		public void HoldPosition()
 		{
-			if (this.Owner.isSpooling)
+			if (this.Owner.isSpooling || this.Owner.engineState== Ship.MoveState.Warp)
 			{
 				this.Owner.HyperspaceReturn();
 			}
@@ -2709,7 +2813,7 @@ namespace Ship_Game.Gameplay
                 if (single  < this.Owner.speed)
                 {
                     speedLimit = single;
-                    this.Owner.speed =this.Owner.speed < single ? this.Owner.speed: single;
+                    //this.Owner.speed =this.Owner.speed < single ? this.Owner.speed: single;
                 }
       
             }
@@ -2718,7 +2822,7 @@ namespace Ship_Game.Gameplay
             {
                 if (single <= 1500f)
                 {
-                    lock (GlobalStats.WayPointLock)
+                    lock (this.wayPointLocker)
                     {
                         if (this.ActiveWayPoints.Count > 1)
                         {
@@ -2736,7 +2840,7 @@ namespace Ship_Game.Gameplay
             {
                 if (single <= 15000f)
                 {
-                    lock (GlobalStats.WayPointLock)
+                    lock (this.wayPointLocker)
                     {
                         this.ActiveWayPoints.Dequeue();
                         if (this.OrderQueue.Count > 0)
@@ -2748,7 +2852,7 @@ namespace Ship_Game.Gameplay
             }
             else if (single <= 1500f)
             {
-                lock (GlobalStats.WayPointLock)
+                lock (this.wayPointLocker)
                 {
                     this.ActiveWayPoints.Dequeue();
                     if (this.OrderQueue.Count > 0)
@@ -2818,7 +2922,7 @@ namespace Ship_Game.Gameplay
 		public void OrderAllStop()
 		{
 			this.OrderQueue.Clear();
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -2833,10 +2937,12 @@ namespace Ship_Game.Gameplay
 		public void OrderAttackSpecificTarget(Ship toAttack)
 		{
 			this.TargetQueue.Clear();
+            
 			if (toAttack == null)
 			{
 				return;
 			}
+
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
 				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
@@ -2855,7 +2961,7 @@ namespace Ship_Game.Gameplay
 						return;
 					}
 					this.Intercepting = true;
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Clear();
 					}
@@ -2877,7 +2983,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderBombardPlanet(Planet toBombard)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -2894,7 +3000,7 @@ namespace Ship_Game.Gameplay
 
         public void OrderBombardTroops(Planet toBombard)
         {
-            lock (GlobalStats.WayPointLock)
+            lock (this.wayPointLocker)
             {
                 this.ActiveWayPoints.Clear();
             }
@@ -2943,7 +3049,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -2955,7 +3061,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderExterminatePlanet(Planet toBombard)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3000,7 +3106,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderFormationWarp(Vector2 destination, float facing, Vector2 fvec)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3018,7 +3124,7 @@ namespace Ship_Game.Gameplay
 		public void OrderInterceptShip(Ship toIntercept)
 		{
 			this.Intercepting = true;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3031,7 +3137,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderLandAllTroops(Planet target)
 		{
-            if ((this.Owner.Role == "troop" || !this.Owner.HasTroopBay) &&  this.Owner.TroopList.Count > 0  && target.GetGroundLandingSpots() >15 )
+            if ((this.Owner.Role == "troop" || !this.Owner.HasTroopBay) &&  this.Owner.TroopList.Count > 0  && target.GetGroundLandingSpots() >0 )
             {
                 this.HasPriorityOrder = true;
                 this.State = AIState.AssaultPlanet;
@@ -3066,7 +3172,7 @@ namespace Ship_Game.Gameplay
 			this.OrderQueue.Clear();
 			if (ClearOrders)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -3077,13 +3183,13 @@ namespace Ship_Game.Gameplay
 			}
 			this.State = AIState.MoveTo;
 			this.MovePosition = position;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Enqueue(position);
 			}
 			this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				for (int i = 0; i < this.ActiveWayPoints.Count; i++)
 				{
@@ -3139,7 +3245,7 @@ namespace Ship_Game.Gameplay
 			this.OrderQueue.Clear();
 			if (ClearOrders)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -3150,13 +3256,13 @@ namespace Ship_Game.Gameplay
 			}
 			this.State = AIState.MoveTo;
 			this.MovePosition = position;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Enqueue(position);
 			}
 			this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				for (int i = 0; i < this.ActiveWayPoints.Count; i++)
 				{
@@ -3202,7 +3308,7 @@ namespace Ship_Game.Gameplay
 			if (ClearOrders)
 			{
 				this.OrderQueue.Clear();
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -3250,7 +3356,7 @@ namespace Ship_Game.Gameplay
 			this.OrderQueue.Clear();
 			if (ClearOrders)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -3267,14 +3373,14 @@ namespace Ship_Game.Gameplay
 			}
 			catch
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
 			}
 			this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				for (int i = 0; i < this.ActiveWayPoints.Count; i++)
 				{
@@ -3381,7 +3487,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderOrbitNearest(bool ClearOrders)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3429,7 +3535,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin to run away
         public void OrderFlee(bool ClearOrders)
         {
-            lock (GlobalStats.WayPointLock)
+            lock (this.wayPointLocker)
             {
                 this.ActiveWayPoints.Clear();
             }
@@ -3462,7 +3568,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderOrbitPlanet(Planet p)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3514,7 +3620,7 @@ namespace Ship_Game.Gameplay
 						return;
 					}
 					this.Intercepting = true;
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Clear();
 					}
@@ -3528,46 +3634,46 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		public void OrderRebase(Planet p, bool ClearOrders)
-		{
+        public void OrderRebase(Planet p, bool ClearOrders)
+        {
 
-            lock (GlobalStats.WayPointLock)
-			{
-				this.ActiveWayPoints.Clear();
-			}
-			if (ClearOrders)
-			{
-				this.OrderQueue.Clear();
-			}
+            lock (this.wayPointLocker)
+            {
+                this.ActiveWayPoints.Clear();
+            }
+            if (ClearOrders)
+            {
+                this.OrderQueue.Clear();
+            }
             int troops = this.Owner.loyalty.GetShips()
     .Where(troop => troop.TroopList.Count > 0)
     .Where(troopAI => troopAI.GetAI().OrderQueue
         .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() > 0).Count();
 
-if(troops >= p.GetGroundLandingSpots())
-{
-    this.OrderQueue.Clear();
-    this.State = AIState.AwaitingOrders;
-    return;
-}
-            
+            if (troops >= p.GetGroundLandingSpots())
+            {
+                this.OrderQueue.Clear();
+                this.State = AIState.AwaitingOrders;
+                return;
+            }
+
             this.OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false);
-			this.IgnoreCombat = true;
-			ArtificialIntelligence.ShipGoal rebase = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Rebase, Vector2.Zero, 0f)
-			{
-				TargetPlanet = p
-			};
-			this.OrderQueue.AddLast(rebase);
-			this.State = AIState.Rebase;
-			this.HasPriorityOrder = true;
-		}
+            this.IgnoreCombat = true;
+            ArtificialIntelligence.ShipGoal rebase = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Rebase, Vector2.Zero, 0f)
+            {
+                TargetPlanet = p
+            };
+            this.OrderQueue.AddLast(rebase);
+            this.State = AIState.Rebase;
+            this.HasPriorityOrder = true;
+        }
 
 		public void OrderRebaseToNearest()
 		{
             ////added by gremlin if rebasing dont rebase.
             //if (this.State == AIState.Rebase && this.OrbitTarget.Owner == this.Owner.loyalty)
             //    return;
-            lock (GlobalStats.WayPointLock)
+            lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3611,7 +3717,7 @@ if(troops >= p.GetGroundLandingSpots())
 
 		public void OrderRefitTo(string toRefit)
 		{
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3653,7 +3759,7 @@ if(troops >= p.GetGroundLandingSpots())
 			{
 				this.OrderQueue.Clear();
 			}
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3711,7 +3817,7 @@ if(troops >= p.GetGroundLandingSpots())
                 this.State = AIState.Scuttle;
                 return;
             }
-            lock (GlobalStats.WayPointLock)
+            lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3720,6 +3826,7 @@ if(troops >= p.GetGroundLandingSpots())
             if (this.Owner.fleet != null)
                 this.Owner.fleet = null;
             this.HasPriorityOrder = true;
+            this.IgnoreCombat = true;
 			this.OrderQueue.Clear();
 			IOrderedEnumerable<Ship_Game.Planet> sortedList = 
 				from planet in this.Owner.loyalty.GetPlanets()
@@ -3813,14 +3920,14 @@ if(troops >= p.GetGroundLandingSpots())
 			if (ClearOrders)
 			{
 				this.OrderQueue.Clear();
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
 			}
 			this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				for (int i = 0; i < this.ActiveWayPoints.Count; i++)
 				{
@@ -3848,7 +3955,7 @@ if(troops >= p.GetGroundLandingSpots())
 				this.OrderQueue.Clear();
 			}
 			this.HasPriorityOrder = true;
-			lock (GlobalStats.WayPointLock)
+			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
 			}
@@ -3902,7 +4009,7 @@ if(troops >= p.GetGroundLandingSpots())
                 //}
                 //if (allincombat == 0)
                 //    return;
-                lock (GlobalStats.WayPointLock)
+                lock (this.wayPointLocker)
                 {
                     this.ActiveWayPoints.Clear();
                 }
@@ -4903,7 +5010,7 @@ if(troops >= p.GetGroundLandingSpots())
 			float Distance = Vector2.Distance(startPos, endPos);
 			if (Distance <= this.Owner.CalculateRange())
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(endPos);
 				}
@@ -4954,7 +5061,7 @@ if(troops >= p.GetGroundLandingSpots())
 			{
 				if (Vector2.Distance(endPos, startPos) >= Vector2.Distance(startPos, sortedList.First<Vector2>()))
 				{
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Enqueue(sortedList.First<Vector2>());
 					}
@@ -4968,7 +5075,7 @@ if(troops >= p.GetGroundLandingSpots())
 			}
 			if (!gotWayPoint)
 			{
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Enqueue(endPos);
 				}
@@ -5061,11 +5168,6 @@ if(troops >= p.GetGroundLandingSpots())
         public GameplayObject ScanForCombatTargets(Vector2 Position, float Radius)
         {
 
-            //if(this.Owner.DoingSystemDefense)
-            //{
-            //    if (this.Target != null && this.Target.Active && this.Target.GetSystem() == this.SystemToDefend)
-            //        return this.Target;
-            //}
             RandomThreadMath randomThreadMath;
             this.BadGuysNear = false;
             this.FriendliesNearby.Clear();
@@ -5101,7 +5203,7 @@ if(troops >= p.GetGroundLandingSpots())
             }
             this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.66f;
             SolarSystem thisSystem = this.Owner.GetSystem();
-            if (this.EscortTarget == null || !this.EscortTarget.Active)
+            //if (this.EscortTarget == null || !this.EscortTarget.Active)
             {
                 foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item =>
                     item.Active
@@ -5135,13 +5237,13 @@ if(troops >= p.GetGroundLandingSpots())
                     }
                 }
             }
-            else
+            //else
             {
-                if (this.EscortTarget.GetAI().Target != null)
+                if (this.EscortTarget != null && this.EscortTarget.Active && this.EscortTarget.GetAI().Target != null)
                 {
                     ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
                     sw.ship = this.EscortTarget.GetAI().Target as Ship;
-                    sw.weight = 1f;
+                    sw.weight = 2f;
                     this.NearbyShips.Add(sw);
                 }
                 List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(Owner);
@@ -5150,20 +5252,27 @@ if(troops >= p.GetGroundLandingSpots())
                     Ship item1 = nearby[i] as Ship;
                     if (item1 != null && item1.Active && !item1.dying)
                     {
-                        if (item1.loyalty == Owner.loyalty)
+                        Empire empire = item1.loyalty;
+                        Ship shipTarget = item1.GetAI().Target as Ship;
+                        if (empire == Owner.loyalty)
                         {
                             this.FriendliesNearby.Add(item1);
                         }
-                        else if (item1.loyalty != this.Owner.loyalty && item1.GetAI().Target != null && item1.GetAI().Target == this.EscortTarget &&item1.engineState != Ship.MoveState.Warp )
+                        else if (empire != this.Owner.loyalty
+                            && shipTarget != null
+                            && shipTarget == this.EscortTarget && item1.engineState != Ship.MoveState.Warp)
                         {
                             
                             ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
                             sw.ship = item1;
-                            sw.weight = 1f;
+                            sw.weight = 3f;
+                            
                             this.NearbyShips.Add(sw);
                             this.BadGuysNear = true;
                             this.PotentialTargets.Add(item1);
                         }
+                        
+
                     }
                 }
             }
@@ -5191,7 +5300,13 @@ if(troops >= p.GetGroundLandingSpots())
                 //}
                 //else
                 {
-                    sortedList = FriendliesNearby.Where(ship => ship != this.Owner && ship.engineState != Ship.MoveState.Warp && ship.Mothership == null && ship.OrdinanceMax > 0 && ship.Ordinance / ship.OrdinanceMax < .5 && !ship.IsTethered()).OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
+                    sortedList = FriendliesNearby.Where(ship => ship != this.Owner 
+                        && ship.engineState != Ship.MoveState.Warp 
+                        && ship.Mothership == null 
+                        && ship.OrdinanceMax > 0 
+                        && ship.Ordinance / ship.OrdinanceMax < .5 
+                        && !ship.IsTethered())
+                        .OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
                 }
 
                
@@ -5306,16 +5421,22 @@ if(troops >= p.GetGroundLandingSpots())
                         ArtificialIntelligence.ShipWeight largeAttackWeight = nearbyShip;
                         largeAttackWeight.weight = largeAttackWeight.weight + this.CombatAI.LargeAttackWeight;
                     }
-                    if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) <= this.CombatAI.PreferredEngagementDistance  && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
+                    if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) <= this.CombatAI.PreferredEngagementDistance ) 
+                       // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
                         shipWeight.weight = shipWeight.weight + 2.5f;
                     }
-                    else if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance)
+                    else if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) > this.CombatAI.PreferredEngagementDistance)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
                         shipWeight1.weight = shipWeight1.weight - 2.5f;
                     }
+                    if(nearbyShip.ship.Weapons.Count <1)
+                    {
+                        nearbyShip.weight -= 3;
+                    }
+                    
                     foreach (ArtificialIntelligence.ShipWeight otherShip in this.NearbyShips)
                     {
                         if (otherShip.ship.loyalty != this.Owner.loyalty)
@@ -5340,6 +5461,7 @@ if(troops >= p.GetGroundLandingSpots())
                 }
 
             }
+           //this.PotentialTargets = this.NearbyShips.Where(loyalty=> loyalty.ship.loyalty != this.Owner.loyalty) .OrderBy(weight => weight.weight).Select(ship => ship.ship).ToList();
             if (this.Owner.Role == "platform")
             {
                 this.NearbyShips.ApplyPendingRemovals();
@@ -5358,6 +5480,7 @@ if(troops >= p.GetGroundLandingSpots())
                 from potentialTarget in this.NearbyShips
                 orderby potentialTarget.weight descending
                 select potentialTarget;
+            this.PotentialTargets = sortedList2.Select(ship=> ship.ship).ToList();
             if (sortedList2.Count<ArtificialIntelligence.ShipWeight>() > 0)
             {
                 if (this.Owner.Role == "supply" && this.Owner.VanityName != "Resupply Shuttle")
@@ -5373,14 +5496,26 @@ if(troops >= p.GetGroundLandingSpots())
 
         private void SetCombatStatus(float elapsedTime)
         {
+            //if(this.State==AIState.Scrap)
+            //{
+            //    this.Target = null;
+            //    this.Owner.InCombatTimer = 0f;
+            //    this.Owner.InCombat = false;
+            //    this.TargetQueue.Clear();
+            //    return;
+                
+            //}
             float radius = 30000f;
             Vector2 senseCenter = this.Owner.Center;
             if (UseSensorsForTargets)
             {
                 if (this.Owner.Mothership != null)
                 {
-                    senseCenter = this.Owner.Mothership.Center;
-                    radius = this.Owner.Mothership.SensorRange;
+                    if (Vector2.Distance(this.Owner.Center, this.Owner.Mothership.Center) <= this.Owner.Mothership.SensorRange - this.Owner.SensorRange)
+                    {
+                        senseCenter = this.Owner.Mothership.Center;
+                        radius = this.Owner.Mothership.SensorRange;
+                    }
                 }
                 else
                 {
@@ -5449,7 +5584,6 @@ if(troops >= p.GetGroundLandingSpots())
             }
             if (this.Target != null && !this.Owner.InCombat)
             {
-                //this.Owner.ShieldsUp = true;
                 this.Owner.InCombatTimer = 15f;
                 if (!this.HasPriorityOrder && this.OrderQueue.Count > 0 && this.OrderQueue.ElementAt<ArtificialIntelligence.ShipGoal>(0).Plan != ArtificialIntelligence.Plan.DoCombat)
                 {
@@ -5465,12 +5599,14 @@ if(troops >= p.GetGroundLandingSpots())
                     this.OrderQueue.AddFirst(combat);
                     return;
                 }
-                if (this.HasPriorityOrder && this.CombatState != CombatState.HoldPosition && this.OrderQueue.Count == 0)
+                else 
                 {
+                    if (!this.HasPriorityOrder || this.CombatState == CombatState.HoldPosition || this.OrderQueue.Count != 0)
+                        return;
                     ArtificialIntelligence.ShipGoal combat = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f);
                     this.State = AIState.Combat;
                     this.OrderQueue.AddFirst(combat);
-                    return;
+                    
                 }
             }
         }
@@ -5630,7 +5766,7 @@ if(troops >= p.GetGroundLandingSpots())
 			if (Distance < 100f && Distance < 25f)
 			{
 				this.OrderQueue.RemoveFirst();
-				lock (GlobalStats.WayPointLock)
+				lock (this.wayPointLocker)
 				{
 					this.ActiveWayPoints.Clear();
 				}
@@ -5649,7 +5785,7 @@ if(troops >= p.GetGroundLandingSpots())
 				this.OrderQueue.RemoveFirst();
 				if (this.ActiveWayPoints.Count > 0)
 				{
-					lock (GlobalStats.WayPointLock)
+					lock (this.wayPointLocker)
 					{
 						this.ActiveWayPoints.Dequeue();
 					}
@@ -5691,7 +5827,7 @@ if(troops >= p.GetGroundLandingSpots())
             if (Distance < 200)// && Distance > 25f)
             {
                 this.OrderQueue.RemoveFirst();
-                lock (GlobalStats.WayPointLock)
+                lock (this.wayPointLocker)
                 {
                     this.ActiveWayPoints.Clear();
                 }
@@ -5710,7 +5846,7 @@ if(troops >= p.GetGroundLandingSpots())
                 this.OrderQueue.RemoveFirst();
                 if (this.ActiveWayPoints.Count > 0)
                 {
-                    lock (GlobalStats.WayPointLock)
+                    lock (this.wayPointLocker)
                     {
                         this.ActiveWayPoints.Dequeue();
                     }
@@ -5763,23 +5899,24 @@ if(troops >= p.GetGroundLandingSpots())
                 #region warp
                 if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
                 {
+                    this.Owner.speed *= 0.999f;
                     if (this.ActiveWayPoints.Count > 1)
                     {
                         wantedForward= Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (d < 50000f)
-                        if(d<=this.Owner.speed)
+                        if(d<=this.Owner.GetFTLSpeed())
                         {
-                            if (angleDiffToNext >  this.Owner.maxBank) //  0.4f)
+                            if (angleDiffToNext > 0.4f)// 0.649999976158142) //  )
                             {
                                 this.Owner.HyperspaceReturn();
 
                             }
 
                         }
-                       //else if (d > 50000f && angleDiffToNext > 1.65f)
-                        else if (d > this.Owner.speed && angleDiffToNext>1.5707963f)//*(d/this.Owner.speed ))
+                        else if (d > 50000f && angleDiffToNext > 1.64999997615814f)
+                        //else if (d > this.Owner.GetFTLSpeed() && angleDiffToNext>1.65f)//*(d/this.Owner.speed ))
                         {
                             this.Owner.HyperspaceReturn();
                             
@@ -5789,7 +5926,7 @@ if(troops >= p.GetGroundLandingSpots())
                     else if (this.Target != null)
                     {
                         float d = Vector2.Distance(this.Target.Center, this.Owner.Center);
-                        if (angleDiff > 0.4f)
+                        if (angleDiff > 0.400000005960464f)
                         {
                             this.Owner.HyperspaceReturn();
                         }
@@ -5809,15 +5946,18 @@ if(troops >= p.GetGroundLandingSpots())
                          angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         //float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (angleDiff > 0.65f)
-                        if (angleDiff >= this.Owner.maxBank )
+
+                        if (angleDiff > 0.400000005960464f)
                         {
                             this.Owner.HyperspaceReturn();
                         }
-                        else if (d > this.Owner.speed)//25000f)
+                        else if (d > 25000f)
                         {
                             this.Owner.HyperspaceReturn();
                         }
                     }
+                    else if(angleDiff>.25)
+                        this.Owner.HyperspaceReturn();
                 }
                 #endregion
                 if (this.hasPriorityTarget && Distance < this.Owner.maxWeaponsRange)
@@ -5831,21 +5971,29 @@ if(troops >= p.GetGroundLandingSpots())
                 {
                     this.Owner.HyperspaceReturn();
                 }
-                if (angleDiff > 0.025f)
+                //if (angleDiff > 0.125000000372529f)
+                //    if (this.Owner.engineState == Ship.MoveState.Warp)
+                //        this.Owner.speed *= .8f;
+                if (angleDiff > 0.025000000372529f)
                 {
+                    
                     float RotAmount = Math.Min(angleDiff, facing * elapsedTime * this.Owner.rotationRadiansPerSecond);
                     if (RotAmount > 0f)
                     {
+                        
                         if (this.Owner.yRotation > -this.Owner.maxBank)
                         {
+                            
                             Ship owner = this.Owner;
                             owner.yRotation = owner.yRotation - this.Owner.yBankAmount;
                         }
                     }
                     else if (RotAmount < 0f && this.Owner.yRotation < this.Owner.maxBank)
                     {
+                        
                         Ship owner1 = this.Owner;
                         owner1.yRotation = owner1.yRotation + this.Owner.yBankAmount;
+                        
                     }
 
                     this.Owner.isTurning = true;
@@ -5861,14 +6009,24 @@ if(troops >= p.GetGroundLandingSpots())
                     }
                     else if (Distance > 15000f && this.Owner.InCombat && angleDiff < 0.25f)
                     {
+
                         this.Owner.EngageStarDrive();
                     }
                     if (this.Owner.engineState == Ship.MoveState.Warp)
                     {
-                        speedLimit = this.Owner.velocityMaximum;
+                        if (angleDiff > .1f)
+                        {
+
+                            speedLimit = this.Owner.speed; // this.Owner.speed;
+                        }
+                        else
+                            speedLimit = this.Owner.velocityMaximum;
                     }
                     else if (Distance > this.Owner.speed * 10f)
                     {
+                        //if (angleDiff > .1f)
+                        //    speedLimit = this.Owner.speed;
+                        //else
                         speedLimit = this.Owner.speed;
                     }
 
@@ -5897,6 +6055,9 @@ if(troops >= p.GetGroundLandingSpots())
                                 
                                 )
                             {
+                                if (this.Owner.FightersOut)
+                                    this.Owner.RecoverFighters();
+                                
                                 continue;
                             }
 
@@ -5911,8 +6072,8 @@ if(troops >= p.GetGroundLandingSpots())
                             #region FleetGrouping
 
 
-                            float fleetPosistionDistance = Vector2.Distance(this.Owner.Center, Position);
-                            if (fleetPosistionDistance <= distanceFleetCenterToDistance)
+                            float fleetPosistionDistance = Distance;// Vector2.Distance(this.Owner.Center, Position);
+                            if (fleetPosistionDistance <= distanceFleetCenterToDistance )
                             {
                                 float speedreduction = distanceFleetCenterToDistance - Distance;
                                 speedLimit = this.Owner.fleet.speed - speedreduction; //this.Owner.fleet.speed 
@@ -5922,15 +6083,16 @@ if(troops >= p.GetGroundLandingSpots())
                                     speedLimit = this.Owner.fleet.speed;
                             }
                             //else if (Distance > distanceFleetCenterToDistance) //radius * 4f
-                            else if (fleetPosistionDistance > distanceFleetCenterToDistance )
+                            else if (fleetPosistionDistance > distanceFleetCenterToDistance && Distance >this.Owner.speed)
                             {
 
-                                float speedIncrease = Distance - distanceFleetCenterToDistance;
+                                float speedIncrease = Distance - distanceFleetCenterToDistance ;
                                 //distanceShipToFleetCenter > this.Owner.fleet.speed && 
                                 speedLimit = this.Owner.fleet.speed + speedIncrease;
+  
                             }
-                            if (Distance < speedLimit)
-                                speedLimit = Distance;
+                            //if (Distance < speedimit)
+                            //    speedLimit = Distance;
 
 
 
@@ -6022,16 +6184,16 @@ if(troops >= p.GetGroundLandingSpots())
                     this.HasPriorityOrder = false;
                 }
             }
-            if (this.State == AIState.Flee && !this.BadGuysNear)// Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000)
-            {
-                if(this.OrderQueue.Count > 0)
-                    this.OrderQueue.Remove(this.OrderQueue.Last);
-                if (this.Owner.CargoSpace_Used > 0)
-                    this.State = AIState.SystemTrader;
-                else
-                    this.State = this.DefaultAIState;
-            }
-            this.ScanForThreatTimer -= elapsedTime;
+            //if (this.State == AIState.Flee && !this.BadGuysNear)// Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000)
+            //{
+            //    if(this.OrderQueue.Count > 0)
+            //        this.OrderQueue.Remove(this.OrderQueue.Last);
+            //    if (this.Owner.CargoSpace_Used > 0)
+            //        this.State = AIState.SystemTrader;
+            //    else
+            //        this.State = this.DefaultAIState;
+            //}
+            this.ScanForThreatTimer -=  elapsedTime;
             if (this.ScanForThreatTimer < 0f)
             {
                 if (this.inOrbit == true )//&& !(this.State == AIState.Orbit ||                     this.State == AIState.Flee))
@@ -6104,33 +6266,35 @@ if(troops >= p.GetGroundLandingSpots())
             this.Owner.isThrusting = false;
             this.Owner.isTurning = false;
 
+            
+            #region old flee code
+            //if (!this.HasPriorityOrder 
+            //    && (this.BadGuysNear || this.Owner.InCombat) 
+            //    && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) 
+            //    && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 && this.Owner.Transporters.Count() == 0
+            //    && (this.Owner.Role !="troop" 
+            //    && this.Owner.Role != "construction" 
+            //    && this.State !=AIState.Colonize 
+            //    && !this.IgnoreCombat && this.State != AIState.Rebase) 
+            //    && (this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
+            //{
+            //    if (this.State != AIState.Flee )
+            //    {
+            //        this.HasPriorityOrder = true;
+            //        this.State = AIState.Flee;
+            //        if (this.State == AIState.Flee)
+            //        {
+            //            this.OrderFlee(false);
+            //            this.Owner.InCombatTimer = 15f;
 
-            if (!this.HasPriorityOrder 
-                && (this.BadGuysNear || this.Owner.InCombat) 
-                && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) 
-                && this.Owner.Weapons.Count == 0 && this.Owner.GetHangars().Count == 0 && this.Owner.Transporters.Count() == 0
-                && (this.Owner.Role !="troop" 
-                && this.Owner.Role != "construction" 
-                && this.State !=AIState.Colonize 
-                && !this.IgnoreCombat && this.State != AIState.Rebase) 
-                && (this.Owner.Role == "freighter" || this.Owner.fleet == null || this.Owner.Mothership != null))
-            {
-                if (this.State != AIState.Flee )
-                {
-                    this.HasPriorityOrder = true;
-                    this.State = AIState.Flee;
-                    if (this.State == AIState.Flee)
-                    {
-                        this.OrderFlee(false);
-                        this.Owner.InCombatTimer = 15f;
-
-                    }
-                }
-                else if (this.State == AIState.Flee && (this.OrbitTarget != null && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000))
-                {
-                    this.State = this.DefaultAIState;
-                }
-            }
+            //        }
+            //    }
+            //    else if (this.State == AIState.Flee && (this.OrbitTarget != null && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000))
+            //    {
+            //        this.State = this.DefaultAIState;
+            //    }
+            //} 
+            #endregion
             if (this.State == AIState.SystemTrader && this.start != null && this.end != null && (this.start.Owner != this.Owner.loyalty || this.end.Owner != this.Owner.loyalty))
             {
                 this.start = null;
@@ -6153,7 +6317,7 @@ if(troops >= p.GetGroundLandingSpots())
                 {
                     if (this.Owner.fleet == null)
                     {
-                        lock (GlobalStats.WayPointLock)
+                        lock (this.wayPointLocker)
                         {
                             this.ActiveWayPoints.Clear();
                         }
@@ -6224,6 +6388,7 @@ if(troops >= p.GetGroundLandingSpots())
                                                 }
                                                 else
                                                 {
+                                                    if(this.Target == null && !(this.hasPriorityTarget || this.HasPriorityOrder))
                                                     this.Target = this.Owner.Mothership.GetAI().Target;
                                                     this.DoCombat(elapsedTime);
                                                     break;
@@ -6262,7 +6427,7 @@ if(troops >= p.GetGroundLandingSpots())
                                     {
                                         if (this.Target != null)
                                         System.Diagnostics.Debug.WriteLine("SD Tatget" + this.Owner.VanityName);
-                                        if(this.Target == null)
+                                        //if(this.Target == null)
                                         this.AwaitOrders(elapsedTime);
                                         break;
                                     }
@@ -6331,7 +6496,7 @@ if(troops >= p.GetGroundLandingSpots())
                         else
                         {
                             this.ThrustTowardsPosition(this.Owner.fleet.Position + this.Owner.FleetOffset, elapsedTime, this.Owner.fleet.speed);
-                            lock (GlobalStats.WayPointLock)
+                            lock (this.wayPointLocker)
                             {
                                 this.ActiveWayPoints.Clear();
                                 this.ActiveWayPoints.Enqueue(this.Owner.fleet.Position + this.Owner.FleetOffset);
@@ -6361,6 +6526,17 @@ if(troops >= p.GetGroundLandingSpots())
                     Planet target = toEvaluate.TargetPlanet;
                     switch (toEvaluate.Plan)
                     {
+                        case ArtificialIntelligence.Plan.HoldPosition:
+                            {
+                                //
+ 
+                                //
+                                this.HoldPosition();
+
+
+                                
+                                break;
+                            }
                         case ArtificialIntelligence.Plan.Stop:
                             {
                                 this.Stop(elapsedTime, toEvaluate);
@@ -6375,8 +6551,8 @@ if(troops >= p.GetGroundLandingSpots())
                             target = toEvaluate.TargetPlanet;
                             if ((double)this.Owner.Ordinance < 0.0500000007450581 * (double)this.Owner.OrdinanceMax
                                 || (target.BuildingList.Count == 0 && target.TroopsHere.Count == 0)
-                                || target.GetGroundStrength(this.Owner.loyalty) * 1.5 +3
-                                >= target.GetGroundStrength(target.Owner)
+                                || target.GetGroundStrength(this.Owner.loyalty) * 1.5
+                                > target.GetGroundStrength(target.Owner)
                                 )
                             {
                                 this.OrderQueue.Clear();
@@ -6790,7 +6966,7 @@ if(troops >= p.GetGroundLandingSpots())
                     break;
                 }
             }
-            if (this.Owner.InCombat)
+            if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat )
             {
                 //int oqc = this.OrderQueue.Count;
                 bool docombat = false;
@@ -6804,19 +6980,18 @@ if(troops >= p.GetGroundLandingSpots())
 
 
 
-                    docombat = (firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat);
-
-#if !DEBUG
-                                if (docombat || this.OrderQueue.Count == 0)
-                        System.Diagnostics.Debug.WriteLine("Nulled combat"); 
-#endif
+                    docombat = (this.OrderQueue.Count == 0 || !this.HasPriorityOrder && firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat);
 
 
-                    if (!this.HasPriorityOrder && (docombat || this.OrderQueue.Count == 0))
+                    if ( docombat )//|| this.OrderQueue.Count == 0))
                     {
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }
-                    this.FireOnTarget(elapsedTime);
+
+                    //Task fireTask = null;
+                    //fireTask = Task.Factory.StartNew(this.FireOnTarget);
+                    this.FireOnTarget();
+                        
 
                 }
 #if !DEBUG
@@ -6829,10 +7004,11 @@ if(troops >= p.GetGroundLandingSpots())
             {
                 if (this.Owner.GetHangars().Count > 0 && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
                 {
-                    foreach (ShipModule hangar in this.Owner.GetHangars())
-                    //Parallel.ForEach(this.Owner.GetHangars(), hangar =>
+                    foreach (ShipModule hangar in this.Owner.GetHangars())                        
                     {
-                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null)
+                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null 
+                            //||hangar.GetHangarShip().InCombat
+                            || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar)
                         {
                             continue;
                         }
@@ -6842,9 +7018,16 @@ if(troops >= p.GetGroundLandingSpots())
                 else if (this.Owner.GetHangars().Count > 0)
                 {
                     foreach (ShipModule hangar in this.Owner.GetHangars())
-                    //Parallel.ForEach(this.Owner.GetHangars(), hangar =>
                     {
-                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar || hangar.GetHangarShip().GetAI().hasPriorityTarget || hangar.GetHangarShip().GetAI().HasPriorityOrder)
+                        if (hangar.IsTroopBay 
+                            || hangar.IsSupplyBay 
+                            || hangar.GetHangarShip() == null 
+                            || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar
+                            //|| hangar.GetHangarShip().InCombat
+                            || hangar.GetHangarShip().GetAI().hasPriorityTarget 
+                            || hangar.GetHangarShip().GetAI().HasPriorityOrder
+                            
+                            )
                         {
                             continue;
                         }
@@ -6958,6 +7141,7 @@ if(troops >= p.GetGroundLandingSpots())
 			public Ship ship;
 
 			public float weight;
+            public bool defendEscort;
 
 			public ShipWeight()
 			{
