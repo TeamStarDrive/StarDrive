@@ -6808,8 +6808,8 @@ namespace Ship_Game
             this.DrawBombs();
             lock (GlobalStats.ObjectManagerLocker)
                 this.ScreenManager.inter.RenderManager.Render();
-            //for (int index1 = 0; index1 < this.player.KnownShips.Count; ++index1)
-            Parallel.For(0, this.player.KnownShips.Count, index1 =>
+            for (int index1 = 0; index1 < this.player.KnownShips.Count; ++index1)
+            //Parallel.For(0, this.player.KnownShips.Count, index1 =>
             {
                 try
                 {
@@ -6836,7 +6836,7 @@ namespace Ship_Game
                 catch
                 {
                 }
-            });
+            }//);
             this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
             this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
             this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;

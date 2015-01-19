@@ -1624,7 +1624,7 @@ namespace Ship_Game.Gameplay
             {
                 if (this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
                     {
-                        if (ship.Health / ship.HealthMax >= 0.95f)
+                        if (ship.Health / ship.HealthMax >= 0.95f || !ship.Active)
                         {
                             return false;
                         }
