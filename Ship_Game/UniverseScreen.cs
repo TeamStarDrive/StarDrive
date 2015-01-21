@@ -1017,10 +1017,10 @@ namespace Ship_Game
                 this.SystemUpdateThreadList.Add(thread5);
                 thread5.Start();
                 thread5.IsBackground = true;
-                Thread thread6 = new Thread(new ThreadStart(this.EmpireThread));
-                this.SystemUpdateThreadList.Add(thread6);
-                thread6.Start();
-                thread6.IsBackground = true;
+                //Thread thread6 = new Thread(new ThreadStart(this.EmpireThread));
+                //this.SystemUpdateThreadList.Add(thread6);
+                //thread6.Start();
+                //thread6.IsBackground = true;
                 
             }
             this.PlanetsDict.Clear();
@@ -1525,7 +1525,32 @@ namespace Ship_Game
             if (!this.Paused)
             {
 
+                Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                {
+                    foreach (Ship s in empire.ShipsToAdd)
+                    {
+                        empire.AddShip(s);
+                        if (!empire.isPlayer)
+                            empire.ForcePoolAdd(s);
+                    }
 
+                    empire.ShipsToAdd.Clear();
+                    {
+                        
+                        empire.updateContactsTimer = empire.updateContactsTimer - 0.01666667f;//elapsedTime;
+                        if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
+                        {
+                            empire.ResetBorders();
+                            lock (GlobalStats.KnownShipsLock)
+                            {
+                                empire.KnownShips.Clear();
+                            }
+                            //this.UnownedShipsInOurBorders.Clear();
+                            empire.UpdateKnownShips();
+                            empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
+                        }
+                    }
+                });       
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 this.MasterShipList.ApplyPendingRemovals();
@@ -1649,6 +1674,7 @@ namespace Ship_Game
             float beginTime = (float)this.zgameTime.TotalGameTime.TotalSeconds;
             #region Ships
             this.DeepSpaceGateKeeper.Set();
+            
 #if !ALTERTHREAD
             this.SystemGateKeeper[0].Set();
             this.SystemGateKeeper[1].Set();
@@ -1658,7 +1684,7 @@ namespace Ship_Game
 
             
 #if ALTERTHREAD
-           // List<SolarSystem> solarsystems = this.SolarSystemDict.Values.ToList();
+            //List<SolarSystem> solarsystems = this.SolarSystemDict.Values.ToList();
 #if !PLAYERONLY
             //var source1 = Enumerable.Range(0, this.SolarSystemDict.Count).ToArray();
             //var rangePartitioner1 = Partitioner.Create(0, source1.Length);
@@ -1680,8 +1706,8 @@ namespace Ship_Game
                     ss.Add(SS);
                     SystemUpdater2(ss);
                 });
-
             this.DeepSpaceDone.WaitOne();
+            
 #endif
 #if PLAYERONLY
             
