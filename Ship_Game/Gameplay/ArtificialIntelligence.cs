@@ -2211,14 +2211,14 @@ namespace Ship_Game.Gameplay
                 if (this.BadGuysNear || this.Owner.InCombat)
                 {
                     //Go through each weapon
-                    //foreach (Weapon weapon in this.Owner.Weapons)
-                    Parallel.ForEach(this.Owner.Weapons, weapon =>
+                    foreach (Weapon weapon in this.Owner.Weapons)
+                    //Parallel.ForEach(this.Owner.Weapons, weapon =>
                     {
                         GameplayObject fireTarget =  this.fireTarget;
                         //Reasons for this weapon not to fire                    
                         if (!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                         {
-                            return;//continue;
+                            continue;
                         }
                         //Visible weapon firing
 
@@ -2318,14 +2318,14 @@ namespace Ship_Game.Gameplay
                             //If a target was aquired fire on it
                             if (fireTarget != null)
                             {
-                                this.Owner.supplyLock.EnterWriteLock();
+                                //this.Owner.supplyLock.EnterWriteLock();
                                 if (weapon.isBeam)
                                     weapon.FireTargetedBeam(fireTarget);
                                 else if (weapon.Tag_Guided)
                                     weapon.Fire(new Vector2((float)Math.Sin((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing))), fireTarget);
                                 else
                                     CalculateAndFire(weapon, fireTarget, false);
-                                this.Owner.supplyLock.ExitWriteLock();
+                                //this.Owner.supplyLock.ExitWriteLock();
                             }
                         }
                         //Do the simulated firing on targets
@@ -2334,7 +2334,7 @@ namespace Ship_Game.Gameplay
                             ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
                             this.FireOnTargetNonVisible(weapon, this.Target);
                         }
-                    });
+                    }//);
                 }
             }
             catch (Exception e)
