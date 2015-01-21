@@ -5210,6 +5210,7 @@ namespace Ship_Game.Gameplay
                     && !item.dying
                     &&
                      (Vector2.Distance(this.Owner.Center, item.Center) <= Radius)
+                     
 
 
 
@@ -5217,7 +5218,7 @@ namespace Ship_Game.Gameplay
                     )
                 {
                     Ship item = nearby as Ship;
-                    if (item != null && item.Active && !item.dying)
+                    if (item != null && item.Active && !item.dying && item.engineState!= Ship.MoveState.Warp)
                     {
                         if (item.loyalty == this.Owner.loyalty)
                         {
@@ -5390,7 +5391,7 @@ namespace Ship_Game.Gameplay
                 }
             }   
             //}           
-            foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips .Where(Target=>  Target.ship.engineState != Ship.MoveState.Warp))
+            foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips )
             //Parallel.ForEach(this.NearbyShips, nearbyShip =>
             {
                 if (nearbyShip.ship.loyalty != this.Owner.loyalty)
@@ -5421,16 +5422,17 @@ namespace Ship_Game.Gameplay
                         ArtificialIntelligence.ShipWeight largeAttackWeight = nearbyShip;
                         largeAttackWeight.weight = largeAttackWeight.weight + this.CombatAI.LargeAttackWeight;
                     }
-                    if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) <= this.CombatAI.PreferredEngagementDistance ) 
+                    float rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center);
+                    if (rangeToTarget <= this.CombatAI.PreferredEngagementDistance) 
                        // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
                         shipWeight.weight = shipWeight.weight + 2.5f;
                     }
-                    else if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) > this.CombatAI.PreferredEngagementDistance)
+                    else if (rangeToTarget > this.CombatAI.PreferredEngagementDistance)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
-                        shipWeight1.weight = shipWeight1.weight - 2.5f;
+                        shipWeight1.weight = shipWeight1.weight - 2.5f *(rangeToTarget /(this.CombatAI.PreferredEngagementDistance+1));
                     }
                     if(nearbyShip.ship.Weapons.Count <1)
                     {
@@ -6988,9 +6990,9 @@ namespace Ship_Game.Gameplay
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }
 
-                    //Task fireTask = null;
-                    //fireTask = Task.Factory.StartNew(this.FireOnTarget);
-                    this.FireOnTarget();
+                    
+                    fireTask = Task.Factory.StartNew(this.FireOnTarget);
+                    //this.FireOnTarget();
                         
 
                 }

@@ -110,7 +110,8 @@ namespace Ship_Game
 						};
 						foreach (KeyValuePair<Guid, Ship> station in ring.planet.Shipyards)
 						{
-							pdata.StationsList.Add(station.Key);
+							if(station.Value.Active)
+                            pdata.StationsList.Add(station.Key);
 						}
 						pdata.QISaveList = new List<SavedGame.QueueItemSave>();
 						if (ring.planet.Owner != null)
