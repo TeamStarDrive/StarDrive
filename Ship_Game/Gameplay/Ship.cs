@@ -4136,7 +4136,7 @@ namespace Ship_Game.Gameplay
                 if (slot2 == null)
                     continue;
                     //return;
-                if (slot2.ModuleType == ShipModuleType.Dummy || slot2.isExternal || !slot2.Active || slot2.Health <= 0.0)
+                if (slot2.ModuleType == ShipModuleType.Dummy  || !slot2.Active || slot2.Health <= 0.0)
                     continue;
                     //return;
 
@@ -4145,7 +4145,7 @@ namespace Ship_Game.Gameplay
                     case 0:
                         {
                             //weight = this.shiprandom.Next(0, weaponsCount);
-                            //weight += slot2.isExternal ? +5 : 0;
+                            weight += slot2.isExternal ? -5 : 0;
                             break;
                         }
                     case 1:
@@ -4154,7 +4154,7 @@ namespace Ship_Game.Gameplay
                             weight += this.shiprandom.Next(0, weaponsCount);
                             weight += slot2.ModuleType != ShipModuleType.Armor ? +3 : 0;
                             weight += slot2.Health < source.DamageAmount ? +3 : 0;
-                            
+                            weight += slot2.isExternal ? -5 : 0;
 
                             break;
                         }
@@ -4164,7 +4164,7 @@ namespace Ship_Game.Gameplay
                             weight += slot2.ModuleType != ShipModuleType.Armor ? +3 : 0;
                             weight += slot2.ModuleType != ShipModuleType.Engine ? +3 : 0;
                             weight += slot2.Health < source.DamageAmount * (source.SalvoCount + 1) ? +3 : 0;
-
+                            weight += slot2.isExternal ? -5 : 0;
                                
                             
 
@@ -4181,6 +4181,7 @@ namespace Ship_Game.Gameplay
                                 weight += 2;
                             if (slot2.explodes)
                                 weight += 3;
+                            weight += slot2.isExternal ? -5 : 0;
                             break;
                         }
                     case 4:
@@ -4198,6 +4199,7 @@ namespace Ship_Game.Gameplay
                                 weight += 2;
                             if (slot2.explodes)
                                 weight += 3;
+                            weight += slot2.isExternal ? -5 : 0;
                             break;
 
                         }
@@ -4218,7 +4220,7 @@ namespace Ship_Game.Gameplay
                                     weight += 2;
                                 if (slot2.Health / slot2.HealthMax < .5f)
                                     weight += 2;
-
+                                weight += slot2.isExternal ? -5 : 0;
                                 if (slot2.explodes)
                                     weight += 3;
                             }
@@ -4235,7 +4237,7 @@ namespace Ship_Game.Gameplay
                         //.ThenBy(distance=> (int)(Vector2.Distance(distance.module.Center, source.Center)*.9f))
                         .First().module;
                 else
-                    target = InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)].module;
+                    target = InternalModules.OrderByDescending(slot => slot.weight).ElementAt(HelperFunctions.GetRandomIndex((int)(InternalModules.Count * .5f))).module;
 
                 //target.SetSystem(this.system);
                 //target.isInDeepSpace = this.isInDeepSpace;
