@@ -2224,6 +2224,10 @@ namespace Ship_Game
 			for (int k = 0; k < (int)filesFromDirectory1.Length; k++)
 			{
 				FileInfo FI = filesFromDirectory1[k];
+                if (String.Compare(FI.Extension, ".XML",StringComparison.OrdinalIgnoreCase)!=0)
+                {
+                    continue;
+                }
 				
 #if !DEBUG
                 try
