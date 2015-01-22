@@ -2742,10 +2742,11 @@ namespace Ship_Game.Gameplay
                         }
                     }//);
                     //this.beams.thisLock.ExitReadLock();
-                    this.beams.ApplyPendingRemovals();
+                    
+                    this.beams.ApplyPendingRemovals(this.InCombat);
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals();
+                    this.Projectiles.ApplyPendingRemovals(this.InCombat);
                 }
             }
         }
