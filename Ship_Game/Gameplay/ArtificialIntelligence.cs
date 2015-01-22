@@ -1624,7 +1624,7 @@ namespace Ship_Game.Gameplay
             {
                 if (this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
                     {
-                        if (ship.Health / ship.HealthMax >= 0.95f)
+                        if (ship.Health / ship.HealthMax >= 0.95f || !ship.Active)
                         {
                             return false;
                         }
@@ -2211,14 +2211,14 @@ namespace Ship_Game.Gameplay
                 if (this.BadGuysNear || this.Owner.InCombat)
                 {
                     //Go through each weapon
-                    //foreach (Weapon weapon in this.Owner.Weapons)
-                    Parallel.ForEach(this.Owner.Weapons, weapon =>
+                    foreach (Weapon weapon in this.Owner.Weapons)
+                    //Parallel.ForEach(this.Owner.Weapons, weapon =>
                     {
                         GameplayObject fireTarget =  this.fireTarget;
                         //Reasons for this weapon not to fire                    
                         if (!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                         {
-                            return;//continue;
+                            continue;
                         }
                         //Visible weapon firing
 
@@ -2318,14 +2318,14 @@ namespace Ship_Game.Gameplay
                             //If a target was aquired fire on it
                             if (fireTarget != null)
                             {
-                                this.Owner.supplyLock.EnterWriteLock();
+                                //this.Owner.supplyLock.EnterWriteLock();
                                 if (weapon.isBeam)
                                     weapon.FireTargetedBeam(fireTarget);
                                 else if (weapon.Tag_Guided)
                                     weapon.Fire(new Vector2((float)Math.Sin((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing))), fireTarget);
                                 else
                                     CalculateAndFire(weapon, fireTarget, false);
-                                this.Owner.supplyLock.ExitWriteLock();
+                                //this.Owner.supplyLock.ExitWriteLock();
                             }
                         }
                         //Do the simulated firing on targets
@@ -2334,7 +2334,7 @@ namespace Ship_Game.Gameplay
                             ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
                             this.FireOnTargetNonVisible(weapon, this.Target);
                         }
-                    });
+                    }//);
                 }
             }
             catch (Exception e)
@@ -5210,6 +5210,7 @@ namespace Ship_Game.Gameplay
                     && !item.dying
                     &&
                      (Vector2.Distance(this.Owner.Center, item.Center) <= Radius)
+                     
 
 
 
@@ -5217,7 +5218,7 @@ namespace Ship_Game.Gameplay
                     )
                 {
                     Ship item = nearby as Ship;
-                    if (item != null && item.Active && !item.dying)
+                    if (item != null && item.Active && !item.dying && item.engineState!= Ship.MoveState.Warp)
                     {
                         if (item.loyalty == this.Owner.loyalty)
                         {
@@ -5390,7 +5391,7 @@ namespace Ship_Game.Gameplay
                 }
             }   
             //}           
-            foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips .Where(Target=>  Target.ship.engineState != Ship.MoveState.Warp))
+            foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips )
             //Parallel.ForEach(this.NearbyShips, nearbyShip =>
             {
                 if (nearbyShip.ship.loyalty != this.Owner.loyalty)
@@ -5421,16 +5422,17 @@ namespace Ship_Game.Gameplay
                         ArtificialIntelligence.ShipWeight largeAttackWeight = nearbyShip;
                         largeAttackWeight.weight = largeAttackWeight.weight + this.CombatAI.LargeAttackWeight;
                     }
-                    if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) <= this.CombatAI.PreferredEngagementDistance ) 
+                    float rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center);
+                    if (rangeToTarget <= this.CombatAI.PreferredEngagementDistance) 
                        // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
                         shipWeight.weight = shipWeight.weight + 2.5f;
                     }
-                    else if (Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) > this.CombatAI.PreferredEngagementDistance)
+                    else if (rangeToTarget > this.CombatAI.PreferredEngagementDistance)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
-                        shipWeight1.weight = shipWeight1.weight - 2.5f;
+                        shipWeight1.weight = shipWeight1.weight - 2.5f *(rangeToTarget /(this.CombatAI.PreferredEngagementDistance+1));
                     }
                     if(nearbyShip.ship.Weapons.Count <1)
                     {
@@ -6988,9 +6990,9 @@ namespace Ship_Game.Gameplay
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }
 
-                    //Task fireTask = null;
-                    //fireTask = Task.Factory.StartNew(this.FireOnTarget);
-                    this.FireOnTarget();
+                    
+                    fireTask = Task.Factory.StartNew(this.FireOnTarget);
+                    //this.FireOnTarget();
                         
 
                 }

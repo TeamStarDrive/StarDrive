@@ -2272,7 +2272,11 @@ namespace Ship_Game
             this.ConstructionQueue.Clear();
             this.system.OwnerList.Clear();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
+            {
+                if (keyValuePair.Value.loyalty != this.Owner && keyValuePair.Value.TroopList.Where(loyalty => loyalty.GetOwner() != this.Owner).Count() > 0)
+                    continue;
                 keyValuePair.Value.loyalty = this.Owner;
+            }
             foreach (Planet planet in this.system.PlanetList)
             {
                 if (planet.Owner != null && !this.system.OwnerList.Contains(planet.Owner))
