@@ -1442,27 +1442,27 @@ namespace Ship_Game
             this.RecomputeFleetButtons(false);
             if (this.SelectedShip != null)
             {
-                //try
+                try
                 {
                     Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Position, 0.0f), this.projection, this.view, Matrix.Identity);
                     this.pieMenu.Position = new Vector2(vector3.X, vector3.Y);
                     this.pieMenu.Radius = 75f;
                     this.pieMenu.ScaleFactor = 1f;
                 }
-                //catch
+                catch
                 {
                 }
             }
             else if (this.SelectedPlanet != null)
             {
-                // try
+                 try
                 {
                     Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedPlanet != null ? this.SelectedPlanet.Position : Vector2.Zero, 2500f), this.projection, this.view, Matrix.Identity);
                     this.pieMenu.Position = new Vector2(vector3.X, vector3.Y);
                     this.pieMenu.Radius = 75f;
                     this.pieMenu.ScaleFactor = 1f;
                 }
-                // catch
+                 catch
                 {
                 }
             }
