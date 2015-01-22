@@ -1213,7 +1213,7 @@ namespace Ship_Game
 							List<Ship> toadd = new List<Ship>();
 							foreach (KeyValuePair<Guid, Ship> station in p.Shipyards)
 							{
-								if (station.Key != ship.guid)
+								if (station.Key != ship.guid || p.Owner !=null && p.Owner == station.Value.loyalty)
 								{
 									continue;
 								}
