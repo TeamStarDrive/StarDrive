@@ -31,7 +31,7 @@ namespace Ship_Game
         public float Money = 1000f;
         private List<Planet> OwnedPlanets = new List<Planet>();
         private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
-        private List<Ship> ShipsToAdd = new List<Ship>();
+        public List<Ship> ShipsToAdd = new List<Ship>();
         public List<Ship> KnownShips = new List<Ship>();
         public BatchRemovalCollection<Empire.InfluenceNode> BorderNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
         public BatchRemovalCollection<Empire.InfluenceNode> SensorNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
@@ -1269,12 +1269,12 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            foreach (Ship s in this.ShipsToAdd)
-            {
-                this.AddShip(s);
-                if (!this.isPlayer)
-                    this.ForcePoolAdd(s);
-            }
+            //foreach (Ship s in this.ShipsToAdd)
+            //{
+            //    this.AddShip(s);
+            //    if (!this.isPlayer)
+            //        this.ForcePoolAdd(s);
+            //}
 #if PLAYERONLY
             if(!this.isPlayer)
             foreach (Ship ship in this.GetShips())
@@ -1283,22 +1283,22 @@ namespace Ship_Game
                 return;
 
 #endif
-            this.ShipsToAdd.Clear();
-            {
-                Empire empire = this;
-                empire.updateContactsTimer = empire.updateContactsTimer -  0.01666667f;//elapsedTime;
-                if (this.updateContactsTimer <= 0f && !this.data.Defeated)
-                {
-                    this.ResetBorders();
-                    lock (GlobalStats.KnownShipsLock)
-                    {
-                        this.KnownShips.Clear();
-                    }
-                    //this.UnownedShipsInOurBorders.Clear();
-                    this.UpdateKnownShips();
-                    this.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
-                }
-            }
+            //this.ShipsToAdd.Clear();
+            //{
+            //    Empire empire = this;
+            //    empire.updateContactsTimer = empire.updateContactsTimer -  0.01666667f;//elapsedTime;
+            //    if (this.updateContactsTimer <= 0f && !this.data.Defeated)
+            //    {
+            //        this.ResetBorders();
+            //        lock (GlobalStats.KnownShipsLock)
+            //        {
+            //            this.KnownShips.Clear();
+            //        }
+            //        //this.UnownedShipsInOurBorders.Clear();
+            //        this.UpdateKnownShips();
+            //        this.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
+            //    }
+            //}
 
             this.UpdateTimer -= elapsedTime;
             if ((double)this.UpdateTimer <= 0.0)
