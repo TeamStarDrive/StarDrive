@@ -239,6 +239,7 @@ namespace Ship_Game.Gameplay
 
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
+       
 
 		public static AudioListener audioListener
 		{
@@ -387,7 +388,19 @@ namespace Ship_Game.Gameplay
 
         protected virtual void CreateTargetedBeam(GameplayObject target)
         {
-            Beam beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+            Beam beam;
+            if(this.owner.Beams.pendingRemovals.TryPop(out beam))
+            {
+                                beam.moduleAttachedTo = this.moduleAttachedTo;
+                beam.PowerCost = (float)this.BeamPowerCostPerSecond;
+                beam.range = this.Range;
+                beam.thickness = this.BeamThickness;
+                beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
+                beam.damageAmount = this.DamageAmount;
+                beam.weapon = this;
+            }
+            else
+            beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
             {
                 moduleAttachedTo = this.moduleAttachedTo,
                 PowerCost = (float)this.BeamPowerCostPerSecond,
@@ -444,7 +457,8 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateMouseBeam(Vector2 destination)
 		{
-			Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent())
+			
+            Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent())
 			{
 				moduleAttachedTo = this.moduleAttachedTo,
 				range = this.Range,
@@ -494,21 +508,37 @@ namespace Ship_Game.Gameplay
             {
                 Weapon AltFire = ResourceManager.GetWeapon(this.SecondaryFire);
                 Projectile projectile;
-                projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
                 {
-                    range = AltFire.Range,
-                    weapon = this,
-                    explodes = AltFire.explodes,
-                    damageAmount = AltFire.DamageAmount,
-                    damageRadius = AltFire.DamageRadius,
-                    explosionradiusmod = AltFire.ExplosionRadiusVisual,
-                    Health = AltFire.HitPoints,
-                    speed = AltFire.ProjectileSpeed,
-                    WeaponEffectType = AltFire.WeaponEffectType,
-                    WeaponType = AltFire.WeaponType,
-                    RotationRadsPerSecond = AltFire.RotationRadsPerSecond,
-                    ArmorPiercing = (byte)AltFire.ArmourPen,
-                };
+                    projectile.range = AltFire.Range;
+                    projectile.weapon = this;
+                    projectile.explodes = AltFire.explodes;
+                    projectile.damageAmount = AltFire.DamageAmount;
+                    projectile.damageRadius = AltFire.DamageRadius;
+                    projectile.explosionradiusmod = AltFire.ExplosionRadiusVisual;
+                    projectile.Health = AltFire.HitPoints;
+                    projectile.speed = AltFire.ProjectileSpeed;
+                    projectile.WeaponEffectType = AltFire.WeaponEffectType;
+                    projectile.WeaponType = AltFire.WeaponType;
+                    projectile.RotationRadsPerSecond = AltFire.RotationRadsPerSecond;
+                    projectile.ArmorPiercing = (byte)AltFire.ArmourPen;
+                }
+                else
+                    projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+                    {
+                        range = AltFire.Range,
+                        weapon = this,
+                        explodes = AltFire.explodes,
+                        damageAmount = AltFire.DamageAmount,
+                        damageRadius = AltFire.DamageRadius,
+                        explosionradiusmod = AltFire.ExplosionRadiusVisual,
+                        Health = AltFire.HitPoints,
+                        speed = AltFire.ProjectileSpeed,
+                        WeaponEffectType = AltFire.WeaponEffectType,
+                        WeaponType = AltFire.WeaponType,
+                        RotationRadsPerSecond = AltFire.RotationRadsPerSecond,
+                        ArmorPiercing = (byte)AltFire.ArmourPen,
+                    };
                 //damage increase by level
                 if (this.owner.Level > 0)
                 {
@@ -968,13 +998,15 @@ namespace Ship_Game.Gameplay
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
 				return;
 			this.owner.InCombatTimer = 15f;
-            if (target is ShipModule)
-                (target as ShipModule).GetParent().InCombatTimer = 15f;
+
 			this.timeToNextFire = this.fireDelay;
-			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
+
+            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
+                //this.owner.supplyLock.EnterWriteLock();
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
+                //this.owner.supplyLock.ExitWriteLock();
 				if (this.SalvoCount == 1)
 				{
 					if (this.FireArc != 0)
@@ -1050,6 +1082,7 @@ namespace Ship_Game.Gameplay
 					return;
 				}
 			}
+
 		}
 
 		public virtual void FireDrone(Vector2 direction)
@@ -1175,12 +1208,14 @@ namespace Ship_Game.Gameplay
 			}
 			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
-			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
+            
+            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
-                this.owner.Ordinance -= this.OrdinanceRequiredToFire;
+                this.owner.Ordinance -= this.OrdinanceRequiredToFire;                
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
 				this.CreateTargetedBeam(target);
 			}
+            
 		}
 
         public virtual void FireMouseBeam(Vector2 direction)

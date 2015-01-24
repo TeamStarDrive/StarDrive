@@ -1122,7 +1122,9 @@ namespace Ship_Game
 			}
 			catch
 			{
+                
 				Model model = Game1.Instance.Content.Load<Model>(string.Concat("Mod Models/", path));
+                Ship_Game.ResourceManager.ModelDict.Add(path, model);
 				item = model;
 			}
 			return item;
@@ -2222,6 +2224,10 @@ namespace Ship_Game
 			for (int k = 0; k < (int)filesFromDirectory1.Length; k++)
 			{
 				FileInfo FI = filesFromDirectory1[k];
+                if (String.Compare(FI.Extension, ".XML",StringComparison.OrdinalIgnoreCase)!=0)
+                {
+                    continue;
+                }
 				
 #if !DEBUG
                 try
