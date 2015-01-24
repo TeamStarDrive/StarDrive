@@ -22,33 +22,34 @@ namespace Ship_Game
 
         public void ApplyPendingRemovals()
         {
-            //for (int i = 0; i < this.pendingRemovals.Count; i++)
-            //foreach(T i in this.pendingRemovals)
+            T result;            
+            while (!this.pendingRemovals.IsEmpty)
+            {               
+                this.pendingRemovals.TryPop(out result); //out T result);
+                this.Remove(result);
+            }
+        }
+        public void ApplyPendingRemovals(bool SaveForPooling)
+        {
+            if (SaveForPooling)
+            {
+                foreach(T item in this.pendingRemovals.ToArray())
+                {
+                    this.Remove(item);
+                }
+            }
             T result;
             while (!this.pendingRemovals.IsEmpty)
             {
-               
                 this.pendingRemovals.TryPop(out result); //out T result);
-                //base.Remove(this.pendingRemovals(i));
                 this.Remove(result);
-
-
             }
-            //this.pendingRemovals=new ConcurrentBag<T>();
         }
-
         public void QueuePendingRemoval(T item)
         {
             this.pendingRemovals.Push(item);
         }
-        //new public IEnumerator<T> GetEnumerator()
-        //{
-        //    using (IEnumerator<T> ie = internalList.GetEnumerator())
-        //        while (ie.MoveNext())
-        //        {
-        //            yield return internalList.Combine(BatchRemovalCollection ie.Current);
-        //        }
-        //}
+
         new public void Add(T item)
         {
             thisLock.EnterWriteLock();
@@ -76,6 +77,7 @@ namespace Ship_Game
         }
         new public void Remove(T item)
         {
+            
             thisLock.EnterWriteLock();
             (this as List<T>).Remove(item);
             thisLock.ExitWriteLock();

@@ -859,13 +859,13 @@ namespace Ship_Game.Gameplay
             Vector2 center = new Vector2(sumx, sumy);
             if (this.Ships.Count == 1)
                 return center;
-            float avgdistancex = sumx / distancesx.Count;
+            float avgdistancex = sumx / distancesx.Count ;
             float avgdistancey = sumy / distancesy.Count;
             sumx = (float)distancesx.Sum(distance => Math.Pow(distance - avgdistancex , 2));
             sumy = (float)distancesy.Sum(distance => Math.Pow(distance - avgdistancey , 2));            
 
-            float stddevx = (float)Math.Sqrt((sumx) / (distancesx.Count -1));
-            float stddevy = (float)Math.Sqrt((sumy) / (distancesy.Count -1 ));
+            float stddevx = (float)Math.Sqrt((sumx) / (distancesx.Count -1))+1000;
+            float stddevy = (float)Math.Sqrt((sumy) / (distancesy.Count -1 ))+1000;
 
             //try
             {
