@@ -21,18 +21,6 @@
     </Tech>
 
     <Tech>
-      <id>IFCYBERNETIC:6</id>
-    </Tech>
-    <Tech>
-      <id>LOOP:8</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:Colonization</id>
-    </Tech>
-    <Tech>
-      <id>LOOP:4</id>
-    </Tech>
-    <Tech>
       <id>IFPEACE:0</id>
     </Tech>
     <Tech>
@@ -55,7 +43,7 @@
       <id>IFHIGHTAX:0</id>
     </Tech>
     <Tech>
-      <id>LOOP:8</id>
+      <id>LOOP:4</id>
     </Tech>
 
 

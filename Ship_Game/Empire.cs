@@ -1500,6 +1500,10 @@ namespace Ship_Game
         {
             return this.GrossTaxes * Rate + this.OtherIncome + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus - (this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance());
         }
+        public float EstimateShipCapacityAtTaxRate(float Rate)
+        {
+            return this.GrossTaxes * Rate + this.OtherIncome + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus - (this.GetTotalBuildingMaintenance() );
+        }
 
         public float GetActualNetLastTurn()
         {
@@ -1667,7 +1671,7 @@ namespace Ship_Game
             float ResearchPotential = 0.0f;
             float Fertility = 0.0f;
             float MilitaryPotential = 0.0f;
-            if ((double)p.Fertility > 1.0)
+            if ((double)p.Fertility > 1.0 && this.data.Traits.Cybernetic <= 0)
             {
                 ++PopSupport;
                 Fertility += p.Fertility;
