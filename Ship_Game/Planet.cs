@@ -3141,10 +3141,12 @@ namespace Ship_Game
             if (this.Owner.data.Traits.Cybernetic > 0)
             {
                 this.FarmerPercentage = 0.0f;
-                this.WorkerPercentage = this.CalculateCyberneticPercentForSurplus(2f);
+                this.WorkerPercentage = this.CalculateCyberneticPercentForSurplus(this.consumption);
                 if ((double)this.WorkerPercentage > 1.0)
                     this.WorkerPercentage = 1f;
-                this.ResearcherPercentage = 1f - this.WorkerPercentage;
+                this.ResearcherPercentage = 1f - this.WorkerPercentage  ;
+                if (this.ResearcherPercentage < 0f)
+                    ResearcherPercentage = 0f;
                 if ((double)this.NetProductionPerTurn > 5.0 && this.ProductionHere > this.MAX_STORAGE * 0.5f)
                     this.ps = Planet.GoodState.EXPORT;
                 else
