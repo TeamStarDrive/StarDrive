@@ -6791,7 +6791,10 @@ namespace Ship_Game.Gameplay
                             }
                         case ArtificialIntelligence.Plan.PickupPassengers:
                             {
-                                this.PickupPassengers();
+                                if (this.start != null)
+                                    this.PickupPassengers();
+                                else
+                                    this.State = AIState.AwaitingOrders;
                                 break;
                             }
                         case ArtificialIntelligence.Plan.DropoffPassengers:
