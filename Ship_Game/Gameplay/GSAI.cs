@@ -57,6 +57,10 @@ namespace Ship_Game.Gameplay
 		private int FirstDemand = 20;
 
 		private int SecondDemand = 75;
+        public float FrieghterUpkeep = 0f;
+        public float PlatformUpkeep = 0f;
+        public float StationUpkeep = 0f;
+
 
 		//private int ThirdDemand = 75;
 
@@ -4681,6 +4685,9 @@ namespace Ship_Game.Gameplay
             float numFrigates = 0f;
             float numCruisers = 0f;
             float numCapitals = 0f;
+            float numFreighters = 0f;
+            float numPlatforms = 0f;
+            float numStations = 0f;
             float num_Bombers = 0f;
             float capFighters = 0f;
             float capCorvettes = 0f;
@@ -4689,6 +4696,7 @@ namespace Ship_Game.Gameplay
             float capCapitals = 0f;
             float capBombers = 0f;
             float capCarriers = 0f;
+            float nonMilitaryCap = 0;
             
             for (int i = 0; i < this.empire.GetShips().Where(ship=> ship.GetAI().State !=AIState.Scrap)  .Count(); i++)
             {
@@ -4750,6 +4758,24 @@ namespace Ship_Game.Gameplay
                             TotalMilShipCount = TotalMilShipCount + 1f;
                             capCarriers += upkeep;
                         }
+                        else if (str == "frieghter")
+                        {
+                            numFighters += upkeep;
+
+                            nonMilitaryCap += upkeep;
+                        }
+                        else if (str == "platform")
+                        {
+                            numPlatforms += upkeep;
+
+                            nonMilitaryCap += upkeep;
+                        }
+                        else if (str == "station")
+                        {
+                            numStations += upkeep;
+
+                            nonMilitaryCap += upkeep;
+                        }
                     }
                     if (item.BombBays.Count > 0)
                     {
@@ -4758,6 +4784,9 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
+            this.FrieghterUpkeep = numFreighters -(nonMilitaryCap * .25f);
+            this.PlatformUpkeep = numPlatforms -(nonMilitaryCap * .25f);
+            this.StationUpkeep = numStations -(nonMilitaryCap * .5f);
             if (!this.empire.canBuildCapitals && Ship_Game.ResourceManager.TechTree.ContainsKey("Battleships"))
                 this.empire.canBuildCapitals = this.empire.GetTDict()["Battleships"].Unlocked;
             if (!this.empire.canBuildCruisers && Ship_Game.ResourceManager.TechTree.ContainsKey("Cruisers"))
@@ -4846,7 +4875,7 @@ namespace Ship_Game.Gameplay
             //float TotalCapacity = this.empire.EstimateIncomeAtTaxRate(tax);
             //if (this.empire.Money > this.empire.GrossTaxes)
             //    TotalCapacity = this.empire.GrossTaxes;
-            float TotalCapacity = this.buildCapacity;
+            float TotalCapacity = this.buildCapacity;// this.empire.GetTotalShipMaintenance(); // 
            // float TotalCapacity = this.empire.GrossTaxes; //ship building is being severely restricted here. changing to increasing a bit.
             float DesiredFighterSpending = (TotalCapacity / totalRatio) * ratio_Fighters;
             float DesiredCorvetteSpending = (TotalCapacity / totalRatio) * ratio_Corvettes;
@@ -6997,17 +7026,21 @@ namespace Ship_Game.Gameplay
             prepareWar += this.empire.GetRelations().Where(angry => angry.Value.Threat > 0).Count();
             float noIncome = this.FindTaxRateToReturnAmount(UnderConstruction);
 
-            float tax = atWar ? .50f + (prepareWar * .05f) : .25f + (prepareWar * .5f);  //.45f - (tasks);
+            float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .05f);  //.45f - (tasks);
 
 
+           // this.buildCapacity = this.empire.EstimateShipCapacityAtTaxRate(tax);   //this.empire.Money > this.empire.GrossTaxes ? this.empire.Money : 
             float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
             float allowable_deficit = -Capacity;//-this.empire.ShipsWeCanBuild.AsParallel().Max(main => ResourceManager.ShipsDict[main].GetMaintCost()); 
+
             
             if (allowable_deficit >= 0f || noIncome > .35f)
             {
                 allowable_deficit = -this.empire.Money;// 0f;
             }
-            this.buildCapacity = Capacity - allowable_deficit;
+            this.buildCapacity = Capacity - allowable_deficit + this.empire.GetTotalShipMaintenance(); ;
+                //this.empire.GetTotalShipMaintenance();
+            
             this.GetAShip(0);
             if (Capacity <= allowable_deficit) //(Capacity <= 0f)
             {
@@ -7152,7 +7185,7 @@ namespace Ship_Game.Gameplay
                 allowable_deficit = Math.Abs(allowable_deficit);
             }
 
-            
+
 
             //int Memory = (int)GC.GetTotalMemory(false);
 
@@ -7160,13 +7193,15 @@ namespace Ship_Game.Gameplay
             //added by gremlin shipsize limit
             //i think this could be made dynamic to reduce when memory constraints come into play
             //&& Memory < SizeLimiter
+
+
             while (Capacity > allowable_deficit 
                 && numgoals < (float)this.numberOfShipGoals  
                 && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool 
                 || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
 
-                string s = this.GetAShip(Capacity);
+                string s = this.GetAShip(Capacity-allowable_deficit);
                 if (s == null)
                 {
                     break;
@@ -7191,6 +7226,8 @@ namespace Ship_Game.Gameplay
                 }
                 numgoals = numgoals + 1f;
             }
+            
+            //this.GetAShip(0);
             int numWars = 0;
             foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
             {
@@ -7866,11 +7903,16 @@ namespace Ship_Game.Gameplay
                         {
                             try
                             {
+                                
                                 techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), script[i]);
                             }
                             catch
                             {
                                 techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
+                            }
+                            if (this.empire.data.Traits.Cybernetic > 0 && this.empire.GetBDict()["Biospheres"] && techtype == (TechnologyType)Enum.Parse(typeof(TechnologyType), "Colonization"))
+                            {
+                                techtype = TechnologyType.Industry;
                             }
                             Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
                             //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
@@ -7896,7 +7938,9 @@ namespace Ship_Game.Gameplay
                     {
                         try
                         {
+
                             techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), command);
+
                         }
                         catch
                         {
@@ -7930,18 +7974,18 @@ namespace Ship_Game.Gameplay
                 return false;
             else
             {
-                try
-                {
-                    if (ResourceManager.TechTree[this.empire.ResearchTopic].TechnologyType == TechnologyType.ShipHull)
-                    {
-                        GetAShip(0);
-                    }
-                }
-                catch(Exception e)
-                {
-                    e.Data.Add("Tech Name(UID)", this.empire.ResearchTopic);
+                //try
+                //{
+                //    if (ResourceManager.TechTree[this.empire.ResearchTopic].TechnologyType == TechnologyType.ShipHull)
+                //    {
+                //        //GetAShip(0);
+                //    }
+                //}
+                //catch(Exception e)
+                //{
+                //    e.Data.Add("Tech Name(UID)", this.empire.ResearchTopic);
                     
-                }
+                //}
                 return true;
             }
 
