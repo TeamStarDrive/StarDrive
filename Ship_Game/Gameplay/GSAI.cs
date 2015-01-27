@@ -6396,8 +6396,8 @@ namespace Ship_Game.Gameplay
                             else if (planetList.Type != "Barren"
                                 && commodities > 0
                                     || ((double)planetList.Fertility >= .5f || (this.empire.data.Traits.Cybernetic != 0 && (double)planetList.MineralRichness >= .5f))
-                                    || (this.empire.GetTDict()["Aeroponics"].Unlocked
-                                    || this.empire.data.Traits.Cybernetic != 0 && this.empire.GetBDict()["Biospheres"]))
+                                    || (this.empire.GetTDict()["Aeroponics"].Unlocked))
+                                    //|| (this.empire.data.Traits.Cybernetic != 0 && this.empire.GetBDict()["Biospheres"]))
                             {
                                 ranker.Add(r2);
                             }
@@ -6415,7 +6415,7 @@ namespace Ship_Game.Gameplay
                                 else
                                 {
 
-                                    if (planetList.MineralRichness < .3f)
+                                    if (planetList.MineralRichness < .5f)
                                     {
                                         
                                         foreach (Planet food in this.empire.GetPlanets())
