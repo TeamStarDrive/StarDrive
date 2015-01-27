@@ -33,7 +33,7 @@
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:GroundCombat:Research:Colonization:Economic:Research</id>
+      <id>CHEAPEST:TECH:Colonization:GroundCombat:Research:Economic:Research</id>
     </Tech>
     
     <Tech>
@@ -60,6 +60,9 @@
     </Tech>
     <Tech>
       <id>IFHIGHTAX:0</id>
+    </Tech>
+    <Tech>
+      <id>IFCYBERNETIC:8</id>
     </Tech>
     <Tech>
       <id>LOOP:11</id>
