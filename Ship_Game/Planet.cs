@@ -2964,8 +2964,13 @@ namespace Ship_Game
             {
                 Surplus += 0.01f;
                 float num2 = (float)((double)Surplus * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
-                float num3 = num2 - this.consumption;
-                if ((double)(num3 - this.Owner.data.TaxRate * num3) >= (double)desiredSurplus)
+                //float num3 = num2 - this.consumption;
+                //if ((double)(num3 - this.Owner.data.TaxRate * num3) >= (double)desiredSurplus)
+
+                //taking taxes out of production first then taking out consumption to fix starvation at high tax rates
+                //Allium Sativum trying to fix issue #332
+                float num3 = num2 * (1 - this.Owner.data.TaxRate);
+                if ((double)(num3 - this.consumption) >= (double)desiredSurplus) 
                 {
                     this.ps = Planet.GoodState.EXPORT;
                     return Surplus;
