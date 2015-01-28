@@ -37,6 +37,7 @@ namespace Ship_Game
                 {
                     this.Remove(item);
                 }
+                return;
             }
             T result;
             while (!this.pendingRemovals.IsEmpty)
