@@ -2301,7 +2301,7 @@ namespace Ship_Game.Gameplay
                                             if (proj == null)
                                                 continue;
                                             if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj))
-                                                return;// continue;
+                                                continue; //return;//
                                             fireTarget = proj;
                                             //loopstate.Stop();  
                                             break;
