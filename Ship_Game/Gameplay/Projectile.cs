@@ -172,6 +172,23 @@ namespace Ship_Game.Gameplay
 			this.Center = moduleAttachedTo.Center;
 			this.emitter.Position = new Vector3(moduleAttachedTo.Center, 0f);
 		}
+        public void ProjectileRecreate(Ship owner, Vector2 direction, ShipModule moduleAttachedTo)
+        {
+            this.loyalty = owner.loyalty;
+            this.owner = owner;
+            if (!owner.isInDeepSpace)
+            {
+                this.system = owner.GetSystem();
+            }
+            else
+            {
+                this.isInDeepSpace = true;
+            }
+            base.Position = moduleAttachedTo.Center;
+            this.moduleAttachedTo = moduleAttachedTo;
+            this.Center = moduleAttachedTo.Center;
+            this.emitter.Position = new Vector3(moduleAttachedTo.Center, 0f);
+        }
 
 		public Projectile(Ship_Game.Planet p, Vector2 direction)
 		{
