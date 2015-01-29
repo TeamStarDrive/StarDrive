@@ -130,7 +130,76 @@ namespace Ship_Game
 			this.LowerRight = points[3];
 			this.FillVertices();
 		}
+        public void BeamRecreate(Vector2 srcCenter, int Thickness, Ship Owner, GameplayObject target)
+        {
+           
+           
+            this.ArmorDamageBonus = 0f;
+            this.ArmorPiercing = 0;
+            this.BeamOffsetAngle = 0f;
+            this.BeamZ = 0f;
+            this.Center = Vector2.Zero;
+            this.collidedThisFrame = false ;
+            this.damageAmount = 0;
+            this.damageRadius = 0;
+            this.DamageToggleOn = false;
+            this.displacement = 1f;
+            this.duration = 0;
+            this.Duration = 2f;
+            this.explodes = false;
+            this.firstRun = true;
+            this.owner = null;
+            this.hitLast = null;
+            this.HitModule = null;
+            this.IgnoresShields = false;
+            this.infinite = false;
+            this.isInDeepSpace = false;
+            this.LastDamagedBy = null;
+            this.loyalty = null;
+            
+            this.SetSystem(null);
+            this.thickness = 0;
+            this.weapon = null;
+            this.weaponEffect = "";
+            this.WeaponEffectType = "";
+            this.WeaponType = "";
+            this.ShieldDamageBonus = 0;
+            this.RotationRadsPerSecond = 0;
+            
 
+
+
+            this.Target = target;
+            this.owner = Owner;
+            Vector2 TargetPosition = Vector2.Normalize(target.Center);
+            if (Owner.InFrustum)
+            {
+                this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+            }
+            if (this.owner.isInDeepSpace || this.owner.GetSystem() == null)
+            {
+                UniverseScreen.DeepSpaceManager.BeamList.Add(this);
+            }
+            else
+            {
+                this.system = this.owner.GetSystem();
+                this.system.spatialManager.BeamList.Add(this);
+            }
+            this.Source = srcCenter;
+            this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, TargetPosition));
+            this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
+            this.ActualHitDestination = this.Destination;
+            //this.Vertices = new VertexPositionNormalTexture[4];
+            //this.Indexes = new int[6];
+            this.BeamZ = RandomMath2.RandomBetween(-1f, 1f);
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, TargetPosition, (float)Thickness, new Vector2[4], 0, this.BeamZ);
+            this.UpperLeft = points[0];
+            this.UpperRight = points[1];
+            this.LowerLeft = points[2];
+            this.LowerRight = points[3];
+            this.FillVertices();
+            this.Active = true;
+        }
 		public Beam(Vector2 srcCenter, Vector2 destination, int Thickness, Ship Owner)
 		{
 			this.owner = Owner;

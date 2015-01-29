@@ -349,7 +349,9 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
 		{
-			Beam beam = new Beam(source.Owner.Center, target.Center, this.BeamThickness, source.Owner, target);
+            if (source == null)
+                return;
+            Beam beam = new Beam(source.Owner.Center, target.Center, this.BeamThickness, source.Owner, target);
 			beam.moduleAttachedTo = this.moduleAttachedTo;
 			beam.PowerCost = (float)this.BeamPowerCostPerSecond;
 			beam.range = this.Range;
@@ -391,13 +393,16 @@ namespace Ship_Game.Gameplay
             Beam beam;
             if(this.owner.Beams.pendingRemovals.TryPop(out beam))
             {
-                                beam.moduleAttachedTo = this.moduleAttachedTo;
+                //beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
+                beam.BeamRecreate(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
+                beam.moduleAttachedTo = this.moduleAttachedTo;
                 beam.PowerCost = (float)this.BeamPowerCostPerSecond;
                 beam.range = this.Range;
                 beam.thickness = this.BeamThickness;
                 beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
                 beam.damageAmount = this.DamageAmount;
                 beam.weapon = this;
+                
             }
             else
             beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
@@ -510,6 +515,7 @@ namespace Ship_Game.Gameplay
                 Projectile projectile;
                 if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
                 {
+                    projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
                     projectile.range = AltFire.Range;
                     projectile.weapon = this;
                     projectile.explodes = AltFire.explodes;
@@ -635,7 +641,24 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+                Projectile projectile;
+                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
+                {
+                    projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
+                    projectile.range = this.Range;
+                    projectile.weapon = this;
+                    projectile.explodes = this.explodes;
+                    projectile.damageAmount = this.DamageAmount;
+                    projectile.damageRadius = this.DamageRadius;
+                    projectile.explosionradiusmod = this.ExplosionRadiusVisual;
+                    projectile.Health = this.HitPoints;
+                    projectile.speed = this.ProjectileSpeed;
+                    projectile.WeaponEffectType = this.WeaponEffectType;
+                    projectile.WeaponType = this.WeaponType;
+                    projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
+                    projectile.ArmorPiercing = (byte)this.ArmourPen;
+                }
+                projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
                 {
                     range = this.Range,
                     weapon = this,

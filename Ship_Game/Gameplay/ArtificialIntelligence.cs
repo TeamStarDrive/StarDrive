@@ -2301,7 +2301,7 @@ namespace Ship_Game.Gameplay
                                             if (proj == null)
                                                 continue;
                                             if (!proj.weapon.Tag_Intercept || !this.Owner.CheckIfInsideFireArc(weapon, proj))
-                                                return;// continue;
+                                                continue; //return;//
                                             fireTarget = proj;
                                             //loopstate.Stop();  
                                             break;
@@ -2348,10 +2348,11 @@ namespace Ship_Game.Gameplay
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
-            float distance = Vector2.Distance(weapon.Center, target .Center) +500;
+            float distance = Vector2.Distance(weapon.Center, target.Center) + 500;
             Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
             float timeToTarget = distance / dir.Length();
             Vector2 projectedPosition = target.Center;
+            ShipModule moduleTarget = target as ShipModule;
             if (target is Projectile)
             {
                 projectedPosition = target.Center + (target.Velocity * timeToTarget);
@@ -2360,17 +2361,25 @@ namespace Ship_Game.Gameplay
                 timeToTarget = distance / dir.Length();
                 projectedPosition = target.Center + ((target.Velocity * timeToTarget) * 0.85f);
             }
-            else if ((target is ShipModule))
+            else if (moduleTarget !=null)
             {
                 projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
+                if (projectedPosition != target.Center && target.Velocity.Length() > 0)
+                    System.Diagnostics.Debug.WriteLine("missing");
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
                 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
                 timeToTarget = distance / dir.Length();
-                projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
+                projectedPosition = target.Center + (moduleTarget.GetParent().Velocity * timeToTarget);
             }
+
+
             dir = this.findVectorToTarget(weapon.Center, projectedPosition);
             dir.Y = dir.Y * -1f;
+            if (moduleTarget ==null  || moduleTarget.GetParent().Velocity.Length() >0)
             dir = Vector2.Normalize(dir);
+            
+
+
             if (SalvoFire)
                 weapon.FireSalvo(dir, target);
             else
