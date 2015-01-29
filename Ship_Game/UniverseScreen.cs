@@ -211,7 +211,7 @@ namespace Ship_Game
         private float MusicCheckTimer;
         private int ArmageddonCounter;
         private float shiptimer;
-        private Thread ShipUpdateThread;
+        //private Thread ShipUpdateThread;
         public Ship ShipToView;
         public float HeightOnSnap;
         public float AdjustCamTimer;
@@ -952,8 +952,8 @@ namespace Ship_Game
                 this.WorkerThread = new Thread(new ThreadStart(this.Worker));
                 this.WorkerThread.IsBackground = true;
                 this.WorkerThread.Start();
-                this.ShipUpdateThread = new Thread(new ThreadStart(this.ShipUpdater));
-                this.ShipUpdateThread.IsBackground = true;
+                //this.ShipUpdateThread = new Thread(new ThreadStart(this.ShipUpdater));
+                //this.ShipUpdateThread.IsBackground = true;
 #if !ALTERTHREAD
                 this.SystemResetEvents = new ManualResetEvent[4];
                 this.SystemGateKeeper = new AutoResetEvent[4];
@@ -1330,8 +1330,13 @@ namespace Ship_Game
                     }
                     if (this.IsActive)
                     {
+                        //
                         if (this.Paused)
+                        {
+                            GC.Collect();
                             this.DoWork(0.0f);
+                            
+                        }
                         else if ((double)this.GameSpeed < 1.0)
                         {
                             if (this.flip)
@@ -1363,6 +1368,7 @@ namespace Ship_Game
                                 this.GameSpeed = 0.5f;
                         } 
 #endif
+                    
                     }
                     this.WorkerCompletedEvent.Set();
                 }
@@ -1555,7 +1561,7 @@ namespace Ship_Game
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 this.MasterShipList.ApplyPendingRemovals();
 
-                lock (GlobalStats.AddShipLocker)
+                //lock (GlobalStats.AddShipLocker)
                 {
                     foreach (Ship item_1 in this.ShipsToAdd)
                     {
@@ -4478,7 +4484,7 @@ namespace Ship_Game
         {
             if (this.MultiThread)
             {
-                this.ShipUpdateThread.Abort();
+            //    this.ShipUpdateThread.Abort();
                 this.WorkerThread.Abort();
                 foreach (Thread thread in this.SystemUpdateThreadList)
                     thread.Abort();
