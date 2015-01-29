@@ -44,7 +44,9 @@
     <Tech>
       <id>IFLOWRESEARCH:0</id>
     </Tech>
-
+    <Tech>
+      <id>IFCYBERNETIC:2</id>
+    </Tech>
     <Tech>
       <id>LOOP:3</id>
     </Tech>
