@@ -392,6 +392,9 @@ namespace Ship_Game
 						sdata.PopCount = ship.GetCargo()["Colonists_1000"];
 					}
 					sdata.TroopList = ship.TroopList;
+
+                    sdata.AreaOfOperation = ship.AreaOfOperation;
+               
 					sdata.AISave = new SavedGame.ShipAISave()
 					{
 						FoodOrProd = ship.GetAI().FoodOrProd,
@@ -870,6 +873,8 @@ namespace Ship_Game
 			public int kills;
 
 			public List<Troop> TroopList;
+
+            public List<Rectangle> AreaOfOperation;
 
 			public float FoodCount;
 

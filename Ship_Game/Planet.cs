@@ -2959,25 +2959,40 @@ namespace Ship_Game
 
         private float CalculateCyberneticPercentForSurplus(float desiredSurplus)
         {
-            float Surplus = 0.0f;
-            while ((double)Surplus < 1.0)
-            {
-                Surplus += 0.01f;
-                float num2 = (float)((double)Surplus * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
-                //float num3 = num2 - this.consumption;
-                //if ((double)(num3 - this.Owner.data.TaxRate * num3) >= (double)desiredSurplus)
+            // replacing while loop with singal fromula, should save some clock cycles
+            //float Surplus = 0.0f;
+            //while ((double)Surplus < 1.0)
+            //{
+            //    Surplus += 0.01f;
+            //    float num2 = (float)((double)Surplus * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
+            //    //float num3 = num2 - this.consumption;
+            //    //if ((double)(num3 - this.Owner.data.TaxRate * num3) >= (double)desiredSurplus)
 
-                //taking taxes out of production first then taking out consumption to fix starvation at high tax rates
-                //Allium Sativum trying to fix issue #332
-                float num3 = num2 * (1 - this.Owner.data.TaxRate);
-                if ((double)(num3 - this.consumption) >= (double)desiredSurplus) 
-                {
-                    this.ps = Planet.GoodState.EXPORT;
-                    return Surplus;
-                }
+            //    //taking taxes out of production first then taking out consumption to fix starvation at high tax rates
+            //    //Allium Sativum trying to fix issue #332
+            //    float num3 = num2 * (1 - this.Owner.data.TaxRate);
+            //    if ((double)(num3 - this.consumption) >= (double)desiredSurplus) 
+            //    {
+            //        this.ps = Planet.GoodState.EXPORT;
+            //        return Surplus;
+            //    }
+            //}
+            //this.fs = Planet.GoodState.IMPORT;
+            //return Surplus;
+
+            float Surplus = (float)(((((((double)this.consumption + (double)desiredSurplus) / (double)(1 - (double)this.Owner.data.TaxRate)) - (double)this.PlusFlatProductionPerTurn) / ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) * 1000) / (double)this.Population);
+            if (Surplus < 1.0f)
+            {
+                this.ps = Planet.GoodState.EXPORT;
+                if (Surplus < 0)
+                    return 0.0f;
+                return Surplus;
             }
-            this.fs = Planet.GoodState.IMPORT;
-            return Surplus;
+            else
+            {
+                this.ps = Planet.GoodState.IMPORT;
+                return 1.0f;
+            }
         }
 
         private float CalculateFarmerPercentForSurplus(float desiredSurplus)
@@ -2985,15 +3000,29 @@ namespace Ship_Game
             float Surplus = 0.0f;
             if ((double)this.Fertility == 0.0)
                 return 0.0f;
-            while ((double)Surplus < 1.0)
+            // replacing while loop with singal fromula, should save some clock cycles
+            //while ((double)Surplus < 1.0)
+            //{
+            //    Surplus += 0.01f;
+            //    float num2 = (float)((double)Surplus * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
+            //    if ((double)(num2 + this.FoodPercentAdded * num2 - this.consumption) >= (double)desiredSurplus)
+            //        return Surplus;
+            //}
+            //this.fs = Planet.GoodState.IMPORT;
+            //return 0.5f;
+
+            Surplus = (float)(((((((double)this.consumption + (double)desiredSurplus) / (double)(1 + (double)this.FoodPercentAdded)) - (double)this.FlatFoodAdded) / ((double)this.Fertility + (double)this.PlusFoodPerColonist)) * 1000)/(double)this.Population);
+            if (Surplus < 1)
             {
-                Surplus += 0.01f;
-                float num2 = (float)((double)Surplus * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
-                if ((double)(num2 + this.FoodPercentAdded * num2 - this.consumption) >= (double)desiredSurplus)
-                    return Surplus;
+                if (Surplus < 0)
+                    return 0.0f;
+                return Surplus;
             }
-            this.fs = Planet.GoodState.IMPORT;
-            return 0.5f;
+            else
+            {
+                this.fs = Planet.GoodState.IMPORT;
+                return 0.5f;
+            }
         }
 
         private bool DetermineIfSelfSufficient()
