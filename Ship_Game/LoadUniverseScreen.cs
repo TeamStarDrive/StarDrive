@@ -702,6 +702,11 @@ namespace Ship_Game
 						t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
 						ship.TroopList.Add(t);
 					}
+
+                    foreach (Rectangle AOO in shipData.AreaOfOperation)
+                    {
+                        ship.AreaOfOperation.Add(AOO);
+                    }
 					ship.TetherGuid = shipData.TetheredTo;
 					ship.TetherOffset = shipData.TetherOffset;
 					if (ship.InCombatTimer > 0f)
