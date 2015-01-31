@@ -131,20 +131,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~SaveFleetDesignScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+		
 
 		public override void HandleInput(InputState input)
 		{

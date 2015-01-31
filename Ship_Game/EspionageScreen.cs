@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-    public class EspionageScreen : GameScreen, IDisposable
+    public class EspionageScreen : GameScreen
     {
         private UniverseScreen screen;
 
@@ -47,6 +47,9 @@ namespace Ship_Game
 		private CloseButton close;
 
 		private float TransitionElapsedTime;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public EspionageScreen(UniverseScreen screen)
 		{
@@ -357,10 +360,6 @@ namespace Ship_Game
 		}
 
 
-        ~EspionageScreen()
-        {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		private float GetMilitaryStr(Empire e)
 		{
@@ -554,5 +553,6 @@ namespace Ship_Game
 			transitionElapsedTime.TransitionElapsedTime = transitionElapsedTime.TransitionElapsedTime + elapsedTime;
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
+
     }
 }

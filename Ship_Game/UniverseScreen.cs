@@ -7297,10 +7297,51 @@ namespace Ship_Game
                 return;
             lock (this)
             {
-                if (this.starfield == null)
-                    return;
-                this.starfield.Dispose();
-                this.starfield = (Starfield)null;
+                if (this.starfield != null)
+                    this.starfield.Dispose();
+                if (this.DeepSpaceDone != null)
+                    this.DeepSpaceDone.Dispose();
+                if (this.EmpireDone != null)
+                    this.EmpireDone.Dispose();
+                if (this.DeepSpaceGateKeeper != null)
+                    this.DeepSpaceGateKeeper.Dispose();
+                if (this.ItemsToBuild != null)
+                    this.ItemsToBuild.Dispose();
+                if (this.WorkerBeginEvent != null)
+                    this.WorkerBeginEvent.Dispose();
+                if (this.WorkerCompletedEvent != null)
+                    this.WorkerCompletedEvent.Dispose();
+                if (this.anomalyManager != null)
+                    this.anomalyManager.Dispose();
+                if (this.bloomComponent != null)
+                    this.bloomComponent.Dispose();
+                if (this.ShipGateKeeper != null)
+                    this.ShipGateKeeper.Dispose();
+                if (this.SystemThreadGateKeeper != null)
+                    this.SystemThreadGateKeeper.Dispose();
+                if (this.FogMap != null)
+                    this.FogMap.Dispose();
+                if (this.MasterShipList != null)
+                    this.MasterShipList.Dispose();
+                if (this.EmpireGateKeeper != null)
+                    this.EmpireGateKeeper.Dispose();
+                if (this.BombList != null)
+                    this.BombList.Dispose();
+                this.starfield = null;
+                this.DeepSpaceDone = null;
+                this.EmpireDone = null;
+                this.DeepSpaceGateKeeper = null;
+                this.ItemsToBuild = null;
+                this.WorkerBeginEvent = null;
+                this.WorkerCompletedEvent = null;
+                this.anomalyManager = null;
+                this.bloomComponent = null;
+                this.ShipGateKeeper = null;
+                this.SystemThreadGateKeeper = null;
+                this.FogMap = null;
+                this.MasterShipList = null;
+                this.EmpireGateKeeper = null;
+                this.BombList = null;
             }
         }
 

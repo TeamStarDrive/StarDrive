@@ -125,20 +125,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~LoadSaveScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+
 
 		public override void HandleInput(InputState input)
 		{
@@ -247,24 +234,24 @@ namespace Ship_Game
 					{
 						if (data.ModName != GlobalStats.ActiveMod.ModPath)
 						{
-							file.Close();
+							//file.Close();
 							file.Dispose();
 							continue;
 						}
 					}
 					else if (data.ModName != "")
 					{
-						file.Close();
+						//file.Close();
 						file.Dispose();
 						continue;
 					}
 					saves.Add(data);
-					file.Close();
+					//file.Close();
 					file.Dispose();
 				}
 				catch
 				{
-					file.Close();
+					//file.Close();
 					file.Dispose();
 				}
             //Label0:

@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class CreatingNewGameScreen : GameScreen
+    public class CreatingNewGameScreen : GameScreen, IDisposable
     {
         private Matrix worldMatrix = Matrix.Identity;
         private float scale = 1f;
@@ -866,7 +866,8 @@ namespace Ship_Game
             this.us.UpdateAllSystems(0.01f);
             this.mmscreen.OnPlaybackStopped((object)null, (EventArgs)null);
             this.ScreenManager.RemoveScreen((GameScreen)this.mmscreen);
-            this.Dispose();
+ 
+            //this.Dispose();
             this.ExitScreen();
         }
 
@@ -910,7 +911,19 @@ namespace Ship_Game
         {
             if (!disposing)
                 return;
-            lock (this) { }
+            lock (this) {
+                if (this.WorkerBeginEvent != null)
+                    this.WorkerBeginEvent.Dispose();
+                if (this.WorkerCompletedEvent != null)
+                    this.WorkerCompletedEvent.Dispose();
+                if (this.us != null)
+                    this.us.Dispose();
+
+                this.WorkerBeginEvent = null;
+                this.WorkerCompletedEvent = null;
+                this.us = null;
+            }
+
                 
         }
 

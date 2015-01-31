@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class CombatScreen : PlanetScreen
+	public class CombatScreen : PlanetScreen, IDisposable
 	{
 		public static UniverseScreen universeScreen;
 
@@ -78,6 +78,9 @@ namespace Ship_Game
 		private float[] widthByRow = new float[] { 110f, 120f, 132f, 144f, 162f, 183f };
 
 		private float[] startXByRow = new float[] { 254f, 222f, 181f, 133f, 74f, 0f };
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public CombatScreen(Ship_Game.ScreenManager sm, Planet p)
 		{
@@ -1244,5 +1247,26 @@ namespace Ship_Game
 				this.AnimationTexture = string.Concat(this.AnimationBasePath, remainder);
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.Explosions != null)
+                        this.Explosions.Dispose();
+
+                }
+                this.Explosions = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

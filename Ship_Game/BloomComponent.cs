@@ -6,7 +6,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class BloomComponent
+	public class BloomComponent : IDisposable
 	{
 		private Effect bloomExtractEffect;
 
@@ -29,6 +29,9 @@ namespace Ship_Game
 		private Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
 
 		private DepthStencilBuffer buffer;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public BloomSettings Settings
 		{
@@ -222,5 +225,31 @@ namespace Ship_Game
 			BlurredBothWays,
 			FinalResult
 		}
-	}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.resolveTarget != null)
+                        this.resolveTarget.Dispose();
+                    if (this.renderTarget1 != null)
+                        this.renderTarget1.Dispose();
+                    if (this.renderTarget2 != null)
+                        this.renderTarget2.Dispose();
+                }
+                this.resolveTarget = null;
+                this.renderTarget1 = null;
+                this.renderTarget2 = null;
+                this.disposed = true;
+            }
+        }
+    }
 }

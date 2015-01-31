@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class SaveGameScreen : GameScreen, IDisposable
+	public class SaveGameScreen : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -120,20 +120,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~SaveGameScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{
@@ -252,12 +238,12 @@ namespace Ship_Game
 					HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
 					data.SetFileInfo(new FileInfo(string.Concat(path, "/StarDrive/Saved Games/", data.SaveName, ".xml.gz")));
 					saves.Add(data);
-					file.Close();
+					//file.Close();
 					file.Dispose();
 				}
 				catch
 				{
-					file.Close();
+					//file.Close();
 					file.Dispose();
 				}
 			}

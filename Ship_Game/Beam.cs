@@ -67,6 +67,9 @@ namespace Ship_Game
 
 		private float displacement = 1f;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public Beam()
 		{
 		}
@@ -504,5 +507,22 @@ namespace Ship_Game
 				this.Die(null, true);
 			}
 		}
+
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.quadVertexDecl != null)
+                        this.quadVertexDecl.Dispose();
+
+                }
+                this.quadVertexDecl = null;
+                this.disposed = true;
+                base.Dispose(disposing);
+            }
+        }
 	}
 }
