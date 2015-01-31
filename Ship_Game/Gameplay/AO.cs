@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class AO
+	public class AO : IDisposable
 	{
 		public int ThreatLevel;
 
@@ -36,6 +36,9 @@ namespace Ship_Game.Gameplay
 		private List<Planet> PlanetsInAO = new List<Planet>();
 
 		public int TurnsToRelax;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public Vector2 Position
 		{
@@ -222,5 +225,30 @@ namespace Ship_Game.Gameplay
 				this.TurnsToRelax = 0;
 			}
 		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.OffensiveForcePool != null)
+                        this.OffensiveForcePool.Dispose();
+                    if (this.DefensiveForcePool != null)
+                        this.DefensiveForcePool.Dispose();
+                    if (this.CoreFleet != null)
+                        this.CoreFleet.Dispose();
+                }
+                this.OffensiveForcePool = null;
+                this.DefensiveForcePool = null;
+                this.CoreFleet = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

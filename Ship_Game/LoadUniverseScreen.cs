@@ -378,7 +378,7 @@ namespace Ship_Game
             }
 			FileStream stream = decompressed.OpenRead();
 			SavedGame.UniverseSaveData savedData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
-			stream.Close();
+			//stream.Close();
 			stream.Dispose();
 			decompressed.Delete();
 			GlobalStats.RemnantKills = savedData.RemnantKills;
@@ -420,12 +420,15 @@ namespace Ship_Game
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
+            if (disposing)
+            {
+                lock (this)
+                {
+                    if (this.GateKeeper != null)
+                        this.GateKeeper.Dispose();
+                }
+                this.GateKeeper = null;
+            }
 		}
 
 		public override void Draw(GameTime gameTime)

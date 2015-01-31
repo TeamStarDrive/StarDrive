@@ -104,20 +104,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ModManager() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{
@@ -250,9 +236,9 @@ namespace Ship_Game
                 {
                     ex.Data.Add("Load Error in file", FI.Name);
                     
-                    throw ex;
+                    throw;
                 }
-				file.Close();
+				//file.Close();
 				file.Dispose();
 				ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
 				this.ModsSL.AddItem(me);

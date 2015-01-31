@@ -501,7 +501,7 @@ namespace Ship_Game
 			XmlSerializer Serializer = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
 			TextWriter WriteFileStream = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/", data.SaveAs, ".xml"));
 			Serializer.Serialize(WriteFileStream, data);
-			WriteFileStream.Close();
+			//WriteFileStream.Close();
 			WriteFileStream.Dispose();
 			FileInfo fi = new FileInfo(string.Concat(data.path, "/StarDrive/Saved Games/", data.SaveAs, ".xml"));
 			HelperFunctions.Compress(fi);
@@ -529,7 +529,7 @@ namespace Ship_Game
 			XmlSerializer Serializer1 = new XmlSerializer(typeof(HeaderData));
 			TextWriter wf = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/Headers/", data.SaveAs, ".xml"));
 			Serializer1.Serialize(wf, header);
-			wf.Close();
+			//wf.Close();
 			wf.Dispose();
 			GC.Collect();
 		}

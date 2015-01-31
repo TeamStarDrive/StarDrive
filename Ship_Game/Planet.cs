@@ -20,7 +20,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-    public class Planet
+    public class Planet: IDisposable
     {
         public bool GovBuildings = true;
         public bool GovSliders = true;
@@ -133,6 +133,9 @@ namespace Ship_Game
         public bool queueEmptySent =true ;
         public float RepairPerTurn = 50;
         public List<string> PlanetFleets = new List<string>();
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
         
         public Planet()
         {
@@ -5356,6 +5359,39 @@ namespace Ship_Game
             public Vector2 Velocity;
             public float Rotation;
             public PlanetGridSquare Target;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ActiveCombats != null)
+                        this.ActiveCombats.Dispose();
+                    if (this.OrbitalDropList != null)
+                        this.OrbitalDropList.Dispose();
+                    if (this.ConstructionQueue != null)
+                        this.ConstructionQueue.Dispose();
+                    if (this.BasedShips != null)
+                        this.BasedShips.Dispose();
+                    if (this.Projectiles != null)
+                        this.Projectiles.Dispose();
+
+                }
+                this.ActiveCombats = null;
+                this.OrbitalDropList = null;
+                this.ConstructionQueue = null;
+                this.BasedShips = null;
+                this.Projectiles = null;
+                this.disposed = true;
+            }
         }
     }
 }

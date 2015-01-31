@@ -149,6 +149,9 @@ namespace Ship_Game
 
 		private Vector2 starfieldPos = Vector2.Zero;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		static FleetDesignScreen()
 		{
 			FleetDesignScreen.Open = false;
@@ -247,8 +250,16 @@ namespace Ship_Game
 			{
 				lock (this)
 				{
-                    starfield.Dispose();
+                    if (this.starfield != null)
+                        this.starfield.Dispose();
+                    if (this.fleet != null)
+                        this.fleet.Dispose();
+                    if (this.AvailableShips != null)
+                        this.AvailableShips.Dispose();
 				}
+                this.starfield = null;
+                this.fleet = null;
+                this.AvailableShips = null;
 			}
 		}
 
@@ -871,21 +882,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~FleetDesignScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
-
+	
 		private Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenSpace)
 		{
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
