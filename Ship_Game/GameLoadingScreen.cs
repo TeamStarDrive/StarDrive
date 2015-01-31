@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-	public class GameLoadingScreen : GameScreen
+	public class GameLoadingScreen : GameScreen, IDisposable
 	{
 		private Texture2D BGTexture;
 
@@ -46,24 +46,11 @@ namespace Ship_Game
 
 		private Texture2D bridgetexture;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public GameLoadingScreen()
 		{
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -233,5 +220,28 @@ namespace Ship_Game
 			//this.Loading = true;
 			this.Ready = true;
 		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.LoadingPlayer != null)
+                        this.LoadingPlayer.Dispose();
+                    if (this.SplashPlayer != null)
+                        this.SplashPlayer.Dispose();
+
+                }
+                this.LoadingPlayer = null;
+                this.SplashPlayer = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

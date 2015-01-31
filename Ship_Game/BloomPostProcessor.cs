@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class BloomPostProcessor : BaseRenderTargetPostProcessor
+	public class BloomPostProcessor : BaseRenderTargetPostProcessor, IDisposable
 	{
 		private List<SurfaceFormat> supportedSourceFormats;
 
@@ -25,6 +25,9 @@ namespace Ship_Game
 		private SpriteBatch spriteRenderer;
 
 		private BloomPostProcessor.BloomSettings settings = BloomPostProcessor.BloomSettings.PresetSettings[5];
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public BloomPostProcessor.BloomSettings Settings
 		{
@@ -198,5 +201,31 @@ namespace Ship_Game
 				this.BaseSaturation = baseSaturation;
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.spriteRenderer != null)
+                        this.spriteRenderer.Dispose();
+                    if (this.renderTarget1 != null)
+                        this.renderTarget1.Dispose();
+                    if (this.renderTarget2 != null)
+                        this.renderTarget2.Dispose();
+                }
+                this.renderTarget2 = null;
+                this.spriteRenderer = null;
+                this.renderTarget1 = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

@@ -62,7 +62,10 @@ namespace Ship_Game
 			{
 				lock (this)
 				{
+                    if (this.LocalContent != null)
+                        this.LocalContent.Dispose();
 				}
+                this.LocalContent = null;
 			}
 		}
 
@@ -105,20 +108,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~LoadModelScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+	
 
 		public override void HandleInput(InputState input)
 		{
@@ -259,7 +249,7 @@ namespace Ship_Game
 				{
                     continue;
 				}
-				file.Close();
+				//file.Close();
 				file.Dispose();
 			//Label0:
               //  continue;
@@ -298,7 +288,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				file.Close();
+				//file.Close();
 				file.Dispose();
             //Label1:
               //  continue;

@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class Empire
+    public class Empire : IDisposable
     {
         public static float ProjectorRadius = 150000f;
         private Dictionary<int, Fleet> FleetsDict = new Dictionary<int, Fleet>();
@@ -99,6 +99,9 @@ namespace Ship_Game
         public ReaderWriterLockSlim SensorNodeLocker;
         [XmlIgnore]
         public ReaderWriterLockSlim BorderNodeLocker;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
         static Empire()
         {
             
@@ -1538,7 +1541,7 @@ namespace Ship_Game
                         ex.Data["Ship Key"] = keyValuePair.Key;
                         ex.Data["Role Name"] = keyValuePair.Value.Role;
                         ex.Data["Ship Name"] = keyValuePair.Value.Name;
-                        throw ex;
+                        throw;
                     }
                 }
             }
@@ -2796,6 +2799,47 @@ namespace Ship_Game
             public float Radius;
         }
 
-        
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ForcePool != null)
+                        this.ForcePool.Dispose();
+                    if (this.BorderNodes != null)
+                        this.BorderNodes.Dispose();
+                    if (this.SensorNodes != null)
+                        this.SensorNodes.Dispose();
+                    if (this.OwnedShips != null)
+                        this.OwnedShips.Dispose();
+                    if (this.SensorNodeLocker != null)
+                        this.SensorNodeLocker.Dispose();
+                    if (this.BorderNodeLocker != null)
+                        this.BorderNodeLocker.Dispose();
+                    if (this.DefensiveFleet != null)
+                        this.DefensiveFleet.Dispose();
+                    if (this.GSAI != null)
+                        this.GSAI.Dispose();
+
+                }
+                this.ForcePool = null;
+                this.BorderNodes = null;
+                this.SensorNodes = null;
+                this.OwnedShips = null;
+                this.SensorNodeLocker = null;
+                this.BorderNodeLocker = null;
+                this.DefensiveFleet = null;
+                this.GSAI = null;
+                this.disposed = true;
+
+            }
+        }
     }
 }

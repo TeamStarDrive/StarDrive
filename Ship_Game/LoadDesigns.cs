@@ -193,20 +193,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~LoadDesigns() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{
@@ -350,7 +336,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
 				{
@@ -470,7 +456,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
 				{
