@@ -2137,14 +2137,30 @@ namespace Ship_Game
                         TechEntry tech;
                         if (this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
                         {
-                            if (tech.GetTech().Cost * UniverseScreen.GamePaceStatic - tech.Progress > this.Research)
+                            float cyberneticMultiplier = 1.0f;
+                            if (this.data.Traits.Cybernetic > 0)
+                            {
+                                foreach (Technology.UnlockedBuilding buildingName in tech.GetTech().BuildingsUnlocked)
+                                {
+                                    Building building = ResourceManager.GetBuilding(buildingName.Name);
+                                    if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0 || building.PlusTerraformPoints > 0)
+                                    {
+                                        cyberneticMultiplier = .5f;
+                                        break;
+                                    }
+
+                                }
+                            }
+                            if ((tech.GetTech().Cost*cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > this.Research)
                             {
                                 tech.Progress += this.Research;
                                 this.Research = 0f;
                             }
                             else
                             {
-                                this.Research -= tech.GetTech().Cost * UniverseScreen.GamePaceStatic - tech.Progress;
+    
+                                
+                                this.Research -= (tech.GetTech().Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
                                 tech.Progress = tech.GetTech().Cost * UniverseScreen.GamePaceStatic;
                                 this.UnlockTech(this.ResearchTopic);
                                 if (this.isPlayer)
