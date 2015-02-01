@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-    public class EspionageScreen : GameScreen
+    public class EspionageScreen : GameScreen, IDisposable
     {
         private UniverseScreen screen;
 
@@ -59,21 +59,29 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.OperationsSL != null)
+                        this.OperationsSL.Dispose();
+                    if (this.AgentComponent != null)
+                        this.AgentComponent.Dispose();
+
+                }
+                this.OperationsSL = null;
+                this.AgentComponent = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{

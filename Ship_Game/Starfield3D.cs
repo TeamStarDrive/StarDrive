@@ -5,7 +5,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Starfield3D
+	public class Starfield3D : IDisposable
 	{
 		private const int numberOfStars = 1000;
 
@@ -36,6 +36,9 @@ namespace Ship_Game
 		public Model starModel;
 
 		private Rectangle starfieldRectangle;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		static Starfield3D()
 		{
@@ -97,5 +100,29 @@ namespace Ship_Game
 
 			public float scale;
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.starTexture != null)
+                        this.starTexture.Dispose();
+                    if (this.spriteBatch != null)
+                        this.spriteBatch.Dispose();
+
+                }
+                this.starTexture = null;
+                this.spriteBatch = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

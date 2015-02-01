@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class UniverseData
+	public class UniverseData : IDisposable
 	{
 		public string loadFogPath;
 
@@ -27,6 +27,9 @@ namespace Ship_Game
 		public List<Empire> EmpireList = new List<Empire>();
         public static float UniverseWidth;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public UniverseData()
 		{
             UniverseWidth = this.Size.X;
@@ -39,5 +42,25 @@ namespace Ship_Game
 			Hard,
 			Brutal
 		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.MasterShipList != null)
+                        this.MasterShipList.Dispose();
+
+                }
+                this.MasterShipList = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

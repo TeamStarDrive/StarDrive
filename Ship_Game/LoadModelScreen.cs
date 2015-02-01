@@ -64,11 +64,14 @@ namespace Ship_Game
 				{
                     if (this.LocalContent != null)
                         this.LocalContent.Dispose();
+                    if (this.SavesSL != null)
+                        this.SavesSL.Dispose();
 				}
                 this.LocalContent = null;
+                this.SavesSL = null;
 			}
 		}
-
+         
 		public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.SpriteBatch.Begin();
