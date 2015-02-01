@@ -57,6 +57,10 @@ namespace Ship_Game
 
 		private List<UIButton> ShipsToLoad = new List<UIButton>();
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		public LoadDesigns(ShipDesignScreen screen)
 		{
 			this.screen = screen;
@@ -86,21 +90,26 @@ namespace Ship_Game
 			this.LoadContent();
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ShipDesigns != null)
+                        this.ShipDesigns.Dispose();
+
+                }
+                this.ShipDesigns = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class TroopInfoUIElement : UIElement
+	public class TroopInfoUIElement : UIElement, IDisposable
 	{
 		private Rectangle SliderRect;
 
@@ -43,6 +43,9 @@ namespace Ship_Game
 		private string fmt = "0.#";
 
 		//private Rectangle Mark;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public TroopInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
 		{
@@ -244,5 +247,27 @@ namespace Ship_Game
 
 			public int TIP_ID;
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.DescriptionSL != null)
+                        this.DescriptionSL.Dispose();
+
+                }
+                this.DescriptionSL = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

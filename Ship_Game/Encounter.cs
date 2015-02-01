@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Encounter
+	public class Encounter: IDisposable
 	{
 		public int Step;
 
@@ -36,6 +36,10 @@ namespace Ship_Game
 		private SolarSystem sysToDiscuss;
 
 		private Empire empToDiscuss;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public Encounter()
 		{
@@ -331,5 +335,25 @@ namespace Ship_Game
 		{
 			this.empToDiscuss = e;
 		}
+
+               public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+               protected virtual void Dispose(bool disposing)
+               {
+                   if (!disposed)
+                   {
+                       if (disposing)
+                       {
+                           if (this.ResponseSL != null)
+                               this.ResponseSL.Dispose();
+                       }
+                       this.ResponseSL = null;
+                       this.disposed = true;
+                   }
+               }
 	}
 }

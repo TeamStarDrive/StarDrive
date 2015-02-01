@@ -1262,9 +1262,12 @@ namespace Ship_Game
                 {
                     if (this.Explosions != null)
                         this.Explosions.Dispose();
+                    if (this.OrbitSL != null)
+                        this.OrbitSL.Dispose();
 
                 }
                 this.Explosions = null;
+                this.OrbitSL = null;
                 this.disposed = true;
             }
         }
