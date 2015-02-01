@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
-	public class Relationship
+	public class Relationship: IDisposable
 	{
 		public FederationQuest FedQuest;
 
@@ -128,6 +128,10 @@ namespace Ship_Game.Gameplay
 		public float TheyOweUs;
 
 		public float WeOweThem;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public bool HaveRejected_Demand_Tech
 		{
@@ -837,6 +841,30 @@ namespace Ship_Game.Gameplay
             turnsKnown.TurnsKnown = turnsKnown.TurnsKnown + 1;
             Relationship relationship3 = this;
             relationship3.turnsSinceLastContact = relationship3.turnsSinceLastContact + 1;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.TrustEntries != null)
+                        this.TrustEntries.Dispose();
+                    if (this.FearEntries != null)
+                        this.FearEntries.Dispose();
+
+                }
+                this.TrustEntries = null;
+                this.FearEntries = null;
+                this.disposed = true;
+            }
         }
 	}
 }

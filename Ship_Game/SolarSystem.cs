@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class SolarSystem
+	public class SolarSystem: IDisposable
 	{
 		public string Name = "Random System";
 
@@ -72,6 +72,9 @@ namespace Ship_Game
 		public List<string> DefensiveFleets = new List<string>();
         
         public Dictionary<Empire,PredictionTimeout> predictionTimeout =new Dictionary<Empire,PredictionTimeout>();
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
             public class PredictionTimeout{
                 public float prediction;
@@ -928,5 +931,32 @@ namespace Ship_Game
 
 			public Planet planet;
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ShipList != null)
+                        this.ShipList.Dispose();
+                    if (this.AsteroidsList != null)
+                        this.AsteroidsList.Dispose();
+                    if (this.spatialManager != null)
+                        this.spatialManager.Dispose();
+
+                }
+                this.ShipList = null;
+                this.AsteroidsList = null;
+                this.spatialManager = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

@@ -10,7 +10,7 @@ using System.Threading;
 using System.Collections.Concurrent;
 namespace Ship_Game
 {
-	public class DefensiveCoordinator
+	public class DefensiveCoordinator: IDisposable
 	{
 		private Empire us;
 
@@ -18,6 +18,9 @@ namespace Ship_Game
 
 		public BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
         public float defenseDeficit = 0;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public DefensiveCoordinator(Empire e)
 		{
@@ -709,5 +712,26 @@ namespace Ship_Game
 			}
 			return str;
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.DefensiveForcePool != null)
+                        this.DefensiveForcePool.Dispose();
+
+                }
+                this.DefensiveForcePool = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

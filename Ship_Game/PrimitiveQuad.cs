@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class PrimitiveQuad
+	public class PrimitiveQuad: IDisposable
 	{
 		public static GraphicsDevice graphicsDevice;
 
@@ -23,6 +23,9 @@ namespace Ship_Game
 		public int W;
 
 		public int H;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public PrimitiveQuad(float x, float y, float w, float h)
 		{
@@ -103,5 +106,26 @@ namespace Ship_Game
 			Color[] texcol = new Color[] { Color.White };
 			this.blankTex.SetData<Color>(texcol);
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.blankTex != null)
+                        this.blankTex.Dispose();
+
+                }
+                this.blankTex = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

@@ -71,6 +71,9 @@ namespace Ship_Game
 
 		private Submenu UnlocksSubMenu;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public ResearchScreenNew(EmpireUIOverlay empireUI)
 		{
 			this.empireUI = empireUI;
@@ -80,21 +83,26 @@ namespace Ship_Game
 			this.camera = new Camera2d();
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.qcomponent != null)
+                        this.qcomponent.Dispose();
+
+                }
+                this.qcomponent = null;
+                this.disposed = true;
+            }
+        }
 
         public override void Draw(GameTime gameTime)
         {
@@ -232,20 +240,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ResearchScreenNew() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+	
 
 		private int FindDeepestY()
 		{
