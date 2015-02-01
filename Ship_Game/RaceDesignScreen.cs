@@ -164,6 +164,9 @@ namespace Ship_Game
 
 		protected string HomeSystemName = "Sol";
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public RaceDesignScreen()
 		{
 			base.IsPopup = true;
@@ -439,21 +442,31 @@ namespace Ship_Game
 			return this.currentKeyboardState.IsKeyUp(theKey);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.traitsSL != null)
+                        this.traitsSL.Dispose();
+                    if (this.RaceArchetypeSL != null)
+                        this.RaceArchetypeSL.Dispose();
+                    if (this.DescriptionSL != null)
+                        this.DescriptionSL.Dispose();
+                }
+                this.traitsSL = null;
+                this.RaceArchetypeSL = null;
+                this.DescriptionSL = null;
+                this.disposed = true;
+            }
+        }
 
 		protected void DoRaceDescription()
 		{

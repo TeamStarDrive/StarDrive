@@ -13,7 +13,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
-    public class Fleet : ShipGroup, IDisposable
+    public class Fleet : ShipGroup
     {
         public BatchRemovalCollection<FleetDataNode> DataNodes = new BatchRemovalCollection<FleetDataNode>();
         public Guid guid = Guid.NewGuid();
@@ -3067,13 +3067,8 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -3085,6 +3080,8 @@ namespace Ship_Game.Gameplay
                 }
                 this.DataNodes = null;
                 this.disposed = true;
+                base.Dispose(disposing);
+                
             }
         }
     }

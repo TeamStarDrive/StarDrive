@@ -256,9 +256,15 @@ namespace Ship_Game
                         this.fleet.Dispose();
                     if (this.AvailableShips != null)
                         this.AvailableShips.Dispose();
+                    if (this.ShipSL != null)
+                        this.ShipSL.Dispose();
+                    if (this.FleetSL != null)
+                        this.FleetSL.Dispose();
 				}
                 this.starfield = null;
                 this.fleet = null;
+                this.ShipSL = null;
+                this.FleetSL = null;
                 this.AvailableShips = null;
 			}
 		}
