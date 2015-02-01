@@ -242,11 +242,17 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                foreach (ShipModule shipModule in this.Hangars)
-                {
-                    if (shipModule.IsSupplyBay)
-                        return true;
-                }
+                if(this.Hangars.Count >0)
+                    try
+                    {
+                        foreach (ShipModule shipModule in this.Hangars)
+                        {
+                            if (shipModule.IsSupplyBay)
+                                return true;
+                        }
+                    }
+                catch
+                    { }
                 return false;
             }
         }
