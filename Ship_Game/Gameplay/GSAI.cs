@@ -7509,7 +7509,7 @@ namespace Ship_Game.Gameplay
                 bool lowResearch = false;
                 if (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0)
                     atWar = true;
-                if (this.empire.data.TaxRate >= .40f)
+                if (this.empire.data.TaxRate >= .50f)
                     highTaxes = true;
                 if (this.empire.GetPlanets().Sum(research => research.NetResearchPerTurn) < this.empire.GetPlanets().Count / 3)
                     lowResearch = true;
@@ -7846,7 +7846,13 @@ namespace Ship_Game.Gameplay
 				}
 			}
 		}
-
+        public class wieght
+        {
+            public int strength;
+            public ShipModule module;
+            public int count;
+            
+        }
         private bool ScriptedResearch(string command, string modifier)
         {
 
@@ -7893,6 +7899,56 @@ namespace Ship_Game.Gameplay
             //    Random = 0;
             string researchtopic = "";
             TechnologyType techtype;
+            bool weCanBuildCurrentHull = false;
+            string currentHull = "fighter";
+            if (!this.empire.canBuildCorvettes)
+                weCanBuildCurrentHull = true;
+            else 
+                if (this.empire.canBuildCorvettes && !this.empire.canBuildFrigates)
+                currentHull = "corvette";
+            else
+                if (this.empire.canBuildFrigates && !this.empire.canBuildCruisers)
+                    currentHull = "frigate";
+                else
+                    if (this.empire.canBuildCruisers && !this.empire.canBuildCapitals)
+                        currentHull = "cruiser";
+                    else
+                        currentHull = "capital";
+            string BestShip = "";
+            float bestShipStrength=0f;
+            if(!weCanBuildCurrentHull)
+            foreach (String wecanbuildit in this.empire.ShipsWeCanBuild)
+            {
+                Ship ship = ResourceManager.ShipsDict[wecanbuildit];
+                if (ship .shipData == null)
+                    continue;
+                if (ship.shipData.Role == currentHull)
+                {
+                    weCanBuildCurrentHull = true;
+                    break;
+                }
+            }
+            //if (!weCanBuildCurrentHull)
+            foreach (KeyValuePair<string,Ship> wecanbuildit in ResourceManager.ShipsDict)            
+            {
+                bool test;
+                if(!this.empire.GetHDict().TryGetValue(wecanbuildit.Value.shipData.Hull, out test))
+                //if (!this.empire.GetHDict()[wecanbuildit.Value.shipData.Hull])
+                    continue;
+                
+                Ship ship = wecanbuildit.Value;
+                if (ship.shipData == null)
+                    continue;
+                if (ship.shipData.Role == currentHull)
+                {
+                    if (bestShipStrength < ship.BaseStrength)
+                    {
+                        bestShipStrength = ship.BaseStrength;
+                        BestShip = wecanbuildit.Key;
+                    }
+
+                }
+            }
             switch (command)
             {
 
@@ -7914,19 +7970,103 @@ namespace Ship_Game.Gameplay
                             {
                                 techtype = TechnologyType.Industry;
                             }
+
+                            //float cheapCost =0;
+                            //Technology ResearchTech;
+                            //foreach(Technology tech in AvailableTechs)
+                            //{
+                            //    if (tech.TechnologyType != techtype)
+                            //        continue;
+                            //    float cost = tech.Cost;
+
+                            //}
+
                             Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
                             //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                             if (ResearchTech == null)
                                 continue;
                             //if (AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).Count() == 0)
                             //    continue;
-                            float cheapCost = ResearchTech.Cost;
+                            
 
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
                             if (researchtopic == "")
                                 researchtopic = Testresearchtopic;
-                            else if ((int)ResearchTech.Cost * .0025f < (int)(ResourceManager.TechTree[researchtopic].Cost * .0025f))
-                                researchtopic = Testresearchtopic;
+                            else
+                            {
+                                int currentCost = (int)(ResearchTech.Cost * .0025f);
+                                int previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * .0025f);
+                                if (weCanBuildCurrentHull)
+                                {
+
+
+                                    if (techtype == TechnologyType.ShipHull )
+                                    {
+                                        currentCost = (int)(ResearchTech.Cost * .00125f);
+                                    }
+                                    if (ResourceManager.TechTree[researchtopic].TechnologyType == TechnologyType.ShipHull)
+                                    {
+                                        previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * .00125f);
+                                    }
+
+                                }
+                                if ( ResearchTech.ModulesUnlocked.Count > 0 || ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0)
+                                {
+
+                                    Technology PreviousTech = ResourceManager.TechTree[researchtopic];
+                                    Ship ship = ResourceManager.ShipsDict[BestShip];
+                                    //if (ResearchTech.ModulesUnlocked.Count > 0) 
+                                    foreach (ModuleSlot slot in ship.ModuleSlotList)
+                                    {
+                                        if (slot.isDummy)
+                                            continue;
+                                        if (this.empire.GetMDict()[slot.module.UID] == true)
+                                            continue;
+                                        bool currentStop = false;
+                                        bool PreviousStop = false;
+                                        if (!currentStop && ResearchTech.ModulesUnlocked.Count > 0)
+                                            foreach (Technology.UnlockedMod currentTechMod in ResearchTech.ModulesUnlocked)
+                                            {
+
+                                                {
+                                                    ShipModule cSM = ResourceManager.ShipModulesDict[currentTechMod.ModuleUID];
+
+                                                    if (slot.module == cSM)
+                                                    {
+                                                        currentCost = (int)(currentCost * .5f);
+                                                        currentStop = true;
+                                                        break;
+
+                                                    }
+                                                }
+                                            }
+                                        
+                                        if (!PreviousStop && PreviousTech.ModulesUnlocked.Count > 0)
+                                            foreach (Technology.UnlockedMod PTechMod in PreviousTech.ModulesUnlocked)
+                                            {
+                                                ShipModule pSM = ResourceManager.ShipModulesDict[PTechMod.ModuleUID];
+                                                if (slot.module == pSM)
+                                                {
+                                                    previousCost = (int)(previousCost * .5f);
+                                                    PreviousStop = true;
+                                                    break;
+
+                                                }
+                                            }
+                                        if (PreviousStop && currentStop)
+                                            break;
+
+
+
+                                    }
+                                   
+                                    
+                                }
+                                
+                                if (currentCost < previousCost)
+                                    researchtopic = Testresearchtopic;
+
+                            }
 
                         }
 
