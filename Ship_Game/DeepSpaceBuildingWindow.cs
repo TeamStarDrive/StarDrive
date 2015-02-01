@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DeepSpaceBuildingWindow
+	public class DeepSpaceBuildingWindow: IDisposable
 	{
 		private Ship_Game.ScreenManager ScreenManager;
 
@@ -28,6 +28,9 @@ namespace Ship_Game
 		private Vector2 TetherOffset = new Vector2();
 
 		private Guid TargetPlanet = Guid.Empty;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public DeepSpaceBuildingWindow(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
@@ -46,21 +49,26 @@ namespace Ship_Game
 			this.TextPos = new Vector2((float)(this.win.X + this.win.Width / 2) - Fonts.Arial12Bold.MeasureString("Deep Space Construction").X / 2f, (float)(this.win.Y + 25));
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+       public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+       protected virtual void Dispose(bool disposing)
+       {
+           if (!disposed)
+           {
+               if (disposing)
+               {
+                   if (this.SL != null)
+                       this.SL.Dispose();
+
+               }
+               this.SL = null;
+               this.disposed = true;
+           }
+       }
 
 		public void Draw(GameTime gameTime)
 		{
@@ -246,11 +254,6 @@ namespace Ship_Game
 				Rectangle? nullable = null;
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_platform"], MousePos, nullable, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
 			}
-		}
-
-		~DeepSpaceBuildingWindow()
-		{
-			this.Dispose(false);
 		}
 
 		public bool HandleInput(InputState input)

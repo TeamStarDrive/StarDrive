@@ -18,7 +18,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class MainMenuScreen : GameScreen
+	public class MainMenuScreen : GameScreen,IDisposable
 	{
 		public static string Version;
 
@@ -115,6 +115,10 @@ namespace Ship_Game
 		private bool StayOn;
 
 		private int flareFrames;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		//private bool onplaygame;
 
@@ -624,7 +628,7 @@ namespace Ship_Game
                     FileInfo FI = new FileInfo(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value, ".xml"));
 					Stream file = FI.OpenRead();
 					ModInformation data = (ModInformation)Ship_Game.ResourceManager.ModSerializer.Deserialize(file);
-					file.Close();
+					//file.Close();
 					file.Dispose();
 					ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
 					GlobalStats.ActiveMod = me;
@@ -950,5 +954,32 @@ namespace Ship_Game
 			{
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.CometList != null)
+                        this.CometList.Dispose();
+                    if (this.waveOut != null)
+                        this.waveOut.Dispose();
+                    if (this.mp3FileReader != null)
+                        this.mp3FileReader.Dispose();
+
+                }
+                this.CometList = null;
+                this.waveOut = null;
+                this.mp3FileReader = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

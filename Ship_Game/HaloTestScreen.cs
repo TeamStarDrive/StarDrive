@@ -59,20 +59,6 @@ namespace Ship_Game
 			base.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~HaloTestScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void LoadContent()
 		{

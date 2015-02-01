@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Particle3DSample
 {
-	public class ParticleSystem
+	public class ParticleSystem: IDisposable
 	{
 		private string settingsName;
 
@@ -47,6 +47,10 @@ namespace Particle3DSample
 		private static Random randomB;
 
 		private Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		static ParticleSystem()
 		{
@@ -301,5 +305,29 @@ namespace Particle3DSample
 				this.drawCounter = 0;
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.vertexBuffer != null)
+                        this.vertexBuffer.Dispose();
+                    if (this.vertexDeclaration != null)
+                        this.vertexDeclaration.Dispose();
+
+                }
+                this.vertexDeclaration = null;
+                this.vertexBuffer = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

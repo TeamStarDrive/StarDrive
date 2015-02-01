@@ -48,6 +48,10 @@ namespace Ship_Game
 
 		//private float transitionElapsedTime;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		public LoadSavedFleetDesignScreen()
 		{
 			base.IsPopup = true;
@@ -63,21 +67,25 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.SavesSL != null)
+                        this.SavesSL.Dispose();
+                }
+                this.SavesSL = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -129,20 +137,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~LoadSavedFleetDesignScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+
 
 		public override void HandleInput(InputState input)
 		{

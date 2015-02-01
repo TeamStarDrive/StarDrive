@@ -392,6 +392,9 @@ namespace Ship_Game
 						sdata.PopCount = ship.GetCargo()["Colonists_1000"];
 					}
 					sdata.TroopList = ship.TroopList;
+
+                    sdata.AreaOfOperation = ship.AreaOfOperation;
+               
 					sdata.AISave = new SavedGame.ShipAISave()
 					{
 						FoodOrProd = ship.GetAI().FoodOrProd,
@@ -498,7 +501,7 @@ namespace Ship_Game
 			XmlSerializer Serializer = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
 			TextWriter WriteFileStream = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/", data.SaveAs, ".xml"));
 			Serializer.Serialize(WriteFileStream, data);
-			WriteFileStream.Close();
+			//WriteFileStream.Close();
 			WriteFileStream.Dispose();
 			FileInfo fi = new FileInfo(string.Concat(data.path, "/StarDrive/Saved Games/", data.SaveAs, ".xml"));
 			HelperFunctions.Compress(fi);
@@ -526,7 +529,7 @@ namespace Ship_Game
 			XmlSerializer Serializer1 = new XmlSerializer(typeof(HeaderData));
 			TextWriter wf = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/Headers/", data.SaveAs, ".xml"));
 			Serializer1.Serialize(wf, header);
-			wf.Close();
+			//wf.Close();
 			wf.Dispose();
 			GC.Collect();
 		}
@@ -870,6 +873,8 @@ namespace Ship_Game
 			public int kills;
 
 			public List<Troop> TroopList;
+
+            public List<Rectangle> AreaOfOperation;
 
 			public float FoodCount;
 

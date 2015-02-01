@@ -193,6 +193,9 @@ namespace Ship_Game
 
         public string HangarShipUIDLast = "Undefined";
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
 			this.EmpireUI = EmpireUI;
@@ -874,20 +877,31 @@ namespace Ship_Game
 
 		public void Dispose()
 		{
+
 			this.Dispose(true);
-            this.ScreenManager.RemoveScreen(this);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.hullSL != null)
+                        this.hullSL.Dispose();
+                    if (this.weaponSL != null)
+                        this.weaponSL.Dispose();
+                    if (this.ChooseFighterSL != null)
+                        this.ChooseFighterSL.Dispose();
+
+                }
+                this.hullSL = null;
+                this.weaponSL = null;
+                this.ChooseFighterSL = null;
+                this.disposed = true;
+            }
+        }
 
 		private void DoExit(object sender, EventArgs e)
 		{
@@ -4438,21 +4452,6 @@ namespace Ship_Game
 			base.ScreenManager.AddScreen(message);
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ShipDesignScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
-
 		public float findAngleToTarget(Vector2 origin, Vector2 target)
 		{
 			float theta;
@@ -5957,6 +5956,8 @@ namespace Ship_Game
 			{
 				(Ship.universeScreen.workersPanel as ColonyScreen).Reset = true;
 			}
+            //this should go some where else, need to find it a home
+            this.ScreenManager.RemoveScreen(this);
 			base.ExitScreen();
 		}
 

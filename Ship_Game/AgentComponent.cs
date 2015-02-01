@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class AgentComponent
+	public class AgentComponent : IDisposable
 	{
 		public Agent SelectedAgent;
 
@@ -49,6 +49,9 @@ namespace Ship_Game
         public static bool SpyMute = false;
         private static Checkbox cbSpyMute;
         public static int empirePlanetSpys = 0;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
         public AgentComponent(Rectangle r, EspionageScreen Escreen)
         {
@@ -492,5 +495,29 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.AgentSL != null)
+                        this.AgentSL.Dispose();
+                    if (this.OpsSL != null)
+                        this.OpsSL.Dispose();
+
+                }
+                this.AgentSL = null;
+                this.OpsSL = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

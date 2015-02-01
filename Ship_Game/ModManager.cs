@@ -47,6 +47,10 @@ namespace Ship_Game
 
 		private Selector selector;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		//private float transitionElapsedTime;
 
 		public ModManager(MainMenuScreen mmscreen)
@@ -57,21 +61,26 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ModsSL != null)
+                        this.ModsSL.Dispose();
+                    
+                }
+                this.ModsSL = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -104,20 +113,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ModManager() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{
@@ -250,9 +245,9 @@ namespace Ship_Game
                 {
                     ex.Data.Add("Load Error in file", FI.Name);
                     
-                    throw ex;
+                    throw;
                 }
-				file.Close();
+				//file.Close();
 				file.Dispose();
 				ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
 				this.ModsSL.AddItem(me);

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-	public class ScreenManager
+	public class ScreenManager : IDisposable
 	{
 		public List<GameScreen> screens = new List<GameScreen>();
 
@@ -66,6 +66,10 @@ namespace Ship_Game
 		public Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
 
 		public Microsoft.Xna.Framework.Graphics.SpriteBatch SpriteBatch;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public ContentManager Content
 		{
@@ -297,5 +301,28 @@ namespace Ship_Game
 				this.TraceScreens();
 			}
 		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.content != null)
+                        this.content.Dispose();
+                    if (this.SpriteBatch != null)
+                        this.SpriteBatch.Dispose();
+
+                }
+                this.content = null;
+                this.SpriteBatch = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

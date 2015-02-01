@@ -5,7 +5,8 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class BackgroundItem
+
+	public class BackgroundItem : IDisposable
 	{
 		public Texture2D Texture;
 
@@ -24,6 +25,9 @@ namespace Ship_Game
 		public int[] Indexes = new int[6];
 
 		public BasicEffect quadEffect;
+        
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public BackgroundItem()
 		{
@@ -102,5 +106,26 @@ namespace Ship_Game
 			};
 			this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
 		}
-	}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.quadVertexDecl != null)
+                        this.quadVertexDecl.Dispose();
+                  
+                }
+                this.quadVertexDecl = null;
+                this.disposed = true;
+            }
+        }
+    }
 }

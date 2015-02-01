@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-    public class BatchRemovalCollection<T> : List<T>
+    public class BatchRemovalCollection<T> : List<T>,IDisposable
     {
         //public List<T> pendingRemovals;
         public ConcurrentStack<T> pendingRemovals;
         public ReaderWriterLockSlim thisLock;
+
+        //adding for thread safe Dispose because class uses unmanaged resources
+        private bool disposed;
 
         public BatchRemovalCollection()
         {
@@ -90,6 +93,27 @@ namespace Ship_Game
             var result = (this as List<T>).Contains(item);
             thisLock.ExitReadLock();
             return result;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.thisLock != null)
+                        this.thisLock.Dispose();
+
+                }
+                this.thisLock = null;
+                this.disposed = true;
+            }
         }
 
 
