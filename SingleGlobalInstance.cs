@@ -11,6 +11,9 @@ public class SingleGlobalInstance : IDisposable
 
 	private Mutex mutex;
 
+    //adding for thread safe Dispose because class uses unmanaged resources 
+    private bool disposed;
+
 	public SingleGlobalInstance(int TimeOut)
 	{
 		this.InitMutex();
@@ -35,13 +38,29 @@ public class SingleGlobalInstance : IDisposable
 		}
 	}
 
-	public void Dispose()
-	{
-		if (this.hasHandle && this.mutex != null)
-		{
-			this.mutex.ReleaseMutex();
-		}
-	}
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposed)
+        {
+            if (disposing)
+            {
+                if (this.mutex != null)
+                    this.mutex.Dispose();
+            }
+            this.disposed = true;
+            if (this.hasHandle && this.mutex != null)
+            {
+                this.mutex.ReleaseMutex();
+            }
+            this.mutex = null;
+        }
+    }
 
 	private void InitMutex()
 	{

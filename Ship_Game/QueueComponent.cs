@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class QueueComponent
+	public class QueueComponent: IDisposable
 	{
 		private Rectangle Current;
 
@@ -30,6 +30,10 @@ namespace Ship_Game
 		private DanButton ShowQueue;
 
 		public ResearchQItem CurrentResearch;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public QueueComponent(Ship_Game.ScreenManager ScreenManager, Rectangle container, ResearchScreenNew screen)
 		{
@@ -166,5 +170,26 @@ namespace Ship_Game
 			this.ShowQueue = new DanButton(this.ShowQueue.Pos, Localizer.Token(2136));
 			this.Visible = true;
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.QSL != null)
+                        this.QSL.Dispose();
+            
+                }
+                this.QSL = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

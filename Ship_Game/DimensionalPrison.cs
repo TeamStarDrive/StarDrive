@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DimensionalPrison : Anomaly
+	public class DimensionalPrison : Anomaly, IDisposable
 	{
 		public Vector2 p1;
 
@@ -40,6 +40,9 @@ namespace Ship_Game
 		private int numToCreate = 9;
 
 		private float timer;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public DimensionalPrison(Vector2 Position)
 		{
@@ -146,5 +149,26 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.Prison != null)
+                        this.Prison.Dispose();
+
+                }
+                this.Prison = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

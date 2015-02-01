@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
-	public class ArtificialIntelligence
+	public class ArtificialIntelligence : IDisposable
 	{
         public Task fireTask;
         public bool UseSensorsForTargets =true;
@@ -158,6 +158,9 @@ namespace Ship_Game.Gameplay
 
         private float UtilityModuleCheckTimer;
         public object wayPointLocker;
+        
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public ArtificialIntelligence()
 		{
@@ -7170,5 +7173,30 @@ namespace Ship_Game.Gameplay
 			GotoDrop,
 			DoDrop
 		}
-	}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.NearbyShips != null)
+                        this.NearbyShips.Dispose();
+                    if (this.FriendliesNearby != null)
+                        this.FriendliesNearby.Dispose();
+
+                }
+                this.NearbyShips = null;
+                this.FriendliesNearby = null;
+                this.disposed = true;
+            }
+        }
+    }
+
 }

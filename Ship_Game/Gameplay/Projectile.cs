@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class Projectile : GameplayObject
+	public class Projectile : GameplayObject, IDisposable
 	{
 		public float ShieldDamageBonus;
 
@@ -137,6 +137,10 @@ namespace Ship_Game.Gameplay
         public bool flashExplode;
 
         public bool isSecondary;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 
 		public Ship Owner
@@ -1110,6 +1114,27 @@ namespace Ship_Game.Gameplay
                         Projectile.universeScreen.ScreenManager.inter.LightManager.Remove((ILight)this.MuzzleFlash);
                 }
                 base.Update(elapsedTime);
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.droneAI != null)
+                        this.droneAI.Dispose();
+
+                }
+                this.droneAI = null;
+                this.disposed = true;
             }
         }
 	}

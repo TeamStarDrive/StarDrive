@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public class MilitaryTask
+	public class MilitaryTask: IDisposable
 	{
 		public bool IsCoreFleetTask;
 
@@ -46,6 +46,9 @@ namespace Ship_Game.Gameplay
 		private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
 
 		public int WhichFleet = -1;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public MilitaryTask()
 		{
@@ -2595,5 +2598,26 @@ namespace Ship_Game.Gameplay
 			DefendPostInvasion,
 			GlassPlanet
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.TaskForce != null)
+                        this.TaskForce.Dispose();
+
+                }
+                this.TaskForce = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

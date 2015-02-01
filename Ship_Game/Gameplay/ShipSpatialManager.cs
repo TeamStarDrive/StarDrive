@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class ShipSpatialManager
+	public class ShipSpatialManager: IDisposable
 	{
 		private const float speedDamageRatio = 0.5f;
 
@@ -26,6 +26,9 @@ namespace Ship_Game.Gameplay
 		public BatchRemovalCollection<Ship> CollidableObjects = new BatchRemovalCollection<Ship>();
 
 		private float bucketUpdateTimer;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public ShipSpatialManager()
 		{
@@ -137,5 +140,26 @@ namespace Ship_Game.Gameplay
 			}
 			this.CollidableObjects.ApplyPendingRemovals();
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.CollidableObjects != null)
+                        this.CollidableObjects.Dispose();
+
+                }
+                this.CollidableObjects = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

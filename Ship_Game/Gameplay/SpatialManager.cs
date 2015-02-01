@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
-    public class SpatialManager
+    public class SpatialManager: IDisposable
     {
         public BatchRemovalCollection<GameplayObject> CollidableObjects = new BatchRemovalCollection<GameplayObject>();
         public BatchRemovalCollection<Projectile> CollidableProjectiles = new BatchRemovalCollection<Projectile>();
@@ -28,6 +28,8 @@ namespace Ship_Game.Gameplay
         public int SceneHeight;
         public int CellSize;
         public bool FineDetail;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
         public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 Pos)
         {
@@ -1143,6 +1145,36 @@ namespace Ship_Game.Gameplay
             public static int Compare(SpatialManager.CollisionResult a, SpatialManager.CollisionResult b)
             {
                 return a.Distance.CompareTo(b.Distance);
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.CollidableObjects != null)
+                        this.CollidableObjects.Dispose();
+                    if (this.CollidableProjectiles != null)
+                        this.CollidableProjectiles.Dispose();
+                    if (this.Asteroids != null)
+                        this.Asteroids.Dispose();
+                    if (this.BeamList != null)
+                        this.BeamList.Dispose();
+
+                }
+                this.CollidableObjects = null;
+                this.CollidableProjectiles = null;
+                this.Asteroids = null;
+                this.BeamList = null;
+                this.disposed = true;
             }
         }
     }
