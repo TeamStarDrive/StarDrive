@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
-	public class Weapon
+	public class Weapon : IDisposable
 	{
 		public bool Tag_Kinetic;
 
@@ -236,6 +236,9 @@ namespace Ship_Game.Gameplay
         public bool ExplosionFlash;
 
         public bool RangeVariance;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
@@ -1608,6 +1611,27 @@ namespace Ship_Game.Gameplay
             if (this.Excludes_Stations && (Role == "platform" || Role == "station"))
                 return false;
             return true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.SalvoList != null)
+                        this.SalvoList.Dispose();
+
+                }
+                this.SalvoList = null;
+                this.disposed = true;
+            }
         }
 	}
 }

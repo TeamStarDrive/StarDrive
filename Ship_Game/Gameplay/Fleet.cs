@@ -56,6 +56,8 @@ namespace Ship_Game.Gameplay
         public Vector2 StoredFleetPosistion;
         [XmlIgnore]
         public float StoredFleetDistancetoMove;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 
 
@@ -2941,15 +2943,43 @@ namespace Ship_Game.Gameplay
             Free,
         }
 
-        public class Squad
+        public class Squad : IDisposable
         {
             public FleetDataNode MasterDataNode = new FleetDataNode();
             public BatchRemovalCollection<FleetDataNode> DataNodes = new BatchRemovalCollection<FleetDataNode>();
             public BatchRemovalCollection<Ship> Ships = new BatchRemovalCollection<Ship>();
             public Fleet Fleet;
             public Vector2 Offset;
+            //adding for thread safe Dispose because class uses unmanaged resources 
+            private bool disposed;
+
             public Fleet.FleetCombatStatus FleetCombatStatus;
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposed)
+                {
+                    if (disposing)
+                    {
+                        if (this.DataNodes != null)
+                            this.DataNodes.Dispose();
+                        if (this.Ships != null)
+                            this.Ships.Dispose();
+
+                    }
+                    this.DataNodes = null;
+                    this.Ships = null;
+                    this.disposed = true;
+                }
+            }
         }
+
 
         private struct quadrantscan
         {
@@ -3034,6 +3064,24 @@ namespace Ship_Game.Gameplay
                     return;
                 this.fleet.Position = this.MovePosition;
                 this.fleet.GoalStack.Pop();
+            }
+        }
+
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.DataNodes != null)
+                        this.DataNodes.Dispose();
+
+                }
+                this.DataNodes = null;
+                this.disposed = true;
+                base.Dispose(disposing);
+                
             }
         }
     }

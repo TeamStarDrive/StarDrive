@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class RuleOptionsScreen : GameScreen, IDisposable
+	public class RuleOptionsScreen : GameScreen
 	{
 		public bool isOpen;
 
@@ -49,23 +49,6 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-            System.Configuration.ConfigurationManager.AppSettings.Set("OptionIncreaseShipMaintenance", GlobalStats.OptionIncreaseShipMaintenance.ToString());
-            this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
-
 		public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
@@ -95,21 +78,7 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~RuleOptionsScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
-
+	
 		public override void HandleInput(InputState input)
 		{
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
