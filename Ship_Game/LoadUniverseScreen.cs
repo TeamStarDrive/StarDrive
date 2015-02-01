@@ -426,8 +426,11 @@ namespace Ship_Game
                 {
                     if (this.GateKeeper != null)
                         this.GateKeeper.Dispose();
+                    if (this.data != null)
+                        this.data.Dispose();
                 }
                 this.GateKeeper = null;
+                this.data = null;
             }
 		}
 
