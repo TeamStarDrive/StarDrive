@@ -24,7 +24,7 @@ using System.Threading;
 
 namespace Ship_Game.Gameplay
 {
-    public class Ship : GameplayObject
+    public class Ship : GameplayObject, IDisposable
     {
         public string VanityName = "";
         public List<Troop> TroopList = new List<Troop>();
@@ -204,6 +204,9 @@ namespace Ship_Game.Gameplay
         private float FTLmodifier = 1f;
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         Random shiprandom = new Random();
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
         public float CargoSpace_Used
         {
             get
@@ -4149,6 +4152,39 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.projectiles != null)
+                        this.projectiles.Dispose();
+                    if (this.beams != null)
+                        this.beams.Dispose();
+                    if (this.supplyLock != null)
+                        this.supplyLock.Dispose();
+                    if (this.AI != null)
+                        this.AI.Dispose();
+                    if (this.ProjectilesFired != null)
+                        this.ProjectilesFired.Dispose();
+
+                }
+                this.projectiles = null;
+                this.beams = null;
+                this.supplyLock = null;
+                this.AI = null;
+                this.ProjectilesFired = null;
+                this.disposed = true;
+            }
+        }
+        
         public class target
         {
             public ShipModule module;

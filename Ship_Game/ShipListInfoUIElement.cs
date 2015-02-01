@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class ShipListInfoUIElement : UIElement
+	public class ShipListInfoUIElement : UIElement, IDisposable
 	{
 		public List<ToggleButton> CombatStatusButtons = new List<ToggleButton>();
 
@@ -68,6 +68,9 @@ namespace Ship_Game
 		private float HoverOff;
 
 		private string fmt = "0";
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public ShipListInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
 		{
@@ -741,5 +744,28 @@ namespace Ship_Game
 
 			public int TIP_ID;
 		}
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.SelectedShipsSL != null)
+                        this.SelectedShipsSL.Dispose();
+             
+
+                }
+                this.SelectedShipsSL = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

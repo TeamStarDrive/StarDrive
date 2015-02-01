@@ -57,6 +57,10 @@ namespace Ship_Game
 
 		private List<UIButton> ShipsToLoad = new List<UIButton>();
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		public LoadDesigns(ShipDesignScreen screen)
 		{
 			this.screen = screen;
@@ -86,21 +90,26 @@ namespace Ship_Game
 			this.LoadContent();
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ShipDesigns != null)
+                        this.ShipDesigns.Dispose();
+
+                }
+                this.ShipDesigns = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -193,20 +202,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~LoadDesigns() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{
@@ -350,7 +345,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
 				{
@@ -470,7 +465,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
 				{

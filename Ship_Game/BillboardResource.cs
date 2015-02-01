@@ -14,6 +14,9 @@ namespace Ship_Game
 
 		private Microsoft.Xna.Framework.BoundingSphere _BoundingSphere;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public Microsoft.Xna.Framework.BoundingSphere BoundingSphere
 		{
 			get
@@ -183,12 +186,32 @@ namespace Ship_Game
 			}
 		}
 
-		public void Dispose()
-		{
-			this._VertexBuffer.Dispose();
-			this._IndexBuffer.Dispose();
-			this._VertexDeclaration.Dispose();
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this._VertexBuffer != null)
+                        this._VertexBuffer.Dispose();
+                    if (this._IndexBuffer != null)
+                        this._IndexBuffer.Dispose();
+                    if (this._VertexDeclaration != null)
+                        this._VertexDeclaration.Dispose();
+
+                }
+                this._IndexBuffer = null;
+                this._VertexBuffer = null;
+                this._VertexDeclaration = null;
+                this.disposed = true;
+            }
+        }
 
 		private struct BillboardVertex
 		{
@@ -202,7 +225,7 @@ namespace Ship_Game
 
 			public Vector3 Binormal;
 
-			public readonly static VertexElement[] VertexElements;
+			public readonly static VertexElement[] VertexElements  = new VertexElement[] { new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0), new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0), new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0), new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0), new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0) };
 
 			public static int SizeInBytes
 			{
@@ -212,11 +235,11 @@ namespace Ship_Game
 				}
 			}
 
-			static BillboardVertex()
-			{
-				VertexElement[] vertexElement = new VertexElement[] { new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0), new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0), new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0), new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0), new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0) };
-				BillboardResource.BillboardVertex.VertexElements = vertexElement;
-			}
+            //static BillboardVertex()
+            //{
+            //    VertexElement[] vertexElement = new VertexElement[] { new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0), new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0), new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0), new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0), new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0) };
+            //    BillboardResource.BillboardVertex.VertexElements = vertexElement;
+            //}
 		}
 	}
 }

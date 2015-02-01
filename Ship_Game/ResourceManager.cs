@@ -913,7 +913,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[num];
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
 				{
@@ -932,7 +932,7 @@ namespace Ship_Game
 				FileInfo FI = filesFromDirectory[num1];
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
 				{
@@ -952,7 +952,7 @@ namespace Ship_Game
 				FileInfo FI = filesFromDirectory1[num2];
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
 				{
@@ -971,7 +971,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray1[num3];
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
 				{
@@ -1327,7 +1327,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				RacialTraits data = (RacialTraits)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
                 
 				foreach(RacialTrait trait in data.TraitList)
@@ -1524,7 +1524,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				List<Artifact> data = (List<Artifact>)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				foreach (Artifact art in data)
 				{
@@ -1552,7 +1552,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				Building newB = (Building)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
                 try
                 {
@@ -1584,7 +1584,7 @@ namespace Ship_Game
                 catch(NullReferenceException ex)
                 {
                     ex.Data["Building Lookup"] = newB.Name;
-                    throw ex;
+                    throw;
                 }
 			}
 			textList = null;
@@ -1600,7 +1600,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
 				DiplomacyDialog data = (DiplomacyDialog)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();	
 
                 if (Ship_Game.ResourceManager.DDDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
@@ -1626,7 +1626,7 @@ namespace Ship_Game
 				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
                 data.TroopDescriptionIndex = +OffSet;
                 data.TroopNameIndex += OffSet;
-                stream.Close();
+                //stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.Empires.Add(data);
 			}
@@ -1643,7 +1643,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				Encounter data = (Encounter)serializer1.Deserialize(stream);				
-                stream.Close();
+                //stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.Encounters.Add(data);
 			}
@@ -1659,7 +1659,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
 				ExplorationEvent data = (ExplorationEvent)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();				
                 if (Ship_Game.ResourceManager.EventsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -1699,7 +1699,7 @@ namespace Ship_Game
 				FileStream stream = FI.OpenRead();
 				Good data = (Good)serializer1.Deserialize(stream);
 				data.UID = Path.GetFileNameWithoutExtension(FI.Name);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
                 //noLocalization
 				if (Ship_Game.ResourceManager.GoodsDict.ContainsKey(data.UID))
@@ -1725,7 +1725,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
 				Technology data = (Technology)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -1751,7 +1751,7 @@ namespace Ship_Game
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
 				
-                stream.Close();
+                //stream.Close();
 				stream.Dispose();
 				newShipData.Hull = string.Concat(FI.Directory.Name, "/", newShipData.Hull);
 				newShipData.ShipStyle = FI.Directory.Name;
@@ -1829,7 +1829,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();				
                 Ship_Game.ResourceManager.LanguageFile = data;
 			}
@@ -1842,7 +1842,7 @@ namespace Ship_Game
 				{
 					FileStream stream = fileInfoArray1[j].OpenRead();
 					LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-					stream.Close();
+					//stream.Close();
 					stream.Dispose();
 					Ship_Game.ResourceManager.LanguageFile = data;
 				}
@@ -1858,7 +1858,7 @@ namespace Ship_Game
             {
                 FileStream stream = fileInfoArray[i].OpenRead();
                 LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-                stream.Close();
+                //stream.Close();
                 stream.Dispose();
                 
                 Ship_Game.ResourceManager.LanguageFile = data;
@@ -1872,7 +1872,7 @@ namespace Ship_Game
                 {
                     FileStream stream = fileInfoArray1[j].OpenRead();
                     LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-                    stream.Close();
+                    //stream.Close();
                     stream.Dispose();
                     Ship_Game.ResourceManager.LanguageFile = data;
                 }
@@ -1917,7 +1917,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
                 if (Localizer.LocalizerDict.ContainsKey(data.TroopDescriptionIndex + OffSet))
                 {
@@ -2137,7 +2137,7 @@ namespace Ship_Game
 				FileStream stream = fileInfoArray[i].OpenRead();
 				RandomItem data = (RandomItem)serializer1.Deserialize(stream);
 				
-                stream.Close();
+                //stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.RandomItemsList.Add(data);
 			}
@@ -2170,7 +2170,7 @@ namespace Ship_Game
                     continue;
 				FileStream stream = FI.OpenRead();
 				ShipModule data = (ShipModule)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
                 if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
                 {
@@ -2226,7 +2226,7 @@ namespace Ship_Game
                 FileStream stream = fileInfoArray[i].OpenRead();
 
                 ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-                stream.Close();
+                //stream.Close();
                 stream.Dispose();
                 Ship newShip = Ship.CreateShipFromShipData(newShipData);
                 if(newShip.Role!="disabled")
@@ -2245,7 +2245,7 @@ namespace Ship_Game
 			{
 				FileStream stream = filesFromDirectory[j].OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				Ship newShip = Ship.CreateShipFromShipData(newShipData);
                 if (newShip.Role != "disabled")
@@ -2274,7 +2274,7 @@ namespace Ship_Game
 				{
 					FileStream stream = FI.OpenRead();
 					ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-					stream.Close();
+					//stream.Close();
 					stream.Dispose();
 					Ship newShip = Ship.CreateShipFromShipData(newShipData);
                     if (newShip.Role != "disabled")
@@ -2305,7 +2305,7 @@ namespace Ship_Game
 					{
 						FileStream stream = FI.OpenRead();
 						ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-						stream.Close();
+						//stream.Close();
 						stream.Dispose();
 						Ship newShip = Ship.CreateShipFromShipData(newShipData);
                         if (newShip.Role != "disabled")
@@ -2565,7 +2565,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (data.Faction == 1)
 				{
@@ -2587,7 +2587,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
 				Technology data = (Technology)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
                 if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
                 {
@@ -2698,7 +2698,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				Tooltips data = (Tooltips)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				foreach (ToolTip tip in data.ToolTipsList)
 				{
@@ -2726,7 +2726,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
 				Troop data = (Troop)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				//no localization
                 data.Name = Path.GetFileNameWithoutExtension(FI.Name);
@@ -2757,7 +2757,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
 				Weapon data = (Weapon)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
                 //no localization
                 data.UID = Path.GetFileNameWithoutExtension(FI.Name);
@@ -2784,7 +2784,7 @@ namespace Ship_Game
                 FileInfo FI = fileInfoArray[i];
                 FileStream stream = FI.OpenRead();
                 ShipRole data = (ShipRole)serializer1.Deserialize(stream);
-                stream.Close();
+                //stream.Close();
                 stream.Dispose();                              
                 if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
                 {
@@ -2824,7 +2824,7 @@ namespace Ship_Game
                     FileInfo FI = fileInfoArray[i];
                     FileStream stream = FI.OpenRead();
                     HullBonus data = (HullBonus)serializer1.Deserialize(stream);
-                    stream.Close();
+                    //stream.Close();
                     stream.Dispose();
                     if (Ship_Game.ResourceManager.HullBonuses.ContainsKey(data.Hull))
                     {
@@ -2854,7 +2854,7 @@ namespace Ship_Game
                     FileInfo FI = fileInfoArray[i];
                     FileStream stream = FI.OpenRead();
                     PlanetEdict data = (PlanetEdict)serializer1.Deserialize(stream);
-                    stream.Close();
+                    //stream.Close();
                     stream.Dispose();
                     if (Ship_Game.ResourceManager.PlanetaryEdicts.ContainsKey(data.Name))
                     {
