@@ -125,6 +125,10 @@ namespace Ship_Game
 
 		private string TheirText;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		public DiplomacyScreen(Empire e, Empire us, string which)
 		{
 			float TheirOpinionOfUs;
@@ -420,20 +424,34 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.OurItemsSL != null)
+                        this.OurItemsSL.Dispose();
+                    if (this.TheirItemsSL != null)
+                        this.TheirItemsSL.Dispose();
+                    if (this.StatementsSL != null)
+                        this.StatementsSL.Dispose();
+                    if (this.OfferTextSL != null)
+                        this.OfferTextSL.Dispose();
+
+                }
+                this.OurItemsSL = null;
+                this.TheirItemsSL = null;
+                this.StatementsSL = null;
+                this.OfferTextSL = null;
+                this.disposed = true;
+            }
 		}
 
 		private void DoNegotiationResponse(string answer)

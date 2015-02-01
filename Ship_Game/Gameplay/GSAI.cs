@@ -12,7 +12,7 @@ using System.Collections.Concurrent;
 
 namespace Ship_Game.Gameplay
 {
-	public class GSAI
+	public class GSAI : IDisposable
 	{
 		public string EmpireName;
 
@@ -71,6 +71,8 @@ namespace Ship_Game.Gameplay
 
         public int recyclepool =0;
         private float buildCapacity = 0;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public GSAI(Empire e)
 		{
@@ -8435,5 +8437,31 @@ namespace Ship_Game.Gameplay
 			Random,
 			Scripted
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.TaskList != null)
+                        this.TaskList.Dispose();
+                    if (this.DefensiveCoordinator != null)
+                        this.DefensiveCoordinator.Dispose();
+                    if (this.Goals != null)
+                        this.Goals.Dispose();
+                }
+                this.TaskList = null;
+                this.DefensiveCoordinator = null;
+                this.Goals = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public class DroneAI
+	public class DroneAI: IDisposable
 	{
 		public Projectile Owner;
 
@@ -26,6 +26,9 @@ namespace Ship_Game.Gameplay
 		private float OrbitalAngle;
 
 		public BatchRemovalCollection<Beam> Beams = new BatchRemovalCollection<Beam>();
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public DroneAI(Projectile owner)
 		{
@@ -196,5 +199,26 @@ namespace Ship_Game.Gameplay
 			}
 			this.OrbitShip(this.Target as Ship, elapsedTime);
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.Beams != null)
+                        this.Beams.Dispose();
+
+                }
+                this.Beams = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

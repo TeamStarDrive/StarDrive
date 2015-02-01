@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ScrollList
+	public class ScrollList : IDisposable
 	{
 		private Submenu Parent;
 
@@ -53,6 +53,10 @@ namespace Ship_Game
 		public Rectangle DraggableArea = new Rectangle();
 
 		private Vector2 DraggedOffset = new Vector2();
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public ScrollList(Submenu p)
 		{
@@ -779,6 +783,30 @@ namespace Ship_Game
 			}
 		}
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.Entries != null)
+                        this.Entries.Dispose();
+                    if (this.Copied != null)
+                        this.Copied.Dispose();
+
+                }
+                this.Entries = null;
+                this.Copied = null;
+                this.disposed = true;
+            }
+        }
+
 		public class Entry
 		{
 			public bool ShowingSub;
@@ -869,4 +897,6 @@ namespace Ship_Game
 			}
 		}
 	}
+
+
 }

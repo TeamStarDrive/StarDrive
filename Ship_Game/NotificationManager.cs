@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class NotificationManager
+	public class NotificationManager: IDisposable
 	{
 		private Ship_Game.ScreenManager ScreenManager;
 
@@ -19,6 +19,9 @@ namespace Ship_Game
 
 		public BatchRemovalCollection<Notification> NotificationList = new BatchRemovalCollection<Notification>();
         private float Timer;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public NotificationManager(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
@@ -734,5 +737,26 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.NotificationList != null)
+                        this.NotificationList.Dispose();
+
+                }
+                this.NotificationList = null;
+                this.disposed = true;
+            }
+        }
 	}
 }
