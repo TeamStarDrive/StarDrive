@@ -1264,10 +1264,16 @@ namespace Ship_Game
                         this.Explosions.Dispose();
                     if (this.OrbitSL != null)
                         this.OrbitSL.Dispose();
+                    if (this.tInfo != null)
+                        this.tInfo.Dispose();
+                    if (this.hInfo != null)
+                        this.hInfo.Dispose();
 
                 }
                 this.Explosions = null;
                 this.OrbitSL = null;
+                this.tInfo = null;
+                this.hInfo = null;
                 this.disposed = true;
             }
         }
