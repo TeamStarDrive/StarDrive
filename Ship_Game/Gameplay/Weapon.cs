@@ -408,16 +408,34 @@ namespace Ship_Game.Gameplay
                 
             }
             else
-            beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
-            {
-                moduleAttachedTo = this.moduleAttachedTo,
-                PowerCost = (float)this.BeamPowerCostPerSecond,
-                range = this.Range,
-                thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
-                damageAmount = this.DamageAmount,
-                weapon = this
-            };
+                
+                {
+                    beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+                {
+                    moduleAttachedTo = this.moduleAttachedTo,
+                    PowerCost = (float)this.BeamPowerCostPerSecond,
+                    range = this.Range,
+                    thickness = this.BeamThickness,
+                    Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
+                    damageAmount = this.DamageAmount,
+                    weapon = this
+                };
+                }
+           
+                {
+                    GC.Collect();    
+                beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+                    {
+                        moduleAttachedTo = this.moduleAttachedTo,
+                        PowerCost = (float)this.BeamPowerCostPerSecond,
+                        range = this.Range,
+                        thickness = this.BeamThickness,
+                        Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
+                        damageAmount = this.DamageAmount,
+                        weapon = this
+                    };
+
+                }
             //damage increase by level
             if (this.owner.Level > 0)
             {

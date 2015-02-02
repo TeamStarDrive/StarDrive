@@ -1358,7 +1358,7 @@ namespace Ship_Game
                             }
                         }
 #if AUTOTIME
-                        if (this.perfavg5.Count >0 && this.perfavg5.Average() *this.GameSpeed < .05f && this.GameSpeed <50)
+                        if (this.perfavg5.Count >0 && this.perfavg5.Average() *this.GameSpeed < .05f )
                         {
                             this.GameSpeed++;
 
