@@ -335,6 +335,8 @@ namespace Ship_Game
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.screen.SelectedShip.Name, Cursor, Color.White);
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Center.ToString(), Cursor, Color.White);
+                Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("On Defense: ",ship.DoingSystemDefense.ToString()), Cursor, Color.White);
 				if (ship.fleet != null)
 				{
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
