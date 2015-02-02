@@ -113,6 +113,13 @@ namespace Ship_Game
 				AudioManager.audioManager.soundBank.PlayCue(cueName);
 			}
 		}
+        public static void PlayCue(string cueName, Vector3 listener, Vector3 emitter)
+        {
+            if (AudioManager.audioManager != null && AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
+            {
+                AudioManager.audioManager.soundBank.PlayCue(cueName);
+            }
+        }
 
 		public override void Update(GameTime gameTime)
 		{
