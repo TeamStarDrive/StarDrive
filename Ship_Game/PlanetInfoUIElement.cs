@@ -5,6 +5,7 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Ship_Game
 {
@@ -25,6 +26,7 @@ namespace Ship_Game
 		private Rectangle flagRect;
 
         private Rectangle moneyRect;
+        private Rectangle SendTroops;
 
         private Rectangle popRect;
 
@@ -269,14 +271,11 @@ namespace Ship_Game
                 int troops = 0;
                 this.ToolTipItems.Add(ti);
 
-                Rectangle Troop = new Rectangle(this.Mark.X, this.Mark.Y - this.Mark.Height -5, 182, 25);
-                Text = new Vector2((float)(Troop.X +25 ), (float)(Troop.Y   ));
-                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], Troop, Color.White);
+                this.SendTroops = new Rectangle(this.Mark.X, this.Mark.Y - this.Mark.Height -5, 182, 25);
+                Text = new Vector2((float)(SendTroops.X + 25), (float)(SendTroops.Y));
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], SendTroops, Color.White);
                  //Ship troopShip; 
-                List<Ship> troopShips = new List<Ship>(this.screen.player.GetShips()
-                     .Where(troop => troop.TroopList.Count > 0 
-                         && troop.GetAI().State == AIState.AwaitingOrders 
-                         && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Position)));
+
                 
                 troops= this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0 )
@@ -542,6 +541,44 @@ namespace Ship_Game
 					EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals.Add(g);
 				}
 			}
+            if (HelperFunctions.CheckIntersection(this.SendTroops, input.CursorPosition) && input.InGameSelect)
+            {
+                List<Ship> troopShips = new List<Ship>(this.screen.player.GetShips()
+                     .Where(troop => troop.TroopList.Count > 0
+                         && troop.GetAI().State == AIState.AwaitingOrders
+                         && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Position)));
+                List<Planet> planetTroops = new List<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
+                if (troopShips.Count > 0)
+                {
+                    AudioManager.PlayCue("echo_affirm");
+                    troopShips.First().GetAI().OrderAssaultPlanet(this.p);
+
+                }
+                else
+                    if (planetTroops.Count > 0)
+                    {
+
+
+                        {
+                            Ship troop = planetTroops.First().TroopsHere.First().Launch();
+                            if (troop != null)
+                            {
+
+
+                                AudioManager.PlayCue("echo_affirm");
+                                
+                                troop.GetAI().OrderAssaultPlanet(this.p);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        AudioManager.PlayCue("blip_click");
+                    }
+                
+
+            }
+
 			if (this.Inspect.Hover)
 			{
 				if (this.p.Owner == null || this.p.Owner != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
