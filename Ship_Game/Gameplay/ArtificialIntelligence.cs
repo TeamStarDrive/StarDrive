@@ -2366,11 +2366,20 @@ namespace Ship_Game.Gameplay
             }
             else if (moduleTarget !=null)
             {
+                if ((target as ShipModule).GetParent().Velocity.Length() >0.0f)
                 projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
-                if (projectedPosition != target.Center && target.Velocity.Length() > 0)
+                else
+                    projectedPosition = target.Center ;
+                if (projectedPosition != target.Center && target.Velocity.Length() == 0)
                     System.Diagnostics.Debug.WriteLine("missing");
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
+                if ((target as ShipModule).GetParent().Velocity.Length() > 0.0f) 
                 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
+                else
+                {
+                    dir = this.findVectorToTarget(weapon.Center, projectedPosition);
+
+                }
                 timeToTarget = distance / dir.Length();
                 projectedPosition = target.Center + (moduleTarget.GetParent().Velocity * timeToTarget);
             }
