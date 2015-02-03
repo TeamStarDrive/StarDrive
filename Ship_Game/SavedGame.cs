@@ -531,7 +531,7 @@ namespace Ship_Game
 			Serializer1.Serialize(wf, header);
 			//wf.Close();
 			wf.Dispose();
-			GC.Collect();
+			GC.Collect(1, GCCollectionMode.Optimized);
 		}
 
 		public struct EmpireSaveData

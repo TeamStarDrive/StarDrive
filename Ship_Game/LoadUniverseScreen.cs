@@ -71,7 +71,7 @@ namespace Ship_Game
 			BackgroundWorker bgw = new BackgroundWorker();
 			bgw.DoWork += new DoWorkEventHandler(this.DecompressFile);
             
-            GC.Collect();
+            GC.Collect(2, GCCollectionMode.Optimized);
 			bgw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.LoadEverything);
 			bgw.RunWorkerAsync(activeFile);
 		}

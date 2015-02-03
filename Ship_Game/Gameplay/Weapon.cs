@@ -423,7 +423,7 @@ namespace Ship_Game.Gameplay
                 }
            
                 {
-                    GC.Collect();    
+                    GC.Collect(0, GCCollectionMode.Optimized);    
                 beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
                     {
                         moduleAttachedTo = this.moduleAttachedTo,
