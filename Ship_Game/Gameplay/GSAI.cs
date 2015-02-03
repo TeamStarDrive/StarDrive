@@ -8019,11 +8019,11 @@ namespace Ship_Game.Gameplay
 
                                     if (techtype == TechnologyType.ShipHull )
                                     {
-                                        currentCost = (int)(ResearchTech.Cost * (.004f - (this.empire.Research* .0003f)));
+                                        currentCost = (int)(ResearchTech.Cost * (.003f - (this.empire.Research* .0003f)));
                                     }
                                     if (ResourceManager.TechTree[researchtopic].TechnologyType == TechnologyType.ShipHull)
                                     {
-                                        previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * (.004f - (this.empire.Research * .0003f)));
+                                        previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * (.003f - (this.empire.Research * .0003f)));
                                     }
 
                                 }
