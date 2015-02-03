@@ -1567,6 +1567,12 @@ namespace Ship_Game
             ShipData shipData = ResourceManager.ShipsDict[ship].GetShipData();
             if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
                 return false;
+            //If the ship role is not defined don't try to use it
+            //trying to fix issue #348
+            // Added bt Allium Sativum
+            Ship_Game.ShipRole test;
+            if (!ResourceManager.ShipRoles.TryGetValue(shipData.Role, out test))
+                return false;
             foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlotList)
             {
                 if (!(moduleSlotData.InstalledModuleUID == "Dummy") && moduleSlotData.InstalledModuleUID != null && !this.UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
