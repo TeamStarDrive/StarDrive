@@ -1335,7 +1335,7 @@ namespace Ship_Game
                         //
                         if (this.Paused)
                         {
-                            GC.Collect();
+                            GC.Collect(0, GCCollectionMode.Optimized);
                             this.DoWork(0.0f);
                             
                         }
@@ -1380,7 +1380,7 @@ namespace Ship_Game
         public void DoAutoSave()
         {
             //GC.GetTotalMemory(true);
-            GC.Collect();
+            GC.Collect(0,GCCollectionMode.Optimized);
             SavedGame savedGame = new SavedGame(this, "Autosave " + this.Auto.ToString());
             ++this.Auto;
             if (this.Auto <= 3)
@@ -4620,7 +4620,7 @@ namespace Ship_Game
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.EmpireList.Clear();
             this.ScreenManager.inter.Unload();
-            GC.Collect();
+            GC.Collect(2, GCCollectionMode.Optimized);
             this.Dispose();
             base.ExitScreen();
         }
@@ -4642,7 +4642,7 @@ namespace Ship_Game
             this.flash.UnloadContent();
             this.star_particles.UnloadContent();
             this.neb_particles.UnloadContent();
-            GC.Collect();
+            GC.Collect(1, GCCollectionMode.Optimized);
         }
 
         protected void DrawRings(Matrix world, Matrix view, Matrix projection, float scale)

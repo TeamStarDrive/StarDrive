@@ -743,7 +743,7 @@ namespace Ship_Game
 			}
 			this.player = null;
 			this.Dispose();
-			GC.Collect();
+			GC.Collect(1, GCCollectionMode.Optimized);
 			base.ScreenManager.RemoveScreen(this);
 		}
 
