@@ -129,7 +129,7 @@ namespace Ship_Game
 
 		public MainMenuScreen()
 		{
-            GC.Collect();
+            GC.Collect(1, GCCollectionMode.Optimized);
             base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
 		}
