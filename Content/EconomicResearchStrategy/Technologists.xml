@@ -9,53 +9,62 @@
 
 
 
-
+    <Tech>
+      <id>IFCYBERNETIC:14</id>
+    </Tech>
     
     <Tech>
       <id>CHEAPEST:TECH:Industry:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Research</id>
+      <id>CHEAPEST:TECH:General:Economic</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Research</id>
+      <id>CHEAPEST:TECH:ShipHull:Research:Industry</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Colonization:Economic:Industry:Research</id>
+      <id>CHEAPEST:TECH:Economic:ShipWeapons:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Colonization:Economic:Industry:Research</id>
+      <id>CHEAPEST:TECH:Colonization:ShipDefense:Research:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Industry:GroundCombat:ShipGeneral:Research</id>
+      <id>CHEAPEST:TECH:ShipWeapons:Economic:General:GroundCombat:ShipGeneral</id>
+    </Tech>
+
+    <Tech>
+      <id>CHEAPEST:TECH:ShipDefense:Economic:GroundCombat:ShipHull</id>
     </Tech>
     <Tech>
-      <id>IFCYBERNETIC:3</id>
+      <id>CHEAPEST:TECH:GroundCombat:ShipHull:General:Economic</id>
     </Tech>
     <Tech>
-      <id>IFPEACE:0</id>
+      <id>CHEAPEST:TECH:ShipGeneral:ShipWeapons:ShipDefense:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:Economic:GroundCombat</id>
+      <id>IFLOWRESEARCH:3</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipDefense:Economic:GroundCombat</id>
+      <id>IFHIGHTAX:1</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:GroundCombat:ShipGeneral</id>
+      <id>IFWAR:4</id>
     </Tech>
     <Tech>
-      <id>RANDOM</id>
+      <id>LOOP:1</id>
     </Tech>
     <Tech>
-      <id>IFLOWRESEARCH:0</id>
+      <id>CHEAPEST:TECH:Colonization</id>
     </Tech>
     <Tech>
-      <id>IFHIGHTAX:0</id>
+      <id>CHEAPEST:TECH:Colonization</id>
     </Tech>
+
     <Tech>
-      <id>IFWAR:6</id>
+      <id>LOOP:1</id>
     </Tech>
+    
+    
 
   </TechPath>
 </EconomicResearchStrategy>

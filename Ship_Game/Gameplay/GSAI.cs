@@ -5917,7 +5917,10 @@ namespace Ship_Game.Gameplay
         private void RunEconomicPlanner()
         {
             float money = this.empire.Money;
-            float treasuryGoal = 50f * this.empire.GetPlanets().Sum(development => development.developmentLevel);
+            //float treasuryGoal = 50f * this.empire.GetPlanets().Sum(development => development.developmentLevel);
+            //gremlin: use a less arbirary calculator for treasure.
+            float treasuryGoal = this.empire.totalMaint * ((int)Ship.universeScreen.GameDifficulty +1 );
+            treasuryGoal = +treasuryGoal < 0 ? 5 : 0;
             if (money < treasuryGoal)
             {
                 float returnAmount = 0f;
@@ -6827,7 +6830,9 @@ namespace Ship_Game.Gameplay
                             UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
                         }
 					}
-					if ((double)((this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ? this.empire.EstimateIncomeAtTaxRate(this.empire.data.TaxRate) - UnderConstruction : this.empire.EstimateIncomeAtTaxRate(0.2f) - UnderConstruction)) - 0.24 * (double)newRoad.NumberOfProjectors <= 0.5)
+					if ((double)((this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ? 
+                        this.empire.EstimateIncomeAtTaxRate(this.empire.data.TaxRate) - UnderConstruction : 
+                        this.empire.EstimateIncomeAtTaxRate(0.2f) - UnderConstruction)) - 0.24 * (double)newRoad.NumberOfProjectors <= 0.5)
 					{
 						continue;
 					}
@@ -6835,11 +6840,18 @@ namespace Ship_Game.Gameplay
 				}
 			}
 			List<SpaceRoad> ToRemove = new List<SpaceRoad>();
-			foreach (SpaceRoad road in this.empire.SpaceRoadsList)
+            float income = this.empire.EstimateIncomeAtTaxRate(0.25f);
+			foreach (SpaceRoad road in this.empire.SpaceRoadsList.OrderBy(ssps => ssps.NumberOfProjectors))
 			{
-				if (!road.GetOrigin().OwnerList.Contains(this.empire) || !road.GetDestination().OwnerList.Contains(this.empire))
+				RoadNode ssp = road.RoadNodesList.Where(notNull => notNull != null && notNull.Platform !=null).FirstOrDefault();
+                if ((income<=0.0f && ssp!=null) || !road.GetOrigin().OwnerList.Contains(this.empire) || !road.GetDestination().OwnerList.Contains(this.empire) )
 				{
 					ToRemove.Add(road);
+                    
+                    if(ssp!=null )
+                    {
+                    income += road.NumberOfProjectors * ssp.Platform.GetMaintCost();
+                    }
 				}
 				else
 				{
@@ -6886,9 +6898,10 @@ namespace Ship_Game.Gameplay
 					this.empire.SpaceRoadsList.Remove(road);
 					foreach (RoadNode node in road.RoadNodesList)
 					{
-						if (node.Platform != null && (node.Platform == null || node.Platform.Active))
+						if (node.Platform != null && node.Platform.Active ) //(node.Platform == null || node.Platform.Active))
 						{
-							continue;
+                            node.Platform.GetAI().OrderScrapShip();
+                            continue;
 						}
 						foreach (Goal g in this.Goals)
 						{
@@ -7021,17 +7034,29 @@ namespace Ship_Game.Gameplay
                 }
             }
             //this.GetAShip(0);
-            float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
+            //float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
 
-            bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
-            int prepareWar = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Count();
-            prepareWar += this.empire.GetRelations().Where(angry => angry.Value.Threat > 0).Count();
+            //bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
+            //int prepareWar = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Count();
+            //prepareWar += this.empire.GetRelations().Where(angry => angry.Value.PreparingForWar).Count();
             float noIncome = this.FindTaxRateToReturnAmount(UnderConstruction);
 
-            float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .05f);  //.45f - (tasks);
+            
+            
 
+            //float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .05f);  //.45f - (tasks);
+            //float offenseNeeded = this.empire.GetRelations().Where(war => war.Value.AtWar || war.Value.PreparingForWar || war.Value.Trust < war.Value.TotalAnger).Sum(power => power.Key.currentMilitaryStrength);
+            float offenseNeeded = this.empire.GetRelations().Where(war => war.Value.AtWar || war.Value.PreparingForWar || war.Value.Trust < war.Value.TotalAnger).Sum(power => power.Key.currentMilitaryStrength);
+            offenseNeeded += this.ThreatMatrix.ship.Values.Sum(power => power.GetStrength());
+            float offenseNeededRatio = ((offenseNeeded  + 300)*1.5f) / (this.empire.currentMilitaryStrength + 300);
+            //float prepareWar2 = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Sum(power => power.Key.currentMilitaryStrength / (power.Value.Trust /power.Value.TotalAnger) );
+
+            float tax = offenseNeeded > 0.0 ? this.empire.data.TaxRate * offenseNeededRatio : this.empire.data.TaxRate;
+           
 
            // this.buildCapacity = this.empire.EstimateShipCapacityAtTaxRate(tax);   //this.empire.Money > this.empire.GrossTaxes ? this.empire.Money : 
+
+            //tax = tax > .5f ? .5f : tax;
             float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
             float allowable_deficit = -Capacity;//-this.empire.ShipsWeCanBuild.AsParallel().Max(main => ResourceManager.ShipsDict[main].GetMaintCost()); 
 
@@ -7511,7 +7536,7 @@ namespace Ship_Game.Gameplay
                 bool lowResearch = false;
                 if (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0)
                     atWar = true;
-                if (this.empire.data.TaxRate >= .50f)
+                if (this.empire.data.TaxRate >= .50f )
                     highTaxes = true;
                 if (this.empire.GetPlanets().Sum(research => research.NetResearchPerTurn) < this.empire.GetPlanets().Count / 3)
                     lowResearch = true;
@@ -7973,16 +7998,6 @@ namespace Ship_Game.Gameplay
                                 techtype = TechnologyType.Industry;
                             }
 
-                            //float cheapCost =0;
-                            //Technology ResearchTech;
-                            //foreach(Technology tech in AvailableTechs)
-                            //{
-                            //    if (tech.TechnologyType != techtype)
-                            //        continue;
-                            //    float cost = tech.Cost;
-
-                            //}
-
                             Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
                             //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                             if (ResearchTech == null)
@@ -8004,15 +8019,15 @@ namespace Ship_Game.Gameplay
 
                                     if (techtype == TechnologyType.ShipHull )
                                     {
-                                        currentCost = (int)(ResearchTech.Cost * .00125f);
+                                        currentCost = (int)(ResearchTech.Cost * (.004f - (this.empire.Research* .0003f)));
                                     }
                                     if (ResourceManager.TechTree[researchtopic].TechnologyType == TechnologyType.ShipHull)
                                     {
-                                        previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * .00125f);
+                                        previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * (.004f - (this.empire.Research * .0003f)));
                                     }
 
                                 }
-                                if ( ResearchTech.ModulesUnlocked.Count > 0 || ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0)
+                                if (techtype != TechnologyType.ShipHull && ResearchTech.ModulesUnlocked.Count > 0 || ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0)
                                 {
 
                                     Technology PreviousTech = ResourceManager.TechTree[researchtopic];
