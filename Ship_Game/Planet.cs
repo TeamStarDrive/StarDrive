@@ -912,7 +912,7 @@ namespace Ship_Game
                 List<string> list = new List<string>();
                 foreach (KeyValuePair<string, Building> keyValuePair in ResourceManager.BuildingsDict)
                 {
-                    if (keyValuePair.Value.EventTriggerUID != "" && !keyValuePair.Value.NoRandomSpawn)
+                    if (!string.IsNullOrEmpty(keyValuePair.Value.EventTriggerUID) && !keyValuePair.Value.NoRandomSpawn)
                         list.Add(keyValuePair.Key);
                 }
                 int index = (int)RandomMath.RandomBetween(0.0f, (float)list.Count + 0.85f);
@@ -1655,7 +1655,7 @@ namespace Ship_Game
                         eventLocation.TroopsHere.Add(t);
                         this.TroopsHere.Add(t);
                         t.SetPlanet(this);
-                        if (eventLocation.building == null || !(eventLocation.building.EventTriggerUID != "") || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
+                        if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                             return true;
                         ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), Planet.universeScreen);
                     }
@@ -1687,7 +1687,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (b.Name == "Outpost" || b.EventTriggerUID != "")
+            else if (b.Name == "Outpost" || !string.IsNullOrEmpty(b.EventTriggerUID))
             {
                 list.Clear();
                 foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -2345,7 +2345,7 @@ namespace Ship_Game
             bool enemyTroopsFound = false;
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() != this.Owner || planetGridSquare.building != null && planetGridSquare.building.EventTriggerUID != "")
+                if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() != this.Owner || planetGridSquare.building != null && !string.IsNullOrEmpty(planetGridSquare.building.EventTriggerUID))
                 {
                     enemyTroopsFound = true;
                     break;
@@ -2467,7 +2467,7 @@ namespace Ship_Game
                                             }
                                         }
                                     }
-                                    else if (planetGridSquare.building != null && (planetGridSquare.building.CombatStrength > 0 || planetGridSquare.building.EventTriggerUID != "") && (this.Owner != pgs.TroopsHere[0].GetOwner() || planetGridSquare.building.EventTriggerUID != ""))
+                                    else if (planetGridSquare.building != null && (planetGridSquare.building.CombatStrength > 0 || !string.IsNullOrEmpty(planetGridSquare.building.EventTriggerUID)) && (this.Owner != pgs.TroopsHere[0].GetOwner() || !string.IsNullOrEmpty(planetGridSquare.building.EventTriggerUID)))
                                     {
                                         if (planetGridSquare.x > pgs.x)
                                         {
@@ -2596,7 +2596,7 @@ namespace Ship_Game
                     start.TroopsHere[0].MoveTimer = (float)start.TroopsHere[0].MoveTimerBase;
                     eventLocation.TroopsHere.Add(start.TroopsHere[0]);
                     start.TroopsHere.Clear();
-                    if (eventLocation.building == null || !(eventLocation.building.EventTriggerUID != "") || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
+                    if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                         return true;
                     ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), Planet.universeScreen);
                 }
@@ -3391,7 +3391,7 @@ namespace Ship_Game
                                 }
                                 float Remainder = 1f - FarmerPercentage;
                                 //Research is happening
-                                if (this.Owner.ResearchTopic != "")
+                                if (!string.IsNullOrEmpty(this.Owner.ResearchTopic))
                                 {
                                     //Need for production
                                     if (this.ConstructionQueue.Count > 0 || this.ProductionHere < this.MAX_STORAGE)
@@ -3855,7 +3855,7 @@ namespace Ship_Game
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
                             float num1 = 1f - this.FarmerPercentage;
                             //Added by McShooterz: No research percentage if not researching
-                            if (this.Owner.ResearchTopic != "")
+                            if (!string.IsNullOrEmpty(this.Owner.ResearchTopic))
                             {
                                 this.WorkerPercentage = num1 / 2f;
                                 this.ResearcherPercentage = num1 / 2f;
@@ -3871,7 +3871,7 @@ namespace Ship_Game
                             float num1 = 1f - this.FarmerPercentage;
                             this.WorkerPercentage = 0.0f;
                             //Added by McShooterz: No research percentage if not researching
-                            if (this.Owner.ResearchTopic != "")
+                            if (!string.IsNullOrEmpty(this.Owner.ResearchTopic))
                             {
                                 this.ResearcherPercentage = num1;
                             }
@@ -4131,7 +4131,7 @@ namespace Ship_Game
                     && this.Shipyards.Count < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                 {
                     string platform = this.Owner.GetGSAI().GetDefenceSatellite();
-                    if (platform != "")
+                    if (!string.IsNullOrEmpty(platform))
                         this.ConstructionQueue.Add(new QueueItem()
                         {
                             isShip = true,
@@ -4352,7 +4352,7 @@ namespace Ship_Game
                 {
                     Ship shipAt;
                     if (queueItem.isRefit)
-                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName != "" ? queueItem.RefitName : queueItem.sData.Name, queueItem.sData.Level);
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, !string.IsNullOrEmpty(queueItem.RefitName) ? queueItem.RefitName : queueItem.sData.Name, queueItem.sData.Level);
                     else
                         shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);

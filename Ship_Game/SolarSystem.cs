@@ -742,7 +742,7 @@ namespace Ship_Game
                         newOrbital.SetPlanetAttributes();
                         if (data.RingList[i - 1].MaxPopDefined > 0)
                             newOrbital.MaxPopulation = data.RingList[i - 1].MaxPopDefined * 1000f;
-                        if (data.RingList[i - 1].Owner != null && data.RingList[i - 1].Owner != "")
+                        if (!string.IsNullOrEmpty(data.RingList[i - 1].Owner) && !string.IsNullOrEmpty(data.RingList[i - 1].Owner))
                         {
                             newOrbital.Owner = EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner);
                             EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner).AddPlanet(newOrbital);

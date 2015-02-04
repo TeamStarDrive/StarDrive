@@ -562,7 +562,7 @@ namespace Ship_Game
 					{
 						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 						Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((e.item as Ship).VanityName != "" ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty((e.item as Ship).VanityName) ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
 						tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						if (this.sub_ships.Tabs[0].Selected)
 						{
@@ -642,7 +642,7 @@ namespace Ship_Game
 							}
 							buildingat = g.GetPlanetWhereBuilding().Name;
 						}
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (buildingat != "" ? string.Concat("Building at:\n", buildingat) : "Need spaceport"), pPos + new Vector2(5f, -5f), Color.White);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (!string.IsNullOrEmpty(buildingat) ? string.Concat("Building at:\n", buildingat) : "Need spaceport"), pPos + new Vector2(5f, -5f), Color.White);
 					}
 				}
 				else
@@ -763,7 +763,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (this.SelectedNodeList[0].GetShip().VanityName != "" ? this.SelectedNodeList[0].GetShip().VanityName : string.Concat(this.SelectedNodeList[0].GetShip().Name, " (", this.SelectedNodeList[0].GetShip().Role, ")")), Cursor, new Color(255, 239, 208));
+					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(this.SelectedNodeList[0].GetShip().VanityName) ? this.SelectedNodeList[0].GetShip().VanityName : string.Concat(this.SelectedNodeList[0].GetShip().Name, " (", this.SelectedNodeList[0].GetShip().Role, ")")), Cursor, new Color(255, 239, 208));
 				}
 				Cursor.Y = (float)(this.OperationsRect.Y + 10);
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Movement Orders", Cursor, new Color(255, 239, 208));

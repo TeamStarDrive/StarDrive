@@ -263,7 +263,7 @@ namespace Ship_Game
 				this.HoveredShip.RenderOverlay(this.ScreenManager.SpriteBatch, this.ShipInfoRect, this.ShowModules);
 				text = this.HoveredShip.VanityName;
 				Vector2 tpos = new Vector2((float)(this.Housing.X + 38), (float)(this.Housing.Y + 63));
-				string name = (this.HoveredShip.VanityName != "" ? this.HoveredShip.VanityName : this.HoveredShip.Name);
+				string name = (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name);
 				SpriteFont TitleFont = Fonts.Arial14Bold;
                 Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 39), (float)(this.Housing.Y + 79));
 				if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
@@ -272,7 +272,7 @@ namespace Ship_Game
                     tpos.Y = tpos.Y + 1;
                     tpos.X = tpos.X - 8;
 				}
-				this.ScreenManager.SpriteBatch.DrawString(TitleFont, (this.HoveredShip.VanityName != "" ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
+				this.ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
 

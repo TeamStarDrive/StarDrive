@@ -2162,7 +2162,7 @@ namespace Ship_Game
 					continue;
 				}
 				this.RaceArchetypeSL.AddItem(e);
-				if (e.Traits.VideoPath == "")
+				if (string.IsNullOrEmpty(e.Traits.VideoPath))
 				{
 					continue;
 				}

@@ -7502,7 +7502,7 @@ namespace Ship_Game.Gameplay
         
         private void RunResearchPlanner()
 		{
-			if (this.empire.ResearchTopic == "")
+			if (string.IsNullOrEmpty(this.empire.ResearchTopic))
 			{
                 //Added by McShooterz: random tech is less random, selects techs based on priority
                 //Check for needs of empire
@@ -7608,10 +7608,10 @@ namespace Ship_Game.Gameplay
                                         break;
                                     }
                             }
-                            if (this.empire.ResearchTopic != "")
+                            if (!string.IsNullOrEmpty(this.empire.ResearchTopic))
                                 break;
                         }
-                        if (this.empire.ResearchTopic == "")
+                        if (string.IsNullOrEmpty(this.empire.ResearchTopic))
                             this.empire.ResearchTopic = AvailableTechs.OrderBy(tech => tech.Cost).First().UID;
                         break;
 					}
@@ -7777,7 +7777,7 @@ namespace Ship_Game.Gameplay
                                             {
                                                 this.empire.ResearchTopic = defaulttech.UID;
                                                 ScriptIndex++;
-                                                if (scriptentry != "")
+                                                if (!string.IsNullOrEmpty(scriptentry))
                                                     return;
                                             }
                                         }
@@ -7820,7 +7820,7 @@ namespace Ship_Game.Gameplay
 
                                                 this.empire.ResearchTopic = tech.id;
                                                 ScriptIndex++;
-                                            if(tech.id !="")
+                                            if(!string.IsNullOrEmpty(tech.id))
                                                     return;
 
 
@@ -7832,7 +7832,7 @@ namespace Ship_Game.Gameplay
                                     }
                             }
                         }
-                        if (this.empire.ResearchTopic == "")
+                        if (string.IsNullOrEmpty(this.empire.ResearchTopic))
                         {
                             this.res_strat = GSAI.ResearchStrategy.Random;
                         }
@@ -7992,7 +7992,7 @@ namespace Ship_Game.Gameplay
                             
 
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
-                            if (researchtopic == "")
+                            if (string.IsNullOrEmpty(researchtopic))
                                 researchtopic = Testresearchtopic;
                             else
                             {
@@ -8112,7 +8112,7 @@ namespace Ship_Game.Gameplay
 
 
 
-            if (this.empire.ResearchTopic == "")
+            if (string.IsNullOrEmpty(this.empire.ResearchTopic))
                 return false;
             else
             {
