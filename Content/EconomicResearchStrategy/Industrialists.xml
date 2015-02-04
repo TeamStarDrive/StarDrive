@@ -7,55 +7,61 @@
   <IndustryPriority>4</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
+      <id>CHEAPEST:TECH:Industry</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Research:Economic</id>
+      <id>CHEAPEST:TECH:Economic</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
+      <id>CHEAPEST:TECH:Colonization</id>
+    </Tech>
+
+    <Tech>
+      <id>CHEAPEST:TECH:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Research:Industry:Economic</id>
+      <id>CHEAPEST:TECH:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research:Colonization</id>
+      <id>CHEAPEST:TECH:Industry</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
+      <id>CHEAPEST:TECH:Research</id>
     </Tech>
     <Tech>
-      <id>RANDOM</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>IFPEACE:3</id>
+      <id>CHEAPEST:TECH:Industry:Economic</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Colonization:General:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization</id>
+      <id>IFLOWRESEARCH:6</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
+      <id>IFPEACE:7</id>
+    </Tech>
+
+    <Tech>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull:GroundCombat</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:ShipHull</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>IFLOWRESEARCH:0</id>
+      <id>CHEAPEST:ShipHull:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>IFHIGHTAX:0</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization:General</id>
     </Tech>
+
     <Tech>
-      <id>IFCYBERNETIC:4</id>
-    </Tech>
-    <Tech>
-      <id>LOOP:7</id>
+      <id>LOOP:11</id>
     </Tech>
   </TechPath>
 </EconomicResearchStrategy>
