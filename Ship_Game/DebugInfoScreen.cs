@@ -191,7 +191,7 @@ namespace Ship_Game
                 Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Planet Count: ", e.GetPlanets().Count()), Cursor, e.EmpireColor);
                 Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-				if (e.ResearchTopic != "")
+				if (!string.IsNullOrEmpty(e.ResearchTopic))
 				{
 					SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
 					SpriteFont spriteFont = Fonts.Arial12Bold;

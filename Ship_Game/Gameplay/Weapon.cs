@@ -309,7 +309,7 @@ namespace Ship_Game.Gameplay
 			if (this.owner.InFrustum)
 			{
 				projectile.DieSound = true;
-				if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+				if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)
 				{
 					this.ToggleSoundOn = true;
 					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -330,7 +330,7 @@ namespace Ship_Game.Gameplay
 				{
 					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
 				}
-				if (this.InFlightCue != "")
+				if (!string.IsNullOrEmpty(this.InFlightCue))
 				{
 					projectile.InFlightCue = this.InFlightCue;
 				}
@@ -374,14 +374,14 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if (this.fireCueName != "")
+                    if (!string.IsNullOrEmpty(this.fireCueName))
                     {
                         this.fireCue = AudioManager.GetCue(this.fireCueName);
                         this.fireCue.Apply3D(Weapon.audioListener, source.Owner.emitter);
                         this.fireCue.Play();
                     }
                 }
-				if (this.ToggleSoundName != "")
+				if (!string.IsNullOrEmpty(this.ToggleSoundName))
 				{
 					this.ToggleSoundOn = true;
 					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -461,7 +461,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if (this.fireCueName != "")
+                    if (!string.IsNullOrEmpty(this.fireCueName))
                     {
                         this.fireCue = AudioManager.GetCue(this.fireCueName);
                         if (!this.owner.isPlayerShip())
@@ -471,7 +471,7 @@ namespace Ship_Game.Gameplay
                         this.fireCue.Play();
                     }
                 }
-                if (this.ToggleSoundName != "")
+                if (!string.IsNullOrEmpty(this.ToggleSoundName))
                 {
                     this.ToggleSoundOn = true;
                     this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -507,7 +507,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if (this.fireCueName != "")
+                    if (!string.IsNullOrEmpty(this.fireCueName))
                     {
                         this.fireCue = AudioManager.GetCue(this.fireCueName);
                         if (!this.owner.isPlayerShip())
@@ -517,7 +517,7 @@ namespace Ship_Game.Gameplay
                         this.fireCue.Play();
                     }
                 }
-                if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+                if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)
                 {
                     this.ToggleSoundOn = true;
                     this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -597,7 +597,7 @@ namespace Ship_Game.Gameplay
                 if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
                 {
                     projectile.DieSound = true;
-                    if (this.ToggleSoundName != "" && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
+                    if (!string.IsNullOrEmpty(this.ToggleSoundName) && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
                     {
                         this.ToggleSoundOn = true;
                         this.ToggleCue = AudioManager.GetCue(AltFire.ToggleSoundName);
@@ -629,7 +629,7 @@ namespace Ship_Game.Gameplay
                     {
                         projectile.dieCueName = ResourceManager.WeaponsDict[AltFire.UID].dieCue;
                     }
-                    if (this.InFlightCue != "")
+                    if (!string.IsNullOrEmpty(this.InFlightCue))
                     {
                         projectile.InFlightCue = AltFire.InFlightCue;
                     }
@@ -725,7 +725,7 @@ namespace Ship_Game.Gameplay
                 if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
                 {
                     projectile.DieSound = true;
-                    if (this.ToggleSoundName != "" && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
+                    if (!string.IsNullOrEmpty(this.ToggleSoundName) && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
                     {
                         this.ToggleSoundOn = true;
                         this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -757,7 +757,7 @@ namespace Ship_Game.Gameplay
                     {
                         projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
                     }
-                    if (this.InFlightCue != "")
+                    if (!string.IsNullOrEmpty(this.InFlightCue))
                     {
                         projectile.InFlightCue = this.InFlightCue;
                     }
@@ -837,7 +837,7 @@ namespace Ship_Game.Gameplay
 			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
 				projectile.DieSound = true;
-				if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+				if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)
 				{
 					this.ToggleSoundOn = true;
 					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -866,7 +866,7 @@ namespace Ship_Game.Gameplay
 				{
 					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
 				}
-				if (this.InFlightCue != "")
+				if (!string.IsNullOrEmpty(this.InFlightCue))
 				{
 					projectile.InFlightCue = this.InFlightCue;
 				}
@@ -1404,7 +1404,7 @@ namespace Ship_Game.Gameplay
 				{
 					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
 				}
-				if (this.InFlightCue != "")
+				if (!string.IsNullOrEmpty(this.InFlightCue))
 				{
 					projectile.InFlightCue = this.InFlightCue;
 				}

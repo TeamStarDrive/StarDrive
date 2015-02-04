@@ -45,7 +45,7 @@ namespace Ship_Game
 						s = "";
 						for (int t = 0; t < (int)tokens.Length; t++)
 						{
-							if (tokens[t] != "")
+							if (!string.IsNullOrEmpty(tokens[t]))
 							{
 								if (tokens[t].Length != 1)
 								{
@@ -55,7 +55,7 @@ namespace Ship_Game
 								{
 									tokens[t] = tokens[t].ToUpper();
 								}
-								if (s != "")
+								if (!string.IsNullOrEmpty(s))
 								{
 									s = string.Concat(s, " ");
 								}

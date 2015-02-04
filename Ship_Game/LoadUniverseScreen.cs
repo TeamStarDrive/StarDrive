@@ -157,7 +157,7 @@ namespace Ship_Game
 		{
 			Building building;
 			Planet p = new Planet();
-			if (data.Owner != "")
+			if (!string.IsNullOrEmpty(data.Owner))
 			{
 				p.Owner = EmpireManager.GetEmpireByName(data.Owner);
 				p.Owner.AddPlanet(p);
@@ -638,7 +638,7 @@ namespace Ship_Game
 					Ship ship = Ship.LoadSavedShip(shipData.data);
 					ship.guid = shipData.guid;
 					ship.Name = shipData.Name;
-                    if (shipData.VanityName != "")
+                    if (!string.IsNullOrEmpty(shipData.VanityName))
                         ship.VanityName = shipData.VanityName;
                     else
                     {

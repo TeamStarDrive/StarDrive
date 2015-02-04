@@ -33,7 +33,7 @@ namespace Ship_Game
 		public void Draw(SpriteBatch spriteBatch, Rectangle r)
 		{
 			Vector2 textCursor = new Vector2();
-			if (this.Text != "")
+			if (!string.IsNullOrEmpty(this.Text))
 			{
 				textCursor.X = (float)(r.X + this.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Text).X / 2f;
 				textCursor.Y = (float)(r.Y + this.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -41,7 +41,7 @@ namespace Ship_Game
 			if (this.State == UIButton.PressState.Normal)
 			{
 				spriteBatch.Draw(this.NormalTexture, r, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, new Color(255, 240, 189));
 					return;
@@ -50,7 +50,7 @@ namespace Ship_Game
 			else if (this.State == UIButton.PressState.Hover)
 			{
 				spriteBatch.Draw(this.HoverTexture, r, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, this.HoverColor);
 					return;
@@ -59,7 +59,7 @@ namespace Ship_Game
 			else if (this.State == UIButton.PressState.Pressed)
 			{
 				spriteBatch.Draw(this.PressedTexture, r, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					textCursor.Y = textCursor.Y + 1f;
 					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, this.PressColor);
@@ -70,7 +70,7 @@ namespace Ship_Game
 		public void Draw(SpriteBatch spriteBatch)
 		{
 			Vector2 textCursor = new Vector2();
-			if (this.Text != "")
+			if (!string.IsNullOrEmpty(this.Text))
 			{
 				textCursor.X = (float)(this.Rect.X + this.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Text).X / 2f;
 				textCursor.Y = (float)(this.Rect.Y + this.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -78,7 +78,7 @@ namespace Ship_Game
 			if (this.State == UIButton.PressState.Normal)
 			{
 				spriteBatch.Draw(this.NormalTexture, this.Rect, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, new Color(255, 240, 189));
 					return;
@@ -87,7 +87,7 @@ namespace Ship_Game
 			else if (this.State == UIButton.PressState.Hover)
 			{
 				spriteBatch.Draw(this.HoverTexture, this.Rect, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, this.HoverColor);
 					return;
@@ -96,7 +96,7 @@ namespace Ship_Game
 			else if (this.State == UIButton.PressState.Pressed)
 			{
 				spriteBatch.Draw(this.PressedTexture, this.Rect, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					textCursor.Y = textCursor.Y + 1f;
 					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, this.PressColor);
@@ -107,7 +107,7 @@ namespace Ship_Game
 		public void DrawInActive(SpriteBatch spriteBatch)
 		{
 			Vector2 textCursor = new Vector2();
-			if (this.Text != "")
+			if (!string.IsNullOrEmpty(this.Text))
 			{
 				textCursor.X = (float)(this.Rect.X + this.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Text).X / 2f;
 				textCursor.Y = (float)(this.Rect.Y + this.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -115,7 +115,7 @@ namespace Ship_Game
 			if (this.State == UIButton.PressState.Normal)
 			{
 				spriteBatch.Draw(this.NormalTexture, this.Rect, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, Color.Gray);
 					return;
@@ -124,7 +124,7 @@ namespace Ship_Game
 			else if (this.State == UIButton.PressState.Hover)
 			{
 				spriteBatch.Draw(this.HoverTexture, this.Rect, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, Color.Gray);
 					return;
@@ -133,7 +133,7 @@ namespace Ship_Game
 			else if (this.State == UIButton.PressState.Pressed)
 			{
 				spriteBatch.Draw(this.PressedTexture, this.Rect, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					textCursor.Y = textCursor.Y + 1f;
 					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, Color.Gray);
@@ -144,7 +144,7 @@ namespace Ship_Game
 		public void DrawLowRes(SpriteBatch spriteBatch)
 		{
 			Vector2 textCursor = new Vector2();
-			if (this.Text != "")
+			if (!string.IsNullOrEmpty(this.Text))
 			{
 				textCursor.X = (float)(this.Rect.X + this.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Text).X / 2f;
 				textCursor.Y = (float)(this.Rect.Y + this.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2 - 1);
@@ -152,7 +152,7 @@ namespace Ship_Game
 			if (this.State == UIButton.PressState.Normal)
 			{
 				spriteBatch.Draw(this.NormalTexture, this.Rect, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					spriteBatch.DrawString(Fonts.Arial12, this.Text, textCursor, new Color(255, 240, 189));
 					return;
@@ -161,7 +161,7 @@ namespace Ship_Game
 			else if (this.State == UIButton.PressState.Hover)
 			{
 				spriteBatch.Draw(this.HoverTexture, this.Rect, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					spriteBatch.DrawString(Fonts.Arial12, this.Text, textCursor, this.HoverColor);
 					return;
@@ -170,7 +170,7 @@ namespace Ship_Game
 			else if (this.State == UIButton.PressState.Pressed)
 			{
 				spriteBatch.Draw(this.PressedTexture, this.Rect, Color.White);
-				if (this.Text != "")
+				if (!string.IsNullOrEmpty(this.Text))
 				{
 					textCursor.Y = textCursor.Y + 1f;
 					spriteBatch.DrawString(Fonts.Arial12, this.Text, textCursor, this.PressColor);

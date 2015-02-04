@@ -1339,7 +1339,7 @@ namespace Ship_Game
                             this.DoWork(0.0f);
                             
                         }
-                        else if ((double)this.GameSpeed < 1.0)
+                        else if (this.GameSpeed < 1.0)
                         {
                             if (this.flip)
                             {
@@ -1351,7 +1351,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            for (int index = 0; (double)index < (double)this.GameSpeed; ++index)
+                            for (int index = 0; index < this.GameSpeed; ++index)
                             {
                                 if (this.IsActive)
                                     this.DoWork((float)this.zgameTime.ElapsedGameTime.TotalSeconds);
@@ -2594,32 +2594,32 @@ namespace Ship_Game
             this.HandleEdgeDetection(input);
             if (input.CurrentKeyboardState.IsKeyDown(Keys.OemPlus) && input.LastKeyboardState.IsKeyUp(Keys.OemPlus))
             {
-                if ((double)this.GameSpeed < 1.0)
+                if (this.GameSpeed < 1.0)
                     this.GameSpeed = 1f;
                 else
                     ++this.GameSpeed;
-                if ((double)this.GameSpeed > 4.0 && !GlobalStats.LimitSpeed)
+                if (this.GameSpeed > 4.0 && !GlobalStats.LimitSpeed)
                     this.GameSpeed = 4f;
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.OemMinus) && input.LastKeyboardState.IsKeyUp(Keys.OemMinus))
             {
-                if ((double)this.GameSpeed <= 1.0)
+                if (this.GameSpeed <= 1.0)
                     this.GameSpeed = 0.5f;
                 else
                     --this.GameSpeed;
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.Add) && input.LastKeyboardState.IsKeyUp(Keys.Add))
             {
-                if ((double)this.GameSpeed < 1.0)
+                if (this.GameSpeed < 1.0)
                     this.GameSpeed = 1f;
                 else
                     ++this.GameSpeed;
-                if ((double)this.GameSpeed > 4.0 && GlobalStats.LimitSpeed)
+                if (this.GameSpeed > 4.0 && GlobalStats.LimitSpeed)
                     this.GameSpeed = 4f;
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.Subtract) && input.LastKeyboardState.IsKeyUp(Keys.Subtract))
             {
-                if ((double)this.GameSpeed <= 1.0)
+                if (this.GameSpeed <= 1.0)
                     this.GameSpeed = 0.5f;
                 else
                     --this.GameSpeed;
@@ -6416,7 +6416,7 @@ namespace Ship_Game
                                     {
                                         for (int index = 0; index < planet.BuildingList.Count; ++index)
                                         {
-                                            if (planet.BuildingList[index].EventTriggerUID != "")
+                                            if (!string.IsNullOrEmpty(planet.BuildingList[index].EventTriggerUID))
                                             {
                                                 flag = true;
                                                 break;
@@ -6492,7 +6492,7 @@ namespace Ship_Game
                                     {
                                         for (int index = 0; index < planet.BuildingList.Count; ++index)
                                         {
-                                            if (planet.BuildingList[index].EventTriggerUID != "")
+                                            if (!string.IsNullOrEmpty(planet.BuildingList[index].EventTriggerUID))
                                             {
                                                 flag = true;
                                                 break;
@@ -7029,7 +7029,7 @@ namespace Ship_Game
                                 }
                                 foreach (Building building in planet.BuildingList)
                                 {
-                                    if (building.EventTriggerUID != "")
+                                    if (!string.IsNullOrEmpty(building.EventTriggerUID))
                                     {
                                         vector2_3.X = vector2_3.X + (float)(18 * num2);
                                         Rectangle rectangle = new Rectangle((int)vector2_3.X, (int)vector2_3.Y, 14, 14);

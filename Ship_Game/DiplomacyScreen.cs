@@ -483,7 +483,7 @@ namespace Ship_Game
 			}
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 4 / 5);
 			base.ScreenManager.SpriteBatch.Begin();
-			if (this.them.data.Traits.VideoPath != "")
+			if (!string.IsNullOrEmpty(this.them.data.Traits.VideoPath))
 			{
 				if (this.player.State != MediaState.Stopped)
 				{
@@ -1017,7 +1017,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				if (dl.Default != "")
+				if (!string.IsNullOrEmpty(dl.Default))
 				{
 					resp = string.Concat(resp, dl.Default);
 				}
@@ -1131,7 +1131,7 @@ namespace Ship_Game
                             foreach (DialogOption dialogOption1 in statementSet.DialogOptions)
                             {
                                 string str = dialogOption1.words;
-                                if (dialogOption1.SpecialInquiry != "")
+                                if (!string.IsNullOrEmpty(dialogOption1.SpecialInquiry))
                                     str = this.GetDialogueByName(dialogOption1.SpecialInquiry);
                                 DialogOption dialogOption2 = new DialogOption(n, str, Cursor, Fonts.Consolas18);
                                 dialogOption2.words = this.parseText(str, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
@@ -1530,7 +1530,7 @@ namespace Ship_Game
 			this.OurItemsSL = new ScrollList(ussub, Fonts.Consolas18.LineSpacing + 5, true);
 			Submenu sub = new Submenu(base.ScreenManager, blerdybloo);
 			this.StatementsSL = new ScrollList(sub, Fonts.Consolas18.LineSpacing + 2, true);
-			if (this.them.data.Traits.VideoPath != "")
+			if (!string.IsNullOrEmpty(this.them.data.Traits.VideoPath))
 			{
 				try
 				{
@@ -1812,7 +1812,7 @@ namespace Ship_Game
 				{
 					this.OfferTextSL.AddItem(sent);
 				}
-				else if (sent == "" && (int)lineArray.Length > i + 1 && lineArray[i + 1] != "")
+				else if (string.IsNullOrEmpty(sent) && (int)lineArray.Length > i + 1 && !string.IsNullOrEmpty(lineArray[i + 1]))
 				{
 					this.OfferTextSL.AddItem("\n");
 				}

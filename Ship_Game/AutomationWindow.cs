@@ -197,7 +197,7 @@ namespace Ship_Game
 				EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoFreighter = this.AutoFreighterDropDown.Options[this.AutoFreighterDropDown.ActiveIndex].Name;
 			}
 			string CurrentColony;
-            if (this.screen.player.data.CurrentAutoColony != "")
+            if (!string.IsNullOrEmpty(this.screen.player.data.CurrentAutoColony))
                 CurrentColony = this.screen.player.data.CurrentAutoColony;
             else
                 CurrentColony = this.screen.player.data.DefaultColonyShip;
@@ -209,7 +209,7 @@ namespace Ship_Game
 				}
 				this.ColonyShipDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
 			}
-			if (!(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoColony != "") || !ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoColony))
+			if (string.IsNullOrEmpty(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoColony) || !ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoColony))
 			{
 				EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoColony = this.ColonyShipDropDown.Options[this.ColonyShipDropDown.ActiveIndex].Name;
 			}
@@ -226,7 +226,7 @@ namespace Ship_Game
 				}
 			}
 			string CurrentScout;
-            if(this.screen.player.data.CurrentAutoScout != "")
+            if(!string.IsNullOrEmpty(this.screen.player.data.CurrentAutoScout))
                 CurrentScout = this.screen.player.data.CurrentAutoScout;
             else
                 CurrentScout = this.screen.player.data.StartingScout;
@@ -258,7 +258,7 @@ namespace Ship_Game
                 }
             }
 
-			if (!(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout != "") || !ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout))
+			if (string.IsNullOrEmpty(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout) || !ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout))
 			{
 				EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.CurrentAutoScout = this.ScoutDropDown.Options[this.ScoutDropDown.ActiveIndex].Name;
 			}

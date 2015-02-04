@@ -331,7 +331,7 @@ namespace Ship_Game
 					p.BuildingList.Remove(eventLocation.building);
 					eventLocation.building = null;
 				}
-				if (triggeredOutcome.ReplaceWith != "")
+				if (!string.IsNullOrEmpty(triggeredOutcome.ReplaceWith))
 				{
 					eventLocation.building = ResourceManager.GetBuilding(triggeredOutcome.ReplaceWith);
 					p.BuildingList.Add(eventLocation.building);

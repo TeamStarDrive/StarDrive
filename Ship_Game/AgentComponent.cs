@@ -119,7 +119,7 @@ namespace Ship_Game
 					}
 					if ((e.item as Agent).Mission != AgentMission.Defending)
 					{
-						if ((e.item as Agent).TargetEmpire != "" && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
+						if (!string.IsNullOrEmpty((e.item as Agent).TargetEmpire) && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
 						{
 							Vector2 targetCursor = namecursor;
 							targetCursor.X = targetCursor.X + 75f;
@@ -232,7 +232,7 @@ namespace Ship_Game
                     }
                     if ((e.item as Agent).Mission != AgentMission.Defending)
                     {
-                        if ((e.item as Agent).TargetEmpire != "" && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
+                        if (!string.IsNullOrEmpty((e.item as Agent).TargetEmpire) && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
                         {
                             Vector2 targetCursor = namecursor;
                             targetCursor.X = targetCursor.X + 75f;

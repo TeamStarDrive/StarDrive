@@ -165,7 +165,7 @@ namespace Ship_Game
                             
                             Building building = this.s.PlanetList[i].BuildingList[j];
                             
-                            if (building.EventTriggerUID != "")
+                            if (!string.IsNullOrEmpty(building.EventTriggerUID))
                             {
                                 hasAnamoly = true;
                             }

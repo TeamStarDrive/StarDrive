@@ -444,7 +444,8 @@ namespace Ship_Game
                 if (GlobalStats.ActiveMod != null)
                 {
                     string title = GlobalStats.ActiveMod.mi.ModName;
-                    if (GlobalStats.ActiveMod.mi.Version != null && GlobalStats.ActiveMod.mi.Version != "" && !title.Contains(GlobalStats.ActiveMod.mi.Version))
+                    //if (GlobalStats.ActiveMod.mi.Version != null && GlobalStats.ActiveMod.mi.Version != "" && !title.Contains(GlobalStats.ActiveMod.mi.Version))
+                    if (!string.IsNullOrEmpty(GlobalStats.ActiveMod.mi.Version) && !title.Contains(GlobalStats.ActiveMod.mi.Version))
                         title = string.Concat(title, " - ", GlobalStats.ActiveMod.mi.Version);
                     Version = new Rectangle(20 + (int)Fonts.Pirulen12.MeasureString(title).X, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 60, 318, 12);
                     base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
@@ -609,7 +610,7 @@ namespace Ship_Game
 		{
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             //if (ConfigurationManager.AppSettings["ActiveMod"] != "")
-            if (config.AppSettings.Settings["ActiveMod"].Value != "")
+            if (!string.IsNullOrEmpty(config.AppSettings.Settings["ActiveMod"].Value))
 			{
                 
                 //if (!File.Exists(string.Concat("Mods/", ConfigurationManager.AppSettings["ActiveMod"], ".xml")))
@@ -749,7 +750,7 @@ namespace Ship_Game
 				this.Portrait.Height = this.Portrait.Height + 7;
 				this.Portrait.Y = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Portrait.Height / 2;
 			}
-			if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.MainMenuMusic != "")
+			if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
 				this.PlayMp3(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/", GlobalStats.ActiveMod.MainMenuMusic));
 			}
@@ -850,7 +851,7 @@ namespace Ship_Game
 
 		public void ResetMusic()
 		{
-			if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.MainMenuMusic != "")
+			if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
 				this.PlayMp3(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/", GlobalStats.ActiveMod.MainMenuMusic));
 				base.ScreenManager.musicCategory.Stop(AudioStopOptions.Immediate);
@@ -927,7 +928,7 @@ namespace Ship_Game
 				base.ScreenManager.Music = null;
 				base.ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
 			}
-			if (GlobalStats.ActiveMod == null || !(GlobalStats.ActiveMod.MainMenuMusic != ""))
+			if (GlobalStats.ActiveMod == null || string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
 				if (base.ScreenManager.Music == null || base.ScreenManager.Music != null && base.ScreenManager.Music.IsStopped)
 				{

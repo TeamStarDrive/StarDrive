@@ -878,7 +878,7 @@ namespace Ship_Game.Gameplay
                     if (this.type == TaskType.Exploration)
                     {
                         Planet p = this.GetTargetPlanet();
-                        if (p.BuildingList.Where(relic => relic.EventTriggerUID != "").Count() > 0)
+                        if (p.BuildingList.Where(relic => !string.IsNullOrEmpty(relic.EventTriggerUID)).Count() > 0)
                         {
                             return;
                         }

@@ -197,7 +197,8 @@ namespace Ship_Game
             {
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 25);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(6108), this.AgentComponent.SelectedAgent.Name), TextCursor, Color.Orange);
-                if (this.AgentComponent.SelectedAgent.HomePlanet == "" || this.AgentComponent.SelectedAgent.HomePlanet == null) 
+                //if (this.AgentComponent.SelectedAgent.HomePlanet == "" || this.AgentComponent.SelectedAgent.HomePlanet == null) 
+                if (string.IsNullOrEmpty(this.AgentComponent.SelectedAgent.HomePlanet))
                     this.AgentComponent.SelectedAgent.HomePlanet = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.HomeworldName; 
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 6);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6109), this.AgentComponent.SelectedAgent.HomePlanet), TextCursor, Color.LightGray);

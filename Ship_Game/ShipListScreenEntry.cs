@@ -67,7 +67,7 @@ namespace Ship_Game
 			this.STLRect = new Rectangle(this.FTLRect.X + this.FTLRect.Width, y, 60, height);
 			this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
 			this.ShipIconRect = new Rectangle(this.ShipNameRect.X + 5, this.ShipNameRect.Y + 2, 28, 28);
-			string shipName = (this.ship.VanityName != "" ? this.ship.VanityName : this.ship.Name);
+			string shipName = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
 			this.ShipNameEntry.ClickableArea = new Rectangle(this.ShipIconRect.X + this.ShipIconRect.Width + 10, 2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
 			this.ShipNameEntry.Text = shipName;
 			float width = (float)((int)((float)this.OrdersRect.Width * 0.8f));
@@ -616,7 +616,7 @@ namespace Ship_Game
 			this.FTLRect = new Rectangle(this.TroopRect.X + this.TroopRect.Width, y, 60, this.TotalEntrySize.Height);
 			this.STLRect = new Rectangle(this.FTLRect.X + this.FTLRect.Width, y, 60, this.TotalEntrySize.Height);
 			this.ShipIconRect = new Rectangle(this.ShipNameRect.X + 5, this.ShipNameRect.Y + 2, 28, 28);
-			string shipName = (this.ship.VanityName != "" ? this.ship.VanityName : this.ship.Name);
+			string shipName = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
 			this.ShipNameEntry.ClickableArea = new Rectangle(this.ShipIconRect.X + this.ShipIconRect.Width + 10, 2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
 			Rectangle refit = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 2 - 5 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"].Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height);
 			this.RefitButton.r = refit;
