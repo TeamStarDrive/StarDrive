@@ -340,7 +340,7 @@ namespace Ship_Game
                 //System.Diagnostics.Debug.Assert(b != null);
                 //System.Diagnostics.Debug.Assert(b.Text != null);
                  
-				if (b.Text != "" )//&& b.Text != null)
+				if (!string.IsNullOrEmpty(b.Text))//&& b.Text != null)
 				{
 					textCursor.X = (float)(b.Rect.X + b.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(b.Text).X / 2f;
 					textCursor.Y = (float)(b.Rect.Y + b.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2 - (this.LowRes ? 1 : 0));
@@ -348,7 +348,7 @@ namespace Ship_Game
 				if (b.State == EmpireUIOverlay.PressState.Normal)
 				{
 					spriteBatch.Draw(b.NormalTexture, b.Rect, Color.White);
-					if (b.Text == "")
+					if (string.IsNullOrEmpty(b.Text))
 					{
 						continue;
 					}
@@ -361,7 +361,7 @@ namespace Ship_Game
 						continue;
 					}
 					spriteBatch.Draw(b.PressedTexture, b.Rect, Color.White);
-					if (b.Text == "")
+					if (string.IsNullOrEmpty(b.Text))
 					{
 						continue;
 					}
@@ -371,7 +371,7 @@ namespace Ship_Game
 				else
 				{
 					spriteBatch.Draw(b.HoverTexture, b.Rect, Color.White);
-					if (b.Text == "")
+					if (string.IsNullOrEmpty(b.Text))
 					{
 						continue;
 					}
@@ -425,7 +425,7 @@ namespace Ship_Game
 			//this.FirstRun = false;
 			if (!this.LowRes)
 			{
-				if (this.empire.ResearchTopic == "")
+				if (string.IsNullOrEmpty(this.empire.ResearchTopic))
 				{
 					textCursor.X = (float)(this.res2.X + this.res2.Width - 30) - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
 					textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -452,7 +452,7 @@ namespace Ship_Game
 			}
 			if (this.LowRes)
 			{
-				if (this.empire.ResearchTopic != "")
+				if (!string.IsNullOrEmpty(this.empire.ResearchTopic))
 				{
 					float percentResearch = this.empire.GetTDict()[this.empire.ResearchTopic].Progress / this.empire.GetTDict()[this.empire.ResearchTopic].GetTechCost() * UniverseScreen.GamePaceStatic;
 					int xOffset = (int)(percentResearch * (float)this.res2.Width);
