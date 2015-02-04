@@ -672,7 +672,7 @@ namespace Ship_Game
 					returnString = string.Concat(returnString, line, '\n');
 					line = string.Empty;
 				}
-				if (word != "")
+				if (!string.IsNullOrEmpty(word))
 				{
 					line = string.Concat(line, word, ' ');
 				}
@@ -689,7 +689,7 @@ namespace Ship_Game
 			for (int i = 0; i < (int)wordArray.Length; i++)
 			{
 				string word = wordArray[i];
-				if (word == "")
+				if (string.IsNullOrEmpty(word))
 				{
 					word = "\n";
 				}
@@ -704,7 +704,7 @@ namespace Ship_Game
 					returnString = string.Concat(returnString, line, '\n');
 					line = string.Empty;
 				}
-				if (word != "")
+				if (!string.IsNullOrEmpty(word))
 				{
 					line = string.Concat(line, word, ' ');
 				}
@@ -717,7 +717,7 @@ namespace Ship_Game
 				{
 					List.AddItem(sent);
 				}
-				else if (sent == "" && (int)lineArray.Length > i + 1 && lineArray[i + 1] != "")
+				else if (string.IsNullOrEmpty(sent) && (int)lineArray.Length > i + 1 && !string.IsNullOrEmpty(lineArray[i + 1]))
 				{
 					List.AddItem("\n");
 				}

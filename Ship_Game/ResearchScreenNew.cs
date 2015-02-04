@@ -322,7 +322,8 @@ namespace Ship_Game
                 }
                 foreach (KeyValuePair<string, Ship_Game.Building> Building in ResourceManager.BuildingsDict)
                 {
-                    if (ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == null || ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == "")
+                    //if (ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == null || ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == "")
+                    if (string.IsNullOrEmpty(ResourceManager.BuildingsDict[Building.Key].EventTriggerUID))
                         EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetBDict()[Building.Key] = true;
                 }
                 EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
@@ -394,7 +395,7 @@ namespace Ship_Game
 						while (!EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[techToCheck].Unlocked)
 						{
 							string prereq = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetPreReq(techToCheck);
-							if (prereq == "")
+							if (string.IsNullOrEmpty(prereq))
 							{
 								break;
 							}
@@ -493,7 +494,7 @@ namespace Ship_Game
 			}
 			this.PopulateNodesFromRoot(this.TechTree[GlobalStats.ResearchRootUIDToDisplay] as RootNode);
 			string resTop = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic;
-			if (resTop != "")
+			if (!string.IsNullOrEmpty(resTop))
 			{
 				this.qcomponent.LoadQueue(this.CompleteSubNodeTree[resTop] as TreeNode);
 			}

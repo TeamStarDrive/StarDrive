@@ -2037,7 +2037,7 @@ namespace Ship_Game.Gameplay
 
         public void RenderOverlay(SpriteBatch spriteBatch, Rectangle where, bool ShowModules)
         {
-            if (Ship_Game.ResourceManager.HullsDict.ContainsKey(this.shipData.Hull) && Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic != "" && !ShowModules)
+            if (Ship_Game.ResourceManager.HullsDict.ContainsKey(this.shipData.Hull) && !string.IsNullOrEmpty(Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic) && !ShowModules)
             {
                 Rectangle destinationRectangle = where;
                 destinationRectangle.X += 2;
@@ -2048,7 +2048,7 @@ namespace Ship_Game.Gameplay
                     spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["SelectionBox Ships/" + Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic + "_shields"], destinationRectangle, new Color(Color.White, (byte)num));
                 }
             }
-            if (!ShowModules && Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic != "" || this.ModuleSlotList.Count == 0)
+            if (!ShowModules && !string.IsNullOrEmpty(Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic) || this.ModuleSlotList.Count == 0)
                 return;
             IOrderedEnumerable<ModuleSlot> orderedEnumerable1 = Enumerable.OrderBy<ModuleSlot, float>((IEnumerable<ModuleSlot>)this.ModuleSlotList, (Func<ModuleSlot, float>)(slot => slot.Position.X));
             if (Enumerable.Count<ModuleSlot>((IEnumerable<ModuleSlot>)orderedEnumerable1) == 0)
@@ -2557,7 +2557,7 @@ namespace Ship_Game.Gameplay
                             {
                                 foreach (Building building in p.BuildingList)
                                 {
-                                    if (building.EventTriggerUID != "")
+                                    if (!string.IsNullOrEmpty(building.EventTriggerUID))
                                         Ship.universeScreen.NotificationManager.AddFoundSomethingInteresting(p);
                                 }
                             }
@@ -2566,7 +2566,7 @@ namespace Ship_Game.Gameplay
                                 p.ExploredDict[this.loyalty] = true;
                                 foreach (Building building in p.BuildingList)
                                 {
-                                    if (building.EventTriggerUID != "" && this.loyalty != Ship.universeScreen.player && p.Owner == null)
+                                    if (!string.IsNullOrEmpty(building.EventTriggerUID) && this.loyalty != Ship.universeScreen.player && p.Owner == null)
                                     {
                                         MilitaryTask militaryTask = new MilitaryTask();
                                         militaryTask.AO = p.Position;

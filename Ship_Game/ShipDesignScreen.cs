@@ -2110,7 +2110,7 @@ namespace Ship_Game
                             bCursor.Y = (float)e.clickRect.Y;
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((e.item as Ship).VanityName != "" ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty((e.item as Ship).VanityName) ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
                             tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         if (this.selector != null)

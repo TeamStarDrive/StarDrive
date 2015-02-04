@@ -2139,7 +2139,7 @@ namespace Ship_Game
             //Parallel.Invoke(
             //    ()=>
                 {
-                    if (this.ResearchTopic != "")
+                    if (!string.IsNullOrEmpty(this.ResearchTopic))
                     {
                         foreach (Planet planet in this.OwnedPlanets)
                             this.Research += planet.NetResearchPerTurn;

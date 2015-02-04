@@ -1070,7 +1070,7 @@ namespace Ship_Game.Gameplay
             bool flag1 = true;
             foreach (Building building in Task.GetTargetPlanet().BuildingList)
             {
-                if (building.EventTriggerUID != "")
+                if (!string.IsNullOrEmpty(building.EventTriggerUID))
                 {
                     flag1 = false;
                     break;
