@@ -161,7 +161,7 @@ namespace Ship_Game
 			}
 			foreach (Building b in this.planet.BuildingList)
 			{
-				if (b.EventTriggerUID == "")
+				if (!string.IsNullOrEmpty(b.EventTriggerUID))
 				{
 					continue;
 				}

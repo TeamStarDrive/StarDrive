@@ -203,7 +203,7 @@ namespace Ship_Game
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
 			this.gridbutton.Draw(this.ScreenManager);
 			Vector2 NamePos = new Vector2((float)(this.Housing.X + 38), (float)(this.Housing.Y + 63));
-			string name = (this.ship.VanityName != "" ? this.ship.VanityName : this.ship.Name);
+			string name = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
 			SpriteFont TitleFont = Fonts.Arial14Bold;
             Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 39), (float)(this.Housing.Y + 79));
 			if (Fonts.Arial14Bold.MeasureString(name).X > 180f)

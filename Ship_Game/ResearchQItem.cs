@@ -132,7 +132,7 @@ namespace Ship_Game
 							EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic = this.Node.tech.UID;
 							EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[0] = toswitch;
 							string resTop = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic;
-							if (resTop != "")
+							if (!string.IsNullOrEmpty(resTop))
 							{
 								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[resTop] as TreeNode);
 							}
@@ -281,7 +281,7 @@ namespace Ship_Game
 					EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue[0] = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic;
 					EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic = toswitch;
 					string resTop = EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic;
-					if (resTop != "")
+					if (!string.IsNullOrEmpty(resTop))
 					{
 						this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[resTop] as TreeNode);
 					}
