@@ -2614,6 +2614,7 @@ namespace Ship_Game
             return vector2 / (float)num;
         }
 
+
         private void AssignExplorationTasks()
         {
             bool flag1 = false;

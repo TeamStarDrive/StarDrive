@@ -5728,6 +5728,8 @@ namespace Ship_Game.Gameplay
         public void ManageAOs()
         {
             float aoSize = Empire.universeScreen.Size.X * .2f;
+            //Vector2 empireCenter =this.empire.GetWeightedCenter();
+            
             List<AO> aOs = new List<AO>();
             foreach (AO areasOfOperation in this.AreasOfOperations)
             {
@@ -5919,7 +5921,7 @@ namespace Ship_Game.Gameplay
             float money = this.empire.Money;
             //float treasuryGoal = 50f * this.empire.GetPlanets().Sum(development => development.developmentLevel);
             //gremlin: use a less arbirary calculator for treasure.
-            float treasuryGoal = this.empire.totalMaint * ((int)Ship.universeScreen.GameDifficulty +1 );
+            float treasuryGoal = this.empire.GrossTaxes + this.empire.OtherIncome + this.empire.TradeMoneyAddedThisTurn + this.empire.data.FlatMoneyBonus;  //mmore savings than GDP 
             treasuryGoal = +treasuryGoal < 0 ? 5 : 0;
             if (money < treasuryGoal)
             {
@@ -7046,13 +7048,19 @@ namespace Ship_Game.Gameplay
 
             //float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .05f);  //.45f - (tasks);
             //float offenseNeeded = this.empire.GetRelations().Where(war => war.Value.AtWar || war.Value.PreparingForWar || war.Value.Trust < war.Value.TotalAnger).Sum(power => power.Key.currentMilitaryStrength);
-            float offenseNeeded = this.empire.GetRelations().Where(war => war.Value.AtWar || war.Value.PreparingForWar || war.Value.Trust < war.Value.TotalAnger).Sum(power => power.Key.currentMilitaryStrength);
-            offenseNeeded += this.ThreatMatrix.ship.Values.Sum(power => power.GetStrength());
-            float offenseNeededRatio = ((offenseNeeded  + 300)*1.5f) / (this.empire.currentMilitaryStrength + 300);
+            float offenseNeeded = this.empire.GetRelations().Where(war => !war.Key.isFaction && war.Value.AtWar || war.Value.PreparingForWar ).Sum(power => power.Key.currentMilitaryStrength);
+            float offenseNeededThreat = this.ThreatMatrix.Pins.Values.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);
+            if (offenseNeededThreat > 0)
+                System.Diagnostics.Debug.WriteLine("threat: " + offenseNeededThreat);
+            float offenseNeededRatio = ((offenseNeeded  + offenseNeededThreat)+1) / (this.empire.currentMilitaryStrength +1);
             //float prepareWar2 = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Sum(power => power.Key.currentMilitaryStrength / (power.Value.Trust /power.Value.TotalAnger) );
 
             float tax = offenseNeeded > 0.0 ? this.empire.data.TaxRate * offenseNeededRatio : this.empire.data.TaxRate;
-           
+            if (tax > .6f)
+                tax = .6f;
+            else
+                if (tax < .2f)
+                    tax = .2f;
 
            // this.buildCapacity = this.empire.EstimateShipCapacityAtTaxRate(tax);   //this.empire.Money > this.empire.GrossTaxes ? this.empire.Money : 
 
@@ -7995,7 +8003,8 @@ namespace Ship_Game.Gameplay
                             }
                             if (this.empire.data.Traits.Cybernetic > 0 && this.empire.GetBDict()["Biospheres"] && techtype == (TechnologyType)Enum.Parse(typeof(TechnologyType), "Colonization"))
                             {
-                                techtype = TechnologyType.Industry;
+                                //techtype = TechnologyType.Industry;
+                                continue;
                             }
 
                             Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
@@ -8013,20 +8022,20 @@ namespace Ship_Game.Gameplay
                             {
                                 int currentCost = (int)(ResearchTech.Cost * .0025f);
                                 int previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * .0025f);
-                                if (weCanBuildCurrentHull)
-                                {
+                                //if (weCanBuildCurrentHull)
+                                //{
 
 
-                                    if (techtype == TechnologyType.ShipHull )
-                                    {
-                                        currentCost = (int)(ResearchTech.Cost * (.003f - (this.empire.Research* .0003f)));
-                                    }
-                                    if (ResourceManager.TechTree[researchtopic].TechnologyType == TechnologyType.ShipHull)
-                                    {
-                                        previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * (.003f - (this.empire.Research * .0003f)));
-                                    }
+                                //    if (techtype == TechnologyType.ShipHull )
+                                //    {
+                                //        currentCost = (int)(ResearchTech.Cost *  (.0025f - (this.empire.Research * .00005f)));
+                                //    }
+                                //    if (ResourceManager.TechTree[researchtopic].TechnologyType == TechnologyType.ShipHull)
+                                //    {
+                                //        previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * (.0025f - (this.empire.Research * .00005f)));
+                                //    }
 
-                                }
+                                //}
                                 if (techtype != TechnologyType.ShipHull && ResearchTech.ModulesUnlocked.Count > 0 || ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0)
                                 {
 

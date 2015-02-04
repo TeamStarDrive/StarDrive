@@ -10,48 +10,79 @@
 
 
     <Tech>
-      <id>IFCYBERNETIC:14</id>
+      <id>IFCYBERNETIC:18</id>
+    </Tech>
+
+    <Tech>
+      <id>CHEAPEST:TECH:Industry</id>
+    </Tech>
+
+    <Tech>
+      <id>CHEAPEST:TECH:Colonization</id>
+    </Tech>
+
+    <Tech>
+      <id>CHEAPEST:TECH:ShipWeapons</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipDefense</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Industry</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Research</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Industry:Economic:General</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Research:Industry:Economic:Colonization:General</id>
+    </Tech>
+ 
+    <Tech>
+      <id>IFPEACE:6</id>
     </Tech>
     
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Research</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:General:Economic</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Research:Industry</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Economic:ShipWeapons:Research</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Colonization:ShipDefense:Research:ShipDefense</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:Economic:General:GroundCombat:ShipGeneral</id>
-    </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense:Economic:GroundCombat:ShipHull</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:GroundCombat:ShipHull:General:Economic</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipGeneral:ShipWeapons:ShipDefense:GroundCombat</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>IFLOWRESEARCH:3</id>
+      <id>CHEAPEST:ShipHull:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>IFHIGHTAX:1</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization:General</id>
     </Tech>
+    
+
     <Tech>
-      <id>IFWAR:4</id>
+      <id>IFWAR:11</id>
     </Tech>
+    
+    
+    
+    
     <Tech>
       <id>LOOP:1</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Economic</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Economic</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Colonization</id>
@@ -59,9 +90,24 @@
     <Tech>
       <id>CHEAPEST:TECH:Colonization</id>
     </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Industry</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipWeapons</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipDefense</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Research</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:General</id>
+    </Tech>
 
     <Tech>
-      <id>LOOP:1</id>
+      <id>LOOP:6</id>
     </Tech>
     
     
