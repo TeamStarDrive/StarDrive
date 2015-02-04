@@ -445,7 +445,7 @@ namespace Ship_Game
             TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6098), this.SelectedEmpire.totalMaint.ToString("0.0")), TextCursor, Color.White);
             TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
-            if (this.SelectedEmpire.ResearchTopic != "")
+            if (!string.IsNullOrEmpty(this.SelectedEmpire.ResearchTopic))
             {
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: ", Localizer.Token( ResourceManager.TechTree[this.SelectedEmpire.ResearchTopic].NameIndex)), TextCursor, Color.White);
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);

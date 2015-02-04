@@ -247,7 +247,7 @@ namespace Ship_Game
 							continue;
 						}
 					}
-					else if (data.ModName != "")
+					else if (!string.IsNullOrEmpty(data.ModName))
 					{
 						//file.Close();
 						file.Dispose();

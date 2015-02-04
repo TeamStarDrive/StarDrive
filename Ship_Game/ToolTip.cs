@@ -165,7 +165,7 @@ namespace Ship_Game
 				sel.Draw();
 				Vector2 textpos = new Vector2((float)(ToolTip.r.X + 10), (float)(ToolTip.r.Y + 5));
 				alpha = 255f - 255f * (float)ToolTip.TipTimer / 30f;
-				if (ToolTip.Hotkey != "")
+				if (!string.IsNullOrEmpty(ToolTip.Hotkey))
 				{
 					Vector2 hotkeypos = textpos;
 					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(2300), ": "), textpos, new Color(255, 239, 208, (byte)alpha));

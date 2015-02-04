@@ -244,7 +244,7 @@ namespace Ship_Game.Gameplay
 						Projectile.universeScreen.ScreenManager.inter.LightManager.Remove(this.light);
 					}
 				}
-				if (this.InFlightCue != "" && this.inFlight != null)
+				if (!string.IsNullOrEmpty(this.InFlightCue) && this.inFlight != null)
 				{
 					this.inFlight.Stop(AudioStopOptions.Immediate);
 				}
@@ -257,7 +257,7 @@ namespace Ship_Game.Gameplay
 					}
 					if (this.WeaponType == "Photon")
 					{
-						if (this.dieCueName != "")
+						if (!string.IsNullOrEmpty(this.dieCueName))
 						{
 							this.dieCue = AudioManager.GetCue(this.dieCueName);
 						}
@@ -280,7 +280,7 @@ namespace Ship_Game.Gameplay
                             this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 					}
-					else if (this.dieCueName != "")
+					else if (!string.IsNullOrEmpty(this.dieCueName))
 					{
 						if (Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 						{
@@ -969,7 +969,7 @@ namespace Ship_Game.Gameplay
                     }
                     this.texturePath = this.weapon.AnimationPath + this.AnimationFrame.ToString(this.fmt);
                 }
-                if (this.InFlightCue != "" && this.inFlight == null)
+                if (!string.IsNullOrEmpty(this.InFlightCue) && this.inFlight == null)
                 {
                     this.inFlight = AudioManager.GetCue(this.InFlightCue);
                     this.inFlight.Apply3D(Projectile.universeScreen.listener, this.emitter);
