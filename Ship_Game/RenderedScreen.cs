@@ -10,7 +10,7 @@ using System.Collections.ObjectModel;
 
 namespace Ship_Game
 {
-	public class RenderedScreen : GameScreen
+	public sealed class RenderedScreen : GameScreen
 	{
 		private Matrix worldMatrix = Matrix.Identity;
 

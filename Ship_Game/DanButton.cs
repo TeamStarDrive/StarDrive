@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DanButton
+	public sealed class DanButton
 	{
 		public Rectangle r;
 

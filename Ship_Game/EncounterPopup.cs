@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class EncounterPopup : PopupWindow
+	public sealed class EncounterPopup : PopupWindow
 	{
 		public bool fade = true;
 

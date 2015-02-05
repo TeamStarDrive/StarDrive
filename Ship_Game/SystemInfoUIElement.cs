@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class SystemInfoUIElement : UIElement
+	public sealed class SystemInfoUIElement : UIElement
 	{
 		public static SpriteFont SysFont;
 

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Bomb
+	public sealed class Bomb
 	{
 		private const float trailParticlesPerSecond = 500f;
 

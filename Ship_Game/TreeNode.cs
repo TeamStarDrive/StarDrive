@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Ship_Game
 {
-	public class TreeNode : Node
+	public sealed class TreeNode : Node
 	{
 		public SpriteFont TitleFont = Fonts.Visitor10;
 

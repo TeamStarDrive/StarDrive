@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class ShipInfoUIElement : UIElement
+	public sealed class ShipInfoUIElement : UIElement
 	{
 		public List<ToggleButton> CombatStatusButtons = new List<ToggleButton>();
 

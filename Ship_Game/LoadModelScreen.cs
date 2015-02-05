@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Ship_Game
 {
-	public class LoadModelScreen : GameScreen, IDisposable
+	public sealed class LoadModelScreen : GameScreen, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -56,7 +56,7 @@ namespace Ship_Game
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+		protected void Dispose(bool disposing)
 		{
 			if (disposing)
 			{

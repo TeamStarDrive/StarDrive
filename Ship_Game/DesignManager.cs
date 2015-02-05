@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DesignManager : GameScreen, IDisposable
+	public sealed class DesignManager : GameScreen, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -66,7 +66,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

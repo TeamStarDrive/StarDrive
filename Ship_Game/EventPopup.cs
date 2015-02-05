@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class EventPopup : PopupWindow
+	public sealed class EventPopup : PopupWindow
 	{
 		public bool fade = true;
 

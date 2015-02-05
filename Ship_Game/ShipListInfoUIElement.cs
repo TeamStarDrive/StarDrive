@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class ShipListInfoUIElement : UIElement, IDisposable
+	public sealed class ShipListInfoUIElement : UIElement, IDisposable
 	{
 		public List<ToggleButton> CombatStatusButtons = new List<ToggleButton>();
 
@@ -752,7 +752,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {
