@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Submenu
+	public sealed class Submenu
 	{
 		public Rectangle Menu;
 

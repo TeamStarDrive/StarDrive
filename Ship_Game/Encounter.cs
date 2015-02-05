@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Encounter: IDisposable
+	public sealed class Encounter: IDisposable
 	{
 		public int Step;
 
@@ -342,7 +342,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-               protected virtual void Dispose(bool disposing)
+               protected void Dispose(bool disposing)
                {
                    if (!disposed)
                    {

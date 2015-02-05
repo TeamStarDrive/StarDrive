@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class Empire : IDisposable
+    public sealed class Empire : IDisposable
     {
         public static float ProjectorRadius = 150000f;
         private Dictionary<int, Fleet> FleetsDict = new Dictionary<int, Fleet>();
@@ -2828,7 +2828,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

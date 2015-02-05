@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class VariableUIElement : UIElement
+	public sealed class VariableUIElement : UIElement
 	{
 		private List<VariableUIElement.TippedItem> ToolTipItems = new List<VariableUIElement.TippedItem>();
 

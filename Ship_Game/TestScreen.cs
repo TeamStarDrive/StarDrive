@@ -12,7 +12,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class TestScreen : GameScreen, IDisposable
+	public sealed class TestScreen : GameScreen, IDisposable
 	{
 		private Matrix worldMatrix = Matrix.Identity;
 
@@ -59,7 +59,7 @@ namespace Ship_Game
 			GC.SuppressFinalize(this);
 		}
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

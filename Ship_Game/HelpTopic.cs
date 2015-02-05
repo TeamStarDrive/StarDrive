@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class HelpTopic
+	public sealed class HelpTopic
 	{
 		public string Title;
 

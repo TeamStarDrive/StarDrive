@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class RuleOptionsScreen : GameScreen
+	public sealed class RuleOptionsScreen : GameScreen
 	{
 		public bool isOpen;
 

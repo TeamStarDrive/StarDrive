@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class RandomItem
+	public sealed class RandomItem
 	{
 		public bool HardCoreOnly;
 

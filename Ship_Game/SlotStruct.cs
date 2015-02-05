@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class SlotStruct
+	public sealed class SlotStruct
 	{
 		public Ship_Game.Gameplay.Restrictions Restrictions;
 

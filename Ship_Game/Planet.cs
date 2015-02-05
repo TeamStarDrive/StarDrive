@@ -20,7 +20,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-    public class Planet: IDisposable
+    public sealed class Planet: IDisposable
     {
         public bool GovBuildings = true;
         public bool GovSliders = true;
@@ -5367,7 +5367,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

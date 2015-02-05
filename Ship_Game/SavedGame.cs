@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class SavedGame
+	public sealed class SavedGame
 	{
 		public SavedGame.UniverseSaveData data = new SavedGame.UniverseSaveData();
 
@@ -531,7 +531,7 @@ namespace Ship_Game
 			Serializer1.Serialize(wf, header);
 			//wf.Close();
 			wf.Dispose();
-			GC.Collect(1, GCCollectionMode.Optimized);
+			//GC.Collect(1, GCCollectionMode.Optimized);
 		}
 
 		public struct EmpireSaveData

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Menu2
+	public sealed class Menu2
 	{
 		public Rectangle Menu;
 

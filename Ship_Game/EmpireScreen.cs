@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class EmpireScreen : GameScreen, IDisposable
+	public sealed class EmpireScreen : GameScreen, IDisposable
 	{
 		private EmpireUIOverlay eui;
 
@@ -126,7 +126,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-               protected virtual void Dispose(bool disposing)
+               protected void Dispose(bool disposing)
                {
                    if (!disposed)
                    {

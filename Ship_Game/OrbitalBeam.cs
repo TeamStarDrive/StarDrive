@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class OrbitalBeam
+	public sealed class OrbitalBeam
 	{
 		public float Duration = 3f;
 

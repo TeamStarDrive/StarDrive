@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class PlanetGridSquare
+	public sealed class PlanetGridSquare
 	{
 		public int x;
 

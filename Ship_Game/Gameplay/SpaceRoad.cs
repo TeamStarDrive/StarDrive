@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class SpaceRoad
+	public sealed class SpaceRoad
 	{
 		public List<RoadNode> RoadNodesList = new List<RoadNode>();
 

@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class BillboardResource : IDisposable
+	public sealed class BillboardResource : IDisposable
 	{
 		private Microsoft.Xna.Framework.Graphics.VertexBuffer _VertexBuffer;
 
@@ -192,7 +192,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

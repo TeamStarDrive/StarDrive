@@ -6,7 +6,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class ItemToOffer
+	public sealed class ItemToOffer
 	{
 		public object Target;
 

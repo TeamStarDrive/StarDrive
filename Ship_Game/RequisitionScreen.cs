@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class RequisitionScreen : GameScreen, IDisposable
+	public sealed class RequisitionScreen : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -118,22 +118,6 @@ namespace Ship_Game
 				g.SetFleet(this.f);
 				node.GoalGUID = g.guid;
 				this.f.Owner.GetGSAI().Goals.Add(g);
-			}
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
 			}
 		}
 
