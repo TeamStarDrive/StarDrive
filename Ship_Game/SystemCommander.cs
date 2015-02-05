@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-	public class SystemCommander
+	public sealed class SystemCommander
 	{
 		public SolarSystem system;
 

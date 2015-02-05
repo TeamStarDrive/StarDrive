@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace Ship_Game
 {
-	public class SpaceStation
+	public sealed class SpaceStation
 	{
 		public SceneObject InnerSO;
 

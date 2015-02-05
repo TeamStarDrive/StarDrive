@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class AO : IDisposable
+	public sealed class AO : IDisposable
 	{
 		public int ThreatLevel;
 
@@ -231,7 +231,7 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

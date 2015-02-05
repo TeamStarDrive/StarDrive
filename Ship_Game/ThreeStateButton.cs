@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ThreeStateButton
+	public sealed class ThreeStateButton
 	{
 		public string Good;
 

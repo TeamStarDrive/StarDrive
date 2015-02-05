@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class PlanetListScreen : GameScreen, IDisposable
+	public sealed class PlanetListScreen : GameScreen, IDisposable
 	{
 		//private bool LowRes;
 
@@ -138,7 +138,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

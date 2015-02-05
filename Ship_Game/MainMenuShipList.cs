@@ -6,7 +6,7 @@ using System.Text;
 namespace Ship_Game
 {
     //Added by McShooterz: add a ship model to the main menu
-    public class MainMenuShipList
+    public sealed class MainMenuShipList
     {
         public List<string> ModelPaths;
 

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
-	public class ArtificialIntelligence : IDisposable
+	public sealed class ArtificialIntelligence : IDisposable
 	{
         public Task fireTask;
         public bool UseSensorsForTargets =true;
@@ -7189,7 +7189,7 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

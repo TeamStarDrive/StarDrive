@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-    public class BatchRemovalCollection<T> : List<T>,IDisposable
+    public sealed class BatchRemovalCollection<T> : List<T>,IDisposable
     {
         //public List<T> pendingRemovals;
         public ConcurrentStack<T> pendingRemovals;
@@ -101,7 +101,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

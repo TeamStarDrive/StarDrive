@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class CreatingNewGameScreen : GameScreen, IDisposable
+    public sealed class CreatingNewGameScreen : GameScreen, IDisposable
     {
         private Matrix worldMatrix = Matrix.Identity;
         private float scale = 1f;
@@ -907,7 +907,7 @@ namespace Ship_Game
             GC.SuppressFinalize((object)this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposing)
                 return;

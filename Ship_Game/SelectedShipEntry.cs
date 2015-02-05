@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class SelectedShipEntry
+	public sealed class SelectedShipEntry
 	{
 		public List<SkinnableButton> ShipButtons = new List<SkinnableButton>();
 

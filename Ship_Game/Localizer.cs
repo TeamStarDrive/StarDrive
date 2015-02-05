@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-    public class Localizer
+    public sealed class Localizer
     {
         public static Dictionary<int, string> LocalizerDict;
         public static Dictionary<int, bool> used;

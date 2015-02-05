@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Operation
+	public sealed class Operation
 	{
 		public string Name;
 

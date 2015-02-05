@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class LocalizationFile
+	public sealed class LocalizationFile
 	{
 		public List<Token> TokenList = new List<Token>();
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class DiplomaticTraits
+	public sealed class DiplomaticTraits
 	{
 		public List<DTrait> DiplomaticTraitsList;
 

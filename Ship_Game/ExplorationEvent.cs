@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ExplorationEvent
+	public sealed class ExplorationEvent
 	{
 		public string Name;
 

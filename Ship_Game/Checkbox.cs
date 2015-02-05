@@ -5,7 +5,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Checkbox
+	public sealed class Checkbox
 	{
 		private Rectangle EnclosingRect;
 

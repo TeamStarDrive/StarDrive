@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Outcome
+	public sealed class Outcome
 	{
 		private Planet SelectedPlanet;
 

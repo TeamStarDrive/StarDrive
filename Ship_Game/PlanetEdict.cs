@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Ship_Game
 {
-    public class PlanetEdict
+    public sealed class PlanetEdict
     {
         public string Name;
         public int Localization;

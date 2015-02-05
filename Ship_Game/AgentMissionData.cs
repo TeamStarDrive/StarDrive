@@ -6,7 +6,7 @@ using System.Text;
 namespace Ship_Game
 {
     //Added by McShooterz: store modifiable data for agent missions
-    public class AgentMissionData
+    public sealed class AgentMissionData
     {
         public short AgentCost = 200;
         public short ExpPerLevel = 2;

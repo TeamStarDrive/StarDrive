@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Ship_Game
 {
-	public class TutorialScreen : GameScreen
+	public sealed class TutorialScreen : GameScreen
 	{
 		private Dictionary<string, Texture2D> TexDict = new Dictionary<string, Texture2D>();
 
@@ -24,21 +24,7 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+	
 
 		public override void Draw(GameTime gameTime)
 		{

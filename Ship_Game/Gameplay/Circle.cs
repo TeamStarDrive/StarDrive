@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class Circle
+	public sealed class Circle
 	{
 		public float Radius;
 

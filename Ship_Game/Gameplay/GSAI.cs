@@ -12,7 +12,7 @@ using System.Collections.Concurrent;
 
 namespace Ship_Game.Gameplay
 {
-	public class GSAI : IDisposable
+	public sealed class GSAI : IDisposable
 	{
 		public string EmpireName;
 
@@ -8444,7 +8444,7 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {
