@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 
 namespace Ship_Game
 {
-	public class HaloTestScreen : GameScreen, IDisposable
+	public sealed class HaloTestScreen : GameScreen
 	{
 		private Effect effect;
 
@@ -19,22 +19,6 @@ namespace Ship_Game
 
 		public HaloTestScreen()
 		{
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)

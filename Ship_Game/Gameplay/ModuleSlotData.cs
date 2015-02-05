@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class ModuleSlotData
+	public sealed class ModuleSlotData
 	{
 		public Vector2 Position;
 

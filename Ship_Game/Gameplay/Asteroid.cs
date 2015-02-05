@@ -13,7 +13,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
-	public class Asteroid : GameplayObject
+	public sealed class Asteroid : GameplayObject
 	{
 		public Vector3 Position3D;
 

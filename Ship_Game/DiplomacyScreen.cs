@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class DiplomacyScreen : GameScreen, IDisposable
+	public sealed class DiplomacyScreen : GameScreen, IDisposable
 	{
 		private Empire them;
 
@@ -430,7 +430,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -743,7 +743,7 @@ namespace Ship_Game
 			}
 			this.player = null;
 			this.Dispose();
-			GC.Collect(1, GCCollectionMode.Optimized);
+			//GC.Collect(1, GCCollectionMode.Optimized);
 			base.ScreenManager.RemoveScreen(this);
 		}
 

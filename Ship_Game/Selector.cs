@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Selector
+	public sealed class Selector
 	{
 		public Rectangle Menu;
 

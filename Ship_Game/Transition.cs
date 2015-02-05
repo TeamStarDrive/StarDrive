@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Transition
+	public sealed class Transition
 	{
 		private float currentPosition;
 

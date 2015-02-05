@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class NebulousOverlay
+	public sealed class NebulousOverlay
 	{
 		public Matrix WorldMatrix;
 

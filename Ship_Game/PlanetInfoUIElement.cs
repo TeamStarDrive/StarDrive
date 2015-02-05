@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Ship_Game
 {
-	public class PlanetInfoUIElement : UIElement
+	public sealed class PlanetInfoUIElement : UIElement
 	{
 		private Rectangle SliderRect;
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ResearchQItem
+	public sealed class ResearchQItem
 	{
 		public Rectangle container;
 

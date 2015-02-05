@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class MissionEntry
+	public sealed class MissionEntry
 	{
 		public bool Available;
 

@@ -10,7 +10,7 @@ using System.Threading;
 using System.Collections.Concurrent;
 namespace Ship_Game
 {
-	public class DefensiveCoordinator: IDisposable
+	public sealed class DefensiveCoordinator: IDisposable
 	{
 		private Empire us;
 
@@ -719,7 +719,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

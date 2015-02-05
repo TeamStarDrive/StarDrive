@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class BudgetScreen : GameScreen, IDisposable
+	public sealed class BudgetScreen : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -41,22 +41,6 @@ namespace Ship_Game
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -214,18 +198,6 @@ namespace Ship_Game
         //        //base.Finalize();
         //    }
         //}
-        ~BudgetScreen()
-        {
-            //should implicitly do the same thing as the original bad finalize
-                //try
-                //{
-                    this.Dispose(false);
-                //}
-                //catch
-                //{
-                    //base.Finalize();
-                //}
-        }
 
 		public override void HandleInput(InputState input)
 		{

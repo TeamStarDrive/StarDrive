@@ -5,7 +5,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class ModEntry
+	public sealed class ModEntry
 	{
 		public string ModPath;
 

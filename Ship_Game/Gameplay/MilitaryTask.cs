@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public class MilitaryTask: IDisposable
+	public sealed class MilitaryTask: IDisposable
 	{
 		public bool IsCoreFleetTask;
 
@@ -2605,7 +2605,7 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

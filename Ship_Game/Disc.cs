@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Disc : RoundLine
+	public sealed class Disc : RoundLine
 	{
 		public Vector2 Pos
 		{
