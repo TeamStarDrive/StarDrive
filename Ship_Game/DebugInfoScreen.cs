@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class DebugInfoScreen
+	public sealed class DebugInfoScreen
 	{
 		public bool isOpen;
 
@@ -102,21 +102,6 @@ namespace Ship_Game
             catch { }
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
 
 		public void Draw(GameTime gameTime)
 		{
@@ -436,11 +421,6 @@ namespace Ship_Game
 					}
 				}
 			}
-		}
-
-		~DebugInfoScreen()
-		{
-			this.Dispose(false);
 		}
 
 		public bool HandleInput(InputState input)

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Beam : Projectile
+	public sealed class Beam : Projectile
 	{
 		public Vector3 Origin;
 
@@ -360,7 +360,7 @@ namespace Ship_Game
                 catch
                 {
                     System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed", this.weapon.UID));
-                    GC.Collect(0, GCCollectionMode.Optimized);
+                    //GC.Collect(0, GCCollectionMode.Optimized);
                     Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
                     this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
                     {

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class AgentComponent : IDisposable
+	public sealed class AgentComponent : IDisposable
 	{
 		public Agent SelectedAgent;
 
@@ -502,7 +502,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

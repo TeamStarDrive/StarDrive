@@ -16,7 +16,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class ResourceManager
+	public sealed class ResourceManager
 	{
 		public static Dictionary<string, Texture2D> TextureDict;
 

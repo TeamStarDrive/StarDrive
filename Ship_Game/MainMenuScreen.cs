@@ -18,7 +18,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class MainMenuScreen : GameScreen,IDisposable
+	public sealed class MainMenuScreen : GameScreen,IDisposable
 	{
 		public static string Version;
 
@@ -129,7 +129,7 @@ namespace Ship_Game
 
 		public MainMenuScreen()
 		{
-            GC.Collect(1, GCCollectionMode.Optimized);
+            //GC.Collect(1, GCCollectionMode.Optimized);
             base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
 		}
@@ -962,7 +962,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class PrimitiveQuad: IDisposable
+	public sealed class PrimitiveQuad: IDisposable
 	{
 		public static GraphicsDevice graphicsDevice;
 
@@ -113,7 +113,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

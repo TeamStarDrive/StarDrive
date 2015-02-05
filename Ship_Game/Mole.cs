@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Mole
+	public sealed class Mole
 	{
 		public Guid PlanetGuid;
 

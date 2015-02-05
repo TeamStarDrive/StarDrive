@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class MiniMap
+	public sealed class MiniMap
 	{
 		private Rectangle Housing;
 

@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 namespace Ship_Game.Gameplay
 {
-	public class ShipModule : GameplayObject
+	public sealed class ShipModule : GameplayObject
 	{
 		private ParticleEmitter trailEmitter;
 

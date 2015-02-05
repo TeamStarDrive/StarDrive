@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class ShipListScreenEntry
+	public sealed class ShipListScreenEntry
 	{
 		public Ship ship;
 

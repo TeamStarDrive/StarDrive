@@ -9,7 +9,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 namespace Ship_Game.Gameplay
 {
-	public class ThreatMatrix
+	public sealed class ThreatMatrix
 	{
 		//public Dictionary<Guid, ThreatMatrix.Pin> Pins = new Dictionary<Guid, ThreatMatrix.Pin>();
         public ConcurrentDictionary<Guid, ThreatMatrix.Pin> Pins = new ConcurrentDictionary<Guid, ThreatMatrix.Pin>();

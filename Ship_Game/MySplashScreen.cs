@@ -6,7 +6,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class MySplashScreen : GameScreen, IDisposable
+	public sealed class MySplashScreen : GameScreen
 	{
 		private Texture2D Splash;
 
@@ -24,21 +24,6 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(1);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
 
 		public override void Draw(GameTime gameTime)
 		{

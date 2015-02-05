@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	internal class HelperFunctions
+	internal sealed class HelperFunctions
 	{
 		public HelperFunctions()
 		{

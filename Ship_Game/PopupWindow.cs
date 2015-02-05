@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class PopupWindow : GameScreen, IDisposable
+	public class PopupWindow : GameScreen
 	{
 		protected Rectangle r;
 
@@ -82,22 +82,6 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			this.r = r;
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)

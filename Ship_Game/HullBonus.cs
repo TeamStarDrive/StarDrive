@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Ship_Game
 {
-    public class HullBonus
+    public sealed class HullBonus
     {
         public string Hull;
         public float StartingCost; // additional cost to build

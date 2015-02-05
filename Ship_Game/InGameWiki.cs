@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class InGameWiki : PopupWindow
+	public sealed class InGameWiki : PopupWindow, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -74,28 +74,33 @@ namespace Ship_Game
 			this.ht = (HelpTopics)serializer1.Deserialize(Help[0].OpenRead());
 		}
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-        //public virtual void Dispose()
-        //{
-        //    Dispose(true);
-        //    GC.SuppressFinalize(this);
-        //}
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+               if (disposing)
+                {
+                    if (this.VideoPlayer != null)
+                        this.VideoPlayer.Dispose();
+                    if (this.CategoriesSL != null)
+                        this.CategoriesSL.Dispose();
+                    if (this.TextSL != null)
+                        this.TextSL.Dispose();
 
-        //protected virtual void Dispose(bool disposing)
-        //{
-        //    if (!disposed)
-        //    {
-        //        if (disposing)
-        //        {
-        //            if (this.VideoPlayer != null)
-        //                this.VideoPlayer.Dispose();
-
-        //        }
-        //        this.VideoPlayer = null;
-        //        this.disposed = true;
-        //    }
-        //}
-		
+                }
+                this.VideoPlayer = null;
+                this.CategoriesSL = null;
+                this.TextSL = null;
+                this.disposed = true;
+            }
+        } 
+		 
 
 		public override void Draw(GameTime gameTime)
 		{

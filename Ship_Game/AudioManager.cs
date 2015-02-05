@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class AudioManager : GameComponent
+	public sealed class AudioManager : GameComponent
 	{
 		private static AudioManager audioManager;
 
@@ -15,6 +15,8 @@ namespace Ship_Game
 		private SoundBank soundBank;
 
 		private WaveBank waveBank;
+
+        private bool disposed;
 
         //Added by McShooterz: store sounds instances
         private List<SoundEffectInstance> SoundEffectInstances;
@@ -52,30 +54,22 @@ namespace Ship_Game
 
 		protected override void Dispose(bool disposing)
 		{
-			try
+			if (!disposed)
 			{
 				if (disposing)
 				{
 					if (this.soundBank != null)
-					{
 						this.soundBank.Dispose();
-						this.soundBank = null;
-					}
 					if (this.waveBank != null)
-					{
 						this.waveBank.Dispose();
-						this.waveBank = null;
-					}
 					if (this.audioEngine != null)
-					{
 						this.audioEngine.Dispose();
-						this.audioEngine = null;
-					}
-				}
-			}
-			finally
-			{
-				base.Dispose(disposing);
+                }
+            this.soundBank = null;
+            this.waveBank = null;
+            this.audioEngine = null;
+            base.Dispose(disposing);
+            disposed=true;
 			}
 		}
 

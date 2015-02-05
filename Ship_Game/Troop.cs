@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Troop
+	public sealed class Troop
 	{
 		public string Name;
 

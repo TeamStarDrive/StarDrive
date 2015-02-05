@@ -10,7 +10,7 @@ using System.Collections.ObjectModel;
 
 namespace Ship_Game
 {
-	public class SpaceJunk
+	public sealed class SpaceJunk
 	{
 		public SceneObject JunkSO;
 
