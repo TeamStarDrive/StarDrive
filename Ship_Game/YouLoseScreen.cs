@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class YouLoseScreen : GameScreen, IDisposable
+	public sealed class YouLoseScreen : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -58,22 +58,6 @@ namespace Ship_Game
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(30);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)

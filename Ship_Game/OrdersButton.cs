@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class OrdersButton
+	public sealed class OrdersButton
 	{
 		private OrderType orderType;
 

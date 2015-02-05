@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class FleetDataNode
+	public sealed class FleetDataNode
 	{
 		private Ship ship;
 

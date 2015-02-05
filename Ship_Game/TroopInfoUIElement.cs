@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class TroopInfoUIElement : UIElement, IDisposable
+	public sealed class TroopInfoUIElement : UIElement, IDisposable
 	{
 		private Rectangle SliderRect;
 
@@ -255,7 +255,7 @@ namespace Ship_Game
         }
 
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

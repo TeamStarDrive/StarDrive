@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public class DroneAI: IDisposable
+	public sealed class DroneAI: IDisposable
 	{
 		public Projectile Owner;
 
@@ -206,7 +206,7 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

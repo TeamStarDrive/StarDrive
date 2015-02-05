@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class ModuleButton
+	public sealed class ModuleButton
 	{
 		public string ModuleUID;
 

@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 
 namespace Ship_Game
 {
-	public class Thruster
+	public sealed class Thruster
 	{
 		public Model model;
 

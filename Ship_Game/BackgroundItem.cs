@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Ship_Game
 {
 
-	public class BackgroundItem : IDisposable
+	public sealed class BackgroundItem : IDisposable
 	{
 		public Texture2D Texture;
 
@@ -113,7 +113,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

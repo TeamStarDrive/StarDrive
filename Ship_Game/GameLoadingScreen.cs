@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-	public class GameLoadingScreen : GameScreen, IDisposable
+	public sealed class GameLoadingScreen : GameScreen, IDisposable
 	{
 		private Texture2D BGTexture;
 
@@ -226,7 +226,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

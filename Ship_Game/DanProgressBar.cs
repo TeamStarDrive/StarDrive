@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DanProgressBar
+	public sealed class DanProgressBar
 	{
 		public Rectangle rect;
 

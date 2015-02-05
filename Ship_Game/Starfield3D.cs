@@ -5,7 +5,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Starfield3D : IDisposable
+	public sealed class Starfield3D : IDisposable
 	{
 		private const int numberOfStars = 1000;
 
@@ -107,7 +107,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

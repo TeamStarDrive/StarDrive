@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ShipData
+	public sealed class ShipData
 	{
 		public bool Animated;
 

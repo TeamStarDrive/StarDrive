@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Ship_Game
 {
-	public class HeaderData
+	public sealed class HeaderData
 	{
 		public string SaveName;
 

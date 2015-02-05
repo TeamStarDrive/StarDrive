@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Commodity
+	public sealed class Commodity
 	{
 		public int NameIndex;
 

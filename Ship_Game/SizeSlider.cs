@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class SizeSlider
+	public sealed class SizeSlider
 	{
 		public Rectangle rect;
 

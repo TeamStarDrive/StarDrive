@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class EmpireUIOverlay
+	public sealed class EmpireUIOverlay
 	{
 		public Empire empire;
 

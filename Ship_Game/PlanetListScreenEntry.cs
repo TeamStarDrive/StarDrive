@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class PlanetListScreenEntry
+	public sealed class PlanetListScreenEntry
 	{
 		public Planet planet;
 

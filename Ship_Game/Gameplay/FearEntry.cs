@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class FearEntry
+	public sealed class FearEntry
 	{
 		public int TurnTimer;
 

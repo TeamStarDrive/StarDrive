@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Config
+	public sealed class Config
 	{
         public float AutoSaveInterval = 600.0f;
 

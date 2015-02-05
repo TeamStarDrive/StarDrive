@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class RandomEvent
+	public sealed class RandomEvent
 	{
 		public string Name;
 

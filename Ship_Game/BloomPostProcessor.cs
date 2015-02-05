@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class BloomPostProcessor : BaseRenderTargetPostProcessor, IDisposable
+	public sealed class BloomPostProcessor : BaseRenderTargetPostProcessor, IDisposable
 	{
 		private List<SurfaceFormat> supportedSourceFormats;
 
@@ -208,7 +208,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

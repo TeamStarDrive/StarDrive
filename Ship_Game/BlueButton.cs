@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class BlueButton
+	public sealed class BlueButton
 	{
 		public Rectangle Button;
 
