@@ -14,7 +14,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class LoadUniverseScreen : GameScreen, IDisposable
+	public sealed class LoadUniverseScreen : GameScreen, IDisposable
 	{
 		private Vector2 ScreenCenter;
 
@@ -71,7 +71,7 @@ namespace Ship_Game
 			BackgroundWorker bgw = new BackgroundWorker();
 			bgw.DoWork += new DoWorkEventHandler(this.DecompressFile);
             
-            GC.Collect(2, GCCollectionMode.Optimized);
+            //GC.Collect(2, GCCollectionMode.Optimized);
 			bgw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.LoadEverything);
 			bgw.RunWorkerAsync(activeFile);
 		}
@@ -418,7 +418,7 @@ namespace Ship_Game
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+		protected void Dispose(bool disposing)
 		{
             if (disposing)
             {

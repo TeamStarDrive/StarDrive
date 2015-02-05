@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-	public class GameplayMMScreen : GameScreen, IDisposable
+	public sealed class GameplayMMScreen : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -54,21 +54,6 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -153,21 +138,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~GameplayMMScreen() {
-            //should implicitly do the same thing as the original bad finalize
-            this.Dispose(false);
-        }
 
 		public override void HandleInput(InputState input)
 		{

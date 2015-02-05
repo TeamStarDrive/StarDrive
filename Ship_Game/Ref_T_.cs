@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Ref<T>
+	public sealed class Ref<T>
 	{
 		private Func<T> getter;
 

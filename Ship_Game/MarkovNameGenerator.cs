@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class MarkovNameGenerator
+	public sealed class MarkovNameGenerator
 	{
 		private Dictionary<string, List<char>> _chains = new Dictionary<string, List<char>>();
 

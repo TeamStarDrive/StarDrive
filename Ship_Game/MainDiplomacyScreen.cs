@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class MainDiplomacyScreen : GameScreen, IDisposable
+	public sealed class MainDiplomacyScreen : GameScreen, IDisposable
 	{
 		private UniverseScreen screen;
 
@@ -68,7 +68,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

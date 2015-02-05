@@ -8,7 +8,7 @@ namespace Ship_Game
 {
     [Serializable]
 	[XmlRoot("dictionary")]
-	public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
+	public sealed class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
 	{
 		public SerializableDictionary()
 		{

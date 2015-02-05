@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DimensionalPrison : Anomaly, IDisposable
+	public sealed class DimensionalPrison : Anomaly, IDisposable
 	{
 		public Vector2 p1;
 
@@ -156,7 +156,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

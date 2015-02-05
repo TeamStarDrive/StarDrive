@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class MinimapButtons
+	public sealed class MinimapButtons
 	{
 		public Rectangle Rect;
 

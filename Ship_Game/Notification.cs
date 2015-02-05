@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Notification
+	public sealed class Notification
 	{
 		public object ReferencedItem1;
 

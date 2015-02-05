@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ToggleButton
+	public sealed class ToggleButton
 	{
 		public Rectangle r;
 

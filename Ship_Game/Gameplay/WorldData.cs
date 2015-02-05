@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class WorldData
+	public sealed class WorldData
 	{
 		public string SectorGraphicPath;
 

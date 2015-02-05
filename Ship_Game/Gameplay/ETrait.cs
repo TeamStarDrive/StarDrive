@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class ETrait
+	public sealed class ETrait
 	{
 		public string Name;
 

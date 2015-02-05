@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class ShipSpatialManager: IDisposable
+	public sealed class ShipSpatialManager: IDisposable
 	{
 		private const float speedDamageRatio = 0.5f;
 
@@ -147,7 +147,7 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

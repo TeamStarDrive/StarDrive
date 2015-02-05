@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
-	public class Relationship: IDisposable
+	public sealed class Relationship: IDisposable
 	{
 		public FederationQuest FedQuest;
 
@@ -849,7 +849,7 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class RaceEntry
+	public sealed class RaceEntry
 	{
 		public Rectangle container;
 
