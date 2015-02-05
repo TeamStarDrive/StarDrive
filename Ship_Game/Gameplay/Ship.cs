@@ -1170,6 +1170,10 @@ namespace Ship_Game.Gameplay
 
         public float GetMaintCost()
         {
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+            {
+                return this.GetMaintCostRealism();
+            }
             float maint = 0f;
             string role = this.Role;
             string str = role;

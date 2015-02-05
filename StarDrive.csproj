@@ -1690,6 +1690,7 @@
     </Content>
     <Content Include="Content\EconomicResearchStrategy\Expansionists.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\EconomicResearchStrategy\Generalists.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1699,6 +1700,7 @@
     </Content>
     <Content Include="Content\EconomicResearchStrategy\Militarists.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\EconomicResearchStrategy\Technologists.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
