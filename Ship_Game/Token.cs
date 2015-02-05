@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Token
+	public sealed class Token
 	{
 		public int Index;
 

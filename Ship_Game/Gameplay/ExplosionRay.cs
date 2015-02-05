@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class ExplosionRay
+	public sealed class ExplosionRay
 	{
 		public Vector2 Direction;
 

@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class RacialTrait
+	public sealed class RacialTrait
 	{
 		public string Name;
 

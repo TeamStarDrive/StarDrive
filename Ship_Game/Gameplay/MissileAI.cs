@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public class MissileAI
+	public sealed class MissileAI
 	{
 		public Projectile Owner;
 

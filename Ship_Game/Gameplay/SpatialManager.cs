@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
-    public class SpatialManager: IDisposable
+    public sealed class SpatialManager: IDisposable
     {
         public BatchRemovalCollection<GameplayObject> CollidableObjects = new BatchRemovalCollection<GameplayObject>();
         public BatchRemovalCollection<Projectile> CollidableProjectiles = new BatchRemovalCollection<Projectile>();
@@ -1154,7 +1154,7 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

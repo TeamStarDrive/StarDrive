@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class TraitEntry
+	public sealed class TraitEntry
 	{
 		public bool Selected;
 

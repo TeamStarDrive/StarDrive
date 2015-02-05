@@ -6,7 +6,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class BloomComponent : IDisposable
+	public sealed class BloomComponent : IDisposable
 	{
 		private Effect bloomExtractEffect;
 
@@ -232,7 +232,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class ModInformation
+	public sealed class ModInformation
 	{
 		public string ModName = "";
 

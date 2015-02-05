@@ -6,7 +6,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Explosion
+	public sealed class Explosion
 	{
 		public PointLight light;
 

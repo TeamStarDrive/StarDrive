@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-	public class GlobalStats
+	public sealed class GlobalStats
 	{
         public static int ComparisonCounter;
 

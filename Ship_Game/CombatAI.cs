@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-    public class CombatAI
+    public sealed class CombatAI
     {
         public float VultureWeight = 1f;
 

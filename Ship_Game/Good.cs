@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Good
+	public sealed class Good
 	{
 		public string UID;
 

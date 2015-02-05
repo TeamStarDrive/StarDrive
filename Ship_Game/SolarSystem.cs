@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class SolarSystem: IDisposable
+	public  sealed class SolarSystem: IDisposable
 	{
 		public string Name = "Random System";
 
@@ -938,7 +938,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

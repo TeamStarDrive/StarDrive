@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Building
+	public sealed class Building
 	{
 		public string Name;
 

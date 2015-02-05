@@ -5,7 +5,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class GenericButton
+	public sealed class GenericButton
 	{
 		public Rectangle R;
 

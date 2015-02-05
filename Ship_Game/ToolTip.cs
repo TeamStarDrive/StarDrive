@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ToolTip
+	public sealed class ToolTip
 	{
 		public int TIP_ID;
 
