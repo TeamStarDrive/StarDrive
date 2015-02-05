@@ -7542,12 +7542,21 @@ namespace Ship_Game.Gameplay
                 bool atWar = false;
                 bool highTaxes = false;
                 bool lowResearch = false;
+                bool lowincome = false;
                 if (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0)
                     atWar = true;
                 if (this.empire.data.TaxRate >= .50f )
                     highTaxes = true;
                 if (this.empire.GetPlanets().Sum(research => research.NetResearchPerTurn) < this.empire.GetPlanets().Count / 3)
                     lowResearch = true;
+                //float moneyNeeded = this.empire.canBuildFrigates ? 25 : 0;
+                //moneyNeeded = this.empire.canBuildCruisers ? 50 : moneyNeeded;
+                //moneyNeeded = this.empire.canBuildCapitals ? 100 : moneyNeeded;
+                //float money = this.empire.EstimateIncomeAtTaxRate(.5f) + this.empire.GetTotalShipMaintenance();
+                //if (money < moneyNeeded)
+                //{
+                //    lowincome = true;
+                //}
                 switch (this.res_strat)
 				{
 					case GSAI.ResearchStrategy.Random:
@@ -7786,6 +7795,32 @@ namespace Ship_Game.Gameplay
                                             goto Start;
 
                                         }
+                                case "IFLOWINCOME":
+                                        {
+                                            if (lowincome)
+                                            {
+                                                ScriptIndex = int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
+                                                loopcount++;
+                                                goto Start;
+
+                                            }
+                                            ScriptIndex++;
+                                            goto Start;
+
+                                        }
+                                case "IFNOTLOWINCOME":
+                                        {
+                                            if (!lowincome)
+                                            {
+                                                ScriptIndex = int.Parse(this.empire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);
+                                                loopcount++;
+                                                goto Start;
+
+                                            }
+                                            ScriptIndex++;
+                                            goto Start;
+
+                                        }
                                 case "RANDOM":
                                         {
                                             this.res_strat = GSAI.ResearchStrategy.Random;
@@ -8006,6 +8041,19 @@ namespace Ship_Game.Gameplay
                                 //techtype = TechnologyType.Industry;
                                 continue;
                             }
+                            if(techtype == TechnologyType.ShipHull)
+                            {
+                                float moneyNeeded =this.empire.canBuildFrigates ? 40 : 20;
+
+                                moneyNeeded = this.empire.canBuildCruisers ? 60 : moneyNeeded;
+                                moneyNeeded = this.empire.canBuildCapitals ? 80 : moneyNeeded;
+                                float money = this.empire.EstimateIncomeAtTaxRate(.5f) + this.empire.GetTotalShipMaintenance();
+                                if (money < moneyNeeded)
+                                {
+                                    continue;
+                                }
+                            }
+                            
 
                             Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
                             //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
@@ -8013,7 +8061,15 @@ namespace Ship_Game.Gameplay
                                 continue;
                             //if (AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).Count() == 0)
                             //    continue;
-                            
+                            if (techtype == TechnologyType.Economic)
+                            {
+                                if(ResearchTech.HullsUnlocked.Count >0)
+                                {
+                                    float money = this.empire.EstimateIncomeAtTaxRate(.25f);
+                                    if (money < 5f)
+                                        continue;
+                                }
+                            }
 
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
                             if (string.IsNullOrEmpty(researchtopic))

@@ -17,30 +17,28 @@
       <id>CHEAPEST:TECH:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipHull</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Industry</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic</id>
+      <id>CHEAPEST:TECH:Economic:Industry</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Industry:Economic:Colonization:General:Research</id>
     </Tech>
-    <Tech>
-      <id>IFLOWRESEARCH:6</id>
-    </Tech>
+
     <Tech>
       <id>IFPEACE:7</id>
     </Tech>
@@ -62,7 +60,7 @@
     </Tech>
 
     <Tech>
-      <id>LOOP:11</id>
+      <id>LOOP:10</id>
     </Tech>
   </TechPath>
 </EconomicResearchStrategy>

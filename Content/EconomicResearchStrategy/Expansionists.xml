@@ -32,7 +32,7 @@
       <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Colonization:General:Research:ShipHull</id>
+      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Colonization:General:Research</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
@@ -52,7 +52,7 @@
       <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization:General</id>
