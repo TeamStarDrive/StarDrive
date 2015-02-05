@@ -1326,7 +1326,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				RacialTraits data = (RacialTraits)serializer1.Deserialize(stream);
+                RacialTraits data;
+                try
+                {
+                     data = (RacialTraits)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                      
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
                 
@@ -1523,7 +1533,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				List<Artifact> data = (List<Artifact>)serializer1.Deserialize(stream);
+                List<Artifact> data;
+                try
+                {
+                    data = (List<Artifact>)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                    
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
 				foreach (Artifact art in data)
@@ -1551,7 +1571,17 @@ namespace Ship_Game
             for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				Building newB = (Building)serializer0.Deserialize(stream);
+                Building newB;
+                try
+                {
+                    newB = (Building)serializer0.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                     
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
                 try
@@ -1599,7 +1629,17 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				DiplomacyDialog data = (DiplomacyDialog)serializer1.Deserialize(stream);
+                DiplomacyDialog data;
+                try
+                {
+                    data = (DiplomacyDialog)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                     
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();	
 
@@ -1623,7 +1663,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
+                EmpireData data;
+                try
+                {
+                    data = (EmpireData)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                     
+                    throw e;
+                }
                 data.TroopDescriptionIndex = +OffSet;
                 data.TroopNameIndex += OffSet;
                 //stream.Close();
@@ -1642,7 +1692,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				Encounter data = (Encounter)serializer1.Deserialize(stream);				
+                Encounter data;
+                try
+                {
+                     data = (Encounter)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                      
+                    throw e;
+                }				
                 //stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.Encounters.Add(data);
@@ -1658,7 +1718,17 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				ExplorationEvent data = (ExplorationEvent)serializer1.Deserialize(stream);
+                ExplorationEvent data;
+                try
+                {
+                     data = (ExplorationEvent)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                      
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();				
                 if (Ship_Game.ResourceManager.EventsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
@@ -1697,7 +1767,17 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				Good data = (Good)serializer1.Deserialize(stream);
+                Good data;
+                try
+                {
+                     data = (Good)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                     
+                    throw e;
+                }
 				data.UID = Path.GetFileNameWithoutExtension(FI.Name);
 				//stream.Close();
 				stream.Dispose();
@@ -1749,7 +1829,17 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
+                ShipData newShipData;
+                try
+                {
+                    newShipData = (ShipData)serializer0.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                     
+                    throw e;
+                }
 				
                 //stream.Close();
 				stream.Dispose();
@@ -1916,7 +2006,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
+                EmpireData data;
+                try
+                {
+                     data = (EmpireData)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                      
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
                 if (Localizer.LocalizerDict.ContainsKey(data.TroopDescriptionIndex + OffSet))
@@ -1946,10 +2046,6 @@ namespace Ship_Game
 		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
             ResourceManager.OffSet = 32000;
-            //if (Ship_Game.ResourceManager.WhichModPath != "Content")
-            //    ResourceManager.OffSet = 10000;
-            //else
-            //    ResourceManager.OffSet = 0;
             Ship_Game.ResourceManager.LoadLanguage();
 			Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
@@ -2135,7 +2231,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				RandomItem data = (RandomItem)serializer1.Deserialize(stream);
+                RandomItem data;
+                try
+                {
+                     data = (RandomItem)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                    
+                    throw e;
+                }
 				
                 //stream.Close();
 				stream.Dispose();
@@ -2169,7 +2275,17 @@ namespace Ship_Game
                 if(FI.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase)  >0)
                     continue;
 				FileStream stream = FI.OpenRead();
-				ShipModule data = (ShipModule)serializer1.Deserialize(stream);
+                ShipModule data;
+                try
+                {
+                     data = (ShipModule)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                    
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
                 if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
@@ -2244,7 +2360,17 @@ namespace Ship_Game
 			for (int j = 0; j < (int)filesFromDirectory.Length; j++)
 			{
 				FileStream stream = filesFromDirectory[j].OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
+                ShipData newShipData;
+                try
+                {
+                     newShipData = (ShipData)serializer0.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                     
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
 				Ship newShip = Ship.CreateShipFromShipData(newShipData);
@@ -2273,7 +2399,17 @@ namespace Ship_Game
 #endif
 				{
 					FileStream stream = FI.OpenRead();
-					ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
+                    ShipData newShipData;
+                    try
+                    {
+                         newShipData = (ShipData)serializer0.Deserialize(stream);
+                    }
+                    catch (Exception e)
+                    {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);                        
+                        throw e;
+                    }
 					//stream.Close();
 					stream.Dispose();
 					Ship newShip = Ship.CreateShipFromShipData(newShipData);
@@ -2564,7 +2700,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
+                EmpireData data;
+                try
+                {
+                     data = (EmpireData)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
 				if (data.Faction == 1)
@@ -2586,7 +2732,17 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				Technology data = (Technology)serializer1.Deserialize(stream);
+                Technology data;
+                try
+                {
+                     data = (Technology)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                    e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
                 if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
@@ -2697,7 +2853,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				Tooltips data = (Tooltips)serializer1.Deserialize(stream);
+                Tooltips data;
+                try
+                {
+                    data = (Tooltips)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                                        e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
 				foreach (ToolTip tip in data.ToolTipsList)
@@ -2725,7 +2891,17 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				Troop data = (Troop)serializer1.Deserialize(stream);
+                Troop data;
+                try
+                {
+                    data = (Troop)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                                                            e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
 				//no localization
@@ -2756,7 +2932,17 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				Weapon data = (Weapon)serializer1.Deserialize(stream);
+                Weapon data;
+                try
+                {
+                    data = (Weapon)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                    e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);
+                    throw e;
+                }
 				//stream.Close();
 				stream.Dispose();
                 //no localization
@@ -2783,7 +2969,17 @@ namespace Ship_Game
             {
                 FileInfo FI = fileInfoArray[i];
                 FileStream stream = FI.OpenRead();
-                ShipRole data = (ShipRole)serializer1.Deserialize(stream);
+                ShipRole data;
+                try
+                {
+                    data = (ShipRole)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                     e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);
+                    throw e;
+                }
                 //stream.Close();
                 stream.Dispose();                              
                 if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
@@ -2823,7 +3019,17 @@ namespace Ship_Game
                 {
                     FileInfo FI = fileInfoArray[i];
                     FileStream stream = FI.OpenRead();
-                    HullBonus data = (HullBonus)serializer1.Deserialize(stream);
+                    HullBonus data;
+                    try
+                    {
+                         data = (HullBonus)serializer1.Deserialize(stream);
+                    }
+                    catch (Exception e)
+                    {
+                        e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);
+                        throw e;
+                    }
                     //stream.Close();
                     stream.Dispose();
                     if (Ship_Game.ResourceManager.HullBonuses.ContainsKey(data.Hull))
@@ -2853,7 +3059,17 @@ namespace Ship_Game
                 {
                     FileInfo FI = fileInfoArray[i];
                     FileStream stream = FI.OpenRead();
-                    PlanetEdict data = (PlanetEdict)serializer1.Deserialize(stream);
+                    PlanetEdict data;
+                    try
+                    {
+                         data = (PlanetEdict)serializer1.Deserialize(stream);
+                    }
+                    catch (Exception e)
+                    {
+                        e.Data.Add("Failing File: ", stream.Name);
+                    e.Data.Add("Fail Info: ", e.InnerException.Message);
+                        throw e;
+                    }
                     //stream.Close();
                     stream.Dispose();
                     if (Ship_Game.ResourceManager.PlanetaryEdicts.ContainsKey(data.Name))
