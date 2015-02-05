@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class RandomThreadMath
+	public sealed class RandomThreadMath
 	{
 		private static System.Random random;
 

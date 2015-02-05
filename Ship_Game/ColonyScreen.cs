@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-    public class ColonyScreen : PlanetScreen, IDisposable
+    public sealed class ColonyScreen : PlanetScreen, IDisposable
     {
         public Planet p;
 
@@ -3084,7 +3084,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

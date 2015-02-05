@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DropDownMenu
+	public sealed class DropDownMenu
 	{
 		private DropDownMenu.RecTexPair TL;
 

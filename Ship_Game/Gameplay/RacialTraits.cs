@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class RacialTraits
+	public sealed  class RacialTraits
 	{
 		public List<RacialTrait> TraitList;
 

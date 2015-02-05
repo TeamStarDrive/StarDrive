@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class MuzzleFlash
+	public sealed class MuzzleFlash
 	{
 		public Matrix WorldMatrix;
 

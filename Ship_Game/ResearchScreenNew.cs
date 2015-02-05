@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ResearchScreenNew : GameScreen, IDisposable
+	public sealed class ResearchScreenNew : GameScreen, IDisposable
 	{
 		public Camera2d camera;
 
@@ -89,7 +89,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

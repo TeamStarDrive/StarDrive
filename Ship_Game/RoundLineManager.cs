@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	internal class RoundLineManager : IDisposable
+	internal sealed class RoundLineManager : IDisposable
 	{
 		private GraphicsDevice device;
 
@@ -329,7 +329,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

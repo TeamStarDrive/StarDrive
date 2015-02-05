@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class AutomationWindow
+	public sealed class AutomationWindow
 	{
 		public bool isOpen;
 
@@ -81,21 +81,6 @@ namespace Ship_Game
 			this.SetDropDowns();
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
 
 		public void Draw(GameTime gameTime)
 		{
@@ -114,10 +99,6 @@ namespace Ship_Game
 			this.ScoutDropDown.Draw(this.ScreenManager.SpriteBatch);
 		}
 
-		~AutomationWindow()
-		{
-			this.Dispose(false);
-		}
 
         public bool HandleInput(InputState input)
         {

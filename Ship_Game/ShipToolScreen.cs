@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class ShipToolScreen : GameScreen, IDisposable
+	public sealed class ShipToolScreen : GameScreen, IDisposable
 	{
 		//private int activeAnimationClip;
 
@@ -170,7 +170,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposed)
             {

@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class WeaponTagModifier
+	public sealed class WeaponTagModifier
 	{
 		public float Speed;
 

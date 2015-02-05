@@ -7,7 +7,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class ZeroSplash : GameScreen, IDisposable
+	public class ZeroSplash : GameScreen
 	{
 		//private Empire them;
 
@@ -27,22 +27,6 @@ namespace Ship_Game
 
 		public ZeroSplash()
 		{
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)

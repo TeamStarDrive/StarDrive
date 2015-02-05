@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class War
+	public sealed class War
 	{
 		public Ship_Game.WarType WarType;
 
