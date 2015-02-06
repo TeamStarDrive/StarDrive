@@ -461,6 +461,11 @@ namespace Ship_Game
                         }
                     }
                 }
+                if(this.data.Traits.Cybernetic >0)
+                {
+                    if (techEntry.UID == "Biospheres")
+                        techEntry.Unlocked = true;
+                }
                 if (techEntry.Unlocked)
                     techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
                 this.TechnologyDict.Add(keyValuePair.Key, techEntry);

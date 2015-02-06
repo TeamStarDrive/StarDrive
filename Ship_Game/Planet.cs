@@ -3184,7 +3184,7 @@ namespace Ship_Game
                 this.ResearcherPercentage = 1f - this.WorkerPercentage  ;
                 if (this.ResearcherPercentage < 0f)
                     ResearcherPercentage = 0f;
-                if ((double)this.NetProductionPerTurn > 5.0 && this.ProductionHere > this.MAX_STORAGE * 0.5f)
+                if ((double)this.NetProductionPerTurn > 1.0 && this.ProductionHere > this.MAX_STORAGE * 0.5f)
                     this.ps = Planet.GoodState.EXPORT;
                 else
                     this.ps = Planet.GoodState.IMPORT;
@@ -3341,13 +3341,18 @@ namespace Ship_Game
                             || (double)queueItem1.Building.PlusProdPerRichness > 0.0 
                             || (double)queueItem1.Building.PlusProdPerColonist > 0.0
                             || (double)queueItem1.Building.PlusTaxPercentage >0.0
-                            || (double)queueItem1.Building.CreditsPerColonist >0.0)
+                            || (double)queueItem1.Building.CreditsPerColonist >0.0
+                            || queueItem1.Building.Name == "Biospheres")
                         {
                             this.ApplyAllStoredProduction(0);
                         }
                         break;
                     }
-                    else if (queueItem1.isBuilding && ((double)queueItem1.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem1.Building.PlusProdPerColonist > 0.0 || (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusProdPerRichness > 0.0)))
+                    else if (queueItem1.isBuilding 
+                        && ((double)queueItem1.Building.PlusFlatProductionAmount > 0.0 
+                        || (double)queueItem1.Building.PlusProdPerColonist > 0.0 
+                        || (queueItem1.Building.Name == "Outpost" 
+                        || (double)queueItem1.Building.PlusProdPerRichness > 0.0)))
                     {
                         LinkedList<QueueItem> linkedList = new LinkedList<QueueItem>();
                         foreach (QueueItem queueItem2 in (List<QueueItem>)this.ConstructionQueue)

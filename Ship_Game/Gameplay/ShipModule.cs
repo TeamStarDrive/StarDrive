@@ -1041,8 +1041,14 @@ namespace Ship_Game.Gameplay
 			this.SetAttributesByType();
 			if (this.Parent != null && this.Parent.loyalty != null)
 			{
-				this.HealthMax = this.HealthMax + this.HealthMax * this.Parent.loyalty.data.Traits.ModHpModifier;
+                //bool flag = false;
+                //if (this.HealthMax == base.Health)
+                //    flag = true;
+                this.HealthMax = this.HealthMax + this.HealthMax * this.Parent.loyalty.data.Traits.ModHpModifier;
 				base.Health = base.Health + base.Health * this.Parent.loyalty.data.Traits.ModHpModifier;
+                this.Health = base.Health;
+                //if (flag)
+                //    this.Health = this.HealthMax;
 			}
 			if (!this.isDummy && (this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
 			{
@@ -1330,6 +1336,7 @@ namespace Ship_Game.Gameplay
                         }
                         this.GetHangarShip().Mothership = this.Parent;
                         this.installedSlot.HangarshipGuid = this.GetHangarShip().guid;
+
                         this.hangarTimer = this.hangarTimerConstant;
                     }
                 }

@@ -9,9 +9,7 @@
 
 
 
-    <Tech>
-      <id>IFCYBERNETIC:18</id>
-    </Tech>
+
 
     <Tech>
       <id>CHEAPEST:TECH:Industry</id>
@@ -26,6 +24,9 @@
     </Tech>
     <Tech>
       <id>XenoMining</id>
+    </Tech>
+    <Tech>
+      <id>IFCYBERNETIC:7</id>
     </Tech>
     <Tech>
       <id>Aeroponics</id>
@@ -83,29 +84,23 @@
     <Tech>
       <id>CHEAPEST:TECH:Colonization</id>
     </Tech>
-    <Tech>
-      <id>LOOP:1</id>
-    </Tech>
-    <Tech>
-      <id>IS Government</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull</id>
-    </Tech>
+
     <Tech>
       <id>CHEAPEST:TECH:Industry</id>
     </Tech>
+
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>IS Government</id>
+    </Tech>
+
+    <Tech>
+      <id>ScientificFoundations</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense</id>
+      <id>XenoMining</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Research</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:General</id>
+      <id>LOOP:7</id>
     </Tech>
 
    
