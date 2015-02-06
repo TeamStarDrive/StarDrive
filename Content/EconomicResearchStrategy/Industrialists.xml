@@ -7,57 +7,54 @@
   <IndustryPriority>4</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>CHEAPEST:TECH:Industry</id>
+      <id>IndustrialFoundations</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Economic</id>
+      <id>IS Government</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Colonization</id>
-    </Tech>
-
-    <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>ScientificFoundations</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense</id>
+      <id>XenoMining</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry</id>
+      <id>MissileTheory</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Research</id>
+      <id>HeavyFighterHull</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Industry:Research:Economic:Colonization</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic</id>
+      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Colonization:General:Research</id>
+      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Colonization:General:Research:GroundCombat</id>
     </Tech>
-    <Tech>
-      <id>IFLOWRESEARCH:6</id>
-    </Tech>
+
     <Tech>
       <id>IFPEACE:7</id>
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipHull:Economic:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:ShipHull:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipHull:Economic:Industry:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization:General</id>
+      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research:Colonization:General</id>
     </Tech>
 
     <Tech>
