@@ -1829,16 +1829,23 @@ namespace Ship_Game.Gameplay
 					this.Owner.Mothership.TroopList.Add(this.Owner.TroopList[0]);
 				}
 				this.Owner.QueueTotalRemoval();
-				foreach (ShipModule hangar in this.Owner.Mothership.GetHangars())
-				{
-					if (hangar.GetHangarShip() != this.Owner)
-					{
-						continue;
-					}
-					hangar.SetHangarShip(null);
-					hangar.hangarTimer = 0f;
-					hangar.installedSlot.HangarshipGuid = Guid.Empty;
-				}
+                foreach (ShipModule hangar in this.Owner.Mothership.GetHangars())
+                {
+                    if (hangar.GetHangarShip() != this.Owner)
+                    {
+                        continue;
+                    }
+                    float rearmTime = this.Owner.Health;
+                    rearmTime += this.Owner.Ordinance;
+                    rearmTime += this.Owner.PowerCurrent;
+                    rearmTime += this.Owner.shield_power;
+                    rearmTime /= (this.Owner.HealthMax + this.Owner.OrdinanceMax + this.Owner.shield_max + this.Owner.PowerStoreMax);
+                    rearmTime = hangar.hangarTimerConstant * rearmTime;
+                    rearmTime = (hangar.hangarTimerConstant - hangar.hangarTimerConstant * rearmTime) + hangar.hangarTimer >0 ? hangar.hangarTimer :0;
+                    hangar.SetHangarShip(null);
+                    hangar.hangarTimer = rearmTime; //0f;
+                    hangar.installedSlot.HangarshipGuid = Guid.Empty;
+                }
 			}
 		}
 
