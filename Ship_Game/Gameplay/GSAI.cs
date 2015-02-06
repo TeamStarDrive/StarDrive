@@ -8067,7 +8067,13 @@ namespace Ship_Game.Gameplay
                                 {
                                     float money = this.empire.EstimateIncomeAtTaxRate(.25f);
                                     if (money < 5f)
-                                        continue;
+                                    {
+                                        ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype && econ != ResearchTech).OrderBy(cost => cost.Cost).FirstOrDefault();
+                                        if (ResearchTech == null)
+                                        {
+                                            continue;
+                                        }
+                                    }
                                 }
                             }
 

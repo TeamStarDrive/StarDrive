@@ -14,13 +14,13 @@
       <id>CHEAPEST:TECH:Colonization</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Economic</id>
+      <id>IS Government</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Economic</id>
+      <id>CHEAPEST:TECH:General</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipDefense</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipHull</id>
@@ -29,13 +29,13 @@
       <id>CHEAPEST:TECH:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Colonization:General:Research</id>
+      <id>CHEAPEST:TECH:ShipHull:Economic:Colonization:Industry:Research:General</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipHull:Economic:Colonization</id>
     </Tech>
 
     <Tech>
@@ -43,19 +43,19 @@
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefensel</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipHull:Economic:Colonization:ShipWeapons:ShipDefense:ShipGeneral:General</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization:General</id>
+      <id>CHEAPEST:TECH:ShipHull:Economic:Industry:Research:Colonization</id>
     </Tech>
 
     <Tech>
