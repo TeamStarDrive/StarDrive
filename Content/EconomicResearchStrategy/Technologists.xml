@@ -18,77 +18,79 @@
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:Colonization</id>
+      <id>IS Government</id>
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>ScientificFoundations</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense</id>
+      <id>XenoMining</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry</id>
+      <id>Aeroponics</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Research</id>
+      <id>SCRIPT:Colonization</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:General</id>
+      <id>CHEAPEST:TECH:Research:Economic</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Research:Industry:Economic:Colonization:General</id>
+      <id>CHEAPEST:TECH:ShipHull:Research:Colonization:Economic:General:Industry</id>
     </Tech>
  
     <Tech>
-      <id>IFPEACE:6</id>
+      <id>IFPEACE:7</id>
     </Tech>
     
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:ShipHull:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:Economic:Research:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization:General</id>
+      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research:Colonization:General</id>
     </Tech>
     
 
     <Tech>
-      <id>IFWAR:11</id>
+      <id>IFWAR:10</id>
     </Tech>
     
     
     
     
+    <Tech>
+      <id>LOOP:7</id>
+    </Tech>
+
+>
+    <Tech>
+      <id>CHEAPEST:TECH:Colonization</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Colonization</id>
+    </Tech>
     <Tech>
       <id>LOOP:1</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Economic</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Economic</id>
+      <id>IS Government</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipHull</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Colonization</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Colonization</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Industry</id>
@@ -106,9 +108,7 @@
       <id>CHEAPEST:TECH:General</id>
     </Tech>
 
-    <Tech>
-      <id>LOOP:6</id>
-    </Tech>
+   
     
     
 

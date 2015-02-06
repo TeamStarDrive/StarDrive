@@ -7,36 +7,37 @@
   <IndustryPriority>3</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>CHEAPEST:TECH:Economic</id>
+      <id>IS Government</id>
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:Economic</id>
+      <id>IndustrialFoundations</id>
+    </Tech>
+    <Tech>
+      <id>IS Government</id>
+    </Tech>
+    <Tech>
+      <id>XenoMining</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipWeapons</id>
     </Tech>
+
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
+      <id>SCRIPT:ShipHull</id>
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipHull:Economic:Industry</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Economic:Industry</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Colonization:General:Research</id>
+      <id>CHEAPEST:TECH:ShipHull:Economic:Industry:Colonization:General:Research</id>
     </Tech>
 
     <Tech>
@@ -50,13 +51,16 @@
       <id>CHEAPEST:TECH:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:ShipHull:TECH:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization:General</id>
+      <id>CHEAPEST:TECH:ShipHull:Industry:Economic</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research:Colonization:General</id>
     </Tech>
 
     <Tech>
