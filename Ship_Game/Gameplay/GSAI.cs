@@ -83,6 +83,8 @@ namespace Ship_Game.Gameplay
 			{
 				this.numberOfShipGoals = this.numberOfShipGoals + this.empire.data.EconomicPersonality.ShipGoalsPlus;
 			}
+           // this.desired_ColonyGoals = (int)this.empire.data.difficulty;
+     
 		}
 
 		public void AcceptOffer(Offer ToUs, Offer FromUs, Empire us, Empire Them)
@@ -6252,6 +6254,7 @@ namespace Ship_Game.Gameplay
         private void RunExpansionPlanner()
         {
             int numColonyGoals = 0;
+            this.desired_ColonyGoals = ((int)Ship.universeScreen.GameDifficulty+3) ;
             foreach (Goal g in this.Goals)
             {
                 if (g.type != GoalType.Colonize)
@@ -6276,7 +6279,7 @@ namespace Ship_Game.Gameplay
                     numColonyGoals++;
                 }
             }
-            if (numColonyGoals < this.desired_ColonyGoals + (this.empire.data.EconomicPersonality != null ? this.empire.data.EconomicPersonality.ColonyGoalsPlus : 0))
+            if (numColonyGoals < this.desired_ColonyGoals + (this.empire.data.EconomicPersonality != null ? this.empire.data.EconomicPersonality.ColonyGoalsPlus : 0) )//
             {
                 Planet toMark = null;
                 float DistanceInJumps = 0;
