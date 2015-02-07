@@ -1835,13 +1835,15 @@ namespace Ship_Game.Gameplay
                     {
                         continue;
                     }
+                    //added by gremlin: prevent fighters from relaunching immediatly after landing.
                     float rearmTime = this.Owner.Health;
                     rearmTime += this.Owner.Ordinance;
                     rearmTime += this.Owner.PowerCurrent;
                     rearmTime += this.Owner.shield_power;
                     rearmTime /= (this.Owner.HealthMax + this.Owner.OrdinanceMax + this.Owner.shield_max + this.Owner.PowerStoreMax);
-                    rearmTime = hangar.hangarTimerConstant * rearmTime;
-                    rearmTime = (hangar.hangarTimerConstant - hangar.hangarTimerConstant * rearmTime) + hangar.hangarTimer >0 ? hangar.hangarTimer :0;
+                    float rearmConstant = (hangar.hangarTimerConstant * .5f);
+                    rearmTime = rearmConstant * rearmTime;
+                    rearmTime = (rearmConstant - rearmConstant * rearmTime) + hangar.hangarTimer > 0 ? hangar.hangarTimer : 0;
                     hangar.SetHangarShip(null);
                     hangar.hangarTimer = rearmTime; //0f;
                     hangar.installedSlot.HangarshipGuid = Guid.Empty;
