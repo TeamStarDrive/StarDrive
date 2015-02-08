@@ -2291,7 +2291,7 @@ namespace Ship_Game.Gameplay
                                     }
                                 }
                                 //If no projectiles from planets check for projectiles from ships
-                                if (fireTarget == null)
+                                if (fireTarget == null )
                                 {
                                     foreach (Ship ship in PotentialTargets)
                                     //Parallel.ForEach(PotentialTargets, (ship,loopstate) =>
