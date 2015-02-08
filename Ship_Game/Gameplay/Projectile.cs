@@ -509,8 +509,14 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				this.system.spatialManager.CollidableProjectiles.Add(this);
-				this.system.spatialManager.CollidableObjects.Add(this);
+                //this.system.spatialManager.CollidableProjectiles.Add(this);
+                //this.system.spatialManager.CollidableObjects.Add(this);
+                lock (GlobalStats.BucketLock)
+                {
+                    this.system.spatialManager.CollidableProjectiles.Add(this);
+                    this.system.spatialManager.RegisterObject(this);
+                    this.system.spatialManager.CollidableObjects.Add(this);
+                }
 			}
 			base.Initialize();
 		}

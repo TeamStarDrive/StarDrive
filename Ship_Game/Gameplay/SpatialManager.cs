@@ -141,12 +141,16 @@ namespace Ship_Game.Gameplay
                 foreach (int key in this.GetIdForObj(obj))
                 {
                     if (!this.Buckets.ContainsKey(key))
+                    {
+                        System.Diagnostics.Debug.WriteLine("get registed key fail");
                         return (List<GameplayObject>)this.CollidableObjects;
+                    }
                     list.AddRange((IEnumerable<GameplayObject>)this.Buckets[key]);
                 }
             }
             catch
             {
+                System.Diagnostics.Debug.WriteLine("get nearby fail");
             }
             return list;
         }
@@ -276,7 +280,11 @@ namespace Ship_Game.Gameplay
                     Vector2 vector2_3 = beam.GetTarget().Center;
                     beam.ActualHitDestination = beam.GetTarget().Center;
                     if ((double)beam.damageAmount >= 0.0)
+                    {
+                        //beam.owner.Beams.QueuePendingRemoval(beam);
                         return;
+
+                    }
                     using (LinkedList<ModuleSlot>.Enumerator enumerator = ship2.ModuleSlotList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
@@ -295,11 +303,19 @@ namespace Ship_Game.Gameplay
                         }
                         return;
                     }
+
                 }
-                else if (beam.GetTarget() is ShipModule)
+                else  if (beam.GetTarget() is ShipModule)
+                {
                     gameplayObject1 = (GameplayObject)(beam.GetTarget() as ShipModule).GetParent();
+
+                }
                 else if (beam.GetTarget() is Asteroid)
                     gameplayObject1 = beam.GetTarget();
+                else
+                    
+                        System.Diagnostics.Debug.WriteLine("beam null");
+
             }
             else if (beam.Owner != null)
                 gameplayObject1 = (GameplayObject)beam.owner;
@@ -350,8 +366,12 @@ namespace Ship_Game.Gameplay
                         int num3 = -48;
                         while (num3 < 48)
                         {
-                            if (beam.hitLast.GetParent().GetMD().ContainsKey(beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)))
-                                list3.Add(beam.hitLast.GetParent().GetMD()[beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)].module);
+                            ModuleSlot test;
+                            if (beam.hitLast.GetParent().GetMD().TryGetValue(beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3), out test))
+                                list3.Add(test.module);
+                            
+                                //if (beam.hitLast.GetParent().GetMD().ContainsKey(beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)))
+                                //list3.Add(beam.hitLast.GetParent().GetMD()[beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)].module);
                             num3 += 16;
                         }
                         num2 += 16;
@@ -397,6 +417,7 @@ namespace Ship_Game.Gameplay
                     foreach (Vector2 vector2_3 in list1)
                     {
                         if (!beam.IgnoresShields)
+                        #region Hits a shield
                         {
                             for (int index = 0; index < ship1.GetShields().Count; ++index)
                             {
@@ -423,13 +444,16 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
+                        #endregion
                         if (!flag)
                         {
                             for (int index = 0; index < ship1.ExternalSlots.Count; ++index)
                             {
                                 ++GlobalStats.BeamTests;
                                 ModuleSlot moduleSlot = ship1.ExternalSlots.ElementAt(index);
-                                if (moduleSlot != null && (moduleSlot.module.Active || (double)beam.damageAmount <= 0.0) && (double)Vector2.Distance(vector2_3, moduleSlot.module.Center) <= (beam.IgnoresShields ? 12.0 : (double)moduleSlot.module.Radius + 4.0))
+                                if (moduleSlot != null 
+                                    && (moduleSlot.module.Active || (double)beam.damageAmount <= 0.0) 
+                                    && (double)Vector2.Distance(vector2_3, moduleSlot.module.Center) <= (beam.IgnoresShields ? 12.0 : (double)moduleSlot.module.Radius + 4.0))
                                 {
                                     ++GlobalStats.BeamTests;
                                     this.collisionResults.Add(new SpatialManager.CollisionResult()
