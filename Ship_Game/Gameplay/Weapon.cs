@@ -394,7 +394,7 @@ namespace Ship_Game.Gameplay
         protected virtual void CreateTargetedBeam(GameplayObject target)
         {
             Beam beam;
-            if(this.owner.Beams.pendingRemovals.TryPop(out beam))
+            if (this.owner.Beams.pendingRemovals.TryPop(out beam))
             {
                 //beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
                 beam.BeamRecreate(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
@@ -405,10 +405,10 @@ namespace Ship_Game.Gameplay
                 beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
                 beam.damageAmount = this.DamageAmount;
                 beam.weapon = this;
-                
+
             }
             else
-                
+                try
                 {
                     beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
                 {
@@ -420,20 +420,21 @@ namespace Ship_Game.Gameplay
                     damageAmount = this.DamageAmount,
                     weapon = this
                 };
+
                 }
-           
+                catch
                 {
-                //    GC.Collect(0, GCCollectionMode.Optimized);    
-                beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
-                    {
-                        moduleAttachedTo = this.moduleAttachedTo,
-                        PowerCost = (float)this.BeamPowerCostPerSecond,
-                        range = this.Range,
-                        thickness = this.BeamThickness,
-                        Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
-                        damageAmount = this.DamageAmount,
-                        weapon = this
-                    };
+                    GC.Collect();//(0, GCCollectionMode.Optimized);    
+                    beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+                        {
+                            moduleAttachedTo = this.moduleAttachedTo,
+                            PowerCost = (float)this.BeamPowerCostPerSecond,
+                            range = this.Range,
+                            thickness = this.BeamThickness,
+                            Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
+                            damageAmount = this.DamageAmount,
+                            weapon = this
+                        };
 
                 }
             //damage increase by level

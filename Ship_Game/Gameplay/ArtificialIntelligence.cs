@@ -2379,7 +2379,7 @@ namespace Ship_Game.Gameplay
                 projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
                 else
                     projectedPosition = target.Center ;
-                if (projectedPosition != target.Center && target.Velocity.Length() == 0)
+                if (projectedPosition != target.Center && (target as ShipModule).GetParent().Velocity.Length() == 0)
                     System.Diagnostics.Debug.WriteLine("missing");
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
                 if ((target as ShipModule).GetParent().Velocity.Length() > 0.0f) 
