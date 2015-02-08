@@ -8,6 +8,7 @@ using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace Ship_Game.Gameplay
 {
@@ -23,7 +24,8 @@ namespace Ship_Game.Gameplay
         private int Cols;
         private int Rows;
         private Vector2 UpperLeftBound;
-        private Dictionary<int, List<GameplayObject>> Buckets;
+               // private Dictionary<int, List<GameplayObject>> Buckets;
+        private ConcurrentDictionary<int, List<GameplayObject>> Buckets;
         public int SceneWidth;
         public int SceneHeight;
         public int CellSize;
@@ -37,9 +39,10 @@ namespace Ship_Game.Gameplay
             this.UpperLeftBound.Y = Pos.Y - (float)(sceneHeight / 2);
             this.Cols = sceneWidth / cellSize;
             this.Rows = sceneHeight / cellSize;
-            this.Buckets = new Dictionary<int, List<GameplayObject>>(this.Cols * this.Rows);
+            //this.Buckets = new Dictionary<int, List<GameplayObject>>(this.Cols * this.Rows);
+            this.Buckets = new ConcurrentDictionary<int, List<GameplayObject>>();
             for (int key = 0; key < this.Cols * this.Rows; ++key)
-                this.Buckets.Add(key, new List<GameplayObject>());
+                this.Buckets.TryAdd(key, new List<GameplayObject>());
             this.SceneWidth = sceneWidth;
             this.SceneHeight = sceneHeight;
             this.CellSize = cellSize;
@@ -136,37 +139,52 @@ namespace Ship_Game.Gameplay
         internal List<GameplayObject> GetNearby(GameplayObject obj)
         {
             List<GameplayObject> list = new List<GameplayObject>();
-            try
+           // try
             {
                 foreach (int key in this.GetIdForObj(obj))
                 {
-                    if (!this.Buckets.ContainsKey(key))
+
+                    List<GameplayObject> test;
+                    if(!this.Buckets.TryGetValue(key, out test))
                     {
-                        System.Diagnostics.Debug.WriteLine("get registed key fail");
-                        return (List<GameplayObject>)this.CollidableObjects;
+                        //System.Diagnostics.Debug.WriteLine("get registed key fail");
+                        return this.Buckets[1];
+                        //return (List<GameplayObject>)this.CollidableObjects;
                     }
-                    list.AddRange((IEnumerable<GameplayObject>)this.Buckets[key]);
+                    //return this.Buckets[1];
+                    list.AddRange(test);
+
+                    //if (!this.Buckets.ContainsKey(key))
+                    //{
+                    //    System.Diagnostics.Debug.WriteLine("get registed key fail");
+                    //    return (List<GameplayObject>)this.CollidableObjects;
+                    //}
+                    //list.AddRange((IEnumerable<GameplayObject>)this.Buckets[key]);
                 }
             }
-            catch
-            {
-                System.Diagnostics.Debug.WriteLine("get nearby fail");
-            }
+           // catch
+            //{
+            //    System.Diagnostics.Debug.WriteLine("get nearby fail");
+            //}
             return list;
         }
 
         internal List<GameplayObject> GetNearby(Vector2 Position)
         {
             List<GameplayObject> list = new List<GameplayObject>();
-            try
+            //try
             {
                 foreach (int key in this.GetIdForPos(Position))
                 {
-                    if (this.Buckets.ContainsKey(key))
-                        list.AddRange((IEnumerable<GameplayObject>)this.Buckets[key]);
+                    List<GameplayObject> test;
+                    if (this.Buckets.TryGetValue(key, out test))
+                        list.AddRange(test);
+
+                    //if (this.Buckets.ContainsKey(key))
+                    //    list.AddRange((IEnumerable<GameplayObject>)this.Buckets[key]);
                 }
             }
-            catch
+            //catch
             {
             }
             return list;
@@ -174,17 +192,23 @@ namespace Ship_Game.Gameplay
 
         internal void RegisterObject(GameplayObject obj)
         {
-            try
+            //try
             {
                 foreach (int key in this.GetIdForObj(obj))
                 {
-                    if (this.Buckets.ContainsKey(key))
-                        this.Buckets[key].Add(obj);
+                    List<GameplayObject> test;
+                    if (this.Buckets.TryGetValue(key, out test))
+                        test.Add(obj);
                     else
                         this.Buckets[1].Add(obj);
+
+                    //if (this.Buckets.ContainsKey(key))
+                    //    this.Buckets[key].Add(obj);
+                    //else
+                    //    this.Buckets[1].Add(obj);
                 }
             }
-            catch
+            //catch
             {
             }
         }
@@ -231,7 +255,7 @@ namespace Ship_Game.Gameplay
 
         public void Destroy()
         {
-            this.Buckets = (Dictionary<int, List<GameplayObject>>)null;
+            this.Buckets = null;// (Dictionary<int, List<GameplayObject>>)null;
         }
 
         internal void ClearBuckets()

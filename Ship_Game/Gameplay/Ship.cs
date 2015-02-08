@@ -4205,7 +4205,7 @@ namespace Ship_Game.Gameplay
         public ShipModule GetRandomInternalModule(Weapon source)
         {
             //BatchRemovalCollection<target> InternalModules = new BatchRemovalCollection<target>();
-            List<target> InternalModules = new List<target>();
+            List<ShipModule> InternalModules = new List<ShipModule>();
             //int[] InternalModules = new int[];
             //List<int> InternalModules = new List<int>();
             int level = 0;
@@ -4214,7 +4214,7 @@ namespace Ship_Game.Gameplay
             
             int weight = 0;
             int index = -1;
-            int weaponsCount = 5; // source.GetOwner().Weapons.Count;
+            //int weaponsCount = 5; // source.GetOwner().Weapons.Count;
              ShipModule slot2;
             foreach (ModuleSlot slot in this.ModuleSlotList)                           
             //Parallel.ForEach(this.ModuleSlotList, slot =>
@@ -4241,95 +4241,95 @@ namespace Ship_Game.Gameplay
                     continue;
                     //return;
 
-                switch (level)
-                {
-                    case 0:
-                        {
-                            //weight = this.shiprandom.Next(0, weaponsCount);
-                            weight += slot2.isExternal ? -5 : 0;
-                            break;
-                        }
-                    case 1:
-                        {
+               // switch (level)
+               // {
+               //     case 0:
+               //         {
+               //             //weight = this.shiprandom.Next(0, weaponsCount);
+               //             weight += slot2.isExternal ? -5 : 0;
+               //             break;
+               //         }
+               //     case 1:
+               //         {
 
-                            //weight += this.shiprandom.Next(0, weaponsCount);
-                            weight += slot2.ModuleType != ShipModuleType.Armor ? +3 : 0;
-                            weight += slot2.Health < source.DamageAmount ? +3 : 0;
-                            weight += slot2.isExternal ? -5 : 0;
+               //             //weight += this.shiprandom.Next(0, weaponsCount);
+               //             weight += slot2.ModuleType != ShipModuleType.Armor ? +3 : 0;
+               //             weight += slot2.Health < source.DamageAmount ? +3 : 0;
+               //             weight += slot2.isExternal ? -5 : 0;
 
-                            break;
-                        }
-                    case 2:
-                        {
-                            //weight += this.shiprandom.Next(0, weaponsCount);
-                            weight += slot2.ModuleType != ShipModuleType.Armor ? +3 : 0;
-                            weight += slot2.ModuleType != ShipModuleType.Engine ? +3 : 0;
-                            weight += slot2.Health < source.DamageAmount * (source.SalvoCount + 1) ? +3 : 0;
-                            weight += slot2.isExternal ? -5 : 0;
+               //             break;
+               //         }
+               //     case 2:
+               //         {
+               //             //weight += this.shiprandom.Next(0, weaponsCount);
+               //             weight += slot2.ModuleType != ShipModuleType.Armor ? +3 : 0;
+               //             weight += slot2.ModuleType != ShipModuleType.Engine ? +3 : 0;
+               //             weight += slot2.Health < source.DamageAmount * (source.SalvoCount + 1) ? +3 : 0;
+               //             weight += slot2.isExternal ? -5 : 0;
                                
                             
 
-                            break;
-                        }
-                    case 3:
-                        {
-                            //weight += this.shiprandom.Next(0, (int)(weaponsCount * .75));
-                            if (slot2.ModuleType != ShipModuleType.Armor)
-                                weight += 2;
-                            if (slot2.ModuleType == ShipModuleType.Engine)
-                                weight += 2;
-                            if (slot2.Health / slot2.HealthMax < .5f)
-                                weight += 2;
-                            if (slot2.explodes)
-                                weight += 3;
-                            weight += slot2.isExternal ? -5 : 0;
-                            break;
-                        }
-                    case 4:
-                        {
-                            if (slot2.isWeapon)
-                                weight += 2;
-                            //weight += this.shiprandom.Next(0, (int)(weaponsCount * .5));
-                            if (slot2.ModuleType != ShipModuleType.Armor)
-                                weight += 2;
-                            if (slot2.ModuleType == ShipModuleType.Engine)
-                                weight += 2;
-                            if (slot2.isWeapon)
-                                weight += 2;
-                            if (slot2.Health / slot2.HealthMax < .5f)
-                                weight += 2;
-                            if (slot2.explodes)
-                                weight += 3;
-                            weight += slot2.isExternal ? -5 : 0;
-                            break;
+               //             break;
+               //         }
+               //     case 3:
+               //         {
+               //             //weight += this.shiprandom.Next(0, (int)(weaponsCount * .75));
+               //             if (slot2.ModuleType != ShipModuleType.Armor)
+               //                 weight += 2;
+               //             if (slot2.ModuleType == ShipModuleType.Engine)
+               //                 weight += 2;
+               //             if (slot2.Health / slot2.HealthMax < .5f)
+               //                 weight += 2;
+               //             if (slot2.explodes)
+               //                 weight += 3;
+               //             weight += slot2.isExternal ? -5 : 0;
+               //             break;
+               //         }
+               //     case 4:
+               //         {
+               //             if (slot2.isWeapon)
+               //                 weight += 2;
+               //             //weight += this.shiprandom.Next(0, (int)(weaponsCount * .5));
+               //             if (slot2.ModuleType != ShipModuleType.Armor)
+               //                 weight += 2;
+               //             if (slot2.ModuleType == ShipModuleType.Engine)
+               //                 weight += 2;
+               //             if (slot2.isWeapon)
+               //                 weight += 2;
+               //             if (slot2.Health / slot2.HealthMax < .5f)
+               //                 weight += 2;
+               //             if (slot2.explodes)
+               //                 weight += 3;
+               //             weight += slot2.isExternal ? -5 : 0;
+               //             break;
 
-                        }
-                    default:
-                        {
-                            if (source.GetOwner().Level > 4)
-                            {
-                                //weaponsCount *= (int)(weaponsCount * (1 - level * .1));
-                                if (weaponsCount > 1)
-                                    weight += this.shiprandom.Next(0, weaponsCount);
-                                if (slot2.isWeapon)
-                                    weight += 2;
-                                if (slot2.ModuleType != ShipModuleType.Armor)
-                                    weight += 2;
-                                if (slot2.ModuleType == ShipModuleType.Engine)
-                                    weight += 2;
-                                if (slot2.isWeapon)
-                                    weight += 2;
-                                if (slot2.Health / slot2.HealthMax < .5f)
-                                    weight += 2;
-                                weight += slot2.isExternal ? -5 : 0;
-                                if (slot2.explodes)
-                                    weight += 3;
-                            }
-                            break;
-                        }
-                }
-               InternalModules. Add(new target(slot2, weight));
-                //InternalModules[index]=weight;
+               //         }
+               //     default:
+               //         {
+               //             if (source.GetOwner().Level > 4)
+               //             {
+               //                 //weaponsCount *= (int)(weaponsCount * (1 - level * .1));
+               //                 if (weaponsCount > 1)
+               //                     weight += this.shiprandom.Next(0, weaponsCount);
+               //                 if (slot2.isWeapon)
+               //                     weight += 2;
+               //                 if (slot2.ModuleType != ShipModuleType.Armor)
+               //                     weight += 2;
+               //                 if (slot2.ModuleType == ShipModuleType.Engine)
+               //                     weight += 2;
+               //                 if (slot2.isWeapon)
+               //                     weight += 2;
+               //                 if (slot2.Health / slot2.HealthMax < .5f)
+               //                     weight += 2;
+               //                 weight += slot2.isExternal ? -5 : 0;
+               //                 if (slot2.explodes)
+               //                     weight += 3;
+               //             }
+               //             break;
+               //         }
+               // }
+               //InternalModules. Add(new target(slot2, weight));
+                InternalModules.Add(slot2);
             }//);
             if (InternalModules.Count > 0)
             {
@@ -4342,8 +4342,8 @@ namespace Ship_Game.Gameplay
                 //    target = InternalModules.OrderByDescending(slot => slot.weight).ElementAt(HelperFunctions.GetRandomIndex((int)(InternalModules.Count * .5f))).module;
 
                 int randomizer = InternalModules.Count  / (level+2);
-                IOrderedEnumerable<Ship.target> targets = InternalModules.OrderByDescending(slot => slot.weight);
-                target = targets.ElementAt(HelperFunctions.GetRandomIndex(randomizer)).module;
+                IOrderedEnumerable<ShipModule> targets = InternalModules.OrderByDescending(slot => slot.TargetValue);
+                target = targets.ElementAt(HelperFunctions.GetRandomIndex(randomizer));
 
                 return target;
             }
