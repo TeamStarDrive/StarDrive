@@ -244,12 +244,12 @@ namespace Ship_Game
             if (this.owner != null)
             {
                 this.owner.Beams.QueuePendingRemoval(this);
-                //if (this.owner.GetSystem() != null)
+                if (this.owner.GetSystem() != null)
                 {
                     this.system = this.owner.GetSystem();
                     this.system.spatialManager.BeamList.QueuePendingRemoval(this);
                 }
-                //else
+                else
                     UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
             }
             else if (this.weapon.drowner != null)
