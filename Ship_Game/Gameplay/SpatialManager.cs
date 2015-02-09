@@ -25,7 +25,8 @@ namespace Ship_Game.Gameplay
         private int Rows;
         private Vector2 UpperLeftBound;
                // private Dictionary<int, List<GameplayObject>> Buckets;
-        private ConcurrentDictionary<int, List<GameplayObject>> Buckets;
+        //private ConcurrentDictionary<int, List<GameplayObject>> Buckets;
+        private ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>> Buckets;
         public int SceneWidth;
         public int SceneHeight;
         public int CellSize;
@@ -40,9 +41,9 @@ namespace Ship_Game.Gameplay
             this.Cols = sceneWidth / cellSize;
             this.Rows = sceneHeight / cellSize;
             //this.Buckets = new Dictionary<int, List<GameplayObject>>(this.Cols * this.Rows);
-            this.Buckets = new ConcurrentDictionary<int, List<GameplayObject>>();
+            this.Buckets = new ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>>();
             for (int key = 0; key < this.Cols * this.Rows; ++key)
-                this.Buckets.TryAdd(key, new List<GameplayObject>());
+                this.Buckets.TryAdd(key, new BatchRemovalCollection<GameplayObject>());
             this.SceneWidth = sceneWidth;
             this.SceneHeight = sceneHeight;
             this.CellSize = cellSize;
@@ -144,8 +145,8 @@ namespace Ship_Game.Gameplay
                 foreach (int key in this.GetIdForObj(obj))
                 {
 
-                    List<GameplayObject> test;
-                    if(!this.Buckets.TryGetValue(key, out test))
+                    BatchRemovalCollection<GameplayObject> test;
+                    if (!this.Buckets.TryGetValue(key, out test))
                     {
                         //System.Diagnostics.Debug.WriteLine("get registed key fail");
                         return this.Buckets[1];
@@ -176,7 +177,8 @@ namespace Ship_Game.Gameplay
             {
                 foreach (int key in this.GetIdForPos(Position))
                 {
-                    List<GameplayObject> test;
+                    BatchRemovalCollection<GameplayObject> test;
+
                     if (this.Buckets.TryGetValue(key, out test))
                         list.AddRange(test);
 
@@ -196,7 +198,8 @@ namespace Ship_Game.Gameplay
             {
                 foreach (int key in this.GetIdForObj(obj))
                 {
-                    List<GameplayObject> test;
+                    BatchRemovalCollection<GameplayObject> test;
+
                     if (this.Buckets.TryGetValue(key, out test))
                         test.Add(obj);
                     else

@@ -457,7 +457,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				lock (GlobalStats.BucketLock)
+				//lock (GlobalStats.BucketLock)
 				{
 					this.system.spatialManager.CollidableProjectiles.Add(this);
 					if (this.system.spatialManager.CellSize > 0)
@@ -511,7 +511,7 @@ namespace Ship_Game.Gameplay
 			{
                 //this.system.spatialManager.CollidableProjectiles.Add(this);
                 //this.system.spatialManager.CollidableObjects.Add(this);
-                lock (GlobalStats.BucketLock)
+                //lock (GlobalStats.BucketLock)
                 {
                     this.system.spatialManager.CollidableProjectiles.Add(this);
                     this.system.spatialManager.RegisterObject(this);
@@ -575,7 +575,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				lock (GlobalStats.BucketLock)
+				//lock (GlobalStats.BucketLock)
 				{
 					this.system.spatialManager.CollidableProjectiles.Add(this);
 					this.system.spatialManager.RegisterObject(this);
@@ -626,7 +626,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				lock (GlobalStats.BucketLock)
+				//lock (GlobalStats.BucketLock)
 				{
 					this.system.spatialManager.CollidableProjectiles.Add(this);
 					this.system.spatialManager.RegisterObject(this);
@@ -683,7 +683,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				lock (GlobalStats.BucketLock)
+				//lock (GlobalStats.BucketLock)
 				{
 					this.system.spatialManager.CollidableProjectiles.Add(this);
 					this.system.spatialManager.CollidableObjects.Add(this);
