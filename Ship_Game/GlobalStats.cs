@@ -16,7 +16,7 @@ namespace Ship_Game
 		public static bool HardcoreRuleset;
 
 		public static bool TakingInput;
-
+        
 		public static bool WarpInSystem;
 
 		public static float FTLInSystemModifier;

@@ -4241,108 +4241,19 @@ namespace Ship_Game.Gameplay
                     continue;
                     //return;
 
-               // switch (level)
-               // {
-               //     case 0:
-               //         {
-               //             //weight = this.shiprandom.Next(0, weaponsCount);
-               //             weight += slot2.isExternal ? -5 : 0;
-               //             break;
-               //         }
-               //     case 1:
-               //         {
-
-               //             //weight += this.shiprandom.Next(0, weaponsCount);
-               //             weight += slot2.ModuleType != ShipModuleType.Armor ? +3 : 0;
-               //             weight += slot2.Health < source.DamageAmount ? +3 : 0;
-               //             weight += slot2.isExternal ? -5 : 0;
-
-               //             break;
-               //         }
-               //     case 2:
-               //         {
-               //             //weight += this.shiprandom.Next(0, weaponsCount);
-               //             weight += slot2.ModuleType != ShipModuleType.Armor ? +3 : 0;
-               //             weight += slot2.ModuleType != ShipModuleType.Engine ? +3 : 0;
-               //             weight += slot2.Health < source.DamageAmount * (source.SalvoCount + 1) ? +3 : 0;
-               //             weight += slot2.isExternal ? -5 : 0;
-                               
-                            
-
-               //             break;
-               //         }
-               //     case 3:
-               //         {
-               //             //weight += this.shiprandom.Next(0, (int)(weaponsCount * .75));
-               //             if (slot2.ModuleType != ShipModuleType.Armor)
-               //                 weight += 2;
-               //             if (slot2.ModuleType == ShipModuleType.Engine)
-               //                 weight += 2;
-               //             if (slot2.Health / slot2.HealthMax < .5f)
-               //                 weight += 2;
-               //             if (slot2.explodes)
-               //                 weight += 3;
-               //             weight += slot2.isExternal ? -5 : 0;
-               //             break;
-               //         }
-               //     case 4:
-               //         {
-               //             if (slot2.isWeapon)
-               //                 weight += 2;
-               //             //weight += this.shiprandom.Next(0, (int)(weaponsCount * .5));
-               //             if (slot2.ModuleType != ShipModuleType.Armor)
-               //                 weight += 2;
-               //             if (slot2.ModuleType == ShipModuleType.Engine)
-               //                 weight += 2;
-               //             if (slot2.isWeapon)
-               //                 weight += 2;
-               //             if (slot2.Health / slot2.HealthMax < .5f)
-               //                 weight += 2;
-               //             if (slot2.explodes)
-               //                 weight += 3;
-               //             weight += slot2.isExternal ? -5 : 0;
-               //             break;
-
-               //         }
-               //     default:
-               //         {
-               //             if (source.GetOwner().Level > 4)
-               //             {
-               //                 //weaponsCount *= (int)(weaponsCount * (1 - level * .1));
-               //                 if (weaponsCount > 1)
-               //                     weight += this.shiprandom.Next(0, weaponsCount);
-               //                 if (slot2.isWeapon)
-               //                     weight += 2;
-               //                 if (slot2.ModuleType != ShipModuleType.Armor)
-               //                     weight += 2;
-               //                 if (slot2.ModuleType == ShipModuleType.Engine)
-               //                     weight += 2;
-               //                 if (slot2.isWeapon)
-               //                     weight += 2;
-               //                 if (slot2.Health / slot2.HealthMax < .5f)
-               //                     weight += 2;
-               //                 weight += slot2.isExternal ? -5 : 0;
-               //                 if (slot2.explodes)
-               //                     weight += 3;
-               //             }
-               //             break;
-               //         }
-               // }
-               //InternalModules. Add(new target(slot2, weight));
+               
                 InternalModules.Add(slot2);
             }//);
             if (InternalModules.Count > 0)
             {
                 ShipModule target;
-                //if (level > 0)
-                //    target = InternalModules.OrderByDescending(slot => slot.weight)
-                //        //.ThenBy(distance=> (int)(Vector2.Distance(distance.module.Center, source.Center)*.9f))
-                //        .First().module;
-                //else
-                //    target = InternalModules.OrderByDescending(slot => slot.weight).ElementAt(HelperFunctions.GetRandomIndex((int)(InternalModules.Count * .5f))).module;
 
-                int randomizer = InternalModules.Count  / (level+2);
-                IOrderedEnumerable<ShipModule> targets = InternalModules.OrderByDescending(slot => slot.TargetValue);
+                //Fix collision model to fix this.
+                float ourside = Vector2.Distance(this.Center, source.Center);
+                int randomizer = level > 0 ? InternalModules.Count / (level+1) : InternalModules.Count;
+                IOrderedEnumerable<ShipModule> targets = InternalModules
+                    .OrderByDescending(slot => slot.TargetValue + (slot.isExternal ? -5 : 0) + (slot.Health < slot.HealthMax ? 1 : 0))
+                    .ThenBy(distance => Vector2.Distance(distance.Center, source.Center) < ourside);
                 target = targets.ElementAt(HelperFunctions.GetRandomIndex(randomizer));
 
                 return target;
