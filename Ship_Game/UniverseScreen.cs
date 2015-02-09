@@ -1332,7 +1332,7 @@ namespace Ship_Game
                     }
                     if (this.IsActive)
                     {
-                        //
+                        //GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
                         if (this.Paused)
                         {
                             //GC.Collect(0, GCCollectionMode.Optimized);

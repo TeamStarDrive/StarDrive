@@ -50,10 +50,13 @@
     
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
+      <id>EXPENSIVE:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
+      <id>IFLOWRESEARCH:14</id>
+    </Tech>
+    <Tech>
+      <id>EXPENSIVE:TECH:ShipWeapons:ShipDefense</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>

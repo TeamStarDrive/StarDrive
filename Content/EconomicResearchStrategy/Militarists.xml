@@ -31,7 +31,7 @@
       <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
+      <id>EXPENSIVE:TECH:ShipWeapons:ShipDefenset</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipHull:Economic:Industry</id>
@@ -45,16 +45,25 @@
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>IFLOWRESEARCH:14</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>EXPENSIVE:TECH:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
+      <id>EXPENSIVE:TECH:ShipDefense</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
+      <id>IFNOTLOWRESEARCH:16</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipDefense:ShipWeapons</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipGeneral:GroundCombat</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipHull:Industry:Economic</id>

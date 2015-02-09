@@ -343,7 +343,7 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.BeamEffectLocker)
 			{
-                try
+               // try
                 {
                     Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
                     this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
@@ -357,24 +357,47 @@ namespace Ship_Game
                     this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
                     Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
                 }
-                catch
-                {
-                    GC.GetTotalMemory(true);
-                    System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed", this.weapon.UID));
-                    //GC.Collect(0, GCCollectionMode.Optimized);
-                    Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
-                    this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
-                    {
-                        World = Matrix.Identity,
-                        View = view,
-                        Projection = projection,
-                        TextureEnabled = true,
-                        Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
-                    };
-                    this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                    Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+                //catch
+                //{
+                //    try
+                //    {
+                //        GC.GetTotalMemory(true);
+                //        System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed", this.weapon.UID));
+                //        //GC.Collect(0, GCCollectionMode.Optimized);
+                //        Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
+                //        this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+                //        {
+                //            World = Matrix.Identity,
+                //            View = view,
+                //            Projection = projection,
+                //            TextureEnabled = true,
+                //            Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+                //        };
+                //        this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+                //        Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
 
-                }
+                //    }
+                //    catch 
+                //    {
+                //        System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed again: ", this.weapon.UID));
+                //        GC.GetTotalMemory(true);
+                        
+                //        //GC.Collect(0, GCCollectionMode.Optimized);
+                //        Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
+                //        this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+                //        {
+                //            World = Matrix.Identity,
+                //            View = view,
+                //            Projection = projection,
+                //            TextureEnabled = true,
+                //            Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+                //        };
+                //        this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+                //        Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+
+                        
+                //    }
+                //}
 			}
 		}
 

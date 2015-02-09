@@ -206,6 +206,8 @@ namespace Ship_Game.Gameplay
         Random shiprandom = new Random();
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
+        List<ModuleSlot> AttackerTargetting;
+        Ship lastAttacker;
 
         public float CargoSpace_Used
         {
@@ -4204,62 +4206,92 @@ namespace Ship_Game.Gameplay
         
         public ShipModule GetRandomInternalModule(Weapon source)
         {
-            //BatchRemovalCollection<target> InternalModules = new BatchRemovalCollection<target>();
-            List<ShipModule> InternalModules = new List<ShipModule>();
-            //int[] InternalModules = new int[];
-            //List<int> InternalModules = new List<int>();
             int level = 0;
             if (source.GetOwner() != null)
                 level = source.GetOwner().Level;
-            
-            int weight = 0;
-            int index = -1;
-            //int weaponsCount = 5; // source.GetOwner().Weapons.Count;
-             ShipModule slot2;
-            foreach (ModuleSlot slot in this.ModuleSlotList)                           
-            //Parallel.ForEach(this.ModuleSlotList, slot =>
+            if(source.GetOwner() != null && lastAttacker == source.GetOwner())
             {
+
+
+                if (this.AttackerTargetting.Count == 0)
+                    return null;
+                int randomizer = level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
+                return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
+            }
+            float ourside = Vector2.Distance(this.Center, source.Center);
+            //IOrderedEnumerable
+            this.AttackerTargetting = this.ModuleSlotList
+                .Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active && slot.module.Health > 0.0)
+                .OrderByDescending(slot => slot.module.TargetValue + (slot.module.isExternal ? -5 : 0) + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+                .ThenBy(distance => Vector2.Distance(distance.module.Center, source.Center) < ourside)
+                .ToList();            
+                         level = 0;
+            if (source.GetOwner() != null)
+                level = source.GetOwner().Level;
+
+            if (this.AttackerTargetting.Count == 0)
+                return null;
+            int randomizer2 = level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
+
+            return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer2)].module;
+            
+            
+            ////BatchRemovalCollection<target> InternalModules = new BatchRemovalCollection<target>();
+            //List<ShipModule> InternalModules = new List<ShipModule>();
+            ////int[] InternalModules = new int[];
+            ////List<int> InternalModules = new List<int>();
+            ////int level = 0;
+            //if (source.GetOwner() != null)
+            //    level = source.GetOwner().Level;
+            
+            ////int weight = 0;
+            ////int index = -1;
+            ////int weaponsCount = 5; // source.GetOwner().Weapons.Count;
+            // ShipModule slot2;
+            //foreach (ModuleSlot slot in this.ModuleSlotList)                           
+            ////Parallel.ForEach(this.ModuleSlotList, slot =>
+            //{
                 
-                weight = 0;
-                if (slot == null)
-                    continue;
-                    //return;
+            //    //weight = 0;
+            //    if (slot == null)
+            //        continue;
+            //        //return;
               
-                try
-                {
-                    slot2 = slot.module;
-                }
-                catch
-                {
-                    continue;
-                    //return;
-                }
-                if (slot2 == null)
-                    continue;
-                    //return;
-                if (slot2.ModuleType == ShipModuleType.Dummy  || !slot2.Active || slot2.Health <= 0.0)
-                    continue;
-                    //return;
+            //    try
+            //    {
+            //        slot2 = slot.module;
+            //    }
+            //    catch
+            //    {
+            //        continue;
+            //        //return;
+            //    }
+            //    if (slot2 == null)
+            //        continue;
+            //        //return;
+            //    if (slot2.ModuleType == ShipModuleType.Dummy  || !slot2.Active || slot2.Health <= 0.0)
+            //        continue;
+            //        //return;
 
                
-                InternalModules.Add(slot2);
-            }//);
-            if (InternalModules.Count > 0)
-            {
-                ShipModule target;
+            //    InternalModules.Add(slot2);
+            //}//);
+            //if (InternalModules.Count > 0)
+            //{
+            //    ShipModule target;
 
-                //Fix collision model to fix this.
-                float ourside = Vector2.Distance(this.Center, source.Center);
-                int randomizer = level > 0 ? InternalModules.Count / (level+1) : InternalModules.Count;
-                IOrderedEnumerable<ShipModule> targets = InternalModules
-                    .OrderByDescending(slot => slot.TargetValue + (slot.isExternal ? -5 : 0) + (slot.Health < slot.HealthMax ? 1 : 0))
-                    .ThenBy(distance => Vector2.Distance(distance.Center, source.Center) < ourside);
-                target = targets.ElementAt(HelperFunctions.GetRandomIndex(randomizer));
-
-                return target;
-            }
-            else
-                return null;
+            //    //Fix collision model to fix this.
+            //    float ourside = Vector2.Distance(this.Center, source.Center);
+            //    int randomizer = level > 0 ? InternalModules.Count / (level+1) : InternalModules.Count;
+            //    //IOrderedEnumerable<ShipModule> targets = InternalModules
+            //    //    .OrderByDescending(slot => slot.TargetValue + (slot.isExternal ? -5 : 0) + (slot.Health < slot.HealthMax ? 1 : 0))
+            //    //    .ThenBy(distance => Vector2.Distance(distance.Center, source.Center) < ourside);
+            //    //target = targets.ElementAt(HelperFunctions.GetRandomIndex(randomizer));
+            //    target = InternalModules[HelperFunctions.GetRandomIndex(randomizer)];
+            //    return target;
+            //}
+            //else
+            //    return null;
         }
 
         public ShipModule GetRandomInternalModule(Projectile source)
