@@ -41,18 +41,26 @@
     <Tech>
       <id>IFPEACE:7</id>
     </Tech>
-
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
+      <id>IFLOWRESEARCH:14</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefensel</id>
+      <id>EXPENSIVE:TECH:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
+      <id>EXPENSIVE:TECH:ShipDefense</id>   
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:Colonization:ShipWeapons:ShipDefense:ShipGeneral:General</id>
+      <id>IFNOTLOWRESEARCH:16</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipDefense:ShipWeapons</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:ShipGeneral:GroundCombat</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:Economic:Colonization:ShipGeneral:General</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipHull:Economic:Industry:Research:Colonization</id>
