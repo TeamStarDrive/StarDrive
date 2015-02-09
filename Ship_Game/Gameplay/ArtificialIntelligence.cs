@@ -2226,11 +2226,12 @@ namespace Ship_Game.Gameplay
                     foreach (Weapon weapon in this.Owner.Weapons)
                     //Parallel.ForEach(this.Owner.Weapons, weapon =>
                     {
-                        GameplayObject fireTarget =  this.fireTarget;
+                        GameplayObject fireTarget = this.fireTarget;
                         //Reasons for this weapon not to fire                    
                         if (!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                         {
                             continue;
+                            //return;
                         }
                         //Visible weapon firing
 
@@ -2265,7 +2266,7 @@ namespace Ship_Game.Gameplay
                                 if (fireTarget != null)
                                 {
                                     fireTarget = (fireTarget as Ship).GetRandomInternalModule(weapon);
-                                    
+
                                 }
                             }
                             //No ship to target, check for projectiles
@@ -2291,7 +2292,7 @@ namespace Ship_Game.Gameplay
                                     }
                                 }
                                 //If no projectiles from planets check for projectiles from ships
-                                if (fireTarget == null )
+                                if (fireTarget == null)
                                 {
                                     foreach (Ship ship in PotentialTargets)
                                     //Parallel.ForEach(PotentialTargets, (ship,loopstate) =>
@@ -2346,6 +2347,7 @@ namespace Ship_Game.Gameplay
                             ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
                             this.FireOnTargetNonVisible(weapon, this.Target);
                         }
+                        //}
                     }//);
                 }
             }

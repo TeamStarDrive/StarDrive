@@ -6845,7 +6845,7 @@ namespace Ship_Game.Gameplay
 				}
 			}
 			List<SpaceRoad> ToRemove = new List<SpaceRoad>();
-            float income = this.empire.EstimateIncomeAtTaxRate(0.25f);
+            float income = this.empire.EstimateIncomeAtTaxRate(0.25f) + this.empire.Money - this.empire.GrossTaxes;
 			foreach (SpaceRoad road in this.empire.SpaceRoadsList.OrderBy(ssps => ssps.NumberOfProjectors))
 			{
 				RoadNode ssp = road.RoadNodesList.Where(notNull => notNull != null && notNull.Platform !=null).FirstOrDefault();
@@ -7668,7 +7668,8 @@ namespace Ship_Game.Gameplay
                         {
                             
                         string scriptentry = this.empire.getResStrat().TechPath[ScriptIndex].id;
-                            switch (this.empire.GetTDict().ContainsKey(scriptentry) ?  scriptentry:scriptentry.Split(':')[0])
+                            string scriptCommand = this.empire.GetTDict().ContainsKey(scriptentry) ?  scriptentry:scriptentry.Split(':')[0];
+                            switch (scriptCommand)
                             {
 
                                 
@@ -7684,7 +7685,7 @@ namespace Ship_Game.Gameplay
                                             
                                         }
                                         ScriptIndex++;
-                                        if (ScriptedResearch(script[1], modifier))                                            
+                                        if (ScriptedResearch("CHEAPEST",script[1], modifier))                                            
                                             return;
                                         loopcount++;
                                         goto Start;
@@ -7716,10 +7717,37 @@ namespace Ship_Game.Gameplay
                                         }
                                             modifier =String.Join(":",modifiers);
                                             ScriptIndex++;
-                                        if (ScriptedResearch(script[1], modifier))                                            
+                                            if (ScriptedResearch(scriptCommand, script[1], modifier))                                            
                                             return;
                                         loopcount++;
                                         goto Start;
+
+                                        }
+                                case "EXPENSIVE":
+                                        {
+                                            string modifier = "";
+                                            string[] script = scriptentry.Split(':');
+
+                                            if (script.Count() == 1)
+                                            {
+                                                this.res_strat = GSAI.ResearchStrategy.Random;
+                                                this.RunResearchPlanner();
+                                                this.res_strat = GSAI.ResearchStrategy.Scripted;
+                                                ScriptIndex++;
+                                                return;
+
+                                            }
+                                            string[] modifiers = new string[script.Count() - 1];
+                                            for (int i = 1; i < script.Count(); i++)
+                                            {
+                                                modifiers[i - 1] = script[i];
+                                            }
+                                            modifier = String.Join(":", modifiers);
+                                            ScriptIndex++;
+                                            if (ScriptedResearch(scriptCommand,script[1], modifier))
+                                                return;
+                                            loopcount++;
+                                            goto Start;
 
                                         }
                                 case "IFWAR":
@@ -7926,7 +7954,7 @@ namespace Ship_Game.Gameplay
             public int count;
             
         }
-        private bool ScriptedResearch(string command, string modifier)
+        private bool ScriptedResearch(string command1, string command2, string modifier)
         {
 
             ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
@@ -8022,7 +8050,7 @@ namespace Ship_Game.Gameplay
 
                 }
             }
-            switch (command)
+            switch (command2)
             {
 
                 case "TECH":
@@ -8056,9 +8084,13 @@ namespace Ship_Game.Gameplay
                                     continue;
                                 }
                             }
-                            
+                            Technology ResearchTech =null;  
+                            if(command1 == "CHEAPEST")
+                                        ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
+                                        else if(command1 == "EXPENSIVE")
+                                ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault();
 
-                            Technology ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
+                             
                             //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                             if (ResearchTech == null)
                                 continue;
@@ -8071,7 +8103,11 @@ namespace Ship_Game.Gameplay
                                     float money = this.empire.EstimateIncomeAtTaxRate(.25f);
                                     if (money < 5f)
                                     {
+                                        if(command1 == "CHEAPEST")
                                         ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype && econ != ResearchTech).OrderBy(cost => cost.Cost).FirstOrDefault();
+                                        else if(command1 == "EXPENSIVE")
+                                            ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype && econ != ResearchTech).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+
                                         if (ResearchTech == null)
                                         {
                                             continue;
@@ -8154,7 +8190,9 @@ namespace Ship_Game.Gameplay
                                     
                                 }
                                 
-                                if (currentCost < previousCost)
+                                if (command1=="CHEAPEST" && currentCost < previousCost)
+                                    researchtopic = Testresearchtopic;
+                                else if(command1=="EXPENSIVE" && currentCost > previousCost)
                                     researchtopic = Testresearchtopic;
 
                             }
@@ -8170,7 +8208,7 @@ namespace Ship_Game.Gameplay
                         try
                         {
 
-                            techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), command);
+                            techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), command2);
 
                         }
                         catch

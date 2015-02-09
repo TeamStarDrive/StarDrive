@@ -362,8 +362,17 @@ namespace Ship_Game.Gameplay
             beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
 			beam.damageAmount = this.DamageAmount;
 			beam.weapon = this;
-			source.Beams.Add(beam);
-			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
+
+            try
+            {
+                beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
+            }
+            catch 
+            {
+
+                return;
+            } 
+            source.Beams.Add(beam);
 			this.ToggleSoundOn = false;
 			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
@@ -394,21 +403,21 @@ namespace Ship_Game.Gameplay
         protected virtual void CreateTargetedBeam(GameplayObject target)
         {
             Beam beam;
-            if (this.owner.Beams.pendingRemovals.TryPop(out beam))
-            {
-                //beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
-                beam.BeamRecreate(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
-                beam.moduleAttachedTo = this.moduleAttachedTo;
-                beam.PowerCost = (float)this.BeamPowerCostPerSecond;
-                beam.range = this.Range;
-                beam.thickness = this.BeamThickness;
-                beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
-                beam.damageAmount = this.DamageAmount;
-                beam.weapon = this;
+            //if (this.owner.Beams.pendingRemovals.TryPop(out beam))
+            //{
+            //    //beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
+            //    beam.BeamRecreate(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
+            //    beam.moduleAttachedTo = this.moduleAttachedTo;
+            //    beam.PowerCost = (float)this.BeamPowerCostPerSecond;
+            //    beam.range = this.Range;
+            //    beam.thickness = this.BeamThickness;
+            //    beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
+            //    beam.damageAmount = this.DamageAmount;
+            //    beam.weapon = this;
 
-            }
-            else
-                try
+            //}
+            //else
+                //try
                 {
                     beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
                 {
@@ -422,21 +431,21 @@ namespace Ship_Game.Gameplay
                 };
 
                 }
-                catch
-                {
-                    GC.GetTotalMemory(true);//(0, GCCollectionMode.Optimized);    
-                    beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
-                        {
-                            moduleAttachedTo = this.moduleAttachedTo,
-                            PowerCost = (float)this.BeamPowerCostPerSecond,
-                            range = this.Range,
-                            thickness = this.BeamThickness,
-                            Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
-                            damageAmount = this.DamageAmount,
-                            weapon = this
-                        };
+                //catch
+                //{
+                //    GC.GetTotalMemory(true);//(0, GCCollectionMode.Optimized);    
+                //    beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+                //        {
+                //            moduleAttachedTo = this.moduleAttachedTo,
+                //            PowerCost = (float)this.BeamPowerCostPerSecond,
+                //            range = this.Range,
+                //            thickness = this.BeamThickness,
+                //            Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
+                //            damageAmount = this.DamageAmount,
+                //            weapon = this
+                //        };
 
-                }
+                //}
             //damage increase by level
             if (this.owner.Level > 0)
             {
@@ -450,8 +459,17 @@ namespace Ship_Game.Gameplay
                     beam.damageAmount += beam.damageAmount * mod.DamageBonus;
             }
             this.ModifyProjectile(beam);
+
+            try
+            {
+                beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
+            }
+            catch 
+            {
+
+                return;
+            }
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
-            beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
             this.ToggleSoundOn = false;
             if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && this.moduleAttachedTo.GetParent().InFrustum)
             {
@@ -1256,9 +1274,17 @@ namespace Ship_Game.Gameplay
             
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
+   
+                    this.CreateTargetedBeam(target);
+                
+                
+                
+
+                
+                
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;                
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
-				this.CreateTargetedBeam(target);
+				
 			}
             
 		}
