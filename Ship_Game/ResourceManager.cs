@@ -1261,7 +1261,34 @@ namespace Ship_Game
                 TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding,
                 TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault
 			};
-			return module;
+
+            #region TargetWeight
+            module.TargetValue += module.ModuleType == ShipModuleType.Armor ? -1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Bomb ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Command ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Drone ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Engine ? 2 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Hangar ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.MainGun ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.MissileLauncher ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Sensors ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Shield ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Special ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
+            module.TargetValue += module.explodes ? 2 : 0;
+            module.TargetValue += module.isWeapon ? 1 : 0;
+         
+            
+
+
+
+            #endregion
+            return module;
 		}
 
 		public static Ship GetPlayerShip(string key)

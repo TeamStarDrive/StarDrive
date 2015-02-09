@@ -237,6 +237,9 @@ namespace Ship_Game.Gameplay
         public byte TransporterTroopLanding;
         public byte TransporterTroopAssault;
 
+        //added by gremlin: target value
+        public int TargetValue=0;
+
 
 		public bool IsWeapon
 		{
