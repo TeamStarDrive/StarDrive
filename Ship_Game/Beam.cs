@@ -343,7 +343,7 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.BeamEffectLocker)
 			{
-               // try
+                try
                 {
                     Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
                     this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
@@ -357,7 +357,13 @@ namespace Ship_Game
                     this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
                     Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
                 }
-                //catch
+               catch
+                {
+                    System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
+                   this.quadEffect = null;
+                    this.Active = false;
+                    return;
+                }
                 //{
                 //    try
                 //    {
@@ -516,7 +522,9 @@ namespace Ship_Game
 
 		public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
 		{
-			if (!this.collidedThisFrame && this.DamageToggleOn)
+            if (this.quadEffect == null)
+                this.Die(null, true);
+            if (!this.collidedThisFrame && this.DamageToggleOn)
 			{
 				this.DamageToggleOn = false;
 				if (this.DamageToggleSound != null && this.DamageToggleSound.IsPlaying)
