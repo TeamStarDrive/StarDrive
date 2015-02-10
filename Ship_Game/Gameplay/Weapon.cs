@@ -363,13 +363,12 @@ namespace Ship_Game.Gameplay
 			beam.damageAmount = this.DamageAmount;
 			beam.weapon = this;
 
-            try
-            {
+            
                 beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
-            }
-            catch 
-            {
 
+                if (beam == null || beam.Active ==false)
+            {
+                beam.Die(null, true);
                 return;
             } 
             source.Beams.Add(beam);
@@ -460,14 +459,17 @@ namespace Ship_Game.Gameplay
             }
             this.ModifyProjectile(beam);
 
-            try
+            
             {
                 beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
             }
-            catch 
+            
             {
-
-                return;
+                if (beam == null || !beam.Active)
+                {
+                    beam.Die(null, true);
+                    return;
+                }
             }
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
             this.ToggleSoundOn = false;
@@ -514,8 +516,15 @@ namespace Ship_Game.Gameplay
 				damageAmount = this.DamageAmount,
 				weapon = this
 			};
-			this.moduleAttachedTo.GetParent().Beams.Add(beam);
+			
 			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
+            if (beam == null || !beam.Active)
+            {
+                beam.Die(null, true);
+
+                return;
+            }
+            this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			this.ToggleSoundOn = false;
 			if ((this.owner.GetSystem() != null && this.owner.GetSystem().isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
