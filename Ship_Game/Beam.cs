@@ -358,8 +358,10 @@ namespace Ship_Game
                     Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
                 }
                catch
-                {
-                    System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
+                {                     
+                   GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
+                   GlobalStats.BeamOOM++;
+                   System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
                    this.quadEffect = null;
                     this.Active = false;
                     return;
@@ -562,6 +564,9 @@ namespace Ship_Game
                 {
                     if (this.quadVertexDecl != null)
                         this.quadVertexDecl.Dispose();
+                    if (this.quadEffect != null)
+                        this.quadEffect.Dispose();
+                    
 
                 }
                 this.quadVertexDecl = null;

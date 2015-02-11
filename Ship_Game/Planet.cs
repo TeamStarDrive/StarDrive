@@ -3740,7 +3740,7 @@ namespace Ship_Game
                                         (double)building.PlusProdPerColonist > 0.0 
                                     || building.Name == "Space Port"
                                     || (double)building.CreditsPerColonist >0
-                                    || ((double)building.PlusTerraformPoints >0  && this.Type != "Barren")
+                                    //|| ((double)building.PlusTerraformPoints >0  && this.Type != "Barren")
                                     
                                     ) 
                                     || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost"))

@@ -4819,8 +4819,8 @@ namespace Ship_Game.Gameplay
             }
             if (this.empire.canBuildCapitals)
             {
-                ratio_Fighters = .25f;
-                ratio_Corvettes = .5f;
+                ratio_Fighters = 0f;
+                ratio_Corvettes = .1f;
                 ratio_Frigates = 2.25f;
                 ratio_Cruisers = 4f;
                 ratio_Capitals = 3f;
