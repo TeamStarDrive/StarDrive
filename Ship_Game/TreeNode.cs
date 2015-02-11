@@ -188,11 +188,29 @@ namespace Ship_Game
                     //Added by McShooterz: Allows non root techs to use IconPath
                     if(ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.GetTech().IconPath))
                     {
-                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.GetTech().IconPath], this.IconRect, Color.White);
+                        try
+                        {
+                            spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.GetTech().IconPath], this.IconRect, Color.White);
+                        }
+                        catch (Exception e)
+                        {
+                            e.Data.Add("TechIcons", this.tech.UID);
+                            throw e;
+                            
+                        }
                     }
                     else
                     {
-                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.UID], this.IconRect, Color.White);
+                        try
+                        {
+                            spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.UID], this.IconRect, Color.White);
+                        }
+                        catch (Exception e)
+                        {
+                            
+                            e.Data.Add("TechIcons", this.tech.UID);
+                            throw e;
+                        }
                     }
                     spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_base_title_complete"] : ResourceManager.TextureDict["ResearchMenu/tech_base_title"], this.TitleRect, Color.White);
                     string str1 = HelperFunctions.parseText(this.TitleFont, this.TechName, this.TitleWidth);

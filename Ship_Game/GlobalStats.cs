@@ -128,6 +128,7 @@ namespace Ship_Game
         public static bool perf;
         public static float DefensePlatformLimit = .025f;
         public static ReaderWriterLockSlim SlimSensorNodeLocker;
+        public static int BeamOOM = 0;
 		static GlobalStats()
 		{
             GlobalStats.SlimSensorNodeLocker = new ReaderWriterLockSlim();
