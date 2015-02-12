@@ -2769,7 +2769,10 @@ namespace Ship_Game.Gameplay
                         if (projectile != null && projectile.Active)
                             projectile.Update(elapsedTime);
                         else
+                        {
+                            projectile.Die(null, true);
                             this.Projectiles.QueuePendingRemoval(projectile);
+                        }
                     }//);
 
                     foreach (Beam beam in (List<Beam>)this.beams)
