@@ -1089,7 +1089,10 @@ namespace Ship_Game
             if (HelperFunctions.CheckIntersection(new Rectangle(this.FearRect.X - (int)Fonts.Pirulen16.MeasureString("Fear").X, this.FearRect.Y, (int)Fonts.Pirulen16.MeasureString("Fear").X + this.FearRect.Width, 14), input.CursorPosition))
                 ToolTip.CreateTooltip(49, this.ScreenManager);
             if (this.Exit.HandleInput(input) && this.dState != DiplomacyScreen.DialogState.TheirOffer)
+            {
                 this.ExitScreen();
+                return;
+            }
             if (this.dState == DiplomacyScreen.DialogState.End)
                 return;
             if (this.dState != DiplomacyScreen.DialogState.TheirOffer)

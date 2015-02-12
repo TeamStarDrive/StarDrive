@@ -1148,23 +1148,28 @@ namespace Ship_Game
 			Model item;
 			try
 			{
-				if (!Ship_Game.ResourceManager.ModelDict.ContainsKey(path))
+				if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
 				{
-					Model model = Game1.Instance.Content.Load<Model>(path);
-					Ship_Game.ResourceManager.ModelDict.Add(path, model);
-					item = model;
+					item= Game1.Instance.Content.Load<Model>(path);
+					Ship_Game.ResourceManager.ModelDict.Add(path, item);
+					//item = model;
 				}
-				else
-				{
-					item = Ship_Game.ResourceManager.ModelDict[path];
-				}
+                
+
+
+
+
+                //else
+                //{
+                //    item = Ship_Game.ResourceManager.ModelDict[path];
+                //}
 			}
 			catch
 			{
                 
-				Model model = Game1.Instance.Content.Load<Model>(string.Concat("Mod Models/", path));
-                Ship_Game.ResourceManager.ModelDict.Add(path, model);
-				item = model;
+				item = Game1.Instance.Content.Load<Model>(string.Concat("Mod Models/", path));
+                Ship_Game.ResourceManager.ModelDict.Add(path, item);
+				//item = model;
 			}
 			return item;
 		}
