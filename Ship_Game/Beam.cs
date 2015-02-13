@@ -264,6 +264,7 @@ namespace Ship_Game
                     UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
             }
             this.weapon.ResetToggleSound();
+            //this.Dispose(true);
         }
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager)
