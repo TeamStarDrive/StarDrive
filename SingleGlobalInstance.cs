@@ -44,6 +44,8 @@ public class SingleGlobalInstance : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    ~SingleGlobalInstance() { Dispose(false); }
+
     protected virtual void Dispose(bool disposing)
     {
         if (!disposed)
