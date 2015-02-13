@@ -557,6 +557,8 @@ namespace Ship_Game
 		}
 
 
+        ~Beam() { Dispose(false); }
+
         protected override void Dispose(bool disposing)
         {
             if (!disposed)
