@@ -60,6 +60,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~SaveFleetDesignScreen() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

@@ -8571,6 +8571,8 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
+        ~GSAI() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

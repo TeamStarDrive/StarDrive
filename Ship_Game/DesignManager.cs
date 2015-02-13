@@ -66,6 +66,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~DesignManager() { Dispose(false); }
+        
         protected void Dispose(bool disposing)
         {
             if (!disposed)
@@ -149,21 +151,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~DesignManager() {
-            //should implicitly do the same thing as the original bad finalize
-            this.Dispose(false);
-        }
+
 
 		public override void HandleInput(InputState input)
 		{

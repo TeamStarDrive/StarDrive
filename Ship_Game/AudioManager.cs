@@ -52,6 +52,8 @@ namespace Ship_Game
 			}
 		}
 
+        ~AudioManager() { Dispose(false); }
+
 		protected override void Dispose(bool disposing)
 		{
 			if (!disposed)

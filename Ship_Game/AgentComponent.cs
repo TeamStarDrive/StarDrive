@@ -502,6 +502,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~AgentComponent() { Dispose(false);  }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

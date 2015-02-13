@@ -96,6 +96,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~LoadDesigns() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

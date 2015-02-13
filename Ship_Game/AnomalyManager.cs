@@ -18,6 +18,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~AnomalyManager() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)
