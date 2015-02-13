@@ -2770,7 +2770,7 @@ namespace Ship_Game.Gameplay
                             projectile.Update(elapsedTime);
                         else
                         {
-                            projectile.Die(null, true);
+                           // projectile.Die(null, true);
                             this.Projectiles.QueuePendingRemoval(projectile);
                         }
                     }//);
@@ -2794,12 +2794,15 @@ namespace Ship_Game.Gameplay
                             int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
                             beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                             if ((double)beam.duration < 0.0 && !beam.infinite)
+                            {
                                 beam.Die(null, false);
-                            //this.beams.QueuePendingRemoval(beam);
+                                this.beams.QueuePendingRemoval(beam);
+                            }
                         }
                         else
                         {
                             beam.Die(null, false);
+                            this.beams.QueuePendingRemoval(beam);
                         }
                     }//);
                     //this.beams.thisLock.ExitReadLock();
