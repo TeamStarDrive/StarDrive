@@ -156,6 +156,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~DimensionalPrison() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

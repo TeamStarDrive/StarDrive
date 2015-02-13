@@ -146,6 +146,9 @@ namespace Ship_Game
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        ~ShipListScreen() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

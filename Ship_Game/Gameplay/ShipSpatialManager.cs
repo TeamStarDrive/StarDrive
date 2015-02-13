@@ -147,6 +147,8 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
+        ~ShipSpatialManager() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

@@ -448,6 +448,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~RaceDesignScreen() { Dispose(false); }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)

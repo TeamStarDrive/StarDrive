@@ -192,6 +192,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~EmpireData() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

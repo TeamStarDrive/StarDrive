@@ -254,6 +254,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~TroopInfoUIElement() { Dispose(false); }
 
         protected void Dispose(bool disposing)
         {

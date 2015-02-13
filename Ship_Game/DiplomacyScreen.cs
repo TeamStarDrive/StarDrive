@@ -430,6 +430,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~DiplomacyScreen() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)
@@ -951,10 +953,7 @@ namespace Ship_Game
 			}
 		}*/
 
-        ~DiplomacyScreen() {
-            //should implicitly do the same thing as the original bad finalize
-            this.Dispose(false);
-        }
+   
 
 		public string GetDialogue(float Attitude)
 		{

@@ -3084,11 +3084,13 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~ColonyScreen() { Dispose(false);  }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)
             {
-                if (disposing)
+                if (disposing) 
                 {
                     if (this.buildSL != null)
                         this.buildSL.Dispose();

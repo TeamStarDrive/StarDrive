@@ -789,6 +789,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~ScrollList() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)
