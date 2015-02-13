@@ -170,6 +170,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~ShipToolScreen() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

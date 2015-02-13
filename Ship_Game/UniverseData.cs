@@ -48,6 +48,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~UniverseData() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

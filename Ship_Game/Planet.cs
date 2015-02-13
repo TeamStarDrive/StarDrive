@@ -5389,6 +5389,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~Planet() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

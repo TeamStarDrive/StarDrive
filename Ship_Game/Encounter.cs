@@ -342,6 +342,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+               ~Encounter() { Dispose(false); }
+
                protected void Dispose(bool disposing)
                {
                    if (!disposed)

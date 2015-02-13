@@ -2961,6 +2961,7 @@ namespace Ship_Game.Gameplay
                 GC.SuppressFinalize(this);
             }
 
+            ~Squad() { Dispose(false); }
             protected void Dispose(bool disposing)
             {
                 if (!disposed)
@@ -3067,6 +3068,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        ~Fleet() { Dispose(false); }
 
         protected override void Dispose(bool disposing)
         {

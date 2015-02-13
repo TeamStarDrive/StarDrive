@@ -1205,6 +1205,8 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
+        ~SpatialManager() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

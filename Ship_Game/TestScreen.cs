@@ -59,6 +59,8 @@ namespace Ship_Game
 			GC.SuppressFinalize(this);
 		}
 
+        ~TestScreen() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

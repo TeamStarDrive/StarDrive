@@ -197,6 +197,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~ShipGroup() { Dispose(false); }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)

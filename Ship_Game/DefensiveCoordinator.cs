@@ -719,6 +719,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~DefensiveCoordinator() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

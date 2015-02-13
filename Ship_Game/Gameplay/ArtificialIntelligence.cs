@@ -7200,6 +7200,8 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
+        ~ArtificialIntelligence() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

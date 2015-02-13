@@ -126,6 +126,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+               ~EmpireScreen() { Dispose(false); }
+
                protected void Dispose(bool disposing)
                {
                    if (!disposed)
@@ -539,10 +541,6 @@ namespace Ship_Game
 				base.Finalize();
 			}
 		}*/
-        ~EmpireScreen() {
-            //should implicitly do the same thing as the original bad finalize
-            this.Dispose(false);
-        }
 
 		public override void HandleInput(InputState input)
 		{

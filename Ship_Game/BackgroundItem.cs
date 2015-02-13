@@ -113,6 +113,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~BackgroundItem() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

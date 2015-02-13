@@ -244,6 +244,8 @@ namespace Ship_Game
 			GC.SuppressFinalize(this);
 		}
 
+        ~FleetDesignScreen() { Dispose(false);  }
+
 		protected void Dispose(bool disposing)
 		{
 			if (disposing)

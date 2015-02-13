@@ -107,6 +107,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
+        ~Starfield3D() { Dispose(false); }
+
         protected void Dispose(bool disposing)
         {
             if (!disposed)

@@ -4171,6 +4171,8 @@ namespace Ship_Game.Gameplay
             GC.SuppressFinalize(this);
         }
 
+        ~Ship() { Dispose(false); }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
