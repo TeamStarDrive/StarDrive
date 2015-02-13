@@ -1600,29 +1600,31 @@ namespace Ship_Game
         {
 
             //foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
-            bool flag = false;
+            //bool flag = false;
             //Parallel.ForEach(ResourceManager.ShipsDict, (ship, status) =>
-            foreach(KeyValuePair<string,Ship> ship in ResourceManager.ShipsDict)
+            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
             {
-                if (flag)
-                    break;
-                List<Technology> techtree = new List<Technology>();
+                //if (flag)
+                //   break;
+                //List<Technology> techtree = new List<Technology>();
 
                 ShipData shipData = ship.Value.shipData;
                 if (shipData.ShipStyle == null || shipData.ShipStyle == this.data.Traits.ShipType)
                 {
                     foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
                     {
-                        if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
+                        //if (tech.ModulesUnlocked.Where(uid => uid.ModuleUID == module.InstalledModuleUID).Count() > 0)
+                        foreach (Ship_Game.Technology.UnlockedMod entry in tech.ModulesUnlocked)
                         {
-                            flag = true;
-                            break;
+                            if (entry.ModuleUID == module.InstalledModuleUID)
+                                return true;
                         }
                     }
                 }
             }
-            return flag;
-        }
+            return false;
+        } 
+
 
         public bool WeCanUseThisNow(Technology tech)
         {
@@ -2842,6 +2844,8 @@ namespace Ship_Game
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        ~Empire() { Dispose(false); }
 
         protected void Dispose(bool disposing)
         {
