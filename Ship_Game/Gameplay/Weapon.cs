@@ -364,9 +364,8 @@ namespace Ship_Game.Gameplay
 			beam.weapon = this;
 
             
-                beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
+                if(!beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection))
 
-                if (beam == null || beam.Active ==false)
             {
                 beam.Die(null, true);
                 return;
@@ -416,7 +415,7 @@ namespace Ship_Game.Gameplay
 
             //}
             //else
-                //try
+             
                 {
                     beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
                 {
@@ -430,21 +429,7 @@ namespace Ship_Game.Gameplay
                 };
 
                 }
-                //catch
-                //{
-                //    GC.GetTotalMemory(true);//(0, GCCollectionMode.Optimized);    
-                //    beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
-                //        {
-                //            moduleAttachedTo = this.moduleAttachedTo,
-                //            PowerCost = (float)this.BeamPowerCostPerSecond,
-                //            range = this.Range,
-                //            thickness = this.BeamThickness,
-                //            Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
-                //            damageAmount = this.DamageAmount,
-                //            weapon = this
-                //        };
 
-                //}
             //damage increase by level
             if (this.owner.Level > 0)
             {
@@ -459,17 +444,12 @@ namespace Ship_Game.Gameplay
             }
             this.ModifyProjectile(beam);
 
-            
+
+
+            if (!beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection))
             {
-                beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
-            }
-            
-            {
-                if (beam == null || !beam.Active)
-                {
-                    beam.Die(null, true);
-                    return;
-                }
+                beam.Die(null, true);
+                return;
             }
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
             this.ToggleSoundOn = false;
