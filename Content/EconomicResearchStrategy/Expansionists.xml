@@ -45,10 +45,10 @@
       <id>IFLOWRESEARCH:14</id>
     </Tech>
     <Tech>
-      <id>EXPENSIVE:TECH:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipWeapons</id>
     </Tech>
     <Tech>
-      <id>EXPENSIVE:TECH:ShipDefense</id>   
+      <id>CHEAPEST:TECH:ShipDefense</id>   
     </Tech>
     <Tech>
       <id>IFNOTLOWRESEARCH:16</id>
