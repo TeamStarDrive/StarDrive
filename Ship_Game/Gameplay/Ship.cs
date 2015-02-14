@@ -4224,15 +4224,16 @@ namespace Ship_Game.Gameplay
 
                 if (this.AttackerTargetting.Count == 0)
                     return null;
-                int randomizer = level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
+                int randomizer = this.AttackerTargetting.Count() / (level + 2);//level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
                 return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
             }
             float ourside = Vector2.Distance(this.Center, source.Center);
             //IOrderedEnumerable
-            this.AttackerTargetting = this.ModuleSlotList
+            this.AttackerTargetting = this.ModuleSlotList//.AsParallel()
                 .Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active && slot.module.Health > 0.0)
-                .OrderByDescending(slot => slot.module.TargetValue + (slot.module.isExternal ? -5 : 0) + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
-                .ThenBy(distance => Vector2.Distance(distance.module.Center, source.Center) < ourside)
+                .OrderByDescending(distance => Vector2.Distance(distance.module.Center, source.Center) < ourside)
+                .ThenByDescending(slot => slot.module.TargetValue + (slot.module.isExternal ? -5 : 0) + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+                
                 .ToList();            
                          level = 0;
             if (source.GetOwner() != null)
@@ -4240,7 +4241,7 @@ namespace Ship_Game.Gameplay
 
             if (this.AttackerTargetting.Count == 0)
                 return null;
-            int randomizer2 = level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
+            int randomizer2 = this.AttackerTargetting.Count() / (level + 2);// level > 0 ? this.AttackerTargetting.Count() / (level + 2) : this.AttackerTargetting.Count();
 
             return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer2)].module;
             

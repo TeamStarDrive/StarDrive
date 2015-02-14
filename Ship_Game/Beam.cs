@@ -264,7 +264,10 @@ namespace Ship_Game
                     UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
             }
             this.weapon.ResetToggleSound();
-            //this.Dispose(true);
+            //if(this.quadVertexDecl !=null)
+            //this.quadVertexDecl.Dispose();
+            //if (this.quadEffect != null)
+            //    this.quadEffect.Dispose();
         }
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager)
@@ -340,7 +343,7 @@ namespace Ship_Game
 			return this.Target;
 		}
 
-		public void LoadContent(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection)
+		public bool LoadContent(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection)
 		{
 			lock (GlobalStats.BeamEffectLocker)
 			{
@@ -360,12 +363,13 @@ namespace Ship_Game
                 }
                catch
                 {                     
-                   GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
+                   //GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
                    GlobalStats.BeamOOM++;
                    System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
-                   this.quadEffect = null;
+                   
+                   
                     this.Active = false;
-                    return;
+                    return false;
                 }
                 //{
                 //    try
@@ -408,6 +412,7 @@ namespace Ship_Game
                 //    }
                 //}
 			}
+            return true;
 		}
 
 		public override bool Touch(GameplayObject target)

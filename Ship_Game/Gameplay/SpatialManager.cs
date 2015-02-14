@@ -346,8 +346,8 @@ namespace Ship_Game.Gameplay
             }
             else if (beam.Owner != null)
                 gameplayObject1 = (GameplayObject)beam.owner;
-            List<GameplayObject> nearby = this.GetNearby(gameplayObject1);
-            List<GameplayObject> AlliedShips = new List<GameplayObject>();
+            HashSet<GameplayObject> nearby = new HashSet<GameplayObject>(this.GetNearby(gameplayObject1));
+            HashSet<GameplayObject> AlliedShips = new HashSet<GameplayObject>();
             foreach (Vector2 vector2_3 in list1)
             {
                 foreach (GameplayObject gameplayObject2 in nearby)
