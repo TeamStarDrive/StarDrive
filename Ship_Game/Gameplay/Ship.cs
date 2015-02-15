@@ -3397,7 +3397,7 @@ namespace Ship_Game.Gameplay
                 foreach (ModuleSlot slot in this.ModuleSlotList)
                     slot.module.Update(1f);
                 //Check Current Shields
-                if (this.engineState == Ship.MoveState.Warp)
+                if (this.engineState == Ship.MoveState.Warp || !this.ShieldsUp)
                     this.shield_power = 0f;
                 else
                 {
