@@ -346,7 +346,7 @@
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>349.6851</facing>
+      <facing>0.234809875</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -385,7 +385,7 @@
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>274.504456</facing>
+      <facing>0.7073059</facing>
       <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
@@ -489,7 +489,7 @@
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>269.792358</facing>
+      <facing>359.999969</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -576,11 +576,11 @@
         <X>136</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>LaserBeamTurret2x2</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>179.090912</facing>
+      <facing>0</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -589,7 +589,7 @@
         <X>136</X>
         <Y>296</Y>
       </Position>
-      <InstalledModuleUID>PlaSteelArmorSmall</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -667,7 +667,7 @@
         <X>152</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -680,7 +680,7 @@
         <X>152</X>
         <Y>296</Y>
       </Position>
-      <InstalledModuleUID>PlaSteelArmorSmall</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -732,7 +732,7 @@
         <X>168</X>
         <Y>248</Y>
       </Position>
-      <InstalledModuleUID>NuclearReactorMed</InstalledModuleUID>
+      <InstalledModuleUID>LaserBeamTurret2x2</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -914,11 +914,11 @@
         <X>184</X>
         <Y>328</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>LaserBeam2x3</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>185.142044</facing>
+      <facing>0</facing>
       <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
@@ -927,7 +927,7 @@
         <X>184</X>
         <Y>344</Y>
       </Position>
-      <InstalledModuleUID>MediumFuelCell</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -1031,7 +1031,7 @@
         <X>200</X>
         <Y>264</Y>
       </Position>
-      <InstalledModuleUID>BasicFuelCell</InstalledModuleUID>
+      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -1044,7 +1044,7 @@
         <X>200</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>BasicFuelCell</InstalledModuleUID>
+      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -1070,11 +1070,11 @@
         <X>200</X>
         <Y>312</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>PowerConduit</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>268.701416</facing>
+      <facing>0</facing>
       <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
@@ -1083,11 +1083,11 @@
         <X>200</X>
         <Y>328</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>179.408813</facing>
+      <facing>0</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -1265,11 +1265,11 @@
         <X>216</X>
         <Y>328</Y>
       </Position>
-      <InstalledModuleUID>Shield_1KW</InstalledModuleUID>
+      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
+      <facing>228.715286</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -1278,11 +1278,11 @@
         <X>216</X>
         <Y>344</Y>
       </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
+      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
+      <facing>224.7562</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -1421,11 +1421,11 @@
         <X>232</X>
         <Y>328</Y>
       </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
+      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
+      <facing>224.800369</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -1434,11 +1434,11 @@
         <X>232</X>
         <Y>344</Y>
       </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
+      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
+      <facing>223.678024</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -1590,7 +1590,7 @@
         <X>248</X>
         <Y>344</Y>
       </Position>
-      <InstalledModuleUID>MediumFuelCell</InstalledModuleUID>
+      <InstalledModuleUID>Shield_1KW</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -1941,11 +1941,11 @@
         <X>280</X>
         <Y>328</Y>
       </Position>
-      <InstalledModuleUID>Shield_1KW</InstalledModuleUID>
+      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
+      <facing>134.078918</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -1954,11 +1954,11 @@
         <X>280</X>
         <Y>344</Y>
       </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
+      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
+      <facing>135</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -2097,11 +2097,11 @@
         <X>296</X>
         <Y>328</Y>
       </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
+      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
+      <facing>84.49766</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -2110,11 +2110,11 @@
         <X>296</X>
         <Y>344</Y>
       </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
+      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
+      <facing>134.678116</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -2201,7 +2201,7 @@
         <X>312</X>
         <Y>264</Y>
       </Position>
-      <InstalledModuleUID>BasicFuelCell</InstalledModuleUID>
+      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -2214,7 +2214,7 @@
         <X>312</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>BasicFuelCell</InstalledModuleUID>
+      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -2240,7 +2240,7 @@
         <X>312</X>
         <Y>312</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>PowerConduit</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -2253,11 +2253,11 @@
         <X>312</X>
         <Y>328</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>LaserBeam2x3</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>179.213837</facing>
+      <facing>0</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -2266,7 +2266,7 @@
         <X>312</X>
         <Y>344</Y>
       </Position>
-      <InstalledModuleUID>MediumFuelCell</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -2357,7 +2357,7 @@
         <X>328</X>
         <Y>248</Y>
       </Position>
-      <InstalledModuleUID>NuclearReactorMed</InstalledModuleUID>
+      <InstalledModuleUID>LaserBeamTurret2x2</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -2409,11 +2409,11 @@
         <X>328</X>
         <Y>328</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>95.54962</facing>
+      <facing>0</facing>
       <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
@@ -2656,7 +2656,7 @@
         <X>360</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>LaserBeamTurret2x2</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -2669,7 +2669,7 @@
         <X>360</X>
         <Y>296</Y>
       </Position>
-      <InstalledModuleUID>PlaSteelArmorSmall</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -2747,11 +2747,11 @@
         <X>376</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>LaserCannon</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>180.522552</facing>
+      <facing>0</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -2760,7 +2760,7 @@
         <X>376</X>
         <Y>296</Y>
       </Position>
-      <InstalledModuleUID>PlaSteelArmorSmall</InstalledModuleUID>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -2855,7 +2855,7 @@
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>96.4846039</facing>
+      <facing>0</facing>
       <state>Normal</state>
       <Restrictions>IO</Restrictions>
     </ModuleSlotData>
@@ -2972,7 +2972,7 @@
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
-      <facing>90.7235641</facing>
+      <facing>357.995453</facing>
       <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
