@@ -21,7 +21,7 @@
   <ModelPath>Model/Ships/Ralyeh/Ship17c</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
   <ShipCategory>Unclassified</ShipCategory>
-  <CarrierShip>false</CarrierShip>
+  <CarrierShip>true</CarrierShip>
   <BaseStrength>0</BaseStrength>
   <BaseCanWarp>false</BaseCanWarp>
   <ModuleSlotList>
