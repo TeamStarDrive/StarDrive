@@ -1029,6 +1029,7 @@ namespace Ship_Game
             {
                 if (this.isPlayer && Empire.universeScreen.Debug)
                 {
+                    Empire.universeScreen.MasterShipList.thisLock.EnterReadLock();
                     for (int i = 0; i < Empire.universeScreen.MasterShipList.Count; i++)
                     //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>
                     {
@@ -1038,6 +1039,7 @@ namespace Ship_Game
                         this.KnownShips.Add(nearby);
                         this.GSAI.ThreatMatrix.UpdatePin(nearby);
                     }//);
+                    Empire.universeScreen.MasterShipList.thisLock.ExitReadLock();
                     return;
                 }
             }
@@ -1054,7 +1056,8 @@ namespace Ship_Game
 
                     for (int i = range.Item1; i < range.Item2; i++)
                     {
-                        Ship nearby = Empire.universeScreen.MasterShipList[i];
+                        //Ship nearby = Empire.universeScreen.MasterShipList[i];
+                        Ship nearby = source[i];
                         if (nearby.loyalty != this)
                         {
                             List<Ship> toadd = new List<Ship>();
