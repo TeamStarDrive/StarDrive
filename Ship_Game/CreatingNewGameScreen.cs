@@ -107,61 +107,61 @@ namespace Ship_Game
                 {
                     if (str1 == "Tiny")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(16f * StarNumModifier);
                         this.data.Size = new Vector2(3500000f, 3500000f);
                     }
                     else if (str1 == "Small")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(30f * StarNumModifier);
                         this.data.Size = new Vector2(7300000f, 7300000f);
                     }
                     else if (str1 == "Medium")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(50f * StarNumModifier);
                         this.data.Size = new Vector2(9350000f, 9350000f);
                     }
                     else if (str1 == "Large")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(75f * StarNumModifier);
                         this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
                     }
                     else if (str1 == "Huge")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(100f * StarNumModifier);
                         this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
                     }
                     else if (str1 == "Epic")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(100f * StarNumModifier);
                         this.data.Size = new Vector2(1.8E+07f * 2, 1.8E+07f * 2);
                         //this.scale = 2;
@@ -172,11 +172,11 @@ namespace Ship_Game
                     }
                     else if (str1 == "TrulyEpic")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(150f * StarNumModifier);
                         //this.numSystems = (int)(100f * StarNumModifier);
                         this.data.Size = new Vector2(1.8E+07f * 3f, 1.8E+07f * 3f);

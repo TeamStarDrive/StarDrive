@@ -1226,16 +1226,16 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(tip, base.ScreenManager);
                 }
             }
-            else if (this.mode == RaceDesignScreen.GameMode.Warlords)
-            {
-                txt = "War Lords";//Localizer.Token(2103);
-                tip = 112;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-                {
-                    ToolTip.CreateTooltip(tip, base.ScreenManager);
-                }
-            }
+            //else if (this.mode == RaceDesignScreen.GameMode.Warlords)
+            //{
+            //    txt = "War Lords";//Localizer.Token(2103);
+            //    tip = 112;
+            //    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
+            //    if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            //    {
+            //        ToolTip.CreateTooltip(tip, base.ScreenManager);
+            //    }
+            //}
 			if (HelperFunctions.CheckIntersection(this.ScaleRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 			{
 				ToolTip.CreateTooltip(125, base.ScreenManager);
@@ -1901,7 +1901,7 @@ namespace Ship_Game
                 {
                     AudioManager.GetCue("blip_click").Play();
                     RaceDesignScreen gamemode = this;
-                    gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Warlords);
+                    gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Elimination);
                     if (this.mode > RaceDesignScreen.GameMode.Elimination)
                     {
                         this.mode = RaceDesignScreen.GameMode.Sandbox;
@@ -2635,7 +2635,7 @@ namespace Ship_Game
         public enum GameMode
         {
             Sandbox,
-            Warlords,
+            //Warlords,
             //PreWarp,
             Elimination
         }
