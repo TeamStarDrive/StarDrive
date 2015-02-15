@@ -1729,6 +1729,7 @@
     <Content Include="Content\StarterShips\Crusader-Class Mk IIIc Cruiser.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\CT-Escort.xml" />
     <Content Include="Content\StarterShips\CT-Flames S.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1759,6 +1760,7 @@
     <Content Include="Content\StarterShips\FF-Plasma Strike T.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\FTR-Inq MK2.xml" />
     <Content Include="Content\StarterShips\Ftr-Plasma Tentacle.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2337,6 +2339,7 @@
     <Content Include="Content\StarterShips\Zion Missile Frigate.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Zion R.xml" />
     <Content Include="Content\StarterShips\Zion Raider.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

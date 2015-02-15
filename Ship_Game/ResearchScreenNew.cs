@@ -310,18 +310,26 @@ namespace Ship_Game
 			this.camera._pos.Y = MathHelper.Clamp(this.camera._pos.Y, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2), 3200f);
 			if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F1) && input.LastKeyboardState.IsKeyUp(Keys.F1))
 			{
+               
                 foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
                 {
                     this.UnlockTree(tech.Key);
+                    foreach(Technology.UnlockedMod unlockmod in tech.Value.ModulesUnlocked)
+                    {
+                        EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetMDict()[unlockmod.ModuleUID] = true;
+                    }
                 }
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
                     EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetHDict()[hull.Key] = true;
                 }
-                foreach (KeyValuePair<string, ShipModule> Module in ResourceManager.ShipModulesDict)
-                {
-                    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetMDict()[Module.Key] = true;
-                }
+                //foreach (KeyValuePair<string, ShipModule> Module in ResourceManager.ShipModulesDict)
+                //{
+                    
+                //    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetMDict()[Module.Key] = true;
+                //}
+
+
                 foreach (KeyValuePair<string, Ship_Game.Building> Building in ResourceManager.BuildingsDict)
                 {
                     //if (ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == null || ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == "")
