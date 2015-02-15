@@ -8529,6 +8529,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (flag2)
                 {
+                    this.empire.GetUS().MasterShipList.thisLock.EnterReadLock();
                     for (int index = 0; index < this.empire.GetUS().MasterShipList.Count; ++index)
                     {
                         Ship ship = this.empire.GetUS().MasterShipList[index];
@@ -8538,6 +8539,7 @@ namespace Ship_Game.Gameplay
                             break;
                         }
                     }
+                    this.empire.GetUS().MasterShipList.thisLock.ExitReadLock();
                 }
                 else
                     flag1 = false;

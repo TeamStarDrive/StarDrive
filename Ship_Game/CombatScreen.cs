@@ -123,16 +123,20 @@ namespace Ship_Game
                 Launches = "LaunchAll",
                 Text = "Launch All"
             };
-			foreach (Ship ship in CombatScreen.universeScreen.MasterShipList)			
+            CombatScreen.universeScreen.MasterShipList.thisLock.EnterReadLock();
+            foreach (Ship ship in CombatScreen.universeScreen.MasterShipList)			                        
             {
-				if (Vector2.Distance(p.Position, ship.Center) >= 4000f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
-				{
-					continue;
-				}
-				if (ship.Role != "troop")
-				{
-					if (ship.TroopList.Count <= 0 || !ship.HasTroopBay && !ship.hasTransporter)
-						continue;
+                
+                if (ship == null)
+                    continue;
+                if (Vector2.Distance(p.Position, ship.Center) >= 4000f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
+                {
+                    continue;
+                }
+                if (ship.Role != "troop")
+                {
+                    if (ship.TroopList.Count <= 0 || !ship.HasTroopBay && !ship.hasTransporter)
+                        continue;
                     int LandingLimit = ship.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <= 0).Count();
                     foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1))
                         LandingLimit += module.TransporterTroopLanding;
@@ -144,12 +148,13 @@ namespace Ship_Game
                             LandingLimit--;
                         }
                     }
-				}
-				else
-				{
-					this.OrbitSL.AddItem(ship);
-				}
-			}
+                }
+                else
+                {
+                    this.OrbitSL.AddItem(ship);
+                }
+            }
+            CombatScreen.universeScreen.MasterShipList.thisLock.ExitReadLock();
 			this.gridPos = new Rectangle(ColonyGrid.X + 20, ColonyGrid.Y + 20, ColonyGrid.Width - 40, ColonyGrid.Height - 40);
 			int xsize = this.gridPos.Width / 7;
 			int ysize = this.gridPos.Height / 5;
