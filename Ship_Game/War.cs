@@ -75,7 +75,8 @@ namespace Ship_Game
 			{
 				War ourStartingColonies = this;
 				ourStartingColonies.OurStartingColonies = ourStartingColonies.OurStartingColonies + 1;
-				foreach (Troop t in p.TroopsHere)
+                p.TroopsHere.thisLock.EnterReadLock();
+                foreach (Troop t in p.TroopsHere)
 				{
 					if (t.GetOwner() != us)
 					{
@@ -83,6 +84,7 @@ namespace Ship_Game
 					}
 					War war = this;
 					war.OurStartingGroundStrength = war.OurStartingGroundStrength + (float)t.Strength;
+                    p.TroopsHere.thisLock.ExitReadLock();
 				}
 			}
 			foreach (Ship ship in them.GetShips())
@@ -97,7 +99,8 @@ namespace Ship_Game
 			}
 			foreach (Planet p in them.GetPlanets())
 			{
-				foreach (Troop t in p.TroopsHere)
+                p.TroopsHere.thisLock.EnterReadLock();
+                foreach (Troop t in p.TroopsHere)
 				{
 					if (t.GetOwner() != them)
 					{
@@ -106,6 +109,7 @@ namespace Ship_Game
 					War theirStartingGroundStrength1 = this;
 					theirStartingGroundStrength1.TheirStartingGroundStrength = theirStartingGroundStrength1.TheirStartingGroundStrength + (float)t.Strength;
 				}
+                p.TroopsHere.thisLock.ExitReadLock();
 			}
 			foreach (KeyValuePair<Guid, SolarSystem> system in this.Us.GetUS().SolarSystemDict)
 			{
