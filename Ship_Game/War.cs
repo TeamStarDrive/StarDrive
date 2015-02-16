@@ -84,8 +84,9 @@ namespace Ship_Game
 					}
 					War war = this;
 					war.OurStartingGroundStrength = war.OurStartingGroundStrength + (float)t.Strength;
-                    p.TroopsHere.thisLock.ExitReadLock();
+                    
 				}
+                p.TroopsHere.thisLock.ExitReadLock();
 			}
 			foreach (Ship ship in them.GetShips())
 			{
