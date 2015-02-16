@@ -1979,6 +1979,7 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
+            
             this.pFacilities.HandleInputNoReset(this);
             if (HelperFunctions.CheckIntersection(this.RightColony.r, input.CursorPosition))
             {
@@ -1993,6 +1994,7 @@ namespace Ship_Game
 
                 try
                 {
+                    this.p.Owner.GetPlanets().thisLock.EnterReadLock();
                     int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);
                     thisindex = (thisindex >= this.p.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
                     if (this.p.Owner.GetPlanets()[thisindex] != this.p)
@@ -2000,6 +2002,7 @@ namespace Ship_Game
                         this.p = this.p.Owner.GetPlanets()[thisindex];
                         PlanetScreen.screen.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
                     }
+                    this.p.Owner.GetPlanets().thisLock.ExitReadLock();
                 }
                 catch
                 {
@@ -2652,6 +2655,7 @@ namespace Ship_Game
             this.buildingsHereLast = this.p.BuildingList.Count;
             this.buildingsCanBuildLast = this.BuildingsCanBuild.Count;
             this.previousMouse = this.currentMouse;
+            
         }
 
         private void HandleSlider()
