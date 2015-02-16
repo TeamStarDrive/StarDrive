@@ -208,7 +208,12 @@ namespace Ship_Game.Gameplay
         private bool disposed;
         List<ModuleSlot> AttackerTargetting;
         Ship lastAttacker;
-
+        public bool hullUnlockable = false;
+        public bool allModulesUnlocakable = false;
+        public bool unLockable = false;
+        public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
+        public HashSet<string> techsNeeded = new HashSet<string>();
+        public ushort TechScore =0;
         public float CargoSpace_Used
         {
             get

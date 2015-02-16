@@ -7567,6 +7567,7 @@ namespace Ship_Game.Gameplay
                       //changed by gremlin exclude module tech that we dont have any ships that use it.
                         ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
 						//foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
+
                         Parallel.ForEach(ResourceManager.TechTree, Technology =>
                         {
                             TechEntry tech = null;// new TechEntry();
@@ -8000,48 +8001,81 @@ namespace Ship_Game.Gameplay
             //    Random = 0;
             string researchtopic = "";
             TechnologyType techtype;
+            
+            #region hull checking.
+            //check that we have ships researched for current hull
             bool weCanBuildCurrentHull = false;
             string currentHull = "fighter";
             if (!this.empire.canBuildCorvettes)
                 weCanBuildCurrentHull = true;
-            else 
-                if (this.empire.canBuildCorvettes && !this.empire.canBuildFrigates)
-                currentHull = "corvette";
             else
-                if (this.empire.canBuildFrigates && !this.empire.canBuildCruisers)
-                    currentHull = "frigate";
+                if (this.empire.canBuildCorvettes && !this.empire.canBuildFrigates)
+                    currentHull = "corvette";
                 else
-                    if (this.empire.canBuildCruisers && !this.empire.canBuildCapitals)
-                        currentHull = "cruiser";
+                    if (this.empire.canBuildFrigates && !this.empire.canBuildCruisers)
+                        currentHull = "frigate";
                     else
-                        currentHull = "capital";
+                        if (this.empire.canBuildCruisers && !this.empire.canBuildCapitals)
+                            currentHull = "cruiser";
+                        else
+                            currentHull = "capital";
             string BestShip = "";
-            float bestShipStrength=0f;
-            if(!weCanBuildCurrentHull)
-            foreach (String wecanbuildit in this.empire.ShipsWeCanBuild)
-            {
-                Ship ship = ResourceManager.ShipsDict[wecanbuildit];
-                if (ship .shipData == null)
-                    continue;
-                if (ship.shipData.Role == currentHull)
+            float bestShipStrength = 0f;
+            if (!weCanBuildCurrentHull)
+                foreach (String wecanbuildit in this.empire.ShipsWeCanBuild)
                 {
-                    weCanBuildCurrentHull = true;
-                    break;
+                    Ship ship = ResourceManager.ShipsDict[wecanbuildit];
+                    if (ship.shipData == null)
+                        continue;
+                    if (ship.shipData.Role == currentHull)
+                    {
+                        weCanBuildCurrentHull = true;
+                        break;
+                    }
                 }
-            }
             //if (!weCanBuildCurrentHull)
-            foreach (KeyValuePair<string,Ship> wecanbuildit in ResourceManager.ShipsDict)            
+            List<string> unlockedTech = new List<string>();
+            foreach (KeyValuePair<string, TechEntry> techs in this.empire.TechnologyDict)
+            {
+                if (techs.Value.Unlocked)
+                    unlockedTech.Add(techs.Key);
+            }
+            unlockedTech.AddRange(AvailableTechs.Select(techstring => techstring.UID));
+                        
+            //foreach(Technology Leadsto in AvailableTechs)
+            //{
+            //    unlockedTech.AddRange(Leadsto.LeadsTo.Select(techname => techname.UID));
+            //}            
+            
+            //check 
+            foreach (KeyValuePair<string, Ship> wecanbuildit in ResourceManager.ShipsDict)
             {
                 bool test;
-                if(!this.empire.GetHDict().TryGetValue(wecanbuildit.Value.shipData.Hull, out test))
-                //if (!this.empire.GetHDict()[wecanbuildit.Value.shipData.Hull])
+                if (!this.empire.GetHDict().TryGetValue(wecanbuildit.Value.shipData.Hull, out test))
                     continue;
-                
+                if (!test)
+                    continue;
+                if (wecanbuildit.Value.techsNeeded.Count == 0)
+                    continue;
+                test = true;
                 Ship ship = wecanbuildit.Value;
                 if (ship.shipData == null)
                     continue;
+                if (ship.shipData.ShipStyle != this.empire.data.Traits.ShipType)
+                    continue;
+                if (this.empire.ShipsWeCanBuild.Contains(wecanbuildit.Key))
+                    continue;
                 if (ship.shipData.Role == currentHull)
                 {
+                    foreach (string shipTech in wecanbuildit.Value.techsNeeded)
+                        if (!unlockedTech.Contains(shipTech))
+                        {
+                            test = false;
+                            break;
+                        }
+                    if (!test)
+                        continue;
+
                     if (bestShipStrength < ship.BaseStrength)
                     {
                         bestShipStrength = ship.BaseStrength;
@@ -8049,7 +8083,9 @@ namespace Ship_Game.Gameplay
                     }
 
                 }
-            }
+            } 
+            #endregion
+            float CostNormalizer = this.empire.Research >0.0f ? 1 / (this.empire.Research*100) : .0025f;
             switch (command2)
             {
 
@@ -8074,10 +8110,14 @@ namespace Ship_Game.Gameplay
                             }
                             if(techtype == TechnologyType.ShipHull)
                             {
-                                float moneyNeeded =this.empire.canBuildFrigates ? 40 : 20;
+                                float moneyNeeded = this.empire.canBuildCapitals ? 80 : 60;
+                                moneyNeeded = this.empire.canBuildCruisers ? 60 : 25;
+                                moneyNeeded = this.empire.canBuildFrigates ? 10 : moneyNeeded;
+                                    moneyNeeded = this.empire.canBuildCorvettes ? 10 : 4;
+                                
 
-                                moneyNeeded = this.empire.canBuildCruisers ? 60 : moneyNeeded;
-                                moneyNeeded = this.empire.canBuildCapitals ? 80 : moneyNeeded;
+                               
+                                
                                 float money = this.empire.EstimateIncomeAtTaxRate(.5f) + this.empire.GetTotalShipMaintenance();
                                 if (money < moneyNeeded)
                                 {
@@ -8121,71 +8161,19 @@ namespace Ship_Game.Gameplay
                                 researchtopic = Testresearchtopic;
                             else
                             {
-                                int currentCost = (int)(ResearchTech.Cost * .0025f);
-                                int previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * .0025f);
-                                //if (weCanBuildCurrentHull)
-                                //{
+                                int currentCost = (int)(ResearchTech.Cost * CostNormalizer);
+                                int previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * CostNormalizer);
 
-
-                                //    if (techtype == TechnologyType.ShipHull )
-                                //    {
-                                //        currentCost = (int)(ResearchTech.Cost *  (.0025f - (this.empire.Research * .00005f)));
-                                //    }
-                                //    if (ResourceManager.TechTree[researchtopic].TechnologyType == TechnologyType.ShipHull)
-                                //    {
-                                //        previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * (.0025f - (this.empire.Research * .00005f)));
-                                //    }
-
-                                //}
-                                if (techtype != TechnologyType.ShipHull && ResearchTech.ModulesUnlocked.Count > 0 || ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0)
+                                if (!string.IsNullOrEmpty(BestShip) && ( techtype != TechnologyType.ShipHull && ResearchTech.ModulesUnlocked.Count > 0 || ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0))
                                 {
 
                                     Technology PreviousTech = ResourceManager.TechTree[researchtopic];
                                     Ship ship = ResourceManager.ShipsDict[BestShip];
-                                    //if (ResearchTech.ModulesUnlocked.Count > 0) 
-                                    foreach (ModuleSlot slot in ship.ModuleSlotList)
-                                    {
-                                        if (slot.isDummy)
-                                            continue;
-                                        if (this.empire.GetMDict()[slot.module.UID] == true)
-                                            continue;
-                                        bool currentStop = false;
-                                        bool PreviousStop = false;
-                                        if (!currentStop && ResearchTech.ModulesUnlocked.Count > 0)
-                                            foreach (Technology.UnlockedMod currentTechMod in ResearchTech.ModulesUnlocked)
-                                            {
+                                    if(ship.techsNeeded.Contains(PreviousTech.UID))
+                                        previousCost = (int)(previousCost * .5f);
+                                    if (ship.techsNeeded.Contains(ResearchTech.UID))
+                                        currentCost = (int)(currentCost * .5f);
 
-                                                {
-                                                    ShipModule cSM = ResourceManager.ShipModulesDict[currentTechMod.ModuleUID];
-
-                                                    if (slot.module == cSM)
-                                                    {
-                                                        currentCost = (int)(currentCost * .5f);
-                                                        currentStop = true;
-                                                        break;
-
-                                                    }
-                                                }
-                                            }
-                                        
-                                        if (!PreviousStop && PreviousTech.ModulesUnlocked.Count > 0)
-                                            foreach (Technology.UnlockedMod PTechMod in PreviousTech.ModulesUnlocked)
-                                            {
-                                                ShipModule pSM = ResourceManager.ShipModulesDict[PTechMod.ModuleUID];
-                                                if (slot.module == pSM)
-                                                {
-                                                    previousCost = (int)(previousCost * .5f);
-                                                    PreviousStop = true;
-                                                    break;
-
-                                                }
-                                            }
-                                        if (PreviousStop && currentStop)
-                                            break;
-
-
-
-                                    }
                                    
                                     
                                 }

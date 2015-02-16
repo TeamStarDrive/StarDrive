@@ -368,7 +368,7 @@ namespace Ship_Game.Gameplay
 				ArtificialIntelligence.universeScreen.NotificationManager.AddColonizedNotification(this.ColonizeTarget, EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty));
 				this.ColonizeTarget.colonyType = Planet.ColonyType.Colony;
 			}
-			lock (GlobalStats.OwnedPlanetsLock)
+			//lock (GlobalStats.OwnedPlanetsLock)
 			{
 				this.Owner.loyalty.AddPlanet(this.ColonizeTarget);
 			}
@@ -435,13 +435,14 @@ namespace Ship_Game.Gameplay
 					{
 						continue;
 					}
-					lock (GlobalStats.OwnedPlanetsLock)
+                    this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
 					{
 						if (p.Owner.GetRelations().ContainsKey(this.Owner.loyalty) && !p.Owner.GetRelations()[this.Owner.loyalty].Treaty_OpenBorders)
 						{
 							p.Owner.DamageRelationship(this.Owner.loyalty, "Colonized Owned System", 20f, p);
 						}
 					}
+                    this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
 				}
 			}
 			foreach (ModuleSlot slot in this.Owner.ModuleSlotList)
@@ -1774,6 +1775,7 @@ namespace Ship_Game.Gameplay
 				case 0:
 				{
 					List<Planet> potentials = new List<Planet>();
+                    this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
 					foreach (Planet p in this.Owner.loyalty.GetPlanets())
 					{
 						if (!p.HasShipyard)
@@ -1782,6 +1784,7 @@ namespace Ship_Game.Gameplay
 						}
 						potentials.Add(p);
 					}
+                    this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
 					if (potentials.Count <= 0)
 					{
 						break;
