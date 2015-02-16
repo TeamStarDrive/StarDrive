@@ -35,7 +35,7 @@ namespace Ship_Game
         public List<Building> BuildingList = new List<Building>();
         public SpaceStation Station = new SpaceStation();
         public ConcurrentDictionary<Guid, Ship> Shipyards = new ConcurrentDictionary<Guid, Ship>();
-        public List<Troop> TroopsHere = new List<Troop>();
+        public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         private float ZrotateAmount = 0.03f;
         public BatchRemovalCollection<Ship> BasedShips = new BatchRemovalCollection<Ship>();
@@ -3176,6 +3176,7 @@ namespace Ship_Game
 
         public void DoGoverning()
         {
+            float income = this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn;
             if (this.colonyType == Planet.ColonyType.Colony)
                 return;
             if (this.Owner.data.Traits.Cybernetic > 0)
@@ -3306,7 +3307,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.4f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes))
+                    if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.4f) - (double)b.Maintenance > 0.0 ))
                     {
                         bool flag2 = true;
                         if (b.BuildOnlyOnce)
@@ -3327,10 +3328,10 @@ namespace Ship_Game
                     {
                         if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                         {
-                            if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes))
+                            if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3))
                                 this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
                         }
-                        else if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(0.5f) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes))
+                        else if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(0.5f) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3))
                             this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
                     }
                 }
@@ -3536,7 +3537,7 @@ namespace Ship_Game
                                         }
                                     }
                                 }
-                                if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 ||this.Owner.Money > this.Owner.GrossTaxes))
+                                if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 ||this.Owner.Money > this.Owner.GrossTaxes*3))
                                 {
                                     bool flag1 = true;
                                     if (b.BuildOnlyOnce)
@@ -3574,13 +3575,14 @@ namespace Ship_Game
                                 {
                                     if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                                     {
-                                        if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes))
+                                        if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes*3))
                                             this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
                                     }
-                                    else if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(0.5f) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes))
+                                    else if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(0.5f) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 ||  this.Owner.Money > this.Owner.GrossTaxes*3))
                                         this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
                                 }
                             }
+                            
                             for (int index = 0; index < this.ConstructionQueue.Count; ++index)
                             {
                                 QueueItem queueItem1 = this.ConstructionQueue[index];
@@ -3604,6 +3606,8 @@ namespace Ship_Game
                                         this.ConstructionQueue.Add(queueItem2);
                                 }
                             }
+                            
+                            
                             break;
                         } 
                         #endregion
@@ -3693,7 +3697,7 @@ namespace Ship_Game
                                     break;
                                 }
                             }
-                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes))
+                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes*3))
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -3748,7 +3752,7 @@ namespace Ship_Game
                                     ) 
                                     || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost"))
                                 {
-                                    if (!(building.Name == "Space Port") || (double)this.GetNetProductionPerTurn() >= 2.0 || this.Owner.Money > this.Owner.GrossTaxes || (double)building.CreditsPerColonist > 0 || (double)building.PlusTaxPercentage >0)
+                                    if (!(building.Name == "Space Port") || (double)this.GetNetProductionPerTurn() >= 2.0 || this.Owner.Money > this.Owner.GrossTaxes*3 || (double)building.CreditsPerColonist > 0 || (double)building.PlusTaxPercentage >0)
                                     {
                                         float num2 = building.Cost;
                                         b = building;
@@ -3848,7 +3852,7 @@ namespace Ship_Game
                                     b = building;
                                 }
                             }
-                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes))
+                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -3964,7 +3968,7 @@ namespace Ship_Game
                                     b = building;
                                 }
                             }
-                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes))
+                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -4076,7 +4080,7 @@ namespace Ship_Game
                                     b = building;
                                 }
                             }
-                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes))
+                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -5219,7 +5223,9 @@ namespace Ship_Game
             float num = 0;
             if (this.Owner == empire)
                 num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            this.TroopsHere.thisLock.EnterReadLock();
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            this.TroopsHere.thisLock.ExitReadLock();
             return num;
 
 
@@ -5260,10 +5266,12 @@ namespace Ship_Game
             if (this.RecentCombat)
                 return;
             //heal troops
+            this.TroopsHere.thisLock.EnterReadLock();
             foreach (Troop troop in this.TroopsHere)
             {
                 troop.Strength = troop.GetStrengthMax();
             }
+            this.TroopsHere.thisLock.ExitReadLock();
         }
 
         private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
