@@ -152,6 +152,9 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
+        //designsWeHave our techTree has techs for.
+
+
 
 		public EmpireData()
 		{

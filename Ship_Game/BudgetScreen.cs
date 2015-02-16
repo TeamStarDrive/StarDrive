@@ -216,10 +216,12 @@ namespace Ship_Game
 			}
 			this.TaxSlider.HandleInput(input);
 			EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.TaxRate = this.TaxSlider.amount;
+            EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets().thisLock.EnterReadLock();
 			foreach (Planet p in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets())
 			{
 				p.UpdateIncomes();
 			}
+            EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets().thisLock.ExitReadLock();
 			if (input.Escaped)
 			{
 				this.ExitScreen();
