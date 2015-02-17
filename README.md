@@ -7,6 +7,17 @@ right click enemy planets to land troops, from troop carriers too.
 Fighters will return to carriers when out of ammo or badly damaged.
 and more.
 
+# Donations#
+Donations are gladly accepted. They will be used for non game related actions and stress relief. Certainly dont feel pressured to donate. If you want to toss one of us a few coins. Please do. If you cant decide which to donate to, consider dividing it to all.
+Any major contributor can add a donation link here.
+Here are the current links.
+
+* paypal donation link for crunchy gremlins contribution to BlackBox
+* * https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VAJQU42QYJY82&lc=US&item_name=Crunchy%20Gremlin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted 
+
+* Patreon Link for McShooterz Contribution to BlackBox and StarTtrek:Shattered Alliance
+* * http://www.patreon.com/McShooterz 
+
 # Feature list #
 
 * **General Game Things**
