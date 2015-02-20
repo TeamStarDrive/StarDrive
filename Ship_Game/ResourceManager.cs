@@ -207,83 +207,7 @@ namespace Ship_Game
 			return troop;
 		}
 
-        public static void MarkShipDesignsUnlockable()
-        {
-            bool flag = true;
-            HashSet<Technology> ShipTechs = new HashSet<Technology>();
-            foreach (KeyValuePair<string, Technology> TechTreeItem in ResourceManager.TechTree)
-            {
-                if (TechTreeItem.Value.ModulesUnlocked.Count <= 0 && TechTreeItem.Value.HullsUnlocked.Count <= 0)
-                    continue;
-                ShipTechs.Add(TechTreeItem.Value);
-            }
-            ShipData shipData;
-
-            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
-            {
-                //bool hullUnlockable = false;
-                //bool allModulesUnlocakable = false;
-                //bool unLockable = false;
-                //List<Empire> EmpiresThatCanUseThis = new List<Empire>();
-                //List<string> techsNeeded = new List<string>();
-                shipData = ship.Value.shipData;
-                if (shipData == null)
-                    continue;
-                foreach (Technology Hulltech in ShipTechs)
-                {
-                    foreach (Technology.UnlockedHull hulls in Hulltech.HullsUnlocked)
-                    {
-                        if (hulls.Name == shipData.Hull)
-                        {
-                            ship.Value.hullUnlockable = true;
-                            ship.Value.techsNeeded.Add(Hulltech.UID);
-                            break;
-                        }
-                        
-                    }
-                }
-
-                //if (!ship.Value.hullUnlockable)
-                //    continue;
-
-                foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
-                {
-                    bool modUnlockable = false;
-                    
-                    
-                    foreach (Technology technology in ShipTechs)
-                    {
-
-                        foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
-                        {
-                            if (mods.ModuleUID == module.InstalledModuleUID)
-                            {
-                                modUnlockable = true;
-                                ship.Value.techsNeeded.Add(technology.UID);
-                                break;
-                            }
-                        }
-                        if (modUnlockable)
-                            break;
-                    }
-                    if (!modUnlockable)
-                    {
-                        ship.Value.allModulesUnlocakable = false;
-                        ship.Value.hullUnlockable = false;
-                        ship.Value.techsNeeded.Clear();
-
-                        break;
-                    }
-
-                }
-
-                foreach (string techname in ship.Value.techsNeeded)
-                {
-                    ship.Value.TechScore += (ushort)ResourceManager.TechTree[techname].Cost;
-                }
-            }
-
-        }
+       
 
 		public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit)
 		{
@@ -367,6 +291,10 @@ namespace Ship_Game
 				Ship level = newShip;
 				level.Level = level.Level + Owner.data.BonusFighterLevels;
 			}
+            if(universeScreen.GameDifficulty > UniverseData.GameDifficulty.Normal)
+            {
+                newShip.Level += (int)universeScreen.GameDifficulty;
+            }
 			Owner.AddShip(newShip);
 			newShip.GetAI().State = AIState.AwaitingOrders;
 			return newShip;

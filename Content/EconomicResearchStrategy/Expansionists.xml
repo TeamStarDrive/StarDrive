@@ -20,22 +20,22 @@
       <id>CHEAPEST:TECH:General</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:GroundCombat</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:Colonization:Industry:Research:General</id>
+      <id>CHEAPEST:TECH:Economic:Colonization:Industry:Research:General</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:Colonization</id>
+      <id>CHEAPEST:TECH:Economic:Colonization</id>
     </Tech>
 
     <Tech>
@@ -45,25 +45,25 @@
       <id>IFLOWRESEARCH:14</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense</id>   
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>   
     </Tech>
     <Tech>
       <id>IFNOTLOWRESEARCH:16</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipGeneral:GroundCombat</id>
+      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:Colonization:ShipGeneral:General</id>
+      <id>CHEAPEST:TECH:Economic:Colonization:ShipGeneral:General:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:Industry:Research:Colonization</id>
+      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization:ShipHull</id>
     </Tech>
 
     <Tech>

@@ -20,24 +20,24 @@
       <id>XenoMining</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
 
     <Tech>
-      <id>SCRIPT:ShipHull</id>
+      <id>SCRIPT:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>EXPENSIVE:TECH:ShipWeapons:ShipDefenset</id>
+      <id>EXPENSIVE:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:Industry</id>
+      <id>CHEAPEST:TECH:Economic:Industry</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:Industry:Colonization:General:Research</id>
+      <id>CHEAPEST:TECH:Economic:Industry:Colonization:General:Research</id>
     </Tech>
 
     <Tech>
@@ -48,28 +48,28 @@
       <id>IFLOWRESEARCH:14</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
       <id>IFNOTLOWRESEARCH:16</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipGeneral:GroundCombat</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:ShipGeneral:GroundCombat</id>
+      <id>CHEAPEST:TECH:Industry:Economic:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic</id>
+      <id>CHEAPEST:TECH:Industry:Economic</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research:Colonization:General</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization:General:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
 
     <Tech>
