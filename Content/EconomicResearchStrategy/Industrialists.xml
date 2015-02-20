@@ -22,19 +22,19 @@
       <id>MissileTheory</id>
     </Tech>
     <Tech>
-      <id>HeavyFighterHull</id>
+      <id>ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Industry:Research:Economic:Colonization</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Colonization:General:Research:GroundCombat</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Colonization:General:Research:GroundCombat</id>
     </Tech>
 
     <Tech>
@@ -45,25 +45,25 @@
       <id>IFLOWRESEARCH:15</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
       <id>IFNOTLOWRESEARCH:17</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipDefense:ShipWeapons</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:GroundCombat</id>
+      <id>CHEAPEST:TECH:Economic:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:Industry:ShipGeneral</id>
+      <id>CHEAPEST:TECH:Economic:Industry</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research:Colonization:General</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization:General</id>
     </Tech>
 
     <Tech>

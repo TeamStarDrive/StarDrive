@@ -35,13 +35,13 @@
       <id>SCRIPT:Colonization</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Research:Economic</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Research:Colonization:Economic:General:Industry</id>
+      <id>CHEAPEST:TECH:Research:Colonization:Economic:General:Industry:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
  
     <Tech>
@@ -50,22 +50,22 @@
     
 
     <Tech>
-      <id>EXPENSIVE:TECH:ShipWeapons:ShipDefense</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
       <id>IFLOWRESEARCH:14</id>
     </Tech>
     <Tech>
-      <id>EXPENSIVE:TECH:ShipWeapons:ShipDefense</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Economic:Research:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
+      <id>CHEAPEST:TECH:Economic:Research:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research:Colonization:General</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization:General</id>
     </Tech>
     
 

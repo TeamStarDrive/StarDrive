@@ -2150,6 +2150,7 @@ namespace Ship_Game
             int num1 = 0;
             int num2 = 0;
             Empire index = (Empire)null;
+            this.TroopsHere.thisLock.EnterReadLock();
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
                 foreach (Troop troop in planetGridSquare.TroopsHere)
@@ -2167,6 +2168,7 @@ namespace Ship_Game
                 if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
                     ++num1;
             }
+            this.TroopsHere.thisLock.ExitReadLock();
             if (num2 > this.numInvadersLast && this.numInvadersLast == 0)
             {
                 if (EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) == this.Owner)
