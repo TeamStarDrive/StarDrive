@@ -104,6 +104,9 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
+        //added by gremlin
+        float leftoverResearch =0;
+
         static Empire()
         {
             
@@ -1663,19 +1666,19 @@ namespace Ship_Game
                 {
                     if(shipData.Hull == hulls.Key && hulls.Value)
                     {
-                        ship.Value.hullUnlockable = true;
+                        shipData.hullUnlockable = true;
                         
                     }
                 }
-                if(!ship.Value.hullUnlockable)
+                if (!shipData.hullUnlockable)
                 foreach (Technology Hulltech in ShipTechs)
                 {
                     foreach (Technology.UnlockedHull hulls in Hulltech.HullsUnlocked)
                     {
                         if (hulls.Name == shipData.Hull)
                         {
-                            ship.Value.hullUnlockable = true;
-                            ship.Value.techsNeeded.Add(Hulltech.UID);
+                            shipData.hullUnlockable = true;
+                            shipData.techsNeeded.Add(Hulltech.UID);
                             break;
                         }
 
@@ -1702,7 +1705,7 @@ namespace Ship_Game
                             if (mods.ModuleUID == module.InstalledModuleUID)
                             {
                                 modUnlockable = true;
-                                ship.Value.techsNeeded.Add(technology.UID);
+                                
                                 shipData.techsNeeded.Add(technology.UID);
 
                                 break;
@@ -1713,18 +1716,18 @@ namespace Ship_Game
                     }
                     if (!modUnlockable)
                     {
-                        ship.Value.allModulesUnlocakable = false;
-                        ship.Value.hullUnlockable = false;
-                        ship.Value.techsNeeded.Clear();
+                        shipData.allModulesUnlocakable = false;
+                        shipData.hullUnlockable = false;
+                        shipData.techsNeeded.Clear();
 
                         break;
                     }
 
                 }
 
-                foreach (string techname in ship.Value.techsNeeded)
+                foreach (string techname in shipData.techsNeeded)
                 {
-                    ship.Value.TechScore += (ushort)ResourceManager.TechTree[techname].Cost;
+                    shipData.TechScore += (ushort)ResourceManager.TechTree[techname].Cost;
                 }
             }
 
@@ -2269,8 +2272,10 @@ namespace Ship_Game
                 {
                     if (!string.IsNullOrEmpty(this.ResearchTopic))
                     {
+                        this.Research = 0;
                         foreach (Planet planet in this.OwnedPlanets)
                             this.Research += planet.NetResearchPerTurn;
+                        float research = this.Research + this.leftoverResearch;
                         TechEntry tech;
                         if (this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
                         {
@@ -2288,16 +2293,17 @@ namespace Ship_Game
 
                                 }
                             }
-                            if ((tech.GetTech().Cost*cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > this.Research)
+                            if ((tech.GetTech().Cost*cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
                             {
-                                tech.Progress += this.Research;
-                                this.Research = 0f;
+                                tech.Progress += research;
+                                this.leftoverResearch = 0f;
+                                research = 0;
                             }
                             else
                             {
     
                                 
-                                this.Research -= (tech.GetTech().Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
+                                research -= (tech.GetTech().Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
                                 tech.Progress = tech.GetTech().Cost * UniverseScreen.GamePaceStatic;
                                 this.UnlockTech(this.ResearchTopic);
                                 if (this.isPlayer)
@@ -2312,6 +2318,7 @@ namespace Ship_Game
                                     this.ResearchTopic = "";
                             }
                         }
+                        this.leftoverResearch = research;
                     }
                     else if (this.data.ResearchQueue.Count > 0)
                         this.ResearchTopic = this.data.ResearchQueue[0];

@@ -57,7 +57,7 @@ namespace Ship_Game
         public bool BaseCanWarp;
 		public List<ModuleSlotData> ModuleSlotList = new List<ModuleSlotData>();
         public bool hullUnlockable = false;
-        public bool allModulesUnlocakable = false;
+        public bool allModulesUnlocakable = true;
         public bool unLockable = false;
         public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
         public HashSet<string> techsNeeded = new HashSet<string>();
