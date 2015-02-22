@@ -22,7 +22,7 @@
       <id>MissileTheory</id>
     </Tech>
     <Tech>
-      <id>ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Industry:Research:Economic:Colonization</id>
