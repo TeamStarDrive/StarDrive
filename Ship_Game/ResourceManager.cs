@@ -3242,7 +3242,27 @@ namespace Ship_Game
           
 
 		}
-
+        public static List<string> FindPreviousTechs(Empire empire, Technology target, List<string> alreadyFound)
+        {
+            bool found = false;
+            foreach (KeyValuePair<string, TechEntry> TechTreeItem in empire.TechnologyDict)
+            {
+                foreach (Technology.LeadsToTech leadsto in TechTreeItem.Value.GetTech().LeadsTo)
+                {
+                    if (leadsto.UID == target.UID)
+                    {
+                        alreadyFound.Add(target.UID);
+                        alreadyFound= FindPreviousTechs(empire, TechTreeItem.Value.GetTech(), alreadyFound);
+                        //alreadyFound.AddRange(FindPreviousTechs(empire, TechTreeItem.Value.GetTech(), alreadyFound));
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                    break;
+            }
+            return alreadyFound;
+        }
 		public static void Start()
 		{
 		}

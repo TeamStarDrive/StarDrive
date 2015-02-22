@@ -59,9 +59,10 @@ namespace Ship_Game
         public bool hullUnlockable = false;
         public bool allModulesUnlocakable = true;
         public bool unLockable = false;
-        public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
+        //public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
         public HashSet<string> techsNeeded = new HashSet<string>();
         public ushort TechScore = 0;
+        //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
 
 		public ShipData()
 		{

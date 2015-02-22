@@ -7,29 +7,28 @@
   <IndustryPriority>2</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>CHEAPEST:TECH:Industry</id>
-    </Tech>
-
-    <Tech>
-      <id>CHEAPEST:TECH:Colonization</id>
-    </Tech>
-    <Tech>
       <id>IS Government</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:General</id>
+      <id>IndustrialFoundations</id>
+    </Tech>
+    <Tech>
+      <id>ScientificFoundations</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
+      <id>CHEAPEST:TECH:Colonization:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Research</id>
+      <id>CHEAPEST:TECH:Economic:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat:ShipHull</id>
+      <id>CHEAPEST:TECH:Economic:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat:ShipHull</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Colonization:Industry:Research:General</id>
     </Tech>
     <Tech>
       <id>CHEAPEST:TECH:Economic:Colonization:Industry:Research:General</id>
