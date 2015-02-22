@@ -1975,7 +1975,14 @@ namespace Ship_Game.Gameplay
 
 		private void DropoffPassengers()
 		{
-			while (this.Owner.GetCargo()["Colonists_1000"] > 0f)
+            if (this.end == null)
+            {
+                this.OrderQueue.RemoveFirst();
+                this.OrderTransportPassengers();
+                return;
+            }
+
+            while (this.Owner.GetCargo()["Colonists_1000"] > 0f)
 			{
 				Dictionary<string, float> cargo = this.Owner.GetCargo();
 				cargo["Colonists_1000"] = cargo["Colonists_1000"] - 1f;

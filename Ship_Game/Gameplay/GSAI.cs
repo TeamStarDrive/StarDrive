@@ -3476,6 +3476,7 @@ namespace Ship_Game.Gameplay
 
                         PotentialMissions.Add(AgentMission.Sabotage);
                         PotentialMissions.Add(AgentMission.Robbery);
+                        PotentialMissions.Add(AgentMission.StealTech);
                     }
                     if (agent.Level < 4)
                     {
@@ -3497,7 +3498,7 @@ namespace Ship_Game.Gameplay
                     }
                     if (agent.Level >= 4)
                     {
-
+                        PotentialMissions.Add(AgentMission.StealTech);
                         PotentialMissions.Add(AgentMission.Sabotage);
                         if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
                     }
@@ -3520,6 +3521,7 @@ namespace Ship_Game.Gameplay
                     {
                         //PotentialMissions.Add(AgentMission.Robbery);
                         if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
+                        PotentialMissions.Add(AgentMission.StealTech);
                     }
                     if (agent.Level < 4)
                     {
@@ -7387,7 +7389,7 @@ namespace Ship_Game.Gameplay
                 List<MilitaryTask> InOurSystems = new List<MilitaryTask>();
                 List<MilitaryTask> InOurAOs = new List<MilitaryTask>();
                 List<MilitaryTask> Remainder = new List<MilitaryTask>();
-                foreach (MilitaryTask task in this.TaskList)
+                foreach (MilitaryTask task in this.TaskList.OrderBy(target=> target.GetTargetPlanet()!=null ? Vector2.Distance(target.GetTargetPlanet().Position,this.empire.GetWeightedCenter()):0f))
                 {
                     if (task.type != MilitaryTask.TaskType.AssaultPlanet)
                     {
@@ -7484,7 +7486,7 @@ namespace Ship_Game.Gameplay
                         TNInOurSystems.Add(task);
                     }
                 }
-                foreach (MilitaryTask task in TNInOurAOs)
+                foreach (MilitaryTask task in TNInOurAOs.OrderBy(target=>  Vector2.Distance(target.GetTargetPlanet().Position,this.empire.GetWeightedCenter())))
                 //Parallel.ForEach(TNInOurAOs, task =>
                 {
                     if (task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner == this.empire || this.empire.GetRelations()[task.GetTargetPlanet().Owner].ActiveWar == null || (float)this.empire.TotalScore <= (float)task.GetTargetPlanet().Owner.TotalScore * 1.5f)
