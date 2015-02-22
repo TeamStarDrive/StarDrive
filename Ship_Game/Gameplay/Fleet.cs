@@ -1337,7 +1337,7 @@ namespace Ship_Game.Gameplay
                             List<Planet> list1 = new List<Planet>();
                             foreach (Planet planet in this.Owner.GetPlanets())
                             {
-                                if (planet.HasShipyard)
+                                if (planet.HasShipyard )
                                     list1.Add(planet);
                             }
                             IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list1, (Func<Planet, float>)(planet => Vector2.Distance(Task.AO, planet.Position)));
@@ -1358,12 +1358,17 @@ namespace Ship_Game.Gameplay
                             }
                         case 1:
                             bool flag1 = true;
+                            
                             foreach (Ship ship in (List<Ship>)this.Ships)
                             {
                                 if (!ship.disabled && ship.hasCommand && ship.Active)
                                 {
                                     if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                         flag1 = false;
+                                    else if(ship.GetAI().BadGuysNear)
+                                    {
+                                        Task.EndTask();
+                                    }
                                     int num4 = ship.InCombat ? 1 : 0;
                                     if (!flag1)
                                         break;
