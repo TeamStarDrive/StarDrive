@@ -8156,7 +8156,7 @@ namespace Ship_Game.Gameplay
                                         else if (hull.unlockCorvettes)
                                             moneyNeeded = 10;
                                         techCost += (int)(moneyNeeded / money > 1 ? money : 1);
-                                        techCost += (int)(hull.Cost / (1 + this.empire.Research)*100);
+                                        techCost += (int)(hull.Cost / ((1 + this.empire.Research)*100));
                                     }
                                 }
                             }
