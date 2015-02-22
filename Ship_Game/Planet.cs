@@ -3176,6 +3176,143 @@ namespace Ship_Game
             return false;
         }
 
+        public bool WeCanBuildThis(Building building, Planet.ColonyType governor)
+        {
+            Empire empire = this.Owner;
+            float buildingMaintenance = empire.GetTotalBuildingMaintenance();
+            float grossTaxes = empire.GrossTaxes;
+            bool LowPri =  buildingMaintenance / grossTaxes  <.26f;
+            bool MedPri = buildingMaintenance / grossTaxes < .40f;
+            bool HighPri = buildingMaintenance / grossTaxes < .80f;
+            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+            {
+                if (queueItem.isBuilding)
+                    buildingMaintenance += queueItem.Building.Maintenance;                
+            }
+
+            if(building.ExcludesPlanetType == this.Type)
+                return false;
+            if (building.Maintenance <= 1)
+                return true;
+            if (building.PlusTaxPercentage >0 || building.CreditsPerColonist >0)
+                return true;
+            switch  (governor)
+            {
+                case ColonyType.Agricultural:
+                    {
+                        if (building.MinusFertilityOnBuild > 0)
+                            return false;
+                        if (HighPri)
+                        {
+                            if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0)
+                                return true;
+                        }
+                        if (MedPri)
+                        {
+                            if (building.StorageAdded > 0 || building.PlusTerraformPoints > 0 || building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0)
+                                return true;
+                        }
+                        if (LowPri)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                case ColonyType.Core:
+                    {
+                       if(HighPri)
+                       {
+                           if (building.MinusFertilityOnBuild >0)
+                               return false;
+                           if (building.StorageAdded > 0
+                               || building.PlusTerraformPoints > 0
+                               || building.MaxPopIncrease > 0
+                               || building.PlusFlatPopulation > 0
+                               || building.PlusFlatFoodAmount > 0
+                               || building.PlusFoodPerColonist > 0
+                               || building.PlusTerraformPoints > 0
+                               || building.StorageAdded > 0 || building.PlusTerraformPoints > 0 || building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0
+                               )
+                               return true;
+                       }
+                        if(MedPri)
+                        {
+                            return true;
+                        }
+                        if(LowPri)
+                        {
+
+                        }
+                        break;
+                    }
+
+                case ColonyType.Industrial:
+                    {
+                        if (HighPri)
+                        {
+                            if (building.PlusFlatProductionAmount >0 || building.PlusProdPerRichness >0 || building.PlusProdPerColonist >0 || building.PlusFlatProductionAmount >0)
+                                return true;
+                        }
+                        if (MedPri)
+                        {
+                            if(building.MaxPopIncrease >0 || building.PlusFlatPopulation >0 || building.StorageAdded >0)
+                            {
+                                return true;
+                            }
+
+                        }
+                        if (LowPri)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                case ColonyType.Military:
+                    {
+                        if (HighPri)
+                        {
+                            if (building.isWeapon 
+                                || building.IsSensor 
+                                || building.Defense > 0 
+                                || building.PlanetaryShieldStrengthAdded > 0 || building.AllowShipBuilding || building.ShipRepair > 0 ||building.Strength >0)
+                                return true;
+                        }
+                        if (MedPri)
+                        {
+                            if (building.PlusFlatProductionAmount > 0 || building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0)
+                                return true;
+                        }
+                        if (LowPri)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                case ColonyType.Research:
+                    {
+                        if (building.MinusFertilityOnBuild > 0)
+                            return false;
+                        if (HighPri)
+                        {
+                            if (building.PlusFlatResearchAmount > 0 || building.PlusResearchPerColonist > 0)
+                                return true;
+                        }
+                        if (MedPri)
+                        {
+                            if (building.StorageAdded > 0 || building.PlusTerraformPoints > 0 || building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0)
+                                return true;
+                        }
+                        if (LowPri)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+            }
+            return false;
+
+        }
+
         public void DoGoverning()
         {
             float income = this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn;

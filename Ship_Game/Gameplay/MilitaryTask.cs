@@ -1082,7 +1082,7 @@ namespace Ship_Game.Gameplay
             //    .OrderByDescending(ao => ao.GetOffensiveForcePool().Sum(bombs => bombs.BombBays.Count) > 0)
             //    .ThenByDescending(ao => ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength)
             //    .ThenBy(ao => Vector2.Distance(this.AO, ao.Position));
-            //if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
+            if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
             {
                 return;
             }
@@ -1161,8 +1161,8 @@ namespace Ship_Game.Gameplay
             IOrderedEnumerable<Planet> sortedList =
                 //from planet in ClosestAO.GetPlanets()
                 from planet in empire.GetPlanets()
-                where planet.system.CombatInSystem ==false
-//                orderby empire.GetGSAI().DefensiveCoordinator.DefenseDict.Values)
+                //where planet.system.CombatInSystem ==false
+                orderby empire.GetGSAI().DefensiveCoordinator.DefenseDict[planet.ParentSystem].ValueToUs *.1f
                 orderby Vector2.Distance(planet.Position, planets.First<Planet>().Position)
                 select planet;
     //        IOrderedEnumerable<SolarSystem> sortedSystems =
@@ -1248,6 +1248,7 @@ namespace Ship_Game.Gameplay
                 //|| empire.GetRelations().Where(war => war.Value.ActiveWar !=null).Count() <2
                 )
             {
+                if(!this.IsCoreFleetTask)
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.empire.GetGSAI().DefensiveCoordinator.DefenseDict
                     .OrderByDescending(system => system.Key.CombatInSystem)
                     .ThenByDescending(ship => (ship.Value.GetOurStrength() - ship.Value.IdealShipStrength) < 1000)
