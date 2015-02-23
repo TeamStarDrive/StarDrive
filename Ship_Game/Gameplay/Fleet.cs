@@ -1335,11 +1335,13 @@ namespace Ship_Game.Gameplay
                     {
                         case 0:
                             List<Planet> list1 = new List<Planet>();
+                            this.Owner.GetPlanets().thisLock.EnterReadLock();
                             foreach (Planet planet in this.Owner.GetPlanets())
                             {
                                 if (planet.HasShipyard )
                                     list1.Add(planet);
                             }
+                            this.Owner.GetPlanets().thisLock.ExitReadLock();
                             IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list1, (Func<Planet, float>)(planet => Vector2.Distance(Task.AO, planet.Position)));
                             if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1) > 0)
                             {
@@ -1358,24 +1360,32 @@ namespace Ship_Game.Gameplay
                             }
                         case 1:
                             bool flag1 = true;
-                            
+                            this.Ships.thisLock.EnterReadLock();
                             foreach (Ship ship in (List<Ship>)this.Ships)
                             {
                                 if (!ship.disabled && ship.hasCommand && ship.Active)
                                 {
                                     if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
-                                        flag1 = false;
-                                    else if(ship.GetAI().BadGuysNear)
                                     {
+                                        flag1 = false;
+                                        this.Ships.thisLock.ExitReadLock();
+                                    }
+                                    else if (ship.GetAI().BadGuysNear)
+                                    {
+                                        this.Ships.thisLock.ExitReadLock();
                                         Task.EndTask();
+                                        flag1 = false;
+
                                     }
                                     int num4 = ship.InCombat ? 1 : 0;
                                     if (!flag1)
                                         break;
                                 }
                             }
+                            
                             if (!flag1)
                                 break;
+                            this.Ships.thisLock.ExitReadLock();
                             this.TaskStep = 2;
                             Vector2 MovePosition = Task.GetTargetPlanet().Position + Vector2.Normalize(this.findAveragePosition() - Task.GetTargetPlanet().Position) * 125000f;
                             this.Position = MovePosition;
@@ -1383,6 +1393,7 @@ namespace Ship_Game.Gameplay
                             break;
                         case 2:
                             bool flag2 = true;
+                            this.Ships.thisLock.EnterReadLock();
                             foreach (Ship ship in (List<Ship>)this.Ships)
                             {
                                 if (!ship.disabled && ship.hasCommand && ship.Active)
@@ -1393,9 +1404,11 @@ namespace Ship_Game.Gameplay
                                         break;
                                 }
                             }
+                            this.Ships.thisLock.ExitReadLock();
                             if (!flag2)
                                 break;
-                            foreach (Ship ship in (List<Ship>)this.Ships)
+                            this.Ships.thisLock.EnterReadLock();
+                                foreach (Ship ship in (List<Ship>)this.Ships)
                             {
                                 ship.GetAI().HasPriorityOrder = false;
                                 ship.GetAI().State = AIState.HoldPosition;
@@ -1404,6 +1417,7 @@ namespace Ship_Game.Gameplay
                                 else if (ship.Role == "troop")
                                     ship.GetAI().HoldPosition();
                             }
+                                this.Ships.thisLock.ExitReadLock();
                             this.InterceptorDict.Clear();
                             this.TaskStep = 3;
                             break;
@@ -1412,6 +1426,7 @@ namespace Ship_Game.Gameplay
                             float num6 = 0.0f;
                             float num7 = 0.0f;
                             float num8 = 0.0f;
+                            this.Ships.thisLock.EnterReadLock();
                             foreach (Ship ship in (List<Ship>)this.Ships)
                             {
                                 num5 += ship.Ordinance;
@@ -1424,6 +1439,7 @@ namespace Ship_Game.Gameplay
                                         num8 = weapon.DamageAmount / weapon.fireDelay;
                                 }
                             }
+                            this.Ships.thisLock.ExitReadLock();
                             float num9 = num7 + num8;
                             if ((double)num7 >= 0.5 * (double)num9 && (double)num5 <= 0.100000001490116 * (double)num6)
                             {
@@ -1432,6 +1448,7 @@ namespace Ship_Game.Gameplay
                             }
                             else
                             {
+                                
                                 foreach (Ship key in (List<Ship>)Task.GetTargetPlanet().system.ShipList)
                                 {
                                     if (key.loyalty != this.Owner && (key.loyalty.isFaction || this.Owner.GetRelations()[key.loyalty].AtWar) && ((double)Vector2.Distance(key.Center, Task.GetTargetPlanet().Position) < 15000.0 && !this.InterceptorDict.ContainsKey(key)))
@@ -1504,6 +1521,7 @@ namespace Ship_Game.Gameplay
                                     this.TaskStep = 4;
                                 lock (GlobalStats.TaskLocker)
                                 {
+                                    this.Owner.GetGSAI().TaskList.thisLock.EnterReadLock();
                                     using (List<MilitaryTask>.Enumerator resource_0 = this.Owner.GetGSAI().TaskList.GetEnumerator())
                                     {
                                         while (resource_0.MoveNext())
@@ -1512,8 +1530,10 @@ namespace Ship_Game.Gameplay
                                             if (local_43.WaitForCommand && local_43.GetTargetPlanet() != null && local_43.GetTargetPlanet() == Task.GetTargetPlanet())
                                                 local_43.WaitForCommand = false;
                                         }
+                                        this.Owner.GetGSAI().TaskList.thisLock.ExitReadLock();
                                         break;
                                     }
+                                    this.Owner.GetGSAI().TaskList.thisLock.ExitReadLock();
                                 }
                             }
                         case 4:
@@ -1601,6 +1621,7 @@ namespace Ship_Game.Gameplay
                                 }
                                 else
                                 {
+                                    this.Ships.thisLock.EnterReadLock();
                                     using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
                                     {
                                         while (enumerator.MoveNext())
@@ -1609,17 +1630,21 @@ namespace Ship_Game.Gameplay
                                             if (current.BombBays.Count > 0)
                                                 current.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
                                         }
+                                        this.Ships.thisLock.ExitReadLock();
                                         break;
                                     }
+                                    this.Ships.thisLock.ExitReadLock();
                                 }
                             }
                         case 5:
                             List<Planet> list5 = new List<Planet>();
+                            this.Owner.GetPlanets().thisLock.EnterReadLock();
                             foreach (Planet planet in this.Owner.GetPlanets())
                             {
                                 if (planet.HasShipyard)
                                     list5.Add(planet);
                             }
+                            this.Owner.GetPlanets().thisLock.ExitReadLock();
                             IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list5, (Func<Planet, float>)(p => Vector2.Distance(this.Position, p.Position)));
                             if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable3) > 0)
                             {
