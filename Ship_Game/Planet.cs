@@ -3183,18 +3183,18 @@ namespace Ship_Game
             Empire empire = this.Owner;
             float buildingMaintenance = empire.GetTotalBuildingMaintenance();
             float grossTaxes = empire.GrossTaxes;
-            bool LowPri =  buildingMaintenance / grossTaxes  <.26f;
-            bool MedPri = buildingMaintenance / grossTaxes < .40f;
-            bool HighPri = buildingMaintenance / grossTaxes < .80f;
+
             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
             {
                 if (queueItem.isBuilding)
                     buildingMaintenance += queueItem.Building.Maintenance;                
             }
-
-            if (building.ExcludesPlanetType != null || building.ExcludesPlanetType == this.Type)
+            bool LowPri = buildingMaintenance / grossTaxes < .25f;
+            bool MedPri = buildingMaintenance / grossTaxes < .60f;
+            bool HighPri = buildingMaintenance / grossTaxes < .80f;
+            if (!string.IsNullOrEmpty(building.ExcludesPlanetType) && building.ExcludesPlanetType == this.Type)
                 return false;
-            if (building.Maintenance <= 1)
+            if (building.Maintenance <= 0.0f)
                 return true;
             if (building.PlusTaxPercentage >0 || building.CreditsPerColonist >0)
                 return true;
@@ -3231,7 +3231,7 @@ namespace Ship_Game
                            if (building.StorageAdded > 0
                                || building.PlusTerraformPoints > 0
                                || building.MaxPopIncrease > 0
-                               || building.PlusFlatPopulation > 0
+                               || building.PlusFlatProductionAmount > 0
                                || building.PlusFlatFoodAmount > 0
                                || building.PlusFoodPerColonist > 0
                                || building.PlusTerraformPoints > 0
@@ -3426,19 +3426,19 @@ namespace Ship_Game
                     float num2 = 99999f;
                     foreach (Building building in this.BuildingsCanBuild)
                     {
-                        if ((building.PlusTerraformPoints <= 0.0) //(building.Name == "Terraformer") 
-                            && (double)building.PlusFlatFoodAmount <= 0.0
-                            && ((double)building.PlusFoodPerColonist <= 0.0 && !(building.Name == "Biospheres"))
+                        if ((building.PlusTerraformPoints <=0.0) //(building.Name == "Terraformer") 
+                            && (double)building.PlusFlatFoodAmount <= 0.0 
+                            && ((double)building.PlusFoodPerColonist <= 0.0 && !(building.Name == "Biospheres")) 
                             && ((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population / (double)this.MaxPopulation <= 0.25))
                         {
-                            if ((double)building.PlusFlatProductionAmount > 0.0
-                                || (double)building.PlusProdPerColonist > 0.0
-                                || (double)building.PlusTaxPercentage > 0.0
+                            if ((double)building.PlusFlatProductionAmount > 0.0 
+                                || (double)building.PlusProdPerColonist > 0.0 
+                                || (double)building.PlusTaxPercentage >0.0
                                 || (double)building.PlusProdPerRichness > 0.0
-                                || (double)building.CreditsPerColonist > 0.0
+                                || (double)building.CreditsPerColonist >0.0                                
                                 || (building.Name == "Space Port" || building.Name == "Outpost"))
                             {
-                                if (!(building.Name == "Space Port") || (building.Cost + 1) / ((double)this.GetNetProductionPerTurn() + 1) < 50 || this.ProductionHere > building.Cost * .5)
+                                if (!(building.Name == "Space Port") || (building.Cost + 1) / ((double)this.GetNetProductionPerTurn() + 1) < 50 || this.ProductionHere > building.Cost *.5)
                                 {
                                     float num3 = building.Cost;
                                     b = building;
@@ -3452,7 +3452,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.4f) - (double)b.Maintenance > 0.0))
+                    if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.4f) - (double)b.Maintenance > 0.0 ))
                     {
                         bool flag2 = true;
                         if (b.BuildOnlyOnce)
@@ -4321,22 +4321,23 @@ namespace Ship_Game
                 List<Building> list = new List<Building>();
                 foreach (Building building in this.BuildingList)
                 {
-                    if ((double)building.PlusFlatPopulation > 0.0 && (double)building.Maintenance > 0.0)
+                    //if ((double)building.PlusFlatPopulation > 0.0 && (double)building.Maintenance > 0.0)
+                    if(!WeCanAffordThis(building,this.colonyType))
                         list.Add(building);
                 }
                 foreach (Building b in list)
                     this.ScrapBuilding(b);
             }
-            if ((double)this.Fertility < 1.0)
-                return;
-            List<Building> list1 = new List<Building>();
-            foreach (Building building in this.BuildingList)
-            {
-                if ((double)building.PlusTerraformPoints > 0.0 && (double)building.Maintenance > 0.0)
-                    list1.Add(building);
-            }
-            foreach (Building b in list1)
-                this.ScrapBuilding(b); 
+            //if ((double)this.Fertility < 1.0)
+            //    return;
+            //List<Building> list1 = new List<Building>();
+            //foreach (Building building in this.BuildingList)
+            //{
+            //    if ((double)building.PlusTerraformPoints > 0.0 && (double)building.Maintenance > 0.0)
+            //        list1.Add(building);
+            //}
+            //foreach (Building b in list1)
+            //    this.ScrapBuilding(b); 
             #endregion
         }
         public bool GoodBuilding (Building b)
