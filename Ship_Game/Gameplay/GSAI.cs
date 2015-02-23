@@ -3161,7 +3161,7 @@ namespace Ship_Game.Gameplay
             }
             GSAI desiredAgentCount1 = this;
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
-            int empirePlanetSpys = empire.GetPlanets().Count() / 3 + 3;
+            int empirePlanetSpys = empire.GetPlanets().Count() / 3 + (int)(this.empire.Money / (this.empire.GrossTaxes*3));
             int currentSpies = this.empire.data.AgentList.Count;
             if (this.empire.data.AgentList.Count < this.DesiredAgentCount && this.empire.Money >= 300f && currentSpies < empirePlanetSpys)
             {
@@ -3191,7 +3191,7 @@ namespace Ship_Game.Gameplay
                 }
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
-            int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .5); // (int)(0.33f * (float)this.empire.data.AgentList.Count);
+            int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .33f); // (int)(0.33f * (float)this.empire.data.AgentList.Count);
             //int DesiredOffense = this.empire.data.AgentList.Count / 2;
             foreach (Agent agent in this.empire.data.AgentList)
             {
@@ -3224,13 +3224,15 @@ namespace Ship_Game.Gameplay
                     }
                     if (agent.Level >= 4)
                     {
-                        //PotentialMissions.Add(AgentMission.Assassinate);
+                        PotentialMissions.Add(AgentMission.StealTech);
                         PotentialMissions.Add(AgentMission.Robbery);
                         PotentialMissions.Add(AgentMission.Sabotage);
                     }
                     if (agent.Level < 4)
                     {
                         PotentialMissions.Add(AgentMission.Sabotage);
+                        PotentialMissions.Add(AgentMission.StealTech);
+                        PotentialMissions.Add(AgentMission.Robbery);
                         //PotentialMissions.Add(AgentMission.Infiltrate);
                     }
                 }
@@ -3409,7 +3411,7 @@ namespace Ship_Game.Gameplay
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + this.BaseAgents;
             //int empirePlanetSpys = this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             //if (this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
-            int empireSpyLimit = this.empire.GetPlanets().Count() / 3 + 3;
+            int empireSpyLimit = this.empire.GetPlanets().Count() / 3 + (int)(this.empire.Money /this.empire.GrossTaxes);
             int currentSpies = this.empire.data.AgentList.Count;
             if (this.empire.data.AgentList.Count < this.DesiredAgentCount && this.empire.Money >= 300f && currentSpies < empireSpyLimit)
             {
@@ -3440,7 +3442,7 @@ namespace Ship_Game.Gameplay
                 }
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
-            int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .6);// (int)(0.20f * (float)this.empire.data.AgentList.Count);
+            int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .2);// (int)(0.20f * (float)this.empire.data.AgentList.Count);
             foreach (Agent agent in this.empire.data.AgentList)
             {
                 if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover || Offense >= DesiredOffense || this.empire.Money <= 250f)
@@ -3477,12 +3479,16 @@ namespace Ship_Game.Gameplay
                         PotentialMissions.Add(AgentMission.Sabotage);
                         PotentialMissions.Add(AgentMission.Robbery);
                         PotentialMissions.Add(AgentMission.StealTech);
+                        PotentialMissions.Add(AgentMission.Assassinate);
+
                     }
                     if (agent.Level < 4)
                     {
                         PotentialMissions.Add(AgentMission.Sabotage);
                         //PotentialMissions.Add(AgentMission.Infiltrate);
-                        if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
+                        //if (this.empire.Money < 50 * this.empire.GetPlanets().Count)
+                            PotentialMissions.Add(AgentMission.Robbery);
+                            PotentialMissions.Add(AgentMission.StealTech);
                     }
 
 
@@ -3500,11 +3506,14 @@ namespace Ship_Game.Gameplay
                     {
                         PotentialMissions.Add(AgentMission.StealTech);
                         PotentialMissions.Add(AgentMission.Sabotage);
-                        if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
+                        PotentialMissions.Add(AgentMission.Robbery);
+                        //if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
                     }
                     if (agent.Level < 4)
                     {
-                        if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
+                        PotentialMissions.Add(AgentMission.StealTech);
+                        PotentialMissions.Add(AgentMission.Sabotage);
+                        PotentialMissions.Add(AgentMission.Robbery);
                     }
                 }
                 if (this.empire.GetRelations()[Target].Posture == Posture.Neutral || this.empire.GetRelations()[Target].Posture == Posture.Friendly)
@@ -3519,13 +3528,16 @@ namespace Ship_Game.Gameplay
                     }
                     if (agent.Level >= 4)
                     {
-                        //PotentialMissions.Add(AgentMission.Robbery);
-                        if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
+                        PotentialMissions.Add(AgentMission.Robbery);
+                        //if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
                         PotentialMissions.Add(AgentMission.StealTech);
+                        PotentialMissions.Add(AgentMission.Sabotage);
                     }
                     if (agent.Level < 4)
                     {
-                        if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
+                        PotentialMissions.Add(AgentMission.StealTech);
+                        //if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
+                        PotentialMissions.Add(AgentMission.Robbery);
                     }
 
                 }
@@ -3838,7 +3850,7 @@ namespace Ship_Game.Gameplay
             //this.DesiredAgentsPerHostile = 5;
             //this.DesiredAgentsPerNeutral = 1;
             this.DesiredAgentCount = 0;
-            this.BaseAgents = empire.GetPlanets().Count / 2;
+            this.BaseAgents = empire.GetPlanets().Count / 2 + (int)(this.empire.Money / (this.empire.GrossTaxes*2)) ;
             foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
             {
                 if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
@@ -3890,7 +3902,7 @@ namespace Ship_Game.Gameplay
                 }
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
-            int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .75);
+            int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .4f);
             foreach (Agent agent in this.empire.data.AgentList)
             {
                 if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover || Offense >= DesiredOffense || this.empire.Money <= 300f)
@@ -3924,12 +3936,13 @@ namespace Ship_Game.Gameplay
                     }
                     if (agent.Level >= 4)
                     {
-
+                        PotentialMissions.Add(AgentMission.Robbery);
                         PotentialMissions.Add(AgentMission.Sabotage);
                     }
                     if (agent.Level < 4)
                     {
-                        //PotentialMissions.Add(AgentMission.Sabotage);
+                        PotentialMissions.Add(AgentMission.Sabotage);
+                        PotentialMissions.Add(AgentMission.Robbery);
                         //PotentialMissions.Add(AgentMission.Infiltrate);
                     }
                 }

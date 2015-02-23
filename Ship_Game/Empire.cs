@@ -1491,7 +1491,7 @@ namespace Ship_Game
             () =>
             {
                 this.totalShipMaintenance = 0.0f;
-                this.totalBuildingMaintenance = 0.0f;
+                
                 this.OwnedShips.thisLock.EnterReadLock();
                 foreach (Ship ship in (List<Ship>)this.OwnedShips)
                 {
@@ -1517,12 +1517,17 @@ namespace Ship_Game
             () =>
             {
                 this.OwnedPlanets.thisLock.EnterReadLock();
+                float newBuildM = 0f;
+                
                 foreach (Planet planet in this.OwnedPlanets)
                 {
+                    
                     planet.UpdateOwnedPlanet();
-                    this.totalBuildingMaintenance += planet.TotalMaintenanceCostsPerTurn;
+
+                    newBuildM += planet.TotalMaintenanceCostsPerTurn;
                 }
                 this.OwnedPlanets.thisLock.ExitReadLock();
+                this.totalBuildingMaintenance = newBuildM;
             }
             );
             this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
