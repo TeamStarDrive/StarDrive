@@ -1235,7 +1235,9 @@ namespace Ship_Game.Gameplay
 
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
             {
-                if (ship.InCombat || ship.fleet != null || tfstrength >= MinimumEscortStrength || ship.GetStrength() <= 0f)
+                if (ship.InCombat || ship.fleet != null || tfstrength >= MinimumEscortStrength 
+                    || ship.GetAI().State == AIState.Explore
+                    || ship.GetStrength() <= 0f ||(ship.Role == "station" || ship.Role == "platform") )
                 {
                     continue;
                 }
