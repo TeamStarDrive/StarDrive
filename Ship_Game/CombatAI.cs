@@ -49,9 +49,9 @@ namespace Ship_Game
                 this.SmallAttackWeight = 30 / Size > 1 ? 3 : 0;
                 this.MediumAttackWeight = Size / 100 < 1 && 30 / Size > 1 ? 3 : .5f;
                 float stlspeed = ship.GetSTLSpeed();
-                if (stlspeed > 500 || ship.loyalty.isFaction) 
+                if (stlspeed ==0 || ship.loyalty.isFaction) 
                     this.VultureWeight = 2;
-                if (ship.loyalty.isFaction || this.SmallAttackWeight >0 && ship.loyalty.canBuildCruisers)
+                if (ship.loyalty.isFaction || this.SmallAttackWeight >=1 && ship.loyalty.canBuildCruisers)
                     this.PirateWeight = 3;
             
             

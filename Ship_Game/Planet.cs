@@ -3204,7 +3204,7 @@ namespace Ship_Game
             {
                 case ColonyType.Agricultural:
                     {
-                        if (building.MinusFertilityOnBuild > 0)
+                        if (this.Fertility > 0 && building.MinusFertilityOnBuild > 0)
                             return false;
                         if (HighPri)
                         {
@@ -3224,10 +3224,11 @@ namespace Ship_Game
                     }
                 case ColonyType.Core:
                     {
-                       if(HighPri)
+                        if (this.Fertility > 0 && building.MinusFertilityOnBuild > 0)
+                            return false;
+                        if(HighPri)
                        {
-                           if (building.MinusFertilityOnBuild >0)
-                               return false;
+
                            if (building.StorageAdded > 0
                                || building.PlusTerraformPoints > 0
                                || building.MaxPopIncrease > 0
@@ -3237,6 +3238,7 @@ namespace Ship_Game
                                || building.PlusTerraformPoints > 0
                                || building.StorageAdded > 0 || building.PlusTerraformPoints > 0 || building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0
                                ||building.Name== "Biospheres"
+                               || building.AllowShipBuilding
                                )
                                return true;
                        }
@@ -3253,6 +3255,7 @@ namespace Ship_Game
 
                 case ColonyType.Industrial:
                     {
+                       
                         if (HighPri)
                         {
                             if (building.PlusFlatProductionAmount > 0 || building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0 || building.Name == "Biospheres")
@@ -3274,12 +3277,17 @@ namespace Ship_Game
                     }
                 case ColonyType.Military:
                     {
+                        if (this.Fertility >0 && building.MinusFertilityOnBuild > 0)
+                            return false;
                         if (HighPri)
                         {
                             if (building.isWeapon 
                                 || building.IsSensor 
                                 || building.Defense > 0 
-                                || building.PlanetaryShieldStrengthAdded > 0 || building.AllowShipBuilding || building.ShipRepair > 0 ||building.Strength >0)
+                                || building.PlanetaryShieldStrengthAdded > 0 || building.AllowShipBuilding || building.ShipRepair > 0 ||building.Strength >0
+                                
+                                
+                                )
                                 return true;
                         }
                         if (MedPri)
@@ -3295,7 +3303,7 @@ namespace Ship_Game
                     }
                 case ColonyType.Research:
                     {
-                        if (building.MinusFertilityOnBuild > 0)
+                        if (this.Fertility > 0 && building.MinusFertilityOnBuild > 0)
                             return false;
                         if (HighPri)
                         {
