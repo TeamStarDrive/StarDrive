@@ -594,7 +594,7 @@ namespace Ship_Game
                                     // ~~~
 
                                     position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Ship).GetCost(this.p.Owner)).ToString(), position, Color.White);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)((entry.item as Ship).GetCost(this.p.Owner)*this.p.ShipBuildingModifier)).ToString(), position, Color.White);
                                 }
                                 else
                                 {
@@ -626,7 +626,7 @@ namespace Ship_Game
                                     // ~~~
 
                                     position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Ship).GetCost(this.p.Owner)).ToString(), position, Color.White);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)((entry.item as Ship).GetCost(this.p.Owner) * this.p.ShipBuildingModifier)).ToString(), position, Color.White);
                                     if (entry.Plus != 0)
                                     {
                                         if (entry.PlusHover == 0)
@@ -891,7 +891,7 @@ namespace Ship_Game
                             r.Width = 120;
                         new ProgressBar(r)
                         {
-                            Max = (entry.item as QueueItem).Cost,
+                            Max = (int)((entry.item as QueueItem).Cost * this.p.ShipBuildingModifier),
                             Progress = (entry.item as QueueItem).productionTowards
                         }.Draw(this.ScreenManager.SpriteBatch);
                     }
