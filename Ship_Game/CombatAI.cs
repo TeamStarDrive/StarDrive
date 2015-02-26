@@ -51,7 +51,7 @@ namespace Ship_Game
                 float stlspeed = ship.GetSTLSpeed();
                 if (stlspeed ==0 || ship.loyalty.isFaction) 
                     this.VultureWeight = 2;
-                if (ship.loyalty.isFaction || this.SmallAttackWeight >=1 && ship.loyalty.canBuildCruisers)
+                if (ship.loyalty.isFaction || (this.SmallAttackWeight >=1 && ship.loyalty.canBuildCruisers))
                     this.PirateWeight = 3;
             
             
