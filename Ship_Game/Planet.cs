@@ -3189,6 +3189,7 @@ namespace Ship_Game
                 if (queueItem.isBuilding)
                     buildingMaintenance += queueItem.Building.Maintenance;                
             }
+            buildingMaintenance += building.Cost;
             bool LowPri = buildingMaintenance / grossTaxes < .25f;
             bool MedPri = buildingMaintenance / grossTaxes < .60f;
             bool HighPri = buildingMaintenance / grossTaxes < .80f;
@@ -4330,7 +4331,7 @@ namespace Ship_Game
                 foreach (Building building in this.BuildingList)
                 {
                     //if ((double)building.PlusFlatPopulation > 0.0 && (double)building.Maintenance > 0.0)
-                    if(!WeCanAffordThis(building,this.colonyType))
+                    if(!WeCanAffordThis(building,this.colonyType)&& this.Owner.Money<this.Owner.GrossTaxes && this.Owner.GetAverageNetIncome() <0)
                         list.Add(building);
                 }
                 foreach (Building b in list)
@@ -4427,21 +4428,24 @@ namespace Ship_Game
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
         {
             if (this.Crippled_Turns > 0 || this.RecentCombat || (double)howMuch < 0.0)
-                return;      
+                return;
+            float cost = 0;
             if (this.ConstructionQueue.Count > 0 && this.ConstructionQueue.Count > whichItem)
-            {
+            {                
                 QueueItem item = this.ConstructionQueue[whichItem];
+                cost = item.Cost;
                 if (item.isShip)
-                    howMuch += howMuch * this.ShipBuildingModifier;
-                if ((double)item.productionTowards + (double)howMuch < (double)item.Cost)
+                    //howMuch += howMuch * this.ShipBuildingModifier;
+                    cost *= this.ShipBuildingModifier;
+                if ((double)item.productionTowards + (double)howMuch < (double)cost)
                 {
                     this.ConstructionQueue[whichItem].productionTowards += howMuch;
-                    if ((double)item.productionTowards >= (double)item.Cost)
-                        this.ProductionHere += item.productionTowards - item.Cost;
+                    if ((double)item.productionTowards >= (double)cost)
+                        this.ProductionHere += item.productionTowards - cost;
                 }
                 else
                 {
-                    howMuch -= item.Cost - item.productionTowards;
+                    howMuch -= cost - item.productionTowards;
                     item.productionTowards = item.Cost;
                     this.ProductionHere += howMuch;
                 }
@@ -4683,25 +4687,31 @@ namespace Ship_Game
             this.PlusFlatPopulationPerTurn = 0f;
             this.ShipBuildingModifier = 0f;
             this.CommoditiesPresent.Clear();
+            float shipbuildingmodifier = 1f;
             List<Guid> list = new List<Guid>();
+            float shipyards =1;
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
             {
                 if (keyValuePair.Value == null)
                     list.Add(keyValuePair.Key);
+                    
                 else if (keyValuePair.Value.Active && keyValuePair.Value.GetShipData().IsShipyard)
                 {
+                    
                     if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.ShipyardBonus > 0)
                     {
-                        this.ShipBuildingModifier += GlobalStats.ActiveMod.mi.ShipyardBonus;
+                        shipbuildingmodifier *= (1 - (GlobalStats.ActiveMod.mi.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveMod.mi.ShipyardBonus;
                     }
                     else
                     {
-                        this.ShipBuildingModifier += 0.25f;
+                        shipbuildingmodifier *= (1-(.25f/shipyards));
                     }
+                    shipyards += .2f;
                 }
                 else if (!keyValuePair.Value.Active)
                     list.Add(keyValuePair.Key);
             }
+            this.ShipBuildingModifier = shipbuildingmodifier;
             Ship remove;
             foreach (Guid key in list)
             {
