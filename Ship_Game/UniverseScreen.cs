@@ -2170,10 +2170,15 @@ namespace Ship_Game
                         {
                             if (ship.GetSystem() == null)
                                 continue;
-                            //return;
+                            //added by gremlin ghost ship killer
+                            if (ship.ModuleSlotList.Count ==0)
+                            {
+                                ship.Die(null, true);
+                            }
                             if (!ship.Active)
                             {
-                                this.MasterShipList.QueuePendingRemoval(ship);
+                                ship.Die(null,true);
+
                             }
                             else
                             {
@@ -2268,14 +2273,15 @@ namespace Ship_Game
                                 }
                                 deepSpaceShip.ProcessInput(elapsedTime);
                             }
-                            //catch (Exception ex)
-                            //{
-                            //    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                            //}
+                            if (deepSpaceShip.ModuleSlotList.Count == 0)
+                            {
+                                deepSpaceShip.Die(null, true);
+                            }
                         }
                         else
                         {
-                            this.MasterShipList.QueuePendingRemoval(deepSpaceShip);
+                            deepSpaceShip.Die(null,true);
+                            //this.MasterShipList.QueuePendingRemoval(deepSpaceShip);
                         }
                     }//);
                 }
