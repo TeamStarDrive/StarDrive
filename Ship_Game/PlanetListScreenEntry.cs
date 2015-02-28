@@ -161,20 +161,39 @@ namespace Ship_Game
 			}
 			foreach (Building b in this.planet.BuildingList)
 			{
-				if (!string.IsNullOrEmpty(b.EventTriggerUID))
+				if (string.IsNullOrEmpty(b.EventTriggerUID) || (this.planet.Owner !=null &&this.planet.Owner.GetBDict()[b.Name] ==true ))
 				{
 					continue;
 				}
 				StatusIcons.X = StatusIcons.X + (float)(18 * i);
 				Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 14, 14);
 				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_anomaly_small"], statusRect, Color.White);
+                i++;
 				if (!HelperFunctions.CheckIntersection(statusRect, MousePos))
 				{
-					break;
+					break; 
 				}
 				ToolTip.CreateTooltip(121, ScreenManager);
 				break;
 			}
+            foreach (Building b in this.planet.BuildingList)
+            {
+                if (!b.IsCommodity )
+                {
+                    continue;
+                }
+                StatusIcons.X = StatusIcons.X + (float)(18 * i);
+                
+                Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 14, 14);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/marketIcon"], statusRect, Color.White);
+                i++;
+                if (!HelperFunctions.CheckIntersection(statusRect, MousePos))
+                {
+                    break;
+                }
+                ToolTip.CreateTooltip(121, ScreenManager);
+                break;
+            }
 			Vector2 rpos = new Vector2()
 			{
 				X = (float)this.ShipNameEntry.ClickableArea.X,
