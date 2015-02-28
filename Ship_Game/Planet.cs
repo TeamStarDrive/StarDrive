@@ -3199,8 +3199,8 @@ namespace Ship_Game
                 return true;
             if (building.PlusTaxPercentage >0 || building.CreditsPerColonist >0)
                 return true;
-            //if (building.Name == "Outpost" || building )
-            //    return true;
+            if (building.Name == "Outpost" )
+                return true;
             switch  (governor)
             {
                 case ColonyType.Agricultural:
@@ -3692,7 +3692,7 @@ namespace Ship_Game
                                         }
                                     }
                                 }
-                                if (b != null && this.WeCanAffordThis(b,this.colonyType)) //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 ||this.Owner.Money > this.Owner.GrossTaxes*3))
+                                if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType)) //
                                 {
                                     bool flag1 = true;
                                     if (b.BuildOnlyOnce)
@@ -3845,14 +3845,14 @@ namespace Ship_Game
                             Building b = (Building)null;
                             foreach (Building building in this.BuildingsCanBuild)
                             {
-                                if (this.WeCanAffordThis(b,this.colonyType) )//(double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusProdPerColonist > 0.0 || ((double)building.PlusProdPerRichness > 0.0 || building.StorageAdded > 0))
+                                if ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusProdPerColonist > 0.0 || ((double)building.PlusProdPerRichness > 0.0 || building.StorageAdded > 0))//this.WeCanAffordThis(b,this.colonyType) )//
                                 {
                                     double num1 = (double)building.Cost;
                                     b = building;
                                     break;
                                 }
                             }
-                            if (b != null && this.WeCanAffordThis(b, this.colonyType)) //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3))
+                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b, this.colonyType)) //
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -3872,7 +3872,7 @@ namespace Ship_Game
                                     ++num6;
                                 }
                             }
-                            else if (b != null && this.WeCanAffordThis(b, this.colonyType))//((double)b.PlusFlatProductionAmount > 0.0 || (double)b.PlusProdPerColonist > 0.0 || (double)b.PlusProdPerRichness > 0.0 && (double)this.MineralRichness > 1.5))
+                            else if (b != null && ((double)b.PlusFlatProductionAmount > 0.0 || (double)b.PlusProdPerColonist > 0.0 || (double)b.PlusProdPerRichness > 0.0 && (double)this.MineralRichness > 1.5)) //this.WeCanAffordThis(b, this.colonyType))//
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -3896,16 +3896,16 @@ namespace Ship_Game
                             float num1 = 99999f;
                             foreach (Building building in this.GetBuildingsWeCanBuildHere())
                             {
-                                if (this.WeCanAffordThis(building,this.colonyType))   //(double)building.PlusFlatProductionAmount > 0.0 
-                                //    || (double)building.PlusTaxPercentage > 0.0 
-                                //    || (
-                                //        (double)building.PlusProdPerColonist > 0.0 
-                                //    || building.Name == "Space Port"
-                                //    || (double)building.CreditsPerColonist >0                                    
-                                //    ) 
-                                //    || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost"))
+                                if ((double)building.PlusFlatProductionAmount > 0.0 //this.WeCanAffordThis(building,this.colonyType))   //
+                                    || (double)building.PlusTaxPercentage > 0.0
+                                    || (
+                                        (double)building.PlusProdPerColonist > 0.0
+                                    || building.Name == "Space Port"
+                                    || (double)building.CreditsPerColonist > 0
+                                    )
+                                    || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost"))
                                 {
-                                    if (!(building.Name == "Space Port") || this.WeCanAffordThis(building,this.colonyType))//  (double)this.GetNetProductionPerTurn() >= 2.0 || this.Owner.Money > this.Owner.GrossTaxes*3 || (double)building.CreditsPerColonist > 0 || (double)building.PlusTaxPercentage >0)
+                                    if (!(building.Name == "Space Port") || (double)this.GetNetProductionPerTurn() >= 2.0 || this.Owner.Money > this.Owner.GrossTaxes * 3 || (double)building.CreditsPerColonist > 0 || (double)building.PlusTaxPercentage > 0) //this.WeCanAffordThis(building,this.colonyType))// 
                                     {
                                         float num2 = building.Cost;
                                         b = building;
@@ -3988,7 +3988,7 @@ namespace Ship_Game
                             float num1 = 99999f;
                             foreach (Building building in this.BuildingsCanBuild)
                             {
-                                if ( this.WeCanAffordThis(building,this.colonyType)) // (double)building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost")
+                                if ((double)building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost") //this.WeCanAffordThis(building,this.colonyType)) //
                                 {
                                     float num2 = building.Cost;
                                     b = building;
@@ -4103,7 +4103,7 @@ namespace Ship_Game
                             float num1 = 99999f;
                             foreach (Building building in this.BuildingsCanBuild)
                             {
-                                if (this.WeCanAffordThis(building,this.colonyType)) //(double)building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost")
+                                if ((double)building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost") //this.WeCanAffordThis(building,this.colonyType)) //
                                 {
                                     float num2 = building.Cost;
                                     b = building;
@@ -4212,9 +4212,9 @@ namespace Ship_Game
                             float num1 = 99999f;
                             foreach (Building building in this.BuildingsCanBuild)
                             {
-                                if (this.WeCanAffordThis(building,this.colonyType)) // (double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusFlatResearchAmount > 0.0 || ((double)building.PlusFlatFoodAmount > 0.0 || building.Name == "Space Port") || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost" || ((double)building.CreditsPerColonist > 0.0 || building.CombatStrength > 0)))
+                                if ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusFlatResearchAmount > 0.0 || ((double)building.PlusFlatFoodAmount > 0.0 || building.Name == "Space Port") || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost" || ((double)building.CreditsPerColonist > 0.0 || building.CombatStrength > 0))) //this.WeCanAffordThis(building,this.colonyType)) // 
                                 {
-                                    if (!(building.Name == "Space Port") || this.WeCanAffordThis(building,this.colonyType)) //(double)this.GetNetProductionPerTurn() >= 2.0)
+                                    if (!(building.Name == "Space Port") || (double)this.GetNetProductionPerTurn() >= 2.0) //this.WeCanAffordThis(building,this.colonyType)) //
                                     {
                                         float num2 = building.Cost;
                                         b = building;
@@ -4233,7 +4233,7 @@ namespace Ship_Game
                                     b = building;
                                 }
                             }
-                            if (b != null && this.WeCanAffordThis(b,this.colonyType))  //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
+                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType))  //
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -4327,6 +4327,16 @@ namespace Ship_Game
             if ((double)this.Population > 3000.0 || (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.75)
             #region Scrap
             {
+
+                
+                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                {
+                    if (queueItem.isBuilding && !WeCanAffordThis(queueItem.Building,this.colonyType))
+                    {
+                        this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                    }
+                }
+                this.ConstructionQueue.ApplyPendingRemovals();
                 List<Building> list = new List<Building>();
                 foreach (Building building in this.BuildingList)
                 {
