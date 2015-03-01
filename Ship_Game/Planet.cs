@@ -3466,7 +3466,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.4f) - (double)b.Maintenance > 0.0 ))
+                    if (b != null && (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0)))//((double)this.Owner.EstimateIncomeAtTaxRate(0.4f) - (double)b.Maintenance > 0.0 ))
                     {
                         bool flag2 = true;
                         if (b.BuildOnlyOnce)
@@ -3545,7 +3545,7 @@ namespace Ship_Game
                                 //Determine if excess food
                                 if (this.FoodHere > this.MAX_STORAGE * 0.5)
                                 {
-                                    this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
+                                    this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
                                 }
                                 else
                                 {
@@ -3697,7 +3697,7 @@ namespace Ship_Game
                                         }
                                     }
                                 }
-                                if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType)) //
+                                if (b != null && (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0)))//  ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType)) //
                                 {
                                     bool flag1 = true;
                                     if (b.BuildOnlyOnce)
@@ -3780,7 +3780,7 @@ namespace Ship_Game
                         this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
                         if ((double)this.FoodHere <= (double)this.consumption)
                         {
-                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
+                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
                             this.WorkerPercentage = 1f - this.FarmerPercentage;
                             this.ResearcherPercentage = 0.0f;
                         }
@@ -3857,7 +3857,7 @@ namespace Ship_Game
                                     break;
                                 }
                             }
-                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b, this.colonyType)) //
+                            if (b != null && (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) // ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b, this.colonyType)) //
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -3926,7 +3926,7 @@ namespace Ship_Game
                                     b = building;
                                 }
                             }
-                            if (b != null && (double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 )
+                            if (b != null && (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) //(double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 )
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -3955,7 +3955,7 @@ namespace Ship_Game
                         this.ResearcherPercentage = 1f;
                         if ((double)this.FoodHere <= (double)this.consumption)
                         {
-                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
+                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
                             this.ResearcherPercentage = 1f - this.FarmerPercentage;
                         }
                         float num8 = 0.0f;
@@ -4010,7 +4010,7 @@ namespace Ship_Game
                                     b = building;
                                 }
                             }
-                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
+                            if (b != null && (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -4126,7 +4126,7 @@ namespace Ship_Game
                                     b = building;
                                 }
                             }
-                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
+                            if (b != null && (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -4238,7 +4238,7 @@ namespace Ship_Game
                                     b = building;
                                 }
                             }
-                            if (b != null && ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType))  //
+                            if (b != null && (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) // ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType))  //
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
