@@ -2988,7 +2988,8 @@ namespace Ship_Game
             //this.fs = Planet.GoodState.IMPORT;
             //return Surplus;
 
-            float Surplus = (float)(((((((double)this.consumption + (double)desiredSurplus) / (double)(1 - (double)this.Owner.data.TaxRate)) - (double)this.PlusFlatProductionPerTurn) / ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) * 1000) / (double)this.Population);
+            float NoDivByZero = .0000001f;
+            float Surplus = (float)((this.consumption + desiredSurplus - this.PlusFlatProductionPerTurn) / ((this.Population / 1000.0) * (this.MineralRichness + this.PlusProductionPerColonist)) * (1 - this.Owner.data.TaxRate)+NoDivByZero);
             if (Surplus < 1.0f)
             {
                 this.ps = Planet.GoodState.EXPORT;
@@ -3019,7 +3020,8 @@ namespace Ship_Game
             //this.fs = Planet.GoodState.IMPORT;
             //return 0.5f;
 
-            Surplus = (float)(((((((double)this.consumption + (double)desiredSurplus) / (double)(1 + (double)this.FoodPercentAdded)) - (double)this.FlatFoodAdded) / ((double)this.Fertility + (double)this.PlusFoodPerColonist)) * 1000)/(double)this.Population);
+            float NoDivByZero = .0000001f;
+            Surplus = (float)((this.consumption + desiredSurplus - this.FlatFoodAdded) / ((this.Population / 1000.0) * (this.Fertility + this.PlusFoodPerColonist) * (1 + this.FoodPercentAdded)+NoDivByZero));
             if (Surplus < 1)
             {
                 if (Surplus < 0)
@@ -3029,14 +3031,17 @@ namespace Ship_Game
             else
             {
                 this.fs = Planet.GoodState.IMPORT;
-                return 0.5f;
+                //if you cant reach the desired surplus, produce as much as you can
+                return 1.0f;
             }
         }
 
         private bool DetermineIfSelfSufficient()
         {
-            float num = (float)(1.0 * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
-            return (double)(num + this.FoodPercentAdded * num - this.consumption) > 0.0;
+            //float num = (float)(1.0 * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
+            //return (double)(num + this.FoodPercentAdded * num - this.consumption) > 0.0;
+             float NoDivByZero = .0000001f;
+            return (float)((this.consumption - this.FlatFoodAdded) / ((this.Population / 1000.0) * (this.Fertility + this.PlusFoodPerColonist) * (1 + this.FoodPercentAdded)+NoDivByZero)) < 1;
         }
 
         public float GetDefendingTroopStrength()
