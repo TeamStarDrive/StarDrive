@@ -128,7 +128,7 @@ namespace Ship_Game
 				spriteBatch.Draw(item.Value, planetIconRect, this.planet.Owner.EmpireColor);
 			}
 			int i = 0;
-			Vector2 StatusIcons = new Vector2((float)(this.PlanetNameRect.X + this.PlanetNameRect.Width - 50), (float)(planetIconRect.Y + 10));
+			Vector2 StatusIcons = new Vector2((float)(this.PlanetNameRect.X + this.PlanetNameRect.Width - 86), (float)(planetIconRect.Y + 10));
 			if (this.planet.RecentCombat)
 			{
 				Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 14, 14);
