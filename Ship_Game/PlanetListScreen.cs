@@ -50,6 +50,7 @@ namespace Ship_Game
 
 		private Checkbox cb_hideUninhabitable;
 
+
 		private bool HideOwned;
 
 		private bool HideUninhab = true;
@@ -98,7 +99,7 @@ namespace Ship_Game
 			this.eRect.Height = this.eRect.Height - 20;
 			this.ShipSubMenu = new Submenu(ScreenManager, this.eRect);
 			this.PlanetSL = new ScrollList(this.ShipSubMenu, 40);
-			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+			foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance=> Vector2.Distance(distance.Position,EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetWeightedCenter())))
 			{
 				foreach (Planet p in system.PlanetList)
 				{
