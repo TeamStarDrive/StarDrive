@@ -4331,37 +4331,49 @@ namespace Ship_Game
             #endregion
             if ((double)this.Population > 3000.0 || (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.75)
             #region Scrap
-            {
-
-                
-                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
-                {
-                    if (queueItem.isBuilding && !WeCanAffordThis(queueItem.Building,this.colonyType))
-                    {
-                        this.ConstructionQueue.QueuePendingRemoval(queueItem);
-                    }
-                }
-                this.ConstructionQueue.ApplyPendingRemovals();
+            {               
                 List<Building> list = new List<Building>();
                 foreach (Building building in this.BuildingList)
                 {
-                    //if ((double)building.PlusFlatPopulation > 0.0 && (double)building.Maintenance > 0.0)
-                    if(!WeCanAffordThis(building,this.colonyType)&& this.Owner.Money<this.Owner.GrossTaxes && this.Owner.GetAverageNetIncome() <0)
+                    if ((double)building.PlusFlatPopulation > 0.0 && (double)building.Maintenance > 0.0)
+                    //
                         list.Add(building);
                 }
                 foreach (Building b in list)
                     this.ScrapBuilding(b);
             }
-            //if ((double)this.Fertility < 1.0)
-            //    return;
-            //List<Building> list1 = new List<Building>();
-            //foreach (Building building in this.BuildingList)
-            //{
-            //    if ((double)building.PlusTerraformPoints > 0.0 && (double)building.Maintenance > 0.0)
-            //        list1.Add(building);
-            //}
-            //foreach (Building b in list1)
-            //    this.ScrapBuilding(b); 
+            if ((double)this.Fertility < 1.0)
+                return;
+            List<Building> list1 = new List<Building>();
+            foreach (Building building in this.BuildingList)
+            {
+                if ((double)building.PlusTerraformPoints > 0.0 && (double)building.Maintenance > 0.0)
+                    list1.Add(building);
+            }
+            
+
+            //finances
+            if (this.Owner.Money < this.Owner.GrossTaxes && this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn  <0)
+            {
+                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                {
+                    if (queueItem.isBuilding && !WeCanAffordThis(queueItem.Building, this.colonyType))
+                    {
+                        this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                    }
+                }
+                this.ConstructionQueue.ApplyPendingRemovals();
+                foreach (Building building in this.BuildingList)
+                {
+                    if (!WeCanAffordThis(building, this.colonyType))
+                        //
+                        list1.Add(building);
+                }
+             
+            }
+
+            foreach (Building b in list1)
+                this.ScrapBuilding(b);
             #endregion
         }
         public bool GoodBuilding (Building b)
