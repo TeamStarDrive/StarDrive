@@ -1457,13 +1457,13 @@ namespace Ship_Game.Gameplay
         {
             if ((double)this.findNewPosTimer <= 0.0)
             {
-                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position,2500f); //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
                 if ((double)Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500.0)
                 {
                     this.OrbitalAngle += 15f;
                     if ((double)this.OrbitalAngle >= 360.0)
                         this.OrbitalAngle -= 360f;
-                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f);
+                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
                 }
                 this.findNewPosTimer = 1.5f;
             }
@@ -1493,7 +1493,12 @@ namespace Ship_Game.Gameplay
             {
                 if (this.Owner.engineState == Ship.MoveState.Warp)
                     return;
-                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
+                if (num1 > 3000 )//OrbitTarget.ObjectRadius + 1100 + this.Owner.Radius)
+                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
+                else
+                {
+                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.GetSTLSpeed()>50 ?50 :this.Owner.GetSTLSpeed());
+                }
             }
         }
 
@@ -6593,8 +6598,8 @@ namespace Ship_Game.Gameplay
                             target = toEvaluate.TargetPlanet;
                             if ((double)this.Owner.Ordinance < 0.0500000007450581 * (double)this.Owner.OrdinanceMax
                                 || (target.BuildingList.Count == 0 && target.TroopsHere.Count == 0)
-                                || target.GetGroundStrength(this.Owner.loyalty) * 1.5
-                                > target.GetGroundStrength(target.Owner)
+                                || target.GetGroundStrengthOther(target.Owner) * 1.5
+                                > target. GetGroundStrength(target.Owner)
                                 )
                             {
                                 this.OrderQueue.Clear();
@@ -6612,6 +6617,7 @@ namespace Ship_Game.Gameplay
 
                                 
                             {
+                                this.Owner.speed = this.Owner.GetSTLSpeed() >= 50? 50 :this.Owner.GetSTLSpeed() ;
                                 using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
@@ -6625,7 +6631,7 @@ namespace Ship_Game.Gameplay
                                             {
                                                 this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire;
                                                 bomb.SetTarget(toEvaluate.TargetPlanet);
-                                                lock (GlobalStats.BombLock)
+                                                //lock (GlobalStats.BombLock)
                                                     ArtificialIntelligence.universeScreen.BombList.Add(bomb);
                                                 current.BombTimer = ResourceManager.WeaponsDict[current.BombType].fireDelay;
                                             }
@@ -6669,7 +6675,7 @@ namespace Ship_Game.Gameplay
                                                 {
                                                     this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire;
                                                     bomb.SetTarget(toEvaluate.TargetPlanet);
-                                                    lock (GlobalStats.BombLock)
+                                                    //lock (GlobalStats.BombLock)
                                                         ArtificialIntelligence.universeScreen.BombList.Add(bomb);
                                                     current.BombTimer = ResourceManager.WeaponsDict[current.BombType].fireDelay;
                                                 }
@@ -6722,7 +6728,7 @@ namespace Ship_Game.Gameplay
                                             Ship owner1 = this.Owner;
                                             owner1.Ordinance = owner1.Ordinance - ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire;
                                             b.SetTarget(toEvaluate.TargetPlanet);
-                                            lock (GlobalStats.BombLock)
+                                            //lock (GlobalStats.BombLock)
                                             {
                                                 ArtificialIntelligence.universeScreen.BombList.Add(b);
                                             }
