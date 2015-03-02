@@ -1837,14 +1837,16 @@ namespace Ship_Game
                 anomaly.Update(elapsedTime);
             if ((double)elapsedTime > 0.0)
             {
-                lock (GlobalStats.BombLock)
+                //lock (GlobalStats.BombLock)
                 {
+                    this.BombList.thisLock.EnterReadLock();
                     for (int local_19 = 0; local_19 < this.BombList.Count; ++local_19)
                     {
                         Bomb local_20 = this.BombList[local_19];
                         if (local_20 != null)
                             local_20.Update(elapsedTime);
                     }
+                    this.BombList.thisLock.ExitReadLock();
                     this.BombList.ApplyPendingRemovals();
                 }
             }
@@ -6131,12 +6133,14 @@ namespace Ship_Game
 
         private void DrawBombs()
         {
-            lock (GlobalStats.BombLock)
+            //lock (GlobalStats.BombLock)
             {
                 try
                 {
+                    this.BombList.thisLock.EnterReadLock();
                     foreach (Bomb item_0 in (List<Bomb>)this.BombList)
                         this.DrawTransparentModel(item_0.GetModel(), item_0.GetWorld(), this.view, this.projection, item_0.GetTexture(), 0.5f);
+                    this.BombList.thisLock.ExitReadLock();
                 }
                 catch
                 {
