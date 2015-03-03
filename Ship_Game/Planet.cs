@@ -2192,7 +2192,7 @@ namespace Ship_Game
                 }
             }
             this.numInvadersLast = num2;
-            if (num2 <= 0 || num1 != 0 || this.Owner == null)
+            if (num2 <= 0 || num1 != 0 )//|| this.Owner == null)
                 return;
             if (index.GetRelations().ContainsKey(this.Owner))
             {
@@ -2939,11 +2939,11 @@ namespace Ship_Game
                 
                 if(this.RecentCombat)
                 {
-                    shieldStrengthCurrent.ShieldStrengthCurrent = shieldStrengthCurrent.ShieldStrengthCurrent + 1f;
-                    if (this.ShieldStrengthCurrent > this.ShieldStrengthMax)
-                    {
-                        this.ShieldStrengthCurrent = this.ShieldStrengthMax;
-                    }
+                    //shieldStrengthCurrent.ShieldStrengthCurrent = shieldStrengthCurrent.ShieldStrengthCurrent + 1f;
+                    //if (this.ShieldStrengthCurrent > this.ShieldStrengthMax)
+                    //{
+                    //    this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+                    //}
                 }
                 else
                     if (this.ShieldStrengthCurrent > this.ShieldStrengthMax / 10)

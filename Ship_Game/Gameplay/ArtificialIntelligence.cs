@@ -1457,13 +1457,13 @@ namespace Ship_Game.Gameplay
         {
             if ((double)this.findNewPosTimer <= 0.0)
             {
-                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position,2500f); //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
-                if ((double)Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500.0)
+                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f * OrbitTarget.scale); //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
+                if ((double)Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500.0 )
                 {
                     this.OrbitalAngle += 15f;
                     if ((double)this.OrbitalAngle >= 360.0)
                         this.OrbitalAngle -= 360f;
-                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
+                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f * OrbitTarget.scale); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
                 }
                 this.findNewPosTimer = 1.5f;
             }
@@ -1493,11 +1493,12 @@ namespace Ship_Game.Gameplay
             {
                 if (this.Owner.engineState == Ship.MoveState.Warp)
                     return;
-                if (num1 > 3000 )//OrbitTarget.ObjectRadius + 1100 + this.Owner.Radius)
+                if (num1 > 3000 * OrbitTarget.scale )//OrbitTarget.ObjectRadius + 1100 + this.Owner.Radius)
                     this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
                 else
                 {
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.GetSTLSpeed()>50 ?50 :this.Owner.GetSTLSpeed());
+
+                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed > 50 ? 50 : this.Owner.speed);
                 }
             }
         }
@@ -6613,11 +6614,8 @@ namespace Ship_Game.Gameplay
                                 this.OrderQueue.Clear();
                                 return;
                             }
-                            else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < 2500.0)
-
-                                
-                            {
-                                this.Owner.speed = this.Owner.GetSTLSpeed() >= 50? 50 :this.Owner.GetSTLSpeed() ;
+                            else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < 2500.0)                                
+                            {                                
                                 using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
