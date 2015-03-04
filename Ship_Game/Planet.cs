@@ -460,26 +460,26 @@ namespace Ship_Game
                         if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
                         {
                             Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty));
-                            bool removeowner = true;
-                            if (this.Owner != null)
-                            {
-                                foreach (Planet other in this.system.PlanetList)
-                                {
-                                    if (other.Owner != this.Owner || other == this)
-                                    {
-                                        continue;
-                                    }
-                                    removeowner = false;
-                                }
-                                if (removeowner)
-                                {
-                                    this.system.OwnerList.Remove(this.Owner);
-                                }
-                            }
-                            this.ConstructionQueue.Clear();
-                            this.Owner = null;
-                            return;
                         }
+                        bool removeowner = true;
+                        if (this.Owner != null)
+                        {
+                            foreach (Planet other in this.system.PlanetList)
+                            {
+                                if (other.Owner != this.Owner || other == this)
+                                {
+                                    continue;
+                                }
+                                removeowner = false;
+                            }
+                            if (removeowner)
+                            {
+                                this.system.OwnerList.Remove(this.Owner);
+                            }
+                        }
+                        this.ConstructionQueue.Clear();
+                        this.Owner = null;
+                        return;
                     }
                 }
                 if (ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction != null)
@@ -2285,6 +2285,7 @@ namespace Ship_Game
                     continue;
                 keyValuePair.Value.loyalty = this.Owner;
             }
+            
             foreach (Planet planet in this.system.PlanetList)
             {
                 if (planet.Owner != null && !this.system.OwnerList.Contains(planet.Owner))
@@ -5436,7 +5437,7 @@ namespace Ship_Game
         {
             float num = 0;
             if (this.Owner == null || this.Owner != empire)
-                num += this.BuildingList.Sum(offense => offense.CombatStrength);
+                num += this.BuildingList.Sum(offense => offense.Strength);
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner()==null ||empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
             return num;
 

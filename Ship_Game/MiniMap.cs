@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -88,7 +89,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					Primitives2D.FillRectangle(ScreenManager.SpriteBatch, star, system.OwnerList[0].EmpireColor);
+                    Primitives2D.FillRectangle(ScreenManager.SpriteBatch, star, system.OwnerList.ToList()[0].EmpireColor);
 				}
 			}
 			Vector2 upperLeftView = screen.GetWorldSpaceFromScreenSpace(new Vector2(0f, 0f));
