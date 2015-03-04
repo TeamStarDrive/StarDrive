@@ -27,7 +27,8 @@ namespace Ship_Game
 
 		public float DangerUpdater = 10f;
 
-		public List<Empire> OwnerList = new List<Empire>();
+		//public List<Empire> OwnerList = new List<Empire>();
+        public HashSet<Empire> OwnerList = new HashSet<Empire>();
 
 		public BatchRemovalCollection<Ship> ShipList = new BatchRemovalCollection<Ship>();
 

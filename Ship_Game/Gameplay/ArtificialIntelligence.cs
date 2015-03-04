@@ -6598,9 +6598,9 @@ namespace Ship_Game.Gameplay
                         case ArtificialIntelligence.Plan.Bombard:
                             target = toEvaluate.TargetPlanet;
                             if ((double)this.Owner.Ordinance < 0.0500000007450581 * (double)this.Owner.OrdinanceMax
-                                || (target.BuildingList.Count == 0 && target.TroopsHere.Count == 0)
-                                || target.GetGroundStrengthOther(target.Owner) * 1.5
-                                > target. GetGroundStrength(target.Owner)
+                                || (target.BuildingList.Count == 0 && target.TroopsHere.Count == 0  && target.Population <0f)
+                                || target.GetGroundStrengthOther(this.Owner.loyalty) * 1.5
+                                <= target.GetGroundStrength(this.Owner.loyalty)
                                 )
                             {
                                 this.OrderQueue.Clear();
