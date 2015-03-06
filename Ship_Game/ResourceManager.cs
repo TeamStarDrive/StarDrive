@@ -212,15 +212,15 @@ namespace Ship_Game
 		public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit)
 		{
             Ship newShip;
-            if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
-            {
-                newShip.ShipRecreate();
-                newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
-                newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-                newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
-                newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-            }
-            else 
+            //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
+            //{
+            //    newShip.ShipRecreate();
+            //    newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
+            //}
+            //else 
                 newShip = new Ship()
 			{
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
@@ -304,15 +304,15 @@ namespace Ship_Game
         public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, string RefitName, byte RefitLevel)
         {
             Ship newShip;
-            if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
-            {
-                newShip.ShipRecreate();
-                newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
-                newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-                newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
-                newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-            }
-            else
+            //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
+            //{
+            //    newShip.ShipRecreate();
+            //    newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
+            //}
+            //else
     newShip = new Ship()
             {
                 Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
