@@ -6622,7 +6622,7 @@ namespace Ship_Game.Gameplay
                                 this.OrderQueue.Clear();
                                 return;
                             }
-                            else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < 2500.0 + toEvaluate.TargetPlanet.ObjectRadius)                                
+                            else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < 2700.0)                                
                             {                                
                                 using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                 {
