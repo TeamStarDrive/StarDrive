@@ -1457,13 +1457,13 @@ namespace Ship_Game.Gameplay
         {
             if ((double)this.findNewPosTimer <= 0.0)
             {
-                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f * OrbitTarget.scale); //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
-                if ((double)Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500.0 )
+                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f ); //2500f //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
+                if ((double)Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500.0)
                 {
                     this.OrbitalAngle += 15f;
                     if ((double)this.OrbitalAngle >= 360.0)
                         this.OrbitalAngle -= 360f;
-                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f * OrbitTarget.scale); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
+                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f ); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
                 }
                 this.findNewPosTimer = 1.5f;
             }
@@ -1485,21 +1485,29 @@ namespace Ship_Game.Gameplay
                 double num2 = (double)Vector2.Dot(vector2_1, vector2_3);
                 this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
             }
-            else if ((double)this.Owner.speed > 1200.0 && this.Owner.engineState != Ship.MoveState.Warp)
+            else if ((double)this.Owner.speed > 50&& num1 <5000 && this.Owner.engineState != Ship.MoveState.Warp)    //1200.0 && this.Owner.engineState != Ship.MoveState.Warp)
             {
-                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 3.5f);
+                //this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 3.5f);
+                this.Owner.speed *= .5f;
+                //if(this.Owner.speed >num1)
+                //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, num1);
+                //else
+                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
             }
             else
             {
                 if (this.Owner.engineState == Ship.MoveState.Warp)
                     return;
-                if (num1 > 3000 * OrbitTarget.scale )//OrbitTarget.ObjectRadius + 1100 + this.Owner.Radius)
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
-                else
-                {
-
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed > 50 ? 50 : this.Owner.speed);
-                }
+                //if (this.Owner.speed > num1)//(num1 > 2500 )//OrbitTarget.ObjectRadius + 1100 + this.Owner.Radius)
+                //{
+                //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
+                //}
+                //else
+                //{
+                
+                //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed > 50 ? 50 : this.Owner.speed);
+                //}
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);// > 50 ? 50 : this.Owner.speed);
             }
         }
 
