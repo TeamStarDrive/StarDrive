@@ -8345,10 +8345,19 @@ namespace Ship_Game.Gameplay
 
 
 
-                        researchtopic = AvailableTechs.OrderByDescending(econ => econ.TechnologyType == techtype).ThenBy(cost => cost.Cost).First().UID;
+                        //This should fix issue 414, but someone else will need to verify it
+                        // Allium Sativum
+                        Technology ResearchTech = null;
+                        ResearchTech = AvailableTechs.OrderByDescending(econ => econ.TechnologyType == techtype).ThenBy(cost => cost.Cost).FirstOrDefault();
+                        if (ResearchTech != null)
+                        {
+                            researchtopic = ResearchTech.UID;
+                            break;
+                        }
                         //float netresearch =this.empire.GetPlanets().Where(owner => owner.Owner == this.empire).Sum(research => research.NetResearchPerTurn);
                         //netresearch = netresearch == 0 ? 1 : netresearch;
                         //if (ResourceManager.TechTree[researchtopic].Cost / netresearch < 500 )
+                        researchtopic = null;
                         break;
                     }
             }
