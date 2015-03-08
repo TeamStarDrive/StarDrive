@@ -20,7 +20,8 @@ namespace Ship_Game
     public sealed class Empire : IDisposable
     {
         public static float ProjectorRadius = 150000f;
-        private Dictionary<int, Fleet> FleetsDict = new Dictionary<int, Fleet>();
+        //private Dictionary<int, Fleet> FleetsDict = new Dictionary<int, Fleet>();
+        private ConcurrentDictionary<int, Fleet> FleetsDict = new ConcurrentDictionary<int, Fleet>();
         private Dictionary<string, bool> UnlockedHullsDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private Dictionary<string, bool> UnlockedTroopDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private Dictionary<string, bool> UnlockedBuildingsDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
@@ -117,7 +118,7 @@ namespace Ship_Game
             BorderNodeLocker = new ReaderWriterLockSlim();
         }
 
-        public Dictionary<int, Fleet> GetFleetsDict()
+        public ConcurrentDictionary<int, Fleet> GetFleetsDict()
         {
             return this.FleetsDict;
         }
@@ -411,7 +412,7 @@ namespace Ship_Game
                         break;
                 }
                 fleet.Name = str + " fleet";
-                this.FleetsDict.Add(key, fleet);
+                this.FleetsDict.TryAdd(key, fleet);
             }
             foreach (KeyValuePair<string, Technology> keyValuePair in ResourceManager.TechTree)
             {

@@ -6100,6 +6100,7 @@ namespace Ship_Game.Gameplay
                     //if(Distance > this.Owner.speed -1000)
                     {
                         bool fleetReady = true;
+                        this.Owner.fleet.Ships.thisLock.EnterReadLock();
                         foreach (Ship ship in this.Owner.fleet.Ships)
                         {
                             if(ship.GetAI().State != AIState.FormationWarp)
@@ -6120,7 +6121,7 @@ namespace Ship_Game.Gameplay
                             fleetReady = false;
                             break;
                         }
-
+                        this.Owner.fleet.Ships.thisLock.ExitReadLock();
      
                             float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove; //
                             speedLimit = this.Owner.fleet.speed;

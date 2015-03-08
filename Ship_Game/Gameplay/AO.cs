@@ -58,7 +58,7 @@ namespace Ship_Game.Gameplay
 			this.CoreWorld = p;
 			this.CoreWorldGuid = p.guid;
 			this.WhichFleet = p.Owner.GetUnusedKeyForFleet();
-			p.Owner.GetFleetsDict().Add(this.WhichFleet, this.CoreFleet);
+			p.Owner.GetFleetsDict().TryAdd(this.WhichFleet, this.CoreFleet);
 			this.CoreFleet.Name = "Core Fleet";
 			this.CoreFleet.Position = p.Position;
 			this.CoreFleet.Owner = p.Owner;

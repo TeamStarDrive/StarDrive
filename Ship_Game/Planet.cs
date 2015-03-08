@@ -358,6 +358,7 @@ namespace Ship_Game
                 List<PlanetGridSquare> PotentialHits = new List<PlanetGridSquare>();
                 if (hit)
                 {
+                    int buildingcount = 0;
                     foreach (PlanetGridSquare pgs in this.TilesList)
                     {
                         if (pgs.building == null && pgs.TroopsHere.Count <= 0)
@@ -365,10 +366,16 @@ namespace Ship_Game
                             continue;
                         }
                         PotentialHits.Add(pgs);
+                        if(pgs.building!=null)
+                        {
+                            buildingcount++;
+                        }
                     }
-                    if (PotentialHits.Count <= 0)
+                    if ( PotentialHits.Count <= 0)
                     {
                         hit = false;
+                        if (this.BuildingList.Count > 0)
+                            this.BuildingList.Clear();
                     }
                     else
                     {
@@ -425,15 +432,30 @@ namespace Ship_Game
                         this.BuildingList.Remove(od.Target.building);
                         od.Target.building = null;
 
-
+                        bool flag = od.Target.Biosphere;
                         //Added Code here
                         od.Target.Habitable = false;
                         od.Target.highlighted = false;
                         od.Target.Biosphere = false;
+                        this.TerraformPoints--; 
                         //Building Wasteland = new Building;
                         //Wasteland.Name="Fissionables";
                         //od.Target.building=Wasteland;
-
+                        if (flag)
+                        {
+                            foreach (Building bios in this.BuildingList)
+                            {
+                                if (bios.Name == "Biospheres")
+                                {
+                                    od.Target.building = bios;
+                                    break;
+                                }
+                            }
+                            this.Population -= od.Target.building.MaxPopIncrease;
+                            this.BuildingList.Remove(od.Target.building);
+                            od.Target.building = null;
+                        }
+                        
 
 
 
@@ -5437,7 +5459,7 @@ namespace Ship_Game
         {
             float num = 0;
             if (this.Owner == null || this.Owner != empire)
-                num += this.BuildingList.Sum(offense => offense.Strength);
+                num += this.BuildingList.Sum(offense => offense.CombatStrength>0 ? offense.CombatStrength :1);
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner()==null ||empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
             return num;
 
