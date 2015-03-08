@@ -843,7 +843,7 @@ namespace Ship_Game
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
                     militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Add(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
                     EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
@@ -861,7 +861,7 @@ namespace Ship_Game
                             planetFleetAt.Task = militaryTask;
                             planetFleetAt.TaskStep = 3;
                             militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                            EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Add(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, planetFleetAt);
+                            EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, planetFleetAt);
                             EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
                             militaryTask.Step = 2;
                         }
@@ -878,7 +878,7 @@ namespace Ship_Game
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
                     militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Add(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
                     EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
@@ -1633,8 +1633,13 @@ namespace Ship_Game
                         //try
                         {
                             //var fleetdictClone = new Dictionary<int,Fleet>(empire.GetFleetsDict());
+                            
                             foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())//leetdictClone)
                             {
+                                
+                                if (keyValuePair.Value == null)
+                                    continue;
+                                keyValuePair.Value.Ships.thisLock.EnterReadLock();
                                 if (keyValuePair.Value.Ships.Count > 0)
                                 {
                                     keyValuePair.Value.Setavgtodestination();
@@ -1647,10 +1652,12 @@ namespace Ship_Game
                                     {
                                         System.Diagnostics.Debug.WriteLine("crash at find average posisiton");
                                     }
+                                    
 
 
 
                                 }
+                                keyValuePair.Value.Ships.thisLock.ExitReadLock();
                             }
                         }
                         //catch { };
@@ -3910,10 +3917,34 @@ namespace Ship_Game
                                 ship.GetAI().OrderRebase(planet, true);
                         }
                 }
-                else if (planet.Owner != null)
+                else if (ship.BombBays.Count > 0)
                 {
-                    if (ship.BombBays.Count > 0 && (planet.Owner != this.player) && (this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) || planet.TroopsHere.Where(ourtroops => ourtroops.GetOwner() == this.player).Count() == 0)))
+                    float enemies = planet.GetGroundStrengthOther(this.player)*1.5f;
+                    float friendlies = planet.GetGroundStrength(this.player);
+                    if (planet.Owner != this.player)
+                    {
+                        if (planet.Owner == null || this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)
+                        {
+                            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                                ship.GetAI().OrderBombardPlanet(planet);
+                            else if (enemies > friendlies || planet.Population>0f)
+                                ship.GetAI().OrderBombardPlanet(planet);
+                            else
+                            {
+                                ship.GetAI().OrderToOrbit(planet, false);
+                            }
+                        }
+                        else
+                        {
+                            ship.GetAI().OrderToOrbit(planet, false);
+                        }
+                        
+
+                    }
+                    else if(enemies >friendlies && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                    {
                         ship.GetAI().OrderBombardPlanet(planet);
+                    }
                     else
                         ship.GetAI().OrderToOrbit(planet, true);
                 }

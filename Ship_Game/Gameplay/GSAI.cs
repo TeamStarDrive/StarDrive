@@ -8275,7 +8275,7 @@ namespace Ship_Game.Gameplay
                             {
                                 if (ResearchTech.HullsUnlocked.Count > 0)
                                 {
-                                     money = this.empire.EstimateIncomeAtTaxRate(.25f);
+                                    money = this.empire.EstimateIncomeAtTaxRate(.25f);
                                     if (money < 5f)
                                     {
                                         if (command1 == "CHEAPEST")
