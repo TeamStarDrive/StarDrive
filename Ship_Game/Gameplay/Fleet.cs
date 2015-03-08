@@ -190,17 +190,18 @@ namespace Ship_Game.Gameplay
 
         public void SetSpeed()
         {//Vector2.Distance(this.findAveragePosition(),ship.Center) <10000 
-            
 
-            
-            
-            
+
+
+
+            this.Ships.thisLock.EnterReadLock();
             IOrderedEnumerable<Ship> speedSorted =
                 from ship in this.Ships
                 where !ship.EnginesKnockedOut && !ship.InCombat && !ship.Inhibited && ship.Active && ship.GetAI().State == AIState.FormationWarp
                 orderby ship.speed
                 select ship;
             this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
+            this.Ships.thisLock.ExitReadLock();
             if (this.speed == 0f)
             {
                 this.speed = 200f;
@@ -914,12 +915,14 @@ namespace Ship_Game.Gameplay
 
             
             List<float> distances = new List<float>();
+            this.Ships.thisLock.EnterReadLock();
             foreach (Ship distance in (List<Ship>)this.Ships)
             {
                 if (distance.EnginesKnockedOut || !distance.Active || distance.InCombat)
                     continue;
                 distances.Add(Vector2.Distance(distance.Center, this.Position + distance.FleetOffset) -100);
             }
+            this.Ships.thisLock.ExitReadLock();
 
             if (distances.Count <= 2)
             {
@@ -992,9 +995,12 @@ namespace Ship_Game.Gameplay
 
         public void Reset()
         {
+            this.Ships.thisLock.EnterWriteLock();
             foreach (Ship ship in (List<Ship>)this.Ships)
                 ship.fleet = (Fleet)null;
+            this.Ships.thisLock.ExitWriteLock();
             this.Ships.Clear();
+            
             this.TaskStep = 0;
             this.Task = (MilitaryTask)null;
             this.GoalStack.Clear();

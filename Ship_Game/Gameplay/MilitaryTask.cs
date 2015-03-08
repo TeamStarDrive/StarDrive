@@ -286,7 +286,7 @@ namespace Ship_Game.Gameplay
 					};
 					bomberFleet.Owner.GetGSAI().TasksToAdd.Add(GlassPlanet);
 					GlassPlanet.WhichFleet = this.empire.GetUnusedKeyForFleet();
-					this.empire.GetFleetsDict().Add(GlassPlanet.WhichFleet, bomberFleet);
+					this.empire.GetFleetsDict().TryAdd(GlassPlanet.WhichFleet, bomberFleet);
 					bomberFleet.Task = GlassPlanet;
 					bomberFleet.Name = "Bomber Fleet";
 					foreach (Ship ship in BombTaskForce)
@@ -506,7 +506,7 @@ namespace Ship_Game.Gameplay
                     };
                     bomberFleet.Owner.GetGSAI().TasksToAdd.Add(GlassPlanet);
                     GlassPlanet.WhichFleet = this.empire.GetUnusedKeyForFleet();
-                    this.empire.GetFleetsDict().Add(GlassPlanet.WhichFleet, bomberFleet);
+                    this.empire.GetFleetsDict().TryAdd(GlassPlanet.WhichFleet, bomberFleet);
                     bomberFleet.Task = GlassPlanet;
                     bomberFleet.Name = "Bomber Fleet";
                     foreach (Ship ship in BombTaskForce)

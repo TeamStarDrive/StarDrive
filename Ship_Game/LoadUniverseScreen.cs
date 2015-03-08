@@ -811,7 +811,7 @@ namespace Ship_Game
 					}
 					else
 					{
-						e.GetFleetsDict().Add(fleetsave.Key, fleet);
+						e.GetFleetsDict().TryAdd(fleetsave.Key, fleet);
 					}
 					e.GetFleetsDict()[fleetsave.Key].SetSpeed();
                     fleet.findAveragePositionset();
