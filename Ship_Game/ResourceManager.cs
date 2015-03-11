@@ -486,11 +486,11 @@ namespace Ship_Game
                 return null;
             }
             Ship newShip;
-            if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
-            {
-                newShip.ShipRecreate();
-            }
-            else
+            //if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
+            //{
+            //    newShip.ShipRecreate();
+            //}
+            //else
             newShip = new Ship();
 			
 
@@ -567,16 +567,16 @@ namespace Ship_Game
 		public static Ship CreateShipAtPoint(string key, Empire Owner, Vector2 p, float facing)
 		{
 						Ship newShip;
-            if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
-            {
-                newShip.ShipRecreate();
-                newShip.Rotation = facing;
-                newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
-                newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-                newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
-                newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-            }
-            else
+            //if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
+            //{
+            //    newShip.ShipRecreate();
+            //    newShip.Rotation = facing;
+            //    newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
+            //}
+            //else
             newShip = new Ship()
 			{
 				Rotation = facing,

@@ -2959,20 +2959,19 @@ namespace Ship_Game
             if (this.ShieldStrengthCurrent < this.ShieldStrengthMax)
             {
                 Planet shieldStrengthCurrent = this;
-                
-                if(this.RecentCombat)
+
+                if (!this.RecentCombat)
                 {
-                    //shieldStrengthCurrent.ShieldStrengthCurrent = shieldStrengthCurrent.ShieldStrengthCurrent + 1f;
-                    //if (this.ShieldStrengthCurrent > this.ShieldStrengthMax)
-                    //{
-                    //    this.ShieldStrengthCurrent = this.ShieldStrengthMax;
-                    //}
-                }
-                else
+
                     if (this.ShieldStrengthCurrent > this.ShieldStrengthMax / 10)
                     {
                         shieldStrengthCurrent.ShieldStrengthCurrent += shieldStrengthCurrent.ShieldStrengthMax / 10;
                     }
+                    else
+                    {
+                        shieldStrengthCurrent.ShieldStrengthCurrent++;
+                    }
+                }
             }
 
             //this.UpdateTimer = 10f;

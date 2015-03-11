@@ -4087,7 +4087,18 @@ namespace Ship_Game.Gameplay
         public void QueueTotalRemoval()
         {
             //lock (GlobalStats.AddShipLocker)
+            //if (Ship.universeScreen.SelectedShip == this)
+            //    lock (this.GetAI().wayPointLocker)
+            //    {
+
+
+            //        Ship.universeScreen.SelectedShip = null;
+
+            //        Ship.universeScreen.ShipsToRemove.Add(this);
+            //    }
+            //else
                 Ship.universeScreen.ShipsToRemove.Add(this);
+
 
         }
 
