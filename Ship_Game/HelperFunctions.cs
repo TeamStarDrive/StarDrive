@@ -141,6 +141,7 @@ namespace Ship_Game
 			}
 			fleet.Name = data.Name;
 			fleet.FleetIconIndex = data.FleetIconIndex;
+            fleet.DataNodes.thisLock.EnterWriteLock();
 			foreach (FleetDataNode node in fleet.DataNodes)
 			{
 				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.FleetOffset);
@@ -148,6 +149,7 @@ namespace Ship_Game
 				node.SetShip(s);
 				fleet.AddShip(s);
 			}
+            fleet.DataNodes.thisLock.ExitWriteLock();
 			return fleet;
 		}
 
@@ -182,6 +184,7 @@ namespace Ship_Game
 			}
 			fleet.Name = data.Name;
 			fleet.FleetIconIndex = data.FleetIconIndex;
+            fleet.DataNodes.thisLock.EnterWriteLock();
 			foreach (FleetDataNode node in fleet.DataNodes)
 			{
 				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.FleetOffset);
@@ -189,6 +192,7 @@ namespace Ship_Game
 				node.SetShip(s);
 				fleet.AddShip(s);
 			}
+            fleet.DataNodes.thisLock.ExitWriteLock();
 			foreach (Ship s in Owner.GetFleetsDict()[1].Ships)
 			{
 				s.fleet = null;
@@ -240,13 +244,15 @@ namespace Ship_Game
 			fleet.AssignDataPositions(facing);
 			fleet.Name = data.Name;
 			fleet.FleetIconIndex = data.FleetIconIndex;
-			foreach (FleetDataNode node in fleet.DataNodes)
+            fleet.DataNodes.thisLock.EnterWriteLock();
+            foreach (FleetDataNode node in fleet.DataNodes)
 			{
 				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.OrdersOffset, facing);
 				s.RelativeFleetOffset = node.FleetOffset;
 				node.SetShip(s);
 				fleet.AddShip(s);
 			}
+            fleet.DataNodes.thisLock.ExitWriteLock();
 			foreach (Ship s in Owner.GetFleetsDict()[1].Ships)
 			{
 				s.fleet = null;
