@@ -1259,11 +1259,18 @@ namespace Ship_Game.Gameplay
 
 			if (this.Owner.Role == "troop" && this.Owner.TroopList.Count > 0 )
 			{
+                
                 if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f  && goal.TargetPlanet.AssignTroopToTile(this.Owner.TroopList[0]))
-				{//Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f
-					this.Owner.QueueTotalRemoval();
-					return;
-				}
+                {//Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f
+                    {
+                       // GlobalStats.UILocker.EnterWriteLock();
+                        this.Owner.QueueTotalRemoval();
+                        //if (Ship.universeScreen.SelectedShip == this.Owner)
+                        //    Ship.universeScreen.SelectedShip = null;
+                        //GlobalStats.UILocker.EnterWriteLock();
+                    }
+                    return;
+                }
 			}
             else if (this.Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0 || this.Owner.TroopList.Count <= 0 || (this.Owner.Role != "troop" && (this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count() == 0&& !this.Owner.hasTransporter)))//|| goal.TargetPlanet.GetGroundStrength(this.Owner.loyalty)+3 > goal.TargetPlanet.GetGroundStrength(goal.TargetPlanet.Owner)*1.5)
 			{
