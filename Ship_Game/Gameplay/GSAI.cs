@@ -7583,7 +7583,52 @@ namespace Ship_Game.Gameplay
 				{
 					case GSAI.ResearchStrategy.Random:
 					{
-                      //changed by gremlin exclude module tech that we dont have any ships that use it.
+
+                        if (true)
+                        {
+                            Dictionary<string, int> priority = new Dictionary<string, int>();
+
+                            priority.Add("SHIPTECH", HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority + (atWar ? 8 : 4)));
+                            priority.Add("GroundCombat", HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority + 4));
+                            priority.Add("Research", HelperFunctions.GetRandomIndex(this.empire.getResStrat().ResearchPriority + (lowResearch ? 6 : 4)));
+                            priority.Add("Colonization", HelperFunctions.GetRandomIndex(this.empire.getResStrat().ExpansionPriority + 4));
+                            priority.Add("Economic", HelperFunctions.GetRandomIndex(this.empire.getResStrat().ExpansionPriority + (highTaxes ? 6 : 4) + (atWar ? 2 : 0)));
+                            priority.Add("Industry", HelperFunctions.GetRandomIndex(this.empire.getResStrat().IndustryPriority + 4));
+                            priority.Add("General", HelperFunctions.GetRandomIndex(4));
+
+                            string sendToScript = "";
+                            int max = 0;
+                            foreach (KeyValuePair<string, int> pWeighted in priority.OrderByDescending(pri => pri.Value))
+                            {
+                                if (max > 3)
+                                    break;
+                                if (pWeighted.Value < 3 && !string.IsNullOrEmpty(sendToScript))
+                                    continue;
+                                //if (!string.IsNullOrEmpty(sendToScript))
+                                sendToScript += ":";
+                                if (pWeighted.Key == "SHIPTECH")
+                                {
+                                    sendToScript += "ShipWeapons:ShipDefense:ShipGeneral:ShipHull";
+                                    max += 4;
+
+                                }
+                                else
+                                {
+                                    sendToScript += pWeighted.Key;
+                                    max++;
+                                }
+
+
+                            }
+                            if (ScriptedResearch("CHEAPEST", "TECH", sendToScript))
+                                return;
+
+                            
+                        }
+
+
+
+                        //changed by gremlin exclude module tech that we dont have any ships that use it.
                         ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
 						//foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
 
@@ -8251,7 +8296,8 @@ namespace Ship_Game.Gameplay
                             }
                             catch
                             {
-                                techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
+                                //techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), "General");
+                                return false;
                             }
                             if (this.empire.data.Traits.Cybernetic > 0 && techtype == (TechnologyType)Enum.Parse(typeof(TechnologyType), "Colonization")) //this.empire.GetBDict()["Biospheres"] &&
                             {
@@ -8299,7 +8345,8 @@ namespace Ship_Game.Gameplay
                                 int currentCost = (int)(ResearchTech.Cost * CostNormalizer);
                                 int previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * CostNormalizer);
 
-                                if (!string.IsNullOrEmpty(BestShip) && (techtype != TechnologyType.ShipHull && ResearchTech.ModulesUnlocked.Count > 0 || ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0))
+                                if (!string.IsNullOrEmpty(BestShip) && (techtype != TechnologyType.ShipHull && //techtype == TechnologyType.ShipHull ||//
+                                    ResearchTech.ModulesUnlocked.Count > 0 || ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0))
                                 {
 
                                     Technology PreviousTech = ResourceManager.TechTree[researchtopic];

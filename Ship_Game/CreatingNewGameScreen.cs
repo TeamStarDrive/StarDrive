@@ -253,13 +253,15 @@ namespace Ship_Game
                             removalCollection.Add(empireData);
                     }
                     int num = removalCollection.Count - this.numOpponents;
-                    for (int index1 = 0; index1 < num; ++index1)
+                    for (int opponents = 0; opponents < num; ++opponents)
                     {
                         int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count + 1));
                         if (index2 > removalCollection.Count - 1)
                             index2 = removalCollection.Count - 1;
                         removalCollection.RemoveAt(index2);
                     }
+
+
                     foreach (EmpireData data in (List<EmpireData>)removalCollection)
                     {
                         Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
