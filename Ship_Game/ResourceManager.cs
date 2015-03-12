@@ -297,6 +297,7 @@ namespace Ship_Game
             }
 			Owner.AddShip(newShip);
 			newShip.GetAI().State = AIState.AwaitingOrders;
+            
 			return newShip;
 		}
 
@@ -1399,10 +1400,12 @@ namespace Ship_Game
 
 		public static Ship GetShip(string key)
 		{
-			Ship newShip = new Ship()
-			{
-				Role = Ship_Game.ResourceManager.ShipsDict[key].Role
-			};
+            Ship newShip = new Ship()
+            {
+                Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+            };
 			newShip.LoadContent(Game1.Instance.Content);
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
 			SceneObject newSO = new SceneObject();
@@ -1444,6 +1447,7 @@ namespace Ship_Game
                 newSlot.InstalledModuleUID = slot.InstalledModuleUID;
                 newShip.ModuleSlotList.AddLast(newSlot);
             }
+         
 			return newShip;
 		}
 
