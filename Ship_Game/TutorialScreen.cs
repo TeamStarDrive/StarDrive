@@ -73,7 +73,15 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			FileInfo[] textList = HelperFunctions.GetFilesFromDirectory(string.Concat("Content/Tutorials/", GlobalStats.Config.Language, "/"));
+            FileInfo[] textList;
+            try
+            {
+                 textList = HelperFunctions.GetFilesFromDirectory(string.Concat("Content/Tutorials/", GlobalStats.Config.Language, "/"));
+            }
+            catch
+            {
+                 textList = HelperFunctions.GetFilesFromDirectory(string.Concat("Content/Tutorials/", "English", "/"));
+            }
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
