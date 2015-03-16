@@ -33,7 +33,7 @@ namespace Ship_Game
         private BatchRemovalCollection<Planet> OwnedPlanets = new BatchRemovalCollection<Planet>();
         private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
         public List<Ship> ShipsToAdd = new List<Ship>();
-        public List<Ship> KnownShips = new List<Ship>();
+        public BatchRemovalCollection<Ship> KnownShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<Empire.InfluenceNode> BorderNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
         public BatchRemovalCollection<Empire.InfluenceNode> SensorNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
         private Dictionary<SolarSystem, bool> HostilesPresent = new Dictionary<SolarSystem, bool>();
@@ -610,9 +610,21 @@ namespace Ship_Game
                 this.canBuildCruisers = true;
             if (this.TechnologyDict[techID].GetTech().unlockFrigates || techID == "FrigateConstruction")
                 this.canBuildFrigates = true;
-            if (this.TechnologyDict[techID].GetTech().unlockCorvettes || techID == "HeavyFighterHull")
+            if (this.TechnologyDict[techID].GetTech().unlockCorvettes || techID == "HeavyFighterHull" )
                 this.canBuildCorvettes = true;
-
+            if (!this.canBuildCorvettes  && this.TechnologyDict[techID].GetTech().TechnologyType == TechnologyType.ShipHull)
+            {
+                foreach(KeyValuePair<string,bool> hull in this.GetHDict())
+                {
+                    if (this.TechnologyDict[techID].GetTech().HullsUnlocked.Where(hulls => hulls.Name == hull.Key).Count() ==0)
+                        continue;
+                    if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role =="corvette").Count()>0)
+                    {
+                        this.canBuildCorvettes = true;
+                        break;
+                    }
+                }
+            }
             //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {
@@ -990,10 +1002,11 @@ namespace Ship_Game
                 else
                 {
                     ship.inborders = false;
-                    lock (GlobalStats.KnownShipsLock)
+                    this.KnownShips.thisLock.EnterWriteLock();
                     {
                         this.KnownShips.Add(ship);
                     }
+                    this.KnownShips.thisLock.ExitWriteLock();
                     if (this.isPlayer)
                     {
                         ship.inSensorRange = true;
@@ -1034,10 +1047,11 @@ namespace Ship_Game
         public void UpdateKnownShips()
         {
            // this.GetGSAI().ThreatMatrix.ScrubMatrix(true);
-            lock (GlobalStats.KnownShipsLock)
+            
             {
                 if (this.isPlayer && Empire.universeScreen.Debug)
                 {
+                    
                     Empire.universeScreen.MasterShipList.thisLock.EnterReadLock();
                     for (int i = 0; i < Empire.universeScreen.MasterShipList.Count; i++)
                     //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>
@@ -1049,6 +1063,7 @@ namespace Ship_Game
                         this.GSAI.ThreatMatrix.UpdatePin(nearby);
                     }//);
                     Empire.universeScreen.MasterShipList.thisLock.ExitReadLock();
+                    
                     return;
                 }
             }
@@ -1094,7 +1109,9 @@ namespace Ship_Game
                                 }
                                 if (!this.Relationships[nearby.loyalty].Known)
                                 {
+                                    GlobalStats.UILocker.EnterWriteLock();
                                     this.DoFirstContact(nearby.loyalty);
+                                    GlobalStats.UILocker.ExitWriteLock();
                                 }
                                 //toadd.Add(nearby);
                                 flag = true;
@@ -1103,8 +1120,12 @@ namespace Ship_Game
                                     || (node.KeyedObject as Ship).Name == "Subspace Projector" || (node.KeyedObject as Ship).GetAI().State == AIState.SystemTrader)) || node.KeyedObject is SolarSystem)
                                 {
                                     border = true;
+          
                                     if (this.Relationships[nearby.loyalty].AtWar)
+                                    {
                                         nearby.IsIndangerousSpace = true;
+                                        
+                                    }
                                     else if (this.Relationships[nearby.loyalty].Treaty_Alliance)
                                         nearby.IsInFriendlySpace = true;
                                     else //if (this.Relationships[nearby.loyalty].Treaty_OpenBorders || this.Relationships[nearby.loyalty].Treaty_NAPact)
@@ -1216,7 +1237,7 @@ namespace Ship_Game
                     }
                 });
 
-                lock (GlobalStats.KnownShipsLock)
+                //lock (GlobalStats.KnownShipsLock)
                 {
 
                         foreach (Ship ship in Shipbag)

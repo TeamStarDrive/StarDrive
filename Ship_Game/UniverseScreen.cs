@@ -1549,10 +1549,11 @@ namespace Ship_Game
                         if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
                         {
                             empire.ResetBorders();
-                            lock (GlobalStats.KnownShipsLock)
+                            empire.KnownShips.thisLock.EnterWriteLock();
                             {
                                 empire.KnownShips.Clear();
                             }
+                            empire.KnownShips.thisLock.ExitWriteLock();
                             //this.UnownedShipsInOurBorders.Clear();
                             empire.UpdateKnownShips();
                             empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
@@ -5744,7 +5745,8 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
             this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
             this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
-            lock (GlobalStats.KnownShipsLock)
+            //lock (GlobalStats.KnownShipsLock)
+            this.player.KnownShips.thisLock.EnterReadLock();
             {
                 
                 for (int i = 0; i < this.player.KnownShips.Count; ++i)
@@ -5759,6 +5761,7 @@ namespace Ship_Game
                     }
                 }
             }
+            this.player.KnownShips.thisLock.ExitReadLock();
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
@@ -5767,7 +5770,8 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
             this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
             this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
-            lock (GlobalStats.KnownShipsLock)
+//            lock (GlobalStats.KnownShipsLock)
+                this.player.KnownShips.thisLock.EnterReadLock();
             {
                 foreach (Ship ship in this.player.KnownShips)
                 //Parallel.ForEach(this.player.KnownShips, ship =>
@@ -5793,6 +5797,7 @@ namespace Ship_Game
                     }
                 }//);
             }
+            this.player.KnownShips.thisLock.ExitReadLock();
             if (this.ProjectingPosition)
                 this.DrawProjectedGroup();
             lock (GlobalStats.ClickableItemLocker)
@@ -6249,7 +6254,8 @@ namespace Ship_Game
             this.ClickableShipsList.Clear();
             this.ScreenManager.SpriteBatch.Begin();
             Rectangle rect = new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-            lock (GlobalStats.KnownShipsLock)
+            //lock (GlobalStats.KnownShipsLock)
+            EmpireManager.GetEmpireByName(this.PlayerLoyalty).KnownShips.thisLock.EnterReadLock();
             {
                 for (int local_1 = 0; local_1 < EmpireManager.GetEmpireByName(this.PlayerLoyalty).KnownShips.Count; ++local_1)
                 {
@@ -6288,6 +6294,9 @@ namespace Ship_Game
                     }
                 }
             }
+            EmpireManager.GetEmpireByName(this.PlayerLoyalty).KnownShips.thisLock.ExitReadLock();
+
+
             lock (GlobalStats.ClickableSystemsLock)
             {
                 this.ClickPlanetList.Clear();
@@ -6599,7 +6608,8 @@ namespace Ship_Game
         {
             if (this.viewState != UniverseScreen.UnivScreenState.ShipView)
                 return;
-            lock (GlobalStats.KnownShipsLock)
+            //lock (GlobalStats.KnownShipsLock)
+            this.player.KnownShips.thisLock.EnterReadLock();
             {
                 for (int local_0 = 0; local_0 < this.player.KnownShips.Count; ++local_0)
                 {
@@ -6619,6 +6629,7 @@ namespace Ship_Game
                     }
                 }
             }
+            this.player.KnownShips.thisLock.ExitReadLock();
         }
 
         public virtual void Render(GameTime gameTime)
