@@ -131,7 +131,7 @@ namespace Ship_Game
         public static int BeamOOM = 0;
 		static GlobalStats()
 		{
-            GlobalStats.UILocker = new ReaderWriterLockSlim();
+            GlobalStats.UILocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
             GlobalStats.ComparisonCounter = 1;
 			GlobalStats.Comparisons = 0;
 			GlobalStats.HardcoreRuleset = false;

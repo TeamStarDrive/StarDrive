@@ -194,6 +194,7 @@ namespace Ship_Game.Gameplay
         public bool IsIndangerousSpace;
         public bool IsInNeutralSpace;
         public bool IsInFriendlySpace;
+        //public Dictionary<Empire, diplomacticSpace> BorderState = new Dictionary<Empire, diplomacticSpace>();
         public List<ShipModule> Transporters = new List<ShipModule>();
         public List<ShipModule> RepairBeams = new List<ShipModule>();
         public bool hasTransporter;
@@ -210,6 +211,15 @@ namespace Ship_Game.Gameplay
         Ship lastAttacker;
 
         public ushort purgeCount =0;
+
+        //public class diplomacticSpace
+        //{
+        //    public bool IsIndangerousSpace= false;
+        //    public bool IsInNeutralSpace= false;
+        //    public bool IsInFriendlySpace= false;
+
+        //}
+        
         public float CargoSpace_Used
         {
             get
@@ -1306,6 +1316,10 @@ namespace Ship_Game.Gameplay
 
         public float GetMaintCost(Empire empire)
         {
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+            {
+                return this.GetMaintCostRealism(empire);
+            }
             float maint = 0f;
             string role = this.Role;
             string str = role;
