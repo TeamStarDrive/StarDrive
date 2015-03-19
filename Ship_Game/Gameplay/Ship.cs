@@ -1313,7 +1313,7 @@ namespace Ship_Game.Gameplay
 
         // The Doctor - This function is an overload which is used for the Ship Build menu.
         // It will calculate the maintenance cost in exactly the same way as the normal function, except as the ship build list elements have no loyalty data, this variable is called by the function
-
+        //CG modified so that the original function will call the mod only function if a mod is present and such.
         public float GetMaintCost(Empire empire)
         {
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
@@ -2775,7 +2775,7 @@ namespace Ship_Game.Gameplay
                     if (this.GetAI().fireTask != null && !this.GetAI().fireTask.IsCompleted)
                     {
                         this.GetAI().fireTask.Wait();
-                        //this.GetAI().fireTask.Dispose();
+
                     }
                     //task gremlin look at parallel here for weapons
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
@@ -2826,6 +2826,8 @@ namespace Ship_Game.Gameplay
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
                     this.Projectiles.ApplyPendingRemovals();
+
+                    
                 }
             }
         }

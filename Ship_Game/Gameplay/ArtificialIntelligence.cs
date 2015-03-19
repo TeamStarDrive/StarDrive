@@ -7055,6 +7055,7 @@ namespace Ship_Game.Gameplay
 
                     
                     fireTask = Task.Factory.StartNew(this.FireOnTarget);
+                    //fireTask = new Task(this.FireOnTarget);
                     //this.FireOnTarget();
                         
 

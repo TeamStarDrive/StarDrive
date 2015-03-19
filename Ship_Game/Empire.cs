@@ -1636,7 +1636,7 @@ namespace Ship_Game
                 return false;
             foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlotList)
             {
-                if (!(moduleSlotData.InstalledModuleUID == "Dummy") && moduleSlotData.InstalledModuleUID != null && !this.UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
+                if (!string.IsNullOrEmpty(moduleSlotData.InstalledModuleUID) && moduleSlotData.InstalledModuleUID != "Dummy" && !this.UnlockedModulesDict[moduleSlotData.InstalledModuleUID]) //&& moduleSlotData.InstalledModuleUID != null
                     return false;
             }
             return true;
@@ -1867,7 +1867,7 @@ namespace Ship_Game
                         shipData.allModulesUnlocakable = false;
                         shipData.hullUnlockable = false;
                         shipData.techsNeeded.Clear();
-                        purge.Add(ship.Key);
+                        //purge.Add(ship.Key);
                         break;
                     }
 
@@ -1878,22 +1878,22 @@ namespace Ship_Game
                     shipData.TechScore += (ushort)ResourceManager.TechTree[techname].Cost;
                 }
             }
-            foreach (string purgeThis in purge)
-            {
-                Ship ship;
-                if (ResourceManager.ShipsDict.TryGetValue(purgeThis, out ship))
-                {
-                    if (ship == null)
-                        continue;
-                    if (this.WeCanBuildThis(ship.shipData.Name))
-                        continue;
-                    if (ship.shipData.ShipStyle != this.data.Traits.ShipType)
-                        continue;
+            ////foreach (string purgeThis in purge)
+            ////{
+            ////    Ship ship;
+            ////    if (ResourceManager.ShipsDict.TryGetValue(purgeThis, out ship))
+            ////    {
+            ////        if (ship == null)
+            ////            continue;
+            ////        if (this.WeCanBuildThis(ship.shipData.Name))
+            ////            continue;
+            ////        if (ship.shipData.ShipStyle != this.data.Traits.ShipType)
+            ////            continue;
 
-                    ResourceManager.ShipsDict.Remove(purgeThis);
+            ////        ResourceManager.ShipsDict.Remove(purgeThis);
 
-                }
-            }
+            ////    }
+            ////}
 
         }
 
