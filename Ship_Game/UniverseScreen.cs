@@ -1754,7 +1754,13 @@ namespace Ship_Game
 
 
             this.DeepSpaceDone.Reset();
-
+            //foreach(Ship ship in this.MasterShipList)
+            //{
+            //    if (ship.GetAI().fireTask != null && !ship.GetAI().fireTask.IsCompleted)
+            //    {
+            //        ship.GetAI().fireTask.Start();
+            //    }
+            //}
             #endregion
             if (this.perfavg2.Count <= incrementTimer)
                 this.perfavg2.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - beginTime);
