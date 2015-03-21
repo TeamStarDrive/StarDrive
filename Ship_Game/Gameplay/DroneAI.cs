@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public class DroneAI
+	public sealed class DroneAI: IDisposable
 	{
 		public Projectile Owner;
 
@@ -27,6 +27,9 @@ namespace Ship_Game.Gameplay
 
 		public BatchRemovalCollection<Beam> Beams = new BatchRemovalCollection<Beam>();
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public DroneAI(Projectile owner)
 		{
 			this.Owner = owner;
@@ -36,10 +39,12 @@ namespace Ship_Game.Gameplay
 		public void ChooseTarget()
 		{
 			this.Target = null;
-			List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
+			//List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
+            //List<GameplayObject> nearby = this.Owner.owner.GetAI().FriendliesNearby;
 			List<Ship> Potentials = new List<Ship>();
             
-			foreach (GameplayObject go in nearby)
+			//foreach (GameplayObject go in nearby)
+            foreach (Ship go in this.Owner.owner.GetAI().FriendliesNearby)
 			{
                 bool isShip = go is Ship;
                 
@@ -194,5 +199,28 @@ namespace Ship_Game.Gameplay
 			}
 			this.OrbitShip(this.Target as Ship, elapsedTime);
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~DroneAI() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.Beams != null)
+                        this.Beams.Dispose();
+
+                }
+                this.Beams = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

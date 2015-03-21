@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Message
+	public sealed class Message
 	{
 		public int Step;
 

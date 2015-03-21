@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class SystemInfoUIElement : UIElement
+	public sealed class SystemInfoUIElement : UIElement
 	{
 		public static SpriteFont SysFont;
 
@@ -165,7 +165,7 @@ namespace Ship_Game
                             
                             Building building = this.s.PlanetList[i].BuildingList[j];
                             
-                            if (building.EventTriggerUID != "")
+                            if (!string.IsNullOrEmpty(building.EventTriggerUID))
                             {
                                 hasAnamoly = true;
                             }

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class CombatScreen : PlanetScreen
+	public sealed class CombatScreen : PlanetScreen, IDisposable
 	{
 		public static UniverseScreen universeScreen;
 
@@ -79,6 +79,9 @@ namespace Ship_Game
 
 		private float[] startXByRow = new float[] { 254f, 222f, 181f, 133f, 74f, 0f };
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public CombatScreen(Ship_Game.ScreenManager sm, Planet p)
 		{
 			this.p = p;
@@ -120,16 +123,20 @@ namespace Ship_Game
                 Launches = "LaunchAll",
                 Text = "Launch All"
             };
-			foreach (Ship ship in CombatScreen.universeScreen.MasterShipList)			
+            CombatScreen.universeScreen.MasterShipList.thisLock.EnterReadLock();
+            foreach (Ship ship in CombatScreen.universeScreen.MasterShipList)			                        
             {
-				if (Vector2.Distance(p.Position, ship.Center) >= 4000f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
-				{
-					continue;
-				}
-				if (ship.Role != "troop")
-				{
-					if (ship.TroopList.Count <= 0 || !ship.HasTroopBay && !ship.hasTransporter)
-						continue;
+                
+                if (ship == null)
+                    continue;
+                if (Vector2.Distance(p.Position, ship.Center) >= 4000f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
+                {
+                    continue;
+                }
+                if (ship.Role != "troop")
+                {
+                    if (ship.TroopList.Count <= 0 || !ship.HasTroopBay && !ship.hasTransporter)
+                        continue;
                     int LandingLimit = ship.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <= 0).Count();
                     foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1))
                         LandingLimit += module.TransporterTroopLanding;
@@ -141,12 +148,13 @@ namespace Ship_Game
                             LandingLimit--;
                         }
                     }
-				}
-				else
-				{
-					this.OrbitSL.AddItem(ship);
-				}
-			}
+                }
+                else
+                {
+                    this.OrbitSL.AddItem(ship);
+                }
+            }
+            CombatScreen.universeScreen.MasterShipList.thisLock.ExitReadLock();
 			this.gridPos = new Rectangle(ColonyGrid.X + 20, ColonyGrid.Y + 20, ColonyGrid.Width - 40, ColonyGrid.Height - 40);
 			int xsize = this.gridPos.Width / 7;
 			int ysize = this.gridPos.Height / 5;
@@ -831,7 +839,7 @@ namespace Ship_Game
                             pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
                             this.p.TroopsHere.Add((this.draggedTroop.item as Ship).TroopList[0]);
                             (this.draggedTroop.item as Ship).TroopList[0].SetPlanet(this.p);
-                            if (pgs.building != null && pgs.building.EventTriggerUID != "" && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction && !pgs.TroopsHere[0].GetOwner().MinorRace)
+                            if (pgs.building != null && !string.IsNullOrEmpty(pgs.building.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction && !pgs.TroopsHere[0].GetOwner().MinorRace)
                             {
                                 ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs, EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty), CombatScreen.universeScreen);
                             }
@@ -1244,5 +1252,37 @@ namespace Ship_Game
 				this.AnimationTexture = string.Concat(this.AnimationBasePath, remainder);
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~CombatScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.Explosions != null)
+                        this.Explosions.Dispose();
+                    if (this.OrbitSL != null)
+                        this.OrbitSL.Dispose();
+                    if (this.tInfo != null)
+                        this.tInfo.Dispose();
+                    if (this.hInfo != null)
+                        this.hInfo.Dispose();
+
+                }
+                this.Explosions = null;
+                this.OrbitSL = null;
+                this.tInfo = null;
+                this.hInfo = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

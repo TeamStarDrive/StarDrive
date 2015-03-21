@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class PieMenu
+	public sealed class PieMenu
 	{
 		private bool visible;
 

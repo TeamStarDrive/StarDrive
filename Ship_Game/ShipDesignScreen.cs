@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class ShipDesignScreen : GameScreen, IDisposable
+	public sealed class ShipDesignScreen : GameScreen, IDisposable
 	{
 		private Matrix worldMatrix = Matrix.Identity;
 
@@ -192,6 +192,9 @@ namespace Ship_Game
         private ShipData.Category LoadCategory;
 
         public string HangarShipUIDLast = "Undefined";
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
@@ -874,20 +877,33 @@ namespace Ship_Game
 
 		public void Dispose()
 		{
+
 			this.Dispose(true);
-            this.ScreenManager.RemoveScreen(this);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~ShipDesignScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.hullSL != null)
+                        this.hullSL.Dispose();
+                    if (this.weaponSL != null)
+                        this.weaponSL.Dispose();
+                    if (this.ChooseFighterSL != null)
+                        this.ChooseFighterSL.Dispose();
+
+                }
+                this.hullSL = null;
+                this.weaponSL = null;
+                this.ChooseFighterSL = null;
+                this.disposed = true;
+            }
+        }
 
 		private void DoExit(object sender, EventArgs e)
 		{
@@ -2096,7 +2112,7 @@ namespace Ship_Game
                             bCursor.Y = (float)e.clickRect.Y;
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((e.item as Ship).VanityName != "" ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty((e.item as Ship).VanityName) ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
                             tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         if (this.selector != null)
@@ -4438,21 +4454,6 @@ namespace Ship_Game
 			base.ScreenManager.AddScreen(message);
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ShipDesignScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
-
 		public float findAngleToTarget(Vector2 origin, Vector2 target)
 		{
 			float theta;
@@ -5473,7 +5474,7 @@ namespace Ship_Game
 
         private void InstallModuleNoStack(SlotStruct slot)
         {
-            System.Diagnostics.Debug.Assert(false);
+            //System.Diagnostics.Debug.Assert(false);
             //looks like this function is not actually used, see if anyone manages to trigger this
             int num = 0;    //check for sufficient slots
             for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
@@ -5957,6 +5958,8 @@ namespace Ship_Game
 			{
 				(Ship.universeScreen.workersPanel as ColonyScreen).Reset = true;
 			}
+            //this should go some where else, need to find it a home
+            this.ScreenManager.RemoveScreen(this);
 			base.ExitScreen();
 		}
 

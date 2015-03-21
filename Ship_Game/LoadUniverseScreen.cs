@@ -14,7 +14,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class LoadUniverseScreen : GameScreen, IDisposable
+	public sealed class LoadUniverseScreen : GameScreen, IDisposable
 	{
 		private Vector2 ScreenCenter;
 
@@ -71,7 +71,7 @@ namespace Ship_Game
 			BackgroundWorker bgw = new BackgroundWorker();
 			bgw.DoWork += new DoWorkEventHandler(this.DecompressFile);
             
-            GC.Collect();
+            //GC.Collect(2, GCCollectionMode.Optimized);
 			bgw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.LoadEverything);
 			bgw.RunWorkerAsync(activeFile);
 		}
@@ -157,7 +157,7 @@ namespace Ship_Game
 		{
 			Building building;
 			Planet p = new Planet();
-			if (data.Owner != "")
+			if (!string.IsNullOrEmpty(data.Owner))
 			{
 				p.Owner = EmpireManager.GetEmpireByName(data.Owner);
 				p.Owner.AddPlanet(p);
@@ -378,7 +378,7 @@ namespace Ship_Game
             }
 			FileStream stream = decompressed.OpenRead();
 			SavedGame.UniverseSaveData savedData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
-			stream.Close();
+			//stream.Close();
 			stream.Dispose();
 			decompressed.Delete();
 			GlobalStats.RemnantKills = savedData.RemnantKills;
@@ -418,14 +418,22 @@ namespace Ship_Game
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+        ~LoadUniverseScreen() { Dispose(false); }
+
+		protected void Dispose(bool disposing)
 		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
+            if (disposing)
+            {
+                lock (this)
+                {
+                    if (this.GateKeeper != null)
+                        this.GateKeeper.Dispose();
+                    if (this.data != null)
+                        this.data.Dispose();
+                }
+                this.GateKeeper = null;
+                this.data = null;
+            }
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -458,21 +466,6 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~LoadUniverseScreen() {
-            //should implicitly do the same thing as the original bad finalize
-            this.Dispose(false);
-        }
 
 		public void Go()
 		{
@@ -632,7 +625,7 @@ namespace Ship_Game
 					Ship ship = Ship.LoadSavedShip(shipData.data);
 					ship.guid = shipData.guid;
 					ship.Name = shipData.Name;
-                    if (shipData.VanityName != "")
+                    if (!string.IsNullOrEmpty(shipData.VanityName))
                         ship.VanityName = shipData.VanityName;
                     else
                     {
@@ -702,6 +695,11 @@ namespace Ship_Game
 						t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
 						ship.TroopList.Add(t);
 					}
+
+                    foreach (Rectangle AOO in shipData.AreaOfOperation)
+                    {
+                        ship.AreaOfOperation.Add(AOO);
+                    }
 					ship.TetherGuid = shipData.TetheredTo;
 					ship.TetherOffset = shipData.TetherOffset;
 					if (ship.InCombatTimer > 0f)
@@ -813,7 +811,7 @@ namespace Ship_Game
 					}
 					else
 					{
-						e.GetFleetsDict().Add(fleetsave.Key, fleet);
+						e.GetFleetsDict().TryAdd(fleetsave.Key, fleet);
 					}
 					e.GetFleetsDict()[fleetsave.Key].SetSpeed();
                     fleet.findAveragePositionset();
@@ -1213,7 +1211,7 @@ namespace Ship_Game
 							List<Ship> toadd = new List<Ship>();
 							foreach (KeyValuePair<Guid, Ship> station in p.Shipyards)
 							{
-								if (station.Key != ship.guid)
+								if (station.Key != ship.guid || p.Owner !=null && p.Owner == station.Value.loyalty)
 								{
 									continue;
 								}

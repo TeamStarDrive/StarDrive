@@ -2,12 +2,8 @@ using System;
 
 namespace Ship_Game
 {
-	public class History
+	public struct History
 	{
 		public int EmpireIndex;
-
-		public History()
-		{
-		}
 	}
 }

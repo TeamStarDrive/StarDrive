@@ -13,7 +13,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
-	public class Moon : GameplayObject
+	public sealed class Moon : GameplayObject
 	{
 		public float scale;
 

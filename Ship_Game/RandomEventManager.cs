@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class RandomEventManager
+	public sealed class RandomEventManager
 	{
 		public static RandomEvent ActiveEvent;
 

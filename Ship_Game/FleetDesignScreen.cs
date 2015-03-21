@@ -13,7 +13,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class FleetDesignScreen : GameScreen, IDisposable
+	public sealed class FleetDesignScreen : GameScreen, IDisposable
 	{
 		public static bool Open;
 
@@ -149,6 +149,9 @@ namespace Ship_Game
 
 		private Vector2 starfieldPos = Vector2.Zero;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		static FleetDesignScreen()
 		{
 			FleetDesignScreen.Open = false;
@@ -241,14 +244,30 @@ namespace Ship_Game
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+        ~FleetDesignScreen() { Dispose(false);  }
+
+		protected void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
 				lock (this)
 				{
-                    starfield.Dispose();
+                    if (this.starfield != null)
+                        this.starfield.Dispose();
+                    if (this.fleet != null)
+                        this.fleet.Dispose();
+                    if (this.AvailableShips != null)
+                        this.AvailableShips.Dispose();
+                    if (this.ShipSL != null)
+                        this.ShipSL.Dispose();
+                    if (this.FleetSL != null)
+                        this.FleetSL.Dispose();
 				}
+                this.starfield = null;
+                this.fleet = null;
+                this.ShipSL = null;
+                this.FleetSL = null;
+                this.AvailableShips = null;
 			}
 		}
 
@@ -545,7 +564,7 @@ namespace Ship_Game
 					{
 						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 						Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((e.item as Ship).VanityName != "" ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty((e.item as Ship).VanityName) ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
 						tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						if (this.sub_ships.Tabs[0].Selected)
 						{
@@ -625,7 +644,7 @@ namespace Ship_Game
 							}
 							buildingat = g.GetPlanetWhereBuilding().Name;
 						}
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (buildingat != "" ? string.Concat("Building at:\n", buildingat) : "Need spaceport"), pPos + new Vector2(5f, -5f), Color.White);
+						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (!string.IsNullOrEmpty(buildingat) ? string.Concat("Building at:\n", buildingat) : "Need spaceport"), pPos + new Vector2(5f, -5f), Color.White);
 					}
 				}
 				else
@@ -746,7 +765,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (this.SelectedNodeList[0].GetShip().VanityName != "" ? this.SelectedNodeList[0].GetShip().VanityName : string.Concat(this.SelectedNodeList[0].GetShip().Name, " (", this.SelectedNodeList[0].GetShip().Role, ")")), Cursor, new Color(255, 239, 208));
+					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(this.SelectedNodeList[0].GetShip().VanityName) ? this.SelectedNodeList[0].GetShip().VanityName : string.Concat(this.SelectedNodeList[0].GetShip().Name, " (", this.SelectedNodeList[0].GetShip().Role, ")")), Cursor, new Color(255, 239, 208));
 				}
 				Cursor.Y = (float)(this.OperationsRect.Y + 10);
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Movement Orders", Cursor, new Color(255, 239, 208));
@@ -871,21 +890,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~FleetDesignScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
-
+	
 		private Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenSpace)
 		{
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;

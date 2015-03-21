@@ -21,7 +21,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-	public class Game1 : Game
+	public sealed class Game1 : Game
 	{
 		public GraphicsDeviceManager graphics;
 

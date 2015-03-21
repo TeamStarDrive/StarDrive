@@ -17,8 +17,11 @@
             {
                 components.Dispose();
             }
+            components = null;
             base.Dispose(disposing);
         }
+
+        ~ExceptionViewer() { Dispose(false); }
 
         #region Windows Form Designer generated code
 
