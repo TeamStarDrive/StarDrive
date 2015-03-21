@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class EmpireData
+	public sealed class EmpireData : IDisposable
 	{
 		public SerializableDictionary<string, WeaponTagModifier> WeaponTags = new SerializableDictionary<string, WeaponTagModifier>();
 
@@ -149,6 +149,12 @@ namespace Ship_Game
         public List<string> unlockBuilding = new List<string>();
         public List<string> unlockShips = new List<string>();
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+        //designsWeHave our techTree has techs for.
+
+
 
 		public EmpireData()
 		{
@@ -182,5 +188,31 @@ namespace Ship_Game
 		{
 			return (EmpireData)this.MemberwiseClone();
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~EmpireData() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.AgentList != null)
+                        this.AgentList.Dispose();
+                    if (this.MoleList != null)
+                        this.MoleList.Dispose();
+
+                }
+                this.AgentList = null;
+                this.MoleList = null;
+                this.disposed = true;
+            }
+        }
 	}
-}
+} 

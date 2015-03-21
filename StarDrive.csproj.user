@@ -14,4 +14,7 @@
   <PropertyGroup>
     <ReferencePath>d:\Steam\SteamApps\common\StarDrive\</ReferencePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-Debug|x86'">
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
 </Project>

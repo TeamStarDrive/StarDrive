@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DesignAction
+	public sealed class DesignAction
 	{
 		public SlotStruct clickedSS;
 

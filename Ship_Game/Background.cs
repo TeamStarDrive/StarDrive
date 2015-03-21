@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Background
+	public sealed class Background
 	{
 		private Rectangle bgRect = new Rectangle(0, 0, 15000, 15000);
 

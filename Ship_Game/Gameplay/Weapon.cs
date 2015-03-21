@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
-	public class Weapon
+	public class Weapon : IDisposable
 	{
 		public bool Tag_Kinetic;
 
@@ -237,8 +237,12 @@ namespace Ship_Game.Gameplay
 
         public bool RangeVariance;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
+       
 
 		public static AudioListener audioListener
 		{
@@ -305,7 +309,7 @@ namespace Ship_Game.Gameplay
 			if (this.owner.InFrustum)
 			{
 				projectile.DieSound = true;
-				if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+				if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)
 				{
 					this.ToggleSoundOn = true;
 					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -326,7 +330,7 @@ namespace Ship_Game.Gameplay
 				{
 					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
 				}
-				if (this.InFlightCue != "")
+				if (!string.IsNullOrEmpty(this.InFlightCue))
 				{
 					projectile.InFlightCue = this.InFlightCue;
 				}
@@ -348,7 +352,9 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateDroneBeam(Vector2 destination, GameplayObject target, DroneAI source)
 		{
-			Beam beam = new Beam(source.Owner.Center, target.Center, this.BeamThickness, source.Owner, target);
+            if (source == null)
+                return;
+            Beam beam = new Beam(source.Owner.Center, target.Center, this.BeamThickness, source.Owner, target);
 			beam.moduleAttachedTo = this.moduleAttachedTo;
 			beam.PowerCost = (float)this.BeamPowerCostPerSecond;
 			beam.range = this.Range;
@@ -356,8 +362,15 @@ namespace Ship_Game.Gameplay
             beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
 			beam.damageAmount = this.DamageAmount;
 			beam.weapon = this;
-			source.Beams.Add(beam);
-			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
+
+            
+                if(!beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection))
+
+            {
+                beam.Die(null, true);
+                return;
+            } 
+            source.Beams.Add(beam);
 			this.ToggleSoundOn = false;
 			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
@@ -368,14 +381,14 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if (this.fireCueName != "")
+                    if (!string.IsNullOrEmpty(this.fireCueName))
                     {
                         this.fireCue = AudioManager.GetCue(this.fireCueName);
                         this.fireCue.Apply3D(Weapon.audioListener, source.Owner.emitter);
                         this.fireCue.Play();
                     }
                 }
-				if (this.ToggleSoundName != "")
+				if (!string.IsNullOrEmpty(this.ToggleSoundName))
 				{
 					this.ToggleSoundOn = true;
 					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -387,16 +400,36 @@ namespace Ship_Game.Gameplay
 
         protected virtual void CreateTargetedBeam(GameplayObject target)
         {
-            Beam beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
-            {
-                moduleAttachedTo = this.moduleAttachedTo,
-                PowerCost = (float)this.BeamPowerCostPerSecond,
-                range = this.Range,
-                thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
-                damageAmount = this.DamageAmount,
-                weapon = this
-            };
+            Beam beam;
+            //if (this.owner.Beams.pendingRemovals.TryPop(out beam))
+            //{
+            //    //beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
+            //    beam.BeamRecreate(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
+            //    beam.moduleAttachedTo = this.moduleAttachedTo;
+            //    beam.PowerCost = (float)this.BeamPowerCostPerSecond;
+            //    beam.range = this.Range;
+            //    beam.thickness = this.BeamThickness;
+            //    beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
+            //    beam.damageAmount = this.DamageAmount;
+            //    beam.weapon = this;
+
+            //}
+            //else
+             
+                {
+                    beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+                {
+                    moduleAttachedTo = this.moduleAttachedTo,
+                    PowerCost = (float)this.BeamPowerCostPerSecond,
+                    range = this.Range,
+                    thickness = this.BeamThickness,
+                    Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
+                    damageAmount = this.DamageAmount,
+                    weapon = this
+                };
+
+                }
+
             //damage increase by level
             if (this.owner.Level > 0)
             {
@@ -410,8 +443,15 @@ namespace Ship_Game.Gameplay
                     beam.damageAmount += beam.damageAmount * mod.DamageBonus;
             }
             this.ModifyProjectile(beam);
+
+
+
+            if (!beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection))
+            {
+                beam.Die(null, true);
+                return;
+            }
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
-            beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
             this.ToggleSoundOn = false;
             if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && this.moduleAttachedTo.GetParent().InFrustum)
             {
@@ -422,7 +462,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if (this.fireCueName != "")
+                    if (!string.IsNullOrEmpty(this.fireCueName))
                     {
                         this.fireCue = AudioManager.GetCue(this.fireCueName);
                         if (!this.owner.isPlayerShip())
@@ -432,7 +472,7 @@ namespace Ship_Game.Gameplay
                         this.fireCue.Play();
                     }
                 }
-                if (this.ToggleSoundName != "")
+                if (!string.IsNullOrEmpty(this.ToggleSoundName))
                 {
                     this.ToggleSoundOn = true;
                     this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -444,7 +484,8 @@ namespace Ship_Game.Gameplay
 
 		protected virtual void CreateMouseBeam(Vector2 destination)
 		{
-			Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent())
+			
+            Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent())
 			{
 				moduleAttachedTo = this.moduleAttachedTo,
 				range = this.Range,
@@ -455,8 +496,15 @@ namespace Ship_Game.Gameplay
 				damageAmount = this.DamageAmount,
 				weapon = this
 			};
-			this.moduleAttachedTo.GetParent().Beams.Add(beam);
+			
 			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
+            if (beam == null || !beam.Active)
+            {
+                beam.Die(null, true);
+
+                return;
+            }
+            this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			this.ToggleSoundOn = false;
 			if ((this.owner.GetSystem() != null && this.owner.GetSystem().isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
@@ -467,7 +515,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if (this.fireCueName != "")
+                    if (!string.IsNullOrEmpty(this.fireCueName))
                     {
                         this.fireCue = AudioManager.GetCue(this.fireCueName);
                         if (!this.owner.isPlayerShip())
@@ -477,7 +525,7 @@ namespace Ship_Game.Gameplay
                         this.fireCue.Play();
                     }
                 }
-                if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+                if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)
                 {
                     this.ToggleSoundOn = true;
                     this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -494,21 +542,38 @@ namespace Ship_Game.Gameplay
             {
                 Weapon AltFire = ResourceManager.GetWeapon(this.SecondaryFire);
                 Projectile projectile;
-                projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
                 {
-                    range = AltFire.Range,
-                    weapon = this,
-                    explodes = AltFire.explodes,
-                    damageAmount = AltFire.DamageAmount,
-                    damageRadius = AltFire.DamageRadius,
-                    explosionradiusmod = AltFire.ExplosionRadiusVisual,
-                    Health = AltFire.HitPoints,
-                    speed = AltFire.ProjectileSpeed,
-                    WeaponEffectType = AltFire.WeaponEffectType,
-                    WeaponType = AltFire.WeaponType,
-                    RotationRadsPerSecond = AltFire.RotationRadsPerSecond,
-                    ArmorPiercing = (byte)AltFire.ArmourPen,
-                };
+                    projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
+                    projectile.range = AltFire.Range;
+                    projectile.weapon = this;
+                    projectile.explodes = AltFire.explodes;
+                    projectile.damageAmount = AltFire.DamageAmount;
+                    projectile.damageRadius = AltFire.DamageRadius;
+                    projectile.explosionradiusmod = AltFire.ExplosionRadiusVisual;
+                    projectile.Health = AltFire.HitPoints;
+                    projectile.speed = AltFire.ProjectileSpeed;
+                    projectile.WeaponEffectType = AltFire.WeaponEffectType;
+                    projectile.WeaponType = AltFire.WeaponType;
+                    projectile.RotationRadsPerSecond = AltFire.RotationRadsPerSecond;
+                    projectile.ArmorPiercing = (byte)AltFire.ArmourPen;
+                }
+                else
+                    projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+                    {
+                        range = AltFire.Range,
+                        weapon = this,
+                        explodes = AltFire.explodes,
+                        damageAmount = AltFire.DamageAmount,
+                        damageRadius = AltFire.DamageRadius,
+                        explosionradiusmod = AltFire.ExplosionRadiusVisual,
+                        Health = AltFire.HitPoints,
+                        speed = AltFire.ProjectileSpeed,
+                        WeaponEffectType = AltFire.WeaponEffectType,
+                        WeaponType = AltFire.WeaponType,
+                        RotationRadsPerSecond = AltFire.RotationRadsPerSecond,
+                        ArmorPiercing = (byte)AltFire.ArmourPen,
+                    };
                 //damage increase by level
                 if (this.owner.Level > 0)
                 {
@@ -540,7 +605,7 @@ namespace Ship_Game.Gameplay
                 if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
                 {
                     projectile.DieSound = true;
-                    if (this.ToggleSoundName != "" && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
+                    if (!string.IsNullOrEmpty(this.ToggleSoundName) && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
                     {
                         this.ToggleSoundOn = true;
                         this.ToggleCue = AudioManager.GetCue(AltFire.ToggleSoundName);
@@ -572,7 +637,7 @@ namespace Ship_Game.Gameplay
                     {
                         projectile.dieCueName = ResourceManager.WeaponsDict[AltFire.UID].dieCue;
                     }
-                    if (this.InFlightCue != "")
+                    if (!string.IsNullOrEmpty(this.InFlightCue))
                     {
                         projectile.InFlightCue = AltFire.InFlightCue;
                     }
@@ -605,7 +670,24 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                Projectile projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
+                Projectile projectile;
+                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
+                {
+                    projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
+                    projectile.range = this.Range;
+                    projectile.weapon = this;
+                    projectile.explodes = this.explodes;
+                    projectile.damageAmount = this.DamageAmount;
+                    projectile.damageRadius = this.DamageRadius;
+                    projectile.explosionradiusmod = this.ExplosionRadiusVisual;
+                    projectile.Health = this.HitPoints;
+                    projectile.speed = this.ProjectileSpeed;
+                    projectile.WeaponEffectType = this.WeaponEffectType;
+                    projectile.WeaponType = this.WeaponType;
+                    projectile.RotationRadsPerSecond = this.RotationRadsPerSecond;
+                    projectile.ArmorPiercing = (byte)this.ArmourPen;
+                }
+                projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
                 {
                     range = this.Range,
                     weapon = this,
@@ -651,7 +733,7 @@ namespace Ship_Game.Gameplay
                 if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
                 {
                     projectile.DieSound = true;
-                    if (this.ToggleSoundName != "" && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
+                    if (!string.IsNullOrEmpty(this.ToggleSoundName) && (this.ToggleCue == null || this.ToggleCue != null && !this.ToggleCue.IsPlaying))
                     {
                         this.ToggleSoundOn = true;
                         this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -683,7 +765,7 @@ namespace Ship_Game.Gameplay
                     {
                         projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
                     }
-                    if (this.InFlightCue != "")
+                    if (!string.IsNullOrEmpty(this.InFlightCue))
                     {
                         projectile.InFlightCue = this.InFlightCue;
                     }
@@ -763,7 +845,7 @@ namespace Ship_Game.Gameplay
 			if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
 				projectile.DieSound = true;
-				if (this.ToggleSoundName != "" && !this.ToggleSoundOn)
+				if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)
 				{
 					this.ToggleSoundOn = true;
 					this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
@@ -792,7 +874,7 @@ namespace Ship_Game.Gameplay
 				{
 					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
 				}
-				if (this.InFlightCue != "")
+				if (!string.IsNullOrEmpty(this.InFlightCue))
 				{
 					projectile.InFlightCue = this.InFlightCue;
 				}
@@ -968,13 +1050,15 @@ namespace Ship_Game.Gameplay
             if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
 				return;
 			this.owner.InCombatTimer = 15f;
-            if (target is ShipModule)
-                (target as ShipModule).GetParent().InCombatTimer = 15f;
+
 			this.timeToNextFire = this.fireDelay;
-			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
+
+            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
+                //this.owner.supplyLock.EnterWriteLock();
                 this.owner.Ordinance -= this.OrdinanceRequiredToFire;
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
+                //this.owner.supplyLock.ExitWriteLock();
 				if (this.SalvoCount == 1)
 				{
 					if (this.FireArc != 0)
@@ -1050,6 +1134,7 @@ namespace Ship_Game.Gameplay
 					return;
 				}
 			}
+
 		}
 
 		public virtual void FireDrone(Vector2 direction)
@@ -1175,12 +1260,22 @@ namespace Ship_Game.Gameplay
 			}
 			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
-			if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
+            
+            if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
-                this.owner.Ordinance -= this.OrdinanceRequiredToFire;
+   
+                    this.CreateTargetedBeam(target);
+                
+                
+                
+
+                
+                
+                this.owner.Ordinance -= this.OrdinanceRequiredToFire;                
                 this.owner.PowerCurrent -= this.PowerRequiredToFire;
-				this.CreateTargetedBeam(target);
+				
 			}
+            
 		}
 
         public virtual void FireMouseBeam(Vector2 direction)
@@ -1325,7 +1420,7 @@ namespace Ship_Game.Gameplay
 				{
 					projectile.dieCueName = ResourceManager.WeaponsDict[this.UID].dieCue;
 				}
-				if (this.InFlightCue != "")
+				if (!string.IsNullOrEmpty(this.InFlightCue))
 				{
 					projectile.InFlightCue = this.InFlightCue;
 				}
@@ -1550,6 +1645,29 @@ namespace Ship_Game.Gameplay
             if (this.Excludes_Stations && (Role == "platform" || Role == "station"))
                 return false;
             return true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~Weapon() { Dispose(false); }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.SalvoList != null)
+                        this.SalvoList.Dispose();
+
+                }
+                this.SalvoList = null;
+                this.disposed = true;
+            }
         }
 	}
 }

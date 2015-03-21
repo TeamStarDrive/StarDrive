@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class PlanetListScreen : GameScreen, IDisposable
+	public sealed class PlanetListScreen : GameScreen, IDisposable
 	{
 		//private bool LowRes;
 
@@ -50,6 +50,7 @@ namespace Ship_Game
 
 		private Checkbox cb_hideUninhabitable;
 
+
 		private bool HideOwned;
 
 		private bool HideUninhab = true;
@@ -61,6 +62,9 @@ namespace Ship_Game
 		private SortButton LastSorted;
 
 		private Rectangle AutoButton;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		//private bool AutoButtonHover;
 
@@ -95,7 +99,7 @@ namespace Ship_Game
 			this.eRect.Height = this.eRect.Height - 20;
 			this.ShipSubMenu = new Submenu(ScreenManager, this.eRect);
 			this.PlanetSL = new ScrollList(this.ShipSubMenu, 40);
-			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+			foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance=> Vector2.Distance(distance.Position,EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetWeightedCenter())))
 			{
 				foreach (Planet p in system.PlanetList)
 				{
@@ -129,21 +133,27 @@ namespace Ship_Game
 			this.AutoButton = new Rectangle(0, 0, 243, 33);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~PlanetListScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.PlanetSL != null)
+                        this.PlanetSL.Dispose();
+                }
+                this.PlanetSL = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -256,20 +266,6 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~PlanetListScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{

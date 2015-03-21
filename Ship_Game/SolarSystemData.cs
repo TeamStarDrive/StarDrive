@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class SolarSystemData
+	public sealed class SolarSystemData
 	{
 		public string Name;
 

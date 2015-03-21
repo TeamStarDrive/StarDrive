@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class FleetDesign
+	public sealed class FleetDesign
 	{
 		public List<FleetDataNode> Data = new List<FleetDataNode>();
 

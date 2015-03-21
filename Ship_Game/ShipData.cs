@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ShipData
+	public sealed class ShipData
 	{
 		public bool Animated;
 
@@ -56,6 +56,13 @@ namespace Ship_Game
         public float BaseStrength;
         public bool BaseCanWarp;
 		public List<ModuleSlotData> ModuleSlotList = new List<ModuleSlotData>();
+        public bool hullUnlockable = false;
+        public bool allModulesUnlocakable = true;
+        public bool unLockable = false;
+        //public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
+        public HashSet<string> techsNeeded = new HashSet<string>();
+        public ushort TechScore = 0;
+        //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
 
 		public ShipData()
 		{

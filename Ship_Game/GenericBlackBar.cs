@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class GenericBlackBar : GameScreen, IDisposable
+	public sealed class GenericBlackBar : GameScreen
 	{
 		private Matrix worldMatrix = Matrix.Identity;
 
@@ -71,22 +71,6 @@ namespace Ship_Game
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)

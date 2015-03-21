@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-	public class GlobalStats
+	public sealed class GlobalStats
 	{
         public static int ComparisonCounter;
 
@@ -16,7 +16,7 @@ namespace Ship_Game
 		public static bool HardcoreRuleset;
 
 		public static bool TakingInput;
-
+        
 		public static bool WarpInSystem;
 
 		public static float FTLInSystemModifier;
@@ -127,10 +127,11 @@ namespace Ship_Game
         public static int ScriptedTechWithin = 6;
         public static bool perf;
         public static float DefensePlatformLimit = .025f;
-        public static ReaderWriterLockSlim SlimSensorNodeLocker;
+        public static ReaderWriterLockSlim UILocker;
+        public static int BeamOOM = 0;
 		static GlobalStats()
 		{
-            GlobalStats.SlimSensorNodeLocker = new ReaderWriterLockSlim();
+            GlobalStats.UILocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
             GlobalStats.ComparisonCounter = 1;
 			GlobalStats.Comparisons = 0;
 			GlobalStats.HardcoreRuleset = false;

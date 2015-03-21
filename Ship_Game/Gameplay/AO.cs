@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class AO
+	public sealed class AO : IDisposable
 	{
 		public int ThreatLevel;
 
@@ -37,6 +37,9 @@ namespace Ship_Game.Gameplay
 
 		public int TurnsToRelax;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public Vector2 Position
 		{
 			get
@@ -55,7 +58,7 @@ namespace Ship_Game.Gameplay
 			this.CoreWorld = p;
 			this.CoreWorldGuid = p.guid;
 			this.WhichFleet = p.Owner.GetUnusedKeyForFleet();
-			p.Owner.GetFleetsDict().Add(this.WhichFleet, this.CoreFleet);
+			p.Owner.GetFleetsDict().TryAdd(this.WhichFleet, this.CoreFleet);
 			this.CoreFleet.Name = "Core Fleet";
 			this.CoreFleet.Position = p.Position;
 			this.CoreFleet.Owner = p.Owner;
@@ -222,5 +225,32 @@ namespace Ship_Game.Gameplay
 				this.TurnsToRelax = 0;
 			}
 		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~AO() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.OffensiveForcePool != null)
+                        this.OffensiveForcePool.Dispose();
+                    if (this.DefensiveForcePool != null)
+                        this.DefensiveForcePool.Dispose();
+                    if (this.CoreFleet != null)
+                        this.CoreFleet.Dispose();
+                }
+                this.OffensiveForcePool = null;
+                this.DefensiveForcePool = null;
+                this.CoreFleet = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

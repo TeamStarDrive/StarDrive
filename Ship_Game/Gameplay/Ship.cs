@@ -19,11 +19,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Configuration;
+using System.Threading;
 
 
 namespace Ship_Game.Gameplay
 {
-    public class Ship : GameplayObject
+    public class Ship : GameplayObject, IDisposable
     {
         public string VanityName = "";
         public List<Troop> TroopList = new List<Troop>();
@@ -193,6 +194,7 @@ namespace Ship_Game.Gameplay
         public bool IsIndangerousSpace;
         public bool IsInNeutralSpace;
         public bool IsInFriendlySpace;
+        //public Dictionary<Empire, diplomacticSpace> BorderState = new Dictionary<Empire, diplomacticSpace>();
         public List<ShipModule> Transporters = new List<ShipModule>();
         public List<ShipModule> RepairBeams = new List<ShipModule>();
         public bool hasTransporter;
@@ -201,7 +203,23 @@ namespace Ship_Game.Gameplay
         public bool hasRepairBeam;
         public bool hasCommand;
         private float FTLmodifier = 1f;
+        public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
+        Random shiprandom = new Random();
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+        List<ModuleSlot> AttackerTargetting;
+        Ship lastAttacker;
 
+        public ushort purgeCount =0;
+
+        //public class diplomacticSpace
+        //{
+        //    public bool IsIndangerousSpace= false;
+        //    public bool IsInNeutralSpace= false;
+        //    public bool IsInFriendlySpace= false;
+
+        //}
+        
         public float CargoSpace_Used
         {
             get
@@ -240,11 +258,17 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                foreach (ShipModule shipModule in this.Hangars)
-                {
-                    if (shipModule.IsSupplyBay)
-                        return true;
-                }
+                if(this.Hangars.Count >0)
+                    try
+                    {
+                        foreach (ShipModule shipModule in this.Hangars)
+                        {
+                            if (shipModule.IsSupplyBay)
+                                return true;
+                        }
+                    }
+                catch
+                    { }
                 return false;
             }
         }
@@ -266,6 +290,8 @@ namespace Ship_Game.Gameplay
             get
             {
                 bool flag = false;
+                if (this.Hangars.Count <= 0)
+                    return false;
                 for (int index = 0; index < this.Hangars.Count; ++index)
                 {
                     try
@@ -460,6 +486,49 @@ namespace Ship_Game.Gameplay
                     this.ResourceDrawDict.Add(keyValuePair.Key, 0.0f);
                 }
             }
+        }
+        public void ShipRecreate()
+        {
+            this.Active = false;
+            this.AI.Target = (GameplayObject)null;
+            this.AI.ColonizeTarget = (Planet)null;
+            this.AI.EscortTarget = (Ship)null;
+            this.AI.start = (Planet)null;
+            this.AI.end = (Planet)null;
+            this.AI.PotentialTargets.Clear();
+            this.AI.NearbyShips.Clear();
+            this.AI.FriendliesNearby.Clear();
+           
+           
+            if (this.system != null)
+            {
+                this.system.ShipList.QueuePendingRemoval(this);
+                this.system.spatialManager.CollidableObjects.Remove((GameplayObject)this);
+            }
+            if (this.Mothership != null)
+            {
+                foreach (ShipModule shipModule in this.Mothership.Hangars)
+                {
+                    if (shipModule.GetHangarShip() == this)
+                        shipModule.SetHangarShip((Ship)null);
+                }
+            }
+            else if (this.isInDeepSpace)
+                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove((GameplayObject)this);
+            for (int index = 0; index < this.projectiles.Count; ++index)
+                this.projectiles[index].Die((GameplayObject)this, false);
+            this.projectiles.Clear();
+
+            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                moduleSlot.module.Clear();
+            this.ModuleSlotList.Clear();
+            this.TroopList.Clear();
+            this.RemoveFromAllFleets();
+            this.ShipSO.Clear();
+
+            this.loyalty.RemoveShip(this);
+            this.system = (SolarSystem)null;
+            this.TetheredTo = (Planet)null;
         }
 
         public Ship(Vector2 pos, Vector2 dim, float rot)
@@ -1114,6 +1183,10 @@ namespace Ship_Game.Gameplay
 
         public float GetMaintCost()
         {
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+            {
+                return this.GetMaintCostRealism();
+            }
             float maint = 0f;
             string role = this.Role;
             string str = role;
@@ -1240,9 +1313,13 @@ namespace Ship_Game.Gameplay
 
         // The Doctor - This function is an overload which is used for the Ship Build menu.
         // It will calculate the maintenance cost in exactly the same way as the normal function, except as the ship build list elements have no loyalty data, this variable is called by the function
-
+        //CG modified so that the original function will call the mod only function if a mod is present and such.
         public float GetMaintCost(Empire empire)
         {
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+            {
+                return this.GetMaintCostRealism(empire);
+            }
             float maint = 0f;
             string role = this.Role;
             string str = role;
@@ -1981,7 +2058,7 @@ namespace Ship_Game.Gameplay
 
         public void RenderOverlay(SpriteBatch spriteBatch, Rectangle where, bool ShowModules)
         {
-            if (Ship_Game.ResourceManager.HullsDict.ContainsKey(this.shipData.Hull) && Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic != "" && !ShowModules)
+            if (Ship_Game.ResourceManager.HullsDict.ContainsKey(this.shipData.Hull) && !string.IsNullOrEmpty(Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic) && !ShowModules)
             {
                 Rectangle destinationRectangle = where;
                 destinationRectangle.X += 2;
@@ -1992,7 +2069,7 @@ namespace Ship_Game.Gameplay
                     spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["SelectionBox Ships/" + Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic + "_shields"], destinationRectangle, new Color(Color.White, (byte)num));
                 }
             }
-            if (!ShowModules && Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic != "" || this.ModuleSlotList.Count == 0)
+            if (!ShowModules && !string.IsNullOrEmpty(Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic) || this.ModuleSlotList.Count == 0)
                 return;
             IOrderedEnumerable<ModuleSlot> orderedEnumerable1 = Enumerable.OrderBy<ModuleSlot, float>((IEnumerable<ModuleSlot>)this.ModuleSlotList, (Func<ModuleSlot, float>)(slot => slot.Position.X));
             if (Enumerable.Count<ModuleSlot>((IEnumerable<ModuleSlot>)orderedEnumerable1) == 0)
@@ -2497,11 +2574,11 @@ namespace Ship_Game.Gameplay
                     {
                         if ((double)Vector2.Distance(p.Position, this.Center) < 3000.0)
                         {
-                            if (this.loyalty == Ship.universeScreen.player&&!p.ExploredDict[this.loyalty])
+                            if (this.loyalty == Ship.universeScreen.player && !p.ExploredDict[this.loyalty])
                             {
                                 foreach (Building building in p.BuildingList)
                                 {
-                                    if (building.EventTriggerUID != "")
+                                    if (!string.IsNullOrEmpty(building.EventTriggerUID))
                                         Ship.universeScreen.NotificationManager.AddFoundSomethingInteresting(p);
                                 }
                             }
@@ -2510,7 +2587,7 @@ namespace Ship_Game.Gameplay
                                 p.ExploredDict[this.loyalty] = true;
                                 foreach (Building building in p.BuildingList)
                                 {
-                                    if (building.EventTriggerUID != "" && this.loyalty != Ship.universeScreen.player && p.Owner == null)
+                                    if (!string.IsNullOrEmpty(building.EventTriggerUID) && this.loyalty != Ship.universeScreen.player && p.Owner == null)
                                     {
                                         MilitaryTask militaryTask = new MilitaryTask();
                                         militaryTask.AO = p.Position;
@@ -2639,10 +2716,13 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
+                    if (this.isSpooling)
+                        this.fightersOut = false;
                     if (this.isSpooling && !this.Inhibited)
                     {
                         this.JumpTimer -= elapsedTime;
                         //task gremlin move fighter recall here.
+
                         if ((double)this.JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
                         {
                             if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying) && Ship.universeScreen.camHeight < 250000)
@@ -2692,23 +2772,25 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
-                    if (this.GetAI().fireTask !=null && !this.GetAI().fireTask.IsCompleted)
+                    if (this.GetAI().fireTask != null && !this.GetAI().fireTask.IsCompleted)
                     {
                         this.GetAI().fireTask.Wait();
-                        //this.GetAI().fireTask.Dispose();
+
                     }
                     //task gremlin look at parallel here for weapons
-                    //foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
-                    Parallel.ForEach<Projectile>(this.projectiles, projectile =>
+                    foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
+                    //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
                     {
                         if (projectile != null && projectile.Active)
                             projectile.Update(elapsedTime);
                         else
+                        {
+                           // projectile.Die(null, true);
                             this.Projectiles.QueuePendingRemoval(projectile);
-                    });
+                        }
+                    }//);
 
-                    //foreach (Beam beam in (List<Beam>)this.beams)                    
-                    Parallel.ForEach(this.beams, beam =>
+                    foreach (Beam beam in (List<Beam>)this.beams)
                     {
                         Vector2 origin = new Vector2();
                         if (beam.moduleAttachedTo != null)
@@ -2723,19 +2805,31 @@ namespace Ship_Game.Gameplay
                             float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
                             float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
                             origin = HelperFunctions.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
-                        }
-                        int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
-                        beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
-                        if ((double)beam.duration < 0.0 && !beam.infinite)
-                            this.beams.QueuePendingRemoval(beam);
-                    });
-                    this.beams.ApplyPendingRemovals();
-                }
 
+                            int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
+                            beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
+                            if ((double)beam.duration < 0.0 && !beam.infinite)
+                            {
+                                beam.Die(null, false);
+                                this.beams.QueuePendingRemoval(beam);
+                            }
+                        }
+                        else
+                        {
+                            beam.Die(null, false);
+                            this.beams.QueuePendingRemoval(beam);
+                        }
+                    }//);
+                    //this.beams.thisLock.ExitReadLock();
+                    
+                    this.beams.ApplyPendingRemovals();
+                    //foreach (Projectile projectile in this.projectiles.pendingRemovals)
+                    //    projectile.Die(null,false);
+                    this.Projectiles.ApplyPendingRemovals();
+
+                    
+                }
             }
-            this.Projectiles.ApplyPendingRemovals();
-            this.VelocityLast = this.Velocity;
-            base.Update(elapsedTime);
         }
 
         private void CheckAndPowerConduit(ModuleSlot slot)
@@ -3320,7 +3414,7 @@ namespace Ship_Game.Gameplay
                 foreach (ModuleSlot slot in this.ModuleSlotList)
                     slot.module.Update(1f);
                 //Check Current Shields
-                if (this.engineState == Ship.MoveState.Warp)
+                if (this.engineState == Ship.MoveState.Warp || !this.ShieldsUp)
                     this.shield_power = 0f;
                 else
                 {
@@ -3719,7 +3813,7 @@ namespace Ship_Game.Gameplay
         public float GetStrength()
         {
             
-            if (this.Health >= this.HealthMax * .90)
+            if (this.Health >= this.HealthMax * .75)
                 return this.BaseStrength;
             float Str = 0f;
             float def = 0f;
@@ -3869,6 +3963,8 @@ namespace Ship_Game.Gameplay
             for (int index = 0; index < this.beams.Count; ++index)
                 this.beams[index].Die((GameplayObject)this, true);
             this.beams.Clear();
+            this.beams.ApplyPendingRemovals();
+
             ++DebugInfoScreen.ShipsDied;
             Projectile Psource = source as Projectile;
             //if (!cleanupOnly && source is Projectile && (source as Projectile).owner != null)
@@ -4006,8 +4102,19 @@ namespace Ship_Game.Gameplay
 
         public void QueueTotalRemoval()
         {
-            lock (GlobalStats.AddShipLocker)
+            //lock (GlobalStats.AddShipLocker)
+            //if (Ship.universeScreen.SelectedShip == this)
+            //    lock (this.GetAI().wayPointLocker)
+            //    {
+
+
+            //        Ship.universeScreen.SelectedShip = null;
+
+            //        Ship.universeScreen.ShipsToRemove.Add(this);
+            //    }
+            //else
                 Ship.universeScreen.ShipsToRemove.Add(this);
+
 
         }
 
@@ -4023,7 +4130,7 @@ namespace Ship_Game.Gameplay
             this.AI.NearbyShips.Clear();
             this.AI.FriendliesNearby.Clear();
             Ship.universeScreen.MasterShipList.QueuePendingRemoval(this);
-            UniverseScreen.ShipSpatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
+            //UniverseScreen.ShipSpatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
             if (Ship.universeScreen.SelectedShip == this)
                 Ship.universeScreen.SelectedShip = (Ship)null;
             if (Ship.universeScreen.SelectedShipList.Contains(this))
@@ -4031,8 +4138,10 @@ namespace Ship_Game.Gameplay
             if (this.system != null)
             {
                 this.system.ShipList.QueuePendingRemoval(this);
-                this.system.spatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
+                this.system.spatialManager.CollidableObjects.Remove((GameplayObject)this);
             }
+            else if (this.isInDeepSpace)
+                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove((GameplayObject)this);
             if (this.Mothership != null)
             {
                 foreach (ShipModule shipModule in this.Mothership.Hangars)
@@ -4041,11 +4150,11 @@ namespace Ship_Game.Gameplay
                         shipModule.SetHangarShip((Ship)null);
                 }
             }
-            else if (this.isInDeepSpace)
-                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove((GameplayObject)this);
+
             for (int index = 0; index < this.projectiles.Count; ++index)
                 this.projectiles[index].Die((GameplayObject)this, false);
             this.projectiles.Clear();
+            this.projectiles.ApplyPendingRemovals();
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                 moduleSlot.module.Clear();
             this.ModuleSlotList.Clear();
@@ -4084,170 +4193,265 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~Ship() { Dispose(false); }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.projectiles != null)
+                        this.projectiles.Dispose();
+                    if (this.beams != null)
+                        this.beams.Dispose();
+                    if (this.supplyLock != null)
+                        this.supplyLock.Dispose();
+                    if (this.AI != null)
+                        this.AI.Dispose();
+                    if (this.ProjectilesFired != null)
+                        this.ProjectilesFired.Dispose();
+
+                }
+                this.projectiles = null;
+                this.beams = null;
+                this.supplyLock = null;
+                this.AI = null;
+                this.ProjectilesFired = null;
+                this.disposed = true;
+            }
+        }
+        
+        public class target
+        {
+            public ShipModule module;
+           public  int weight;
+
+            public target(ShipModule module, int weight)
+            {
+                this.module = module;
+                this.weight = weight;
+            }
+        }
+        
+        
         public ShipModule GetRandomInternalModule(Weapon source)
         {
-            List<ShipModule> InternalModules = new List<ShipModule>();
-            //foreach (ModuleSlot slot in this.ModuleSlotList)
-            //foreach (ModuleSlot slot in this.ExternalSlots)
-            ShipModule closest = null;
-            for (int x=0; x< this.ExternalSlots.Count;x++ )
+            int level = 0;
+            if (source.GetOwner() != null)
+                level = source.GetOwner().Level;
+            if(source.GetOwner() != null && lastAttacker == source.GetOwner())
             {
-                ModuleSlot slot;
-                try
-                {
-                    slot = this.ExternalSlots[x];
-                }
-                catch
-                {
-                    continue;
-                }
-                if (slot == null)
-                    continue;
-                ShipModule slot2;
-                try
-                {
-                    slot2 = slot.module;
-                }
-                catch
-                {
-                    continue;
-                }
-                if (slot2 == null)
-                    continue;
 
-                //if (source.GetOwner().GetAI().CombatState == CombatState.AttackRuns)
-                {
-                    if (closest == null)
-                        closest = slot2;
-                    else
-                    {
-                        float distance = Vector2.Distance(source.Center, slot2.Center);//source.GetOwner().Center,slot2.Center);
-                        if (distance > source.Range)
-                            continue;
-                        float distancetoClosest = Vector2.Distance(source.Center, closest.Center);
-                        if (distance < distancetoClosest)
-                            closest = slot2;
 
-                    }
-
-                }
-                //if (Vector2.Distance(source.Center, slot2.Center) > source.Range)
-                //    continue;
- 
-                //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
-                if (slot2.ModuleType != ShipModuleType.Dummy&& slot2.Active)
-                    InternalModules.Add(slot.module);
+                if (this.AttackerTargetting.Count == 0)
+                    return null;
+                int randomizer = this.AttackerTargetting.Count() / (level + 2);//level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
+                return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
             }
-            if (InternalModules.Count > 0)
-            {
-                if (source.GetOwner() ==null || source.GetOwner().Level <2)
-                return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+            float ourside = Vector2.Distance(this.Center, source.Center);
+            //IOrderedEnumerable
+            this.AttackerTargetting = this.ModuleSlotList//.AsParallel()
+                .Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active && slot.module.Health > 0.0)
+                .OrderByDescending(distance => Vector2.Distance(distance.module.Center, source.Center) < ourside)
+                .ThenByDescending(slot => slot.module.TargetValue + (slot.module.isExternal ? -5 : 0) + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+                
+                .ToList();            
+                         level = 0;
+            if (source.GetOwner() != null)
+                level = source.GetOwner().Level;
 
-                int skill = InternalModules.Count / (source.GetOwner().Level + 2);
-                int random = HelperFunctions.GetRandomIndex((int)skill);
-                float healthTarget =1 / (source.GetOwner().Level+1);
-                //if (source.GetOwner().Level >1)
-
-                return InternalModules.OrderBy(damage => damage.Health)
-                    //.ThenBy(close => Vector2.Distance(close.Center, closest.Center) )
-                    .ElementAt(random);
-
-                //return InternalModules.OrderBy(close => Vector2.Distance(close.Center, closest.Center)).First(); //[HelperFunctions.GetRandomIndex(InternalModules.Count)];
-                // return closest;
-            }
-            else
+            if (this.AttackerTargetting.Count == 0)
                 return null;
+            int randomizer2 = this.AttackerTargetting.Count() / (level + 2);// level > 0 ? this.AttackerTargetting.Count() / (level + 2) : this.AttackerTargetting.Count();
+
+            return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer2)].module;
+            
+            
+            ////BatchRemovalCollection<target> InternalModules = new BatchRemovalCollection<target>();
+            //List<ShipModule> InternalModules = new List<ShipModule>();
+            ////int[] InternalModules = new int[];
+            ////List<int> InternalModules = new List<int>();
+            ////int level = 0;
+            //if (source.GetOwner() != null)
+            //    level = source.GetOwner().Level;
+            
+            ////int weight = 0;
+            ////int index = -1;
+            ////int weaponsCount = 5; // source.GetOwner().Weapons.Count;
+            // ShipModule slot2;
+            //foreach (ModuleSlot slot in this.ModuleSlotList)                           
+            ////Parallel.ForEach(this.ModuleSlotList, slot =>
+            //{
+                
+            //    //weight = 0;
+            //    if (slot == null)
+            //        continue;
+            //        //return;
+              
+            //    try
+            //    {
+            //        slot2 = slot.module;
+            //    }
+            //    catch
+            //    {
+            //        continue;
+            //        //return;
+            //    }
+            //    if (slot2 == null)
+            //        continue;
+            //        //return;
+            //    if (slot2.ModuleType == ShipModuleType.Dummy  || !slot2.Active || slot2.Health <= 0.0)
+            //        continue;
+            //        //return;
+
+               
+            //    InternalModules.Add(slot2);
+            //}//);
+            //if (InternalModules.Count > 0)
+            //{
+            //    ShipModule target;
+
+            //    //Fix collision model to fix this.
+            //    float ourside = Vector2.Distance(this.Center, source.Center);
+            //    int randomizer = level > 0 ? InternalModules.Count / (level+1) : InternalModules.Count;
+            //    //IOrderedEnumerable<ShipModule> targets = InternalModules
+            //    //    .OrderByDescending(slot => slot.TargetValue + (slot.isExternal ? -5 : 0) + (slot.Health < slot.HealthMax ? 1 : 0))
+            //    //    .ThenBy(distance => Vector2.Distance(distance.Center, source.Center) < ourside);
+            //    //target = targets.ElementAt(HelperFunctions.GetRandomIndex(randomizer));
+            //    target = InternalModules[HelperFunctions.GetRandomIndex(randomizer)];
+            //    return target;
+            //}
+            //else
+            //    return null;
         }
 
         public ShipModule GetRandomInternalModule(Projectile source)
         {
-            List<ShipModule> InternalModules = new List<ShipModule>();
-            //foreach (ModuleSlot slot in this.ModuleSlotList)
-            //foreach (ModuleSlot slot in this.ExternalSlots)
-            ShipModule closest = null;
-            for (int x = 0; x < this.ExternalSlots.Count; x++)
+
+            int level = 0;
+            if (source.Owner != null)
+                level = source.Owner.Level;
+            if (source.Owner != null && lastAttacker == source.Owner)
             {
-                ModuleSlot slot;
-                try
-                {
-                    slot = this.ExternalSlots[x];
-                }
-                catch
-                {
-                    continue;
-                }
-                if (slot == null)
-                    continue;
-                ShipModule slot2;
-                try
-                {
-                    slot2 = slot.module;
-                }
-                catch
-                {
-                    continue;
-                }
-                if (slot2 == null)
-                    continue;
-                if (Vector2.Distance(source.Center, slot2.Center) > source.range)
-                    continue;
-                {
-                    if (closest == null)
-                        closest = slot2;
-                    else
-                    {
-                        float distance = Vector2.Distance(source.Center, slot2.Center);//source.GetOwner().Center,slot2.Center);
-                        float distancetoClosest = Vector2.Distance(source.Center, closest.Center);
-                        if (distance < distancetoClosest)
-                            closest = slot2;
 
-                    }
 
-                }
-                //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
-                if (slot2.ModuleType != ShipModuleType.Dummy && slot2.Active)
-                    InternalModules.Add(slot.module);
+                if (this.AttackerTargetting.Count == 0)
+                    return null;
+                int randomizer = level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
+                return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
             }
+            float ourside = Vector2.Distance(this.Center, source.Center);
+            //IOrderedEnumerable
+            this.AttackerTargetting = this.ModuleSlotList
+                .Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active && slot.module.Health > 0.0)
+                .OrderByDescending(slot => slot.module.TargetValue + (slot.module.isExternal ? -5 : 0) + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+                .ThenBy(distance => Vector2.Distance(distance.module.Center, source.Center) < ourside)
+                .ToList();
+            level = 0;
+            if (source.Owner != null)
+                level = source.Owner.Level;
 
-            if (InternalModules.Count > 0)
-            {
-                int level = 0;
-                if (source.Planet != null)
-                    level = source.Planet.developmentLevel;
-                else if (source.Owner != null)
-                    level = source.Owner.Level;
-                else 
-                    return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
-                if(level <2)
-                    return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
-
-                    int skill = InternalModules.Count / (level + 2);
-                int random = HelperFunctions.GetRandomIndex((int)skill);
-                float healthTarget = 1 / (level + 1);
-                //if (source.GetOwner().Level >1)
-
-                return InternalModules.OrderBy(damage => damage.Health)
-                    .ThenBy(close => Vector2.Distance(close.Center, closest.Center))
-                    .ElementAt(random);
-
-                //return InternalModules.OrderBy(close => Vector2.Distance(close.Center, closest.Center)).First(); //[HelperFunctions.GetRandomIndex(InternalModules.Count)];
-                // return closest;
-            }
-            else
+            if (this.AttackerTargetting.Count == 0)
                 return null;
+            int randomizer2 = level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
+
+            return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer2)].module;
+            
+            
+            //List<ShipModule> InternalModules = new List<ShipModule>();
+            ////foreach (ModuleSlot slot in this.ModuleSlotList)
+            ////foreach (ModuleSlot slot in this.ExternalSlots)
+            //ShipModule closest = null;
+            //for (int x = 0; x < this.ExternalSlots.Count; x++)
+            //{
+            //    ModuleSlot slot;
+            //    try
+            //    {
+            //        slot = this.ExternalSlots[x];
+            //    }
+            //    catch
+            //    {
+            //        continue;
+            //    }
+            //    if (slot == null)
+            //        continue;
+            //    ShipModule slot2;
+            //    try
+            //    {
+            //        slot2 = slot.module;
+            //    }
+            //    catch
+            //    {
+            //        continue;
+            //    }
+            //    if (slot2 == null)
+            //        continue;
+            //    //if (slot.Restrictions == Restrictions.I && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active )
+            //    if (slot2.ModuleType != ShipModuleType.Dummy && slot2.Active)
+            //        InternalModules.Add(slot.module);
+ 
+            //    {
+            //        if (closest == null)
+            //            closest = slot2;
+            //        else
+            //        {
+            //            float distance = Vector2.Distance(source.Center, slot2.Center);//source.GetOwner().Center,slot2.Center);
+            //            float distancetoClosest = Vector2.Distance(source.Center, closest.Center);
+            //            if (distance < distancetoClosest)
+            //                closest = slot2;
+
+            //        }
+
+            //    }
+            //}
+
+            //if (InternalModules.Count > 0)
+            //{
+            //    int level = 0;
+            //    if (source.Planet != null)
+            //        level = source.Planet.developmentLevel;
+            //    else if (source.Owner != null)
+            //        level = source.Owner.Level;
+            //    else 
+            //        return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+            //    if(level <2)
+            //        return InternalModules[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+
+            //        int skill = InternalModules.Count / (level + 2);
+            //    int random = HelperFunctions.GetRandomIndex((int)skill);
+            //    float healthTarget = 1 / (level + 1);
+            //    //if (source.GetOwner().Level >1)
+
+            //    return InternalModules.OrderBy(damage => damage.Health)
+            //        .ThenBy(close => Vector2.Distance(close.Center, closest.Center))
+            //        .ElementAt(random);
+
+            //    //return InternalModules.OrderBy(close => Vector2.Distance(close.Center, closest.Center)).First(); //[HelperFunctions.GetRandomIndex(InternalModules.Count)];
+            //    // return closest;
+            //}
+            //else
+            //    return null;
         }
 
         public void UpdateShields()
         {
-            this.shield_power = 0.0f;
+             float shield_power = 0.0f;
             foreach (ShipModule shield in this.Shields)
             {
-                this.shield_power += shield.shield_power;
+                shield_power += shield.shield_power;
             }
-            if (this.shield_power > this.shield_max)
+            if (shield_power > this.shield_max)
             {
-                this.shield_power = this.shield_max;
+                shield_power = this.shield_max;
             }
+            this.shield_power = shield_power;
         }
 
         public virtual void StopAllSounds()

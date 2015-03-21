@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	internal class RoundLineManager
+	internal sealed class RoundLineManager : IDisposable
 	{
 		private GraphicsDevice device;
 
@@ -47,6 +47,9 @@ namespace Ship_Game
 		public int NumLinesDrawn;
 
 		public float BlurThreshold = 0.97f;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public string[] TechniqueNames
 		{
@@ -320,5 +323,33 @@ namespace Ship_Game
 			this.blurThresholdParameter = this.effect.Parameters["blurThreshold"];
 			this.CreateRoundLineMesh();
 		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~RoundLineManager() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.vb != null)
+                        this.vb.Dispose();
+                    if (this.vdecl != null)
+                        this.vdecl.Dispose();
+                    if (this.ib != null)
+                        this.ib.Dispose();
+
+                }
+                this.vb = null;
+                this.vdecl = null;
+                this.ib = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

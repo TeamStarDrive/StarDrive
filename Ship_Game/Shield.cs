@@ -6,7 +6,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Shield
+	public sealed class Shield
 	{
 		public static ContentManager content;
 

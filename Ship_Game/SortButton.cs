@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class SortButton
+	public sealed class SortButton
 	{
 		public string Text;
 

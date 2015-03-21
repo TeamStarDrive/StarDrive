@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class OptionsScreen : PopupWindow
+	public sealed class OptionsScreen : PopupWindow
 	{
 		public bool fade = true;
 
@@ -357,21 +357,6 @@ namespace Ship_Game
 			this.Apply.Text = Localizer.Token(13);
 		}
 
-		public new void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual new void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -419,10 +404,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		~OptionsScreen()
-		{
-			this.Dispose(false);
-		}
 
 		public override void HandleInput(InputState input)
 		{

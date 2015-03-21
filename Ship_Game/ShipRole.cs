@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Ship_Game
 {
-    public class ShipRole
+    public sealed class ShipRole
     {
         public string Name = "";
 

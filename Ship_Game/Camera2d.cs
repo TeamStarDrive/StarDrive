@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Camera2d
+	public sealed class Camera2d
 	{
 		protected float _zoom;
 

@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-    public class EspionageScreen : GameScreen, IDisposable
+    public sealed class EspionageScreen : GameScreen, IDisposable
     {
         private UniverseScreen screen;
 
@@ -48,6 +48,9 @@ namespace Ship_Game
 
 		private float TransitionElapsedTime;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public EspionageScreen(UniverseScreen screen)
 		{
 			this.screen = screen;
@@ -56,21 +59,31 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~EspionageScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.OperationsSL != null)
+                        this.OperationsSL.Dispose();
+                    if (this.AgentComponent != null)
+                        this.AgentComponent.Dispose();
+
+                }
+                this.OperationsSL = null;
+                this.AgentComponent = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -186,7 +199,8 @@ namespace Ship_Game
             {
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 25);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(6108), this.AgentComponent.SelectedAgent.Name), TextCursor, Color.Orange);
-                if (this.AgentComponent.SelectedAgent.HomePlanet == "" || this.AgentComponent.SelectedAgent.HomePlanet == null) 
+                //if (this.AgentComponent.SelectedAgent.HomePlanet == "" || this.AgentComponent.SelectedAgent.HomePlanet == null) 
+                if (string.IsNullOrEmpty(this.AgentComponent.SelectedAgent.HomePlanet))
                     this.AgentComponent.SelectedAgent.HomePlanet = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.HomeworldName; 
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 6);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6109), this.AgentComponent.SelectedAgent.HomePlanet), TextCursor, Color.LightGray);
@@ -357,10 +371,6 @@ namespace Ship_Game
 		}
 
 
-        ~EspionageScreen()
-        {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		private float GetMilitaryStr(Empire e)
 		{
@@ -554,5 +564,6 @@ namespace Ship_Game
 			transitionElapsedTime.TransitionElapsedTime = transitionElapsedTime.TransitionElapsedTime + elapsedTime;
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
+
     }
 }

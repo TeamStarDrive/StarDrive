@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class CreatingNewGameScreen : GameScreen
+    public sealed class CreatingNewGameScreen : GameScreen, IDisposable
     {
         private Matrix worldMatrix = Matrix.Identity;
         private float scale = 1f;
@@ -107,61 +107,61 @@ namespace Ship_Game
                 {
                     if (str1 == "Tiny")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(16f * StarNumModifier);
                         this.data.Size = new Vector2(3500000f, 3500000f);
                     }
                     else if (str1 == "Small")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(30f * StarNumModifier);
                         this.data.Size = new Vector2(7300000f, 7300000f);
                     }
                     else if (str1 == "Medium")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(50f * StarNumModifier);
                         this.data.Size = new Vector2(9350000f, 9350000f);
                     }
                     else if (str1 == "Large")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(75f * StarNumModifier);
                         this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
                     }
                     else if (str1 == "Huge")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(100f * StarNumModifier);
                         this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
                     }
                     else if (str1 == "Epic")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(100f * StarNumModifier);
                         this.data.Size = new Vector2(1.8E+07f * 2, 1.8E+07f * 2);
                         //this.scale = 2;
@@ -172,11 +172,11 @@ namespace Ship_Game
                     }
                     else if (str1 == "TrulyEpic")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(150f * StarNumModifier);
                         //this.numSystems = (int)(100f * StarNumModifier);
                         this.data.Size = new Vector2(1.8E+07f * 3f, 1.8E+07f * 3f);
@@ -253,13 +253,15 @@ namespace Ship_Game
                             removalCollection.Add(empireData);
                     }
                     int num = removalCollection.Count - this.numOpponents;
-                    for (int index1 = 0; index1 < num; ++index1)
+                    for (int opponents = 0; opponents < num; ++opponents)
                     {
                         int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count + 1));
                         if (index2 > removalCollection.Count - 1)
                             index2 = removalCollection.Count - 1;
                         removalCollection.RemoveAt(index2);
                     }
+
+
                     foreach (EmpireData data in (List<EmpireData>)removalCollection)
                     {
                         Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
@@ -866,7 +868,8 @@ namespace Ship_Game
             this.us.UpdateAllSystems(0.01f);
             this.mmscreen.OnPlaybackStopped((object)null, (EventArgs)null);
             this.ScreenManager.RemoveScreen((GameScreen)this.mmscreen);
-            this.Dispose();
+ 
+            //this.Dispose();
             this.ExitScreen();
         }
 
@@ -906,11 +909,23 @@ namespace Ship_Game
             GC.SuppressFinalize((object)this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposing)
                 return;
-            lock (this) { }
+            lock (this) {
+                if (this.WorkerBeginEvent != null)
+                    this.WorkerBeginEvent.Dispose();
+                if (this.WorkerCompletedEvent != null)
+                    this.WorkerCompletedEvent.Dispose();
+                if (this.us != null)
+                    this.us.Dispose();
+
+                this.WorkerBeginEvent = null;
+                this.WorkerCompletedEvent = null;
+                this.us = null;
+            }
+
                 
         }
 

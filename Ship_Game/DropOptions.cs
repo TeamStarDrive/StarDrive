@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DropOptions
+	public sealed class DropOptions
 	{
 		private DropOptions.RecTexPair TL;
 

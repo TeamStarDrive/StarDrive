@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class PieMenuNode
+	public sealed class PieMenuNode
 	{
 		public PieMenuNode parent;
 
