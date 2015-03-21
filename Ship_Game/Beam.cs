@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Beam : Projectile
+	public sealed class Beam : Projectile
 	{
 		public Vector3 Origin;
 
@@ -67,6 +67,9 @@ namespace Ship_Game
 
 		private float displacement = 1f;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public Beam()
 		{
 		}
@@ -108,7 +111,7 @@ namespace Ship_Game
 		{
 			this.Target = target;
 			this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
-			if (Owner.GetSystem() == null)
+            if (Owner.isInDeepSpace || Owner.GetSystem() == null)
 			{
 				UniverseScreen.DeepSpaceManager.BeamList.Add(this);
 			}
@@ -130,7 +133,76 @@ namespace Ship_Game
 			this.LowerRight = points[3];
 			this.FillVertices();
 		}
+        public void BeamRecreate(Vector2 srcCenter, int Thickness, Ship Owner, GameplayObject target)
+        {
+           
+           
+            this.ArmorDamageBonus = 0f;
+            this.ArmorPiercing = 0;
+            this.BeamOffsetAngle = 0f;
+            this.BeamZ = 0f;
+            this.Center = Vector2.Zero;
+            this.collidedThisFrame = false ;
+            this.damageAmount = 0;
+            this.damageRadius = 0;
+            this.DamageToggleOn = false;
+            this.displacement = 1f;
+            this.duration = 0;
+            this.Duration = 2f;
+            this.explodes = false;
+            this.firstRun = true;
+            this.owner = null;
+            this.hitLast = null;
+            this.HitModule = null;
+            this.IgnoresShields = false;
+            this.infinite = false;
+            this.isInDeepSpace = false;
+            this.LastDamagedBy = null;
+            this.loyalty = null;
+            
+            this.SetSystem(null);
+            this.thickness = 0;
+            this.weapon = null;
+            this.weaponEffect = "";
+            this.WeaponEffectType = "";
+            this.WeaponType = "";
+            this.ShieldDamageBonus = 0;
+            this.RotationRadsPerSecond = 0;
+            
 
+
+
+            this.Target = target;
+            this.owner = Owner;
+            Vector2 TargetPosition = Vector2.Normalize(target.Center);
+            if (Owner.InFrustum)
+            {
+                this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+            }
+            if (this.owner.isInDeepSpace || this.owner.GetSystem() == null)
+            {
+                UniverseScreen.DeepSpaceManager.BeamList.Add(this);
+            }
+            else
+            {
+                this.system = this.owner.GetSystem();
+                this.system.spatialManager.BeamList.Add(this);
+            }
+            this.Source = srcCenter;
+            this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, TargetPosition));
+            this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
+            this.ActualHitDestination = this.Destination;
+            //this.Vertices = new VertexPositionNormalTexture[4];
+            //this.Indexes = new int[6];
+            this.BeamZ = RandomMath2.RandomBetween(-1f, 1f);
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, TargetPosition, (float)Thickness, new Vector2[4], 0, this.BeamZ);
+            this.UpperLeft = points[0];
+            this.UpperRight = points[1];
+            this.LowerLeft = points[2];
+            this.LowerRight = points[3];
+            this.FillVertices();
+            this.Active = true;
+        }
 		public Beam(Vector2 srcCenter, Vector2 destination, int Thickness, Ship Owner)
 		{
 			this.owner = Owner;
@@ -192,6 +264,10 @@ namespace Ship_Game
                     UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
             }
             this.weapon.ResetToggleSound();
+            //if(this.quadVertexDecl !=null)
+            //this.quadVertexDecl.Dispose();
+            //if (this.quadEffect != null)
+            //    this.quadEffect.Dispose();
         }
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager)
@@ -267,7 +343,7 @@ namespace Ship_Game
 			return this.Target;
 		}
 
-		public void LoadContent(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection)
+		public bool LoadContent(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection)
 		{
 			lock (GlobalStats.BeamEffectLocker)
 			{
@@ -285,11 +361,58 @@ namespace Ship_Game
                     this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
                     Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
                 }
-                catch
-                {
-                    System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed", this.weapon.UID));
+               catch
+                {                     
+                   //GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
+                   GlobalStats.BeamOOM++;
+                   System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
+                   
+                   
+                    this.Active = false;
+                    return false;
                 }
+                //{
+                //    try
+                //    {
+                //        GC.GetTotalMemory(true);
+                //        System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed", this.weapon.UID));
+                //        //GC.Collect(0, GCCollectionMode.Optimized);
+                //        Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
+                //        this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+                //        {
+                //            World = Matrix.Identity,
+                //            View = view,
+                //            Projection = projection,
+                //            TextureEnabled = true,
+                //            Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+                //        };
+                //        this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+                //        Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+
+                //    }
+                //    catch 
+                //    {
+                //        System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed again: ", this.weapon.UID));
+                //        GC.GetTotalMemory(true);
+                        
+                //        //GC.Collect(0, GCCollectionMode.Optimized);
+                //        Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
+                //        this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+                //        {
+                //            World = Matrix.Identity,
+                //            View = view,
+                //            Projection = projection,
+                //            TextureEnabled = true,
+                //            Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+                //        };
+                //        this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+                //        Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+
+                        
+                //    }
+                //}
 			}
+            return true;
 		}
 
 		public override bool Touch(GameplayObject target)
@@ -407,7 +530,9 @@ namespace Ship_Game
 
 		public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
 		{
-			if (!this.collidedThisFrame && this.DamageToggleOn)
+            if (this.quadEffect == null)
+                this.Die(null, true);
+            if (!this.collidedThisFrame && this.DamageToggleOn)
 			{
 				this.DamageToggleOn = false;
 				if (this.DamageToggleSound != null && this.DamageToggleSound.IsPlaying)
@@ -435,5 +560,27 @@ namespace Ship_Game
 				this.Die(null, true);
 			}
 		}
+
+
+        ~Beam() { Dispose(false); }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.quadVertexDecl != null)
+                        this.quadVertexDecl.Dispose();
+                    if (this.quadEffect != null)
+                        this.quadEffect.Dispose();
+                    
+
+                }
+                this.quadVertexDecl = null;
+                this.disposed = true;
+                base.Dispose(disposing);
+            }
+        }
 	}
 }

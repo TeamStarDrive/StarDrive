@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class CloseButton
+	public sealed class CloseButton
 	{
 		private Rectangle rect;
 

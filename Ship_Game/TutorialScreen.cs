@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Ship_Game
 {
-	public class TutorialScreen : GameScreen
+	public sealed class TutorialScreen : GameScreen
 	{
 		private Dictionary<string, Texture2D> TexDict = new Dictionary<string, Texture2D>();
 
@@ -24,21 +24,7 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+	
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -53,21 +39,6 @@ namespace Ship_Game
 		{
 			base.ExitScreen();
 		}
-
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~TutorialScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{
@@ -102,7 +73,15 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			FileInfo[] textList = HelperFunctions.GetFilesFromDirectory(string.Concat("Content/Tutorials/", GlobalStats.Config.Language, "/"));
+            FileInfo[] textList;
+            try
+            {
+                 textList = HelperFunctions.GetFilesFromDirectory(string.Concat("Content/Tutorials/", GlobalStats.Config.Language, "/"));
+            }
+            catch
+            {
+                 textList = HelperFunctions.GetFilesFromDirectory(string.Concat("Content/Tutorials/", "English", "/"));
+            }
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{

@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class FleetReplay
+	public sealed class FleetReplay
 	{
 		public Vector2 Position;
 

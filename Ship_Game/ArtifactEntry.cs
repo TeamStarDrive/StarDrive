@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ArtifactEntry
+	public sealed class ArtifactEntry
 	{
 		public List<SkinnableButton> ArtifactButtons = new List<SkinnableButton>();
 

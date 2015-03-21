@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class DTrait
+	public sealed class DTrait
 	{
 		public string Name;
 

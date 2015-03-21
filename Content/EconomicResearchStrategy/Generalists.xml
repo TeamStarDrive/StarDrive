@@ -6,56 +6,70 @@
   <ResearchPriority>3</ResearchPriority>
   <IndustryPriority>3</IndustryPriority>
   <TechPath>
-    
+
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Research:Colonization</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Colonization:Research:Economic</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Colonization:Research:Economic</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat</id>
+      <id>CHEAPEST:TECH:Industry</id>
     </Tech>
 
     <Tech>
-      <id>IFCYBERNETIC:6</id>
+      <id>CHEAPEST:TECH:Colonization</id>
     </Tech>
     <Tech>
-      <id>LOOP:8</id>
+      <id>IS Government</id>
     </Tech>
     <Tech>
-      <id>SCRIPT:Colonization</id>
+      <id>CHEAPEST:TECH:Industry</id>
     </Tech>
     <Tech>
-      <id>LOOP:4</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>IFPEACE:0</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat</id>
+      <id>CHEAPEST:TECH:Research</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:ShipHull:ShipWeapons:ShipDefense:Economic:Colonization:GroundCombat:ShipGeneral:Economic:Research</id>
+      <id>CHEAPEST:TECH:Industry:Economic:Colonization:General:Research</id>
     </Tech>
     <Tech>
-      <id>RANDOM</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
     </Tech>
 
     <Tech>
-      <id>IFLOWRESEARCH:0</id>
+      <id>IFPEACE:7</id>
+    </Tech>
+
+    <Tech>
+      <id>IFLOWRESEARCH:14</id>
     </Tech>
     <Tech>
-      <id>IFHIGHTAX:0</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
     </Tech>
     <Tech>
-      <id>LOOP:8</id>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
+    </Tech>
+    <Tech>
+      <id>IFNOTLOWRESEARCH:16</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:ShipHull:Economic:Industry:Research:Colonization:ShipWeapons:ShipDefense:ShipGeneral:General</id>
+    </Tech>
+    <Tech>
+      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization</id>
+    </Tech>
+
+    <Tech>
+      <id>LOOP:10</id>
     </Tech>
 
 

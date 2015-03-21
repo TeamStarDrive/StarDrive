@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class SolarSystem
+	public  sealed class SolarSystem: IDisposable
 	{
 		public string Name = "Random System";
 
@@ -27,7 +27,8 @@ namespace Ship_Game
 
 		public float DangerUpdater = 10f;
 
-		public List<Empire> OwnerList = new List<Empire>();
+		//public List<Empire> OwnerList = new List<Empire>();
+        public HashSet<Empire> OwnerList = new HashSet<Empire>();
 
 		public BatchRemovalCollection<Ship> ShipList = new BatchRemovalCollection<Ship>();
 
@@ -72,6 +73,9 @@ namespace Ship_Game
 		public List<string> DefensiveFleets = new List<string>();
         
         public Dictionary<Empire,PredictionTimeout> predictionTimeout =new Dictionary<Empire,PredictionTimeout>();
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
             public class PredictionTimeout{
                 public float prediction;
@@ -739,7 +743,7 @@ namespace Ship_Game
                         newOrbital.SetPlanetAttributes();
                         if (data.RingList[i - 1].MaxPopDefined > 0)
                             newOrbital.MaxPopulation = data.RingList[i - 1].MaxPopDefined * 1000f;
-                        if (data.RingList[i - 1].Owner != null && data.RingList[i - 1].Owner != "")
+                        if (!string.IsNullOrEmpty(data.RingList[i - 1].Owner) && !string.IsNullOrEmpty(data.RingList[i - 1].Owner))
                         {
                             newOrbital.Owner = EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner);
                             EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner).AddPlanet(newOrbital);
@@ -928,5 +932,34 @@ namespace Ship_Game
 
 			public Planet planet;
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~SolarSystem() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ShipList != null)
+                        this.ShipList.Dispose();
+                    if (this.AsteroidsList != null)
+                        this.AsteroidsList.Dispose();
+                    if (this.spatialManager != null)
+                        this.spatialManager.Dispose();
+
+                }
+                this.ShipList = null;
+                this.AsteroidsList = null;
+                this.spatialManager = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

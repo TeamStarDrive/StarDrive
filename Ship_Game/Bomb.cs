@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Bomb
+	public sealed class Bomb
 	{
 		private const float trailParticlesPerSecond = 500f;
 
@@ -93,7 +93,7 @@ namespace Ship_Game
 		{
 			this.TargetPlanet = p;
 			this.planetRadius = this.TargetPlanet.SO.WorldBoundingSphere.Radius;
-			Vector3 vtt = (new Vector3(this.TargetPlanet.Position, 2500f) + new Vector3(RandomMath2.RandomBetween(-500f, 500f), RandomMath2.RandomBetween(-500f, 500f), 0f)) - this.Position;
+            Vector3 vtt = (new Vector3(this.TargetPlanet.Position, 2500f ) + new Vector3(RandomMath2.RandomBetween(-500f, 500f) * p.scale, RandomMath2.RandomBetween(-500f, 500f) * p.scale, 0f)) - this.Position;
 			vtt = Vector3.Normalize(vtt);
 			this.Velocity = vtt * 1350f;
 		}
@@ -103,19 +103,19 @@ namespace Ship_Game
 			Bomb position = this;
 			position.Position = position.Position + (this.Velocity * elapsedTime);
 			this.WorldMatrix = Matrix.CreateTranslation(this.Position) * Matrix.CreateRotationZ(this.facing);
-			this.planetRadius = this.TargetPlanet.SO.WorldBoundingSphere.Radius;
+			this.planetRadius = this.TargetPlanet.SO.WorldBoundingSphere.Radius ;
 			if (this.TargetPlanet.ShieldStrengthCurrent > 0f)
 			{
-				if (Vector3.Distance(this.Position, new Vector3(this.TargetPlanet.Position, 2500f)) < this.planetRadius + 100f)
+                if (Vector3.Distance(this.Position, new Vector3(this.TargetPlanet.Position, 2500f )) < this.planetRadius + 100f)
 				{
 					this.DoImpact();
 				}
 			}
-			else if (Vector3.Distance(this.Position, new Vector3(this.TargetPlanet.Position, 2500f)) < this.planetRadius + 30f)
+            else if (Vector3.Distance(this.Position, new Vector3(this.TargetPlanet.Position, 2500f )) < this.planetRadius  + 30f)
 			{
 				this.DoImpact();
 			}
-			if (Vector3.Distance(this.Position, new Vector3(this.TargetPlanet.Position, 2500f)) < this.planetRadius + 1000f)
+            if (Vector3.Distance(this.Position, new Vector3(this.TargetPlanet.Position, 2500f )) < this.planetRadius + 1000f)
 			{
 				if (this.trailEmitter == null)
 				{

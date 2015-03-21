@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Response
+	public sealed class Response
 	{
 		public string Text;
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Offer
+	public sealed class Offer
 	{
 		public List<string> TechnologiesOffered = new List<string>();
 

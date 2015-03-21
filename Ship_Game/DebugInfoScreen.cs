@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class DebugInfoScreen
+	public sealed class DebugInfoScreen
 	{
 		public bool isOpen;
 
@@ -102,21 +102,6 @@ namespace Ship_Game
             catch { }
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
 
 		public void Draw(GameTime gameTime)
 		{
@@ -191,7 +176,7 @@ namespace Ship_Game
                 Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Planet Count: ", e.GetPlanets().Count()), Cursor, e.EmpireColor);
                 Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-				if (e.ResearchTopic != "")
+				if (!string.IsNullOrEmpty(e.ResearchTopic))
 				{
 					SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
 					SpriteFont spriteFont = Fonts.Arial12Bold;
@@ -335,6 +320,8 @@ namespace Ship_Game
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.screen.SelectedShip.Name, Cursor, Color.White);
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Center.ToString(), Cursor, Color.White);
+                Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("On Defense: ",ship.DoingSystemDefense.ToString()), Cursor, Color.White);
 				if (ship.fleet != null)
 				{
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -434,11 +421,6 @@ namespace Ship_Game
 					}
 				}
 			}
-		}
-
-		~DebugInfoScreen()
-		{
-			this.Dispose(false);
 		}
 
 		public bool HandleInput(InputState input)

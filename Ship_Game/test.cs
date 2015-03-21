@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class test
+	public sealed class test
 	{
 		public List<string> list = new List<string>();
 

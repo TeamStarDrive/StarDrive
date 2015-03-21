@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-    public class BatchRemovalCollection<T> : List<T>
+    public sealed class BatchRemovalCollection<T> : List<T>,IDisposable
     {
         //public List<T> pendingRemovals;
         public ConcurrentStack<T> pendingRemovals;
         public ReaderWriterLockSlim thisLock;
+
+        //adding for thread safe Dispose because class uses unmanaged resources
+        private bool disposed;
 
         public BatchRemovalCollection()
         {
@@ -22,33 +25,35 @@ namespace Ship_Game
 
         public void ApplyPendingRemovals()
         {
-            //for (int i = 0; i < this.pendingRemovals.Count; i++)
-            //foreach(T i in this.pendingRemovals)
+            T result;            
+            while (!this.pendingRemovals.IsEmpty)
+            {               
+                this.pendingRemovals.TryPop(out result); //out T result);
+                this.Remove(result);
+            }
+        }
+        public void ApplyPendingRemovals(bool SaveForPooling)
+        {
+            if (SaveForPooling)
+            {
+                foreach(T item in this.pendingRemovals.ToArray())
+                {
+                    this.Remove(item);
+                }
+                return;
+            }
             T result;
             while (!this.pendingRemovals.IsEmpty)
             {
-               
                 this.pendingRemovals.TryPop(out result); //out T result);
-                //base.Remove(this.pendingRemovals(i));
                 this.Remove(result);
-
-
             }
-            //this.pendingRemovals=new ConcurrentBag<T>();
         }
-
         public void QueuePendingRemoval(T item)
         {
             this.pendingRemovals.Push(item);
         }
-        //new public IEnumerator<T> GetEnumerator()
-        //{
-        //    using (IEnumerator<T> ie = internalList.GetEnumerator())
-        //        while (ie.MoveNext())
-        //        {
-        //            yield return internalList.Combine(BatchRemovalCollection ie.Current);
-        //        }
-        //}
+
         new public void Add(T item)
         {
             thisLock.EnterWriteLock();
@@ -76,6 +81,7 @@ namespace Ship_Game
         }
         new public void Remove(T item)
         {
+            
             thisLock.EnterWriteLock();
             (this as List<T>).Remove(item);
             thisLock.ExitWriteLock();
@@ -87,6 +93,29 @@ namespace Ship_Game
             var result = (this as List<T>).Contains(item);
             thisLock.ExitReadLock();
             return result;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~BatchRemovalCollection() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.thisLock != null)
+                        this.thisLock.Dispose();
+
+                }
+                this.thisLock = null;
+                this.disposed = true;
+            }
         }
 
 

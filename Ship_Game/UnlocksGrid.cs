@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class UnlocksGrid
+	public sealed class UnlocksGrid
 	{
 		public List<UnlocksGrid.GridItem> GridOfUnlocks = new List<UnlocksGrid.GridItem>();
 

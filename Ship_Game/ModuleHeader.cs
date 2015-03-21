@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ModuleHeader
+	public sealed class ModuleHeader
 	{
 		public bool Open;
 

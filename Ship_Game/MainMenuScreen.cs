@@ -18,7 +18,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class MainMenuScreen : GameScreen
+	public sealed class MainMenuScreen : GameScreen,IDisposable
 	{
 		public static string Version;
 
@@ -116,6 +116,10 @@ namespace Ship_Game
 
 		private int flareFrames;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		//private bool onplaygame;
 
 		static MainMenuScreen()
@@ -125,7 +129,7 @@ namespace Ship_Game
 
 		public MainMenuScreen()
 		{
-            GC.Collect();
+            //GC.Collect(1, GCCollectionMode.Optimized);
             base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
 		}
@@ -440,7 +444,8 @@ namespace Ship_Game
                 if (GlobalStats.ActiveMod != null)
                 {
                     string title = GlobalStats.ActiveMod.mi.ModName;
-                    if (GlobalStats.ActiveMod.mi.Version != null && GlobalStats.ActiveMod.mi.Version != "" && !title.Contains(GlobalStats.ActiveMod.mi.Version))
+                    //if (GlobalStats.ActiveMod.mi.Version != null && GlobalStats.ActiveMod.mi.Version != "" && !title.Contains(GlobalStats.ActiveMod.mi.Version))
+                    if (!string.IsNullOrEmpty(GlobalStats.ActiveMod.mi.Version) && !title.Contains(GlobalStats.ActiveMod.mi.Version))
                         title = string.Concat(title, " - ", GlobalStats.ActiveMod.mi.Version);
                     Version = new Rectangle(20 + (int)Fonts.Pirulen12.MeasureString(title).X, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 60, 318, 12);
                     base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
@@ -605,7 +610,7 @@ namespace Ship_Game
 		{
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             //if (ConfigurationManager.AppSettings["ActiveMod"] != "")
-            if (config.AppSettings.Settings["ActiveMod"].Value != "")
+            if (!string.IsNullOrEmpty(config.AppSettings.Settings["ActiveMod"].Value))
 			{
                 
                 //if (!File.Exists(string.Concat("Mods/", ConfigurationManager.AppSettings["ActiveMod"], ".xml")))
@@ -624,7 +629,7 @@ namespace Ship_Game
                     FileInfo FI = new FileInfo(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value, ".xml"));
 					Stream file = FI.OpenRead();
 					ModInformation data = (ModInformation)Ship_Game.ResourceManager.ModSerializer.Deserialize(file);
-					file.Close();
+					//file.Close();
 					file.Dispose();
 					ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
 					GlobalStats.ActiveMod = me;
@@ -745,7 +750,7 @@ namespace Ship_Game
 				this.Portrait.Height = this.Portrait.Height + 7;
 				this.Portrait.Y = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Portrait.Height / 2;
 			}
-			if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.MainMenuMusic != "")
+			if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
 				this.PlayMp3(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/", GlobalStats.ActiveMod.MainMenuMusic));
 			}
@@ -846,7 +851,7 @@ namespace Ship_Game
 
 		public void ResetMusic()
 		{
-			if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.MainMenuMusic != "")
+			if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
 				this.PlayMp3(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/", GlobalStats.ActiveMod.MainMenuMusic));
 				base.ScreenManager.musicCategory.Stop(AudioStopOptions.Immediate);
@@ -923,7 +928,7 @@ namespace Ship_Game
 				base.ScreenManager.Music = null;
 				base.ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
 			}
-			if (GlobalStats.ActiveMod == null || !(GlobalStats.ActiveMod.MainMenuMusic != ""))
+			if (GlobalStats.ActiveMod == null || string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
 				if (base.ScreenManager.Music == null || base.ScreenManager.Music != null && base.ScreenManager.Music.IsStopped)
 				{
@@ -950,5 +955,34 @@ namespace Ship_Game
 			{
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~MainMenuScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.CometList != null)
+                        this.CometList.Dispose();
+                    if (this.waveOut != null)
+                        this.waveOut.Dispose();
+                    if (this.mp3FileReader != null)
+                        this.mp3FileReader.Dispose();
+
+                }
+                this.CometList = null;
+                this.waveOut = null;
+                this.mp3FileReader = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

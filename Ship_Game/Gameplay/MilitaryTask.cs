@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public class MilitaryTask
+	public sealed class MilitaryTask: IDisposable
 	{
 		public bool IsCoreFleetTask;
 
@@ -46,6 +46,9 @@ namespace Ship_Game.Gameplay
 		private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
 
 		public int WhichFleet = -1;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public MilitaryTask()
 		{
@@ -283,7 +286,7 @@ namespace Ship_Game.Gameplay
 					};
 					bomberFleet.Owner.GetGSAI().TasksToAdd.Add(GlassPlanet);
 					GlassPlanet.WhichFleet = this.empire.GetUnusedKeyForFleet();
-					this.empire.GetFleetsDict().Add(GlassPlanet.WhichFleet, bomberFleet);
+					this.empire.GetFleetsDict().TryAdd(GlassPlanet.WhichFleet, bomberFleet);
 					bomberFleet.Task = GlassPlanet;
 					bomberFleet.Name = "Bomber Fleet";
 					foreach (Ship ship in BombTaskForce)
@@ -503,7 +506,7 @@ namespace Ship_Game.Gameplay
                     };
                     bomberFleet.Owner.GetGSAI().TasksToAdd.Add(GlassPlanet);
                     GlassPlanet.WhichFleet = this.empire.GetUnusedKeyForFleet();
-                    this.empire.GetFleetsDict().Add(GlassPlanet.WhichFleet, bomberFleet);
+                    this.empire.GetFleetsDict().TryAdd(GlassPlanet.WhichFleet, bomberFleet);
                     bomberFleet.Task = GlassPlanet;
                     bomberFleet.Name = "Bomber Fleet";
                     foreach (Ship ship in BombTaskForce)
@@ -875,7 +878,7 @@ namespace Ship_Game.Gameplay
                     if (this.type == TaskType.Exploration)
                     {
                         Planet p = this.GetTargetPlanet();
-                        if (p.BuildingList.Where(relic => relic.EventTriggerUID != "").Count() > 0)
+                        if (p.BuildingList.Where(relic => !string.IsNullOrEmpty(relic.EventTriggerUID)).Count() > 0)
                         {
                             return;
                         }
@@ -1071,10 +1074,14 @@ namespace Ship_Game.Gameplay
             }
             IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted =
                 from ao in this.empire.GetGSAI().AreasOfOperations
-                orderby ao.GetOffensiveForcePool().Sum(bombs => bombs.BombBays.Count) > 0 descending
-                orderby ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength descending
+                //orderby ao.GetOffensiveForcePool().Sum(bombs => bombs.BombBays.Count) > 0 descending             
+                //orderby ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength descending
                 orderby Vector2.Distance(this.AO, ao.Position)
                 select ao;
+            //IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = this.empire.GetGSAI().AreasOfOperations
+            //    .OrderByDescending(ao => ao.GetOffensiveForcePool().Sum(bombs => bombs.BombBays.Count) > 0)
+            //    .ThenByDescending(ao => ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength)
+            //    .ThenBy(ao => Vector2.Distance(this.AO, ao.Position));
             if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
             {
                 return;
@@ -1154,8 +1161,8 @@ namespace Ship_Game.Gameplay
             IOrderedEnumerable<Planet> sortedList =
                 //from planet in ClosestAO.GetPlanets()
                 from planet in empire.GetPlanets()
-                where planet.system.CombatInSystem ==false
-//                orderby empire.GetGSAI().DefensiveCoordinator.DefenseDict.Values)
+                //where planet.system.CombatInSystem ==false
+                orderby empire.GetGSAI().DefensiveCoordinator.DefenseDict[planet.ParentSystem].ValueToUs *.1f
                 orderby Vector2.Distance(planet.Position, planets.First<Planet>().Position)
                 select planet;
     //        IOrderedEnumerable<SolarSystem> sortedSystems =
@@ -1228,7 +1235,9 @@ namespace Ship_Game.Gameplay
 
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
             {
-                if (ship.InCombat || ship.fleet != null || tfstrength >= MinimumEscortStrength || ship.GetStrength() <= 0f)
+                if (ship.InCombat || ship.fleet != null || tfstrength >= MinimumEscortStrength 
+                    || ship.GetAI().State == AIState.Explore
+                    || ship.GetStrength() <= 0f ||(ship.Role == "station" || ship.Role == "platform") )
                 {
                     continue;
                 }
@@ -1241,6 +1250,7 @@ namespace Ship_Game.Gameplay
                 //|| empire.GetRelations().Where(war => war.Value.ActiveWar !=null).Count() <2
                 )
             {
+                if(!this.IsCoreFleetTask)
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.empire.GetGSAI().DefensiveCoordinator.DefenseDict
                     .OrderByDescending(system => system.Key.CombatInSystem)
                     .ThenByDescending(ship => (ship.Value.GetOurStrength() - ship.Value.IdealShipStrength) < 1000)
@@ -2525,11 +2535,14 @@ namespace Ship_Game.Gameplay
 
 		private void RequisitionForces()
 		{
-			IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = 
-				from ao in this.empire.GetGSAI().AreasOfOperations
-                orderby ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength descending
-                orderby Vector2.Distance(this.AO, ao.Position)
-				select ao;
+            //IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = 
+            //    from ao in this.empire.GetGSAI().AreasOfOperations
+            //    orderby ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength descending
+            //    orderby Vector2.Distance(this.AO, ao.Position)
+            //    select ao;
+            IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = this.empire.GetGSAI().AreasOfOperations
+                .OrderByDescending(ao => ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength)
+                .ThenBy(ao => Vector2.Distance(this.AO, ao.Position));
 			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
 			{
 				return;
@@ -2595,5 +2608,28 @@ namespace Ship_Game.Gameplay
 			DefendPostInvasion,
 			GlassPlanet
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~MilitaryTask() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.TaskForce != null)
+                        this.TaskForce.Dispose();
+
+                }
+                this.TaskForce = null;
+                this.disposed = true;
+            }
+        }
 	}
 }
