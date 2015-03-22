@@ -1481,8 +1481,8 @@ namespace Ship_Game
             this.GrossTaxes = 0f;
             this.OtherIncome = 0f;
 
-            Parallel.Invoke(
-                () =>
+            //Parallel.Invoke(
+              //  () =>
                 {
                     this.OwnedPlanets.thisLock.EnterReadLock();
                     {
@@ -1509,8 +1509,8 @@ namespace Ship_Game
                             this.TradeMoneyAddedThisTurn += num;
                         }
                     }
-                },
-            () =>
+                }//,
+            //() =>
             {
                 this.totalShipMaintenance = 0.0f;
                 
@@ -1535,8 +1535,8 @@ namespace Ship_Game
 
                 }
                 this.OwnedShips.thisLock.ExitReadLock();
-            },
-            () =>
+            }//,
+           // () =>
             {
                 this.OwnedPlanets.thisLock.EnterReadLock();
                 float newBuildM = 0f;
@@ -1551,7 +1551,7 @@ namespace Ship_Game
                 this.OwnedPlanets.thisLock.ExitReadLock();
                 this.totalBuildingMaintenance = newBuildM;
             }
-            );
+           // );
             this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
             this.AllTimeMaintTotal += this.totalMaint;
             this.Money += (this.GrossTaxes * this.data.TaxRate) + this.OtherIncome;

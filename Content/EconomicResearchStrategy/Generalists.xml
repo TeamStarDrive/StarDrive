@@ -8,69 +8,12 @@
   <TechPath>
 
     <Tech>
-      <id>CHEAPEST:TECH:Industry</id>
-    </Tech>
-
-    <Tech>
-      <id>CHEAPEST:TECH:Colonization</id>
+      <id>IndustrialFoundations</id>
     </Tech>
     <Tech>
-      <id>IS Government</id>
+       <id>Aeroponics</id>
     </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Research</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Colonization:General:Research</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
-    </Tech>
-
-    <Tech>
-      <id>IFPEACE:7</id>
-    </Tech>
-
-    <Tech>
-      <id>IFLOWRESEARCH:14</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>IFNOTLOWRESEARCH:16</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral:GroundCombat</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Economic:Industry:Research:Colonization:ShipWeapons:ShipDefense:ShipGeneral:General</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization</id>
-    </Tech>
-
-    <Tech>
-      <id>LOOP:10</id>
-    </Tech>
+    
 
 
   </TechPath>
