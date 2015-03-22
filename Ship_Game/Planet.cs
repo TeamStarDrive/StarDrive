@@ -3363,13 +3363,15 @@ namespace Ship_Game
             #region cybernetic
             {
                 this.FarmerPercentage = 0.0f;
-                this.WorkerPercentage = this.CalculateCyberneticPercentForSurplus(2.8f);
+                float surplus =  this.NetProductionPerTurn* (1-(this.ProductionHere+1) / (this.MAX_STORAGE+1));
+                    //this.ProductionHere < this.MAX_STORAGE * .10f ? (this.ProductionHere - this.consumption) * .5f : (this.ProductionHere - this.consumption) * .25f;
+                this.WorkerPercentage = this.CalculateCyberneticPercentForSurplus(surplus);
                 if ((double)this.WorkerPercentage > 1.0)
                     this.WorkerPercentage = 1f;
                 this.ResearcherPercentage = 1f - this.WorkerPercentage;
                 if (this.ResearcherPercentage < 0f)
                     ResearcherPercentage = 0f;
-                if ((double)this.NetProductionPerTurn > 1.0 && this.ProductionHere > this.MAX_STORAGE * 0.5f)
+                if (this.ProductionHere > this.MAX_STORAGE * 0.5f && (double)this.NetProductionPerTurn > 1.0)// &&
                     this.ps = Planet.GoodState.EXPORT;
                 else
                     this.ps = Planet.GoodState.IMPORT;
@@ -3474,14 +3476,14 @@ namespace Ship_Game
                                 || (double)building.CreditsPerColonist >0.0                                
                                 || (building.Name == "Space Port" || building.Name == "Outpost"))
                             {
-                                if (!(building.Name == "Space Port") || (building.Cost + 1) / ((double)this.GetNetProductionPerTurn() + 1) < 50 || this.ProductionHere > building.Cost *.5)
+                               if ( (building.Cost + 1) / ((double)this.GetNetProductionPerTurn() + 1) < 150 || this.ProductionHere > building.Cost * .5) //(building.Name == "Space Port") &&
                                 {
                                     float num3 = building.Cost;
                                     b = building;
                                     break;
                                 }
                             }
-                            else if ((double)building.Cost < (double)num2 && (!(building.Name == "Space Port") || this.BuildingList.Count >= 2))
+                            else if ((double)building.Cost < (double)num2 && (!(building.Name == "Space Port") || this.BuildingList.Count >= 2) || ((building.Cost + 1) / ((double)this.GetNetProductionPerTurn() + 1) < 150 || this.ProductionHere > building.Cost * .5))
                             {
                                 num2 = building.Cost;
                                 b = building;
@@ -4422,7 +4424,7 @@ namespace Ship_Game
 
         public bool ApplyStoredProduction(int Index)
         {
-            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null || this.Owner.Money <=0))
+            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null ))//|| this.Owner.Money <=0))
                 return false;
 
             float amount = this.ProductionHere > 10f ? 10f : this.ProductionHere;
@@ -4437,7 +4439,7 @@ namespace Ship_Game
 
         public void ApplyAllStoredProduction(int Index)
         {
-            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null || this.Owner.Money <= 0))
+            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null )) //|| this.Owner.Money <= 0))
                 return;
             float amount = this.ProductionHere;
             this.ProductionHere = 0f;
@@ -4476,7 +4478,7 @@ namespace Ship_Game
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
         {
-            if (this.Crippled_Turns > 0 || this.RecentCombat || (double)howMuch < 0.0)
+            if (this.Crippled_Turns > 0 || this.RecentCombat || (double)howMuch <= 0.0)
                 return;
             float cost = 0;
             if (this.ConstructionQueue.Count > 0 && this.ConstructionQueue.Count > whichItem)
@@ -5459,7 +5461,9 @@ namespace Ship_Game
             float num = 0;
             if (this.Owner == null || this.Owner != empire)
                 num += this.BuildingList.Sum(offense => offense.CombatStrength>0 ? offense.CombatStrength :1);
+            this.TroopsHere.thisLock.EnterReadLock();
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner()==null ||empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
+            this.TroopsHere.thisLock.ExitReadLock();
             return num;
 
 
