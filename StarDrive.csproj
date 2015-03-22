@@ -224,11 +224,21 @@
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignManifests>true</SignManifests>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'crunchies laptop debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;PERF ALTERTHREAD STEAM AUTOTIME notPLAYERONLY </DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fasterflect">
@@ -1688,7 +1698,6 @@
     <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Properties\app.manifest" />
     <None Include="StarDrive_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
