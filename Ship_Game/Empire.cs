@@ -2765,7 +2765,10 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
-            int freighterLimit = (this.OwnedPlanets.Count() * 2 > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : this.OwnedPlanets.Count() * 2);
+            int naturalLimit = this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
+                export.ps == Planet.GoodState.EXPORT ||
+                export.Population /1000 >10).Count() *3;
+            int freighterLimit = (naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : naturalLimit );
             int TradeLimit = (int)(freighterLimit * 0.8f);
             int PassLimit = freighterLimit - TradeLimit;
             List<Ship> unusedFreighters = new List<Ship>();
