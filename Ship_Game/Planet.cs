@@ -103,6 +103,7 @@ namespace Ship_Game
         public float FoodPercentAdded;
         public float FlatFoodAdded;
         public float NetProductionPerTurn;
+        public float GrossProductionPerTurn;
         public float PlusFlatProductionPerTurn;
         public float NetResearchPerTurn;
         public float PlusTaxPercentage;
@@ -3014,14 +3015,14 @@ namespace Ship_Game
             float Surplus = (float)((this.consumption + desiredSurplus - this.PlusFlatProductionPerTurn) / ((this.Population / 1000.0) * (this.MineralRichness + this.PlusProductionPerColonist)) * (1 - this.Owner.data.TaxRate)+NoDivByZero);
             if (Surplus < 1.0f)
             {
-                this.ps = Planet.GoodState.EXPORT;
+               // this.ps = Planet.GoodState.EXPORT;
                 if (Surplus < 0)
                     return 0.0f;
                 return Surplus;
             }
             else
             {
-                this.ps = Planet.GoodState.IMPORT;
+               // this.ps = Planet.GoodState.IMPORT;
                 return 1.0f;
             }
         }
@@ -3362,9 +3363,11 @@ namespace Ship_Game
             if (this.Owner.data.Traits.Cybernetic > 0)
             #region cybernetic
             {
+
                 this.FarmerPercentage = 0.0f;
-                float surplus =  this.GetNetProductionPerTurn()* (1-(this.ProductionHere+1) / (this.MAX_STORAGE+1));
-                    //this.ProductionHere < this.MAX_STORAGE * .10f ? (this.ProductionHere - this.consumption) * .5f : (this.ProductionHere - this.consumption) * .25f;
+
+                float surplus = this.GrossProductionPerTurn -this.consumption;
+                surplus = surplus * (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)); 
                 this.WorkerPercentage = this.CalculateCyberneticPercentForSurplus(surplus);
                 if ((double)this.WorkerPercentage > 1.0)
                     this.WorkerPercentage = 1f;
@@ -3521,15 +3524,15 @@ namespace Ship_Game
                 for (int index = 0; index < this.ConstructionQueue.Count; ++index)
                 {
                     QueueItem queueItem1 = this.ConstructionQueue[index];
-                    if (index == 0 && queueItem1.isBuilding)
+                    if (index == 0 && queueItem1.isBuilding && this.ProductionHere > this.MAX_STORAGE *.5)
                     {
                         if (queueItem1.Building.Name == "Outpost"
                             || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0
                             || (double)queueItem1.Building.PlusProdPerRichness > 0.0
                             || (double)queueItem1.Building.PlusProdPerColonist > 0.0
-                            || (double)queueItem1.Building.PlusTaxPercentage > 0.0
-                            || (double)queueItem1.Building.CreditsPerColonist > 0.0
-                            || queueItem1.Building.Name == "Biospheres")
+                            //|| (double)queueItem1.Building.PlusTaxPercentage > 0.0
+                            //|| (double)queueItem1.Building.CreditsPerColonist > 0.0
+                            )
                         {
                             this.ApplyAllStoredProduction(0);
                         }
@@ -3589,7 +3592,7 @@ namespace Ship_Game
                                 //}
                                 float Remainder = 1f - FarmerPercentage;
                                 //Research is happening
-                                this.WorkerPercentage = (Remainder * (string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1 : .5f)) * (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
+                                this.WorkerPercentage = (Remainder * (string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1:  (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1))));
                                 this.ResearcherPercentage = Remainder - this.WorkerPercentage;
                                 //if (!string.IsNullOrEmpty(this.Owner.ResearchTopic))
                                 //{
@@ -3811,18 +3814,19 @@ namespace Ship_Game
                         this.WorkerPercentage = 1f;
                         this.ResearcherPercentage = 0.0f;
                         bool StuffInQueueToBuild = this.ConstructionQueue.Where(building=> building.isBuilding || (building.Cost > this.NetProductionPerTurn*10)).Count() > 0;
-                        float ForgetReseachAndBuild = 
-                            string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1:StuffInQueueToBuild ? 1 : .75f;
+                        bool ForgetReseachAndBuild = 
+                            string.IsNullOrEmpty(this.Owner.ResearchTopic) || StuffInQueueToBuild; //? true : .75f;
                         this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
-                        float IndySurplus = (this.NetFoodPerTurn *   (ForgetReseachAndBuild*.1f))  *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * 
+                        float IndySurplus = (this.NetFoodPerTurn    )  *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * 
                             (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
                         //if ((double)this.FoodHere <= (double)this.consumption)
                         {
 
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus);
                             this.WorkerPercentage = 
-                                (1f - this.FarmerPercentage)  * //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
-                                 ForgetReseachAndBuild;// *(1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
+                                (1f - this.FarmerPercentage)   //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
+                                *( ForgetReseachAndBuild? 1:
+                             (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)));
                             
                             this.ResearcherPercentage = 1 - this.FarmerPercentage - this.WorkerPercentage;// 0.0f;
                         }
@@ -3997,14 +4001,14 @@ namespace Ship_Game
                         this.ResearcherPercentage = 1f;
                         StuffInQueueToBuild = this.ConstructionQueue.Where(building=> building.isBuilding || (building.Cost > this.NetProductionPerTurn*10)).Count() > 0;
                         ForgetReseachAndBuild = 
-                            string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1:StuffInQueueToBuild ? 1 : .5f;
-                        IndySurplus = (this.NetFoodPerTurn * (ForgetReseachAndBuild * .1f)) *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * 
+                            string.IsNullOrEmpty(this.Owner.ResearchTopic) ||StuffInQueueToBuild ; //? 1 : .5f;
+                        IndySurplus = (this.NetFoodPerTurn) *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * * (ForgetReseachAndBuild * .1f)
     (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
                         this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus);
                         this.WorkerPercentage = 
                         (1f - this.FarmerPercentage) * //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
-                                ForgetReseachAndBuild * (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
-                        this.ResearcherPercentage = 1f - this.FarmerPercentage -this.WorkerPercentage;
+                        (ForgetReseachAndBuild ? 1 ://;//* (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
+                        this.ResearcherPercentage = 1f - this.FarmerPercentage -this.WorkerPercentage);
                         
                         //    if ((double)this.FoodHere <= (double)this.consumption)
                         //{
@@ -4455,7 +4459,8 @@ namespace Ship_Game
         {
             if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null ))//|| this.Owner.Money <=0))
                 return false;
-
+            if (this.Owner != null && !this.Owner.isPlayer && this.Owner.data.Traits.Cybernetic > 0)
+                return false;
             float amount = this.ProductionHere > 10f ? 10f : this.ProductionHere;
             if (amount < 1)
             {
@@ -4480,15 +4485,21 @@ namespace Ship_Game
             
             
             //Anything beyond 60% always use if able
-            float normalAmount = (float)Math.Ceiling(this.GetMaxProductionPotential());
-            normalAmount*=((this.ProductionHere + 1) / (this.MAX_STORAGE + 1)); //was this.NetProductionPerTurn this.GetMaxProductionPotential() *
+            //float normalAmount =  (float)Math.Ceiling(this.GetMaxProductionPotential());            
+            float normalAmount = this.GrossProductionPerTurn * (.3f *(1-this.Owner.data.TaxRate));// ((this.Owner != null && this.Owner.data.Traits.Cybernetic > 0) ? 1 : .3f);// (float)Math.Ceiling(this.ProductionHere * .25f); //? this.ProductionHere : normalAmount;
+            //? this.consumption : 0;
+            normalAmount*=  ((this.ProductionHere + 1) / (this.MAX_STORAGE + 1)); //was this.NetProductionPerTurn this.GetMaxProductionPotential() *
             //normalAmount *= this.Owner.data.TaxRate;
-            normalAmount *= this.ps == GoodState.EXPORT?.5f:1;
+            //normalAmount *= (this.Owner != null && this.Owner.data.Traits.Cybernetic > 0 ) ? .50F : 1F;
+            //normalAmount *= this.ps != GoodState.EXPORT?.25f:.5f;
+
+            normalAmount = normalAmount < 0 ? 0 : normalAmount;
             normalAmount = normalAmount >
                 this.ProductionHere ? ProductionHere : normalAmount;
             ProductionHere -= normalAmount;
+
             this.ApplyProductiontoQueue(normalAmount,0);
-            this.ProductionHere += this.GetNetProductionPerTurn();
+            this.ProductionHere += this.NetProductionPerTurn > 0.0f ? this.NetProductionPerTurn : 0.0f;
             return;
             if (this.ProductionHere > this.MAX_STORAGE * 0.6f && this.GovernorOn)
             {
@@ -4880,6 +4891,11 @@ namespace Ship_Game
             this.NetProductionPerTurn = (float)((double)this.WorkerPercentage * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
             this.NetProductionPerTurn = this.NetProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.NetProductionPerTurn;
             this.NetProductionPerTurn = this.NetProductionPerTurn - this.Owner.data.TaxRate * this.NetProductionPerTurn;
+            
+            this.GrossProductionPerTurn = (float)((double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
+            this.GrossProductionPerTurn = this.GrossProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.GrossProductionPerTurn;
+            
+
             if (this.Station != null)
             {
                 if (!this.HasShipyard)
