@@ -1882,9 +1882,11 @@ namespace Ship_Game
                     }
                     ShieldManager.shieldList.ApplyPendingRemovals();
                 }
-                lock (FTLManager.FTLLock)
+                //lock (FTLManager.FTLLock)
                 {
+                    FTLManager.FTLList.thisLock.EnterReadLock();
                     FTLManager.Update(elapsedTime);
+                    FTLManager.FTLList.thisLock.ExitReadLock();
                     FTLManager.FTLList.ApplyPendingRemovals();
                 }
                 for (int index = 0; index < UniverseScreen.JunkList.Count; ++index)
@@ -7000,14 +7002,16 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
             this.RenderThrusters();
             this.RenderParticles();
-            lock (FTLManager.FTLLock)
+            //lock (FTLManager.FTLLock)
             {
+                FTLManager.FTLList.thisLock.EnterReadLock();
                 for (int local_69 = 0; local_69 < FTLManager.FTLList.Count; ++local_69)
                 {
                     FTL local_70 = FTLManager.FTLList[local_69];
                     if (local_70 != null)
                         this.DrawTransparentModel(this.SunModel, local_70.WorldMatrix, this.view, this.projection, FTLManager.FTLTexture, (float)((double)local_70.scale * 1.0 / 50.0));
                 }
+                FTLManager.FTLList.thisLock.ExitReadLock();
                 FTLManager.FTLList.ApplyPendingRemovals();
             }
             lock (GlobalStats.ExplosionLocker)

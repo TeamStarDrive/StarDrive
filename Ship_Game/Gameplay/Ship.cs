@@ -1860,8 +1860,10 @@ namespace Ship_Game.Gameplay
                 cue.Play();
                 FTL ftl = new FTL();
                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
-                lock (FTLManager.FTLLock)
-                    FTLManager.FTLList.Add(ftl);
+                //lock (FTLManager.FTLLock)
+                FTLManager.FTLList.thisLock.EnterWriteLock();
+                FTLManager.FTLList.Add(ftl);
+                FTLManager.FTLList.thisLock.ExitWriteLock();
             }
             this.engineState = Ship.MoveState.Sublight;
             this.ResetJumpTimer();
@@ -2738,8 +2740,10 @@ namespace Ship_Game.Gameplay
                             {
                                 FTL ftl = new FTL();
                                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
-                                lock (FTLManager.FTLLock)
+                                //lock (FTLManager.FTLLock)
+                                FTLManager.FTLList.thisLock.EnterWriteLock();
                                     FTLManager.FTLList.Add(ftl);
+                                    FTLManager.FTLList.thisLock.ExitWriteLock();
                                 this.engineState = Ship.MoveState.Warp;
                             }
                             else
