@@ -1084,7 +1084,7 @@ namespace Ship_Game.Gameplay
                         Message = string.Concat(system.Name, " system explored."),
                         ReferencedItem1 = system,
                         IconPath = "NewUI/icon_planet_terran_01_mid",
-                        Action = "SnapToSystem",
+                        Action = "SnapToExpandSystem",
                         ClickRect = new Rectangle(Planet.universeScreen.NotificationManager.NotificationArea.X, Planet.universeScreen.NotificationManager.NotificationArea.Y, 64, 64),
                         DestinationRect = new Rectangle(Planet.universeScreen.NotificationManager.NotificationArea.X, Planet.universeScreen.NotificationManager.NotificationArea.Y + Planet.universeScreen.NotificationManager.NotificationArea.Height - (Planet.universeScreen.NotificationManager.NotificationList.Count + 1) * 70, 64, 64)
 
