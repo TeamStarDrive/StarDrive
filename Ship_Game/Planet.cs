@@ -2973,6 +2973,8 @@ namespace Ship_Game
                         shieldStrengthCurrent.ShieldStrengthCurrent++;
                     }
                 }
+                if ((double)this.ShieldStrengthCurrent > (double)this.ShieldStrengthMax)
+                    this.ShieldStrengthCurrent = this.ShieldStrengthMax;
             }
 
             //this.UpdateTimer = 10f;

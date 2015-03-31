@@ -660,16 +660,37 @@ namespace Ship_Game
             }
         }
 
-        public void SnapViewSystem(SolarSystem system)
+        public void SnapViewSystem(SolarSystem system, UniverseScreen.UnivScreenState camHeight)
         {
-            this.transitionDestination = new Vector3(system.Position.X, system.Position.Y + 400f, 80000f);
+            float x = this.GetZfromScreenState(camHeight);
+            this.transitionDestination = new Vector3(system.Position.X, system.Position.Y + 400f, x);//80000);//
             this.transitionStartPosition = this.camPos;
             this.AdjustCamTimer = 2f;
             this.transitionElapsedTime = 0.0f;
             this.transDuration = 5f;
             this.ViewingShip = false;
             this.snappingToShip = false;
+            if (this.ViewingShip)
+                this.returnToShip = true;
+            this.ViewingShip = false;
+            this.snappingToShip = false;
+            this.SelectedFleet = (Fleet)null;
+            this.SelectedShip = (Ship)null;
+            this.SelectedShipList.Clear();
+            this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+            //this.input.CursorPosition = 
+            //this.ClickTimer2 = this.TimerDelay;
         }
+        //public void SnapViewSystem(SolarSystem system)
+        //{
+        //    this.transitionDestination = new Vector3(system.Position.X, system.Position.Y + 400f, 80000);//this.MaxCamHeight);
+        //    this.transitionStartPosition = this.camPos;
+        //    this.AdjustCamTimer = 2f;
+        //    this.transitionElapsedTime = 0.0f;
+        //    this.transDuration = 5f;
+        //    this.ViewingShip = false;
+        //    this.snappingToShip = false;
+        //}
 
         public void SnapViewPlanet(object sender)
         {
