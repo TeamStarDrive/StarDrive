@@ -8083,62 +8083,12 @@ namespace Ship_Game.Gameplay
             TechnologyType techtype;
 
             #region hull checking.
-            //check that we have ships researched for current hull
-            //bool weCanBuildCurrentHull = false;
-            //string currentHull = "fighter";
             
-            
-            
-            //if (!this.empire.canBuildCorvettes)
-            //    weCanBuildCurrentHull = true;
-            //else
-            //    if (this.empire.canBuildCorvettes && !this.empire.canBuildFrigates)
-            //        currentHull = "corvette";
-            //    else
-            //        if (this.empire.canBuildFrigates && !this.empire.canBuildCruisers)
-            //            currentHull = "frigate";
-            //        else
-            //            if (this.empire.canBuildCruisers && !this.empire.canBuildCapitals)
-            //                currentHull = "cruiser";
-            //            else
-            //                currentHull = "capital";
-
 
             string BestShip = ""; //this.BestCombatShip;
             float bestShipStrength = 0f;
-            //if (!weCanBuildCurrentHull)
-            //    foreach (String wecanbuildit in this.empire.ShipsWeCanBuild)
-            //    {
-            //        Ship ship = ResourceManager.ShipsDict[wecanbuildit];
-            //        if (ship.shipData == null)
-            //            continue;
-            //        if (ship.shipData.Role == currentHull)
-            //        {
-            //            weCanBuildCurrentHull = true;
-            //            break;
-            //        }
-            //    }
-            //if (!weCanBuildCurrentHull)
-            //    foreach (String wecanbuildit in this.empire.ShipsWeCanBuild)
-            //    {
-            //        Ship ship = ResourceManager.ShipsDict[wecanbuildit];
-            //        if (ship.shipData == null)
-            //            continue;
-            //        if (this.empire.GetHDict()[ship.shipData.Hull])
-            //        {
-            //            weCanBuildCurrentHull = true;
-            //            break;
-            //        }
-            //    }
-
+           
             float moneyNeeded = 0;
-            //this.empire.canBuildCapitals ? 80 : 60;
-            //moneyNeeded = this.empire.canBuildCruisers ? moneyNeeded : 25;
-            //moneyNeeded = this.empire.canBuildFrigates ? moneyNeeded : 10;
-            //moneyNeeded = this.empire.canBuildCorvettes ? moneyNeeded : 4;
-
-
-
 
             float money = this.empire.EstimateIncomeAtTaxRate(.55f -((int)Ship.universeScreen.GameDifficulty *.05f) )+ this.empire.GetTotalShipMaintenance();
             if (this.BestCombatShip != ""                
@@ -8168,8 +8118,7 @@ namespace Ship_Game.Gameplay
             bool CanNotSupportNewHull = false;
             if (!string.IsNullOrEmpty(this.BestCombatShip))
             {
-                //Ship ship;
-                //TechEntry hulltech = null;
+
                 if (ResourceManager.ShipsDict.TryGetValue(this.BestCombatShip, out ship))
                 {
 
@@ -8187,29 +8136,7 @@ namespace Ship_Game.Gameplay
                     {
                         this.BestCombatShip = string.Empty;
                     }
-                        
-                    //    if (ship.shipData.techsNeeded.Where(unlocked => !unlockedTech.Contains(unlocked)).Count() == 0)
-                    //{
-                    //    this.BestCombatShip = string.Empty;
-                    //}
-                    //int techLeft = this.empire.GetMDict().Where
-                    //foreach (string bestshiptech in test.shipData.techsNeeded)
-                    //{
 
-                    //    TechEntry shiptech = this.empire.TechnologyDict[bestshiptech];
-                    //    if (shiptech.Unlocked)
-                    //    {
-                    //        techCount--;
-                    //        continue;
-                    //    }
-                    //    if (shiptech.GetTech().TechnologyType == TechnologyType.ShipHull)
-                    //        hulltech = shiptech;
-
-                    //}
-                    //if (techCount == 1 && hulltech != null)
-                    //    CanNotSupportNewHull = (money <= moneyNeeded
-                    //        || AvailableTechs.Where(tech => tech.TechnologyType == TechnologyType.ShipHull
-                    //            && tech.Cost / this.empire.Research < 200).Count() < 1);
                 }
             }
             
@@ -8229,7 +8156,9 @@ namespace Ship_Game.Gameplay
                         continue;
                     if (ship.BaseStrength < 1f)
                         continue;
-                    if (ResourceManager.ShipRoles[ship.Role].Protected )//  ship.Role == "prototype")
+                    Ship_Game.ShipRole roles;
+                    if (!ResourceManager.ShipRoles.TryGetValue(ship.Role, out roles) 
+                        || roles==null || roles.Protected)//  [ship.Role].Protected )//  ship.Role == "prototype")
                         continue;
                     
                     test = false;
