@@ -395,9 +395,27 @@ namespace Ship_Game
             // END OF ADDED BY SHAHMATT
 			this.RingsCount = this.numberOfRings;
 			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
+            float ringbase = 10500f;
+            float ringmax = 0;
+            if (this.RingsCount > 0)
+            {
+                ringmax = (95000 - this.StarRadius) / this.numberOfRings;
+                //ringbase = (10000 - this.StarRadius) / this.numberOfRings;
+            }
+
 			for (int i = 1; i < this.numberOfRings + 1; i++)
 			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
+                if (this.RingList.Count > 1)
+                {
+                    ringbase = this.RingList[this.RingList.Count - 1].Distance + 5000;// / this.numberOfRings;
+                    Planet p = this.RingList[this.RingList.Count - 1].planet;
+                    if (p != null)
+                        ringbase += p.ObjectRadius;
+
+                }
+                
+                //float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
+                float ringRadius = ringbase + RandomMath.RandomBetween(0, ringmax);// + 20000f / this.numberOfRings);
 				ringRadius = ringRadius * systemScale;
 				if ((int)RandomMath.RandomBetween(1f, 100f) > 80)
 				{
