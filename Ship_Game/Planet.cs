@@ -4488,9 +4488,20 @@ namespace Ship_Game
             
             //Anything beyond 60% always use if able
             //float normalAmount =  (float)Math.Ceiling(this.GetMaxProductionPotential());            
-            float normalAmount = this.GrossProductionPerTurn * (.3f *(1-this.Owner.data.TaxRate));// ((this.Owner != null && this.Owner.data.Traits.Cybernetic > 0) ? 1 : .3f);// (float)Math.Ceiling(this.ProductionHere * .25f); //? this.ProductionHere : normalAmount;
+            float divsor = ((this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
+            float normalAmount = 0;// this.MAX_STORAGE / 10f;
+            float modifier = (.3f *(1-this.Owner.data.TaxRate));
+            normalAmount = this.GrossProductionPerTurn;
+            if (this.developmentLevel < 3)
+            {
+                modifier = 1;
+                if (normalAmount < 1)
+                    normalAmount = 1;
+            }
+             normalAmount *= modifier ;// ((this.Owner != null && this.Owner.data.Traits.Cybernetic > 0) ? 1 : .3f);// (float)Math.Ceiling(this.ProductionHere * .25f); //? this.ProductionHere : normalAmount;
+            
             //? this.consumption : 0;
-            normalAmount*=  ((this.ProductionHere + 1) / (this.MAX_STORAGE + 1)); //was this.NetProductionPerTurn this.GetMaxProductionPotential() *
+            normalAmount *= divsor; //was this.NetProductionPerTurn this.GetMaxProductionPotential() *
             //normalAmount *= this.Owner.data.TaxRate;
             //normalAmount *= (this.Owner != null && this.Owner.data.Traits.Cybernetic > 0 ) ? .50F : 1F;
             //normalAmount *= this.ps != GoodState.EXPORT?.25f:.5f;
