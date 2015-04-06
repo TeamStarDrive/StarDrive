@@ -2640,7 +2640,7 @@ namespace Ship_Game.Gameplay
             //    this.OrderQueue.AddFirst(preserveGoal);
             //    return;
             //}
-
+            
             if (Distance / (Goal.SpeedLimit) <= timetostop + .005f) //(Distance  / (velocity.Length() ) <= timetostop)//
             {
                 this.OrderQueue.RemoveFirst();
@@ -2873,7 +2873,7 @@ namespace Ship_Game.Gameplay
             {
                 if (single  < this.Owner.speed)
                 {
-                    speedLimit = single;
+                    speedLimit = single*.5f;
                     //this.Owner.speed =this.Owner.speed < single ? this.Owner.speed: single;
                 }
       
