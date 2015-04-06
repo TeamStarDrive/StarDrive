@@ -1342,7 +1342,7 @@ namespace Ship_Game.Gameplay
                         case 0:
                             List<Planet> list1 = new List<Planet>();
                             this.Owner.GetPlanets().thisLock.EnterReadLock();
-                            foreach (Planet planet in this.Owner.GetPlanets())
+                            foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat=> combat.ParentSystem.DangerTimer))
                             {
                                 if (planet.HasShipyard )
                                     list1.Add(planet);
