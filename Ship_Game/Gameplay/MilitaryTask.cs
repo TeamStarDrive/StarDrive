@@ -1246,7 +1246,7 @@ namespace Ship_Game.Gameplay
             }
             if (!this.empire.isFaction
                 && this.empire.data.DiplomaticPersonality.Name == "Aggressive"
-                || empire.data.DiplomaticPersonality.Name == "Xenophobic"
+                //|| empire.data.DiplomaticPersonality.Name == "Xenophobic"
                 //|| empire.GetRelations().Where(war => war.Value.ActiveWar !=null).Count() <2
                 )
             {
@@ -1353,7 +1353,7 @@ namespace Ship_Game.Gameplay
                                     goto Label1;
                                 }
                             }
-                            while (ForceStrength <= EnemyTroopStrength);//+ EnemyTroopStrength * 0.3f);
+                            while (ForceStrength <= EnemyTroopStrength || ForceStrength <50);//+ EnemyTroopStrength * 0.3f);
                         }
                         finally
                         {

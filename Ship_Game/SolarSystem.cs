@@ -395,9 +395,27 @@ namespace Ship_Game
             // END OF ADDED BY SHAHMATT
 			this.RingsCount = this.numberOfRings;
 			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
+            float ringbase = 10500f;
+            float ringmax = 0;
+            if (this.RingsCount > 0)
+            {
+                ringmax = (95000 - this.StarRadius) / this.numberOfRings;
+                //ringbase = (10000 - this.StarRadius) / this.numberOfRings;
+            }
+
 			for (int i = 1; i < this.numberOfRings + 1; i++)
 			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
+                if (this.RingList.Count > 1)
+                {
+                    ringbase = this.RingList[this.RingList.Count - 1].Distance + 5000;// / this.numberOfRings;
+                    Planet p = this.RingList[this.RingList.Count - 1].planet;
+                    if (p != null)
+                        ringbase += p.ObjectRadius;
+
+                }
+                
+                //float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
+                float ringRadius = ringbase + RandomMath.RandomBetween(0, ringmax);// + 20000f / this.numberOfRings);
 				ringRadius = ringRadius * systemScale;
 				if ((int)RandomMath.RandomBetween(1f, 100f) > 80)
 				{
@@ -552,14 +570,18 @@ namespace Ship_Game
 				this.SunPath = "star_binary";
 			}
 			this.Name = name;
-			this.numberOfRings = 3;
+            this.numberOfRings = GlobalStats.ExtraPlanets > 3?GlobalStats.ExtraPlanets:  3;
+
+            this.numberOfRings += (int)(RandomMath.RandomBetween(0, 1) + RandomMath.RandomBetween(0, 1) + RandomMath.RandomBetween(0, 1));
+            if (this.numberOfRings > 6)
+                this.numberOfRings = 6;
 			this.RingsCount = this.numberOfRings;
 			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
 			for (int i = 1; i < this.numberOfRings + 1; i++)
 			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
+				float ringRadius = (float)i * ((float)this.StarRadius +  RandomMath.RandomBetween(500f, 3500f) + 10000f);
 				ringRadius = ringRadius * systemScale;
-				if (i == 1)
+				if (i ==1 || i>3) 
 				{
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
@@ -705,9 +727,19 @@ namespace Ship_Game
 			int StarRadius = (int)RandomMath.RandomBetween(50f, 500f);
 			for (int i = 1; i < numberOfRings + 1; i++)
 			{
-				float ringRadius = (float)((i * ((float)StarRadius + RandomMath.RandomBetween(10500f, 12000f))) + 10000f);
-				if (data.RingList[i - 1].Asteroids == null)
+                int ringtype = 0;
+                
+                {
+                    int x = (int)(RandomMath.RandomBetween(1, 29));
+                    
+                        ringtype = x;
+                    
+
+                }
+                float ringRadius = (float)((i * ((float)StarRadius + RandomMath.RandomBetween(10500f, 12000f))) + 10000f);
+				if (data.RingList[i - 1].Asteroids == null )
 				{
+                    int WhichPlanet = data.RingList[i - 1].WhichPlanet > 0 ? data.RingList[i - 1].WhichPlanet : ringtype;
                     float scale = 1f;
                     if (data.RingList[i - 1].planetScale > 0)
                     {
@@ -716,7 +748,7 @@ namespace Ship_Game
                     else
                     {
                         scale = RandomMath.RandomBetween(0.9f, 1.8f);
-                        if (data.RingList[i - 1].WhichPlanet == 2 || data.RingList[i - 1].WhichPlanet == 6 || data.RingList[i - 1].WhichPlanet == 10 || data.RingList[i - 1].WhichPlanet == 12 || data.RingList[i - 1].WhichPlanet == 15 || data.RingList[i - 1].WhichPlanet == 20 || data.RingList[i - 1].WhichPlanet == 26)
+                        if (WhichPlanet == 2 || WhichPlanet == 6 || WhichPlanet == 10 || WhichPlanet == 12 || WhichPlanet == 15 || WhichPlanet == 20 || WhichPlanet == 26)
                         {
                             scale += 2.5f;
                         }
@@ -724,13 +756,14 @@ namespace Ship_Game
 					float planetRadius = 100f * scale;
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = newSys.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-					Planet newOrbital = new Planet()
+                    
+                    Planet newOrbital = new Planet()
 					{
 						Name = data.RingList[i - 1].Planet,
 						OrbitalAngle = RandomAngle,
 						ParentSystem = newSys,
 						SpecialDescription = data.RingList[i - 1].SpecialDescription,
-						planetType = data.RingList[i - 1].WhichPlanet,
+						planetType = WhichPlanet,
 						Position = planetCenter,
                         scale = scale,
 						ObjectRadius = planetRadius,

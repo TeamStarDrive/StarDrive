@@ -9,65 +9,25 @@
     <Tech>
       <id>IndustrialFoundations</id>
     </Tech>
+
     <Tech>
       <id>IS Government</id>
     </Tech>
     <Tech>
-      <id>ScientificFoundations</id>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
       <id>XenoMining</id>
     </Tech>
-    <Tech>
-      <id>MissileTheory</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Research:Economic:Colonization</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Colonization:General:Research:GroundCombat</id>
-    </Tech>
 
-    <Tech>
-      <id>IFPEACE:7</id>
-    </Tech>
-
-    <Tech>
-      <id>IFLOWRESEARCH:15</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>IFNOTLOWRESEARCH:17</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Economic:GroundCombat</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Economic:Industry</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization:General</id>
-    </Tech>
-
-    <Tech>
-      <id>LOOP:11</id>
-    </Tech>
   </TechPath>
 </EconomicResearchStrategy>
