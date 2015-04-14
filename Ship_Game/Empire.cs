@@ -1481,8 +1481,8 @@ namespace Ship_Game
             this.GrossTaxes = 0f;
             this.OtherIncome = 0f;
 
-            Parallel.Invoke(
-                () =>
+            //Parallel.Invoke(
+              //  () =>
                 {
                     this.OwnedPlanets.thisLock.EnterReadLock();
                     {
@@ -1509,8 +1509,8 @@ namespace Ship_Game
                             this.TradeMoneyAddedThisTurn += num;
                         }
                     }
-                },
-            () =>
+                }//,
+            //() =>
             {
                 this.totalShipMaintenance = 0.0f;
                 
@@ -1535,8 +1535,8 @@ namespace Ship_Game
 
                 }
                 this.OwnedShips.thisLock.ExitReadLock();
-            },
-            () =>
+            }//,
+           // () =>
             {
                 this.OwnedPlanets.thisLock.EnterReadLock();
                 float newBuildM = 0f;
@@ -1551,7 +1551,7 @@ namespace Ship_Game
                 this.OwnedPlanets.thisLock.ExitReadLock();
                 this.totalBuildingMaintenance = newBuildM;
             }
-            );
+           // );
             this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
             this.AllTimeMaintTotal += this.totalMaint;
             this.Money += (this.GrossTaxes * this.data.TaxRate) + this.OtherIncome;
@@ -2765,7 +2765,10 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
-            int freighterLimit = (this.OwnedPlanets.Count() * 2 > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : this.OwnedPlanets.Count() * 2);
+            int naturalLimit = this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
+                export.ps == Planet.GoodState.EXPORT ||
+                export.Population /1000 >10).Count() *3;
+            int freighterLimit = (naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : naturalLimit );
             int TradeLimit = (int)(freighterLimit * 0.8f);
             int PassLimit = freighterLimit - TradeLimit;
             List<Ship> unusedFreighters = new List<Ship>();

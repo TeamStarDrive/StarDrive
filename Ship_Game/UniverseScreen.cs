@@ -660,16 +660,37 @@ namespace Ship_Game
             }
         }
 
-        public void SnapViewSystem(SolarSystem system)
+        public void SnapViewSystem(SolarSystem system, UniverseScreen.UnivScreenState camHeight)
         {
-            this.transitionDestination = new Vector3(system.Position.X, system.Position.Y + 400f, 80000f);
+            float x = this.GetZfromScreenState(camHeight);
+            this.transitionDestination = new Vector3(system.Position.X, system.Position.Y + 400f, x);//80000);//
             this.transitionStartPosition = this.camPos;
             this.AdjustCamTimer = 2f;
             this.transitionElapsedTime = 0.0f;
             this.transDuration = 5f;
             this.ViewingShip = false;
             this.snappingToShip = false;
+            if (this.ViewingShip)
+                this.returnToShip = true;
+            this.ViewingShip = false;
+            this.snappingToShip = false;
+            this.SelectedFleet = (Fleet)null;
+            this.SelectedShip = (Ship)null;
+            this.SelectedShipList.Clear();
+            this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+            //this.input.CursorPosition = 
+            //this.ClickTimer2 = this.TimerDelay;
         }
+        //public void SnapViewSystem(SolarSystem system)
+        //{
+        //    this.transitionDestination = new Vector3(system.Position.X, system.Position.Y + 400f, 80000);//this.MaxCamHeight);
+        //    this.transitionStartPosition = this.camPos;
+        //    this.AdjustCamTimer = 2f;
+        //    this.transitionElapsedTime = 0.0f;
+        //    this.transDuration = 5f;
+        //    this.ViewingShip = false;
+        //    this.snappingToShip = false;
+        //}
 
         public void SnapViewPlanet(object sender)
         {
@@ -1882,9 +1903,11 @@ namespace Ship_Game
                     }
                     ShieldManager.shieldList.ApplyPendingRemovals();
                 }
-                lock (FTLManager.FTLLock)
+                //lock (FTLManager.FTLLock)
                 {
+                    FTLManager.FTLList.thisLock.EnterReadLock();
                     FTLManager.Update(elapsedTime);
+                    FTLManager.FTLList.thisLock.ExitReadLock();
                     FTLManager.FTLList.ApplyPendingRemovals();
                 }
                 for (int index = 0; index < UniverseScreen.JunkList.Count; ++index)
@@ -7000,14 +7023,16 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
             this.RenderThrusters();
             this.RenderParticles();
-            lock (FTLManager.FTLLock)
+            //lock (FTLManager.FTLLock)
             {
+                FTLManager.FTLList.thisLock.EnterReadLock();
                 for (int local_69 = 0; local_69 < FTLManager.FTLList.Count; ++local_69)
                 {
                     FTL local_70 = FTLManager.FTLList[local_69];
                     if (local_70 != null)
                         this.DrawTransparentModel(this.SunModel, local_70.WorldMatrix, this.view, this.projection, FTLManager.FTLTexture, (float)((double)local_70.scale * 1.0 / 50.0));
                 }
+                FTLManager.FTLList.thisLock.ExitReadLock();
                 FTLManager.FTLList.ApplyPendingRemovals();
             }
             lock (GlobalStats.ExplosionLocker)
