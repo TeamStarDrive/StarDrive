@@ -2768,6 +2768,12 @@ namespace Ship_Game
             int naturalLimit = this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
                 export.ps == Planet.GoodState.EXPORT ||
                 export.Population /1000 >10).Count() *3;
+            if(this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT || 
+                export.ps == Planet.GoodState.IMPORT ||
+                export.Population /1000 <10).Count() ==0)
+            {
+                naturalLimit = 0;
+            }
             int freighterLimit = (naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : naturalLimit );
             int TradeLimit = (int)(freighterLimit * 0.8f);
             int PassLimit = freighterLimit - TradeLimit;
