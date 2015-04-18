@@ -231,7 +231,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'crunchies laptop debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
-    <DefineConstants>DEBUG;noPERF noAUTOTIME ALTERTHREAD STEAM  notPLAYERONLY </DefineConstants>
+    <DefineConstants>DEBUG;PERF AUTOTIME ALTERTHREAD STEAM  notPLAYERONLY </DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
