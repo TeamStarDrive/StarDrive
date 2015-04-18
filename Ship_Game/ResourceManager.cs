@@ -3203,12 +3203,19 @@ namespace Ship_Game
 
 		public static void Reset()
 		{
-			DirectoryInfo di = new DirectoryInfo("Content/Mod Models");
-			di.Delete(true);
-			di.Create();
-			di = new DirectoryInfo("Content/ModVideo");
-			di.Delete(true);
-			di.Create();
+            try
+            {
+                DirectoryInfo di = new DirectoryInfo("Content/Mod Models");
+                di.Delete(true);
+                di.Create();
+                di = new DirectoryInfo("Content/ModVideo");
+                di.Delete(true);
+                di.Create();
+            }
+            catch
+            {
+ 
+            }
 			Ship_Game.ResourceManager.HullsDict.Clear();
 			Ship_Game.ResourceManager.WeaponsDict.Clear();
 			Ship_Game.ResourceManager.TroopsDict.Clear();
