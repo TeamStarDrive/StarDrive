@@ -4645,7 +4645,7 @@ namespace Ship_Game
                         continue;
                     if ((PGS.building != null && PGS.building.PlusFlatResearchAmount > 0) || (PGS.building != null && PGS.building.PlusFlatResearchAmount > 0))
                         continue;
-                    if (PGS.building !=null && !qitemTest && !WeCanAffordThis(PGS.building,this.colonyType)) // queueItem.isBuilding && !WeCanAffordThis(queueItem.Building, this.colonyType))
+                    if (PGS.building !=null &&  !qitemTest && PGS.building.Scrappable && !WeCanAffordThis(PGS.building,this.colonyType)) // queueItem.isBuilding && !WeCanAffordThis(queueItem.Building, this.colonyType))
                     {
                         this.ScrapBuilding(PGS.building);
 
