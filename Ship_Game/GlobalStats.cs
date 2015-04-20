@@ -129,6 +129,7 @@ namespace Ship_Game
         public static float DefensePlatformLimit = .025f;
         public static ReaderWriterLockSlim UILocker;
         public static int BeamOOM = 0;
+        public static string bugTracker = "";
 		static GlobalStats()
 		{
             GlobalStats.UILocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
