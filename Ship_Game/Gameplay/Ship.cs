@@ -3817,7 +3817,7 @@ namespace Ship_Game.Gameplay
         public float GetStrength()
         {
             
-            if (this.Health >= this.HealthMax * .75)
+            if (this.Health >= this.HealthMax * .75 && this.BaseStrength !=0)
                 return this.BaseStrength;
             float Str = 0f;
             float def = 0f;
@@ -3885,6 +3885,7 @@ namespace Ship_Game.Gameplay
             }//);
             if (!fighters && !weapons) Str = 0;
             if (def > Str) def = Str;
+            if(this.BaseStrength==0 && (def+Str)>0) this.BaseStrength = Str + def;
             return Str + def;
         }
 
