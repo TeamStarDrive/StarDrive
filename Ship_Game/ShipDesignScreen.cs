@@ -1608,7 +1608,7 @@ namespace Ship_Game
                 string shipRest = "";
                 bool specialString = false;
 
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones && GlobalStats.ActiveModInfo.useDestroyers)
                 {
                     if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1642,7 +1642,7 @@ namespace Ship_Game
                     }
 
                 }
-                if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
+				if (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.useDrones && GlobalStats.ActiveModInfo.useDestroyers)
                 {
                     if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1666,7 +1666,7 @@ namespace Ship_Game
                     }
 
                 }
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones && !GlobalStats.ActiveModInfo.useDestroyers)
                 {
                     if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1699,7 +1699,7 @@ namespace Ship_Game
                         specialString = true;
                     }
                 }
-                if (GlobalStats.ActiveMod == null || (!GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers))
+				if (GlobalStats.ActiveModInfo == null || (!GlobalStats.ActiveModInfo.useDrones && !GlobalStats.ActiveModInfo.useDestroyers))
                 {
                     if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1723,9 +1723,9 @@ namespace Ship_Game
                     }
                 }
 
-                else if (!specialString && (!mod.DroneModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones) || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || (!mod.DestroyerModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDestroyers) || !mod.CruiserModule || !mod.CruiserModule || !mod.CarrierModule || !mod.CapitalModule || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
+				else if (!specialString && (!mod.DroneModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones) || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || (!mod.DestroyerModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDestroyers) || !mod.CruiserModule || !mod.CruiserModule || !mod.CarrierModule || !mod.CapitalModule || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
                 {
-                    if (mod.DroneModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
+					if (mod.DroneModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones)
                         shipRest += "Dr ";
                     if (mod.FighterModule)
                         shipRest += "F ";
@@ -1733,7 +1733,7 @@ namespace Ship_Game
                         shipRest += "CO ";
                     if (mod.FrigateModule)
                         shipRest += "FF ";
-                    if (mod.DestroyerModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDestroyers)
+					if (mod.DestroyerModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDestroyers)
                         shipRest += "DD ";
                     if (mod.CruiserModule)
                         shipRest += "CC ";
@@ -1826,7 +1826,7 @@ namespace Ship_Game
                         tag = "";
                     }
 
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats && (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile & !Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Guided))
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.expandedWeaponCats && (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile & !Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Guided))
                     {
                         tag = string.Concat(tag, "ROCKET ");
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
@@ -1959,7 +1959,7 @@ namespace Ship_Game
                     }
 					if (mod.BonusRepairRate != 0f)
 					{
-                        this.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), (float)((mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1)), 97);
+						this.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), (float)((mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1)), 97);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
                     //Shift to next Column
@@ -1983,7 +1983,7 @@ namespace Ship_Game
                     }
                     if (mod.shield_power_max != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(132), mod.shield_power_max * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus : 1f) + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.ShieldPowerMod * mod.shield_power_max, 93);
+						this.DrawStat(ref modTitlePos, Localizer.Token(132), mod.shield_power_max * (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus : 1f) + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.ShieldPowerMod * mod.shield_power_max, 93);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.shield_radius != 0)
@@ -2077,7 +2077,7 @@ namespace Ship_Game
                         this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), 178);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM && mod.ECM != 0)
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM && mod.ECM != 0)
                     {
                         this.DrawStatPercent(ref modTitlePos, Localizer.Token(6004), (float)mod.ECM, 154);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -2267,7 +2267,7 @@ namespace Ship_Game
 						this.DrawStat(ref modTitlePos, "Pwr / Shot", (float)mod.InstalledWeapon.PowerRequiredToFire, 90);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
-                    if (mod.InstalledWeapon.Tag_Guided && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
+					if (mod.InstalledWeapon.Tag_Guided && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
                     {
                         this.DrawStatPercent(ref modTitlePos, Localizer.Token(6005), (float)mod.InstalledWeapon.ECMResist, 155);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -2328,7 +2328,7 @@ namespace Ship_Game
 
                         if (mod.InstalledWeapon.Excludes_Fighters)
                         {
-                            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
+							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones)
                             {
                                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Drones", modTitlePos, Color.LightCoral);
                                 modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -2551,7 +2551,7 @@ namespace Ship_Game
                             continue;
 						if (tmp.isWeapon)
 						{
-                            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats)
+							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.expandedWeaponCats)
                             {
                                 if (tmp.InstalledWeapon.Tag_Flak && !WeaponCategories.Contains("Flak Cannon"))
                                 {
@@ -2676,7 +2676,7 @@ namespace Ship_Game
                                 continue;
 							if (tmp.isWeapon)
 							{
-                                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats)
+								if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.expandedWeaponCats)
                                 {
                                     if (tmp.InstalledWeapon.Tag_Flak || tmp.InstalledWeapon.Tag_Array || tmp.InstalledWeapon.Tag_Railgun || tmp.InstalledWeapon.Tag_Tractor || (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided))
                                     {
@@ -3258,7 +3258,7 @@ namespace Ship_Game
 					Thrust = Thrust + slot.module.thrust;
 					WarpThrust = WarpThrust + (float)slot.module.WarpThrust;
 					TurnThrust = TurnThrust + (float)slot.module.TurnThrust;
-                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1));
+                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1));
                     OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
                     if (slot.module.SensorRange > sensorRange)
                     {
@@ -3298,7 +3298,7 @@ namespace Ship_Game
 			float Speed = 0f;
 			float WarpSpeed = WarpThrust / (Mass + 0.1f);
             //Added by McShooterz: hull bonus speed
-            WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1);
+            WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1);
 			float single = WarpSpeed / 1000f;
 			string WarpString = string.Concat(single.ToString("#.0"), "k");
 			float Turn = 0f;
@@ -3312,7 +3312,7 @@ namespace Ship_Game
 			Turn = (float)MathHelper.ToDegrees(Turn);
             Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
             //Added by McShooterz: Draw Hull Bonuses
-            if (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull))
+			if (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull))
             {
                Vector2 LCursor = new Vector2(this.HullSelectionRect.X - 145, HullSelectionRect.Y + 31);
                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ArmoredBonus != 0 ||
@@ -3375,10 +3375,10 @@ namespace Ship_Game
                 }
             }
             //Added by McShooterz: hull bonus starting cost
-            this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].StartingCost : 0)) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus : 1)), 99);
+			this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].StartingCost : 0)) * (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus : 1)), 99);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
                 Upkeep = GetMaintCostShipyardProportional(this.ActiveHull, Cost, EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty));
             }
@@ -3551,7 +3551,7 @@ namespace Ship_Game
                 this.DrawStatPropulsion(ref Cursor, "FTL Spool:", FTLSpoolTimer, 177);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-            this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1)), 105);
+            this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1)), 105);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             //added by McShooterz: afterburn speed
             if (AfterSpeed != 0)
@@ -3599,12 +3599,12 @@ namespace Ship_Game
 
             if (CargoSpace > 0)
             {
-                this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? CargoSpace * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus : 0)), 109);
+				this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace + (GlobalStats.ActiveModEntry != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? CargoSpace * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus : 0)), 109);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (sensorRange != 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 159);
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveModEntry != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 159);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);
@@ -3722,30 +3722,30 @@ namespace Ship_Game
 
             // Calculate maintenance by proportion of ship cost, Duh.
             if (ship.Role == "fighter" || ship.Role == "scout")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepFighter;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepFighter;
             else if (ship.Role == "corvette")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCorvette;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCorvette;
             else if (ship.Role == "frigate" || ship.Role == "destroyer")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepFrigate;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepFrigate;
             else if (ship.Role == "cruiser")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCruiser;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCruiser;
             else if (ship.Role == "carrier")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCarrier;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCarrier;
             else if (ship.Role == "capital")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCapital;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCapital;
             else if (ship.Role == "freighter")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepFreighter;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepFreighter;
             else if (ship.Role == "platform")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepPlatform;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepPlatform;
             else if (ship.Role == "station")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepStation;
-            else if (ship.Role == "drone" && GlobalStats.ActiveMod.mi.useDrones)
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepDrone;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepStation;
+            else if (ship.Role == "drone" && GlobalStats.ActiveModInfo.useDrones)
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepDrone;
             else
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepBaseline;
-            if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepBaseline;
-            else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepBaseline;
+            if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0)
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepBaseline;
+            else if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline == 0)
                 maint = fCost * 0.004f;
 
 
@@ -6923,7 +6923,7 @@ namespace Ship_Game
 
         private float GetHullDamageBonus()
         {
-            if (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useHullBonuses)
+            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useHullBonuses)
                 return 1f;
             HullBonus bonus;
             if (ResourceManager.HullBonuses.TryGetValue(this.ActiveHull.Hull, out bonus))
@@ -6936,7 +6936,7 @@ namespace Ship_Game
 
         private float GetHullFireRateBonus()
         {
-            if (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useHullBonuses)
+            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useHullBonuses)
                 return 1f;
             HullBonus bonus;
             if (ResourceManager.HullBonuses.TryGetValue(this.ActiveHull.Hull, out bonus))

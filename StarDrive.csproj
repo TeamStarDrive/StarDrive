@@ -27,7 +27,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>C:\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
+    <OutputPath>D:\Steam\steamapps\common\StarDrive\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
     <Optimize>true</Optimize>

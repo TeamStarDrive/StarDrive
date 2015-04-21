@@ -240,9 +240,9 @@ namespace Ship_Game
 				{
 					HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
 					data.SetFileInfo(new FileInfo(string.Concat(path, "/StarDrive/Saved Games/", data.SaveName, ".xml.gz")));
-					if (GlobalStats.ActiveMod != null)
+					if (GlobalStats.ActiveModEntry != null)
 					{
-						if (data.ModName != GlobalStats.ActiveMod.ModPath)
+						if (data.ModName != GlobalStats.ActiveModEntry.ModPath)
 						{
 							//file.Close();
 							file.Dispose();

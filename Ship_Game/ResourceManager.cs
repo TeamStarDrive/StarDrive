@@ -301,7 +301,7 @@ namespace Ship_Game
             
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveModEntry != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -483,7 +483,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+			if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -575,7 +575,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveModEntry != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -662,7 +662,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveModEntry != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -739,7 +739,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+            if (GlobalStats.ActiveModEntry != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -2413,7 +2413,7 @@ namespace Ship_Game
             XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
             FileInfo[] textList; //"Mods/", 
             
-            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips")))
+            if (GlobalStats.ActiveModEntry != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips")))
             {
                 Ship_Game.ResourceManager.ShipsDict.Clear();
                 textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips/"));
@@ -2516,9 +2516,9 @@ namespace Ship_Game
 				}
 #endif
 			}
-			if (GlobalStats.ActiveMod != null)
+			if (GlobalStats.ActiveModEntry != null)
 			{
-				textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/ShipDesigns/"));
+				textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat("Mods/", GlobalStats.ActiveModEntry.ModPath, "/ShipDesigns/"));
 				FileInfo[] fileInfoArray1 = textList;
 				for (int l = 0; l < (int)fileInfoArray1.Length; l++)
 				{
@@ -2807,7 +2807,7 @@ namespace Ship_Game
 
 		private static void LoadTechTree()
 		{
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.clearVanillaTechs)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.clearVanillaTechs)
                 Ship_Game.ResourceManager.TechTree.Clear();
             FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
@@ -3084,7 +3084,7 @@ namespace Ship_Game
         //Added by McShooterz: Load hull bonuses
         private static void LoadHullBonuses()
         {
-            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveMod.mi.useHullBonuses)
+            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveModInfo.useHullBonuses)
             {
                 FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses"));
                 XmlSerializer serializer1 = new XmlSerializer(typeof(HullBonus));
@@ -3116,7 +3116,7 @@ namespace Ship_Game
                 textList = null;
             }
             if (Ship_Game.ResourceManager.HullBonuses.Count == 0)
-                GlobalStats.ActiveMod.mi.useHullBonuses = false;
+                GlobalStats.ActiveModInfo.useHullBonuses = false;
         }
 
         //Added by McShooterz: Load planetary edicts

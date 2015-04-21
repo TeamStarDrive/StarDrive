@@ -522,9 +522,9 @@ namespace Ship_Game
 			DateTime now = DateTime.Now;
 			header.RealDate = string.Concat(str, " ", now.ToShortTimeString());
 			header.SaveName = data.SaveAs;
-			if (GlobalStats.ActiveMod != null)
+			if (GlobalStats.ActiveModEntry != null)
 			{
-				header.ModName = GlobalStats.ActiveMod.ModPath;
+				header.ModName = GlobalStats.ActiveModEntry.ModPath;
 			}
 			XmlSerializer Serializer1 = new XmlSerializer(typeof(HeaderData));
 			TextWriter wf = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/Headers/", data.SaveAs, ".xml"));
