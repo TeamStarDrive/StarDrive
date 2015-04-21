@@ -293,7 +293,7 @@ namespace Ship_Game.Gameplay
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
 			{
                 //Added by McShooterz: ArmorBonus Hull Bonus
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                 {
                     HullBonus mod;
                     if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))
@@ -448,7 +448,7 @@ namespace Ship_Game.Gameplay
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
             {
                 //Added by McShooterz: ArmorBonus Hull Bonus
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                 {
                     HullBonus mod;
                     if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))
@@ -1736,11 +1736,11 @@ namespace Ship_Game.Gameplay
 
         public float GetShieldsMax()
         {
-            if (GlobalStats.ActiveMod != null)
+			if (GlobalStats.ActiveModInfo != null)
             {
                 float value = this.shield_power_max;
                 value += (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
-                if (GlobalStats.ActiveMod.mi.useHullBonuses)
+                if (GlobalStats.ActiveModInfo.useHullBonuses)
                 {
                     HullBonus mod;
                     if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))

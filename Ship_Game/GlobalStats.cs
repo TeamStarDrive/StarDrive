@@ -89,7 +89,8 @@ namespace Ship_Game
 
 		public static int TimesPlayed;
 
-		public static ModEntry ActiveMod;
+		public static ModEntry ActiveModEntry;
+		public static ModInformation ActiveModInfo;
 
 		public static string ResearchRootUIDToDisplay;
 
@@ -231,9 +232,9 @@ namespace Ship_Game
 		public static void IncrementRemnantKills()
 		{
 			GlobalStats.RemnantKills = GlobalStats.RemnantKills + 1;
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.RemnantTechCount > 0)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.RemnantTechCount > 0)
             {
-                if (GlobalStats.RemnantKills == 5 && GlobalStats.RemnantActivation < GlobalStats.ActiveMod.mi.RemnantTechCount)
+                if (GlobalStats.RemnantKills == 5 && GlobalStats.RemnantActivation < GlobalStats.ActiveModInfo.RemnantTechCount)
                 {
                     GlobalStats.RemnantActivation += 1;
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);

@@ -232,7 +232,7 @@ namespace Ship_Game
             FileInfo[] filesFromDirectory;
 			
 
-            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")))
+            if (GlobalStats.ActiveModEntry != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")))
             {
                 filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns"));
             }

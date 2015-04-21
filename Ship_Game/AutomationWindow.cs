@@ -216,7 +216,7 @@ namespace Ship_Game
 				CurrentScout = this.ScoutDropDown.Options[this.ScoutDropDown.ActiveIndex].Name;
 			}
 
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.reconDropDown)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.reconDropDown)
             {
                 foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
                 {
