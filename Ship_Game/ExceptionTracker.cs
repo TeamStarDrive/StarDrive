@@ -11,7 +11,7 @@ namespace Ship_Game
 {
     internal static class ExceptionTracker
     {
-        public const string BugtrackerURL = "https://bitbucket.org/CrunchyGremlin/sd-idk/issues?status=new&status=open";
+        public const string BugtrackerURL = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new";
         const string DefaultText = "Whoops! Please post this StarDrive forums or in the Bugtracker";
 
         private static string GenerateErrorLines(Exception ex)

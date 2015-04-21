@@ -142,7 +142,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(75f * StarNumModifier);
+                            this.numSystems = (int)(50f * StarNumModifier);
                         this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
                     }
                     else if (str1 == "Huge")
@@ -152,7 +152,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(100f * StarNumModifier);
+                            this.numSystems = (int)(50f * StarNumModifier);
                         this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
                     }
                     else if (str1 == "Epic")
@@ -162,7 +162,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(100f * StarNumModifier);
+                            this.numSystems = (int)(50f * StarNumModifier);
                         this.data.Size = new Vector2(1.8E+07f * 2, 1.8E+07f * 2);
                         //this.scale = 2;
 
@@ -177,7 +177,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(150f * StarNumModifier);
+                            this.numSystems = (int)(50f * StarNumModifier);
                         //this.numSystems = (int)(100f * StarNumModifier);
                         this.data.Size = new Vector2(1.8E+07f * 3f, 1.8E+07f * 3f);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
