@@ -27,12 +27,12 @@ namespace Ship_Game
             string modVersion = null;
                 
             string data ="No Extra Info";
-            if (GlobalStats.ActiveMod != null)
+			if (GlobalStats.ActiveModEntry != null)
             {
-                mod = GlobalStats.ActiveMod.ModPath;
-                if(GlobalStats.ActiveMod.mi !=null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.mi.Version)) // && GlobalStats.ActiveMod.mi.Version !="" )
+                mod = GlobalStats.ActiveModEntry.ModPath;
+                if(GlobalStats.ActiveModInfo !=null && !string.IsNullOrEmpty(GlobalStats.ActiveModInfo.Version)) // && GlobalStats.ActiveModInfo.Version !="" )
                 {
-                    modVersion = GlobalStats.ActiveMod.mi.Version;
+                    modVersion = GlobalStats.ActiveModEntry.mi.Version;
                 }
             }
             

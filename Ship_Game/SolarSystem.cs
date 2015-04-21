@@ -97,7 +97,7 @@ namespace Ship_Game
 
 		private void AddMajorRemnantPresence(Planet newOrbital)
 		{
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
             {
                 newOrbital.PlanetFleets.Add("Remnant Battlegroup");
             }
@@ -114,7 +114,7 @@ namespace Ship_Game
 
 		private void AddMinorRemnantPresence(Planet newOrbital)
 		{
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
             {
                 newOrbital.PlanetFleets.Add("Remnant Vanguard");
             }
@@ -483,7 +483,7 @@ namespace Ship_Game
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
 					float quality = newOrbital.Fertility + newOrbital.MineralRichness + newOrbital.MaxPopulation / 1000f;
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
                     {
                         if (quality > 6f && quality < 10f)
                         {

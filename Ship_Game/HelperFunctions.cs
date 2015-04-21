@@ -114,7 +114,7 @@ namespace Ship_Game
 		public static Fleet CreateDefensiveFleetAt(string FleetUID, Empire Owner, Vector2 Position)
 		{
 			FileInfo theFleetFI;
-            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")) && File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml")))
+            if (GlobalStats.ActiveModEntry != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")) && File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml")))
             {
                 theFleetFI = new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml"));
             }
@@ -157,7 +157,7 @@ namespace Ship_Game
 		{
 			FileInfo theFleetFI;
 
-            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")) && File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml")))
+            if (GlobalStats.ActiveModEntry != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")) && File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml")))
             {
                 theFleetFI = new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml"));
             }
