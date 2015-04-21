@@ -3225,14 +3225,18 @@ namespace Ship_Game
             bool LowPri = buildingMaintenance / grossTaxes < .25f;
             bool MedPri = buildingMaintenance / grossTaxes < .60f;
             bool HighPri = buildingMaintenance / grossTaxes < .80f;
+            bool makingMoney = this.TotalMaintenanceCostsPerTurn < this.GrossMoneyPT;
             if (!string.IsNullOrEmpty(building.ExcludesPlanetType) && building.ExcludesPlanetType == this.Type)
                 return false;
             if (building.Maintenance <= 0.0f)
                 return true;
-            if ((building.PlusTaxPercentage > 0 && !building.AllowShipBuilding) || building.CreditsPerColonist > 0) 
+            if (building.PlusTaxPercentage * (this.Population / 1000f) > building.Maintenance *1.25f
+                || building.CreditsPerColonist * (this.Population / 1000f) > building.Maintenance *1.25f
+                ) 
                 return true;
             if (building .Name == "Outpost"  )
                 return true;
+            bool iftrue = false;
             switch  (governor)
             {
                 case ColonyType.Agricultural:
@@ -3243,29 +3247,32 @@ namespace Ship_Game
                         if (HighPri)
                         {
                             if (building.PlusFlatFoodAmount > 0 
-                                || building.PlusFoodPerColonist > 0 
+                                || (building.PlusFoodPerColonist > 0 && this.Population >500f)
                                 || building.Name == "Biospheres"
                                 ||this.developmentLevel > 4
+                                || ((building.MaxPopIncrease > 0
+                                || building.PlusFlatPopulation > 0 || building.PlusTerraformPoints > 0) && this.Population > this.MaxPopulation*.5f)
                                 || building.PlusFlatFoodAmount >0
                                 || building.PlusFlatProductionAmount >0
-                                || building.PlusFlatFoodAmount >0
+                                || (building.StorageAdded > 0 && this.FoodHere == MAX_STORAGE)
+                                
                                 )
                                 return true;
                         }
                         if (MedPri)
                         {
                             if (
-                                building.StorageAdded > 0 
-                                || building.PlusTerraformPoints > 0 
+                                
+                                 building.PlusTerraformPoints > 0 
                                 || building.MaxPopIncrease > 0 
                                 || building.PlusFlatPopulation > 0
-                                || this.developmentLevel > 4
+                                || this.developmentLevel > 3
                                 )
                                 return true;
                         }
-                        if (LowPri && this.developmentLevel > 2)
+                        if (LowPri && this.developmentLevel > 4 && makingMoney)
                         {
-                            return true;
+                            iftrue = true;
                         }
                         break;
                     } 
@@ -3280,26 +3287,24 @@ namespace Ship_Game
 
                             if (building.StorageAdded > 0
                                 || (building.PlusTerraformPoints > 0 && this.Fertility < 1)
-                                || (building.MaxPopIncrease > 0 && this.Population == this.MaxPopulation)                               
+                                || ((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0 || building.PlusTerraformPoints > 0) && this.Population > this.MaxPopulation * .5f)                               
                                 || building.PlusFlatFoodAmount > 0
-                                || building.PlusFoodPerColonist > 0
-                                || building.PlusFlatPopulation > 0
+                                || building.PlusFoodPerColonist > 0                                
                                 || building.PlusFlatProductionAmount > 0
                                 || building.PlusProdPerRichness >0
                                 || building.PlusProdPerColonist >0
-                                || building.Name == "Biospheres"
-                                || (building.AllowShipBuilding && this.developmentLevel > 2)
-                                || this.developmentLevel>4
+                                //|| building.Name == "Biospheres"                                
+                                || (this.developmentLevel>2 && this.GrossMoneyPT > this.TotalMaintenanceCostsPerTurn)
                                 )
                                 return true;
                         }
-                        if (MedPri && this.developmentLevel > 2)
+                        if (MedPri && this.developmentLevel > 3 )
                         {
-                            return true;
+                            iftrue = true;
                         }
-                        if (LowPri && this.developmentLevel > 1)
+                        if (LowPri && this.developmentLevel > 4)
                         {
-                            return true;
+                            iftrue = true;
                         }
                         break;
                     } 
@@ -3316,22 +3321,25 @@ namespace Ship_Game
                                 || building.PlusProdPerColonist > 0
                                 //|| building.PlusFlatProductionAmount > 0
                                 || (this.Fertility < 1f && building.PlusFlatFoodAmount > 0)
+                                || building.PlusFlatFoodAmount >0
+                                || building.StorageAdded > 0
+                                || ((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && this.Population == this.MaxPopulation)
                                 )
                                 return true;
                         }
                         if (MedPri)
                         {
-                            if (building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0 || building.StorageAdded > 0)
+                            if (LowPri && this.developmentLevel > 4 && makingMoney)
                             {
-                                return true;
+                                iftrue = true;
                             }
 
                         }
-                        if (LowPri && this.developmentLevel > 2)
+                        if (LowPri && this.developmentLevel > 4 && makingMoney)
                         {
-                            if (building.AllowShipBuilding && this.developmentLevel < 4)
-                                return false;
-                            return true;
+                            //if (building.AllowShipBuilding && this.developmentLevel < 4)
+                            //    return false;
+                            iftrue = true;
                         }
                         break;
                     } 
@@ -3346,17 +3354,17 @@ namespace Ship_Game
                             if (building.isWeapon
                                 || building.IsSensor
                                 || building.Defense > 0
-                                                                || (this.Fertility < 1f && building.PlusFlatFoodAmount > 0)
+                                || (this.Fertility < 1f && building.PlusFlatFoodAmount > 0)
                                 || (this.MineralRichness < 1f && building.PlusFlatFoodAmount > 0)
                                 || building.PlanetaryShieldStrengthAdded > 0
-                                || building.AllowShipBuilding
-                                || building.ShipRepair > 0
+                                || (building.AllowShipBuilding  && this.GrossProductionPerTurn >1)
+                                || (building.ShipRepair > 0&& this.GrossProductionPerTurn >1)
                                 || building.Strength > 0
-                                || building.AllowInfantry
+                                || (building.AllowInfantry && this.GrossProductionPerTurn >1)
 
 
                                 )
-                                return true;
+                                iftrue = true;
                         }
                         if (MedPri)
                         {
@@ -3364,12 +3372,12 @@ namespace Ship_Game
                                 || building.PlusProdPerRichness > 0
                                 || building.PlusProdPerColonist > 0
                                 || building.PlusFlatProductionAmount > 0)
-                                return true;
+                                iftrue = true;
                         }
-                        if (LowPri && this.developmentLevel > 2)
+                        if (LowPri && this.developmentLevel > 4)
                         {
                             //if(building.Name!= "Biospheres")
-                            return true;
+                            iftrue = true;
 
                         }
                         break;
@@ -3384,29 +3392,29 @@ namespace Ship_Game
                         {
                             if (building.PlusFlatResearchAmount > 0
                                 || building.PlusFlatFoodAmount > 0
-
+                                || building.PlusFlatProductionAmount >0
                                 || building.PlusResearchPerColonist > 0)
-                                return true;
+                                iftrue = true;
                         }
-                        if (MedPri && this.developmentLevel > 2)
+                        if (MedPri && this.developmentLevel > 3 &&makingMoney)
                         {
-                            if (building.StorageAdded > 0
-                                || building.PlusTerraformPoints > 0
-                                || building.MaxPopIncrease > 0
-                                || building.PlusFlatPopulation > 0)
-                                return true;
+                            //if (building.StorageAdded > 0
+                            //    || building.PlusTerraformPoints > 0
+                            //    || building.MaxPopIncrease > 0
+                            //    || building.PlusFlatPopulation > 0)
+                                iftrue = true;
                         }
-                        if (LowPri && this.developmentLevel > 2)
+                        if (LowPri && this.developmentLevel > 4 && makingMoney)
                         {
-                            if (building.AllowShipBuilding && this.developmentLevel < 4)
-                                return false;
+                            //if (building.AllowShipBuilding && this.developmentLevel < 4)
+                            //    iftrue = true;
                             return true;
                         }
                         break;
                     } 
                     #endregion
             }
-            return false;
+            return iftrue;
 
         }
 
@@ -3415,6 +3423,7 @@ namespace Ship_Game
             float income = this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn;
             if (this.colonyType == Planet.ColonyType.Colony)
                 return;
+            this.GetBuildingsWeCanBuildHere();
             Building cheapestFlatfood =  
                 this.BuildingsCanBuild.Where(flatfood => flatfood.PlusFlatFoodAmount > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
             Building cheapestFlatprod = this.BuildingsCanBuild.Where(flat => flat.PlusFlatProductionAmount > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
@@ -3780,13 +3789,14 @@ namespace Ship_Game
                                     bool qitemTest = PGS.QItem != null;
                                     if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
                                         pro = null;
-                                    else if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
+                                    if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
                                         food = cheapestFlatfood;
 
-                                    else if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
+                                    if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
                                         res = cheapestFlatResearch;
 
                                 }
+   
                                 Building buildthis = null;
                                 buildthis = pro;
                                 buildthis = pro ?? food ?? res;
@@ -3803,10 +3813,12 @@ namespace Ship_Game
                                 float coreCost = 99999f;
                                 this.GetBuildingsWeCanBuildHere();
                                 Building b = (Building)null;
-                                foreach (Building building in this.BuildingsCanBuild.Where(canbuild=> WeCanAffordThis(canbuild, this.colonyType)))
+                                foreach (Building building in this.BuildingsCanBuild)
                                 {
+                                    if (!WeCanAffordThis(building, this.colonyType))
+                                        continue;
 
-                                    if (
+                                    if ( cheapestFlatfood ==null && cheapestFlatprod ==null&&
                                         ((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population <= 1000.0) 
                                         && ((double)building.MinusFertilityOnBuild <= 0.0 && !(building.Name == "Biospheres")) 
                                         && (!(building.Name == "Terraformer") || !flag5 && (double)this.Fertility < 1.0) 
@@ -3828,8 +3840,13 @@ namespace Ship_Game
                                         }
                                 }
                             
-                                if (b != null && 
-                                    (b.CreditsPerColonist > 0 || (b.PlusTaxPercentage > 0 && !b.AllowShipBuilding)))//  ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType)) //
+                                if (b != null && cheapestFlatfood ==null && cheapestFlatprod ==null&&
+                                   (b.CreditsPerColonist > 0 || b.PlusTaxPercentage > 0 
+                                   || b.PlusFlatProductionAmount >0 || b.PlusProdPerRichness >0 || b.PlusProdPerColonist >0
+                                   || b.PlusFoodPerColonist >0 || b.PlusFlatFoodAmount >0
+                                   || b.PlusFlatResearchAmount >0 || b.PlusResearchPerColonist >0
+                                   || b.StorageAdded >0
+                                   ))//&& !b.AllowShipBuilding)))//  ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType)) //
                                 {
                                     bool flag1 = true;
                                     if (b.BuildOnlyOnce)
@@ -3974,10 +3991,10 @@ namespace Ship_Game
                                 bool qitemTest = PGS.QItem != null;
                                 if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
                                     pro = null;
-                                else if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
+                                if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
                                     food = cheapestFlatfood;
 
-                                else if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
+                                if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
                                     res = cheapestFlatResearch;
 
                             }
@@ -4034,21 +4051,26 @@ namespace Ship_Game
                         }
                         if (flag9 && (double)num6 < 2.0)
                         {
+                            float indycost = 99999f;
                             Building b = (Building)null;
-                            foreach (Building building in this.BuildingsCanBuild.OrderBy(cost=> cost.Cost))
+                            foreach (Building building in this.BuildingsCanBuild)//.OrderBy(cost=> cost.Cost))
                             {
+                                if(this.WeCanAffordThis(b, this.colonyType) )
+                                    continue;
                                 if ( (double)building.PlusFlatProductionAmount > 0.0 
                                     || (double)building.PlusProdPerColonist > 0.0 
                                     || ((double)building.PlusProdPerRichness > 0.0 
-                                    || building.StorageAdded > 0)
+                                    || building.StorageAdded > 0
+                                    
+                                    )
                                     )//this.WeCanAffordThis(b,this.colonyType) )//
                                 {
-                                    double num1 = (double)building.Cost;
+                                    indycost = building.Cost;
                                     b = building;
                                     break;
                                 }
                             }
-                            if (b != null && this.WeCanAffordThis(b, this.colonyType)) //(this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) // ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b, this.colonyType)) //
+                            if (b != null ) //(this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) // ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b, this.colonyType)) //
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -4068,7 +4090,7 @@ namespace Ship_Game
                                     ++num6;
                                 }
                             }
-                            else if (b != null && num6<2 && this.WeCanAffordThis(b, this.colonyType) && ((double)b.PlusFlatProductionAmount > 0.0 
+                            else if (b != null  && ((double)b.PlusFlatProductionAmount > 0.0 
                                 || (double)b.PlusProdPerColonist > 0.0 
                                 || (double)b.PlusProdPerRichness > 0.0 && (double)this.MineralRichness > 1.5)) //this.WeCanAffordThis(b, this.colonyType))//
                             {
@@ -4195,10 +4217,10 @@ namespace Ship_Game
                                 bool qitemTest = PGS.QItem != null;
                                 if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
                                     pro = null;
-                                else if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
+                                if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
                                     food = cheapestFlatfood;
 
-                                else if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
+                                if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
                                     res = cheapestFlatResearch;
 
                             }
@@ -4219,25 +4241,28 @@ namespace Ship_Game
                             float num1 = 99999f;
                             foreach (Building building in this.BuildingsCanBuild)
                             {
+                                if (!WeCanAffordThis(b, this.colonyType))
+                                    continue;
                                 if ((double)building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost") //this.WeCanAffordThis(building,this.colonyType)) //
                                 {
                                     //float num2 = building.Cost;
                                     b = building;
                                     break;
                                 }
-                                else if ((double)building.Cost < (double)num1 
-                                    && 
-                                    ( (double)building.PlusResearchPerColonist > 0.0 
-                                    || (double)building.PlusFlatResearchAmount > 0.0
-                                    || (double)building.CreditsPerColonist > 0.0
-                                    || building.StorageAdded > 0
-                                    || (building.PlusTaxPercentage > 0 && !building.AllowShipBuilding)))
+                                else if ((double)building.Cost < (double)num1 )
+                                    //&& 
+                                    //( (double)building.PlusResearchPerColonist > 0.0 
+                                    //|| (double)building.PlusFlatResearchAmount > 0.0
+                                    //|| (double)building.CreditsPerColonist > 0.0
+                                    //|| building.StorageAdded > 0
+                                    ////|| (building.PlusTaxPercentage > 0 && !building.AllowShipBuilding)))
+                                    //))
                                 {
                                     num1 = building.Cost;
                                     b = building;
                                 }
                             }
-                            if (b != null && WeCanAffordThis(b,this.colonyType)) // (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 
+                            if (b != null ) // (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 
                                 //|| (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
                             {
                                 bool flag1 = true;
@@ -4356,10 +4381,10 @@ namespace Ship_Game
                                 bool qitemTest = PGS.QItem != null;
                                 if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
                                     pro = null;
-                                else if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
+                                if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
                                     food = cheapestFlatfood;
 
-                                else if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
+                                if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
                                     res = cheapestFlatResearch;
 
                             }
@@ -4379,8 +4404,11 @@ namespace Ship_Game
                             this.GetBuildingsWeCanBuildHere();
                             Building b = (Building)null;
                             float num1 = 99999f;
+                            bool highPri = false;
                             foreach (Building building in this.BuildingsCanBuild.OrderBy(cost=>cost.Cost))
                             {
+                                if (!WeCanAffordThis(building, this.colonyType))
+                                    continue;
                                 if ( building.Name == "Outpost") //this.WeCanAffordThis(building,this.colonyType)) //
                                 {//(double)building.PlusFlatProductionAmount > 0.0 ||
                                     float num2 = building.Cost;
@@ -4388,8 +4416,8 @@ namespace Ship_Game
                                     break;
                                 }
                                 else if ((double)building.Cost < (double)num1 
-                                    && (building.CombatStrength > 0 
-                                    || (double)building.PlusFoodPerColonist > 0.0 
+                                    && (
+                                     (double)building.PlusFoodPerColonist > 0.0 
                                     || (double)building.PlusFlatFoodAmount > 0.0                                     
                                     || building.PlusTerraformPoints > 0f 
                                     || building.StorageAdded > 0f
@@ -4399,11 +4427,17 @@ namespace Ship_Game
                                     //|| (building.StorageAdded > 0 || !flag11 && building.Name == "Terraformer" 
                                     //&& (double)this.Fertility < 1.0) || (double)building.PlusTaxPercentage > 0.0))
                                 {
+                                    highPri = true;
+                                    num1 = building.Cost;
+                                    b = building;
+                                }
+                                else if (!highPri &&(double)building.Cost < (double)num1 && cheapestFlatfood == null && cheapestFlatprod == null && cheapestFlatResearch == null)
+                                {
                                     num1 = building.Cost;
                                     b = building;
                                 }
                             }
-                            if (b != null && WeCanAffordThis(b,this.colonyType))//&& (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
+                            if (b != null )//&& (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -4654,6 +4688,8 @@ namespace Ship_Game
                     {
                         this.ProductionHere += PGS.QItem.productionTowards;
                         this.ConstructionQueue.QueuePendingRemoval(PGS.QItem);
+                        PGS.QItem = null;
+                        
                     }
                 }
                 //foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
