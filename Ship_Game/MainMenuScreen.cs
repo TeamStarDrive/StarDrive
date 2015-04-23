@@ -633,6 +633,7 @@ namespace Ship_Game
 					file.Dispose();
 					ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
 					GlobalStats.ActiveModEntry = me;
+					GlobalStats.ActiveModInfo = me.mi;
 					Ship_Game.ResourceManager.LoadMods(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value));
 				}
 			}
