@@ -156,7 +156,7 @@ namespace Ship_Game
                         ResourceManager.Reset();
                         ResourceManager.Initialize(base.ScreenManager.Content);
                         ResourceManager.LoadEmpires();
-                        GlobalStats.ActiveModEntry = this.ActiveEntry;
+                        GlobalStats.ActiveMod = this.ActiveEntry;
 						GlobalStats.ActiveModInfo = this.ActiveEntry.mi;
                         
                         ResourceManager.WhichModPath = this.ActiveEntry.ModPath;
@@ -179,7 +179,7 @@ namespace Ship_Game
 					}
 					else if (str == "Disable")
 					{
-						GlobalStats.ActiveModEntry = null;						
+						GlobalStats.ActiveMod = null;						
 						ResourceManager.WhichModPath = "Content";
 						ResourceManager.Reset();
 						ResourceManager.Initialize(base.ScreenManager.Content);
