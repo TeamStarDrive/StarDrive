@@ -3234,7 +3234,7 @@ namespace Ship_Game
                 || building.CreditsPerColonist * (this.Population / 1000f) > building.Maintenance *1.25f
                 ) 
                 return true;
-            if (building .Name == "Outpost"  )
+            if (building .Name == "Outpost" || building.WinsGame || building.Unique )
                 return true;
             bool iftrue = false;
             switch  (governor)
@@ -3818,26 +3818,26 @@ namespace Ship_Game
                                     if (!WeCanAffordThis(building, this.colonyType))
                                         continue;
 
-                                    if ( cheapestFlatfood ==null && cheapestFlatprod ==null&&
-                                        ((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population <= 1000.0) 
-                                        && ((double)building.MinusFertilityOnBuild <= 0.0 && !(building.Name == "Biospheres")) 
-                                        && (!(building.Name == "Terraformer") || !flag5 && (double)this.Fertility < 1.0) 
-                                        && (!(building.PlusTerraformPoints >0) || !flag5 && (double)this.Fertility < 1.0) 
+                                    if (cheapestFlatfood == null && cheapestFlatprod == null &&
+                                        ((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population <= 1000.0)
+                                        && ((double)building.MinusFertilityOnBuild <= 0.0 && !(building.Name == "Biospheres"))
+                                        && (!(building.Name == "Terraformer") || !flag5 && (double)this.Fertility < 1.0)
+                                        && (!(building.PlusTerraformPoints > 0) || !flag5 && (double)this.Fertility < 1.0)
                                         //&& (building.Name != "Deep Core Mine")
-                                        && ((double)building.PlusFlatPopulation <= 0.0 
+                                        && ((double)building.PlusFlatPopulation <= 0.0
                                         || (double)this.Population / (double)this.MaxPopulation <= 0.25)
                                         )
                                     {
 
-                                            b = building;
+                                        b = building;
                                         coreCost = b.Cost;
-                                            break;
+                                        break;
                                     }
-                                        else if ((double)building.Cost < coreCost)
-                                        {
-                                            b = building;
-                                            coreCost = b.Cost;
-                                        }
+                                    else if ((double)building.Cost < coreCost)
+                                    {
+                                        b = building;
+                                        coreCost = b.Cost;
+                                    }
                                 }
                             
                                 if (b != null && cheapestFlatfood ==null && cheapestFlatprod ==null&&
