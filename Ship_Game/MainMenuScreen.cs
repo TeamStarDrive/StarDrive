@@ -318,9 +318,9 @@ namespace Ship_Game
 					}
 					b.Draw(base.ScreenManager.SpriteBatch, r);
 				}
-				if (GlobalStats.ActiveModEntry != null)
+				if (GlobalStats.ActiveMod != null)
 				{
-					base.ScreenManager.SpriteBatch.Draw(GlobalStats.ActiveModEntry.MainMenuTex, this.Portrait, Color.White);
+					base.ScreenManager.SpriteBatch.Draw(GlobalStats.ActiveMod.MainMenuTex, this.Portrait, Color.White);
 				}
 				base.ScreenManager.SpriteBatch.Draw(this.LogoAnimation[0], this.LogoRect, Color.White);
 				if (this.LogoAnimation.Count > 1)
@@ -632,7 +632,7 @@ namespace Ship_Game
 					//file.Close();
 					file.Dispose();
 					ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
-					GlobalStats.ActiveModEntry = me;
+					GlobalStats.ActiveMod = me;
 					GlobalStats.ActiveModInfo = me.mi;
 					Ship_Game.ResourceManager.LoadMods(string.Concat("Mods/", config.AppSettings.Settings["ActiveMod"].Value));
 				}
@@ -751,9 +751,9 @@ namespace Ship_Game
 				this.Portrait.Height = this.Portrait.Height + 7;
 				this.Portrait.Y = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Portrait.Height / 2;
 			}
-			if (GlobalStats.ActiveModEntry != null && !string.IsNullOrEmpty(GlobalStats.ActiveModEntry.MainMenuMusic))
+			if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
-				this.PlayMp3(string.Concat("Mods/", GlobalStats.ActiveModEntry.ModPath, "/", GlobalStats.ActiveModEntry.MainMenuMusic));
+				this.PlayMp3(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/", GlobalStats.ActiveMod.MainMenuMusic));
 			}
 			else if (base.ScreenManager.Music == null || base.ScreenManager.Music != null && base.ScreenManager.Music.IsStopped)
 			{
@@ -776,7 +776,7 @@ namespace Ship_Game
             //Added by McShooterz: random ship in main menu
             this.ShipPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 1200), (float)(this.LogoRect.Y + 400 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
 			// FrostHand: do we actually need to show Model/Ships/speeder/ship07 in base version? Or could show random ship for base and modded version?
-            if (GlobalStats.ActiveModEntry != null && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
+            if (GlobalStats.ActiveMod != null && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
             {
                 int shipIndex = rd.Next(0, ResourceManager.MainMenuShipList.ModelPaths.Count);
                 this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel(ResourceManager.MainMenuShipList.ModelPaths[shipIndex]).Meshes)[0]);
@@ -853,9 +853,9 @@ namespace Ship_Game
 
 		public void ResetMusic()
 		{
-			if (GlobalStats.ActiveModEntry != null && !string.IsNullOrEmpty(GlobalStats.ActiveModEntry.MainMenuMusic))
+			if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
-				this.PlayMp3(string.Concat("Mods/", GlobalStats.ActiveModEntry.ModPath, "/", GlobalStats.ActiveModEntry.MainMenuMusic));
+				this.PlayMp3(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/", GlobalStats.ActiveMod.MainMenuMusic));
 				base.ScreenManager.musicCategory.Stop(AudioStopOptions.Immediate);
 				return;
 			}
@@ -930,7 +930,7 @@ namespace Ship_Game
 				base.ScreenManager.Music = null;
 				base.ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
 			}
-			if (GlobalStats.ActiveModEntry == null || string.IsNullOrEmpty(GlobalStats.ActiveModEntry.MainMenuMusic))
+			if (GlobalStats.ActiveMod == null || string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
 				if (base.ScreenManager.Music == null || base.ScreenManager.Music != null && base.ScreenManager.Music.IsStopped)
 				{

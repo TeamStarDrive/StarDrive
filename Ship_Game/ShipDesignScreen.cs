@@ -3258,7 +3258,7 @@ namespace Ship_Game
 					Thrust = Thrust + slot.module.thrust;
 					WarpThrust = WarpThrust + (float)slot.module.WarpThrust;
 					TurnThrust = TurnThrust + (float)slot.module.TurnThrust;
-                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1));
+                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1));
                     OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
                     if (slot.module.SensorRange > sensorRange)
                     {
@@ -3298,7 +3298,7 @@ namespace Ship_Game
 			float Speed = 0f;
 			float WarpSpeed = WarpThrust / (Mass + 0.1f);
             //Added by McShooterz: hull bonus speed
-            WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1);
+            WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1);
 			float single = WarpSpeed / 1000f;
 			string WarpString = string.Concat(single.ToString("#.0"), "k");
 			float Turn = 0f;
@@ -3312,7 +3312,7 @@ namespace Ship_Game
 			Turn = (float)MathHelper.ToDegrees(Turn);
             Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
             //Added by McShooterz: Draw Hull Bonuses
-			if (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull))
+			if (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull))
             {
                Vector2 LCursor = new Vector2(this.HullSelectionRect.X - 145, HullSelectionRect.Y + 31);
                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ArmoredBonus != 0 ||
@@ -3375,7 +3375,7 @@ namespace Ship_Game
                 }
             }
             //Added by McShooterz: hull bonus starting cost
-			this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].StartingCost : 0)) * (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus : 1)), 99);
+			this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].StartingCost : 0)) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus : 1)), 99);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
@@ -3551,7 +3551,7 @@ namespace Ship_Game
                 this.DrawStatPropulsion(ref Cursor, "FTL Spool:", FTLSpoolTimer, 177);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-            this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveModEntry != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1)), 105);
+            this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1)), 105);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             //added by McShooterz: afterburn speed
             if (AfterSpeed != 0)
@@ -3599,12 +3599,12 @@ namespace Ship_Game
 
             if (CargoSpace > 0)
             {
-				this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace + (GlobalStats.ActiveModEntry != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? CargoSpace * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus : 0)), 109);
+				this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace + (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? CargoSpace * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus : 0)), 109);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (sensorRange != 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveModEntry != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 159);
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 159);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);

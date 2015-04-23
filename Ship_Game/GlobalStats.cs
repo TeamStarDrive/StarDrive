@@ -89,7 +89,7 @@ namespace Ship_Game
 
 		public static int TimesPlayed;
 
-		public static ModEntry ActiveModEntry;
+		public static ModEntry ActiveMod;
 		public static ModInformation ActiveModInfo;
 
 		public static string ResearchRootUIDToDisplay;

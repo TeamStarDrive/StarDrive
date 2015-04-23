@@ -490,7 +490,7 @@ namespace Ship_Game
                                 ship1.loyalty = index;
                                 ship1.Initialize();
                                 //Added by McShooterz: Starting ship support for automatic naming
-                                if (GlobalStats.ActiveModEntry != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship1.loyalty.data.Traits.ShipType, ship1.Role))
+                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship1.loyalty.data.Traits.ShipType, ship1.Role))
                                     ship1.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship1.loyalty.data.Traits.ShipType, ship1.Role);
                                 ship1.DoOrbit(planet1);
                                 ship1.GetSO().World = Matrix.CreateTranslation(new Vector3(ship1.Position, 0.0f));
@@ -514,7 +514,7 @@ namespace Ship_Game
                                 ship2.loyalty = index;
                                 ship2.Initialize();
                                 //Added by McShooterz: Starting ship support for automatic naming
-                                if (GlobalStats.ActiveModEntry != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship2.loyalty.data.Traits.ShipType, ship2.Role))
+                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship2.loyalty.data.Traits.ShipType, ship2.Role))
                                     ship2.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship2.loyalty.data.Traits.ShipType, ship2.Role);
                                 ship2.DoOrbit(planet1);
                                 ship2.GetSO().World = Matrix.CreateTranslation(new Vector3(ship2.Position, 0.0f));
@@ -574,7 +574,7 @@ namespace Ship_Game
                                     ship3.loyalty = index;
                                     ship3.Initialize();
                                     //Added by McShooterz: Starting ship support for automatic naming
-									if (GlobalStats.ActiveModEntry != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
+									if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
                                         ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.Role);
                                     ship3.DoOrbit(planet1);
                                     ship3.GetSO().World = Matrix.CreateTranslation(new Vector3(ship3.Position, 0.0f));
