@@ -2152,9 +2152,9 @@ namespace Ship_Game
             {
                 ResourceManager.LoadSubsetEmpires();
             }
-			if (GlobalStats.ActiveModEntry != null)
+			if (GlobalStats.ActiveMod != null)
 			{
-				ResourceManager.WhichModPath = string.Concat("Mods/", GlobalStats.ActiveModEntry.ModPath);
+				ResourceManager.WhichModPath = string.Concat("Mods/", GlobalStats.ActiveMod.ModPath);
 				ResourceManager.LoadModdedEmpires();
 			}
 			foreach (EmpireData e in ResourceManager.Empires)
