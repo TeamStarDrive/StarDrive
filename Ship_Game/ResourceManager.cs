@@ -483,7 +483,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+			if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -2807,7 +2807,7 @@ namespace Ship_Game
 
 		private static void LoadTechTree()
 		{
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.clearVanillaTechs)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.clearVanillaTechs)
                 Ship_Game.ResourceManager.TechTree.Clear();
             FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
@@ -3084,7 +3084,7 @@ namespace Ship_Game
         //Added by McShooterz: Load hull bonuses
         private static void LoadHullBonuses()
         {
-            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveMod.mi.useHullBonuses)
+            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveModInfo.useHullBonuses)
             {
                 FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses"));
                 XmlSerializer serializer1 = new XmlSerializer(typeof(HullBonus));
@@ -3116,7 +3116,7 @@ namespace Ship_Game
                 textList = null;
             }
             if (Ship_Game.ResourceManager.HullBonuses.Count == 0)
-                GlobalStats.ActiveMod.mi.useHullBonuses = false;
+                GlobalStats.ActiveModInfo.useHullBonuses = false;
         }
 
         //Added by McShooterz: Load planetary edicts

@@ -868,7 +868,7 @@ namespace Ship_Game
                     EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.customRemnantElements)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
                 {
                     foreach (Planet p in solarSystem.PlanetList)
                     {
@@ -915,7 +915,7 @@ namespace Ship_Game
                     else
                     {
                         //Added by McShooterz: alternate hostile fleets populate universe
-                        if (GlobalStats.ActiveMod != null && ResourceManager.HostileFleets.Fleets.Count > 0)
+						if (GlobalStats.ActiveModInfo != null && ResourceManager.HostileFleets.Fleets.Count > 0)
                         {
                             if (p.Guardians.Count > 0)
                             {
