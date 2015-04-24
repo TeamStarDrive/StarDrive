@@ -452,7 +452,7 @@ namespace Ship_Game
                         techEntry.Unlocked = true;
 
                     // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
-                    if (GlobalStats.ActiveMod == null || (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.customMilTraitTechs))
+					if (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.customMilTraitTechs))
                     {
                         if (techEntry.UID == "HeavyFighterHull")
                         {
@@ -1518,7 +1518,7 @@ namespace Ship_Game
                 foreach (Ship ship in (List<Ship>)this.OwnedShips)
                 {
                     //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
                         this.totalShipMaintenance += ship.GetMaintCostRealism();
                     }
@@ -2124,7 +2124,7 @@ namespace Ship_Game
             foreach (Planet planet in tempPlanets2)
             {   //loop over OWN planets
                 Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.usePlanetaryProjection)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 {
                     influenceNode1.KeyedObject = (object)planet;
                     influenceNode1.Position = planet.Position;
@@ -2135,7 +2135,7 @@ namespace Ship_Game
                     influenceNode1.Position = planet.system.Position;
                 }
                 influenceNode1.Radius = 1f;
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.usePlanetaryProjection)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 {
                     for (int index = 0; index < planet.BuildingList.Count; ++index)
                     {
