@@ -542,7 +542,7 @@ namespace Ship_Game
                                     //this.playerShip.GetAI().State = AIState.ManualControl;
                                     this.playerShip.DoOrbit(planet1);
                                     //Added by McShooterz: Starting ship support for automatic naming
-                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
+									if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
                                         this.playerShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role);
                                     else
                                         this.playerShip.VanityName = "Perseverance";
@@ -574,7 +574,7 @@ namespace Ship_Game
                                     ship3.loyalty = index;
                                     ship3.Initialize();
                                     //Added by McShooterz: Starting ship support for automatic naming
-                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
+									if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
                                         ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.Role);
                                     ship3.DoOrbit(planet1);
                                     ship3.GetSO().World = Matrix.CreateTranslation(new Vector3(ship3.Position, 0.0f));

@@ -20,7 +20,7 @@ namespace Ship_Game
 		{
 			if (triggeredOutcome.SecretTechDiscovered != null)
 			{
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.overrideSecretsTree)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
                 {
                     Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
                 }
