@@ -1924,6 +1924,7 @@ namespace Ship_Game
 
         private void DoViewedCombat(float elapsedTime)
         {
+            this.ActiveCombats.thisLock.EnterReadLock();
             foreach (Combat combat in (List<Combat>)this.ActiveCombats)
             {
                 if (combat.Attacker.TroopsHere.Count == 0 && combat.Attacker.building == null)
@@ -2038,10 +2039,13 @@ namespace Ship_Game
                     }
                 }
             }
+            this.ActiveCombats.thisLock.ExitReadLock();
+
         }
 
         private void DoCombatUnviewed(float elapsedTime)
         {
+            this.ActiveCombats.thisLock.EnterReadLock();
             foreach (Combat combat in (List<Combat>)this.ActiveCombats)
             {
                 if (combat.Attacker.TroopsHere.Count == 0 && combat.Attacker.building == null)
@@ -2143,6 +2147,7 @@ namespace Ship_Game
                     }
                 }
             }
+            this.ActiveCombats.thisLock.ExitReadLock();
         }
 
         public void DoCombats(float elapsedTime)
