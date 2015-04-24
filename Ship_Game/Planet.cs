@@ -5102,10 +5102,10 @@ namespace Ship_Game
                     
                 else if (keyValuePair.Value.Active && keyValuePair.Value.GetShipData().IsShipyard)
                 {
-                    
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.ShipyardBonus > 0)
+
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
                     {
-                        shipbuildingmodifier *= (1 - (GlobalStats.ActiveMod.mi.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveMod.mi.ShipyardBonus;
+                        shipbuildingmodifier *= (1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveModInfo.ShipyardBonus;
                     }
                     else
                     {
