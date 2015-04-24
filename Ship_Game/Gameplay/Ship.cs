@@ -595,9 +595,9 @@ namespace Ship_Game.Gameplay
             if (e != null)
             {
                 //Added by McShooterz: hull bonus starting cost
-                num += (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.shipData.Hull) ? ResourceManager.HullBonuses[this.shipData.Hull].StartingCost : 0);
+				num += (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.shipData.Hull) ? ResourceManager.HullBonuses[this.shipData.Hull].StartingCost : 0);
                 num += num * e.data.Traits.ShipCostMod;
-                return (float)(int)(num * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.shipData.Hull) ? 1f - ResourceManager.HullBonuses[this.shipData.Hull].CostBonus : 1));
+				return (float)(int)(num * (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.shipData.Hull) ? 1f - ResourceManager.HullBonuses[this.shipData.Hull].CostBonus : 1));
             }
             else
                 return (float)(int)num;
@@ -1071,31 +1071,31 @@ namespace Ship_Game.Gameplay
             
             // Calculate maintenance by proportion of ship cost, Duh.
             if (this.Role == "fighter" || this.Role == "scout")
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepFighter;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFighter;
             else if (this.Role == "corvette")
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepCorvette;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCorvette;
             else if (this.Role == "frigate" || this.Role == "destroyer")
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepFrigate;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFrigate;
             else if (this.Role == "cruiser")
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepCruiser;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCruiser;
             else if (this.Role == "carrier")
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepCarrier;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCarrier;
             else if (this.Role == "capital")
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepCapital;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCapital;
             else if (this.Role == "freighter")
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepFreighter;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFreighter;
             else if (this.Role == "platform")
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepPlatform;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepPlatform;
             else if (this.Role == "station")
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepStation;
-            else if (this.Role == "drone" && GlobalStats.ActiveMod.mi.useDrones)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepDrone;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepStation;
+            else if (this.Role == "drone" && GlobalStats.ActiveModInfo.useDrones)
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepDrone;
             else
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepBaseline;
 
-            if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
-            else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
+            if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0)
+                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepBaseline;
+            else if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline == 0)
                 maint = this.GetCost(this.loyalty) * 0.004f;
 
             // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
@@ -1128,31 +1128,31 @@ namespace Ship_Game.Gameplay
 
             // Calculate maintenance by proportion of ship cost, Duh.
                 if (this.Role == "fighter" || this.Role == "scout")
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepFighter;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFighter;
                 else if (this.Role == "corvette")
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepCorvette;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCorvette;
                 else if (this.Role == "frigate" || this.Role == "destroyer")
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepFrigate;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFrigate;
                 else if (this.Role == "cruiser")
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepCruiser;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCruiser;
                 else if (this.Role == "carrier")
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepCarrier;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCarrier;
                 else if (this.Role == "capital")
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepCapital;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCapital;
                 else if (this.Role == "freighter")
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepFreighter;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFreighter;
                 else if (this.Role == "platform")
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepPlatform;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepPlatform;
                 else if (this.Role == "station")
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepStation;
-                else if (this.Role == "drone" && GlobalStats.ActiveMod.mi.useDrones)
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepDrone;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepStation;
+                else if (this.Role == "drone" && GlobalStats.ActiveModInfo.useDrones)
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepDrone;
                 else
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepBaseline;
 
-                if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
-                    maint = this.GetCost(empire) * GlobalStats.ActiveMod.mi.UpkeepBaseline;
-                else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
+                if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0)
+                    maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepBaseline;
+                else if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline == 0)
                     maint = this.GetCost(empire) * 0.004f;
 
 
@@ -1183,7 +1183,7 @@ namespace Ship_Game.Gameplay
 
         public float GetMaintCost()
         {
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
                 return this.GetMaintCostRealism();
             }
@@ -1316,7 +1316,7 @@ namespace Ship_Game.Gameplay
         //CG modified so that the original function will call the mod only function if a mod is present and such.
         public float GetMaintCost(Empire empire)
         {
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
                 return this.GetMaintCostRealism(empire);
             }
@@ -3163,7 +3163,7 @@ namespace Ship_Game.Gameplay
                         }
                         weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
                         //Added by McShooterz: weapon tag modifiers with check if mod uses them
-                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useWeaponModifiers)
+						if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useWeaponModifiers)
                         {
                             if (weapon.Tag_Beam)
                                 weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Beam"].Rate;
@@ -3209,7 +3209,7 @@ namespace Ship_Game.Gameplay
                                 weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Tractor"].Rate;
                         }
                         //Added by McShooterz: Hull bonus Fire Rate
-                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+						if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                         {
                             HullBonus mod;
                             if (Ship_Game.ResourceManager.HullBonuses.TryGetValue(this.shipData.Hull, out mod))
@@ -3391,7 +3391,7 @@ namespace Ship_Game.Gameplay
                         if (this.FTLSpoolTime == 0)
                             this.FTLSpoolTime = 3f;
                         //Hull bonuses
-                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+						if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                         {
                             HullBonus mod;
                             if (ResourceManager.HullBonuses.TryGetValue(this.shipData.Hull, out mod))
@@ -3444,7 +3444,7 @@ namespace Ship_Game.Gameplay
                 if (this.Health < this.HealthMax)
                 {
                     this.shipStatusChanged = true;
-                    if (!this.InCombat || GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useCombatRepair)
+					if (!this.InCombat || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair)
                     {
                         //Added by McShooterz: Priority repair
                         float repairTracker = this.InCombat ? this.RepairRate * 0.1f : this.RepairRate;
@@ -3905,7 +3905,7 @@ namespace Ship_Game.Gameplay
             if (this.loyalty == null)
                 return;
             //Added by McShooterz: a way to prevent remnant story in mods
-            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveMod == null || (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.removeRemnantStory)))
+			if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.removeRemnantStory)))
                 GlobalStats.IncrementRemnantKills();
             //Added by McShooterz: change level cap, dynamic experience required per level
             float Exp = 1;
