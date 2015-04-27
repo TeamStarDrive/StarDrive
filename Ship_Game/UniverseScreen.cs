@@ -1732,7 +1732,7 @@ namespace Ship_Game
                     
                     List<SolarSystem> ss = new List<SolarSystem>();
                     ss.Add(solarsystems[range]);
-                    SystemUpdater2(ss);
+                    SystemUpdaterTaskBased(ss);
 
                 });
             //Parallel.ForEach(this.SolarSystemDict.Values, SS =>
@@ -2129,7 +2129,7 @@ namespace Ship_Game
             }
         }
 
-        public void SystemUpdater2(object data)
+        public void SystemUpdaterTaskBased(object data)
         {
             List<SolarSystem> list = (List<SolarSystem>)data;
             // while (true)
