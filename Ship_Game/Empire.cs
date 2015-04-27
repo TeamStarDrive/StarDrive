@@ -1077,7 +1077,16 @@ namespace Ship_Game
             {
                 Parallel.ForEach(rangePartitioner, (range, loopState) =>
                 {
+                    bool flag = false;
+                    bool border = false;
 
+                    List<Empire.InfluenceNode> influenceNodes;
+                    //lock (GlobalStats.SensorNodeLocker)
+                    this.SensorNodeLocker.EnterReadLock();
+                    {
+                        influenceNodes = new List<InfluenceNode>(this.SensorNodes);
+                    }
+                    this.SensorNodeLocker.ExitReadLock();
                     for (int i = range.Item1; i < range.Item2; i++)
                     {
                         //Ship nearby = Empire.universeScreen.MasterShipList[i];
@@ -1085,16 +1094,9 @@ namespace Ship_Game
                         if (nearby.loyalty != this)
                         {
                             List<Ship> toadd = new List<Ship>();
-                            bool flag = false;
-                            bool border = false;
+                             flag = false;
+                             border = false;
 
-                            List<Empire.InfluenceNode> influenceNodes;
-                            //lock (GlobalStats.SensorNodeLocker)
-                            this.SensorNodeLocker.EnterReadLock();
-                            {
-                                influenceNodes = new List<InfluenceNode>(this.SensorNodes);
-                            }
-                            this.SensorNodeLocker.ExitReadLock();
                             {
 
 
@@ -2226,9 +2228,9 @@ namespace Ship_Game
                 
             }
             this.BorderNodeLocker.ExitReadLock();
-            this.BorderNodeLocker.EnterWriteLock();
+            //this.BorderNodeLocker.EnterWriteLock();
             this.BorderNodes.ApplyPendingRemovals();
-            this.BorderNodeLocker.ExitWriteLock();
+            //this.BorderNodeLocker.ExitWriteLock();
             
         }
 
