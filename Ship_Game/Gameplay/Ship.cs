@@ -2776,11 +2776,11 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
-                    if (this.GetAI().fireTask != null && !this.GetAI().fireTask.IsCompleted)
-                    {
-                        this.GetAI().fireTask.Wait();
+                    //if (this.GetAI().fireTask != null && !this.GetAI().fireTask.IsCompleted)
+                    //{
+                    //    this.GetAI().fireTask.Wait();
 
-                    }
+                    //}
                     //task gremlin look at parallel here for weapons
                     foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
                     //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
@@ -4248,20 +4248,39 @@ namespace Ship_Game.Gameplay
         
         public ShipModule GetRandomInternalModule(Weapon source)
         {
+            //float distance2 = source.Range;
+            //float tempDistance = 0;
+            //ShipModule module=null;
+
+            //foreach(KeyValuePair<Vector2,ModuleSlot> shipmodule in this.ModulesDictionary)
+            //{
+            //    if (shipmodule.Value.module.ModuleType == ShipModuleType.Dummy|| !shipmodule.Value.module.Active)
+            //        continue;
+            //    tempDistance = Vector2.Distance(shipmodule.Value.module.Center, source.Center);
+            //    if(tempDistance <distance2)
+            //    {
+            //        distance2 = tempDistance;
+            //        module = shipmodule.Value.module;
+            //        if (HelperFunctions.GetRandomIndex(10) + HelperFunctions.GetRandomIndex(10) + HelperFunctions.GetRandomIndex(10) > 20)
+            //            break;
+
+            //    }
+            //}
+            //return module;
+
             int level = 0;
             if (source.GetOwner() != null)
                 level = source.GetOwner().Level;
             if(source.GetOwner() != null && lastAttacker == source.GetOwner())
             {
 
-
+                
                 if (this.AttackerTargetting.Count == 0)
                     return null;
                 int randomizer = this.AttackerTargetting.Count() / (level + 2);//level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
                 return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
             }
-            float ourside = Vector2.Distance(this.Center, source.Center);
-            //IOrderedEnumerable
+            float ourside = Vector2.Distance(this.Center, source.Center);           
             this.AttackerTargetting = this.ModuleSlotList//.AsParallel()
                 .Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Active && slot.module.Health > 0.0)
                 .OrderByDescending(distance => Vector2.Distance(distance.module.Center, source.Center) < ourside)
