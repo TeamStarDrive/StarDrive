@@ -2235,7 +2235,7 @@ namespace Ship_Game.Gameplay
         public void FireOnTarget() //(float elapsedTime)
 		{
             //Reasons not to fire
-            try
+            //try
             {
                 Relationship enemy;
                 TargetShip = this.Target as Ship;
@@ -2377,10 +2377,10 @@ namespace Ship_Game.Gameplay
                     }//);
                 }
             }
-            catch (Exception e)
+            //catch (Exception e)
             {
 #if DEBUG
-                System.Diagnostics.Debug.WriteLine(e.InnerException); 
+                //System.Diagnostics.Debug.WriteLine(e.InnerException); 
 #endif
                 
             }
@@ -7054,9 +7054,9 @@ namespace Ship_Game.Gameplay
                     }
 
                     
-                    fireTask = Task.Factory.StartNew(this.FireOnTarget);
-                    //fireTask = new Task(this.FireOnTarget);
-                    //this.FireOnTarget();
+                    //fireTask = Task.Factory.StartNew(this.FireOnTarget);//,TaskCreationOptions.LongRunning);
+                    //fireTask = new Task(this.FireOnTarget);                    
+                    this.FireOnTarget();
                         
 
                 }

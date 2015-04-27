@@ -1036,10 +1036,10 @@ namespace Ship_Game
                 thread4.Start((object)list4);
                 thread4.IsBackground = true; 
 #endif
-                Thread thread5 = new Thread(new ThreadStart(this.DeepSpaceThread));
-                this.SystemUpdateThreadList.Add(thread5);
-                thread5.Start();
-                thread5.IsBackground = true;
+                //Thread thread5 = new Thread(new ThreadStart(this.DeepSpaceThread));
+               // this.SystemUpdateThreadList.Add(thread5);
+               // thread5.Start();
+               // thread5.IsBackground = true;
                 //Thread thread6 = new Thread(new ThreadStart(this.EmpireThread));
                 //this.SystemUpdateThreadList.Add(thread6);
                 //thread6.Start();
@@ -1710,7 +1710,7 @@ namespace Ship_Game
 
             float beginTime = (float)this.zgameTime.TotalGameTime.TotalSeconds;
             #region Ships
-            this.DeepSpaceGateKeeper.Set();
+            //this.DeepSpaceGateKeeper.Set();
             
 #if !ALTERTHREAD
             this.SystemGateKeeper[0].Set();
@@ -1721,29 +1721,29 @@ namespace Ship_Game
 
             
 #if ALTERTHREAD
-            //List<SolarSystem> solarsystems = this.SolarSystemDict.Values.ToList();
+            
 #if !PLAYERONLY
-            //var source1 = Enumerable.Range(0, this.SolarSystemDict.Count).ToArray();
-            //var rangePartitioner1 = Partitioner.Create(0, source1.Length);
+            Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);
+            List<SolarSystem> solarsystems = this.SolarSystemDict.Values.OrderBy(combat=> combat.CombatInSystem).ThenBy(amount=> amount.ShipList.Count ).ToList();
+            var source1 = Enumerable.Range(0, this.SolarSystemDict.Count).ToArray();
+            Partitioner<int> rangePartitioner1 = Partitioner.Create(source1, true);
+            Parallel.ForEach(rangePartitioner1, (range, loopState) =>
+                {
+                    
+                    List<SolarSystem> ss = new List<SolarSystem>();
+                    ss.Add(solarsystems[range]);
+                    SystemUpdater2(ss);
 
-            //Parallel.ForEach(rangePartitioner1, (range, loopState) =>
+                });
+            //Parallel.ForEach(this.SolarSystemDict.Values, SS =>
             //    {
             //        List<SolarSystem> ss = new List<SolarSystem>();
-            //        for (int i = range.Item1; i < range.Item2; i++)
-            //        {
-            //            ss.Add(solarsystems[i]);
-
-            //        }
+            //        ss.Add(SS);
             //        SystemUpdater2(ss);
-
             //    });
-            Parallel.ForEach(this.SolarSystemDict.Values, SS =>
-                {
-                    List<SolarSystem> ss = new List<SolarSystem>();
-                    ss.Add(SS);
-                    SystemUpdater2(ss);
-                });
-            this.DeepSpaceDone.WaitOne();
+            if(DeepSpaceTask !=null)
+            DeepSpaceTask.Wait();
+            //this.DeepSpaceDone.WaitOne();
             
 #endif
 #if PLAYERONLY
@@ -1774,7 +1774,7 @@ namespace Ship_Game
 
 
 
-            this.DeepSpaceDone.Reset();
+            //this.DeepSpaceDone.Reset();
             //foreach(Ship ship in this.MasterShipList)
             //{
             //    if (ship.GetAI().fireTask != null && !ship.GetAI().fireTask.IsCompleted)
@@ -1930,6 +1930,9 @@ namespace Ship_Game
             else
                 this.perfavg5[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - TotalTime;
             incrementTimer++;
+            //if (this.perfavg5.Average() > .1f)
+            //    GlobalStats.ForceFullSim = false;
+            //else GlobalStats.ForceFullSim = true;
 
         }
 
@@ -2265,10 +2268,10 @@ namespace Ship_Game
 
         private void DeepSpaceThread()
         {
-            while (true)
+            //while (true)
             {
                 
-                this.DeepSpaceGateKeeper.WaitOne();
+                //this.DeepSpaceGateKeeper.WaitOne();
                 float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
 
                 
@@ -2290,7 +2293,8 @@ namespace Ship_Game
 
                         }
                     }
-
+                    List<Ship> faster = new List<Ship>();
+                    List<Ship> death = new List<Ship>();
                     foreach (Ship deepSpaceShip in this.DeepSpaceShips)
                     //Parallel.ForEach(this.DeepSpaceShips, deepSpaceShip =>
                     {
@@ -2304,8 +2308,10 @@ namespace Ship_Game
                             //try
                             {
                                 deepSpaceShip.PauseUpdate = true;
-                                deepSpaceShip.Update(elapsedTime);
-                                
+                                if (deepSpaceShip.InCombat || deepSpaceShip.PlayerShip)
+                                    deepSpaceShip.Update(elapsedTime);
+                                else
+                                    faster.Add(deepSpaceShip);
                                 if (!deepSpaceShip.PlayerShip)
                                 {
                                     continue;
@@ -2314,18 +2320,35 @@ namespace Ship_Game
                             }
                             if (deepSpaceShip.ModuleSlotList.Count == 0)
                             {
-                                deepSpaceShip.Die(null, true);
+                                death.Add(deepSpaceShip);
+                                //deepSpaceShip.Die(null, true);
                             }
                         }
                         else
                         {
+                            death.Add(deepSpaceShip);
                             deepSpaceShip.Die(null,true);
                             //this.MasterShipList.QueuePendingRemoval(deepSpaceShip);
                         }
                     }//);
+                    var source1 = Enumerable.Range(0, faster.Count).ToArray();
+                    Partitioner<int> rangePartitioner1 = Partitioner.Create(source1, true);
+                    Parallel.ForEach(rangePartitioner1, (range, loopState) =>
+                    {
+                        faster[range].Update(elapsedTime);
+
+                    });
+                     source1 = Enumerable.Range(0, death.Count).ToArray();
+                    rangePartitioner1 = Partitioner.Create(source1, true);
+                    Parallel.ForEach(rangePartitioner1, (range, loopState) =>
+                    {
+                        death[range].Update(elapsedTime);
+
+                    });
+
                 }
                 
-                this.DeepSpaceDone.Set();
+                //this.DeepSpaceDone.Set();
             }
         }
 
