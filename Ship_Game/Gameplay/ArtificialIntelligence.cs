@@ -2256,8 +2256,10 @@ namespace Ship_Game.Gameplay
                 if (this.BadGuysNear || this.Owner.InCombat)
                 {
                     //Go through each weapon
+                    int index = 0; //count up weapons.
                     foreach (Weapon weapon in this.Owner.Weapons)                    
                     {
+                        index++;
                         //GameplayObject fireTarget = this.fireTarget;
                         this.TargetShip = this.Target as Ship;
                         this.fireTarget = null;
@@ -2268,8 +2270,8 @@ namespace Ship_Game.Gameplay
                             //return;
                         }
                         //Visible weapon firing
-
-                        if (GlobalStats.ForceFullSim || this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum)
+                        float lag =Ship.universeScreen.perfavg5.Average();
+                        if ( GlobalStats.ForceFullSim || index/this.Owner.Weapons.Count*10  >lag && (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum))
                         {
                             fireTarget = null;
                             //Can this weapon fire on ships
