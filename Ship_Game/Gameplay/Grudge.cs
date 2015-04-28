@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class Grudge
+	public sealed class Grudge
 	{
 		public GrudgeType type;
 

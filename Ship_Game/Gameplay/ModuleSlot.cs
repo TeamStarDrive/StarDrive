@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public class ModuleSlot
+	public sealed class ModuleSlot
 	{
 		public Vector2 Position;
 

@@ -11,7 +11,7 @@ namespace Ship_Game
 {
     internal static class ExceptionTracker
     {
-        public const string BugtrackerURL = "https://bitbucket.org/CrunchyGremlin/sd-idk/issues?status=new&status=open";
+        public const string BugtrackerURL = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new";
         const string DefaultText = "Whoops! Please post this StarDrive forums or in the Bugtracker";
 
         private static string GenerateErrorLines(Exception ex)
@@ -27,10 +27,10 @@ namespace Ship_Game
             string modVersion = null;
                 
             string data ="No Extra Info";
-            if (GlobalStats.ActiveMod != null)
+			if (GlobalStats.ActiveMod != null)
             {
                 mod = GlobalStats.ActiveMod.ModPath;
-                if(GlobalStats.ActiveMod.mi !=null && GlobalStats.ActiveMod.mi.Version !=null && GlobalStats.ActiveMod.mi.Version !="" )
+                if(GlobalStats.ActiveModInfo !=null && !string.IsNullOrEmpty(GlobalStats.ActiveModInfo.Version)) // && GlobalStats.ActiveModInfo.Version !="" )
                 {
                     modVersion = GlobalStats.ActiveMod.mi.Version;
                 }

@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Gameplay
 {
-	public class MissileAI
+	public sealed class MissileAI
 	{
 		public Projectile Owner;
 
@@ -214,7 +214,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
-            if (this.Target != null && GlobalStats.ActiveMod != null && (GlobalStats.ActiveMod.mi.enableECM || this.Owner.weapon.TerminalPhaseAttack))
+			if (this.Target != null && GlobalStats.ActiveModInfo != null && (GlobalStats.ActiveModInfo.enableECM || this.Owner.weapon.TerminalPhaseAttack))
             {
                 float DistancetoTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
                 if (this.Jammed)
@@ -222,7 +222,7 @@ namespace Ship_Game.Gameplay
                     this.MoveTowardsTargetJammed(elapsedTime);
                     return;
                 }
-                if (GlobalStats.ActiveMod.mi.enableECM && (this.Target is ShipModule) && !this.ECMRun && DistancetoTarget <= 4000)
+				if (GlobalStats.ActiveModInfo.enableECM && (this.Target is ShipModule) && !this.ECMRun && DistancetoTarget <= 4000)
                 {
                     this.ECMRun = true;
                     float TargetECM = (this.Target as ShipModule).GetParent().ECMValue;

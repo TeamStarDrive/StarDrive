@@ -6,7 +6,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class PieCursor : DrawableGameComponent
+	public sealed class PieCursor : DrawableGameComponent
 	{
 		private float CursorSpeed = 600f;
 

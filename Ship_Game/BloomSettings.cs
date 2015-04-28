@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class BloomSettings
+	public sealed class BloomSettings
 	{
 		public readonly string Name;
 

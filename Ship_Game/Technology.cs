@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Technology
+	public sealed class Technology
 	{
 		public string UID;
 

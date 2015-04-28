@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Ship_Game
 {
-	public class LoadModelScreen : GameScreen, IDisposable
+	public sealed class LoadModelScreen : GameScreen, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -56,16 +56,24 @@ namespace Ship_Game
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+        ~LoadModelScreen() { Dispose(false); }
+
+		protected void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
 				lock (this)
 				{
+                    if (this.LocalContent != null)
+                        this.LocalContent.Dispose();
+                    if (this.SavesSL != null)
+                        this.SavesSL.Dispose();
 				}
+                this.LocalContent = null;
+                this.SavesSL = null;
 			}
 		}
-
+         
 		public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.SpriteBatch.Begin();
@@ -105,20 +113,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~LoadModelScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+	
 
 		public override void HandleInput(InputState input)
 		{
@@ -259,7 +254,7 @@ namespace Ship_Game
 				{
                     continue;
 				}
-				file.Close();
+				//file.Close();
 				file.Dispose();
 			//Label0:
               //  continue;
@@ -298,7 +293,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				file.Close();
+				//file.Close();
 				file.Dispose();
             //Label1:
               //  continue;

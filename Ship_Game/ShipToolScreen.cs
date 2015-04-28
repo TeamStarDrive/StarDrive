@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class ShipToolScreen : GameScreen, IDisposable
+	public sealed class ShipToolScreen : GameScreen, IDisposable
 	{
 		//private int activeAnimationClip;
 
@@ -135,6 +135,9 @@ namespace Ship_Game
 
 		private ShipModule ActiveModule;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public ShipToolScreen()
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(0);
@@ -161,21 +164,31 @@ namespace Ship_Game
 			}
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~ShipToolScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.spriteBatch != null)
+                        this.spriteBatch.Dispose();
+                    if (this.border != null)
+                        this.border.Dispose();
+
+                }
+                this.spriteBatch = null;
+                this.border = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -323,20 +336,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ShipToolScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		private string GetDesignStateText()
 		{

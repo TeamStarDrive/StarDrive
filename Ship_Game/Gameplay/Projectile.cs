@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class Projectile : GameplayObject
+	public class Projectile : GameplayObject, IDisposable
 	{
 		public float ShieldDamageBonus;
 
@@ -138,6 +138,10 @@ namespace Ship_Game.Gameplay
 
         public bool isSecondary;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 
 		public Ship Owner
 		{
@@ -172,6 +176,23 @@ namespace Ship_Game.Gameplay
 			this.Center = moduleAttachedTo.Center;
 			this.emitter.Position = new Vector3(moduleAttachedTo.Center, 0f);
 		}
+        public void ProjectileRecreate(Ship owner, Vector2 direction, ShipModule moduleAttachedTo)
+        {
+            this.loyalty = owner.loyalty;
+            this.owner = owner;
+            if (!owner.isInDeepSpace)
+            {
+                this.system = owner.GetSystem();
+            }
+            else
+            {
+                this.isInDeepSpace = true;
+            }
+            base.Position = moduleAttachedTo.Center;
+            this.moduleAttachedTo = moduleAttachedTo;
+            this.Center = moduleAttachedTo.Center;
+            this.emitter.Position = new Vector3(moduleAttachedTo.Center, 0f);
+        }
 
 		public Projectile(Ship_Game.Planet p, Vector2 direction)
 		{
@@ -223,7 +244,7 @@ namespace Ship_Game.Gameplay
 						Projectile.universeScreen.ScreenManager.inter.LightManager.Remove(this.light);
 					}
 				}
-				if (this.InFlightCue != "" && this.inFlight != null)
+				if (!string.IsNullOrEmpty(this.InFlightCue) && this.inFlight != null)
 				{
 					this.inFlight.Stop(AudioStopOptions.Immediate);
 				}
@@ -236,7 +257,7 @@ namespace Ship_Game.Gameplay
 					}
 					if (this.WeaponType == "Photon")
 					{
-						if (this.dieCueName != "")
+						if (!string.IsNullOrEmpty(this.dieCueName))
 						{
 							this.dieCue = AudioManager.GetCue(this.dieCueName);
 						}
@@ -259,7 +280,7 @@ namespace Ship_Game.Gameplay
                             this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 					}
-					else if (this.dieCueName != "")
+					else if (!string.IsNullOrEmpty(this.dieCueName))
 					{
 						if (Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 						{
@@ -436,7 +457,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				lock (GlobalStats.BucketLock)
+				//lock (GlobalStats.BucketLock)
 				{
 					this.system.spatialManager.CollidableProjectiles.Add(this);
 					if (this.system.spatialManager.CellSize > 0)
@@ -488,8 +509,14 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				this.system.spatialManager.CollidableProjectiles.Add(this);
-				this.system.spatialManager.CollidableObjects.Add(this);
+                //this.system.spatialManager.CollidableProjectiles.Add(this);
+                //this.system.spatialManager.CollidableObjects.Add(this);
+                //lock (GlobalStats.BucketLock)
+                {
+                    this.system.spatialManager.CollidableProjectiles.Add(this);
+                    this.system.spatialManager.RegisterObject(this);
+                    this.system.spatialManager.CollidableObjects.Add(this);
+                }
 			}
 			base.Initialize();
 		}
@@ -548,7 +575,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				lock (GlobalStats.BucketLock)
+				//lock (GlobalStats.BucketLock)
 				{
 					this.system.spatialManager.CollidableProjectiles.Add(this);
 					this.system.spatialManager.RegisterObject(this);
@@ -599,7 +626,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				lock (GlobalStats.BucketLock)
+				//lock (GlobalStats.BucketLock)
 				{
 					this.system.spatialManager.CollidableProjectiles.Add(this);
 					this.system.spatialManager.RegisterObject(this);
@@ -656,7 +683,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				lock (GlobalStats.BucketLock)
+				//lock (GlobalStats.BucketLock)
 				{
 					this.system.spatialManager.CollidableProjectiles.Add(this);
 					this.system.spatialManager.CollidableObjects.Add(this);
@@ -948,7 +975,7 @@ namespace Ship_Game.Gameplay
                     }
                     this.texturePath = this.weapon.AnimationPath + this.AnimationFrame.ToString(this.fmt);
                 }
-                if (this.InFlightCue != "" && this.inFlight == null)
+                if (!string.IsNullOrEmpty(this.InFlightCue) && this.inFlight == null)
                 {
                     this.inFlight = AudioManager.GetCue(this.InFlightCue);
                     this.inFlight.Apply3D(Projectile.universeScreen.listener, this.emitter);
@@ -1093,6 +1120,29 @@ namespace Ship_Game.Gameplay
                         Projectile.universeScreen.ScreenManager.inter.LightManager.Remove((ILight)this.MuzzleFlash);
                 }
                 base.Update(elapsedTime);
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~Projectile() { Dispose(false); }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.droneAI != null)
+                        this.droneAI.Dispose();
+
+                }
+                this.droneAI = null;
+                this.disposed = true;
             }
         }
 	}

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ShipQueueItem
+	public sealed class ShipQueueItem
 	{
 		public ShipData ShipToBuild;
 

@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class RoadNode
+	public sealed class RoadNode
 	{
 		public Vector2 Position;
 

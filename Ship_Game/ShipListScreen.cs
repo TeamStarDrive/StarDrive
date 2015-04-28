@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class ShipListScreen : GameScreen, IDisposable
+	public sealed class ShipListScreen : GameScreen, IDisposable
 	{
 		private EmpireUIOverlay eui;
 
@@ -66,6 +66,9 @@ namespace Ship_Game
 		private Rectangle STL;
 
 		private Rectangle AutoButton;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		//private bool AutoButtonHover;
 
@@ -137,22 +140,29 @@ namespace Ship_Game
 			this.SortRole = new SortButton();
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
+        ~ShipListScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ShipSL != null)
+                        this.ShipSL.Dispose();
+          
+                }
+                this.ShipSL = null;
+                this.disposed = true;
+            }
+        }
 		public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
@@ -270,20 +280,6 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ShipListScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{
@@ -380,7 +376,7 @@ namespace Ship_Game
 				ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable", base.ScreenManager);
                 if (input.InGameSelect)
                 {
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
                         AudioManager.PlayCue("sd_ui_accept_alt3");
                         this.StrSorted = !this.StrSorted;

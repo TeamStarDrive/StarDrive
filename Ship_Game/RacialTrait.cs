@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class RacialTrait
+	public sealed class RacialTrait
 	{
 		public string Name;
 
@@ -88,7 +88,7 @@ namespace Ship_Game
 
 		public float MaintMod;
 
-		public float InBordersSpeedBonus = 0f;
+		public float InBordersSpeedBonus = 0.5f;
 
 		public float TaxMod;
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class SlidingElement
+	public sealed class SlidingElement
 	{
 		public Rectangle Housing;
 

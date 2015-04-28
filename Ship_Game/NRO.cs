@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class NRO
+	public sealed class NRO
 	{
 		public Vector2 Node;
 

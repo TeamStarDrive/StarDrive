@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class UnlockItem
+	public sealed class UnlockItem
 	{
 		public string Type;
 
