@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class Agent
+	public sealed class Agent
 	{
 		public string Name;
 

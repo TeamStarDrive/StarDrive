@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ExplorationEvent
+	public sealed class ExplorationEvent
 	{
 		public string Name;
 
@@ -20,7 +20,7 @@ namespace Ship_Game
 		{
 			if (triggeredOutcome.SecretTechDiscovered != null)
 			{
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.overrideSecretsTree)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
                 {
                     Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
                 }
@@ -331,7 +331,7 @@ namespace Ship_Game
 					p.BuildingList.Remove(eventLocation.building);
 					eventLocation.building = null;
 				}
-				if (triggeredOutcome.ReplaceWith != "")
+				if (!string.IsNullOrEmpty(triggeredOutcome.ReplaceWith))
 				{
 					eventLocation.building = ResourceManager.GetBuilding(triggeredOutcome.ReplaceWith);
 					p.BuildingList.Add(eventLocation.building);

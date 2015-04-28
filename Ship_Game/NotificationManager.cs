@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class NotificationManager
+	public sealed class NotificationManager: IDisposable
 	{
 		private Ship_Game.ScreenManager ScreenManager;
 
@@ -19,6 +19,9 @@ namespace Ship_Game
 
 		public BatchRemovalCollection<Notification> NotificationList = new BatchRemovalCollection<Notification>();
         private float Timer;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public NotificationManager(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
@@ -226,8 +229,9 @@ namespace Ship_Game
 			{
 				Message = string.Concat(Localizer.Token(1505), p.Name, Localizer.Token(1506)),
 				ReferencedItem1 = p.system,
+                ReferencedItem2=p,
 				IconPath = string.Concat("Planets/", p.planetType),
-				Action = "SnapToSystem",
+                Action = "SnapToExpandSystem",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
 			};
@@ -583,6 +587,12 @@ namespace Ship_Game
 								{
 									this.ScreenManager.AddScreen(new ResearchPopup(this.screen, new Rectangle(0, 0, 600, 600), n.ReferencedItem1 as string));
 								}
+                                else if (str == "SnapToExpandSystem")
+                                {
+                                   // this.ScreenManager.AddScreen(new ResearchPopup(this.screen, new Rectangle(0, 0, 600, 600), n.ReferencedItem1 as string));
+                                    
+                                    this.SnapToExpandedSystem(n.ReferencedItem2 as Planet,n.ReferencedItem1 as SolarSystem);
+                                }
 							}
 							retValue = true;
 						}
@@ -656,11 +666,19 @@ namespace Ship_Game
 			}
 			this.screen.SnapViewPlanet(p);
 		}
+        public void SnapToExpandedSystem(Planet p, SolarSystem system)
+        {
+            AudioManager.PlayCue("sub_bass_whoosh");
+            p= p!= null ? this.screen.SelectedPlanet = p:null;
+            this.screen.SelectedSystem = system;
+           // this.screen.mouseWorldPos = p == null ? system.Position : p.Position;
+            this.screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView); 
+        }
 
 		public void SnapToSystem(SolarSystem system)
 		{
 			AudioManager.PlayCue("sub_bass_whoosh");
-			this.screen.SnapViewSystem(system);
+            this.screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
 		}
 
         public Outcome GetRandomOutcome(ExplorationEvent e)
@@ -734,5 +752,28 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~NotificationManager() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.NotificationList != null)
+                        this.NotificationList.Dispose();
+
+                }
+                this.NotificationList = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

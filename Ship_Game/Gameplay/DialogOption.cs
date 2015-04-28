@@ -6,7 +6,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class DialogOption
+	public sealed class DialogOption
 	{
 		public object Target;
 

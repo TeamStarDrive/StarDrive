@@ -6,50 +6,8 @@
   <ResearchPriority>1</ResearchPriority>
   <IndustryPriority>2</IndustryPriority>
   <TechPath>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Research:Colonization:Economic</id>
-    </Tech>
 
-
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Research:Colonization</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Economic:Industry:Research:Colonization</id>
-    </Tech>
-    
-
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:Economic:GroundCombat</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense</id>
-    </Tech>
-    <Tech>
-      <id>IFLOWRESEARCH:0</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>RANDOM</id>
-    </Tech>
-  
-    <Tech>
-      <id>IFLOWRESEARCH:0</id>
-    </Tech>
-    <Tech>
-      <id>IFCYBERNETIC:2</id>
-    </Tech>
-    <Tech>
-      <id>LOOP:3</id>
-    </Tech>
+ 
 
   </TechPath>
 </EconomicResearchStrategy>

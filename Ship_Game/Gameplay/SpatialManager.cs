@@ -8,10 +8,11 @@ using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace Ship_Game.Gameplay
 {
-    public class SpatialManager
+    public sealed class SpatialManager: IDisposable
     {
         public BatchRemovalCollection<GameplayObject> CollidableObjects = new BatchRemovalCollection<GameplayObject>();
         public BatchRemovalCollection<Projectile> CollidableProjectiles = new BatchRemovalCollection<Projectile>();
@@ -23,11 +24,15 @@ namespace Ship_Game.Gameplay
         private int Cols;
         private int Rows;
         private Vector2 UpperLeftBound;
-        private Dictionary<int, List<GameplayObject>> Buckets;
+               // private Dictionary<int, List<GameplayObject>> Buckets;
+        //private ConcurrentDictionary<int, List<GameplayObject>> Buckets;
+        private ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>> Buckets;
         public int SceneWidth;
         public int SceneHeight;
         public int CellSize;
         public bool FineDetail;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
         public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 Pos)
         {
@@ -35,9 +40,10 @@ namespace Ship_Game.Gameplay
             this.UpperLeftBound.Y = Pos.Y - (float)(sceneHeight / 2);
             this.Cols = sceneWidth / cellSize;
             this.Rows = sceneHeight / cellSize;
-            this.Buckets = new Dictionary<int, List<GameplayObject>>(this.Cols * this.Rows);
+            //this.Buckets = new Dictionary<int, List<GameplayObject>>(this.Cols * this.Rows);
+            this.Buckets = new ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>>();
             for (int key = 0; key < this.Cols * this.Rows; ++key)
-                this.Buckets.Add(key, new List<GameplayObject>());
+                this.Buckets.TryAdd(key, new BatchRemovalCollection<GameplayObject>());
             this.SceneWidth = sceneWidth;
             this.SceneHeight = sceneHeight;
             this.CellSize = cellSize;
@@ -134,33 +140,53 @@ namespace Ship_Game.Gameplay
         internal List<GameplayObject> GetNearby(GameplayObject obj)
         {
             List<GameplayObject> list = new List<GameplayObject>();
-            try
+           // try
             {
                 foreach (int key in this.GetIdForObj(obj))
                 {
-                    if (!this.Buckets.ContainsKey(key))
-                        return (List<GameplayObject>)this.CollidableObjects;
-                    list.AddRange((IEnumerable<GameplayObject>)this.Buckets[key]);
+
+                    BatchRemovalCollection<GameplayObject> test;
+                    if (!this.Buckets.TryGetValue(key, out test))
+                    {
+                        //System.Diagnostics.Debug.WriteLine("get registed key fail");
+                        return this.Buckets[1];
+                        //return (List<GameplayObject>)this.CollidableObjects;
+                    }
+                    //return this.Buckets[1];
+                    list.AddRange(test);
+
+                    //if (!this.Buckets.ContainsKey(key))
+                    //{
+                    //    System.Diagnostics.Debug.WriteLine("get registed key fail");
+                    //    return (List<GameplayObject>)this.CollidableObjects;
+                    //}
+                    //list.AddRange((IEnumerable<GameplayObject>)this.Buckets[key]);
                 }
             }
-            catch
-            {
-            }
+           // catch
+            //{
+            //    System.Diagnostics.Debug.WriteLine("get nearby fail");
+            //}
             return list;
         }
 
         internal List<GameplayObject> GetNearby(Vector2 Position)
         {
             List<GameplayObject> list = new List<GameplayObject>();
-            try
+            //try
             {
                 foreach (int key in this.GetIdForPos(Position))
                 {
-                    if (this.Buckets.ContainsKey(key))
-                        list.AddRange((IEnumerable<GameplayObject>)this.Buckets[key]);
+                    BatchRemovalCollection<GameplayObject> test;
+
+                    if (this.Buckets.TryGetValue(key, out test))
+                        list.AddRange(test);
+
+                    //if (this.Buckets.ContainsKey(key))
+                    //    list.AddRange((IEnumerable<GameplayObject>)this.Buckets[key]);
                 }
             }
-            catch
+            //catch
             {
             }
             return list;
@@ -168,17 +194,24 @@ namespace Ship_Game.Gameplay
 
         internal void RegisterObject(GameplayObject obj)
         {
-            try
+            //try
             {
                 foreach (int key in this.GetIdForObj(obj))
                 {
-                    if (this.Buckets.ContainsKey(key))
-                        this.Buckets[key].Add(obj);
+                    BatchRemovalCollection<GameplayObject> test;
+
+                    if (this.Buckets.TryGetValue(key, out test))
+                        test.Add(obj);
                     else
                         this.Buckets[1].Add(obj);
+
+                    //if (this.Buckets.ContainsKey(key))
+                    //    this.Buckets[key].Add(obj);
+                    //else
+                    //    this.Buckets[1].Add(obj);
                 }
             }
-            catch
+            //catch
             {
             }
         }
@@ -225,7 +258,7 @@ namespace Ship_Game.Gameplay
 
         public void Destroy()
         {
-            this.Buckets = (Dictionary<int, List<GameplayObject>>)null;
+            this.Buckets = null;// (Dictionary<int, List<GameplayObject>>)null;
         }
 
         internal void ClearBuckets()
@@ -274,7 +307,11 @@ namespace Ship_Game.Gameplay
                     Vector2 vector2_3 = beam.GetTarget().Center;
                     beam.ActualHitDestination = beam.GetTarget().Center;
                     if ((double)beam.damageAmount >= 0.0)
+                    {
+                        //beam.owner.Beams.QueuePendingRemoval(beam);
                         return;
+
+                    }
                     using (LinkedList<ModuleSlot>.Enumerator enumerator = ship2.ModuleSlotList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
@@ -293,16 +330,24 @@ namespace Ship_Game.Gameplay
                         }
                         return;
                     }
+
                 }
-                else if (beam.GetTarget() is ShipModule)
+                else  if (beam.GetTarget() is ShipModule)
+                {
                     gameplayObject1 = (GameplayObject)(beam.GetTarget() as ShipModule).GetParent();
+
+                }
                 else if (beam.GetTarget() is Asteroid)
                     gameplayObject1 = beam.GetTarget();
+                else
+                    
+                        System.Diagnostics.Debug.WriteLine("beam null");
+
             }
             else if (beam.Owner != null)
                 gameplayObject1 = (GameplayObject)beam.owner;
-            List<GameplayObject> nearby = this.GetNearby(gameplayObject1);
-            List<GameplayObject> AlliedShips = new List<GameplayObject>();
+            HashSet<GameplayObject> nearby = new HashSet<GameplayObject>(this.GetNearby(gameplayObject1));
+            HashSet<GameplayObject> AlliedShips = new HashSet<GameplayObject>();
             foreach (Vector2 vector2_3 in list1)
             {
                 foreach (GameplayObject gameplayObject2 in nearby)
@@ -348,8 +393,12 @@ namespace Ship_Game.Gameplay
                         int num3 = -48;
                         while (num3 < 48)
                         {
-                            if (beam.hitLast.GetParent().GetMD().ContainsKey(beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)))
-                                list3.Add(beam.hitLast.GetParent().GetMD()[beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)].module);
+                            ModuleSlot test;
+                            if (beam.hitLast.GetParent().GetMD().TryGetValue(beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3), out test))
+                                list3.Add(test.module);
+                            
+                                //if (beam.hitLast.GetParent().GetMD().ContainsKey(beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)))
+                                //list3.Add(beam.hitLast.GetParent().GetMD()[beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)].module);
                             num3 += 16;
                         }
                         num2 += 16;
@@ -395,6 +444,7 @@ namespace Ship_Game.Gameplay
                     foreach (Vector2 vector2_3 in list1)
                     {
                         if (!beam.IgnoresShields)
+                        #region Hits a shield
                         {
                             for (int index = 0; index < ship1.GetShields().Count; ++index)
                             {
@@ -421,13 +471,16 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
+                        #endregion
                         if (!flag)
                         {
                             for (int index = 0; index < ship1.ExternalSlots.Count; ++index)
                             {
                                 ++GlobalStats.BeamTests;
                                 ModuleSlot moduleSlot = ship1.ExternalSlots.ElementAt(index);
-                                if (moduleSlot != null && (moduleSlot.module.Active || (double)beam.damageAmount <= 0.0) && (double)Vector2.Distance(vector2_3, moduleSlot.module.Center) <= (beam.IgnoresShields ? 12.0 : (double)moduleSlot.module.Radius + 4.0))
+                                if (moduleSlot != null 
+                                    && (moduleSlot.module.Active || (double)beam.damageAmount <= 0.0) 
+                                    && (double)Vector2.Distance(vector2_3, moduleSlot.module.Center) <= (beam.IgnoresShields ? 12.0 : (double)moduleSlot.module.Radius + 4.0))
                                 {
                                     ++GlobalStats.BeamTests;
                                     this.collisionResults.Add(new SpatialManager.CollisionResult()
@@ -715,6 +768,8 @@ namespace Ship_Game.Gameplay
                     Direction = HelperFunctions.findPointFromAngleAndDistance(Vector2.Zero, num5 * (float)index, 1f),
                     Damage = damageAmount / (float)num4
                 });
+            List<ShipModule> list; //= new List<ShipModule>();
+            List<ModuleSlot> list1; //= new List<ModuleSlot>();
             foreach (GameplayObject gameplayObject1 in this.GetNearby(source))
             {
                 try
@@ -748,7 +803,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             if (source is Projectile && (double)(gameplayObject1 as Ship).shield_max > 0.0)
                                             {
-                                                List<ShipModule> list = new List<ShipModule>();
+                                                 list = new List<ShipModule>();
                                                 foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ModuleSlotList)
                                                 {
                                                     if ((double)moduleSlot.module.shield_power > 0.0 && moduleSlot.module.Active)
@@ -783,7 +838,7 @@ namespace Ship_Game.Gameplay
                                                     break;
                                                 damageAmount = num2;
                                             }
-                                            List<ModuleSlot> list1 = new List<ModuleSlot>();
+                                            list1 = new List<ModuleSlot>();
                                             foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ModuleSlotList)
                                             {
                                                 if (moduleSlot.module.Active && (double)Vector2.Distance(moduleSlot.module.Center, ExplosionCenter) <= (double)damageRadius + (double)moduleSlot.module.Radius)
@@ -971,6 +1026,8 @@ namespace Ship_Game.Gameplay
                     Direction = HelperFunctions.findPointFromAngleAndDistance(Vector2.Zero, num5 * (float)index, 1f),
                     Damage = damageAmount / (float)num4
                 });
+            List<ShipModule> list;// = new List<ShipModule>();
+            List<ModuleSlot> list1;// = new List<ModuleSlot>();
             foreach (GameplayObject gameplayObject1 in this.GetNearby(source))
             {
                 try
@@ -1004,7 +1061,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             if (source is Projectile && (double)(gameplayObject1 as Ship).shield_max > 0.0)
                                             {
-                                                List<ShipModule> list = new List<ShipModule>();
+                                                list = new List<ShipModule>();
                                                 foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ModuleSlotList)
                                                 {
                                                     if ((double)moduleSlot.module.shield_power > 0.0 && moduleSlot.module.Active)
@@ -1024,7 +1081,7 @@ namespace Ship_Game.Gameplay
                                                     break;
                                                 damageAmount = num2;
                                             }
-                                            List<ModuleSlot> list1 = new List<ModuleSlot>();
+                                            list1 = new List<ModuleSlot>();
                                             foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ExternalSlots)
                                             {
                                                 if (moduleSlot.module.Active && (double)Vector2.Distance(moduleSlot.module.Center, ExplosionCenter) <= (double)damageRadius + (double)moduleSlot.module.Radius)
@@ -1143,6 +1200,38 @@ namespace Ship_Game.Gameplay
             public static int Compare(SpatialManager.CollisionResult a, SpatialManager.CollisionResult b)
             {
                 return a.Distance.CompareTo(b.Distance);
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~SpatialManager() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.CollidableObjects != null)
+                        this.CollidableObjects.Dispose();
+                    if (this.CollidableProjectiles != null)
+                        this.CollidableProjectiles.Dispose();
+                    if (this.Asteroids != null)
+                        this.Asteroids.Dispose();
+                    if (this.BeamList != null)
+                        this.BeamList.Dispose();
+
+                }
+                this.CollidableObjects = null;
+                this.CollidableProjectiles = null;
+                this.Asteroids = null;
+                this.BeamList = null;
+                this.disposed = true;
             }
         }
     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	internal class MuzzleFlashManager
+	internal sealed class MuzzleFlashManager
 	{
 		public static UniverseScreen universeScreen;
 

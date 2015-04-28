@@ -16,7 +16,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class ResourceManager
+	public sealed class ResourceManager
 	{
 		public static Dictionary<string, Texture2D> TextureDict;
 
@@ -167,6 +167,33 @@ namespace Ship_Game
 		{
 		}
 
+		public static Microsoft.Xna.Framework.Content.ContentManager localContentManager;
+		public static bool ignoreLoadingErrors = false;
+		/// <summary>
+		/// This one used for reporting resource loading errors.
+		/// </summary>
+		/// <param name="FI"></param>
+		/// <param name="where"></param>
+		public static void ReportLoadingError(FileInfo FI, string where, Exception e)
+		{
+			if (!ignoreLoadingErrors)
+			{
+				e.Data.Add("Failing File: ", FI.FullName);
+				e.Data.Add("Fail Info: ", e.InnerException.Message);
+				throw (e);
+			}
+		}
+		/// <summary>
+		///  All references to Game1.Instance.Content were replaced by this function
+		/// </summary>
+		/// <returns></returns>
+		public static Microsoft.Xna.Framework.Content.ContentManager GetContentManager()
+		{
+			if (Game1.Instance != null)
+				return Game1.Instance.Content;
+			return localContentManager;
+		}
+
 		public static Troop CopyTroop(Troop t)
 		{
 			Troop troop = new Troop()
@@ -207,9 +234,21 @@ namespace Ship_Game
 			return troop;
 		}
 
+       
+
 		public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit)
 		{
-			Ship newShip = new Ship()
+            Ship newShip;
+            //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
+            //{
+            //    newShip.ShipRecreate();
+            //    newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
+            //}
+            //else 
+                newShip = new Ship()
 			{
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
 				Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
@@ -217,7 +256,7 @@ namespace Ship_Game
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
                 
 			};
-			newShip.LoadContent(Game1.Instance.Content);
+			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
 			{
@@ -279,15 +318,30 @@ namespace Ship_Game
 				Ship level = newShip;
 				level.Level = level.Level + Owner.data.BonusFighterLevels;
 			}
+            if(universeScreen.GameDifficulty > UniverseData.GameDifficulty.Normal)
+            {
+                newShip.Level += (int)universeScreen.GameDifficulty;
+            }
 			Owner.AddShip(newShip);
 			newShip.GetAI().State = AIState.AwaitingOrders;
+            
 			return newShip;
 		}
 
         //Added by McShooterz: for refit to keep name
         public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, string RefitName, byte RefitLevel)
         {
-            Ship newShip = new Ship()
+            Ship newShip;
+            //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
+            //{
+            //    newShip.ShipRecreate();
+            //    newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
+            //}
+            //else
+    newShip = new Ship()
             {
                 Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
                 Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
@@ -295,7 +349,7 @@ namespace Ship_Game
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
 
             };
-            newShip.LoadContent(Game1.Instance.Content);
+            newShip.LoadContent(GetContentManager());
             SceneObject newSO = new SceneObject();
             if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
             {
@@ -382,7 +436,7 @@ namespace Ship_Game
 				}
 			}
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-			newShip.LoadContent(Game1.Instance.Content);
+			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
 			{
@@ -429,7 +483,7 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
+			if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
@@ -455,16 +509,24 @@ namespace Ship_Game
 
 		public static Ship CreateShipAtPoint(string key, Empire Owner, Vector2 p)
 		{
-			Ship newShip = new Ship();
-			if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(key))
-			{
-				return null;
-			}
+            if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(key))
+            {
+                return null;
+            }
+            Ship newShip;
+            //if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
+            //{
+            //    newShip.ShipRecreate();
+            //}
+            //else
+            newShip = new Ship();
+			
+
 			newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
             newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
             newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-			newShip.LoadContent(Game1.Instance.Content);
+			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
 			{
@@ -532,7 +594,18 @@ namespace Ship_Game
 
 		public static Ship CreateShipAtPoint(string key, Empire Owner, Vector2 p, float facing)
 		{
-			Ship newShip = new Ship()
+						Ship newShip;
+            //if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
+            //{
+            //    newShip.ShipRecreate();
+            //    newShip.Rotation = facing;
+            //    newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
+            //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
+            //}
+            //else
+            newShip = new Ship()
 			{
 				Rotation = facing,
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
@@ -541,7 +614,7 @@ namespace Ship_Game
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
                 
 			};
-			newShip.LoadContent(Game1.Instance.Content);
+			newShip.LoadContent(GetContentManager());
 			if (newShip.Role == "fighter")
 			{
 				Ship level = newShip;
@@ -617,7 +690,7 @@ namespace Ship_Game
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
             newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
             newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-			newShip.LoadContent(Game1.Instance.Content);
+			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
 			{
@@ -692,7 +765,7 @@ namespace Ship_Game
                 BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
 			};
-			newShip.LoadContent(Game1.Instance.Content);
+			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
 			{
@@ -805,7 +878,7 @@ namespace Ship_Game
 				Name = key,
 				VanityName = troop.Name
 			};
-			newShip.LoadContent(Game1.Instance.Content);
+			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
 			{
@@ -874,7 +947,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[num];
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
 				{
@@ -893,7 +966,7 @@ namespace Ship_Game
 				FileInfo FI = filesFromDirectory[num1];
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
 				{
@@ -913,7 +986,7 @@ namespace Ship_Game
 				FileInfo FI = filesFromDirectory1[num2];
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
 				{
@@ -932,7 +1005,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray1[num3];
 				FileStream stream = FI.OpenRead();
 				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
 				{
@@ -1109,23 +1182,28 @@ namespace Ship_Game
 			Model item;
 			try
 			{
-				if (!Ship_Game.ResourceManager.ModelDict.ContainsKey(path))
+				if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
 				{
-					Model model = Game1.Instance.Content.Load<Model>(path);
-					Ship_Game.ResourceManager.ModelDict.Add(path, model);
-					item = model;
+					item= GetContentManager().Load<Model>(path);
+					Ship_Game.ResourceManager.ModelDict.Add(path, item);
+					//item = model;
 				}
-				else
-				{
-					item = Ship_Game.ResourceManager.ModelDict[path];
-				}
+                
+
+
+
+
+                //else
+                //{
+                //    item = Ship_Game.ResourceManager.ModelDict[path];
+                //}
 			}
 			catch
 			{
                 
-				Model model = Game1.Instance.Content.Load<Model>(string.Concat("Mod Models/", path));
-                Ship_Game.ResourceManager.ModelDict.Add(path, model);
-				item = model;
+				item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
+                Ship_Game.ResourceManager.ModelDict.Add(path, item);
+				//item = model;
 			}
 			return item;
 		}
@@ -1222,7 +1300,34 @@ namespace Ship_Game
                 TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding,
                 TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault
 			};
-			return module;
+
+            #region TargetWeight
+            module.TargetValue += module.ModuleType == ShipModuleType.Armor ? -1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Bomb ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Command ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Drone ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Engine ? 2 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Hangar ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.MainGun ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.MissileLauncher ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Sensors ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Shield ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Special ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
+            module.TargetValue += module.explodes ? 2 : 0;
+            module.TargetValue += module.isWeapon ? 1 : 0;
+         
+            
+
+
+
+            #endregion
+            return module;
 		}
 
 		public static Ship GetPlayerShip(string key)
@@ -1232,7 +1337,7 @@ namespace Ship_Game
 				PlayerShip = true,
 				Role = Ship_Game.ResourceManager.ShipsDict[key].Role
 			};
-			newShip.LoadContent(Game1.Instance.Content);
+			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
 			{
@@ -1287,9 +1392,19 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				RacialTraits data = (RacialTraits)serializer1.Deserialize(stream);
-				stream.Close();
+                RacialTraits data = null;
+                try
+                {
+                     data = (RacialTraits)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "GetRaceTraits", e);
+                }
+				//stream.Close();
 				stream.Dispose();
+				if (data == null)
+					continue;
                 
 				foreach(RacialTrait trait in data.TraitList)
                 {
@@ -1312,11 +1427,13 @@ namespace Ship_Game
 
 		public static Ship GetShip(string key)
 		{
-			Ship newShip = new Ship()
-			{
-				Role = Ship_Game.ResourceManager.ShipsDict[key].Role
-			};
-			newShip.LoadContent(Game1.Instance.Content);
+            Ship newShip = new Ship()
+            {
+                Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
+                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
+                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+            };
+			newShip.LoadContent(GetContentManager());
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
@@ -1357,12 +1474,13 @@ namespace Ship_Game
                 newSlot.InstalledModuleUID = slot.InstalledModuleUID;
                 newShip.ModuleSlotList.AddLast(newSlot);
             }
+         
 			return newShip;
 		}
 
 		public static SkinnedModel GetSkinnedModel(string path)
 		{
-			return Game1.Instance.Content.Load<SkinnedModel>(path);
+			return GetContentManager().Load<SkinnedModel>(path);
 		}
 
 		public static Weapon GetWeapon(string uid)
@@ -1484,9 +1602,20 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				List<Artifact> data = (List<Artifact>)serializer1.Deserialize(stream);
-				stream.Close();
+                List<Artifact> data = null;
+                try
+                {
+                    data = (List<Artifact>)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadArtifacts", e);
+                }
+				//stream.Close();
 				stream.Dispose();
+				if (data == null)
+					continue;
+
 				foreach (Artifact art in data)
 				{
                     art.DescriptionIndex += OffSet;
@@ -1512,9 +1641,19 @@ namespace Ship_Game
             for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				Building newB = (Building)serializer0.Deserialize(stream);
-				stream.Close();
+                Building newB = null;
+                try
+                {
+                    newB = (Building)serializer0.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadBuildings", e);
+                }
+				//stream.Close();
 				stream.Dispose();
+				if (newB == null)
+					continue;
                 try
                 {
                     if (Localizer.LocalizerDict.ContainsKey(newB.DescriptionIndex + OffSet))
@@ -1545,7 +1684,7 @@ namespace Ship_Game
                 catch(NullReferenceException ex)
                 {
                     ex.Data["Building Lookup"] = newB.Name;
-                    throw ex;
+					ReportLoadingError(fileInfoArray[i], "LoadBuildings", ex);
                 }
 			}
 			textList = null;
@@ -1560,9 +1699,19 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				DiplomacyDialog data = (DiplomacyDialog)serializer1.Deserialize(stream);
-				stream.Close();
-				stream.Dispose();	
+				DiplomacyDialog data = null;
+                try
+                {
+                    data = (DiplomacyDialog)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadDialogs", e);
+                }
+				//stream.Close();
+				stream.Dispose();
+				if (data == null)
+					continue;
 
                 if (Ship_Game.ResourceManager.DDDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -1584,10 +1733,18 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
+                EmpireData data = null;
+                try
+                {
+                    data = (EmpireData)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadEmpires", e);
+                }
                 data.TroopDescriptionIndex = +OffSet;
                 data.TroopNameIndex += OffSet;
-                stream.Close();
+                //stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.Empires.Add(data);
 			}
@@ -1603,8 +1760,16 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				Encounter data = (Encounter)serializer1.Deserialize(stream);				
-                stream.Close();
+                Encounter data = null;
+                try
+                {
+                     data = (Encounter)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadEncounters", e);
+                }				
+                //stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.Encounters.Add(data);
 			}
@@ -1619,8 +1784,16 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				ExplorationEvent data = (ExplorationEvent)serializer1.Deserialize(stream);
-				stream.Close();
+                ExplorationEvent data = null;
+                try
+                {
+                     data = (ExplorationEvent)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadExpEvents", e);
+                }
+				//stream.Close();
 				stream.Dispose();				
                 if (Ship_Game.ResourceManager.EventsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -1642,7 +1815,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[i];
 				if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
 				{
-					Texture2D tex = Game1.Instance.Content.Load<Texture2D>((Ship_Game.ResourceManager.WhichModPath == "Content" ? string.Concat("Flags/", Path.GetFileNameWithoutExtension(FI.Name)) : string.Concat(".../", Ship_Game.ResourceManager.WhichModPath, "/Flags/", Path.GetFileNameWithoutExtension(FI.Name))));
+					Texture2D tex = GetContentManager().Load<Texture2D>((Ship_Game.ResourceManager.WhichModPath == "Content" ? string.Concat("Flags/", Path.GetFileNameWithoutExtension(FI.Name)) : string.Concat(".../", Ship_Game.ResourceManager.WhichModPath, "/Flags/", Path.GetFileNameWithoutExtension(FI.Name))));
 					KeyValuePair<string, Texture2D> Flag = new KeyValuePair<string, Texture2D>(Path.GetFileNameWithoutExtension(FI.Name), tex);
 					Ship_Game.ResourceManager.FlagTextures.Add(Flag);
 				}
@@ -1658,9 +1831,17 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				Good data = (Good)serializer1.Deserialize(stream);
+                Good data = null;
+                try
+                {
+                     data = (Good)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                    ReportLoadingError(fileInfoArray[i], "LoadGoods", e);
+                }
 				data.UID = Path.GetFileNameWithoutExtension(FI.Name);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
                 //noLocalization
 				if (Ship_Game.ResourceManager.GoodsDict.ContainsKey(data.UID))
@@ -1686,7 +1867,7 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
 				Technology data = (Technology)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();
 				if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -1710,9 +1891,19 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
+                ShipData newShipData = null;
+                try
+                {
+                    newShipData = (ShipData)serializer0.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadHullData", e);
+                }
+				if (newShipData == null)
+					continue;
 				
-                stream.Close();
+                //stream.Close();
 				stream.Dispose();
 				newShipData.Hull = string.Concat(FI.Directory.Name, "/", newShipData.Hull);
 				newShipData.ShipStyle = FI.Directory.Name;
@@ -1759,6 +1950,8 @@ namespace Ship_Game
             Ship_Game.ResourceManager.LoadArtifacts();			
             Ship_Game.ResourceManager.LoadShipRoles();
             Ship_Game.ResourceManager.LoadPlanetEdicts();
+            //Ship_Game.ResourceManager.MarkShipDesignsUnlockable();
+            
 		}
 
 		private static void LoadJunk()
@@ -1769,11 +1962,18 @@ namespace Ship_Game
 				FileInfo FI = filesFromDirectory[num];
 				for (int i = 1; i < 15; i++)
 				{
-					if (Path.GetFileNameWithoutExtension(FI.Name) == string.Concat("spacejunk", i))
+					try
 					{
-						Model junk = Game1.Instance.Content.Load<Model>(string.Concat("Model/SpaceJunk/", Path.GetFileNameWithoutExtension(FI.Name)));
-						Ship_Game.ResourceManager.JunkModels[i] = junk;
+						if (Path.GetFileNameWithoutExtension(FI.Name) == string.Concat("spacejunk", i))
+						{
+							Model junk = GetContentManager().Load<Model>(string.Concat("Model/SpaceJunk/", Path.GetFileNameWithoutExtension(FI.Name)));
+							Ship_Game.ResourceManager.JunkModels[i] = junk;
+						}
 					}
+					catch (Exception e) 
+					{  
+						ReportLoadingError(FI, "LoadJunk", e);
+					} 
 				}
 			}
 		}
@@ -1790,7 +1990,7 @@ namespace Ship_Game
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
 				LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-				stream.Close();
+				//stream.Close();
 				stream.Dispose();				
                 Ship_Game.ResourceManager.LanguageFile = data;
 			}
@@ -1803,7 +2003,7 @@ namespace Ship_Game
 				{
 					FileStream stream = fileInfoArray1[j].OpenRead();
 					LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-					stream.Close();
+					//stream.Close();
 					stream.Dispose();
 					Ship_Game.ResourceManager.LanguageFile = data;
 				}
@@ -1819,7 +2019,7 @@ namespace Ship_Game
             {
                 FileStream stream = fileInfoArray[i].OpenRead();
                 LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-                stream.Close();
+                //stream.Close();
                 stream.Dispose();
                 
                 Ship_Game.ResourceManager.LanguageFile = data;
@@ -1833,7 +2033,7 @@ namespace Ship_Game
                 {
                     FileStream stream = fileInfoArray1[j].OpenRead();
                     LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-                    stream.Close();
+                    //stream.Close();
                     stream.Dispose();
                     Ship_Game.ResourceManager.LanguageFile = data;
                 }
@@ -1847,10 +2047,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
 			{
 				FileInfo FI = filesFromDirectory[i];
-				if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
+				try
 				{
-					Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("LargeStars/", Path.GetFileNameWithoutExtension(FI.Name)));
-					Ship_Game.ResourceManager.LargeStars.Add(tex);
+					if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
+					{
+						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("LargeStars/", Path.GetFileNameWithoutExtension(FI.Name)));
+						Ship_Game.ResourceManager.LargeStars.Add(tex);
+					}
+				}
+				catch (Exception e)
+				{
+					ReportLoadingError(FI, "LoadLargeStars", e);
 				}
 			}
 		}
@@ -1861,10 +2068,17 @@ namespace Ship_Game
 			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
 			{
 				FileInfo FI = filesFromDirectory[i];
-				if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
+				try
 				{
-					Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("MediumStars/", Path.GetFileNameWithoutExtension(FI.Name)));
-					Ship_Game.ResourceManager.MediumStars.Add(tex);
+					if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
+					{
+						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("MediumStars/", Path.GetFileNameWithoutExtension(FI.Name)));
+						Ship_Game.ResourceManager.MediumStars.Add(tex);
+					}
+				}
+				catch (Exception e)
+				{
+					ReportLoadingError(FI, "LoadMediumStars", e);
 				}
 			}
 		}
@@ -1877,9 +2091,19 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
-				stream.Close();
+                EmpireData data = null;
+                try
+                {
+                     data = (EmpireData)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadModdedEmpires", e);
+                }
+				//stream.Close();
 				stream.Dispose();
+				if (data == null)
+					continue;
                 if (Localizer.LocalizerDict.ContainsKey(data.TroopDescriptionIndex + OffSet))
                 {
                     data.TroopDescriptionIndex += ResourceManager.OffSet;
@@ -1907,10 +2131,6 @@ namespace Ship_Game
 		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
             ResourceManager.OffSet = 32000;
-            //if (Ship_Game.ResourceManager.WhichModPath != "Content")
-            //    ResourceManager.OffSet = 10000;
-            //else
-            //    ResourceManager.OffSet = 0;
             Ship_Game.ResourceManager.LoadLanguage();
 			Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
@@ -1961,7 +2181,7 @@ namespace Ship_Game
 				FileInfo FI = filesFromDirectory[i];
 				if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
 				{
-					Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("Nebulas/", Path.GetFileNameWithoutExtension(FI.Name)));
+					Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Nebulas/", Path.GetFileNameWithoutExtension(FI.Name)));
 					if (tex.Width == 2048)
 					{
 						Ship_Game.ResourceManager.BigNebulas.Add(tex);
@@ -1980,30 +2200,36 @@ namespace Ship_Game
 
 		private static void LoadProjectileMeshes()
 		{
-			Model projLong = Game1.Instance.Content.Load<Model>("Model/Projectiles/projLong");
-			ModelMesh projMesh = Game1.Instance.Content.Load<Model>("Model/Projectiles/projLong").Meshes[0];
+			var Content = GetContentManager();
+			try
+			{
+			Model projLong = GetContentManager().Load<Model>("Model/Projectiles/projLong");
+			ModelMesh projMesh = GetContentManager().Load<Model>("Model/Projectiles/projLong").Meshes[0];
 			Ship_Game.ResourceManager.ProjectileMeshDict["projLong"] = projMesh;
 			Ship_Game.ResourceManager.ProjectileModelDict["projLong"] = projLong;
-			Model projTear = Game1.Instance.Content.Load<Model>("Model/Projectiles/projTear");
+			Model projTear = GetContentManager().Load<Model>("Model/Projectiles/projTear");
 			projMesh = projTear.Meshes[0];
 			Ship_Game.ResourceManager.ProjectileMeshDict["projTear"] = projMesh;
 			Ship_Game.ResourceManager.ProjectileModelDict["projTear"] = projTear;
-			Model projBall = Game1.Instance.Content.Load<Model>("Model/Projectiles/projBall");
+			Model projBall = GetContentManager().Load<Model>("Model/Projectiles/projBall");
 			projMesh = projBall.Meshes[0];
 			Ship_Game.ResourceManager.ProjectileMeshDict["projBall"] = projMesh;
 			Ship_Game.ResourceManager.ProjectileModelDict["projBall"] = projBall;
-			Model torpedo = Game1.Instance.Content.Load<Model>("Model/Projectiles/torpedo");
+			Model torpedo = GetContentManager().Load<Model>("Model/Projectiles/torpedo");
 			projMesh = torpedo.Meshes[0];
 			Ship_Game.ResourceManager.ProjectileMeshDict["torpedo"] = projMesh;
 			Ship_Game.ResourceManager.ProjectileModelDict["torpedo"] = torpedo;
-			Model missile = Game1.Instance.Content.Load<Model>("Model/Projectiles/missile");
+			Model missile = GetContentManager().Load<Model>("Model/Projectiles/missile");
 			projMesh = missile.Meshes[0];
 			Ship_Game.ResourceManager.ProjectileMeshDict["missile"] = projMesh;
 			Ship_Game.ResourceManager.ProjectileModelDict["missile"] = missile;
-			Model drone = Game1.Instance.Content.Load<Model>("Model/Projectiles/spacemine");
+			Model drone = GetContentManager().Load<Model>("Model/Projectiles/spacemine");
 			projMesh = drone.Meshes[0];
 			Ship_Game.ResourceManager.ProjectileMeshDict["spacemine"] = projMesh;
 			Ship_Game.ResourceManager.ProjectileModelDict["spacemine"] = missile;
+			}
+			catch (Exception) { }
+
              
             //Added by McShooterz: failed attempt at loading projectile models
             //modified by gremlin
@@ -2016,10 +2242,10 @@ namespace Ship_Game
                     string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
                     if (name != "Thumbs")
                     {
-                        Model projModel = Game1.Instance.Content.Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
+                        Model projModel = GetContentManager().Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
                         //try
                         //{
-                        //    Model projModel = Game1.Instance.Content.Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
+                        //    Model projModel = GetContentManager().Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
                         //}
                         
                         //catch
@@ -2043,7 +2269,7 @@ namespace Ship_Game
                 string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
                 if (name != "Thumbs" && (filesFromDirectory[i].GetType() ==  typeof(Model)))
                 {
-                    Model projModel = Game1.Instance.Content.Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
+                    Model projModel = GetContentManager().Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
                     ModelMesh projMesh2 = projModel.Meshes[0];
                     Ship_Game.ResourceManager.ProjectileMeshDict[name] = projMesh2;
                     Ship_Game.ResourceManager.ProjectileModelDict[name] = projModel;
@@ -2064,7 +2290,7 @@ namespace Ship_Game
             //    string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
             //    if (name != "Thumbs")
             //    {
-            //        Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("/Model/Projectiles/textures/", name));
+            //        Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("/Model/Projectiles/textures/", name));
             //        Ship_Game.ResourceManager.ProjTextDict[name] = tex;
             //    }
             //}
@@ -2077,7 +2303,7 @@ namespace Ship_Game
                     string name = Path.GetFileNameWithoutExtension(filesFrommodDirectory[i].Name);
                     if (name != "Thumbs")
                     {
-                        Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("../",Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/textures/", name));
+                        Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("../",Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/textures/", name));
                         Ship_Game.ResourceManager.ProjTextDict[name] = tex;
                     }
                 }
@@ -2096,9 +2322,18 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				RandomItem data = (RandomItem)serializer1.Deserialize(stream);
-				
-                stream.Close();
+                RandomItem data = null;
+                try
+                {
+                     data = (RandomItem)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadRandomItems", e);
+                }
+				if (data == null)
+					continue;
+                //stream.Close();
 				stream.Dispose();
 				Ship_Game.ResourceManager.RandomItemsList.Add(data);
 			}
@@ -2112,7 +2347,7 @@ namespace Ship_Game
 			for (int num = 0; num < (int)fileInfoArray.Length; num++)
 			{
 				FileInfo FI = fileInfoArray[num];
-				Ship_Game.ResourceManager.RoidsModels[i] = Game1.Instance.Content.Load<Model>(string.Concat("Model/Asteroids/", Path.GetFileNameWithoutExtension(FI.Name)));
+				Ship_Game.ResourceManager.RoidsModels[i] = GetContentManager().Load<Model>(string.Concat("Model/Asteroids/", Path.GetFileNameWithoutExtension(FI.Name)));
 				i++;
 			}
 		}
@@ -2130,9 +2365,19 @@ namespace Ship_Game
                 if(FI.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase)  >0)
                     continue;
 				FileStream stream = FI.OpenRead();
-				ShipModule data = (ShipModule)serializer1.Deserialize(stream);
-				stream.Close();
+                ShipModule data = null;
+                try
+                {
+                     data = (ShipModule)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                    ReportLoadingError(fileInfoArray[i], "LoadShipModules", e); 
+                }
+				//stream.Close();
 				stream.Dispose();
+				if (data == null)
+					continue;
                 if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
                 {
                     data.DescriptionIndex += (ushort)OffSet;
@@ -2187,7 +2432,7 @@ namespace Ship_Game
                 FileStream stream = fileInfoArray[i].OpenRead();
 
                 ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-                stream.Close();
+                //stream.Close();
                 stream.Dispose();
                 Ship newShip = Ship.CreateShipFromShipData(newShipData);
                 if(newShip.Role!="disabled")
@@ -2205,8 +2450,16 @@ namespace Ship_Game
 			for (int j = 0; j < (int)filesFromDirectory.Length; j++)
 			{
 				FileStream stream = filesFromDirectory[j].OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				stream.Close();
+                ShipData newShipData = null;
+                try
+                {
+                     newShipData = (ShipData)serializer0.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                    ReportLoadingError(fileInfoArray[j], "LoadShips", e);
+                }
+				//stream.Close();
 				stream.Dispose();
 				Ship newShip = Ship.CreateShipFromShipData(newShipData);
                 if (newShip.Role != "disabled")
@@ -2234,8 +2487,16 @@ namespace Ship_Game
 #endif
 				{
 					FileStream stream = FI.OpenRead();
-					ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-					stream.Close();
+                    ShipData newShipData = null;
+                    try
+                    {
+                         newShipData = (ShipData)serializer0.Deserialize(stream);
+                    }
+                    catch (Exception e)
+                    {
+                    	ReportLoadingError(FI, "LoadShips", e);
+                    }
+					//stream.Close();
 					stream.Dispose();
 					Ship newShip = Ship.CreateShipFromShipData(newShipData);
                     if (newShip.Role != "disabled")
@@ -2266,7 +2527,7 @@ namespace Ship_Game
 					{
 						FileStream stream = FI.OpenRead();
 						ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-						stream.Close();
+						//stream.Close();
 						stream.Dispose();
 						Ship newShip = Ship.CreateShipFromShipData(newShipData);
                         if (newShip.Role != "disabled")
@@ -2510,7 +2771,7 @@ namespace Ship_Game
 				FileInfo FI = filesFromDirectory[i];
 				if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
 				{
-					Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("SmallStars/", Path.GetFileNameWithoutExtension(FI.Name)));
+					Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("SmallStars/", Path.GetFileNameWithoutExtension(FI.Name)));
 					Ship_Game.ResourceManager.SmallStars.Add(tex);
 				}
 			}
@@ -2525,8 +2786,16 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				EmpireData data = (EmpireData)serializer1.Deserialize(stream);
-				stream.Close();
+                EmpireData data = null;
+                try
+                {
+                     data = (EmpireData)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadSubsetEmpires", e);
+                }
+				//stream.Close();
 				stream.Dispose();
 				if (data.Faction == 1)
 				{
@@ -2538,7 +2807,7 @@ namespace Ship_Game
 
 		private static void LoadTechTree()
 		{
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.clearVanillaTechs)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.clearVanillaTechs)
                 Ship_Game.ResourceManager.TechTree.Clear();
             FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
@@ -2547,8 +2816,16 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				Technology data = (Technology)serializer1.Deserialize(stream);
-				stream.Close();
+                Technology data = null;
+                try
+                {
+                     data = (Technology)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(FI, "LoadTechTree", e);
+                }
+				//stream.Close();
 				stream.Dispose();
                 if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
                 {
@@ -2605,7 +2882,7 @@ namespace Ship_Game
 						string name = Path.GetFileNameWithoutExtension(FI.Name);
 						if (name != "Thumbs")
 						{
-							ContentManager content = Game1.Instance.Content;
+							ContentManager content = GetContentManager();
 							string[] whichModPath = new string[] { "../", Ship_Game.ResourceManager.WhichModPath, "/Textures/", FI.Directory.Name, "/", name };
 							Texture2D tex = content.Load<Texture2D>(string.Concat(whichModPath));
 							Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", name)] = tex;
@@ -2613,7 +2890,7 @@ namespace Ship_Game
 					}
 					else if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
 					{
-						Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
+						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
 						Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name))] = tex;
 					}
 				}
@@ -2628,7 +2905,7 @@ namespace Ship_Game
 					string name = Path.GetFileNameWithoutExtension(FI.Name);
 					if (name != "Thumbs")
 					{
-						Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
+						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
 						if (!Ship_Game.ResourceManager.TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
 						{
 							Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name))] = tex;
@@ -2640,7 +2917,7 @@ namespace Ship_Game
 					string name = Path.GetFileNameWithoutExtension(FI.Name);
 					if (name != "Thumbs")
 					{
-						Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("Textures/", FI.Directory.Name, "/", name));
+						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Textures/", FI.Directory.Name, "/", name));
 						if (!Ship_Game.ResourceManager.TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
 						{
 							Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", name)] = tex;
@@ -2658,8 +2935,16 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				Tooltips data = (Tooltips)serializer1.Deserialize(stream);
-				stream.Close();
+                Tooltips data = null;
+                try
+                {
+                    data = (Tooltips)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(fileInfoArray[i], "LoadToolTips", e);
+                }
+				//stream.Close();
 				stream.Dispose();
 				foreach (ToolTip tip in data.ToolTipsList)
 				{
@@ -2686,8 +2971,16 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				Troop data = (Troop)serializer1.Deserialize(stream);
-				stream.Close();
+                Troop data = null;
+                try
+                {
+                    data = (Troop)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(FI, "LoadTroops", e);
+                }
+				//stream.Close();
 				stream.Dispose();
 				//no localization
                 data.Name = Path.GetFileNameWithoutExtension(FI.Name);
@@ -2717,8 +3010,16 @@ namespace Ship_Game
 			{
 				FileInfo FI = fileInfoArray[i];
 				FileStream stream = FI.OpenRead();
-				Weapon data = (Weapon)serializer1.Deserialize(stream);
-				stream.Close();
+                Weapon data = null;
+                try
+                {
+                    data = (Weapon)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+					ReportLoadingError(FI, "LoadWeapons", e);
+                }
+				//stream.Close();
 				stream.Dispose();
                 //no localization
                 data.UID = Path.GetFileNameWithoutExtension(FI.Name);
@@ -2744,8 +3045,16 @@ namespace Ship_Game
             {
                 FileInfo FI = fileInfoArray[i];
                 FileStream stream = FI.OpenRead();
-                ShipRole data = (ShipRole)serializer1.Deserialize(stream);
-                stream.Close();
+                ShipRole data = null;
+                try
+                {
+                    data = (ShipRole)serializer1.Deserialize(stream);
+                }
+                catch (Exception e)
+                {
+                    ReportLoadingError(FI, "LoadShipRoles", e);
+                }
+                //stream.Close();
                 stream.Dispose();                              
                 if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
                 {
@@ -2775,7 +3084,7 @@ namespace Ship_Game
         //Added by McShooterz: Load hull bonuses
         private static void LoadHullBonuses()
         {
-            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveMod.mi.useHullBonuses)
+            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveModInfo.useHullBonuses)
             {
                 FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses"));
                 XmlSerializer serializer1 = new XmlSerializer(typeof(HullBonus));
@@ -2784,8 +3093,16 @@ namespace Ship_Game
                 {
                     FileInfo FI = fileInfoArray[i];
                     FileStream stream = FI.OpenRead();
-                    HullBonus data = (HullBonus)serializer1.Deserialize(stream);
-                    stream.Close();
+                    HullBonus data = null;
+                    try
+                    {
+                         data = (HullBonus)serializer1.Deserialize(stream);
+                    }
+                    catch (Exception e)
+                    {
+						ReportLoadingError(FI, "LoadHullBonuses", e);
+                    }
+                    //stream.Close();
                     stream.Dispose();
                     if (Ship_Game.ResourceManager.HullBonuses.ContainsKey(data.Hull))
                     {
@@ -2799,7 +3116,7 @@ namespace Ship_Game
                 textList = null;
             }
             if (Ship_Game.ResourceManager.HullBonuses.Count == 0)
-                GlobalStats.ActiveMod.mi.useHullBonuses = false;
+                GlobalStats.ActiveModInfo.useHullBonuses = false;
         }
 
         //Added by McShooterz: Load planetary edicts
@@ -2814,8 +3131,16 @@ namespace Ship_Game
                 {
                     FileInfo FI = fileInfoArray[i];
                     FileStream stream = FI.OpenRead();
-                    PlanetEdict data = (PlanetEdict)serializer1.Deserialize(stream);
-                    stream.Close();
+                    PlanetEdict data = null;
+                    try
+                    {
+                         data = (PlanetEdict)serializer1.Deserialize(stream);
+                    }
+                    catch (Exception e)
+                    {
+                        ReportLoadingError(FI, "LoadPlanetEdicts", e);
+                    }
+                    //stream.Close();
                     stream.Dispose();
                     if (Ship_Game.ResourceManager.PlanetaryEdicts.ContainsKey(data.Name))
                     {
@@ -2893,7 +3218,7 @@ namespace Ship_Game
                 string name = Path.GetFileNameWithoutExtension(FI.Name);
                 if (name != "Thumbs")
                 {
-                    SoundEffect se = Game1.Instance.Content.Load<SoundEffect>(string.Concat("..\\", Ship_Game.ResourceManager.WhichModPath, "\\SoundEffects\\", name));
+                    SoundEffect se = GetContentManager().Load<SoundEffect>(string.Concat("..\\", Ship_Game.ResourceManager.WhichModPath, "\\SoundEffects\\", name));
                     if (!Ship_Game.ResourceManager.SoundEffectDict.ContainsKey(name))
                     {
                         Ship_Game.ResourceManager.SoundEffectDict[name] = se;
@@ -2904,12 +3229,19 @@ namespace Ship_Game
 
 		public static void Reset()
 		{
-			DirectoryInfo di = new DirectoryInfo("Content/Mod Models");
-			di.Delete(true);
-			di.Create();
-			di = new DirectoryInfo("Content/ModVideo");
-			di.Delete(true);
-			di.Create();
+            try
+            {
+                DirectoryInfo di = new DirectoryInfo("Content/Mod Models");
+                di.Delete(true);
+                di.Create();
+                di = new DirectoryInfo("Content/ModVideo");
+                di.Delete(true);
+                di.Create();
+            }
+            catch
+            {
+ 
+            }
 			Ship_Game.ResourceManager.HullsDict.Clear();
 			Ship_Game.ResourceManager.WeaponsDict.Clear();
 			Ship_Game.ResourceManager.TroopsDict.Clear();
@@ -2947,7 +3279,27 @@ namespace Ship_Game
           
 
 		}
-
+        public static List<string> FindPreviousTechs(Empire empire, Technology target, List<string> alreadyFound)
+        {
+            bool found = false;
+            foreach (KeyValuePair<string, TechEntry> TechTreeItem in empire.TechnologyDict)
+            {
+                foreach (Technology.LeadsToTech leadsto in TechTreeItem.Value.GetTech().LeadsTo)
+                {
+                    if (leadsto.UID == target.UID)
+                    {
+                        alreadyFound.Add(target.UID);
+                        alreadyFound= FindPreviousTechs(empire, TechTreeItem.Value.GetTech(), alreadyFound);
+                        //alreadyFound.AddRange(FindPreviousTechs(empire, TechTreeItem.Value.GetTech(), alreadyFound));
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                    break;
+            }
+            return alreadyFound;
+        }
 		public static void Start()
 		{
 		}
