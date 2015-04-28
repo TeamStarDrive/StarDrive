@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class ShipModuleNode
+	public sealed class ShipModuleNode
 	{
 		public ShipModuleNode Next;
 

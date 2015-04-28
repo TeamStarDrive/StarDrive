@@ -164,6 +164,9 @@ namespace Ship_Game
 
 		protected string HomeSystemName = "Sol";
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public RaceDesignScreen()
 		{
 			base.IsPopup = true;
@@ -439,21 +442,33 @@ namespace Ship_Game
 			return this.currentKeyboardState.IsKeyUp(theKey);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~RaceDesignScreen() { Dispose(false); }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.traitsSL != null)
+                        this.traitsSL.Dispose();
+                    if (this.RaceArchetypeSL != null)
+                        this.RaceArchetypeSL.Dispose();
+                    if (this.DescriptionSL != null)
+                        this.DescriptionSL.Dispose();
+                }
+                this.traitsSL = null;
+                this.RaceArchetypeSL = null;
+                this.DescriptionSL = null;
+                this.disposed = true;
+            }
+        }
 
 		protected void DoRaceDescription()
 		{
@@ -1211,16 +1226,16 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(tip, base.ScreenManager);
                 }
             }
-            else if (this.mode == RaceDesignScreen.GameMode.Warlords)
-            {
-                txt = "War Lords";//Localizer.Token(2103);
-                tip = 112;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-                {
-                    ToolTip.CreateTooltip(tip, base.ScreenManager);
-                }
-            }
+            //else if (this.mode == RaceDesignScreen.GameMode.Warlords)
+            //{
+            //    txt = "War Lords";//Localizer.Token(2103);
+            //    tip = 112;
+            //    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
+            //    if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            //    {
+            //        ToolTip.CreateTooltip(tip, base.ScreenManager);
+            //    }
+            //}
 			if (HelperFunctions.CheckIntersection(this.ScaleRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 			{
 				ToolTip.CreateTooltip(125, base.ScreenManager);
@@ -1280,20 +1295,7 @@ namespace Ship_Game
 			}
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~RaceDesignScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+		
 
         #region Original handle input
         public void HandleInputorig(InputState input)
@@ -1899,7 +1901,7 @@ namespace Ship_Game
                 {
                     AudioManager.GetCue("blip_click").Play();
                     RaceDesignScreen gamemode = this;
-                    gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Warlords);
+                    gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Elimination);
                     if (this.mode > RaceDesignScreen.GameMode.Elimination)
                     {
                         this.mode = RaceDesignScreen.GameMode.Sandbox;
@@ -2134,14 +2136,14 @@ namespace Ship_Game
 			this.RaceArchetypeSL = new ScrollList(this.arch, 135);
 			ResourceManager.Empires.Clear();
 			ResourceManager.WhichModPath = "Content";
-			if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
+			if (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.DisableDefaultRaces)
 			{
                 //ResourceManager.WhichModPath = string.Concat("Mods/", GlobalStats.ActiveMod.ModPath);
                
                 ResourceManager.LoadEmpires();
                 //ResourceManager.LoadSubsetEmpires();
 			}
-			else if (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
+			else if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.DisableDefaultRaces)
 			{
 				ResourceManager.LoadEmpires();
                 //ResourceManager.LoadSubsetEmpires();
@@ -2162,7 +2164,7 @@ namespace Ship_Game
 					continue;
 				}
 				this.RaceArchetypeSL.AddItem(e);
-				if (e.Traits.VideoPath == "")
+				if (string.IsNullOrEmpty(e.Traits.VideoPath))
 				{
 					continue;
 				}
@@ -2633,7 +2635,7 @@ namespace Ship_Game
         public enum GameMode
         {
             Sandbox,
-            Warlords,
+            //Warlords,
             //PreWarp,
             Elimination
         }

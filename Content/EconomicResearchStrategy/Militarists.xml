@@ -7,66 +7,21 @@
   <IndustryPriority>3</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Research:Industry</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipHull:GroundCombat:Economic:Research</id>
-    </Tech>
-        
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:Economic:Research</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:ShipWeapons:ShipDefense:ShipHull:ShipGeneral:Economic:Research:GroundCombat:General</id>
+      <id></id>
     </Tech>
 
     <Tech>
-      <id>CHEAPEST:TECH:Colonization:GroundCombat:Research:Economic:Research</id>
+      <id>IS Government</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>IndustrialFoundations</id>
     </Tech>
     
-    <Tech>
-    <id>RANDOM</id>
-    </Tech>
-   
-    <Tech>
-      <id>SCRIPT:Economic</id>
-    </Tech>
-
-    <!--War Loop-->
-    <Tech>
-      <id>IFPEACE:0</id>
-    </Tech>
-
-    <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipHull:Industry:Economic</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipDefense:ShipHull:Economic:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>IFLOWRESEARCH:0</id>
-    </Tech>
-    <Tech>
-      <id>IFHIGHTAX:0</id>
-    </Tech>
-    <Tech>
-      <id>IFCYBERNETIC:8</id>
-    </Tech>
-    <Tech>
-      <id>LOOP:11</id>
-    </Tech>
-
   </TechPath>
 </EconomicResearchStrategy>

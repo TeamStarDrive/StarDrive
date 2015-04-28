@@ -2,12 +2,8 @@ using System;
 
 namespace Ship_Game
 {
-	public class InventoryItem
+	public struct InventoryItem
 	{
 		public string Item;
-
-		public InventoryItem()
-		{
-		}
 	}
 }

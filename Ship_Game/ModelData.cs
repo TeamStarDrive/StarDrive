@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Ship_Game
 {
-	public class ModelData
+	public sealed class ModelData
 	{
 		public string Name;
 

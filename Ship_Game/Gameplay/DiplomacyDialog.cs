@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
-	public class DiplomacyDialog
+	public sealed class DiplomacyDialog
 	{
 		public List<DialogLine> Dialogs;
 

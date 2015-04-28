@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 namespace Ship_Game.Gameplay
 {
-	public class ShipModule : GameplayObject
+	public sealed class ShipModule : GameplayObject
 	{
 		private ParticleEmitter trailEmitter;
 
@@ -237,6 +237,9 @@ namespace Ship_Game.Gameplay
         public byte TransporterTroopLanding;
         public byte TransporterTroopAssault;
 
+        //added by gremlin: target value
+        public int TargetValue=0;
+
 
 		public bool IsWeapon
 		{
@@ -290,7 +293,7 @@ namespace Ship_Game.Gameplay
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
 			{
                 //Added by McShooterz: ArmorBonus Hull Bonus
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                 {
                     HullBonus mod;
                     if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))
@@ -445,7 +448,7 @@ namespace Ship_Game.Gameplay
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
             {
                 //Added by McShooterz: ArmorBonus Hull Bonus
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                 {
                     HullBonus mod;
                     if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))
@@ -1041,8 +1044,14 @@ namespace Ship_Game.Gameplay
 			this.SetAttributesByType();
 			if (this.Parent != null && this.Parent.loyalty != null)
 			{
-				this.HealthMax = this.HealthMax + this.HealthMax * this.Parent.loyalty.data.Traits.ModHpModifier;
+                //bool flag = false;
+                //if (this.HealthMax == base.Health)
+                //    flag = true;
+                this.HealthMax = this.HealthMax + this.HealthMax * this.Parent.loyalty.data.Traits.ModHpModifier;
 				base.Health = base.Health + base.Health * this.Parent.loyalty.data.Traits.ModHpModifier;
+                this.Health = base.Health;
+                //if (flag)
+                //    this.Health = this.HealthMax;
 			}
 			if (!this.isDummy && (this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
 			{
@@ -1330,6 +1339,7 @@ namespace Ship_Game.Gameplay
                         }
                         this.GetHangarShip().Mothership = this.Parent;
                         this.installedSlot.HangarshipGuid = this.GetHangarShip().guid;
+
                         this.hangarTimer = this.hangarTimerConstant;
                     }
                 }
@@ -1726,11 +1736,11 @@ namespace Ship_Game.Gameplay
 
         public float GetShieldsMax()
         {
-            if (GlobalStats.ActiveMod != null)
+			if (GlobalStats.ActiveModInfo != null)
             {
                 float value = this.shield_power_max;
                 value += (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
-                if (GlobalStats.ActiveMod.mi.useHullBonuses)
+                if (GlobalStats.ActiveModInfo.useHullBonuses)
                 {
                     HullBonus mod;
                     if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))

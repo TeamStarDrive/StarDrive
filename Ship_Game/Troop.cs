@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Troop
+	public sealed class Troop
 	{
 		public string Name;
 
@@ -290,7 +290,7 @@ namespace Ship_Game
 			{
 				if (!this.Idle)
 				{
-                    try //added by gremlin hot fix to stop troop crashing.
+                    //try //added by gremlin hot fix to stop troop crashing.
                     {
                         this.updateTimer = 0.75f / (float)this.num_attack_frames;
                         Troop whichFrame = this;
@@ -302,7 +302,7 @@ namespace Ship_Game
                             this.Idle = true;
                         }
                     }
-                    catch { }
+                   // catch { }
 				}
 				else
 				{

@@ -5,11 +5,13 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ShipGroup
+	public class ShipGroup: IDisposable
 	{
 		public BatchRemovalCollection<Ship> Ships = new BatchRemovalCollection<Ship>();
 
 		public float ProjectedFacing;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public ShipGroup()
 		{
@@ -188,5 +190,28 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~ShipGroup() { Dispose(false); }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.Ships != null)
+                        this.Ships.Dispose();
+
+                }
+                this.Ships = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class EmpireScreen : GameScreen, IDisposable
+	public sealed class EmpireScreen : GameScreen, IDisposable
 	{
 		private EmpireUIOverlay eui;
 
@@ -52,6 +52,9 @@ namespace Ship_Game
 		//private bool AutoButtonHover;
 
 		private Planet SelectedPlanet;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public EmpireScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
 		{
@@ -117,21 +120,28 @@ namespace Ship_Game
 			this.AutoButton = new Rectangle(0, 0, 140, 33);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+		       public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+               ~EmpireScreen() { Dispose(false); }
+
+               protected void Dispose(bool disposing)
+               {
+                   if (!disposed)
+                   {
+                       if (disposing)
+                       {
+                           if (this.ColoniesList != null)
+                               this.ColoniesList.Dispose();
+
+                       }
+                       this.ColoniesList = null;
+                       this.disposed = true;
+                   }
+               }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -531,10 +541,6 @@ namespace Ship_Game
 				base.Finalize();
 			}
 		}*/
-        ~EmpireScreen() {
-            //should implicitly do the same thing as the original bad finalize
-            this.Dispose(false);
-        }
 
 		public override void HandleInput(InputState input)
 		{

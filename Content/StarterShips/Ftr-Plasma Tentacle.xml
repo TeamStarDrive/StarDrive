@@ -8,6 +8,8 @@
   <Name>Ftr-Plasma Tentacle</Name>
   <HasFixedCost>false</HasFixedCost>
   <FixedCost>0</FixedCost>
+  <HasFixedUpkeep>false</HasFixedUpkeep>
+  <FixedUpkeep>0</FixedUpkeep>
   <IsShipyard>false</IsShipyard>
   <IsOrbitalDefense>false</IsOrbitalDefense>
   <IconPath>ShipIcons/Inquisitor</IconPath>
@@ -18,6 +20,10 @@
   <ThrusterList />
   <ModelPath>Model/Ships/Ralyeh/Ship17a</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
+  <ShipCategory>Bomber</ShipCategory>
+  <CarrierShip>true</CarrierShip>
+  <BaseStrength>0</BaseStrength>
+  <BaseCanWarp>false</BaseCanWarp>
   <ModuleSlotList>
     <ModuleSlotData>
       <Position>

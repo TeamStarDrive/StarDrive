@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DesignManager : GameScreen, IDisposable
+	public sealed class DesignManager : GameScreen, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -47,6 +47,10 @@ namespace Ship_Game
 
 		private MouseState previousMouse;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		public DesignManager(ShipDesignScreen screen, string txt)
 		{
 			this.ShipName = txt;
@@ -56,21 +60,27 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~DesignManager() { Dispose(false); }
+        
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ShipDesigns != null)
+                        this.ShipDesigns.Dispose();
+                }
+                this.ShipDesigns = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -141,21 +151,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~DesignManager() {
-            //should implicitly do the same thing as the original bad finalize
-            this.Dispose(false);
-        }
+
 
 		public override void HandleInput(InputState input)
 		{

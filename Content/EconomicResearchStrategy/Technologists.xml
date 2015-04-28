@@ -6,56 +6,33 @@
   <ResearchPriority>4</ResearchPriority>
   <IndustryPriority>3</IndustryPriority>
   <TechPath>
-
-
-
-
+    <Tech>
+      <id>IndustrialFoundations</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
     
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Research</id>
+      <id>Xeno Intelligence</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Research</id>
+      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Research</id>
+      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Colonization:Economic:Industry:Research</id>
+      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Colonization:Economic:Industry:Research</id>
+      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:ShipDefense:Economic:Industry:GroundCombat:ShipGeneral:Research</id>
+      <id>XenoMining</id>
     </Tech>
-    <Tech>
-      <id>IFCYBERNETIC:3</id>
-    </Tech>
-    <Tech>
-      <id>IFPEACE:0</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipWeapons:Economic:GroundCombat</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:ShipDefense:Economic:GroundCombat</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipHull:GroundCombat:ShipGeneral</id>
-    </Tech>
-    <Tech>
-      <id>RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>IFLOWRESEARCH:0</id>
-    </Tech>
-    <Tech>
-      <id>IFHIGHTAX:0</id>
-    </Tech>
-    <Tech>
-      <id>IFWAR:6</id>
-    </Tech>
-
   </TechPath>
 </EconomicResearchStrategy>

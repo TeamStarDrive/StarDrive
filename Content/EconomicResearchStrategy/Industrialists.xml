@@ -7,55 +7,27 @@
   <IndustryPriority>4</IndustryPriority>
   <TechPath>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
+      <id>IndustrialFoundations</id>
+    </Tech>
+
+    <Tech>
+      <id>IS Government</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Research:Economic</id>
+      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research</id>
+      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:Research:Industry:Economic</id>
+      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipHull:Industry:Economic:Research:Colonization</id>
+      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
+      <id>XenoMining</id>
     </Tech>
-    <Tech>
-      <id>RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>IFPEACE:3</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:Industry:Economic:Research:Colonization</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull</id>
-    </Tech>
-    <Tech>
-      <id>CHEAPEST:TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull:GroundCombat</id>
-    </Tech>
-    <Tech>
-      <id>SCRIPT:ShipHull</id>
-    </Tech>
-    <Tech>
-      <id>IFLOWRESEARCH:0</id>
-    </Tech>
-    <Tech>
-      <id>IFHIGHTAX:0</id>
-    </Tech>
-    <Tech>
-      <id>IFCYBERNETIC:4</id>
-    </Tech>
-    <Tech>
-      <id>LOOP:7</id>
-    </Tech>
+
   </TechPath>
 </EconomicResearchStrategy>

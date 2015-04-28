@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class EconomicResearchStrategy
+	public sealed class EconomicResearchStrategy
 	{
 		public string Name;
 

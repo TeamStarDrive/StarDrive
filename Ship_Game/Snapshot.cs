@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Snapshot
+	public sealed class Snapshot
 	{
 		public List<NRO> EmpireNodes = new List<NRO>();
 
