@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -43,11 +44,21 @@ namespace Ship_Game
                 return;
             }
             T result;
+            List<T> removes = new List<T>();
             while (!this.pendingRemovals.IsEmpty)
             {
+                
                 this.pendingRemovals.TryPop(out result); //out T result);
+                //removes.Add(result);
                 this.Remove(result);
+                
             }
+            //this.thisLock.EnterWriteLock();
+            //removes = (this as List<T>).Except(removes).ToList();
+
+            //(this as List<T>).Clear();
+            //(this as List<T>).AddRange(removes);
+            //this.thisLock.ExitWriteLock();
         }
         public void QueuePendingRemoval(T item)
         {

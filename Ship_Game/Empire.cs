@@ -2767,14 +2767,20 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
-            int naturalLimit = this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
-                export.ps == Planet.GoodState.EXPORT ||
-                export.Population /1000 >10).Count() *3;
-            if(this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT || 
-                export.ps == Planet.GoodState.IMPORT ||
-                export.Population /1000 <10).Count() ==0)
+            int naturalLimit = this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT && 
+                export.ps == Planet.GoodState.EXPORT &&
+                (export.Population >3000 && export.MaxPopulation > 3000)).Count();
+            //if(this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT || 
+            //    export.ps == Planet.GoodState.IMPORT ||
+            //    export.Population /1000 <10).Count() ==0)
+            //{
+            //    naturalLimit = 0;
+            //}
+            if(naturalLimit >0)
             {
-                naturalLimit = 0;
+                naturalLimit *= this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
+                export.ps == Planet.GoodState.IMPORT ||
+                export.Population /export.MaxPopulation <.2).Count();
             }
             int freighterLimit = (naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : naturalLimit );
             int TradeLimit = (int)(freighterLimit * 0.8f);
@@ -2795,7 +2801,7 @@ namespace Ship_Game
                 }
                 if (ship == null)
                     continue;
-                if (ship.Role != "freighter" || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                if (ship.Role != "freighter"|| ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
                     continue;
                 if (ship.GetAI().State == AIState.SystemTrader)
                 {
