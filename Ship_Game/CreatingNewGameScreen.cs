@@ -143,7 +143,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                        this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
+                            this.data.Size = new Vector2(13350000, 13350000);
                     }
                     else if (str1 == "Huge")
                     {
@@ -153,7 +153,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
+                            this.data.Size = new Vector2(18000000f, 18000000f);
                     }
                     else if (str1 == "Epic")
                     {
@@ -163,7 +163,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f * 2, 1.8E+07f * 2);
+                            this.data.Size = new Vector2(54000000, 54000000);
                         //this.scale = 2;
 
                         //this.numSystems = (int)(125f * StarNumModifier);
@@ -179,7 +179,7 @@ namespace Ship_Game
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
                         //this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f * 3f, 1.8E+07f * 3f);
+                            this.data.Size = new Vector2(54000000, 54000000);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
 
