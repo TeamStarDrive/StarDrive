@@ -6520,73 +6520,76 @@ namespace Ship_Game.Gameplay
 		private void RunInfrastructurePlanner()
 		{
             //if (this.empire.SpaceRoadsList.Sum(node=> node.NumberOfProjectors) < ShipCountLimit * GlobalStats.spaceroadlimit)
-            foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
-			{
-				
-                IOrderedEnumerable<SolarSystem> sortedList = 
-					from otherSystem in this.empire.GetOwnedSystems()
-					orderby Vector2.Distance(otherSystem.Position, ownedSystem.Position)
-					select otherSystem;
-				foreach (SolarSystem Origin in sortedList)
-				{
-                    if (Origin == ownedSystem )
-					{
-						continue;
-					}
-					bool createRoad = true;
-					foreach (SpaceRoad road in this.empire.SpaceRoadsList)
-					{
-						if (road.GetOrigin() != ownedSystem && road.GetDestination() != ownedSystem)
-						{
-							continue;
-						}
-						createRoad = false;
-					}
-					if (!createRoad)
-					{
-						continue;
-					}
-					SpaceRoad newRoad = new SpaceRoad(Origin, ownedSystem, this.empire);
-					float UnderConstruction = 0f;
-					foreach (Goal g in this.Goals)
-					{
-						if (g.GoalName == "BuildOffensiveShips")
-							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+            if (this.empire.data.TaxRate <.50f)
+            {
+                foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
+                {
+
+                    IOrderedEnumerable<SolarSystem> sortedList =
+                        from otherSystem in this.empire.GetOwnedSystems()
+                        orderby Vector2.Distance(otherSystem.Position, ownedSystem.Position)
+                        select otherSystem;
+                    foreach (SolarSystem Origin in sortedList)
+                    {
+                        if (Origin == ownedSystem)
+                        {
+                            continue;
+                        }
+                        bool createRoad = true;
+                        foreach (SpaceRoad road in this.empire.SpaceRoadsList)
+                        {
+                            if (road.GetOrigin() != ownedSystem && road.GetDestination() != ownedSystem)
                             {
+                                continue;
+                            }
+                            createRoad = false;
+                        }
+                        if (!createRoad)
+                        {
+                            continue;
+                        }
+                        SpaceRoad newRoad = new SpaceRoad(Origin, ownedSystem, this.empire);
+                        float UnderConstruction = 0f;
+                        foreach (Goal g in this.Goals)
+                        {
+                            if (g.GoalName == "BuildOffensiveShips")
+                                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                                 {
-                                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
+                                    {
+                                        UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
+                                    }
                                 }
+                                else
+                                {
+                                    {
+                                        UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                                    }
+                                }
+                            if (g.GoalName != "BuildConstructionShip")
+                            {
+                                continue;
+                            }
+                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                            {
+                                UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
                             }
                             else
                             {
-                                {
-                                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
-                                }
+                                UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
                             }
-						if (g.GoalName != "BuildConstructionShip")
-						{
-							continue;
-						}
-						if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                        {
-                            UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
                         }
-                        else
+                        if ((double)((this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ?
+                            this.empire.EstimateIncomeAtTaxRate(this.empire.data.TaxRate) - UnderConstruction :
+                            this.empire.EstimateIncomeAtTaxRate(0.2f) - UnderConstruction)) - 0.24 * (double)newRoad.NumberOfProjectors <= 0.5)
                         {
-                            UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
+                            continue;
                         }
-					}
-					if ((double)((this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ? 
-                        this.empire.EstimateIncomeAtTaxRate(this.empire.data.TaxRate) - UnderConstruction : 
-                        this.empire.EstimateIncomeAtTaxRate(0.2f) - UnderConstruction)) - 0.24 * (double)newRoad.NumberOfProjectors <= 0.5)
-					{
-						continue;
-					}
-					this.empire.SpaceRoadsList.Add(newRoad);
-				}
-			}
+                        this.empire.SpaceRoadsList.Add(newRoad);
+                    }
+                } 
+            }
 			List<SpaceRoad> ToRemove = new List<SpaceRoad>();
-            float income = this.empire.EstimateIncomeAtTaxRate(0.25f) + this.empire.Money - this.empire.GrossTaxes;
+            float income = this.empire.Money +this.empire.GrossTaxes; //this.empire.EstimateIncomeAtTaxRate(0.25f) +
 			foreach (SpaceRoad road in this.empire.SpaceRoadsList.OrderBy(ssps => ssps.NumberOfProjectors))
 			{
 				RoadNode ssp = road.RoadNodesList.Where(notNull => notNull != null && notNull.Platform !=null).FirstOrDefault();
