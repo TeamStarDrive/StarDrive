@@ -2270,7 +2270,7 @@ namespace Ship_Game.Gameplay
                             //return;
                         }
                         //Visible weapon firing
-                        float lag =Ship.universeScreen.perfavg5.Average();
+                        float lag =Ship.universeScreen.perfavg5.Average() >.4f? Ship.universeScreen.perfavg5.Average(): 0;
                         if ( GlobalStats.ForceFullSim || index/this.Owner.Weapons.Count*10  >lag && (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum))
                         {
                             fireTarget = null;
@@ -2625,15 +2625,17 @@ namespace Ship_Game.Gameplay
         //added by gremlin Deveksmod MakeFinalApproach
         private void MakeFinalApproach(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
         {
+            float speedLimit = (int)Goal.SpeedLimit;
+
             this.Owner.HyperspaceReturn();
             Vector2 velocity = this.Owner.Velocity;
             float Distance = Vector2.Distance(this.Owner.Center, Goal.MovePosition);
-            float timetostop;
+            double timetostop;
 
-            timetostop = velocity.Length() / Goal.SpeedLimit;
+            timetostop = (double)velocity.Length() / speedLimit;
 
 
-            ShipGoal preserveGoal = this.OrderQueue.Last();
+            //ShipGoal preserveGoal = this.OrderQueue.Last();
 
             //if ((preserveGoal.TargetPlanet != null && this.Owner.fleet == null && Vector2.Distance(preserveGoal.TargetPlanet.Position, this.Owner.Center) > 7500) || this.DistanceLast == Distance)
             //{
@@ -2642,8 +2644,8 @@ namespace Ship_Game.Gameplay
             //    this.OrderQueue.AddFirst(preserveGoal);
             //    return;
             //}
-            
-            if (Distance / (Goal.SpeedLimit) <= timetostop + .005f) //(Distance  / (velocity.Length() ) <= timetostop)//
+
+            if ((double)Distance / speedLimit <= timetostop)  //+ .005f) //(Distance  / (velocity.Length() ) <= timetostop)//
             {
                 this.OrderQueue.RemoveFirst();
             }
@@ -2651,7 +2653,7 @@ namespace Ship_Game.Gameplay
             {
 
 
-                this.ThrustTowardsPosition(Goal.MovePosition, elapsedTime, Goal.SpeedLimit);
+                this.ThrustTowardsPosition(Goal.MovePosition, elapsedTime, speedLimit);
             }
             this.DistanceLast = Distance;
         }
@@ -2869,7 +2871,7 @@ namespace Ship_Game.Gameplay
 
 		private void MoveToWithin1000(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
         {
-            float speedLimit = this.Owner.speed;
+            float speedLimit =  (int)(this.Owner.speed)  ;
             float single = Vector2.Distance(this.Owner.Center, goal.MovePosition);
             if (this.ActiveWayPoints.Count <= 1)
             {
@@ -5943,6 +5945,8 @@ namespace Ship_Game.Gameplay
 		
         private void ThrustTowardsPosition(Vector2 Position, float elapsedTime, float speedLimit)
         {
+            if(speedLimit>1f)
+            speedLimit = (int)(speedLimit);
             if (speedLimit == 0f)
             {
                 speedLimit = this.Owner.speed;
@@ -6082,17 +6086,17 @@ namespace Ship_Game.Gameplay
                         if (angleDiff > .1f)
                         {
 
-                            speedLimit = this.Owner.speed; // this.Owner.speed;
+                            speedLimit =(int)(this.Owner.speed); // this.Owner.speed;
                         }
                         else
-                            speedLimit = this.Owner.velocityMaximum;
+                            speedLimit = (int)(this.Owner.velocityMaximum);
                     }
                     else if (Distance > this.Owner.speed * 10f)
                     {
                         //if (angleDiff > .1f)
                         //    speedLimit = this.Owner.speed;
                         //else
-                        speedLimit = this.Owner.speed;
+                        speedLimit = (int)(this.Owner.speed); 
                     }
 
                     Ship velocity = this.Owner;
@@ -6133,7 +6137,7 @@ namespace Ship_Game.Gameplay
                         this.Owner.fleet.Ships.thisLock.ExitReadLock();
      
                             float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove; //
-                            speedLimit = this.Owner.fleet.speed;
+                            speedLimit = (int)(this.Owner.fleet.speed);
 
                             #region FleetGrouping
 
@@ -6142,11 +6146,11 @@ namespace Ship_Game.Gameplay
                             if (fleetPosistionDistance <= distanceFleetCenterToDistance )
                             {
                                 float speedreduction = distanceFleetCenterToDistance - Distance;
-                                speedLimit = this.Owner.fleet.speed - speedreduction; //this.Owner.fleet.speed 
+                                speedLimit = (int)( this.Owner.fleet.speed - speedreduction); //this.Owner.fleet.speed 
                                 if (speedLimit < 0)//this.Owner.fleet.speed * .25f
                                     speedLimit = 0; //this.Owner.fleet.speed * .25f;
                                 else if (speedLimit > this.Owner.fleet.speed)
-                                    speedLimit = this.Owner.fleet.speed;
+                                    speedLimit = (int)(this.Owner.fleet.speed);
                             }
                             //else if (Distance > distanceFleetCenterToDistance) //radius * 4f
                             else if (fleetPosistionDistance > distanceFleetCenterToDistance && Distance >this.Owner.speed)
@@ -6154,7 +6158,7 @@ namespace Ship_Game.Gameplay
 
                                 float speedIncrease = Distance - distanceFleetCenterToDistance ;
                                 //distanceShipToFleetCenter > this.Owner.fleet.speed && 
-                                speedLimit = this.Owner.fleet.speed + speedIncrease;
+                                speedLimit = (int)(this.Owner.fleet.speed + speedIncrease);
   
                             }
                             //if (Distance < speedimit)
@@ -6183,13 +6187,13 @@ namespace Ship_Game.Gameplay
            
 
                     if (speedLimit > this.Owner.velocityMaximum)
-                        speedLimit = this.Owner.velocityMaximum;
+                        speedLimit = (int)(this.Owner.velocityMaximum);
                     else if (speedLimit < 0)
                         speedLimit = 0;
                     //if (Distance < 100000)
                     //    speedLimit *= .5f;
                     Ship velocity1 = this.Owner;
-                    velocity1.Velocity = velocity1.Velocity + (Vector2.Normalize(forward) * (elapsedTime * speedLimit));
+                    velocity1.Velocity = velocity1.Velocity + (Vector2.Normalize(forward) * (elapsedTime * (int)(speedLimit)));
                     if (this.Owner.Velocity.Length() > speedLimit)
                     {
                         this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * speedLimit;
