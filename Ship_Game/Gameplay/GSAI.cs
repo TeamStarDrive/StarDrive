@@ -5227,7 +5227,7 @@ namespace Ship_Game.Gameplay
             foreach (string platform in this.empire.structuresWeCanBuild)
             {
                 Ship orbitalDefense = ResourceManager.ShipsDict[platform];
-                if (platform != "Subspace Projector" && orbitalDefense.Role == "station")
+                if ( orbitalDefense.Role == "station" && (orbitalDefense.shipData.IsOrbitalDefense  || !orbitalDefense.shipData.IsShipyard ))
                 {
                     //if (orbitalDefense.BaseStrength == 0 && orbitalDefense.GetStrength() == 0)
                     //    continue;
@@ -6369,6 +6369,7 @@ namespace Ship_Game.Gameplay
                     && planet.GrossProductionPerTurn > 2
                     && (planet.ConstructionQueue.Where(goal => goal.Goal != null
                         && goal.Goal.type == GoalType.BuildTroop).Sum(cost => cost.Cost) + 1) <= planet.GrossProductionPerTurn * 10f//10 turns to build curremt troops in queue
+                        
                         )
                         .OrderByDescending(build => build.GrossProductionPerTurn).FirstOrDefault();
             if (targetBuild == null)
@@ -6796,16 +6797,16 @@ namespace Ship_Game.Gameplay
 
             //float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .05f);  //.45f - (tasks);
             //float offenseNeeded = this.empire.GetRelations().Where(war => war.Value.AtWar || war.Value.PreparingForWar || war.Value.Trust < war.Value.TotalAnger).Sum(power => power.Key.currentMilitaryStrength);
-            float offenseNeeded = this.empire.GetRelations().Where(war => !war.Key.isFaction && war.Value.AtWar || war.Value.PreparingForWar ).Sum(power => power.Key.currentMilitaryStrength);
-            float offenseNeededThreat = this.ThreatMatrix.Pins.Values.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);
+            float offenseNeeded = 0;// this.empire.GetRelations().Where(war => !war.Key.isFaction && war.Value.AtWar || war.Value.PreparingForWar).Sum(power => power.Key.currentMilitaryStrength);
+            float offenseNeededThreat = this.ThreatMatrix.Pins.Values.Sum(power => power.Strength); //.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);
             //if (offenseNeededThreat > 0)
             //    System.Diagnostics.Debug.WriteLine("threat: " + offenseNeededThreat);
             float offenseNeededRatio = ((offenseNeeded  + offenseNeededThreat)+1) / (this.empire.currentMilitaryStrength +1);
             //float prepareWar2 = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Sum(power => power.Key.currentMilitaryStrength / (power.Value.Trust /power.Value.TotalAnger) );
 
             float tax = offenseNeededRatio > 0.0 ? offenseNeededRatio * (.6f - (this.empire.data.TaxRate)) : this.empire.data.TaxRate;
-            if (tax > .6f)
-                tax = .6f;
+            if (tax > .5f)
+                tax = .5f;
             else
                 if (tax < .2f)
                     tax = .2f;
@@ -6814,13 +6815,13 @@ namespace Ship_Game.Gameplay
 
             //tax = tax > .5f ? .5f : tax;
             float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
-            float allowable_deficit = -Capacity+(this.empire.Money * -.1f);
+            float allowable_deficit = -Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
 
             
             if (allowable_deficit >= 0f || noIncome >=.5f)
             {
-                allowable_deficit = (-this.empire.Money) ;// 0f;
+                allowable_deficit = -(this.empire.Money*.5f - this.empire.GrossTaxes );// 0f;
             }
             else if(this.empire.data.TaxRate ==0)
             {
@@ -6830,7 +6831,7 @@ namespace Ship_Game.Gameplay
                 //this.empire.GetTotalShipMaintenance();
             
             this.GetAShip(0);
-            if (Capacity <= allowable_deficit) //(Capacity <= 0f)
+            if (Capacity <= allowable_deficit )//|| (this.empire.data.TaxRate >=.5f && this.empire.GetAverageNetIncome()<0)) //(Capacity <= 0f)
             {
                 float HowMuchWeAreScrapping = 0f;
                 

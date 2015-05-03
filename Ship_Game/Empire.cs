@@ -2767,15 +2767,10 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
-            int naturalLimit = this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT && 
-                export.ps == Planet.GoodState.EXPORT &&
+            int naturalLimit = this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
+                export.ps == Planet.GoodState.EXPORT ||
                 (export.Population >3000 && export.MaxPopulation > 3000)).Count();
-            //if(this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT || 
-            //    export.ps == Planet.GoodState.IMPORT ||
-            //    export.Population /1000 <10).Count() ==0)
-            //{
-            //    naturalLimit = 0;
-            //}
+
             if(naturalLimit >0)
             {
                 naturalLimit *= this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
@@ -2801,7 +2796,7 @@ namespace Ship_Game
                 }
                 if (ship == null)
                     continue;
-                if (ship.Role != "freighter"|| ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                if ((ship.shipData.ShipCategory != ShipData.Category.Unclassified && ship.shipData.ShipCategory !=  ShipData.Category.Civilian) || ship.Role != "freighter"|| ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
                     continue;
                 if (ship.GetAI().State == AIState.SystemTrader)
                 {

@@ -75,7 +75,9 @@ namespace Ship_Game.Gameplay
 
 		public void AddShip(Ship ship)
 		{
-			if (!this.Flip)
+            if (ship.BaseStrength == 0)
+                return;
+            if (!this.Flip)
 			{
 				this.OffensiveForcePool.Add(ship);
 				this.Flip = !this.Flip;
@@ -161,13 +163,14 @@ namespace Ship_Game.Gameplay
 
 		public void Update()
 		{
-			foreach (Ship ship in this.OffensiveForcePool)
+			foreach (Ship ship in this.OffensiveForcePool.ToArray())
 			{
-				if (ship.Active && ship.fleet == null)
+                if (ship.Active && ship.fleet == null && ship.Role != "troop")
 				{
 					continue;
 				}
-				this.OffensiveForcePool.QueuePendingRemoval(ship);
+                this.OffensiveForcePool.Remove(ship);
+                //this.OffensiveForcePool.QueuePendingRemoval(ship);
 			}
 			this.OffensiveForcePool.ApplyPendingRemovals();
 			if (this.ShipsWaitingForCoreFleet.Count > 0 && (this.CoreFleet.Ships.Count == 0 || this.CoreFleet.Task == null))
