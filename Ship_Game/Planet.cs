@@ -4638,6 +4638,52 @@ namespace Ship_Game
                         }
                         break;
                         #endregion
+
+                    case Planet.ColonyType.TradeHub:
+                        #region MyRegion
+                        {
+
+                            this.fs = Planet.GoodState.IMPORT;
+
+                            this.FarmerPercentage = 0.0f;
+                            this.WorkerPercentage = 1f;
+                            this.ResearcherPercentage = 0.0f;
+
+                            //? true : .75f;
+                            this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
+                            float IndySurplus2 = (this.NetFoodPerTurn) *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * 
+                                (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
+                            //if ((double)this.FoodHere <= (double)this.consumption)
+                            {
+
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus2);
+                                if (FarmerPercentage == 1 && StuffInQueueToBuild)
+                                    this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
+                                this.WorkerPercentage =
+                                    (1f - this.FarmerPercentage)   //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
+                                    * (ForgetReseachAndBuild ? 1 :
+                                 (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)));
+
+                                this.ResearcherPercentage = 1 - this.FarmerPercentage - this.WorkerPercentage;// 0.0f;
+                                if (this.NetProductionPerTurn > 3f || this.developmentLevel > 2)
+                                {
+                                    if (this.ProductionHere > this.MAX_STORAGE * 0.33f)
+                                        this.ps = Planet.GoodState.EXPORT;
+                                    else if (this.ConstructionQueue.Count == 0)
+                                        this.ps = Planet.GoodState.STORE;
+                                    else
+                                        this.ps = Planet.GoodState.IMPORT;
+                                }
+                                //Not enough production or development
+                                else if (MAX_STORAGE * .75f > this.ProductionHere)
+                                {
+                                    this.ps = Planet.GoodState.IMPORT;
+                                }
+
+                            }
+                            break;
+                        }
+                            #endregion
                 }
             }
 
@@ -6050,6 +6096,7 @@ namespace Ship_Game
             Research,
             Agricultural,
             Military,
+            TradeHub,
         }
 
         public enum Richness
