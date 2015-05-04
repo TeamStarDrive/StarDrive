@@ -1457,7 +1457,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>392</Index>
       <Text>Construction</Text>
     </Token>
-    
+    <Token>
+      <Index>393</Index>
+      <Text>TradeHub</Text>
+    </Token>
+    <Token>
+      <Index>394</Index>
+      <Text>Governor will control production levels as a core system but not specialize any construction</Text>
+    </Token>
     
     
     <!-- 400 - 499 reserved for buildings -->
@@ -7197,6 +7204,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>5086</Index>
       <Text>WARNING: CPU INTENSE! This option will force a full combat simulation for 100% accuracy even when battles are occuring out of sight and between non-player factions. If this option is unchecked, an approximation will be used to speed up the game instead.</Text>
+    </Token>
+    <Token>
+      <Index>5087</Index>
+      <Text>TradeHub</Text>
     </Token>
 	
 

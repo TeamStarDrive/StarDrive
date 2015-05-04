@@ -292,6 +292,7 @@ namespace Ship_Game
                 this.GovernorDropdown.AddOption(Localizer.Token(4066), 4);
                 this.GovernorDropdown.AddOption(Localizer.Token(4067), 3);
                 this.GovernorDropdown.AddOption(Localizer.Token(4068), 5);
+                this.GovernorDropdown.AddOption(Localizer.Token(5087), 6);
                 this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(p);
                 if ((Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].value != this.p.colonyType)
                 {
@@ -1208,6 +1209,9 @@ namespace Ship_Game
                     case Planet.ColonyType.Military:
                         Localizer.Token(374);
                         break;
+                    case Planet.ColonyType.TradeHub:
+                        Localizer.Token(393);
+                        break;
                 }
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Governor", position5, Color.White);
                 position5.Y = (float)(this.GovernorDropdown.r.Y + 25);
@@ -1231,6 +1235,9 @@ namespace Ship_Game
                         break;
                     case Planet.ColonyType.Military:
                         text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                        break;
+                    case Planet.ColonyType.TradeHub:
+                        text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                         break;
                 }
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text5, position5, Color.White);
@@ -1948,6 +1955,10 @@ namespace Ship_Game
                 case Planet.ColonyType.Military:
                     {
                         return 5;
+                    }
+                case Planet.ColonyType.TradeHub:
+                    {
+                        return 6;
                     }
             }
             return 0;
