@@ -318,6 +318,11 @@ namespace Ship_Game
 					Localizer.Token(374);
 					break;
 				}
+                case Planet.ColonyType.TradeHub:
+                {
+                    Localizer.Token(393);
+                    break;
+                }
 			}
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Governor", TextPosition, Color.White);
 			TextPosition.Y = (float)(this.GovernorDropdown.r.Y + 25);
@@ -354,6 +359,11 @@ namespace Ship_Game
 					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
+                case Planet.ColonyType.TradeHub:
+                {
+                    desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+                    break;
+                }
 			}
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, TextPosition, Color.White);
 			desc = Localizer.Token(388);
