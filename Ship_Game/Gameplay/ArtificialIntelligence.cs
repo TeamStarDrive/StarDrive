@@ -2877,7 +2877,7 @@ namespace Ship_Game.Gameplay
             {
                 if (single  < this.Owner.speed)
                 {
-                    speedLimit = single*.5f;
+                    speedLimit = single;
                     //this.Owner.speed =this.Owner.speed < single ? this.Owner.speed: single;
                 }
       
