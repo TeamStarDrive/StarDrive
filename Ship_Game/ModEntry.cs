@@ -45,7 +45,19 @@ namespace Ship_Game
             //title=string.Concat(title," - ",this.Version);
 
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, title, TitlePos, Color.Orange);
-			TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 4);
+            TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+
+            Vector2 ContactPos = TitlePos;
+           
+            string Author = "Author: " +this.mi.Author;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Author, TitlePos, Color.Red);
+            ContactPos.X += Fonts.Arial12Bold.MeasureString(Author).X;
+            
+            string URL = " URL: "+this.mi.URL;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, URL, ContactPos, Color.CornflowerBlue);
+            TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 1);
+
+            
 
             string Description = this.mi.ModDescription;
            // if (this.mi.Version != null && this.mi.Version != "" && !this.mi.ModDescription.Contains(this.mi.Version))
