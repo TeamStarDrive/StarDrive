@@ -2634,7 +2634,19 @@ namespace Ship_Game.Gameplay
 
             timetostop = (double)velocity.Length() / speedLimit;
 
+            if(this.RotateToFaceMovePosition(elapsedTime, Goal))
+            {
+                speedLimit--;
+            }
+            else
+            {
+                speedLimit++;
+                if(speedLimit > this.Owner.GetSTLSpeed())
+                    speedLimit=this.Owner.GetSTLSpeed();
+            }
+            
 
+            
             //ShipGoal preserveGoal = this.OrderQueue.Last();
 
             //if ((preserveGoal.TargetPlanet != null && this.Owner.fleet == null && Vector2.Distance(preserveGoal.TargetPlanet.Position, this.Owner.Center) > 7500) || this.DistanceLast == Distance)
@@ -2645,13 +2657,13 @@ namespace Ship_Game.Gameplay
             //    return;
             //}
 
-            if ((double)Distance / speedLimit <= timetostop)  //+ .005f) //(Distance  / (velocity.Length() ) <= timetostop)//
+            if ((double)Distance / velocity.Length() <= timetostop)  //+ .005f) //(Distance  / (velocity.Length() ) <= timetostop)//
             {
                 this.OrderQueue.RemoveFirst();
             }
             else
             {
-
+                Goal.SpeedLimit = speedLimit;
 
                 this.ThrustTowardsPosition(Goal.MovePosition, elapsedTime, speedLimit);
             }
@@ -5183,9 +5195,10 @@ namespace Ship_Game.Gameplay
 			this.RotateToFacing(elapsedTime, angleDiff, facing);
 		}
 
-		private void RotateToFaceMovePosition(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
+		private bool RotateToFaceMovePosition(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
-			Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+            bool turned = false;
+            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
 			Vector2 right = new Vector2(-forward.Y, forward.X);
 			Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, goal.MovePosition);
 			float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
@@ -5193,12 +5206,14 @@ namespace Ship_Game.Gameplay
 			{
 				this.Owner.HyperspaceReturn();
 				this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f));
+                turned = true;
 			}
 			else if (this.OrderQueue.Count > 0)
 			{
 				this.OrderQueue.RemoveFirst();
-				return;
+				
 			}
+            return turned;
 		}
 
 		private void RotateToFacing(float elapsedTime, float angleDiff, float facing)
@@ -5885,13 +5900,14 @@ namespace Ship_Game.Gameplay
 		}
         private void StopWithBackwardsThrust(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
         {
+            
             if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
             {
                 this.HadPO = true;
             }
             this.HasPriorityOrder = false;
             float Distance = Vector2.Distance(this.Owner.Center, Goal.MovePosition);
-            if (Distance < 200)// && Distance > 25f)
+            if (Distance < 200 && Distance > 25f)
             {
                 this.OrderQueue.RemoveFirst();
                 lock (this.wayPointLocker)
@@ -5907,7 +5923,7 @@ namespace Ship_Game.Gameplay
             }
             this.Owner.HyperspaceReturn();
             Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-            if (this.Owner.Velocity == Vector2.Zero || Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), Goal.MovePosition) > Vector2.Distance(this.Owner.Center, Goal.MovePosition))
+            if (this.Owner.Velocity == Vector2.Zero || Vector2.Distance(this.Owner.Center + ( this.Owner.Velocity * elapsedTime), Goal.MovePosition) > Vector2.Distance(this.Owner.Center, Goal.MovePosition))
             {
                 this.Owner.Velocity = Vector2.Zero;
                 this.OrderQueue.RemoveFirst();
@@ -5922,7 +5938,11 @@ namespace Ship_Game.Gameplay
             }
             Vector2 velocity = this.Owner.Velocity;
             float timetostop = velocity.Length() / Goal.SpeedLimit;
-            if (Vector2.Distance(this.Owner.Center, Goal.MovePosition) / Goal.SpeedLimit <= timetostop + .005) //(this.Owner.Velocity.Length() + 1)
+            //if (Vector2.Distance(this.Owner.Center, Goal.MovePosition) / Goal.SpeedLimit <= timetostop + .005) //(this.Owner.Velocity.Length() + 1)
+            if (DistanceLast > Distance)
+                this.ThrustTowardsPosition(Goal.MovePosition, elapsedTime, Goal.SpeedLimit);
+            
+            if (Vector2.Distance(this.Owner.Center, Goal.MovePosition) / (this.Owner.Velocity.Length() + 0.001f) <= timetostop)
             {
                 Ship owner = this.Owner;
                 owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * Goal.SpeedLimit));
@@ -5941,6 +5961,8 @@ namespace Ship_Game.Gameplay
                     return;
                 }
             }
+
+            this.DistanceLast = Distance;
         }
 		
         private void ThrustTowardsPosition(Vector2 Position, float elapsedTime, float speedLimit)
