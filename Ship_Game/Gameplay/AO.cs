@@ -163,17 +163,18 @@ namespace Ship_Game.Gameplay
 
 		public void Update()
 		{
-			foreach (Ship ship in this.OffensiveForcePool.ToArray())
+			foreach (Ship ship in this.OffensiveForcePool)
 			{
                 if (ship.Active && ship.fleet == null && ship.Role != "troop")
 				{
 					continue;
 				}
-                this.OffensiveForcePool.Remove(ship);
-                //this.OffensiveForcePool.QueuePendingRemoval(ship);
+                //this.OffensiveForcePool.Remove(ship);
+                this.OffensiveForcePool.QueuePendingRemoval(ship);
 			}
 			this.OffensiveForcePool.ApplyPendingRemovals();
-			if (this.ShipsWaitingForCoreFleet.Count > 0 && (this.CoreFleet.Ships.Count == 0 || this.CoreFleet.Task == null))
+            
+			if (this.ShipsWaitingForCoreFleet.Count > 0 && this.CoreFleet.Ships.Count < 5 * (this.ThreatLevel +1)&& (this.CoreFleet.Ships.Count == 0 || this.CoreFleet.Task == null))
 			{
 				foreach (Ship waiting in this.ShipsWaitingForCoreFleet)
 				{
