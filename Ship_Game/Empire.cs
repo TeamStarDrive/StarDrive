@@ -96,6 +96,7 @@ namespace Ship_Game
         public bool canBuildFrigates;
         public bool canBuildCorvettes;
         public float currentMilitaryStrength;
+        public float freighterBudget = 0;
         [XmlIgnore]
         public ReaderWriterLockSlim SensorNodeLocker;
         [XmlIgnore]
@@ -1968,39 +1969,62 @@ namespace Ship_Game
             else
                 return this.totalTradeIncome / this.numberForAverage;
         }
-
+         public Planet.ColonyType AssessColonyNeeds2(Planet p)
+        {
+            float fertility = p.Fertility;
+            float richness = p.MineralRichness;
+            float pop = p.MaxPopulation;
+             if(this.data.Traits.Cybernetic >0)
+                 fertility = richness;
+             if (fertility < .5 && richness < .5)
+                 return Planet.ColonyType.Research;
+             if (fertility > 1 && richness < .5)
+                 return Planet.ColonyType.Agricultural;
+             if (richness > 1 && fertility > 1 && pop >2)
+                 return Planet.ColonyType.Core;
+             if (richness > 1 && fertility < .5)
+                 return Planet.ColonyType.Industrial;
+             if (richness > .5 && fertility < .5 && pop < 2)
+                 return Planet.ColonyType.Industrial;
+             if (richness < 1 && fertility < 1 && pop > 1)
+                 return Planet.ColonyType.Research;
+             return Planet.ColonyType.Colony;
+        }
         public Planet.ColonyType AssessColonyNeeds(Planet p)
         {
+            Planet.ColonyType type = AssessColonyNeeds2(p);
+            if (type != Planet.ColonyType.Colony)
+                return type;
             float MineralWealth = 0.0f;
             float PopSupport = 0.0f;
             float ResearchPotential = 0.0f;
             float Fertility = 0.0f;
             float MilitaryPotential = 0.0f;
-            if ((double)p.Fertility > 1.0 && this.data.Traits.Cybernetic <= 0)
+            if (p.Fertility > 1.0 && this.data.Traits.Cybernetic <= 0)
             {
                 ++PopSupport;
                 Fertility += p.Fertility;
-                ResearchPotential += 0.5f;
+                //ResearchPotential += 0.5f;
             }
-            if ((double)p.MineralRichness > 1.0)
+            if (p.MineralRichness > 1.0)
             {
-                if ((double)p.Fertility > 1.0)
+                if (p.Fertility > 1.0)
                     ++PopSupport;
                 MineralWealth += p.MineralRichness;
                 MilitaryPotential += 0.5f;
             }
-            if ((double)p.MaxPopulation > 1.0)
+            if (p.MaxPopulation > 1.0)
             {
                 ++ResearchPotential;
                 if ((double)p.Fertility > 1.0)
                     ++PopSupport;
-                if ((double)p.MaxPopulation > 4.0)
+                if (p.MaxPopulation > 4.0)
                 {
                     ++PopSupport;
                     ++ResearchPotential;
-                    if ((double)p.MaxPopulation > 8.0)
+                    if (p.MaxPopulation > 8.0)
                         ++PopSupport;
-                    if ((double)p.MaxPopulation > 12.0)
+                    if (p.MaxPopulation > 12.0)
                         PopSupport += 2f;
                 }
             }
@@ -2032,13 +2056,13 @@ namespace Ship_Game
             float AgricultureDesire = Fertility + (AssignedFactor - (float)AgriculturalCount);
             float MilitaryDesire = MilitaryPotential + (AssignedFactor - (float)MilitaryCount);
             float ResearchDesire = ResearchPotential + (AssignedFactor - (float)ResearchCount);
-            if ((double)CoreDesire > (double)IndustrialDesire && (double)CoreDesire > (double)AgricultureDesire && ((double)CoreDesire > (double)MilitaryDesire && (double)CoreDesire > (double)ResearchDesire))
+            if (CoreDesire > IndustrialDesire && CoreDesire > AgricultureDesire && (CoreDesire > MilitaryDesire && CoreDesire > ResearchDesire))
                 return Planet.ColonyType.Core;
-            if ((double)IndustrialDesire > (double)CoreDesire && (double)IndustrialDesire > (double)AgricultureDesire && ((double)IndustrialDesire > (double)MilitaryDesire && (double)IndustrialDesire > (double)ResearchDesire))
+            if (IndustrialDesire > CoreDesire && IndustrialDesire > AgricultureDesire && (IndustrialDesire > MilitaryDesire && IndustrialDesire > ResearchDesire))
                 return Planet.ColonyType.Industrial;
-            if ((double)AgricultureDesire > (double)IndustrialDesire && (double)AgricultureDesire > (double)CoreDesire && ((double)AgricultureDesire > (double)MilitaryDesire && (double)AgricultureDesire > (double)ResearchDesire))
+            if (AgricultureDesire > IndustrialDesire && AgricultureDesire > CoreDesire && (AgricultureDesire > MilitaryDesire && AgricultureDesire > ResearchDesire))
                 return Planet.ColonyType.Agricultural;
-            return (double)ResearchDesire > (double)CoreDesire && (double)ResearchDesire > (double)AgricultureDesire && ((double)ResearchDesire > (double)MilitaryDesire && (double)ResearchDesire > (double)IndustrialDesire) ? Planet.ColonyType.Research : Planet.ColonyType.Industrial;
+            return ResearchDesire > CoreDesire && ResearchDesire > AgricultureDesire && (ResearchDesire > MilitaryDesire && ResearchDesire > IndustrialDesire) ? Planet.ColonyType.Research : Planet.ColonyType.Industrial;
         }
 
         public void ResetBorders()
@@ -2770,8 +2794,9 @@ namespace Ship_Game
             int naturalLimit = this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
                 export.ps == Planet.GoodState.EXPORT ||
                 (export.Population >3000 && export.MaxPopulation > 3000)).Count();
-
-            if(naturalLimit >0)
+            float moneyForFreighters = (this.Money * .1f) * .1f -this.freighterBudget;
+            this.freighterBudget = 0;
+            if(naturalLimit >0 && moneyForFreighters >0)
             {
                 naturalLimit *= this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
                 export.ps == Planet.GoodState.IMPORT ||
@@ -2782,7 +2807,7 @@ namespace Ship_Game
             int PassLimit = freighterLimit - TradeLimit;
             List<Ship> unusedFreighters = new List<Ship>();
             List<Ship> assignedShips = new List<Ship>();
-            //foreach (Ship ship in (List<Ship>)this.OwnedShips)
+           
             for (int x = 0; x < this.OwnedShips.Count; x++)
             {
                 Ship ship;
@@ -2796,8 +2821,10 @@ namespace Ship_Game
                 }
                 if (ship == null)
                     continue;
-                if ((ship.shipData.ShipCategory != ShipData.Category.Unclassified && ship.shipData.ShipCategory !=  ShipData.Category.Civilian) || ship.Role != "freighter"|| ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                if ((ship.shipData.ShipCategory != ShipData.Category.Unclassified &&  ship.shipData.ShipCategory == ShipData.Category.Civilian) || ship.Role != "freighter" || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
                     continue;
+                if(ship.GetAI().State != AIState.Scrap )
+                this.freighterBudget += ship.GetMaintCost();
                 if (ship.GetAI().State == AIState.SystemTrader)
                 {
                     if (tradeShips < TradeLimit)
@@ -2912,6 +2939,7 @@ namespace Ship_Game
         {
             int num = 0;
             Vector2 vector2 = new Vector2();
+            this.OwnedPlanets.thisLock.EnterReadLock();
             foreach (Planet planet in this.OwnedPlanets)
             {
                 for (int index = 0; (double)index < (double)planet.Population / 1000.0; ++index)
@@ -2920,6 +2948,7 @@ namespace Ship_Game
                     vector2 += planet.Position;
                 }
             }
+            this.OwnedPlanets.thisLock.ExitReadLock();
             if (num == 0)
                 num = 1;
             return vector2 / (float)num;

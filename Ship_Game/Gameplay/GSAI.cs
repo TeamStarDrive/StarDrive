@@ -26,7 +26,7 @@ namespace Ship_Game.Gameplay
 
 		private int desired_ColonyGoals = 2;
 
-		private List<SolarSystem> MarkedForExploration = new List<SolarSystem>();
+        private BatchRemovalCollection<SolarSystem> MarkedForExploration = new BatchRemovalCollection<SolarSystem>();
 
 		public List<AO> AreasOfOperations = new List<AO>();
 
@@ -2448,10 +2448,12 @@ namespace Ship_Game.Gameplay
                 }
                 Potentials.Add(s);
             }
+            this.MarkedForExploration.thisLock.EnterReadLock();
             foreach (SolarSystem s in this.MarkedForExploration)
             {
                 Potentials.Remove(s);
             }
+            this.MarkedForExploration.thisLock.ExitReadLock();
             IOrderedEnumerable<SolarSystem> sortedList =
                 from system in Potentials
                 orderby Vector2.Distance(this.empire.GetWeightedCenter(), system.Position)
@@ -4350,7 +4352,7 @@ namespace Ship_Game.Gameplay
 
 		private float FindTaxRateToReturnAmount(float Amount)
 		{
-			for (int i = 0; i < 50; i++)
+			for (int i = 0; i < 100; i++)
 			{
 				if (this.empire.EstimateIncomeAtTaxRate((float)i / 100f) >= Amount)
 				{
@@ -4362,7 +4364,7 @@ namespace Ship_Game.Gameplay
                 float tax = this.empire.data.TaxRate + .05f;
                 tax = tax > 100 ? 100 : tax;
             }
-			return 0.50f;
+            return 1;//0.50f;
 		}
 
 		private string GetAnAssaultShip()
@@ -4575,17 +4577,17 @@ namespace Ship_Game.Gameplay
                 ratio_Cruisers = 0f;
                 ratio_Capitals = 0f;
             }
-
+            TotalMilShipCount = TotalMilShipCount < 25f ? 25f : TotalMilShipCount;
             float single = TotalMilShipCount / 10f;
             float totalRatio = ratio_Fighters + ratio_Corvettes + ratio_Frigates + ratio_Cruisers + ratio_Capitals;
-
-            int DesiredFighters = (int)((TotalMilShipCount / totalRatio) * ratio_Fighters );
-            int DesiredBombers = (int)((TotalMilShipCount / totalRatio) * ratio_Fighters != 0 ? ratio_Fighters *.25f : ratio_Frigates*.25f);
-            int DesiredCorvettes = (int)((TotalMilShipCount / totalRatio) * ratio_Corvettes);
-            int DesiredFrigates = (int)((TotalMilShipCount / totalRatio) * ratio_Frigates);
-            int DesiredCruisers = (int)((TotalMilShipCount / totalRatio) * ratio_Cruisers);
-            int DesiredCapitals = (int)((TotalMilShipCount / totalRatio) * ratio_Capitals);
-            int DesiredCarriers = (int)(TotalMilShipCount / totalRatio);
+            float adjustedRatio = TotalMilShipCount / totalRatio;
+            int DesiredFighters = (int)(adjustedRatio * ratio_Fighters);
+            int DesiredBombers = (int)(adjustedRatio * ratio_Fighters != 0 ? ratio_Fighters * .25f : ratio_Frigates * .25f);
+            int DesiredCorvettes = (int)(adjustedRatio * ratio_Corvettes);
+            int DesiredFrigates = (int)(adjustedRatio * ratio_Frigates);
+            int DesiredCruisers = (int)(adjustedRatio * ratio_Cruisers);
+            int DesiredCapitals = (int)(adjustedRatio * ratio_Capitals);
+            int DesiredCarriers = (int)(adjustedRatio);
             int DesiredTroopShips = (int)(TotalMilShipCount / 15f);
 
             //bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
@@ -4716,7 +4718,7 @@ namespace Ship_Game.Gameplay
                             continue;
                     }
                     // this line below crashes the ship picker if we ever actually get to it and is unnecessary afaik? Doc.
-                    // return "";
+                    return "";
                 }
             }
 
@@ -6365,13 +6367,14 @@ namespace Ship_Game.Gameplay
             if (totalwanted / totalideal <= .1f)
                 return;
             Planet targetBuild = this.empire.GetPlanets()
-                .Where(planet => planet.AllowInfantry && planet.colonyType != Planet.ColonyType.Agricultural && planet.colonyType != Planet.ColonyType.Research
-                    && planet.GrossProductionPerTurn > 2
-                    && (planet.ConstructionQueue.Where(goal => goal.Goal != null
-                        && goal.Goal.type == GoalType.BuildTroop).Sum(cost => cost.Cost) + 1) <= planet.GrossProductionPerTurn * 10f//10 turns to build curremt troops in queue
+                .Where(planet => planet.AllowInfantry 
+                    && planet.GetMaxProductionPotential() > 2
+                    && (planet.ProductionHere) -(planet.ConstructionQueue.Where(goal => goal.Goal != null
+                        && goal.Goal.type == GoalType.BuildTroop).Sum(cost => cost.Cost)) > 0//10 turns to build curremt troops in queue
                         
                         )
-                        .OrderByDescending(build => build.GrossProductionPerTurn).FirstOrDefault();
+                        .OrderBy(noshipyard => !noshipyard.HasShipyard)
+                        .ThenByDescending(build => build.GrossProductionPerTurn).FirstOrDefault();
             if (targetBuild == null)
                 return;
 
@@ -6579,9 +6582,10 @@ namespace Ship_Game.Gameplay
                                 UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost();
                             }
                         }
-                        if ((double)((this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ?
-                            this.empire.EstimateIncomeAtTaxRate(this.empire.data.TaxRate) - UnderConstruction :
-                            this.empire.EstimateIncomeAtTaxRate(0.2f) - UnderConstruction)) - 0.24 * (double)newRoad.NumberOfProjectors <= 0.5)
+                        if(this.empire.Money*.01f -UnderConstruction -0.24 * newRoad.NumberOfProjectors <=.05)
+                        //if (((this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ?
+                        //    this.empire.EstimateIncomeAtTaxRate(this.empire.data.TaxRate) - UnderConstruction :
+                        //    this.empire.EstimateIncomeAtTaxRate(0.2f) - UnderConstruction)) - 0.24 * (double)newRoad.NumberOfProjectors <= 0.5)
                         {
                             continue;
                         }
@@ -6739,13 +6743,15 @@ namespace Ship_Game.Gameplay
             this.numberOfShipGoals = 0;
             foreach (Planet p in this.empire.GetPlanets())
             {
-                if (!p.HasShipyard || (p.GetMaxProductionPotential() <2f // p.GetNetProductionPerTurn() < 2f 
-                    ||( this.empire.data.Traits.Cybernetic !=0 && p.GetMaxProductionPotential()-p.consumption <2f)))   //p.GetNetProductionPerTurn() < .5f))
+               // if (!p.HasShipyard || (p.GetMaxProductionPotential() <2f
+                if ((p.GetMaxProductionPotential() < 5f||( this.empire.data.Traits.Cybernetic !=0 && p.GetMaxProductionPotential()-p.consumption <2f)
+                    || (p.ProductionHere /p.MAX_STORAGE <.10))
+                    )   //p.GetNetProductionPerTurn() < .5f))
                 {
                     continue;
                 }
-                GSAI gSAI = this;
-                gSAI.numberOfShipGoals = gSAI.numberOfShipGoals + 3;
+
+                this.numberOfShipGoals = this.numberOfShipGoals + (int)((p.ProductionHere+1)/50); //(int)(p.ProductionHere /(1+ p.ConstructionQueue.Sum(q => q.Cost)));
             }
             float numgoals = 0f;
             float offenseUnderConstruction = 0f;
@@ -6787,7 +6793,7 @@ namespace Ship_Game.Gameplay
             //this.GetAShip(0);
             //float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
 
-            //bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
+            bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
             //int prepareWar = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Count();
             //prepareWar += this.empire.GetRelations().Where(angry => angry.Value.PreparingForWar).Count();
             float noIncome = this.FindTaxRateToReturnAmount(UnderConstruction);
@@ -6797,37 +6803,33 @@ namespace Ship_Game.Gameplay
 
             //float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .05f);  //.45f - (tasks);
             //float offenseNeeded = this.empire.GetRelations().Where(war => war.Value.AtWar || war.Value.PreparingForWar || war.Value.Trust < war.Value.TotalAnger).Sum(power => power.Key.currentMilitaryStrength);
-            float offenseNeeded = 0;// this.empire.GetRelations().Where(war => !war.Key.isFaction && war.Value.AtWar || war.Value.PreparingForWar).Sum(power => power.Key.currentMilitaryStrength);
+            float offenseNeeded =  this.empire.GetRelations().Where(war => !war.Key.isFaction && war.Value.AtWar || war.Value.PreparingForWar).Sum(power => power.Key.currentMilitaryStrength);
             float offenseNeededThreat = this.ThreatMatrix.Pins.Values.Sum(power => power.Strength); //.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);
             //if (offenseNeededThreat > 0)
             //    System.Diagnostics.Debug.WriteLine("threat: " + offenseNeededThreat);
             float offenseNeededRatio = ((offenseNeeded  + offenseNeededThreat)+1) / (this.empire.currentMilitaryStrength +1);
             //float prepareWar2 = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Sum(power => power.Key.currentMilitaryStrength / (power.Value.Trust /power.Value.TotalAnger) );
 
-            float tax = offenseNeededRatio > 0.0 ? offenseNeededRatio * (.6f - (this.empire.data.TaxRate)) : this.empire.data.TaxRate;
-            if (tax > .5f)
-                tax = .5f;
+            //float tax = offenseNeededRatio > 0.0 ? offenseNeededRatio * (.6f - (this.empire.data.TaxRate)) : this.empire.data.TaxRate;
+            float tax = offenseNeededRatio*.1f;// > 0.0 ? offenseNeededRatio * (.6f - (this.empire.data.TaxRate)) : this.empire.data.TaxRate;
+            if (tax > .25f)
+                tax = .25f;
             else
-                if (tax < .2f)
-                    tax = .2f;
+                if (tax < .05f)
+                    tax = .05f;
 
-           // this.buildCapacity = this.empire.EstimateShipCapacityAtTaxRate(tax);   //this.empire.Money > this.empire.GrossTaxes ? this.empire.Money : 
-
-            //tax = tax > .5f ? .5f : tax;
-            float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) - UnderConstruction;
-            float allowable_deficit = -Capacity;// +(this.empire.Money * -.1f);
+            //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
+            float Capacity = this.empire.Money * .2f - UnderConstruction -this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
+            float allowable_deficit = this.empire.Money * -.01f; //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
 
             
-            if (allowable_deficit >= 0f || noIncome >=.5f)
-            {
-                allowable_deficit = -(this.empire.Money*.5f - this.empire.GrossTaxes );// 0f;
-            }
-            else if(this.empire.data.TaxRate ==0)
-            {
-                allowable_deficit += this.empire.GetAverageNetIncome();
-            }
-            this.buildCapacity = Capacity - allowable_deficit + this.empire.GetTotalShipMaintenance(); ;
+            //if ((allowable_deficit >= 0f || noIncome >.5f) && atWar)
+            //{
+            //    allowable_deficit = -(this.empire.Money*.5f );//- this.empire.GrossTaxes );// 0f;
+            //}
+
+            this.buildCapacity = Capacity - allowable_deficit;// +this.empire.GetTotalShipMaintenance(); ;
                 //this.empire.GetTotalShipMaintenance();
             
             this.GetAShip(0);
@@ -6928,13 +6930,13 @@ namespace Ship_Game.Gameplay
 
 
 
-            while (this.buildCapacity >0 //Capacity > allowable_deficit 
-                && numgoals < (float)this.numberOfShipGoals  
+            while (Capacity > 0 //this.buildCapacity > 0 //Capacity > allowable_deficit 
+                && numgoals < this.numberOfShipGoals  
                 && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool 
                 || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
 
-                string s = this.GetAShip(this.buildCapacity);//Capacity - allowable_deficit);
+                string s = this.GetAShip(this.buildCapacity-allowable_deficit);//Capacity - allowable_deficit);
                 if (s == null)
                 {
                     break;
@@ -7255,7 +7257,8 @@ namespace Ship_Game.Gameplay
                     highTaxes = true;
                 if (this.empire.GetPlanets().Sum(research => research.NetResearchPerTurn) < this.empire.GetPlanets().Count / 3)
                     lowResearch = true;
-                int economics = (int)(this.empire.data.TaxRate * 10 + this.empire.Money < this.empire.GrossTaxes?5:0);
+                int economics = 10-(int)(this.empire.Money / (this.empire.GrossTaxes +1));
+                    //(int)(this.empire.data.TaxRate * 10 + this.empire.Money < this.empire.GrossTaxes?5:0);
                 int needsFood =0;
                 foreach(Planet hunger in this.empire.GetPlanets())
                 {
