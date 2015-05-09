@@ -2848,7 +2848,7 @@ namespace Ship_Game
                     {
                         bonus.BonusNameIndex += OffSet;
                         Localizer.used[bonus.BonusNameIndex] = true;
-                    }
+                    }                   
                 }
                 data.UID = Path.GetFileNameWithoutExtension(FI.Name);
                
@@ -2864,6 +2864,73 @@ namespace Ship_Game
 					
                     Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
+                //catagorize uncatagoried techs
+                {
+                    if(data.TechnologyType == TechnologyType.General)
+                    {
+                        if (data.HullsUnlocked.Count > 0)
+                        {
+                            data.TechnologyType = TechnologyType.ShipHull;
+                        }
+                        else if (data.BuildingsUnlocked.Count > 0)
+                        {
+                            foreach (Technology.UnlockedBuilding buildingU in data.BuildingsUnlocked)
+                            {
+                                Building building;
+                                if (ResourceManager.BuildingsDict.TryGetValue(buildingU.Name, out building))
+                                {
+                                    if (building.AllowInfantry || building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0 || building.isWeapon || building.Strength > 0)
+                                        data.TechnologyType = TechnologyType.GroundCombat;
+                                    else if (building.AllowShipBuilding || building.PlusFlatProductionAmount > 0 || building.PlusProdPerRichness > 0
+                                        || building.StorageAdded > 0 || building.PlusFlatProductionAmount > 0)
+                                        data.TechnologyType = TechnologyType.Industry;
+                                    else if (building.PlusTaxPercentage > 0 || building.CreditsPerColonist > 0)
+                                        data.TechnologyType = TechnologyType.Economic;
+                                    else if (building.PlusFlatResearchAmount > 0 || building.PlusResearchPerColonist > 0)
+                                        data.TechnologyType = TechnologyType.Research;
+                                    else if (building.PlusFoodPerColonist > 0 || building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0
+                                        || building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0
+                                        )
+                                        data.TechnologyType = TechnologyType.Colonization;
+                                }
+
+                            }
+
+
+                        }
+                        else if (data.TroopsUnlocked.Count > 0)
+                        {
+                            data.TechnologyType = TechnologyType.GroundCombat;
+                        }
+                        else if (data.ModulesUnlocked.Count > 0)
+                        {
+                            foreach (Technology.UnlockedMod moduleU in data.ModulesUnlocked)
+                            {
+                                ShipModule module;
+                                if (ResourceManager.ShipModulesDict.TryGetValue(moduleU.ModuleUID, out module))
+                                {
+                                    if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
+                                        || module.ModuleType == ShipModuleType.Hangar
+                                        )
+                                        data.TechnologyType = TechnologyType.ShipWeapons;
+                                    else if (module.shield_power > 0 || module.ModuleType == ShipModuleType.Armor
+                                        || module.ModuleType == ShipModuleType.Countermeasure
+                                        || module.ModuleType == ShipModuleType.Shield
+
+                                        )
+                                        data.TechnologyType = TechnologyType.ShipDefense;
+                                    else
+                                        data.TechnologyType = TechnologyType.ShipGeneral;
+
+                                }
+                            }
+                        }
+                        else data.TechnologyType = TechnologyType.General;
+
+                        
+                    }
+                }
+
 			}
 			textList = null;
 		}

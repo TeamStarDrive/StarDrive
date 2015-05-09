@@ -2178,9 +2178,10 @@ namespace Ship_Game
             int num1 = 0;
             int num2 = 0;
             Empire index = (Empire)null;
-            this.TroopsHere.thisLock.EnterReadLock();
+            
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
+                planetGridSquare.TroopsHere.thisLock.EnterReadLock();
                 foreach (Troop troop in planetGridSquare.TroopsHere)
                 {
                     if (troop.GetOwner() != null && troop.GetOwner() != this.Owner)
@@ -2193,10 +2194,11 @@ namespace Ship_Game
                     else
                         ++num1;
                 }
+                planetGridSquare.TroopsHere.thisLock.ExitReadLock();
                 if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
                     ++num1;
             }
-            this.TroopsHere.thisLock.ExitReadLock();
+            
             if (num2 > this.numInvadersLast && this.numInvadersLast == 0)
             {
                 if (EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) == this.Owner)
@@ -3286,20 +3288,22 @@ namespace Ship_Game
                             return false;
                         if (HighPri)
                         {
-                            if (building.PlusFlatFoodAmount > 0 
-                                || (building.PlusFoodPerColonist > 0 && this.Population >500f)
+                            if (building.PlusFlatFoodAmount > 0
+                                || (building.PlusFoodPerColonist > 0 && this.Population > 500f)
                                 || building.Name == "Biospheres"
-                                ||this.developmentLevel > 4
+                                || this.developmentLevel > 4
                                 || ((building.MaxPopIncrease > 0
-                                || building.PlusFlatPopulation > 0 || building.PlusTerraformPoints > 0) && this.Population > this.MaxPopulation*.5f)
-                                || building.PlusFlatFoodAmount >0
-                                || building.PlusFlatProductionAmount >0
+                                || building.PlusFlatPopulation > 0 || building.PlusTerraformPoints > 0) && this.Population > this.MaxPopulation * .5f)
+                                || building.PlusFlatFoodAmount > 0
+                                || building.PlusFlatProductionAmount > 0
                                 || (building.StorageAdded > 0 && this.FoodHere == MAX_STORAGE)
-                                
+
                                 )
                                 return true;
+                                //iftrue = true;
+                            
                         }
-                        if (MedPri)
+                        if (!iftrue && MedPri)
                         {
                             if (
                                 
@@ -3349,7 +3353,7 @@ namespace Ship_Game
                                 return false;
                             iftrue = true;
                         }
-                        if (LowPri && this.developmentLevel > 4 && makingMoney)
+                        if (!iftrue && LowPri && this.developmentLevel > 4 && makingMoney)
                         {
                           
                             iftrue = true;
@@ -3386,7 +3390,7 @@ namespace Ship_Game
                             }
 
                         }
-                        if (LowPri && this.developmentLevel > 3 && makingMoney)
+                        if (!iftrue && LowPri && this.developmentLevel > 3 && makingMoney)
                         {
                             if (this.developmentLevel < 3 && (building.theWeapon != null || building.Strength > 0) && !needDefense)
                                 return false;
@@ -3417,7 +3421,7 @@ namespace Ship_Game
                                 )
                                 iftrue = true;
                         }
-                        if (MedPri)
+                        if (!iftrue && MedPri)
                         {
                             if (building.PlusFlatProductionAmount > 0
                                 || building.PlusProdPerRichness > 0
@@ -3425,7 +3429,7 @@ namespace Ship_Game
                                 || building.PlusFlatProductionAmount > 0)
                                 iftrue = true;
                         }
-                        if (LowPri && this.developmentLevel > 4)
+                        if (!iftrue && LowPri && this.developmentLevel > 4)
                         {
                             //if(building.Name!= "Biospheres")
                             iftrue = true;
@@ -3446,14 +3450,15 @@ namespace Ship_Game
                                 || building.PlusFlatProductionAmount >0
                                 || building.PlusResearchPerColonist > 0)
                                 iftrue = true;
+
                         }
-                        if (MedPri && this.developmentLevel > 3 &&makingMoney)
+                        if (!iftrue&& MedPri && this.developmentLevel > 3 && makingMoney)
                         {
-                        if(((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0 ) && this.Population > this.MaxPopulation * .5f)
+                            if (((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && this.Population > this.MaxPopulation * .5f)
                             || (building.PlusTerraformPoints > 0 && this.Fertility < 1 && this.Population > this.MaxPopulation * .5f && this.MaxPopulation >2000))
                                 iftrue = true;
                         }
-                        if (LowPri && this.developmentLevel > 4 && makingMoney)
+                        if (!iftrue && LowPri && this.developmentLevel > 4 && makingMoney)
                         {
                             if ((building.theWeapon != null || building.Strength > 0) && !needDefense)
                                 return false;
@@ -4257,7 +4262,7 @@ namespace Ship_Game
                             if (!flag1)
                                 this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                         }
-                        if ((double)num8 < 2.0)
+                        if (num8 < 2.0)
                         {
                             this.GetBuildingsWeCanBuildHere();
 
@@ -4283,7 +4288,7 @@ namespace Ship_Game
                                 this.AddBuildingToCQ(buildthis);
                             }
                         }
-                        if ((double)num8 < 2.0)
+                        if (num8 < 2.0)
                         {
                             this.GetBuildingsWeCanBuildHere();
                             Building b = (Building)null;
@@ -4292,13 +4297,13 @@ namespace Ship_Game
                             {
                                 if (!WeCanAffordThis(building, this.colonyType))
                                     continue;
-                                if ((double)building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost") //this.WeCanAffordThis(building,this.colonyType)) //
+                                if (building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost") //this.WeCanAffordThis(building,this.colonyType)) //
                                 {
                                     //float num2 = building.Cost;
                                     b = building;
                                     break;
                                 }
-                                else if ((double)building.Cost < (double)num1)
+                                else if (building.Cost < num1)
                                 //&& 
                                 //( (double)building.PlusResearchPerColonist > 0.0 
                                 //|| (double)building.PlusFlatResearchAmount > 0.0
@@ -4790,7 +4795,7 @@ namespace Ship_Game
 
             }
             #endregion
-            if ((double)this.Population > 3000.0 || (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.75)
+            if (this.Population > 3000.0 || this.Population / (this.MaxPopulation + this.MaxPopBonus) > 0.75)
             #region Scrap
             {
                 //List<Building> list = new List<Building>();
@@ -4901,7 +4906,8 @@ namespace Ship_Game
                 return false;
             if (this.Owner != null && !this.Owner.isPlayer && this.Owner.data.Traits.Cybernetic > 0)
                 return false;
-            float amount = this.ProductionHere > 10f ? 10f : this.ProductionHere;
+            int amountToRush = (int)(this.ProductionHere * .1f);
+            float amount = amountToRush > 10f ? amountToRush : this.ProductionHere;
             if (amount < 1)
             {
                 return false;
@@ -4982,7 +4988,7 @@ namespace Ship_Game
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
         {
-            if (this.Crippled_Turns > 0 || this.RecentCombat || (double)howMuch <= 0.0)
+            if (this.Crippled_Turns > 0 || this.RecentCombat || howMuch <= 0.0)
                 return;
             float cost = 0;
             if (this.ConstructionQueue.Count > 0 && this.ConstructionQueue.Count > whichItem)
@@ -4992,10 +4998,10 @@ namespace Ship_Game
                 if (item.isShip)
                     //howMuch += howMuch * this.ShipBuildingModifier;
                     cost *= this.ShipBuildingModifier;
-                if ((double)item.productionTowards + (double)howMuch < (double)cost)
+                if (item.productionTowards + howMuch < cost)
                 {
                     this.ConstructionQueue[whichItem].productionTowards += howMuch;
-                    if ((double)item.productionTowards >= (double)cost)
+                    if (item.productionTowards >= cost)
                         this.ProductionHere += item.productionTowards - cost;
                 }
                 else
