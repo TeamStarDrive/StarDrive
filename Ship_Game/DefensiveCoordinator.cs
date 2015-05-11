@@ -434,7 +434,7 @@ namespace Ship_Game
             }
             foreach (Ship ship2 in this.us.GetShips())
             {
-                if (ship2.Role != "troop" || ship2.fleet != null) //|| ship2.GetAI().State != AIState.AwaitingOrders)
+                if (ship2.Role != "troop" || ship2.fleet != null ||ship2.Mothership !=null || ship2.GetAI().HasPriorityOrder) //|| ship2.GetAI().State != AIState.AwaitingOrders)
                 {
                     continue;
                 }

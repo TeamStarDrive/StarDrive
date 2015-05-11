@@ -2299,7 +2299,7 @@ namespace Ship_Game
                 this.data.AgentList[index].ServiceYears += 0.1f;
             }
             this.data.AgentList.ApplyPendingRemovals();
-            if ((double)this.Money < 0.0)
+            if (this.Money < 0.0)
             {
                 ++this.data.TurnsBelowZero;
             }
