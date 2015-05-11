@@ -3890,10 +3890,11 @@ namespace Ship_Game.Gameplay
             System.Diagnostics.Debug.WriteLine(string.Concat(this.Owner.loyalty.PortraitName, " : ", this.Owner.Role)); 
 #endif
            
-            if(this.Owner.Role=="platform" && this.Owner.ScuttleTimer<1)
+            if((this.Owner.Role=="platform" || this.Owner.Role == "station" )&& this.Owner.ScuttleTimer<1)
             {
                 this.Owner.ScuttleTimer = 1;
                 this.State = AIState.Scuttle;
+                this.HasPriorityOrder = true;
                 return;
             }
             lock (this.wayPointLocker)

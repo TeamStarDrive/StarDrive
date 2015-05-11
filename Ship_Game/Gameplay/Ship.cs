@@ -1402,6 +1402,7 @@ namespace Ship_Game.Gameplay
 
         public int GetTechScore()
         {
+            
             int num1 = 0;
             int num2 = 0;
             int num3 = 0;
@@ -2433,7 +2434,13 @@ namespace Ship_Game.Gameplay
                 this.InhibitedTimer = 1f;
             else if ((double)Ship.universeScreen.FTLModifier < 1.0 && this.system != null && (this.engineState == Ship.MoveState.Warp && (double)this.GetFTLSpeed() < (double)this.GetSTLSpeed()))
                 this.HyperspaceReturn();
-            if (this.system != null && this.system.isVisible || this.system == null)
+            if (this.ScuttleTimer > -1.0 || this.ScuttleTimer <-1.0)
+            {
+                this.ScuttleTimer -= elapsedTime;
+                if (this.ScuttleTimer <= 0.0)
+                    this.Die((GameplayObject)null, true);
+            }
+            if ((this.system != null && this.system.isVisible) || this.system == null)
             {
                 BoundingSphere sphere = new BoundingSphere(new Vector3(this.Position, 0.0f), 2000f);
                 if (Ship.universeScreen.Frustum.Contains(sphere) != ContainmentType.Disjoint && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
@@ -2446,12 +2453,7 @@ namespace Ship_Game.Gameplay
                     this.InFrustum = false;
                     this.ShipSO.Visibility = ObjectVisibility.None;
                 }
-                if ((double)this.ScuttleTimer > -1.0)
-                {
-                    this.ScuttleTimer -= elapsedTime;
-                    if ((double)this.ScuttleTimer <= 0.0)
-                        this.Die((GameplayObject)null, true);
-                }
+  
             }
             else
             {
