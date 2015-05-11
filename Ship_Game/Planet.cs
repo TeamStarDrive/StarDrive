@@ -4692,7 +4692,7 @@ namespace Ship_Game
                 }
             }
 
-            if (this.ConstructionQueue.Count == 0 && this.ProductionHere > this.MAX_STORAGE * .75f)
+            if (this.ConstructionQueue.Count < 5 && !this.system.CombatInSystem) //  this.ProductionHere > this.MAX_STORAGE * .75f)
             #region Troops and platforms
             {
                 //Added by McShooterz: Colony build troops
@@ -4732,66 +4732,113 @@ namespace Ship_Game
 
                 if (this.HasShipyard && (!this.Owner.isPlayer || this.colonyType == ColonyType.Military))
                 {
-                    
+
                     SystemCommander SCom;
-                    if (this.Owner.Money > this.Owner.GrossTaxes * 2
-                            && this.Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(this.system, out SCom))
+                    if (this.Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(this.system, out SCom))
                     {
-                        double maxProd = (double)this.GetMaxProductionPotential();
+                        float DefBudget = this.Owner.Money * .1f * .1f * SCom.PercentageOfValue;
 
-
+                        float maxProd = this.GetMaxProductionPotential();
+                        bool buildStation =false;
+                        float platformUpkeep = ResourceManager.ShipRoles["platform"].Upkeep;
+                        float stationUpkeep = ResourceManager.ShipRoles["station"].Upkeep;
+                        string station = this.Owner.GetGSAI().GetStarBase();
+                        if (DefBudget >= 1 && !string.IsNullOrEmpty(station))
+                            buildStation = true;
                         int PlatformCount = 0;
                         int stationCount = 0;
-                        foreach (Ship platform in this.Shipyards.Values)
-                        {
-                            if(platform.BaseStrength <=0)
-                                continue;
-                            if (platform.Role == "platform")
-                                PlatformCount++;
-                            if (platform.Role == "station")
-                                stationCount++;
-                        }
-                        this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0 && ship.Value.Role=="platform").Count();
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                         {
                             if (!queueItem.isShip)
                                 continue;
                             if (queueItem.sData.Role == "platform")
+                            {
+                                if (DefBudget - platformUpkeep < -platformUpkeep * .5 ) //|| (buildStation && DefBudget > stationUpkeep))
+                                {
+                                    this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                                    continue;
+                                }
+                                DefBudget -= platformUpkeep;
                                 PlatformCount++;
+                            }
                             if (queueItem.sData.Role == "station")
+                            {
+                                if (DefBudget - stationUpkeep < -stationUpkeep*.5)
+                                {
+                                    this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                                    continue;
+                                }
+                                DefBudget -= stationUpkeep;
                                 stationCount++;
+                            }
                         }
-                        if ( maxProd >3.0
-                            && PlatformCount <  SCom.RankImportance //(int)(SCom.PercentageOfValue * this.developmentLevel)
+                        foreach (Ship platform in this.Shipyards.Values)
+                        {
+                            if (platform.BaseStrength <= 0)
+                                continue;
+                            if (platform.Role == "station")
+                            {
+                                stationUpkeep = platform.GetMaintCost();
+                                if (DefBudget - stationUpkeep < -stationUpkeep * .5)
+                                {
+                                    platform.GetAI().OrderScrapShip();
+                                    continue;
+                                }
+                                DefBudget -= stationUpkeep;
+                                stationCount++;
+                            }
+                            if (platform.Role == "platform" )//|| (buildStation && DefBudget < 5))
+                            {
+                                platformUpkeep = platform.GetMaintCost();
+                                if (DefBudget - platformUpkeep < -platformUpkeep * .5)
+                                {
+                                    platform.GetAI().OrderScrapShip();
+                                    continue;
+                                }
+                                DefBudget -= platformUpkeep;
+                                PlatformCount++;
+                            }
+
+                        }
+                        //this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0 && ship.Value.Role=="platform").Count();
+
+
+                        if (DefBudget >= stationUpkeep && maxProd > 10.0
+&& stationCount < (int)(SCom.RankImportance*.5f) //(int)(SCom.PercentageOfValue * this.developmentLevel)
+&& stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                        {
+                           // string platform = this.Owner.GetGSAI().GetStarBase();
+                            if (!string.IsNullOrEmpty(station))
+                            {
+                                Ship ship = ResourceManager.ShipsDict[station];
+                                this.ConstructionQueue.Add(new QueueItem()
+                                   {
+                                       isShip = true,
+                                       sData = ship.GetShipData(),
+                                       Cost = ship.GetCost(this.Owner)
+                                   });
+                            }
+                            DefBudget -= stationUpkeep;
+                        }
+                        if (DefBudget >= platformUpkeep && maxProd > 1.0
+                            && PlatformCount < SCom.RankImportance //(int)(SCom.PercentageOfValue * this.developmentLevel)
                             && PlatformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                         {
                             string platform = this.Owner.GetGSAI().GetDefenceSatellite();
                             if (!string.IsNullOrEmpty(platform))
+                            {
+                                Ship ship = ResourceManager.ShipsDict[platform];
                                 this.ConstructionQueue.Add(new QueueItem()
                                 {
                                     isShip = true,
-                                    sData = ResourceManager.ShipsDict[platform].GetShipData(),
-                                    Cost = ResourceManager.ShipsDict[platform].GetCost(this.Owner)
+                                    sData = ship.GetShipData(),
+                                    Cost = ship.GetCost(this.Owner)
                                 });
-                        } 
-                        else
-                        {
-                            if (maxProd > 1.0
-                           && stationCount < 2* SCom.RankImportance //(int)(SCom.PercentageOfValue * this.developmentLevel)
-                           && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
-                            {
-                                string platform = this.Owner.GetGSAI().GetStarBase();
-                                if (!string.IsNullOrEmpty(platform))
-                                    this.ConstructionQueue.Add(new QueueItem()
-                                    {
-                                        isShip = true,
-                                        sData = ResourceManager.ShipsDict[platform].GetShipData(),
-                                        Cost = ResourceManager.ShipsDict[platform].GetCost(this.Owner)
-                                    });
-                            } 
+                            }
+
                         }
                     }
-            }
+                }
 
             }
             #endregion

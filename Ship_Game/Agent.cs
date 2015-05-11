@@ -720,63 +720,59 @@ namespace Ship_Game
 
 		public void Initialize(AgentMission TheMission, Empire Owner)
 		{
-			switch (TheMission)
+            float spyBudget =0;
+            switch (TheMission)
 			{
 				case AgentMission.Training:
 				{
 					this.TurnsRemaining = ResourceManager.AgentMissionData.TrainingTurns;
-					Empire owner = Owner;
-                    owner.Money = owner.Money - ResourceManager.AgentMissionData.TrainingCost;
+                    spyBudget -= ResourceManager.AgentMissionData.TrainingCost;
 					this.MissionNameIndex = 2196;
-					return;
+					break;
 				}
 				case AgentMission.Infiltrate:
 				{
                     this.TurnsRemaining = ResourceManager.AgentMissionData.InfiltrateTurns;
-					Empire money = Owner;
-                    money.Money = money.Money - ResourceManager.AgentMissionData.InfiltrateCost;
+                    spyBudget -= ResourceManager.AgentMissionData.InfiltrateCost;
 					this.MissionNameIndex = 2188;
-					return;
+                    break;
 				}
 				case AgentMission.Assassinate:
 				{
                     this.TurnsRemaining = ResourceManager.AgentMissionData.AssassinateTurns;
-					Empire empire = Owner;
-                    empire.Money = empire.Money - ResourceManager.AgentMissionData.AssassinateCost;
+                    spyBudget -= ResourceManager.AgentMissionData.AssassinateCost;
 					this.MissionNameIndex = 2184;
-					return;
+                    break;
 				}
 				case AgentMission.Sabotage:
 				{
                     this.TurnsRemaining = ResourceManager.AgentMissionData.SabotageTurns;
-					Empire owner1 = Owner;
-                    owner1.Money = owner1.Money - ResourceManager.AgentMissionData.SabotageCost;
+                    spyBudget -= ResourceManager.AgentMissionData.SabotageCost;
 					this.MissionNameIndex = 2190;
-					return;
+                    break;
 				}
 				case AgentMission.StealTech:
 				{
                     this.TurnsRemaining = ResourceManager.AgentMissionData.StealTechTurns;
-					Empire money1 = Owner;
-                    money1.Money = money1.Money - ResourceManager.AgentMissionData.StealTechCost;
+                    spyBudget -= ResourceManager.AgentMissionData.StealTechCost;
 					this.MissionNameIndex = 2194;
-					return;
+                    break;
 				}
 				case AgentMission.Robbery:
 				{
                     this.TurnsRemaining = ResourceManager.AgentMissionData.RobberyTurns;
-					Empire empire1 = Owner;
-                    empire1.Money = empire1.Money - ResourceManager.AgentMissionData.RobberyCost;
+					
+                    spyBudget -= ResourceManager.AgentMissionData.RobberyCost;
 					this.MissionNameIndex = 2192;
-					return;
+                    break;
 				}
 				case AgentMission.InciteRebellion:
 				{
                     this.TurnsRemaining = ResourceManager.AgentMissionData.RebellionTurns;
-					Empire owner2 = Owner;
-                    owner2.Money = owner2.Money - ResourceManager.AgentMissionData.RebellionCost;
+					
+                    spyBudget -= ResourceManager.AgentMissionData.RebellionCost;
 					this.MissionNameIndex = 2186;
-					return;
+                    break;
 				}
                 case AgentMission.Recovering:
                 {
@@ -788,7 +784,15 @@ namespace Ship_Game
 				{
 					return;
 				}
+                 
 			}
+            
+            Owner.GetGSAI().spyBudget -= spyBudget;
+            if (Owner.GetGSAI().spyBudget < 0)
+            {
+                Owner.Money -= Owner.GetGSAI().spyBudget;
+                Owner.GetGSAI().spyBudget = 0;
+            }
 		}
 
         //Added by McShooterz: add experience to the agent and determine if level up.
