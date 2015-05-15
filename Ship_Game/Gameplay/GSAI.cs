@@ -3065,7 +3065,7 @@ namespace Ship_Game.Gameplay
 
             int empirePlanetSpys = this.empire.GetPlanets().Count() / 3 + 3;// (int)(this.spyBudget / (this.empire.GrossTaxes * 3));
             int currentSpies = this.empire.data.AgentList.Count;
-            if ( this.spyBudget >= 300f && currentSpies < empirePlanetSpys)
+            if (this.spyBudget >= 250f && currentSpies < empirePlanetSpys)
             {
                 Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", this.empire.data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", this.empire.data.Traits.ShipType, ".txt")));
                 string[] Tokens = Names.Split(new char[] { ',' });
@@ -3092,7 +3092,7 @@ namespace Ship_Game.Gameplay
                 }
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
-            int DesiredOffense = (int)(this.empire.data.AgentList.Count  * .5f);
+            int DesiredOffense = (int)(this.empire.data.AgentList.Count  * .3f);
             //int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .33f); // (int)(0.33f * (float)this.empire.data.AgentList.Count);
             //int DesiredOffense = this.empire.data.AgentList.Count / 2;
             foreach (Agent agent in this.empire.data.AgentList)
@@ -3271,7 +3271,7 @@ namespace Ship_Game.Gameplay
             //if (this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
             int empireSpyLimit = this.empire.GetPlanets().Count() / 3 + 3;// (int)(this.spyBudget / this.empire.GrossTaxes);
             int currentSpies = this.empire.data.AgentList.Count;
-            if (this.spyBudget >= 300f && currentSpies < empireSpyLimit)
+            if (this.spyBudget >= 250f && currentSpies < empireSpyLimit)
             {
                 Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", this.empire.data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", this.empire.data.Traits.ShipType, ".txt")));
                 string[] Tokens = Names.Split(new char[] { ',' });
@@ -3704,7 +3704,7 @@ namespace Ship_Game.Gameplay
             int empirePlanetSpys = empire.GetPlanets().Count() / 3 + 3;
             //if (empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
 
-            if (this.spyBudget >= 300f && this.empire.data.AgentList.Count < empirePlanetSpys)
+            if (this.spyBudget >= 250f && this.empire.data.AgentList.Count < empirePlanetSpys)
             {
                 Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", this.empire.data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", this.empire.data.Traits.ShipType, ".txt")));
                 string[] Tokens = Names.Split(new char[] { ',' });
@@ -4553,11 +4553,11 @@ namespace Ship_Game.Gameplay
 					return (float)i / 100f;
 				}
 			}
-            if (this.empire.ActualNetLastTurn < 0 && this.empire.data.TaxRate >=50)
-            {
-                float tax = this.empire.data.TaxRate + .05f;
-                tax = tax > 100 ? 100 : tax;
-            }
+            //if (this.empire.ActualNetLastTurn < 0 && this.empire.data.TaxRate >=50)
+            //{
+            //    float tax = this.empire.data.TaxRate + .05f;
+            //    tax = tax > 100 ? 100 : tax;
+            //}
             return 1;//0.50f;
 		}
 
@@ -4857,11 +4857,11 @@ namespace Ship_Game.Gameplay
                 int scrapCruisers = (int)numCruisers-(int)DesiredCruisers  ;
 
                 // because we actually care about corvettes now. Will trigger only if the overspend on a class is more than 10% over-budget for that class to avoid constant correction over the value of a single ship. The scrapping takes it below 5% when triggered.
-                if (fighterOverspend >= (DesiredFighterSpending * 0.1f) 
-                    || corvetteOverspend >= (DesiredCorvetteSpending * 0.1f) 
-                    || frigateOverspend >= (DesiredFrigateSpending * 0.1f) 
-                    || cruiserOverspend >= (DesiredCruiserSpending * 0.1f) 
-                    || capitalOverspend >= (DesiredCapitalSpending * 0.1f))
+                if (fighterOverspend > (DesiredFighterSpending * 0.1f) 
+                    || corvetteOverspend > (DesiredCorvetteSpending * 0.1f) 
+                    || frigateOverspend > (DesiredFrigateSpending * 0.1f) 
+                    || cruiserOverspend > (DesiredCruiserSpending * 0.1f) 
+                    || capitalOverspend > (DesiredCapitalSpending * 0.1f))
                 {
                     foreach (Ship ship in this.empire.GetShips()
                         .Where(ship => !ship.InCombat && ship.inborders && ship.fleet==null)
@@ -4950,8 +4950,9 @@ namespace Ship_Game.Gameplay
                             continue;
                     }
                     // this line below crashes the ship picker if we ever actually get to it and is unnecessary afaik? Doc.
-                    return "";
+                    
                 }
+                return "";
             }
 
             List<Ship> PotentialShips = new List<Ship>();
@@ -5216,8 +5217,7 @@ namespace Ship_Game.Gameplay
             {
                 IOrderedEnumerable<Ship> sortedList =
                     from ship3 in PotentialShips
-                    orderby ship3.shipData.techsNeeded.Count  descending                  
-                    orderby ship3.BaseStrength descending
+                    orderby ship3.shipData.techsNeeded.Count descending, ship3.BaseStrength descending               
                     select ship3;
                 float totalStrength = 0f;
                 foreach (Ship ship1 in sortedList)
@@ -5271,7 +5271,7 @@ namespace Ship_Game.Gameplay
             }
             if (PotentialSatellites.Count() == 0)
                 return "";
-            int index = HelperFunctions.GetRandomIndex(PotentialSatellites.Count());
+            int index = HelperFunctions.GetRandomIndex((int)(PotentialSatellites.Count()*.5f));
             return PotentialSatellites.OrderByDescending(tech=> tech.shipData.TechScore).ThenByDescending(stre=>stre.shipData.BaseStrength).Skip(index).FirstOrDefault().Name;
         }
 
@@ -5609,7 +5609,12 @@ namespace Ship_Game.Gameplay
 
 		private void RunAgentManager()
 		{
-            int income = (int)((this.empire.Money * .35f) );//* .2f);
+            
+            int income = (int)((this.empire.Money -this.empire.GrossTaxes*5 ) * (1-this.empire.data.TaxRate));//-this.empire.GrossTaxes*5 );//* .2f);
+            if (income > 250)
+                income = 250;
+            if(income <0)
+            income=0;
             this.spyBudget = income;
             this.empire.Money -= income;
             string name = this.empire.data.DiplomaticPersonality.Name;
@@ -6811,7 +6816,7 @@ namespace Ship_Game.Gameplay
                     continue;
                 }
 
-                this.numberOfShipGoals = this.numberOfShipGoals + (int)((p.ProductionHere+1)/50); //(int)(p.ProductionHere /(1+ p.ConstructionQueue.Sum(q => q.Cost)));
+                this.numberOfShipGoals = this.numberOfShipGoals + (int)((p.ProductionHere)/50); //(int)(p.ProductionHere /(1+ p.ConstructionQueue.Sum(q => q.Cost)));
             }
             float numgoals = 0f;
             float offenseUnderConstruction = 0f;
@@ -6879,8 +6884,8 @@ namespace Ship_Game.Gameplay
                     tax = .05f;
 
             //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
-            float Capacity = this.empire.Money * .2f - UnderConstruction -this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
-            float allowable_deficit = this.empire.Money * -.01f; //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
+            float Capacity = this.empire.Money * .1f - UnderConstruction -this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
+            float allowable_deficit = this.empire.Money * -.1f; //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
 
             

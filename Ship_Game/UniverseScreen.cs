@@ -28,7 +28,7 @@ namespace Ship_Game
     {
 
         List<float> perfavg=new List<float>();
-        List<float> perfavg2=new List<float>();
+        public List<float> perfavg2=new List<float>();
         List<float> perfavg3=new List<float>();
         List<float> perfavg4=new List<float>();
         public List<float> perfavg5=new List<float>();
