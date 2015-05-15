@@ -2271,8 +2271,9 @@ namespace Ship_Game.Gameplay
                             //return;
                         }
                         //Visible weapon firing
-                        float lag =Ship.universeScreen.perfavg5.Average() >.4f? Ship.universeScreen.perfavg5.Average(): 0;
-                        if ( GlobalStats.ForceFullSim || index/this.Owner.Weapons.Count*10  >lag && (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum))
+                        float lag =Ship.universeScreen.perfavg2.Average();
+                        lag = lag >.04f? lag: 0f;
+                        if (GlobalStats.ForceFullSim || ((float)index / (float)this.Owner.Weapons.Count) * .1f> lag && (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum))
                         {
                             fireTarget = null;
                             //Can this weapon fire on ships

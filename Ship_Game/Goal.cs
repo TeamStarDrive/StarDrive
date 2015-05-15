@@ -266,7 +266,7 @@ namespace Ship_Game
                             break;
                         if (this.PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {
-                            if (this.PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
+                            if (this.PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
                             {
                                 this.PlanetBuildingAt.ApplyStoredProduction(0);
                             }
