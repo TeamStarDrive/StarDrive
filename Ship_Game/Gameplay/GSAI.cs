@@ -4848,23 +4848,24 @@ namespace Ship_Game.Gameplay
             float capitalOverspend = this.empire.canBuildCapitals ? capCapitals - DesiredCapitalSpending : 0f;
           
             // this used to be if (Capacity == 0)... Well (if you check the calculation elsewhere) it could very easily be a negative value if capacity was insufficient for fleet due to changes. Made it <=, also made it less than 2 so AI more pro-actively re-arranges fleets.
-            if (Capacity <= 0)            
+            if (Capacity <= 0)
+            #region MyRegion
             {
 
-                int scrapFighters = (int)numFighters-(int)DesiredFighters  ;
-                int scrapCorvettes = (int)numCorvettes-(int)DesiredCorvettes ;
-                int scrapFrigates = (int)numFrigates-(int)DesiredFrigates  ;
-                int scrapCruisers = (int)numCruisers-(int)DesiredCruisers  ;
+                int scrapFighters = (int)numFighters - (int)DesiredFighters;
+                int scrapCorvettes = (int)numCorvettes - (int)DesiredCorvettes;
+                int scrapFrigates = (int)numFrigates - (int)DesiredFrigates;
+                int scrapCruisers = (int)numCruisers - (int)DesiredCruisers;
 
                 // because we actually care about corvettes now. Will trigger only if the overspend on a class is more than 10% over-budget for that class to avoid constant correction over the value of a single ship. The scrapping takes it below 5% when triggered.
-                if (fighterOverspend > (DesiredFighterSpending * 0.1f) 
-                    || corvetteOverspend > (DesiredCorvetteSpending * 0.1f) 
-                    || frigateOverspend > (DesiredFrigateSpending * 0.1f) 
-                    || cruiserOverspend > (DesiredCruiserSpending * 0.1f) 
+                if (fighterOverspend > (DesiredFighterSpending * 0.1f)
+                    || corvetteOverspend > (DesiredCorvetteSpending * 0.1f)
+                    || frigateOverspend > (DesiredFrigateSpending * 0.1f)
+                    || cruiserOverspend > (DesiredCruiserSpending * 0.1f)
                     || capitalOverspend > (DesiredCapitalSpending * 0.1f))
                 {
                     foreach (Ship ship in this.empire.GetShips()
-                        .Where(ship => !ship.InCombat && ship.inborders && ship.fleet==null)
+                        .Where(ship => !ship.InCombat && ship.inborders && ship.fleet == null)
                         .OrderByDescending(ship => ship.GetAI().State == AIState.Scrap)
                         .ThenByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense))
                         .ThenBy(ship => ship.Level)
@@ -4875,7 +4876,7 @@ namespace Ship_Game.Gameplay
                     {
                         if (fighterOverspend > (DesiredFighterSpending * 0.05f) && (ship.Role == "fighter" || ship.Role == "scout"))
                         {
-							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                             {
                                 fighterOverspend -= ship.GetMaintCostRealism();
                             }
@@ -4883,12 +4884,12 @@ namespace Ship_Game.Gameplay
                             {
                                 fighterOverspend -= ship.GetMaintCost();
                             }
-                            if(ship.GetAI().State != AIState.Scrap)
-                            ship.GetAI().OrderScrapShip();
+                            if (ship.GetAI().State != AIState.Scrap)
+                                ship.GetAI().OrderScrapShip();
                         }
                         if (corvetteOverspend > (DesiredCorvetteSpending * 0.05f) && ship.Role == "corvette")
                         {
-							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                             {
                                 fighterOverspend -= ship.GetMaintCostRealism();
                             }
@@ -4897,11 +4898,11 @@ namespace Ship_Game.Gameplay
                                 fighterOverspend -= ship.GetMaintCost();
                             }
                             if (ship.GetAI().State != AIState.Scrap)
-                            ship.GetAI().OrderScrapShip();
+                                ship.GetAI().OrderScrapShip();
                         }
                         if (frigateOverspend > (DesiredFrigateSpending * 0.05f) && (ship.Role == "frigate" || ship.Role == "destroyer"))
                         {
-							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                             {
                                 fighterOverspend -= ship.GetMaintCostRealism();
                             }
@@ -4910,11 +4911,11 @@ namespace Ship_Game.Gameplay
                                 fighterOverspend -= ship.GetMaintCost();
                             }
                             if (ship.GetAI().State != AIState.Scrap)
-                            ship.GetAI().OrderScrapShip();
+                                ship.GetAI().OrderScrapShip();
                         }
                         if (cruiserOverspend > (DesiredCruiserSpending * 0.05f) && ship.Role == "cruiser")
                         {
-							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                             {
                                 fighterOverspend -= ship.GetMaintCostRealism();
                             }
@@ -4923,11 +4924,11 @@ namespace Ship_Game.Gameplay
                                 fighterOverspend -= ship.GetMaintCost();
                             }
                             if (ship.GetAI().State != AIState.Scrap)
-                            ship.GetAI().OrderScrapShip();
+                                ship.GetAI().OrderScrapShip();
                         }
                         if (capitalOverspend > (DesiredCapitalSpending * 0.05f) && ship.Role == "capital")
                         {
-							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                             {
                                 fighterOverspend -= ship.GetMaintCostRealism();
                             }
@@ -4936,7 +4937,7 @@ namespace Ship_Game.Gameplay
                                 fighterOverspend -= ship.GetMaintCost();
                             }
                             if (ship.GetAI().State != AIState.Scrap)
-                            ship.GetAI().OrderScrapShip();
+                                ship.GetAI().OrderScrapShip();
                         }
                         if (fighterOverspend <= (DesiredFighterSpending * 0.05f)
                             && corvetteOverspend <= (DesiredCorvetteSpending * 0.05f)
@@ -4950,11 +4951,12 @@ namespace Ship_Game.Gameplay
                             continue;
                     }
                     // this line below crashes the ship picker if we ever actually get to it and is unnecessary afaik? Doc.
-                    
+
                 }
                 return "";
             }
-
+            
+            #endregion
             List<Ship> PotentialShips = new List<Ship>();
             this.empire.UpdateShipsWeCanBuild();
 
@@ -4979,6 +4981,7 @@ namespace Ship_Game.Gameplay
                 buildThis = this.PickFromCandidates("cruiser", Capacity, PotentialShips);
                 if (!string.IsNullOrEmpty(buildThis))
                     return buildThis;
+                
             }
                 
             if (num_Bombers < (float)DesiredBombers)
@@ -5026,6 +5029,7 @@ namespace Ship_Game.Gameplay
                         name = ship9.Name;
                         return name;
                     }
+                    PotentialShips.Clear();
                 }
             }
             if (this.empire.canBuildFrigates && capFrigates < DesiredFrigateSpending
@@ -5237,6 +5241,8 @@ namespace Ship_Game.Gameplay
 
                 }
             }
+            if(string.IsNullOrEmpty(name))
+                PotentialShips.Clear();
             return name;
         }
 
