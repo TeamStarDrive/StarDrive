@@ -3191,7 +3191,7 @@ namespace Ship_Game
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
 
-            else if (this.Owner.GetBDict()[terraformer.Name] && (double)this.Fertility < 1.0 && this.WeCanAffordThis(terraformer, this.colonyType))
+            else if (this.Owner.GetBDict()[terraformer.Name] && this.Fertility < 1.0 && this.WeCanAffordThis(terraformer, this.colonyType))
             {
                 bool flag = true;
                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -4866,7 +4866,7 @@ namespace Ship_Game
             #endregion
             //if (this.Population > 3000.0 || this.Population / (this.MaxPopulation + this.MaxPopBonus) > 0.75)
             #region Scrap
-            //if (!this.Owner.isPlayer)
+            if (this.colonyType!= ColonyType.TradeHub)
             {
                 //List<Building> list = new List<Building>();
                 //foreach (Building building in this.BuildingList)
