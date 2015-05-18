@@ -3187,24 +3187,26 @@ namespace Ship_Game
             qi.Cost = ResourceManager.GetBuilding(b.Name).Cost;
             qi.productionTowards = 0.0f;
             qi.NotifyOnEmpty = false;
+            Building terraformer =ResourceManager.GetBuilding("Terraformer");
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
-            else if (this.Owner.GetBDict()["Terraformer"] && (double)this.Fertility < 1.0)
+
+            else if (this.Owner.GetBDict()[terraformer.Name] && (double)this.Fertility < 1.0 && this.WeCanAffordThis(terraformer, this.colonyType))
             {
                 bool flag = true;
                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                 {
-                    if (queueItem.isBuilding && queueItem.Building.Name == "Terraformer")
+                    if (queueItem.isBuilding && queueItem.Building.Name == terraformer.Name)
                         flag = false;
                 }
                 foreach (Building building in this.BuildingList)
                 {
-                    if (building.Name == "Terraformer")
+                    if (building.Name == terraformer.Name)
                         flag = false;
                 }
                 if (!flag)
                     return;
-                this.AddBuildingToCQ(ResourceManager.GetBuilding("Terraformer"));
+                this.AddBuildingToCQ(terraformer);
             }
             else
             {
@@ -4335,8 +4337,8 @@ namespace Ship_Game
                             {
                                 bool flag1 = true;
                                 if (b.StorageAdded > 0 && !(this.ps == GoodState.EXPORT && this.fs == GoodState.EXPORT))
-                                    flag1= false;
-                                
+                                    flag1 = false;
+
                                 if (b.BuildOnlyOnce)
                                 {
                                     for (int index = 0; index < this.Owner.GetPlanets().Count; ++index)
@@ -4490,7 +4492,7 @@ namespace Ship_Game
                                     && (
                                      (double)building.PlusFoodPerColonist > 0.0
                                     || (double)building.PlusFlatFoodAmount > 0.0
-                                    || (building.PlusTerraformPoints > 0f && this.Fertility <1)
+                                    || (building.PlusTerraformPoints > 0f && this.Fertility < 1)
                                     || building.StorageAdded > 0f
                                     ))
                                 //|| 
@@ -4702,7 +4704,7 @@ namespace Ship_Game
                             }
                             break;
                         }
-                            #endregion
+                        #endregion
                 }
             }
 
@@ -4742,7 +4744,7 @@ namespace Ship_Game
                     }
 
 
-                } 
+                }
                 #endregion
                 //Added by McShooterz: build defense platforms
 
@@ -4769,7 +4771,7 @@ namespace Ship_Game
                                 continue;
                             if (queueItem.sData.Role == "platform")
                             {
-                                if (DefBudget - platformUpkeep < -platformUpkeep * .5 ) //|| (buildStation && DefBudget > stationUpkeep))
+                                if (DefBudget - platformUpkeep < -platformUpkeep * .5) //|| (buildStation && DefBudget > stationUpkeep))
                                 {
                                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                                     continue;
@@ -4797,22 +4799,22 @@ namespace Ship_Game
                             if (platform.Role == "station")
                             {
                                 stationUpkeep = platform.GetMaintCost();
-                                if (DefBudget - stationUpkeep < -stationUpkeep )
+                                if (DefBudget - stationUpkeep < -stationUpkeep)
                                 {
-                                    
+
                                     platform.GetAI().OrderScrapShip();
                                     continue;
                                 }
                                 DefBudget -= stationUpkeep;
                                 stationCount++;
                             }
-                            if (platform.Role == "platform" )//|| (buildStation && DefBudget < 5))
+                            if (platform.Role == "platform")//|| (buildStation && DefBudget < 5))
                             {
                                 platformUpkeep = platform.GetMaintCost();
-                                if (DefBudget - platformUpkeep < -platformUpkeep )
+                                if (DefBudget - platformUpkeep < -platformUpkeep)
                                 {
                                     platform.GetAI().OrderScrapShip();
-                                    
+
                                     continue;
                                 }
                                 DefBudget -= platformUpkeep;
@@ -4824,10 +4826,10 @@ namespace Ship_Game
 
 
                         if (DefBudget > stationUpkeep && maxProd > 10.0
-&& stationCount < (int)(SCom.RankImportance*.5f) //(int)(SCom.PercentageOfValue * this.developmentLevel)
+&& stationCount < (int)(SCom.RankImportance * .5f) //(int)(SCom.PercentageOfValue * this.developmentLevel)
 && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                         {
-                           // string platform = this.Owner.GetGSAI().GetStarBase();
+                            // string platform = this.Owner.GetGSAI().GetStarBase();
                             if (!string.IsNullOrEmpty(station))
                             {
                                 Ship ship = ResourceManager.ShipsDict[station];
@@ -4864,6 +4866,7 @@ namespace Ship_Game
             #endregion
             //if (this.Population > 3000.0 || this.Population / (this.MaxPopulation + this.MaxPopBonus) > 0.75)
             #region Scrap
+            //if (!this.Owner.isPlayer)
             {
                 //List<Building> list = new List<Building>();
                 //foreach (Building building in this.BuildingList)
@@ -4874,75 +4877,76 @@ namespace Ship_Game
                 //}
                 //foreach (Building b in list)
                 //    this.ScrapBuilding(b);
-            }
-            List<Building> list1 = new List<Building>();
-            if ((double)this.Fertility >= 1.0)
-            {
 
-                foreach (Building building in this.BuildingList)
+                List<Building> list1 = new List<Building>();
+                if ((double)this.Fertility >= 1.0)
                 {
-                    if (building.PlusTerraformPoints > 0.0 && (double)building.Maintenance > 0.0)
-                        list1.Add(building);
-                }
-            }
 
-            //finances
-            //if (this.Owner.Money*.5f < this.Owner.GrossTaxes*(1-this.Owner.data.TaxRate) && this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn < 0)
-            {
-                this.ConstructionQueue.thisLock.EnterReadLock();
-                foreach (PlanetGridSquare PGS in this.TilesList)
-                {
-                    bool qitemTest = PGS.QItem != null;
-                    if ((qitemTest && PGS.QItem.Building.Name == "Biospheres") || (PGS.building != null && PGS.building.Name == "Biospheres"))
-                        continue;
-                    if ((PGS.building != null && PGS.building.PlusFlatProductionAmount > 0) || (PGS.building != null && PGS.building.PlusFlatProductionAmount > 0))
-                        continue;
-                    if ((PGS.building != null && PGS.building.PlusFlatFoodAmount > 0) || (PGS.building != null && PGS.building.PlusFlatFoodAmount > 0))
-                        continue;
-                    if ((PGS.building != null && PGS.building.PlusFlatResearchAmount > 0) || (PGS.building != null && PGS.building.PlusFlatResearchAmount > 0))
-                        continue;
-                    if (PGS.building != null && !qitemTest && PGS.building.Scrappable && !WeCanAffordThis(PGS.building, this.colonyType)) // queueItem.isBuilding && !WeCanAffordThis(queueItem.Building, this.colonyType))
+                    foreach (Building building in this.BuildingList)
                     {
-                        this.ScrapBuilding(PGS.building);
-
-                    }
-                    if (qitemTest && !WeCanAffordThis(PGS.QItem.Building, this.colonyType))
-                    {
-                        this.ProductionHere += PGS.QItem.productionTowards;
-                        this.ConstructionQueue.QueuePendingRemoval(PGS.QItem);
-                        PGS.QItem = null;
-
+                        if (building.PlusTerraformPoints > 0.0 && (double)building.Maintenance > 0.0)
+                            list1.Add(building);
                     }
                 }
-                //foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+
+                //finances
+                //if (this.Owner.Money*.5f < this.Owner.GrossTaxes*(1-this.Owner.data.TaxRate) && this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn < 0)
+                {
+                    this.ConstructionQueue.thisLock.EnterReadLock();
+                    foreach (PlanetGridSquare PGS in this.TilesList)
+                    {
+                        bool qitemTest = PGS.QItem != null;
+                        if ((qitemTest && PGS.QItem.Building.Name == "Biospheres") || (PGS.building != null && PGS.building.Name == "Biospheres"))
+                            continue;
+                        if ((PGS.building != null && PGS.building.PlusFlatProductionAmount > 0) || (PGS.building != null && PGS.building.PlusFlatProductionAmount > 0))
+                            continue;
+                        if ((PGS.building != null && PGS.building.PlusFlatFoodAmount > 0) || (PGS.building != null && PGS.building.PlusFlatFoodAmount > 0))
+                            continue;
+                        if ((PGS.building != null && PGS.building.PlusFlatResearchAmount > 0) || (PGS.building != null && PGS.building.PlusFlatResearchAmount > 0))
+                            continue;
+                        if (PGS.building != null && !qitemTest && PGS.building.Scrappable && !WeCanAffordThis(PGS.building, this.colonyType)) // queueItem.isBuilding && !WeCanAffordThis(queueItem.Building, this.colonyType))
+                        {
+                            this.ScrapBuilding(PGS.building);
+
+                        }
+                        if (qitemTest && !WeCanAffordThis(PGS.QItem.Building, this.colonyType))
+                        {
+                            this.ProductionHere += PGS.QItem.productionTowards;
+                            this.ConstructionQueue.QueuePendingRemoval(PGS.QItem);
+                            PGS.QItem = null;
+
+                        }
+                    }
+                    //foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                    //{
+                    //    if(queueItem.Building == cheapestFlatfood || queueItem.Building == cheapestFlatprod || queueItem.Building == cheapestFlatResearch)
+                    //        continue;
+                    //    if (queueItem.isBuilding &&  !WeCanAffordThis(queueItem.Building, this.colonyType))
+                    //    {
+                    //        this.ProductionHere += queueItem.productionTowards;
+                    //        this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                    //    }
+                    //}
+                    this.ConstructionQueue.thisLock.ExitReadLock();
+                    this.ConstructionQueue.ApplyPendingRemovals();
+                    //foreach (Building building in this.BuildingList)
+                    //{
+                    //    if (building.Name != "Biospheres" && !WeCanAffordThis(building, this.colonyType))
+                    //        //
+                    //        list1.Add(building);
+                    //}
+
+                }
+
+                //foreach (Building b in list1.OrderBy(maintenance=> maintenance.Maintenance))
                 //{
-                //    if(queueItem.Building == cheapestFlatfood || queueItem.Building == cheapestFlatprod || queueItem.Building == cheapestFlatResearch)
+
+                //    if (b == cheapestFlatprod || b == cheapestFlatfood || b == cheapestFlatResearch)
                 //        continue;
-                //    if (queueItem.isBuilding &&  !WeCanAffordThis(queueItem.Building, this.colonyType))
-                //    {
-                //        this.ProductionHere += queueItem.productionTowards;
-                //        this.ConstructionQueue.QueuePendingRemoval(queueItem);
-                //    }
+                //    this.ScrapBuilding(b);
                 //}
-                this.ConstructionQueue.thisLock.ExitReadLock();
-                this.ConstructionQueue.ApplyPendingRemovals();
-                //foreach (Building building in this.BuildingList)
-                //{
-                //    if (building.Name != "Biospheres" && !WeCanAffordThis(building, this.colonyType))
-                //        //
-                //        list1.Add(building);
-                //}
-
-            }
-
-            //foreach (Building b in list1.OrderBy(maintenance=> maintenance.Maintenance))
-            //{
-
-            //    if (b == cheapestFlatprod || b == cheapestFlatfood || b == cheapestFlatResearch)
-            //        continue;
-            //    this.ScrapBuilding(b);
-            //}
             #endregion
+            }
         }
         public bool GoodBuilding (Building b)
         {
