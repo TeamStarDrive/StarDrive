@@ -1815,6 +1815,7 @@
     <Content Include="Content\StarterShips\FF-Plasma Strike T.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Forward Base I.xml" />
     <Content Include="Content\StarterShips\FTR-Inq MK2.xml" />
     <Content Include="Content\StarterShips\Ftr-Plasma Tentacle.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1840,6 +1841,7 @@
     <Content Include="Content\StarterShips\Mauler Carrier.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Medium Freighter.xml" />
     <Content Include="Content\StarterShips\Missile Acolyte II.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1914,6 +1916,7 @@
     <Content Include="Content\StarterShips\Ralyeh Prototype.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Resupply Station.xml" />
     <Content Include="Content\StarterShips\Retribution-Class Mk Ib Assault.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2370,6 +2373,8 @@
     <Content Include="Content\StarterShips\Shielded Photon Fang.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\SS-Fighter Base Alpha.xml" />
+    <Content Include="Content\StarterShips\StarBase.xml" />
     <Content Include="Content\StarterShips\T7-48CV.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

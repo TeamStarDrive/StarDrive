@@ -186,6 +186,8 @@ namespace Ship_Game
 					{
 						GlobalStats.ActiveMod = null;						
 						ResourceManager.WhichModPath = "Content";
+                        GlobalStats.ActiveMod = null;
+                        GlobalStats.ActiveModInfo = null;
 						ResourceManager.Reset();
 						ResourceManager.Initialize(base.ScreenManager.Content);
 						ResourceManager.LoadEmpires();
