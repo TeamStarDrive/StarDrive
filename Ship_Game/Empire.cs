@@ -2791,9 +2791,33 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
-            int naturalLimit = this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
-                export.ps == Planet.GoodState.EXPORT ||
-                (export.Population >3000 && export.MaxPopulation > 3000)).Count();
+            int naturalLimit = 0; //this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
+            //    export.ps == Planet.GoodState.EXPORT ||
+            //    (export.Population >3000 && export.MaxPopulation > 3000)).Count();
+            //naturalLimit += this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
+            //    export.ps == Planet.GoodState.IMPORT ||
+            //    (export.Population > 3000 && export.MaxPopulation > 3000)).Count();
+            
+            int inneed = 0;
+            foreach(Planet planet in this.OwnedPlanets)
+            {
+                if (planet.fs == Planet.GoodState.EXPORT)
+                {
+                    naturalLimit++;
+
+                }
+                if (planet.ps == Planet.GoodState.EXPORT)
+                    naturalLimit++;
+                if (planet.Population / planet.MaxPopulation > .5f && planet.MaxPopulation >3000)
+                    naturalLimit++;
+                if (planet.Population / planet.MaxPopulation < .5 && planet.MaxPopulation > 3000)
+                    inneed++;
+                if (planet.fs == Planet.GoodState.IMPORT)
+                    inneed++;
+                if (planet.ps == Planet.GoodState.IMPORT)
+                    inneed++;
+            }
+            naturalLimit *= inneed;
             float moneyForFreighters = (this.Money * .1f) * .1f -this.freighterBudget;
             this.freighterBudget = 0;
             if(naturalLimit >0 && moneyForFreighters >0)
@@ -2850,6 +2874,8 @@ namespace Ship_Game
                 else if (goal.GoalName == "IncreasePassengerShips")
                     ++passengerShips;
             }
+            if (unusedFreighters.Count > 1)
+                naturalLimit = 0;
             int doesntHelp = 0;
             int extraFrieghters =0;
             //foreach (Planet needs in this.GetPlanets())
