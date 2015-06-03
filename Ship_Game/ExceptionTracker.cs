@@ -113,6 +113,9 @@ namespace Ship_Game
 
         public static void DisplayException(Exception ex)
         {
+#if DEBUG
+            return;
+#endif
             try
             {
                 ExceptionViewer exviewer = new ExceptionViewer();
