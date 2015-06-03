@@ -1256,7 +1256,7 @@ namespace Ship_Game.Gameplay
 		{
 			this.DoOrbit(goal.TargetPlanet, elapsedTime);
             //added by gremlin.
-
+  
 			if (this.Owner.Role == "troop" && this.Owner.TroopList.Count > 0 )
 			{
                 
@@ -1283,10 +1283,10 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.Clear();
                 System.Diagnostics.Debug.WriteLine("Do Land Troop: Troop Assault Canceled");
 			}
-			else
+            else if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f)                
 			{
 				List<Troop> ToRemove = new List<Troop>();
-                if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f)
+                //if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f)
 				{
                     //Get limit of troops to land
                     int LandLimit = this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count();
@@ -1310,12 +1310,33 @@ namespace Ship_Game.Gameplay
                     //Clear out Troops
                     if (ToRemove.Count > 0)
                     {
-                        foreach (ShipModule module in this.Owner.GetHangars())
-                            module.hangarTimer = module.hangarTimerConstant;
-                        foreach (ShipModule module in this.Owner.Transporters)
-                            module.TransporterTimer = module.TransporterTimerConstant;
-                        foreach (Troop to in ToRemove)
-                            this.Owner.TroopList.Remove(to);
+                        bool flag; // = false;
+                        foreach (Troop RemoveTroop in ToRemove)
+                        {
+                            flag = false;
+                            foreach (ShipModule module in this.Owner.GetHangars())
+                            {
+                                if (module.hangarTimer < module.hangarTimerConstant)
+                                {
+                                    module.hangarTimer = module.hangarTimerConstant;
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                            if (flag)
+                                continue;
+                            foreach (ShipModule module in this.Owner.Transporters)
+                                if (module.TransporterTimer < module.TransporterTimerConstant)
+                                {
+                                    module.TransporterTimer = module.TransporterTimerConstant;
+                                    flag = true;
+                                    break;
+                                }
+                        }
+                                //module.TransporterTimer = module.TransporterTimerConstant;
+                            foreach (Troop to in ToRemove)
+                                this.Owner.TroopList.Remove(to);
+                        
                     }
 				}
 			}
@@ -3216,7 +3237,7 @@ namespace Ship_Game.Gameplay
 
 		public void OrderLandAllTroops(Planet target)
 		{
-            if ((this.Owner.Role == "troop" || !this.Owner.HasTroopBay) &&  this.Owner.TroopList.Count > 0  && target.GetGroundLandingSpots() >0 )
+            if ((this.Owner.Role == "troop" || this.Owner.HasTroopBay || this.Owner.hasTransporter) &&  this.Owner.TroopList.Count > 0  && target.GetGroundLandingSpots() >0 )
             {
                 this.HasPriorityOrder = true;
                 this.State = AIState.AssaultPlanet;
@@ -7089,10 +7110,10 @@ namespace Ship_Game.Gameplay
 
 
 
-                    docombat = (this.OrderQueue.Count == 0 || !this.HasPriorityOrder && firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat);
+                    docombat = (!this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat));
 
 
-                    if ( docombat )//|| this.OrderQueue.Count == 0))
+                    if (  docombat )//|| this.OrderQueue.Count == 0))
                     {
                         this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                     }
