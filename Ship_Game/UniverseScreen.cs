@@ -3943,7 +3943,7 @@ namespace Ship_Game
                 }
                 else if (ship.Role == "troop" || (ship.TroopList.Count > 0 && (ship.HasTroopBay || ship.hasTransporter)))
                 {
-                    if (planet.Owner != null && planet.Owner == this.player && !ship.HasTroopBay && !ship.hasTransporter)
+                    if (planet.Owner != null && planet.Owner == this.player && (!ship.HasTroopBay && !ship.hasTransporter))
                     {
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                             ship.GetAI().OrderToOrbit(planet, false);
@@ -3951,7 +3951,7 @@ namespace Ship_Game
                             ship.GetAI().OrderRebase(planet, true);
                     }
                     else
-                    //add new right click troop and troop ship options on planets
+                        //add new right click troop and troop ship options on planets
                         if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated || planet.Owner == null)))
                         {
                             if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
@@ -3967,12 +3967,12 @@ namespace Ship_Game
                         else
                         {
 
-                                ship.GetAI().OrderRebase(planet, true);
+                            ship.GetAI().OrderOrbitPlanet(planet);// OrderRebase(planet, true);
                         }
                 }
                 else if (ship.BombBays.Count > 0)
                 {
-                    float enemies = planet.GetGroundStrengthOther(this.player)*1.5f;
+                    float enemies = planet.GetGroundStrengthOther(this.player) * 1.5f;
                     float friendlies = planet.GetGroundStrength(this.player);
                     if (planet.Owner != this.player)
                     {
@@ -3980,7 +3980,7 @@ namespace Ship_Game
                         {
                             if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                 ship.GetAI().OrderBombardPlanet(planet);
-                            else if (enemies > friendlies || planet.Population>0f)
+                            else if (enemies > friendlies || planet.Population > 0f)
                                 ship.GetAI().OrderBombardPlanet(planet);
                             else
                             {
@@ -3991,10 +3991,10 @@ namespace Ship_Game
                         {
                             ship.GetAI().OrderToOrbit(planet, false);
                         }
-                        
+
 
                     }
-                    else if(enemies >friendlies && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                    else if (enemies > friendlies && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                     {
                         ship.GetAI().OrderBombardPlanet(planet);
                     }
@@ -6805,6 +6805,17 @@ namespace Ship_Game
                     }
                     if ( this.SelectedShip.GetAI().State == AIState.AssaultPlanet)
                     {
+                        //ArtificialIntelligence.ShipGoal goal =null;
+                        Vector2 target =Vector2.Zero;
+                        foreach(ArtificialIntelligence.ShipGoal Goal in this.SelectedShip.GetAI().OrderQueue)
+                        {
+                            if (Goal.Plan == ArtificialIntelligence.Plan.LandTroop)
+                                target = Goal.TargetPlanet.Position;
+                            else continue;
+                            break;
+                        }
+                             
+                            // goal = this.SelectedShip.GetAI().OrderQueue.LastOrDefault(); //.Value;
                         lock (this.SelectedShip.GetAI().wayPointLocker)
                         {
                             bool waydpoint = false;
@@ -6824,10 +6835,10 @@ namespace Ship_Game
                                     Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_26.X, local_26.Y), new Vector2(local_27.X, local_27.Y), new Color(Color.Red, (byte)num));
                                 }
                             }
-                            if (!waydpoint)
+                            if (!waydpoint && target != Vector2.Zero) //this.SelectedShip.GetAI().OrderQueue.First.Value.TargetPlanet.Position
                             {
                                 Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().OrderQueue.First.Value.TargetPlanet.Position, 0.0f), this.projection, this.view, Matrix.Identity);
+                                Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(target, 0.0f), this.projection, this.view, Matrix.Identity);
                                 Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), new Color(Color.Red, (byte)num));
                             }
                         }
