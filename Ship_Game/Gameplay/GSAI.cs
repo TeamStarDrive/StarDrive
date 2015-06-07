@@ -5204,6 +5204,7 @@ namespace Ship_Game.Gameplay
             
             string name = "";
             Ship ship;
+            int maxtech = 0;
             foreach (string shipsWeCanBuild in this.empire.ShipsWeCanBuild)
             {
                 //if (!((ResourceManager.ShipsDict[shipsWeCanBuild].Role == "capital" || ResourceManager.ShipsDict[shipsWeCanBuild].Role == "carrier") && ResourceManager.ShipsDict[shipsWeCanBuild].BaseStrength > 0f && Capacity >= ResourceManager.ShipsDict[shipsWeCanBuild].GetMaintCost()) && !(ResourceManager.ShipsDict[shipsWeCanBuild].BaseCanWarp && (ResourceManager.ShipsDict[shipsWeCanBuild].PowerDraw * this.empire.data.FTLPowerDrainModifier >= ResourceManager.ShipsDict[shipsWeCanBuild].PowerFlowMax || ResourceManager.ShipsDict[shipsWeCanBuild].PowerStoreMax / (ResourceManager.ShipsDict[shipsWeCanBuild].PowerDraw * this.empire.data.FTLPowerDrainModifier - ResourceManager.ShipsDict[shipsWeCanBuild].PowerFlowMax) * ResourceManager.ShipsDict[shipsWeCanBuild].velocityMaximum > minimumWarpRange)))
@@ -5214,25 +5215,29 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-
-                PotentialShips.Add(ResourceManager.ShipsDict[shipsWeCanBuild]);
+                if (ship.shipData.techsNeeded.Count > maxtech)
+                    maxtech = ship.shipData.techsNeeded.Count;
+                PotentialShips.Add(ship);//   ResourceManager.ShipsDict[shipsWeCanBuild]);
             }
+            float nearmax = maxtech * .75f;
             if (PotentialShips.Count > 0)
             {
                 IOrderedEnumerable<Ship> sortedList =
                     from ship3 in PotentialShips
-                    orderby ship3.shipData.techsNeeded.Count descending, ship3.BaseStrength descending               
+                    orderby ship3.shipData.techsNeeded.Count >= nearmax descending,  ship3.BaseStrength   descending             
                     select ship3;
                 float totalStrength = 0f;
+                maxtech++;
                 foreach (Ship ship1 in sortedList)
                 {
-                    totalStrength = totalStrength + ship1.BaseStrength;
+
+                        totalStrength += ship1.BaseStrength * (ship1.shipData.techsNeeded.Count +1)/ maxtech;
                 }
                 float ran = RandomMath.RandomBetween(0f, totalStrength);
                 float strcounter = 0f;
                 foreach (Ship ship2 in sortedList)
                 {
-                    strcounter = strcounter + ship2.BaseStrength;
+                    strcounter = strcounter + ship2.BaseStrength * (ship2.shipData.techsNeeded.Count+1) / maxtech;
                     if (strcounter <= ran)
                     {
                         continue;
