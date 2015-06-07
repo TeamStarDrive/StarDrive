@@ -2933,6 +2933,11 @@ namespace Ship_Game.Gameplay
         public ShipData ToShipData()
         {
             ShipData shipData = new ShipData();
+            shipData.BaseCanWarp = this.shipData.BaseCanWarp;
+            shipData.BaseStrength = this.BaseStrength;
+            shipData.techsNeeded = this.shipData.techsNeeded;
+            shipData.TechScore = this.shipData.TechScore;
+            shipData.ShipCategory = this.shipData.ShipCategory;
             shipData.Name = this.Name;
             shipData.Level = (byte)this.Level;
             shipData.experience = (byte)this.experience;
