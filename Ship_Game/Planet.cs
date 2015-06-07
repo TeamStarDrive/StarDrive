@@ -3228,6 +3228,8 @@ namespace Ship_Game
 
         public bool WeCanAffordThis(Building building, Planet.ColonyType governor)
         {
+            if (governor == ColonyType.TradeHub)
+                return true;
             if (building == null)
                 return false;
             Empire empire = this.Owner;
@@ -3283,6 +3285,7 @@ namespace Ship_Game
             }
             if (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn > 0 && this.FarmerPercentage < .3 && !this.BuildingList.Contains(building))
                 return false;
+
             bool iftrue = false;
             switch  (governor)
             {
@@ -3395,6 +3398,7 @@ namespace Ship_Game
                             if (building.PlusResearchPerColonist * this.Population/1000 >building.Maintenance
                             ||    ((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0 ) && this.Population > this.MaxPopulation * .5f)
                             || (building.PlusTerraformPoints > 0 && this.Fertility < 1 && this.Population > this.MaxPopulation * .5f && this.MaxPopulation >2000)
+                               || (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn <0)
                                 )
                                
                             {
@@ -3471,7 +3475,9 @@ namespace Ship_Game
                         if ( MedPri && this.developmentLevel > 3 && makingMoney)
                         {
                             if (((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && this.Population > this.MaxPopulation * .5f)
-                            || (building.PlusTerraformPoints > 0 && this.Fertility < 1 && this.Population > this.MaxPopulation * .5f && this.MaxPopulation >2000))
+                            || (building.PlusTerraformPoints > 0 && this.Fertility < 1 && this.Population > this.MaxPopulation * .5f && this.MaxPopulation >2000)
+                                || (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn < 0)
+                                )
                                 return true;
                         }
                         if ( LowPri && this.developmentLevel > 4 && makingMoney)
@@ -3490,6 +3496,7 @@ namespace Ship_Game
 
         public void DoGoverning()
         {
+
             float income = this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn;
             if (this.colonyType == Planet.ColonyType.Colony)
                 return;
@@ -4866,7 +4873,7 @@ namespace Ship_Game
             #endregion
             //if (this.Population > 3000.0 || this.Population / (this.MaxPopulation + this.MaxPopBonus) > 0.75)
             #region Scrap
-            if (this.colonyType!= ColonyType.TradeHub)
+            //if (this.colonyType!= ColonyType.TradeHub)
             {
                 //List<Building> list = new List<Building>();
                 //foreach (Building building in this.BuildingList)
@@ -4999,28 +5006,41 @@ namespace Ship_Game
 
         private void ApplyProductionTowardsConstruction()
         {
-            
-            
-            //Anything beyond 60% always use if able
-            //float normalAmount =  (float)Math.Ceiling(this.GetMaxProductionPotential());            
-            float divsor = ((this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
-            float normalAmount = 0;// this.MAX_STORAGE / 10f;
-            float modifier = 1.4f - (this.developmentLevel * .2f);// (.3f * (1 - this.Owner.data.TaxRate));
-            normalAmount = this.MAX_STORAGE * .1f;// this.GrossProductionPerTurn - this.consumption; // this.GrossProductionPerTurn > this.MAX_STORAGE * .1f ? this.GrossProductionPerTurn : this.MAX_STORAGE * .1f;
-            if (modifier > 1)
-            {
-                modifier = 1;
 
-            }
-            if (normalAmount < 1)
-                normalAmount = 1;
-             normalAmount *= modifier ;// ((this.Owner != null && this.Owner.data.Traits.Cybernetic > 0) ? 1 : .3f);// (float)Math.Ceiling(this.ProductionHere * .25f); //? this.ProductionHere : normalAmount;
-            
-            //? this.consumption : 0;
-            normalAmount *= divsor; //was this.NetProductionPerTurn this.GetMaxProductionPotential() *
-            //normalAmount *= this.Owner.data.TaxRate;
-            //normalAmount *= (this.Owner != null && this.Owner.data.Traits.Cybernetic > 0 ) ? .50F : 1F;
-            //normalAmount *= this.ps != GoodState.EXPORT?.25f:.5f;
+            /*
+             * timeToEmptyMax = maxs/maxp; = 2
+
+maxp =max production =50
+maxs = max storage =100
+cs = current stoage; = 50
+
+time2ec = cs/maxp = 1
+
+take10 = time2ec /10; = .1
+output = maxp * take10 = 5
+             * */
+            float maxp = this.GetMaxProductionPotential();
+            float cs = this.ProductionHere;
+            float TimeToEmpty = cs / maxp;
+            float take10Turns = TimeToEmpty / (this.ps == GoodState.EXPORT ? 20:10);
+            float normalAmount = maxp * take10Turns;
+
+            //float divsor = ((this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
+            //float normalAmount = 0;
+            //float modifier=1; 
+            //if(this.ps == GoodState.EXPORT)
+            //    modifier = 1.4f - (this.developmentLevel * .2f);
+            //normalAmount = this.MAX_STORAGE * .15f;
+            //if (modifier > 1)
+            //{
+            //    modifier = 1;
+
+            //}
+            //if (normalAmount < 1)
+            //    normalAmount = 1;
+            // normalAmount *= modifier ;
+            //normalAmount *= divsor; 
+
 
             normalAmount = normalAmount < 0 ? 0 : normalAmount;
             normalAmount = normalAmount >

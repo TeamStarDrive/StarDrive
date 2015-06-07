@@ -2799,6 +2799,7 @@ namespace Ship_Game
             //    (export.Population > 3000 && export.MaxPopulation > 3000)).Count();
             
             int inneed = 0;
+            int inneedofciv = 0;
             foreach(Planet planet in this.OwnedPlanets)
             {
                 if (planet.fs == Planet.GoodState.EXPORT)
@@ -2812,19 +2813,19 @@ namespace Ship_Game
                     naturalLimit++;
                 if (planet.Population / planet.MaxPopulation < .5 && planet.MaxPopulation > 3000)
                     inneed++;
-                if (planet.fs == Planet.GoodState.IMPORT)
+                if (planet.fs == Planet.GoodState.IMPORT && planet.FoodHere /planet.MAX_STORAGE <.25f)
                     inneed++;
-                if (planet.ps == Planet.GoodState.IMPORT)
+                if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere / planet.MAX_STORAGE <.25f)
                     inneed++;
             }
             naturalLimit *= inneed;
             float moneyForFreighters = (this.Money * .1f) * .1f -this.freighterBudget;
             this.freighterBudget = 0;
-            if(naturalLimit >0 && moneyForFreighters >0)
+            if(naturalLimit >0 && moneyForFreighters <0)
             {
-                naturalLimit *= this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
-                export.ps == Planet.GoodState.IMPORT ||
-                export.Population /export.MaxPopulation <.2).Count();
+                //naturalLimit *= this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
+                //export.ps == Planet.GoodState.IMPORT ||
+                //export.Population /export.MaxPopulation <.2).Count();
             }
             int freighterLimit = (naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : naturalLimit );
             int TradeLimit = (int)(freighterLimit * 0.8f);
@@ -2912,7 +2913,7 @@ namespace Ship_Game
                 assignedShips.Clear();
 
                 extraFrieghters = unusedFreighters.Count;
-                if(unusedFreighters.Count ==0)
+                if(unusedFreighters.Count ==0 && moneyForFreighters >0 && naturalLimit >0)
                 //for (; tradeShips < TradeLimit; ++tradeShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
@@ -2935,7 +2936,7 @@ namespace Ship_Game
                 foreach (Ship ship in assignedShips)
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
-                if(unusedFreighters.Count ==0)
+                if (unusedFreighters.Count == 0 && moneyForFreighters > 0 && naturalLimit > 0)
                 //for (; passengerShips < PassLimit; ++passengerShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
