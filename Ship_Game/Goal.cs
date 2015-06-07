@@ -264,13 +264,13 @@ namespace Ship_Game
                     {
                         if (this.PlanetBuildingAt == null || this.PlanetBuildingAt.ConstructionQueue.Count == 0)
                             break;
-                        if (this.PlanetBuildingAt.ConstructionQueue[0].Goal == this)
-                        {
-                            if (this.PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
-                            {
-                                this.PlanetBuildingAt.ApplyStoredProduction(0);
-                            }
-                        }
+                        //if (this.PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        //{
+                        //    if (this.PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
+                        //    {
+                        //        this.PlanetBuildingAt.ApplyStoredProduction(0);
+                        //    }
+                        //}
 
                         break;
                     }
@@ -321,13 +321,13 @@ namespace Ship_Game
                     break;
                 case 1:
                     {
-                        if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
-                        {
-                            if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
-                            {
-                                PlanetBuildingAt.ApplyStoredProduction(0);
-                            }
-                        }
+                        //if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        //{
+                        //    if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
+                        //    {
+                        //        PlanetBuildingAt.ApplyStoredProduction(0);
+                        //    }
+                        //}
 
                         break;
                     }
@@ -364,10 +364,10 @@ namespace Ship_Game
                     {
                         if (PlanetBuildingAt.ConstructionQueue.Count >0 && PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {
-                           if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.25f)
-                           {
-                               PlanetBuildingAt.ApplyStoredProduction(0);
-                           }
+                           //if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.25f)
+                           //{
+                           //    PlanetBuildingAt.ApplyStoredProduction(0);
+                           //}
                         }
 
                         break;

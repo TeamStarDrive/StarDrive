@@ -3977,7 +3977,7 @@ namespace Ship_Game
                                 QueueItem queueItem1 = this.ConstructionQueue[index];
                                 if (index == 0 && queueItem1.isBuilding)
                                 {
-                                    if (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem1.Building.PlusProdPerRichness > 0.0 || (double)queueItem1.Building.PlusProdPerColonist > 0.0)
+                                    if (queueItem1.Building.Name == "Outpost" ) //|| (double)queueItem1.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem1.Building.PlusProdPerRichness > 0.0 || (double)queueItem1.Building.PlusProdPerColonist > 0.0)
                                     {
                                         this.ApplyAllStoredProduction(0);
                                     }
