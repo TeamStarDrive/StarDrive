@@ -2667,7 +2667,7 @@ namespace Ship_Game.Gameplay
                     this.UpdateShipStatus(elapsedTime);
                     if (!this.Active)
                         return;
-                    if (!this.disabled && this.hasCommand && !Ship.universeScreen.Paused)
+                    if (!this.disabled && !Ship.universeScreen.Paused) //this.hasCommand &&
                         this.AI.Update(elapsedTime);
                     if (this.InFrustum)
                     {
@@ -3326,9 +3326,10 @@ namespace Ship_Game.Gameplay
                                 double num3 = (double)ship3.Mass + (double)moduleSlot.module.Mass;
                                 ship3.Mass = (float)num3;
                             }
-                            if (moduleSlot.module.Active && (moduleSlot.module.Powered || moduleSlot.module.PowerDraw == 0))
+                            //Checks to see if there is an active command module
+
+                            if (moduleSlot.module.Active && (moduleSlot.module.Powered || moduleSlot.module.PowerDraw == 0 ))
                             {
-                                //Checks to see if there is an active command module
                                 if (!this.hasCommand && moduleSlot.module.IsCommandModule)
                                     this.hasCommand = true;
                                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
