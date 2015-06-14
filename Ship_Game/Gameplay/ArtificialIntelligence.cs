@@ -2261,7 +2261,7 @@ namespace Ship_Game.Gameplay
             {
                 Relationship enemy;
                 TargetShip = this.Target as Ship;
-                if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled || !this.Owner.hasCommand ||
+                if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled  ||
                     (this.Target != null && !this.Owner.loyalty.isFaction
                     && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy)
                     && enemy.Treaty_Peace))
@@ -2298,7 +2298,7 @@ namespace Ship_Game.Gameplay
                         {
                             fireTarget = null;
                             //Can this weapon fire on ships
-                            if (this.BadGuysNear && !weapon.TruePD)
+                            if (this.BadGuysNear && !weapon.TruePD && this.Owner.hasCommand)
                             {
                                 //Is primary target valid
                                 if (TargetShip != null && this.Target.Active && !TargetShip.dying && weapon.TargetValid(TargetShip.Role))
@@ -7096,7 +7096,7 @@ namespace Ship_Game.Gameplay
                     break;
                 }
             }
-            if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat )
+            if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat  )
             {
                 //int oqc = this.OrderQueue.Count;
                 bool docombat = false;
