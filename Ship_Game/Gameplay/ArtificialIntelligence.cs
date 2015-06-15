@@ -2629,10 +2629,20 @@ namespace Ship_Game.Gameplay
 			this.Owner.isThrusting = false;
 		}
 
-		private void MakeFinalApproachORIG(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
+		private void MakeFinalApproach(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
 		{
-			this.Owner.HyperspaceReturn();
+            if (Goal.TargetPlanet != null)
+            {
+                lock (this.wayPointLocker)
+                {
+                    this.ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Position);
+                    Goal.MovePosition = Goal.TargetPlanet.Position;
+                }
+            }
+            this.Owner.HyperspaceReturn();
 			Vector2 velocity = this.Owner.Velocity;
+            if (Goal.TargetPlanet != null)
+                velocity += Goal.TargetPlanet.Position;
 			float timetostop = velocity.Length() / Goal.SpeedLimit;
 			float Distance = Vector2.Distance(this.Owner.Center, Goal.MovePosition);
 			if (Distance / (Goal.SpeedLimit + 0.001f) <= timetostop)
@@ -2646,7 +2656,7 @@ namespace Ship_Game.Gameplay
 			this.DistanceLast = Distance;
 		}
         //added by gremlin Deveksmod MakeFinalApproach
-        private void MakeFinalApproach(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
+        private void MakeFinalApproachDev(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
         {
             float speedLimit = (int)Goal.SpeedLimit;
 
@@ -2906,6 +2916,14 @@ namespace Ship_Game.Gameplay
 
 		private void MoveToWithin1000(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
         {
+            if (goal.TargetPlanet != null)
+            {
+                lock (this.wayPointLocker)
+                {
+                    this.ActiveWayPoints.Last().Equals(goal.TargetPlanet.Position);
+                    goal.MovePosition = goal.TargetPlanet.Position;
+                }
+            }
             float speedLimit =  (int)(this.Owner.speed)  ;
             float single = Vector2.Distance(this.Owner.Center, goal.MovePosition);
             if (this.ActiveWayPoints.Count <= 1)
@@ -2934,6 +2952,15 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
+                else if(this.ColonizeTarget !=null)
+                {
+                    lock (this.wayPointLocker)
+                    {
+                        this.ActiveWayPoints.First().Equals(this.ColonizeTarget.Position);
+                        this.OrderQueue.First().MovePosition = this.ColonizeTarget.Position;
+                    }
+                }
+                
 
             }
             else if (this.Owner.engineState == Ship.MoveState.Warp)
@@ -2949,6 +2976,18 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
+                if (this.ColonizeTarget != null )
+                {
+                    lock (this.wayPointLocker)
+                    {
+
+                        if (this.OrderQueue.Where(cgoal => cgoal.Plan == Plan.MoveToWithin1000).Count() == 1)
+                        {
+                            this.ActiveWayPoints.First().Equals(this.ColonizeTarget.Position);
+                            this.OrderQueue.First().MovePosition = this.ColonizeTarget.Position;
+                        }
+                    }
+                }
             }
             else if (single <= 1500f)
             {
@@ -2959,6 +2998,13 @@ namespace Ship_Game.Gameplay
                     {
                         this.OrderQueue.RemoveFirst();
                     }
+                }
+            }
+            else if (this.ColonizeTarget != null)
+            {
+                lock (this.wayPointLocker)
+                {
+                    this.ActiveWayPoints.First().Equals(this.ColonizeTarget.Position);
                 }
             }
         }
@@ -3122,8 +3168,8 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			this.ColonizeTarget = toColonize;
-			this.OrderMoveTowardsPosition(toColonize.Position, 0f, new Vector2(0f, -1f), true);
-			ArtificialIntelligence.ShipGoal colonize = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Colonize, Vector2.Zero, 0f)
+			this.OrderMoveTowardsPosition(toColonize.Position, 0f, new Vector2(0f, -1f), true, toColonize);
+            ArtificialIntelligence.ShipGoal colonize = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Colonize, toColonize.Position, 0f)
 			{
 				TargetPlanet = this.ColonizeTarget
 			};
@@ -3134,7 +3180,7 @@ namespace Ship_Game.Gameplay
 		public void OrderDeepSpaceBuild(Goal goal)
 		{
 			this.OrderQueue.Clear();
-			this.OrderMoveTowardsPosition(goal.BuildPosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, goal.BuildPosition)), this.findVectorToTarget(this.Owner.Center, goal.BuildPosition), true);
+			this.OrderMoveTowardsPosition(goal.BuildPosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, goal.BuildPosition)), this.findVectorToTarget(this.Owner.Center, goal.BuildPosition), true,null);
 			ArtificialIntelligence.ShipGoal Deploy = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DeployStructure, goal.BuildPosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, goal.BuildPosition)))
 			{
 				goal = goal,
@@ -3440,7 +3486,7 @@ namespace Ship_Game.Gameplay
 			this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.RotateToDesiredFacing, this.MovePosition, desiredFacing));
 		}
 
-		public void OrderMoveTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool ClearOrders)
+		public void OrderMoveTowardsPosition( Vector2  position , float desiredFacing, Vector2 fVec, bool ClearOrders, Planet TargetPlanet)
 		{
             this.DistanceLast = 0f;
             this.Target = null;
@@ -3481,38 +3527,52 @@ namespace Ship_Game.Gameplay
 			}
 			this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
+
 			lock (this.wayPointLocker)
 			{
-				for (int i = 0; i < this.ActiveWayPoints.Count; i++)
+                            Planet p;
+            Vector2 waypoint;
+                int AWPC = this.ActiveWayPoints.Count;
+                for (int i = 0; i < AWPC; i++)
 				{
-					Vector2 waypoint = this.ActiveWayPoints.ToArray()[i];
+					p =null;
+                    waypoint = this.ActiveWayPoints.ToArray()[i];
 					if (i != 0)
 					{
-						ArtificialIntelligence.ShipGoal to1k = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.MoveToWithin1000, waypoint, desiredFacing)
+                        if (AWPC - 1 == i)
+                            p = TargetPlanet;
+
+                        ArtificialIntelligence.ShipGoal to1k = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.MoveToWithin1000, waypoint, desiredFacing)
 						{
-							SpeedLimit = this.Owner.speed
+							TargetPlanet=p,
+                            SpeedLimit = this.Owner.speed
 						};
 						this.OrderQueue.AddLast(to1k);
 					}
 					else
 					{
-						this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.RotateToFaceMovePosition, waypoint, 0f));
+						if(AWPC -1 ==i)
+                            p = TargetPlanet;
+                        this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.RotateToFaceMovePosition, waypoint, 0f));
 						ArtificialIntelligence.ShipGoal to1k = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.MoveToWithin1000, waypoint, desiredFacing)
 						{
-							SpeedLimit = this.Owner.speed
+                            TargetPlanet = p,
+                            SpeedLimit = this.Owner.speed
 						};
 						this.OrderQueue.AddLast(to1k);
 					}
-					if (i == this.ActiveWayPoints.Count - 1)
+                    if (i == AWPC - 1)
 					{
 						ArtificialIntelligence.ShipGoal finalApproach = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.MakeFinalApproach, waypoint, desiredFacing)
 						{
-							SpeedLimit = this.Owner.speed
+							TargetPlanet=TargetPlanet,
+                            SpeedLimit = this.Owner.speed
 						};
 						this.OrderQueue.AddLast(finalApproach);
 						ArtificialIntelligence.ShipGoal slow = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.StopWithBackThrust, waypoint, 0f)
 						{
-							SpeedLimit = this.Owner.speed
+                            TargetPlanet = TargetPlanet,
+                            SpeedLimit = this.Owner.speed
 						};
 						this.OrderQueue.AddLast(slow);
 						this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.RotateToDesiredFacing, waypoint, desiredFacing));
@@ -3758,7 +3818,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            this.OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false);
+            this.OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false,p);
             this.IgnoreCombat = true;
             ArtificialIntelligence.ShipGoal rebase = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Rebase, Vector2.Zero, 0f)
             {
@@ -3805,7 +3865,7 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			Planet p = sortedList.First<Planet>();
-			this.OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false);
+			this.OrderMoveTowardsPosition(p.Position, 0f, new Vector2(0f, -1f), false,p);
 			this.IgnoreCombat = true;
 			ArtificialIntelligence.ShipGoal rebase = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Rebase, Vector2.Zero, 0f)
 			{
@@ -3844,7 +3904,7 @@ namespace Ship_Game.Gameplay
 				this.State = AIState.AwaitingOrders;
 				return;
 			}
-			this.OrderMoveTowardsPosition(this.OrbitTarget.Position, 0f, Vector2.One, true);
+			this.OrderMoveTowardsPosition(this.OrbitTarget.Position, 0f, Vector2.One, true,this.OrbitTarget);
 			ArtificialIntelligence.ShipGoal refit = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Refit, Vector2.Zero, 0f)
 			{
 				TargetPlanet = this.OrbitTarget,
@@ -3866,7 +3926,7 @@ namespace Ship_Game.Gameplay
 			}
 			this.Target = null;
 			this.OrbitTarget = toOrbit;
-			this.OrderMoveTowardsPosition(toOrbit.Position, 0f, Vector2.One, true);
+			this.OrderMoveTowardsPosition(toOrbit.Position, 0f, Vector2.One, true,toOrbit);
 			this.State = AIState.Resupply;
 			this.HasPriorityOrder = true;
 		}
@@ -3950,7 +4010,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				this.OrderMoveTowardsPosition(this.OrbitTarget.Position, 0f, Vector2.One, true);
+				this.OrderMoveTowardsPosition(this.OrbitTarget.Position, 0f, Vector2.One, true,this.OrbitTarget);
 				ArtificialIntelligence.ShipGoal scrap = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Scrap, Vector2.Zero, 0f)
 				{
 					TargetPlanet = this.OrbitTarget
@@ -4009,7 +4069,7 @@ namespace Ship_Game.Gameplay
 						{
 							Ran = Potentials.Count - 1;
 						}
-						this.OrderMoveTowardsPosition(Potentials[Ran].Position, 0f, Vector2.One, true);
+						this.OrderMoveTowardsPosition(Potentials[Ran].Position, 0f, Vector2.One, true,null);
 					}
 				}
 				this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DefendSystem, Vector2.Zero, 0f));
@@ -4215,7 +4275,7 @@ namespace Ship_Game.Gameplay
                             //dest => dest.FoodHere / dest.MAX_STORAGE < .10f ? 0 : dest.FoodHere / dest.MAX_STORAGE < .3f ?1:2
                             this.end = foodHere.First<Planet>();
                             this.FoodOrProd = "Food";
-                            this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true);
+                            this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true,this.end);
                             this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
                             this.State = AIState.SystemTrader;
                             return;
@@ -4325,7 +4385,7 @@ namespace Ship_Game.Gameplay
                             //select dest;
                             this.end = productionHere.First<Planet>();
                             this.FoodOrProd = "Prod";
-                            this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true);
+                            this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true,this.end);
                             this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
                             this.State = AIState.SystemTrader;
                             return;
@@ -4643,7 +4703,7 @@ namespace Ship_Game.Gameplay
                 #endregion
                 if (this.start != null && this.end != null && !String.IsNullOrEmpty(this.FoodOrProd))
                 {
-                    this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true);
+                    this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.start);
                     this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
                 }
                 this.State = AIState.SystemTrader;
@@ -4688,7 +4748,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (!hasCargo && this.start != null)
 			{
-				this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true);
+				this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.start);
 				this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
 				this.State = AIState.SystemTrader;
 			}
@@ -4700,7 +4760,7 @@ namespace Ship_Game.Gameplay
 				}
 				return;
 			}
-			this.OrderMoveTowardsPosition(this.end.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true);
+			this.OrderMoveTowardsPosition(this.end.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.end);
 			this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
 			this.State = AIState.SystemTrader;
 		}
@@ -4765,7 +4825,7 @@ namespace Ship_Game.Gameplay
                 this.OrderQueue.Clear();
                 if (this.end != null)
                 {
-                    this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true);
+                    this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true,this.end);
                     this.State = AIState.PassengerTransport;
                     this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
                 }
@@ -4846,7 +4906,7 @@ namespace Ship_Game.Gameplay
             }
             if (this.start != null && this.end != null)
             {
-                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true);
+                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true,this.start);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
             }
             this.State = AIState.PassengerTransport;
@@ -4908,7 +4968,7 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.Clear();
 				if (this.end != null)
 				{
-					this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true);
+					this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true,this.end);
 					this.State = AIState.PassengerTransport;
 					this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
 				}
@@ -4985,7 +5045,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.start != null && this.end != null)
 			{
-				this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true);
+				this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true,this.end);
 				this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
 			}
 			this.State = AIState.PassengerTransport;
@@ -5038,7 +5098,7 @@ namespace Ship_Game.Gameplay
 						Planet foodHere = this.start;
 						foodHere.FoodHere = foodHere.FoodHere - 1f;
 					}
-					this.OrderMoveTowardsPosition(this.end.Position + (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true);
+					this.OrderMoveTowardsPosition(this.end.Position + (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.end);
 					this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
 					this.State = AIState.SystemTrader;
 				}
@@ -5073,7 +5133,7 @@ namespace Ship_Game.Gameplay
 						Planet productionHere1 = this.start;
 						productionHere1.ProductionHere = productionHere1.ProductionHere - 1f;
 					}
-					this.OrderMoveTowardsPosition(this.end.Position + (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true);
+					this.OrderMoveTowardsPosition(this.end.Position + (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.end);
 					this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
 					this.State = AIState.SystemTrader;
 				}
@@ -5102,7 +5162,7 @@ namespace Ship_Game.Gameplay
 				population.Population = population.Population - (float)this.Owner.loyalty.data.Traits.PassengerModifier;
 			}
 			this.OrderQueue.RemoveFirst();
-			this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true);
+			this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true,this.end);
 			this.State = AIState.PassengerTransport;
 			this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
 		}
@@ -5865,9 +5925,17 @@ namespace Ship_Game.Gameplay
 			owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
 		}
 
-		private void StopWithBackwardsThrustORIG(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
+		private void StopWithBackwardsThrust(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
 		{
-			if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+			if(Goal.TargetPlanet !=null)
+            {
+                lock (this.wayPointLocker)
+                {
+                    this.ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Position);
+                    Goal.MovePosition = Goal.TargetPlanet.Position;
+                }
+            }
+            if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
 			{
 				this.HadPO = true;
 			}
@@ -5888,6 +5956,8 @@ namespace Ship_Game.Gameplay
 				this.HasPriorityOrder = false;
 			}
 			this.Owner.HyperspaceReturn();
+            //Vector2 forward2 = Quaternion
+            //Quaternion.AngleAxis(_angle, Vector3.forward) * normalizedDirection1
 			Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
 			if (this.Owner.Velocity == Vector2.Zero || Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), Goal.MovePosition) > Vector2.Distance(this.Owner.Center, Goal.MovePosition))
 			{
@@ -5909,7 +5979,7 @@ namespace Ship_Game.Gameplay
             //if (Vector2.Distance(this.Owner.Center, Goal.MovePosition) / (this.Owner.Velocity.Length() + 0.001f) <= timetostop)
 			{
 				Ship owner = this.Owner;
-				owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * Goal.SpeedLimit));
+				owner.Velocity = owner.Velocity + (Vector2.Normalize(forward) * (elapsedTime * Goal.SpeedLimit));
 				if (this.Owner.Velocity.Length() > Goal.SpeedLimit)
 				{
 					this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * Goal.SpeedLimit;
@@ -5926,7 +5996,7 @@ namespace Ship_Game.Gameplay
 				}
 			}
 		}
-        private void StopWithBackwardsThrust(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
+        private void StopWithBackwardsThrustbroke(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
         {
             
             if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
@@ -5935,7 +6005,7 @@ namespace Ship_Game.Gameplay
             }
             this.HasPriorityOrder = false;
             float Distance = Vector2.Distance(this.Owner.Center, Goal.MovePosition);
-            if (Distance < 200 && Distance > 25f)
+            if (Distance < 200 )//&& Distance > 25f)
             {
                 this.OrderQueue.RemoveFirst();
                 lock (this.wayPointLocker)
@@ -5966,19 +6036,19 @@ namespace Ship_Game.Gameplay
             }
             Vector2 velocity = this.Owner.Velocity;
             float timetostop = (int)velocity.Length() / Goal.SpeedLimit;
-            //if (Vector2.Distance(this.Owner.Center, Goal.MovePosition) / Goal.SpeedLimit <= timetostop + .005) //(this.Owner.Velocity.Length() + 1)
-            if (Math.Abs((int)(DistanceLast - Distance))<10 )
-            {
-                
-                ArtificialIntelligence.ShipGoal to1k = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.MakeFinalApproach, Goal.MovePosition, 0f)
-                				{
-							SpeedLimit = this.Owner.speed >Distance?Distance:this.Owner.GetSTLSpeed()
-						};
-                lock(this.wayPointLocker)
-                    this.OrderQueue.AddFirst(to1k);
-                this.DistanceLast = Distance;
-                return;
-            }
+            if (Vector2.Distance(this.Owner.Center, Goal.MovePosition) / Goal.SpeedLimit <= timetostop + .005) //(this.Owner.Velocity.Length() + 1)
+                if (Math.Abs((int)(DistanceLast - Distance)) < 10)
+                {
+
+                    ArtificialIntelligence.ShipGoal to1k = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.MakeFinalApproach, Goal.MovePosition, 0f)
+                                    {
+                                        SpeedLimit = this.Owner.speed > Distance ? Distance : this.Owner.GetSTLSpeed()
+                                    };
+                    lock (this.wayPointLocker)
+                        this.OrderQueue.AddFirst(to1k);
+                    this.DistanceLast = Distance;
+                    return;
+                }
             if (Vector2.Distance(this.Owner.Center, Goal.MovePosition) / (this.Owner.Velocity.Length() + 0.001f) <= timetostop)
             {
                 Ship owner = this.Owner;
@@ -7278,7 +7348,14 @@ namespace Ship_Game.Gameplay
 			{
 			}
 		}
+        public class WayPoints
+        {
+            public Planet planet { get; set; }
 
+            public Ship ship { get; set; }
+            
+            public Vector2 location { get ; set; }
+        }
 		private enum transportState
 		{
 			ChoosePickup,
