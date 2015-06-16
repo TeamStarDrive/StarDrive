@@ -2639,6 +2639,21 @@ namespace Ship_Game.Gameplay
                     Goal.MovePosition = Goal.TargetPlanet.Position;
                 }
             }
+            if (this.RotateToFaceMovePosition(elapsedTime, Goal))
+            {
+                Goal.SpeedLimit *= .9f;
+            }
+            else
+            {
+                Goal.SpeedLimit *= 1.1f;
+                if (this.Owner.engineState == Ship.MoveState.Sublight)
+                {
+                    if (Goal.SpeedLimit > this.Owner.GetSTLSpeed())
+                        Goal.SpeedLimit = this.Owner.GetSTLSpeed();
+                }
+                else if (Goal.SpeedLimit > this.Owner.GetFTLSpeed())
+                    Goal.SpeedLimit = this.Owner.GetFTLSpeed();
+            }
             this.Owner.HyperspaceReturn();
 			Vector2 velocity = this.Owner.Velocity;
             if (Goal.TargetPlanet != null)
@@ -6082,13 +6097,14 @@ namespace Ship_Game.Gameplay
             }
             float Distance = Vector2.Distance(Position, this.Owner.Center);
  
-            if (this.Owner.engineState != Ship.MoveState.Warp)
+            if (this.Owner.engineState != Ship.MoveState.Warp )
             {
                 Position = Position - this.Owner.Velocity;
             }
             if (!this.Owner.EnginesKnockedOut)
             {
                 this.Owner.isThrusting = true;
+
                 Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
                 Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
                 Vector2 right = new Vector2(-forward.Y, forward.X);
