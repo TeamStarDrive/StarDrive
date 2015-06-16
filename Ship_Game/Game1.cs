@@ -185,6 +185,7 @@ namespace Ship_Game
 			};
 			base.Components.Add(this.screenManager.splashScreenGameComponent);
 			AudioManager.Initialize(this, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
+            
 			Game1.Instance = this;
 			base.Initialize();
 		}
