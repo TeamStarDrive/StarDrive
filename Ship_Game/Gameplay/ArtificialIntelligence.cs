@@ -1481,7 +1481,7 @@ namespace Ship_Game.Gameplay
         //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
         //}
 
-        private void DoOrbitOrig(Planet OrbitTarget, float elapsedTime)
+        private void DoOrbit(Planet OrbitTarget, float elapsedTime)
         {
            // float distanceToOrbitSpot = Vector2.Distance(this.OrbitPos, this.Owner.Center);
             if ((double)this.findNewPosTimer <= 0.0 )//|| distanceToOrbitSpot <1500)
@@ -1540,7 +1540,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private void DoOrbit(Planet OrbitTarget, float elapsedTime)
+        private void DoOrbitBut(Planet OrbitTarget, float elapsedTime)
         {
             if(this.OrbitPos !=Vector2.Zero)
             this.OrbitPos += OrbitTarget.Position;
@@ -2112,13 +2112,14 @@ namespace Ship_Game.Gameplay
 
 		private Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
 		{
-			float theta;
+			
+            double theta;
 			Vector2 TargetPosition = new Vector2(0f, 0f);
 			float gamma = angle;
-			float D = distance;
+			double D = distance;
 			int gammaQuadrant = 0;
-			float oppY = 0f;
-			float adjX = 0f;
+			double oppY = 0f;
+			double adjX = 0f;
 			if (gamma > 360f)
 			{
 				gamma = gamma - 360f;
@@ -2126,74 +2127,74 @@ namespace Ship_Game.Gameplay
 			if (gamma < 90f)
 			{
 				theta = 90f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
+                theta = theta * Math.PI / 180.0;  //3.14159274f / 180f;
+				oppY = D * Math.Sin(theta);
+				adjX = D * Math.Cos(theta);
 				gammaQuadrant = 1;
 			}
 			else if (gamma > 90f && gamma < 180f)
 			{
 				theta = gamma - 90f;
 				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
+				oppY = D * Math.Sin(theta);
+				adjX = D * Math.Cos(theta);
 				gammaQuadrant = 2;
 			}
 			else if (gamma > 180f && gamma < 270f)
 			{
 				theta = 270f - gamma;
 				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
+				oppY = D * Math.Sin(theta);
+				adjX = D * Math.Cos(theta);
 				gammaQuadrant = 3;
 			}
 			else if (gamma > 270f && gamma < 360f)
 			{
 				theta = gamma - 270f;
 				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
+				oppY = D * Math.Sin(theta);
+				adjX = D * Math.Cos(theta);
 				gammaQuadrant = 4;
 			}
 			if (gamma == 0f)
 			{
 				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y - D;
+				TargetPosition.Y = position.Y - (float)D;
 			}
 			if (gamma == 90f)
 			{
-				TargetPosition.X = position.X + D;
+                TargetPosition.X = position.X + (float)D;
 				TargetPosition.Y = position.Y;
 			}
 			if (gamma == 180f)
 			{
 				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y + D;
+                TargetPosition.Y = position.Y + (float)D;
 			}
 			if (gamma == 270f)
 			{
-				TargetPosition.X = position.X - D;
+                TargetPosition.X = position.X - (float)D;
 				TargetPosition.Y = position.Y;
 			}
 			if (gammaQuadrant == 1)
 			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y - oppY;
+                TargetPosition.X = position.X + (float)adjX;
+                TargetPosition.Y = position.Y - (float)oppY;
 			}
 			else if (gammaQuadrant == 2)
 			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y + oppY;
+                TargetPosition.X = position.X + (float)adjX;
+                TargetPosition.Y = position.Y + (float)oppY;
 			}
 			else if (gammaQuadrant == 3)
 			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y + oppY;
+                TargetPosition.X = position.X - (float)adjX;
+                TargetPosition.Y = position.Y + (float)oppY;
 			}
 			else if (gammaQuadrant == 4)
 			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y - oppY;
+                TargetPosition.X = position.X - (float)adjX;
+                TargetPosition.Y = position.Y - (float)oppY;
 			}
 			return TargetPosition;
 		}
