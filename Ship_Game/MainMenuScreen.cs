@@ -638,7 +638,15 @@ namespace Ship_Game
 				}
 			}
 			base.ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
+            base.ScreenManager.racialMusic.SetVolume(GlobalStats.Config.MusicVolume);
+            base.ScreenManager.combatMusic.SetVolume(GlobalStats.Config.MusicVolume);
 			base.ScreenManager.weaponsCategory.SetVolume(GlobalStats.Config.EffectsVolume);
+            base.ScreenManager.defaultCategory.SetVolume(GlobalStats.Config.EffectsVolume *.5f);
+            if(GlobalStats.Config.EffectsVolume ==0 && GlobalStats.Config.MusicVolume == 0)
+                base.ScreenManager.GlobalCategory.SetVolume(0);
+            else
+                base.ScreenManager.GlobalCategory.SetVolume(1);
+
 			string basepath = "Stardrive Main Logo 2_";
 			for (int i = 0; i < 81; i++)
 			{

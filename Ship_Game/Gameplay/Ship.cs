@@ -2562,7 +2562,7 @@ namespace Ship_Game.Gameplay
                                 this.Projectiles.QueuePendingRemoval(projectile);
                         }
                     }
-                    this.emitter.Position = new Vector3(this.Center, 0.0f);
+                    this.emitter.Position = new Vector3( this.Center, 0);//GlobalStats.Config.EffectsVolume * -5000);
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     //Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
                     {
@@ -2731,9 +2731,10 @@ namespace Ship_Game.Gameplay
                         {
                             if ((double)Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && (this.Jump == null || this.Jump != null && !this.Jump.IsPlaying) && Ship.universeScreen.camHeight < 250000)
                             {
-                                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());
+                                this.Jump = AudioManager.GetCue(this.GetStartWarpCue());                                                               
                                 this.Jump.Apply3D(GameplayObject.audioListener, this.emitter);
                                 this.Jump.Play();
+                                
                             }
                         }
                         if ((double)this.JumpTimer <= 0.1)
@@ -2774,7 +2775,8 @@ namespace Ship_Game.Gameplay
                             this.drone = (Cue)null;
                         }
                     }
-                    this.emitter.Position = new Vector3(this.Center, 0.0f);
+                    this.emitter.Position = new Vector3(this.Center, 0);
+                    
                 }
                 if (elapsedTime > 0.0f)
                 {

@@ -1481,7 +1481,7 @@ namespace Ship_Game.Gameplay
         //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
         //}
 
-        private void DoOrbit(Planet OrbitTarget, float elapsedTime)
+        private void DoOrbitOrig(Planet OrbitTarget, float elapsedTime)
         {
            // float distanceToOrbitSpot = Vector2.Distance(this.OrbitPos, this.Owner.Center);
             if ((double)this.findNewPosTimer <= 0.0 )//|| distanceToOrbitSpot <1500)
@@ -1540,6 +1540,56 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        private void DoOrbit(Planet OrbitTarget, float elapsedTime)
+        {
+            if(this.OrbitPos !=Vector2.Zero)
+            this.OrbitPos += OrbitTarget.Position;
+            float distanceToOrbitSpot = Vector2.Distance(OrbitTarget.Position, this.Owner.Center);
+            if ((this.findNewPosTimer <= 0.0 && distanceToOrbitSpot < 5000) || this.OrbitPos == Vector2.Zero)
+            {
+                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 1500); //2500f //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
+                if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500.0)
+                {
+                    this.OrbitalAngle = (int)this.OrbitalAngle + 15f;
+                    if (this.OrbitalAngle >= 360.0)
+                        this.OrbitalAngle -= 360f;
+                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
+                }
+                this.findNewPosTimer = 1f;
+            }
+            else
+            {
+                this.findNewPosTimer -= elapsedTime;
+                if (OrbitPos != null && Vector2.Distance(OrbitTarget.Position, this.OrbitPos) > 15000)
+                    this.OrbitPos = Vector2.Zero;
+            }
+            float num1 = Vector2.Distance(this.Owner.Center, this.OrbitPos);
+            if (num1 < 7500.0)
+            {
+                this.Owner.HyperspaceReturn();
+                if (this.State != AIState.Bombard)
+                    this.HasPriorityOrder = false;
+            }
+            if (num1 > 15000.0)
+            {
+                this.ThrustTowardsPosition(OrbitTarget.Position, elapsedTime, this.Owner.speed);
+            }
+            else if (this.Owner.speed > 50 && num1 < 5000 && this.Owner.engineState != Ship.MoveState.Warp)    //1200.0 && this.Owner.engineState != Ship.MoveState.Warp)
+            {
+                float maxSpeed = this.Owner.GetFTLSpeed();
+                this.Owner.speed = maxSpeed / (OrbitTarget.OrbitalRadius * (float)Math.PI * 2 * elapsedTime);   //      this.Owner.GetSTLSpeed() > 200 ? 200 : this.Owner.speed;
+
+                this.RotateToFaceMovePosition(elapsedTime, this.OrbitPos);
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
+            }
+            else
+            {
+                if (this.Owner.engineState == Ship.MoveState.Warp)
+                    return;
+
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);// > 50 ? 50 : this.Owner.speed);
+            }
+        }
 		private void DoOrbitNoWarp(Planet OrbitTarget, float elapsedTime)
 		{
 			if (this.findNewPosTimer > 0f)
@@ -2639,7 +2689,7 @@ namespace Ship_Game.Gameplay
                     Goal.MovePosition = Goal.TargetPlanet.Position;
                 }
             }
-            if (this.RotateToFaceMovePosition(elapsedTime, Goal))
+            if (this.RotateToFaceMovePosition(elapsedTime, Goal.MovePosition))
             {
                 Goal.SpeedLimit *= .9f;
             }
@@ -5315,7 +5365,26 @@ namespace Ship_Game.Gameplay
 			}
             return turned;
 		}
+        private bool RotateToFaceMovePosition(float elapsedTime, Vector2 MovePosition)
+        {
+            bool turned = false;
+            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+            Vector2 right = new Vector2(-forward.Y, forward.X);
+            Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, MovePosition);
+            float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
+            if (angleDiff > 0.2f)
+            {
+                this.Owner.HyperspaceReturn();
+                this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f));
+                turned = true;
+            }
+            else if (this.OrderQueue.Count > 0)
+            {
+                this.OrderQueue.RemoveFirst();
 
+            }
+            return turned;
+        }
 		private void RotateToFacing(float elapsedTime, float angleDiff, float facing)
 		{
 			this.Owner.isTurning = true;
