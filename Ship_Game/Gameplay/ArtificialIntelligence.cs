@@ -87,6 +87,7 @@ namespace Ship_Game.Gameplay
 		public bool inOrbit;
 
 		private Vector2 OrbitPos;
+        private float orbitSpeed;
 
 		private float DistanceLast;
 
@@ -1483,59 +1484,86 @@ namespace Ship_Game.Gameplay
 
         private void DoOrbit(Planet OrbitTarget, float elapsedTime)
         {
-           // float distanceToOrbitSpot = Vector2.Distance(this.OrbitPos, this.Owner.Center);
-            if ((double)this.findNewPosTimer <= 0.0 )//|| distanceToOrbitSpot <1500)
+            if (this.Owner.velocityMaximum == 0)
+                return;
+            float distanceToOrbitSpot = Vector2.Distance(this.OrbitPos, this.Owner.Center);          
+            Vector2 test = Vector2.Subtract(this.Owner.Center, this.OrbitPos);
+            if ((double)this.findNewPosTimer <= 0.0)//|| distanceToOrbitSpot <1500)
             {
-                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 1500 ); //2500f //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
-                if ((double)Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500.0)
+
+
+
+                if (distanceToOrbitSpot < 1500f +this.Owner.Radius|| this.Owner.speed == 0)
                 {
-                    this.OrbitalAngle =  (int)this.OrbitalAngle+ 15f;
+                    this.OrbitalAngle += MathHelper.ToDegrees((float)Math.Asin(this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond < .1f ? .1f : this.Owner.rotationRadiansPerSecond));//* elapsedTime);// MathHelper.ToDegrees((float)Math.Asin((double)this.Owner.rotationRadiansPerSecond / 1500.0));
                     if ((double)this.OrbitalAngle >= 360.0)
                         this.OrbitalAngle -= 360f;
-                    this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f ); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
+                    //this.OrbitalAngle = this.OrbitalAngle + MathHelper.ToDegrees(this.Owner.rotationRadiansPerSecond );// * .75f); //15f
+                    //if ((double)this.OrbitalAngle >= 360.0)
+                    //    this.OrbitalAngle -= 360f;
+                   // this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f ); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
+                      
                 }
-                this.findNewPosTimer = 1.5f;
+                this.findNewPosTimer = 1;// elapsedTime;// 1; //1.5
+                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 1500 + this.Owner.Radius);// 1500 ); //2500f //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
             }
             else
                 this.findNewPosTimer -= elapsedTime;
-            float num1 = Vector2.Distance(this.Owner.Center, this.OrbitPos);
+            float num1 = distanceToOrbitSpot;// Vector2.Distance(this.Owner.Center, this.OrbitPos);
             if ((double)num1 < 7500.0)
             {
                 this.Owner.HyperspaceReturn();
                 if (this.State != AIState.Bombard)
                     this.HasPriorityOrder = false;
             }
-            if ((double)num1 > 15000.0)
+            if (num1 > 15000.0)
             {
-                //Vector2 vector2_1 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, OrbitTarget.Position));
-                //Vector2 vector2_2 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-                //Vector2 vector2_3 = new Vector2(-vector2_2.Y, vector2_2.X);
-                //Math.Acos((double)Vector2.Dot(vector2_1, vector2_2));
-                //double num2 = (double)Vector2.Dot(vector2_1, vector2_3);
+
                 this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
             }
-            else if ((double)this.Owner.speed > 50&& num1 <5000 && this.Owner.engineState != Ship.MoveState.Warp)    //1200.0 && this.Owner.engineState != Ship.MoveState.Warp)
+            else if //(num1 < 5000 &&  this.Owner.engineState != Ship.MoveState.Warp) 
+                (num1 < 5000&& Vector2.Distance(this.Owner.Center,OrbitTarget.Position) <2500 && this.Owner.engineState != Ship.MoveState.Warp)    //1200.0 && this.Owner.engineState != Ship.MoveState.Warp) (double)this.Owner.speed > 50&&
             {
+
+                
                 //this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 3.5f);
-                this.Owner.speed = this.Owner.GetSTLSpeed()>200?200:this.Owner.speed;
+                //this.Owner.speed = this.Owner.GetSTLSpeed()>350?350:this.Owner.speed;
                 //if(this.Owner.speed >num1)
                 //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, num1);
                 //else
-                    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
+                float opt = num1;// Vector2.Distance(this.Owner.Center, this.OrbitPos);
+                //if (opt < 2500f)
+                {
+                    //float turnspeed =(this.Owner.maxBank - Math.Abs(this.Owner.yRotation)) / this.Owner.maxBank;                    //    this.Owner.speed=this.orbitSpeed;
+                    //this.Owner.speed = this.Owner.speed * turnspeed;
+                    if (this.Owner.rotationRadiansPerSecond > 0 )
+                        this.Owner.speed = ((1500) * ((this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond < .1f ? .1f : this.Owner.rotationRadiansPerSecond) * .35f));
+                    
+                   
+                }
+                //else if (opt > 2500f)
+                //{
+                //    this.Owner.speed = opt * .10f;
+                //}
+                //if (this.Owner.speed < 150)
+                //  this.Owner.speed = 150;
+                //this.orbitSpeed = this.Owner.speed;
+                this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
             }
             else
             {
-                if (this.Owner.engineState == Ship.MoveState.Warp)
-                    return;
+                //if (this.Owner.engineState == Ship.MoveState.Warp)
+                //    return;
                 //if (this.Owner.speed > num1)//(num1 > 2500 )//OrbitTarget.ObjectRadius + 1100 + this.Owner.Radius)
                 //{
                 //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
                 //}
                 //else
                 //{
-                
-                //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed > 50 ? 50 : this.Owner.speed);
+
+                //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed> 350 ? 350 : this.Owner.speed);
                 //}
+                this.orbitSpeed = 0;
                 this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);// > 50 ? 50 : this.Owner.speed);
             }
         }
@@ -2110,9 +2138,90 @@ namespace Ship_Game.Gameplay
 			return false;
 		}
 
-		private Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
+        private Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
+        {
+            Vector2 vector2 = new Vector2(0.0f, 0.0f);
+            float num1 = angle;
+            float num2 = distance;
+            int num3 = 0;
+            float num4 = 0.0f;
+            float num5 = 0.0f;
+            if ((double)num1 > 360.0)
+                num1 -= 360f;
+            if ((double)num1 < 90.0)
+            {
+                float num6 = (float)((double)(90f - num1) * 3.14159274101257 / 180.0);
+                num4 = num2 * (float)Math.Sin((double)num6);
+                num5 = num2 * (float)Math.Cos((double)num6);
+                num3 = 1;
+            }
+            else if ((double)num1 > 90.0 && (double)num1 < 180.0)
+            {
+                float num6 = (float)((double)(num1 - 90f) * 3.14159274101257 / 180.0);
+                num4 = num2 * (float)Math.Sin((double)num6);
+                num5 = num2 * (float)Math.Cos((double)num6);
+                num3 = 2;
+            }
+            else if ((double)num1 > 180.0 && (double)num1 < 270.0)
+            {
+                float num6 = (float)((double)(270f - num1) * 3.14159274101257 / 180.0);
+                num4 = num2 * (float)Math.Sin((double)num6);
+                num5 = num2 * (float)Math.Cos((double)num6);
+                num3 = 3;
+            }
+            else if ((double)num1 > 270.0 && (double)num1 < 360.0)
+            {
+                float num6 = (float)((double)(num1 - 270f) * 3.14159274101257 / 180.0);
+                num4 = num2 * (float)Math.Sin((double)num6);
+                num5 = num2 * (float)Math.Cos((double)num6);
+                num3 = 4;
+            }
+            if ((double)num1 == 0.0)
+            {
+                vector2.X = position.X;
+                vector2.Y = position.Y - num2;
+            }
+            if ((double)num1 == 90.0)
+            {
+                vector2.X = position.X + num2;
+                vector2.Y = position.Y;
+            }
+            if ((double)num1 == 180.0)
+            {
+                vector2.X = position.X;
+                vector2.Y = position.Y + num2;
+            }
+            if ((double)num1 == 270.0)
+            {
+                vector2.X = position.X - num2;
+                vector2.Y = position.Y;
+            }
+            if (num3 == 1)
+            {
+                vector2.X = position.X + num5;
+                vector2.Y = position.Y - num4;
+            }
+            else if (num3 == 2)
+            {
+                vector2.X = position.X + num5;
+                vector2.Y = position.Y + num4;
+            }
+            else if (num3 == 3)
+            {
+                vector2.X = position.X - num5;
+                vector2.Y = position.Y + num4;
+            }
+            else if (num3 == 4)
+            {
+                vector2.X = position.X - num5;
+                vector2.Y = position.Y - num4;
+            }
+            return vector2;
+        }
+
+		private Vector2 findPointFromAngleAndDistanceorg(Vector2 position, float angle, float distance)
 		{
-			
+
             double theta;
 			Vector2 TargetPosition = new Vector2(0f, 0f);
 			float gamma = angle;
@@ -2690,21 +2799,21 @@ namespace Ship_Game.Gameplay
                     Goal.MovePosition = Goal.TargetPlanet.Position;
                 }
             }
-            if (this.RotateToFaceMovePosition(elapsedTime, Goal.MovePosition))
-            {
-                Goal.SpeedLimit *= .9f;
-            }
-            else
-            {
-                Goal.SpeedLimit *= 1.1f;
-                if (this.Owner.engineState == Ship.MoveState.Sublight)
-                {
-                    if (Goal.SpeedLimit > this.Owner.GetSTLSpeed())
-                        Goal.SpeedLimit = this.Owner.GetSTLSpeed();
-                }
-                else if (Goal.SpeedLimit > this.Owner.GetFTLSpeed())
-                    Goal.SpeedLimit = this.Owner.GetFTLSpeed();
-            }
+            //if (this.RotateToFaceMovePosition(elapsedTime, Goal.MovePosition))
+            //{
+            //    Goal.SpeedLimit *= .9f;
+            //}
+            //else
+            //{
+            //    Goal.SpeedLimit *= 1.1f;
+            //    if (this.Owner.engineState == Ship.MoveState.Sublight)
+            //    {
+            //        if (Goal.SpeedLimit > this.Owner.GetSTLSpeed())
+            //            Goal.SpeedLimit = this.Owner.GetSTLSpeed();
+            //    }
+            //    else if (Goal.SpeedLimit > this.Owner.GetFTLSpeed())
+            //        Goal.SpeedLimit = this.Owner.GetFTLSpeed();
+            //}
             this.Owner.HyperspaceReturn();
 			Vector2 velocity = this.Owner.Velocity;
             if (Goal.TargetPlanet != null)
@@ -2717,7 +2826,9 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				this.ThrustTowardsPosition(Goal.MovePosition, elapsedTime, Goal.SpeedLimit);
+                if (DistanceLast == Distance)
+                    Goal.SpeedLimit++;
+                this.ThrustTowardsPosition(Goal.MovePosition, elapsedTime, Goal.SpeedLimit);
 			}
 			this.DistanceLast = Distance;
 		}
@@ -2733,16 +2844,16 @@ namespace Ship_Game.Gameplay
 
             timetostop = (double)velocity.Length() / speedLimit;
 
-            if(this.RotateToFaceMovePosition(elapsedTime, Goal))
-            {
-                speedLimit--;
-            }
-            else
-            {
-                speedLimit++;
-                if(speedLimit > this.Owner.GetSTLSpeed())
-                    speedLimit=this.Owner.GetSTLSpeed();
-            }
+            //if(this.RotateToFaceMovePosition(elapsedTime, Goal))
+            //{
+            //    speedLimit--;
+            //}
+            //else
+            //{
+            //    speedLimit++;
+            //    if(speedLimit > this.Owner.GetSTLSpeed())
+            //        speedLimit=this.Owner.GetSTLSpeed();
+            //}
             
 
             
@@ -5373,17 +5484,13 @@ namespace Ship_Game.Gameplay
             Vector2 right = new Vector2(-forward.Y, forward.X);
             Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, MovePosition);
             float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
-            if (angleDiff > 0.2f)
+            if (angleDiff > this.Owner.rotationRadiansPerSecond*elapsedTime )
             {
                 this.Owner.HyperspaceReturn();
                 this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f));
                 turned = true;
             }
-            else if (this.OrderQueue.Count > 0)
-            {
-                this.OrderQueue.RemoveFirst();
-
-            }
+ 
             return turned;
         }
 		private void RotateToFacing(float elapsedTime, float angleDiff, float facing)
@@ -6159,8 +6266,8 @@ namespace Ship_Game.Gameplay
 		
         private void ThrustTowardsPosition(Vector2 Position, float elapsedTime, float speedLimit)
         {
-            if(speedLimit>1f)
-            speedLimit = (int)(speedLimit);
+            //if(speedLimit>1f)
+            //speedLimit = (int)(speedLimit);
             if (speedLimit == 0f)
             {
                 speedLimit = this.Owner.speed;
@@ -6258,10 +6365,10 @@ namespace Ship_Game.Gameplay
                 //if (angleDiff > 0.125000000372529f)
                 //    if (this.Owner.engineState == Ship.MoveState.Warp)
                 //        this.Owner.speed *= .8f;
-                if (angleDiff > 0.025000000372529f)
+                if (angleDiff > this.Owner.rotationRadiansPerSecond *elapsedTime*.35f ) //0.025000000372529f )//*
                 {
-                    
-                    double RotAmount = Math.Min(angleDiff, facing * elapsedTime * this.Owner.rotationRadiansPerSecond);
+
+                    double RotAmount = Math.Min(angleDiff, facing*  this.Owner.rotationRadiansPerSecond *elapsedTime);
                     if (RotAmount > 0f)
                     {
                         
@@ -6283,7 +6390,8 @@ namespace Ship_Game.Gameplay
                     this.Owner.isTurning = true;
                     Ship rotation = this.Owner;
                     rotation.Rotation = rotation.Rotation + (RotAmount > angleDiff ? (float)angleDiff : (float)RotAmount);
-                    return;
+                    
+                    //return;
                 }
                 if (this.State != AIState.FormationWarp || this.Owner.fleet == null)
                 {
@@ -6301,7 +6409,7 @@ namespace Ship_Game.Gameplay
                         if (angleDiff > .1f)
                         {
 
-                            speedLimit =(int)(this.Owner.speed); // this.Owner.speed;
+                            speedLimit =(this.Owner.speed); // this.Owner.speed;
                         }
                         else
                             speedLimit = (int)(this.Owner.velocityMaximum);
@@ -6311,14 +6419,14 @@ namespace Ship_Game.Gameplay
                         //if (angleDiff > .1f)
                         //    speedLimit = this.Owner.speed;
                         //else
-                        speedLimit = (int)(this.Owner.speed); 
+                        speedLimit = (this.Owner.speed); 
                     }
 
                     Ship velocity = this.Owner;
-                    velocity.Velocity = velocity.Velocity + (Vector2.Normalize(forward) * (elapsedTime * speedLimit));
+                    velocity.Velocity = velocity.Velocity +   (Vector2.Normalize(forward) * (elapsedTime * speedLimit));//((forward) * (elapsedTime * speedLimit));
                     if (this.Owner.Velocity.Length() > speedLimit)
                     {
-                        this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * speedLimit;
+                        this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * speedLimit; //(this.Owner.Velocity) * speedLimit; //
                     }
 
                 }
@@ -6352,7 +6460,7 @@ namespace Ship_Game.Gameplay
                         this.Owner.fleet.Ships.thisLock.ExitReadLock();
      
                             float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove; //
-                            speedLimit = (int)(this.Owner.fleet.speed);
+                            speedLimit = (this.Owner.fleet.speed);
 
                             #region FleetGrouping
 
@@ -6402,13 +6510,13 @@ namespace Ship_Game.Gameplay
            
 
                     if (speedLimit > this.Owner.velocityMaximum)
-                        speedLimit = (int)(this.Owner.velocityMaximum);
+                        speedLimit = (this.Owner.velocityMaximum);
                     else if (speedLimit < 0)
                         speedLimit = 0;
                     //if (Distance < 100000)
                     //    speedLimit *= .5f;
                     Ship velocity1 = this.Owner;
-                    velocity1.Velocity = velocity1.Velocity + (Vector2.Normalize(forward) * (elapsedTime * (int)(speedLimit)));
+                    velocity1.Velocity = velocity1.Velocity + (Vector2.Normalize(forward) * (elapsedTime * (speedLimit)));
                     if (this.Owner.Velocity.Length() > speedLimit)
                     {
                         this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * speedLimit;
