@@ -1487,6 +1487,7 @@ namespace Ship_Game.Gameplay
 
         private void DoOrbit(Planet OrbitTarget, float elapsedTime)
         {
+            float radius = OrbitTarget.ObjectRadius + this.Owner.Radius + 1500f;
             if (this.Owner.velocityMaximum == 0)
                 return;
             float distanceToOrbitSpot = Vector2.Distance(this.OrbitPos, this.Owner.Center);          
@@ -1496,7 +1497,7 @@ namespace Ship_Game.Gameplay
 
 
 
-                if (distanceToOrbitSpot < 1500f +this.Owner.Radius|| this.Owner.speed == 0)
+                if (distanceToOrbitSpot < radius || this.Owner.speed == 0)
                 {
                     this.OrbitalAngle += MathHelper.ToDegrees((float)Math.Asin(this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond < .1f ? .1f : this.Owner.rotationRadiansPerSecond));//* elapsedTime);// MathHelper.ToDegrees((float)Math.Asin((double)this.Owner.rotationRadiansPerSecond / 1500.0));
                     if ((double)this.OrbitalAngle >= 360.0)
@@ -1508,7 +1509,7 @@ namespace Ship_Game.Gameplay
                       
                 }
                 this.findNewPosTimer = 1;// elapsedTime;// 1; //1.5
-                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 1500 + this.Owner.Radius);// 1500 ); //2500f //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
+                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, radius);// 1500 ); //2500f //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
             }
             else
                 this.findNewPosTimer -= elapsedTime;
@@ -1525,7 +1526,7 @@ namespace Ship_Game.Gameplay
                 this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
             }
             else if //(num1 < 5000 &&  this.Owner.engineState != Ship.MoveState.Warp) 
-                (num1 < 5000&& Vector2.Distance(this.Owner.Center,OrbitTarget.Position) <2500 && this.Owner.engineState != Ship.MoveState.Warp)    //1200.0 && this.Owner.engineState != Ship.MoveState.Warp) (double)this.Owner.speed > 50&&
+                (num1 < 5000 && Vector2.Distance(this.Owner.Center, OrbitTarget.Position) < radius+1000f && this.Owner.engineState != Ship.MoveState.Warp)    //1200.0 && this.Owner.engineState != Ship.MoveState.Warp) (double)this.Owner.speed > 50&&
             {
 
                 
@@ -1540,7 +1541,7 @@ namespace Ship_Game.Gameplay
                     //float turnspeed =(this.Owner.maxBank - Math.Abs(this.Owner.yRotation)) / this.Owner.maxBank;                    //    this.Owner.speed=this.orbitSpeed;
                     //this.Owner.speed = this.Owner.speed * turnspeed;
                     if (this.Owner.rotationRadiansPerSecond > 0 )
-                        this.Owner.speed = ((1500) * ((this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond < .1f ? .1f : this.Owner.rotationRadiansPerSecond) * .35f));
+                        this.Owner.speed = ((radius) * ((this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond < .1f ? .1f : this.Owner.rotationRadiansPerSecond) * .35f));
                     
                    
                 }
@@ -5979,7 +5980,7 @@ namespace Ship_Game.Gameplay
 
 		private void ScrapShip(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
-            if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) >= 2500f)   //2500f)   //OrbitTarget.ObjectRadius *15)
+            if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) >= 2500f +goal.TargetPlanet.ObjectRadius + this.Owner.Radius)   //2500f)   //OrbitTarget.ObjectRadius *15)
 			{
                 //goal.MovePosition = goal.TargetPlanet.Position;
                 //this.MoveToWithin1000(elapsedTime, goal);
@@ -6961,12 +6962,13 @@ namespace Ship_Game.Gameplay
                                 this.HasPriorityOrder = false;
                             }
                             this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                            float radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1000;
                             if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty)
                             {
                                 this.OrderQueue.Clear();
                                 return;
                             }
-                            else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < 2700.0)                                
+                            else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)                                
                             {                                
                                 using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                 {
@@ -7005,12 +7007,14 @@ namespace Ship_Game.Gameplay
                                     this.HasPriorityOrder = false;
                                 }
                                 this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                                 radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1000;
                                 if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty)
+
                                 {
                                     this.OrderQueue.Clear();
                                     return;
-                                }
-                                else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < 2500.0)
+                                }                                    
+                                else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
                                 {
                                     using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                     {
@@ -7049,6 +7053,7 @@ namespace Ship_Game.Gameplay
                         case ArtificialIntelligence.Plan.Exterminate:
                             {
                                 this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                                radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1000;
                                 if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty || toEvaluate.TargetPlanet.Owner == null)
                                 {
                                     this.OrderQueue.Clear();
@@ -7057,7 +7062,7 @@ namespace Ship_Game.Gameplay
                                 }
                                 else
                                 {
-                                    if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) >= 2500f)
+                                    if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) >= radius)
                                         break;
                                     List<ShipModule>.Enumerator enumerator1 = this.Owner.BombBays.GetEnumerator();
                                     try
