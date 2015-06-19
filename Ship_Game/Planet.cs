@@ -452,12 +452,15 @@ namespace Ship_Game
                                     break;
                                 }
                             }
-                            this.Population -= od.Target.building.MaxPopIncrease;
-                            this.BuildingList.Remove(od.Target.building);
-                            od.Target.building = null;
+                            if (od.Target.building != null)
+                            {
+                                this.Population -= od.Target.building.MaxPopIncrease;
+                                this.BuildingList.Remove(od.Target.building);
+                                od.Target.building = null;
+                            }
                         }
-                        
 
+                   
 
 
 
