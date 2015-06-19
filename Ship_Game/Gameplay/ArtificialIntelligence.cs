@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
@@ -161,6 +162,8 @@ namespace Ship_Game.Gameplay
         public object wayPointLocker;
         ShipModule moduleTarget;
         Ship TargetShip;
+        private ReaderWriterLockSlim orderqueue = new ReaderWriterLockSlim();
+        
         
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
@@ -4137,8 +4140,10 @@ namespace Ship_Game.Gameplay
 		public void OrderReturnToHangar()
 		{
 			ArtificialIntelligence.ShipGoal g = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.ReturnToHangar, Vector2.Zero, 0f);
-			this.OrderQueue.Clear();
+            this.orderqueue.EnterWriteLock();
+            this.OrderQueue.Clear();
 			this.OrderQueue.AddLast(g);
+            this.orderqueue.ExitWriteLock();
 			this.HasPriorityOrder = true;
 			this.State = AIState.ReturnToHangar;
 		}
@@ -5233,8 +5238,10 @@ namespace Ship_Game.Gameplay
 			this.HasPriorityOrder = true;
 			this.EscortTarget = s;
 			ArtificialIntelligence.ShipGoal g = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.BoardShip, Vector2.Zero, 0f);
-			this.OrderQueue.Clear();
+            this.orderqueue.EnterWriteLock();
+            this.OrderQueue.Clear();
 			this.OrderQueue.AddLast(g);
+            this.orderqueue.ExitWriteLock();
 		}
 
 		public void OrderTroopToShip(Ship s)
