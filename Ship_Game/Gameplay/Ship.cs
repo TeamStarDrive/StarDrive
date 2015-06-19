@@ -209,7 +209,7 @@ namespace Ship_Game.Gameplay
         private bool disposed;
         List<ModuleSlot> AttackerTargetting;
         Ship lastAttacker;
-
+        
         public ushort purgeCount =0;
 
         //public class diplomacticSpace

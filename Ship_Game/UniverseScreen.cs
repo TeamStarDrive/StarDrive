@@ -6794,11 +6794,15 @@ namespace Ship_Game
                                     Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_26.X, local_26.Y), new Vector2(local_27.X, local_27.Y), new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num));
                                 }
                             }
-                            if(!waydpoint)
+                            if(!waydpoint )
                             {
-                                Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().OrderQueue.First.Value.TargetPlanet.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num));
+                                ArtificialIntelligence.ShipGoal goal = this.SelectedShip.GetAI().OrderQueue.FirstOrDefault();
+                                if (goal != null && goal.TargetPlanet != null)
+                                {
+                                    Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                                    Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(goal.TargetPlanet.Position, 0.0f), this.projection, this.view, Matrix.Identity);
+                                    Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num));
+                                }
                             }
                         }
 
