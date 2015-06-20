@@ -2468,9 +2468,21 @@ namespace Ship_Game
                         {
                             this.p.ProductionHere = this.p.MAX_STORAGE;
                         }
-                        if ((e.item as QueueItem).pgs != null)
+                        QueueItem item = (e.item as QueueItem);
+                        if (item.pgs != null)
                         {
                             (e.item as QueueItem).pgs.QItem = null;
+                        }
+                        if(item.Goal !=null)
+                        {
+                            if(item.Goal.GoalName=="BuildConstructionShip")
+                            {
+                                p.Owner.GetGSAI().Goals.Remove(item.Goal);
+                                
+                            }
+                            if(item.Goal.GetFleet() !=null)
+                                p.Owner.GetGSAI().Goals.Remove(item.Goal);
+
                         }
                         this.p.ConstructionQueue.Remove(e.item as QueueItem);
                         AudioManager.PlayCue("sd_ui_accept_alt3");
