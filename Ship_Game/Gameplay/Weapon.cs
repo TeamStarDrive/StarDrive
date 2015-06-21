@@ -436,7 +436,7 @@ namespace Ship_Game.Gameplay
                 beam.damageAmount += beam.damageAmount * (float)this.owner.Level * 0.05f;
             }
             //Hull bonus damage increase
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
             {
                 HullBonus mod;
                 if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
@@ -584,7 +584,7 @@ namespace Ship_Game.Gameplay
                     projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
                 }
                 //Hull bonus damage increase
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                 {
                     HullBonus mod;
                     if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
@@ -712,7 +712,7 @@ namespace Ship_Game.Gameplay
                     projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
                 }
                 //Hull bonus damage increase
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                 {
                     HullBonus mod;
                     if (ResourceManager.HullBonuses.TryGetValue(this.owner.shipData.Hull, out mod))
@@ -1439,7 +1439,7 @@ namespace Ship_Game.Gameplay
                 projectile.damageAmount += projectile.damageAmount * this.owner.DamageModifier;
             }
             //Added by McShooterz: Check if mod uses weapon modifiers
-            if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useWeaponModifiers)
+			if (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.useWeaponModifiers)
             {
                 return;
             }
@@ -1589,7 +1589,7 @@ namespace Ship_Game.Gameplay
 
         public float GetModifiedRange()
         {
-            if (this.GetOwner() == null || GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.useWeaponModifiers)
+			if (this.GetOwner() == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
                 return this.Range;
             float modifiedRange = this.Range;
             EmpireData loyaltyData = this.GetOwner().loyalty.data;

@@ -768,6 +768,8 @@ namespace Ship_Game.Gameplay
                     Direction = HelperFunctions.findPointFromAngleAndDistance(Vector2.Zero, num5 * (float)index, 1f),
                     Damage = damageAmount / (float)num4
                 });
+            List<ShipModule> list; //= new List<ShipModule>();
+            List<ModuleSlot> list1; //= new List<ModuleSlot>();
             foreach (GameplayObject gameplayObject1 in this.GetNearby(source))
             {
                 try
@@ -801,7 +803,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             if (source is Projectile && (double)(gameplayObject1 as Ship).shield_max > 0.0)
                                             {
-                                                List<ShipModule> list = new List<ShipModule>();
+                                                 list = new List<ShipModule>();
                                                 foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ModuleSlotList)
                                                 {
                                                     if ((double)moduleSlot.module.shield_power > 0.0 && moduleSlot.module.Active)
@@ -836,7 +838,7 @@ namespace Ship_Game.Gameplay
                                                     break;
                                                 damageAmount = num2;
                                             }
-                                            List<ModuleSlot> list1 = new List<ModuleSlot>();
+                                            list1 = new List<ModuleSlot>();
                                             foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ModuleSlotList)
                                             {
                                                 if (moduleSlot.module.Active && (double)Vector2.Distance(moduleSlot.module.Center, ExplosionCenter) <= (double)damageRadius + (double)moduleSlot.module.Radius)
@@ -1024,6 +1026,8 @@ namespace Ship_Game.Gameplay
                     Direction = HelperFunctions.findPointFromAngleAndDistance(Vector2.Zero, num5 * (float)index, 1f),
                     Damage = damageAmount / (float)num4
                 });
+            List<ShipModule> list;// = new List<ShipModule>();
+            List<ModuleSlot> list1;// = new List<ModuleSlot>();
             foreach (GameplayObject gameplayObject1 in this.GetNearby(source))
             {
                 try
@@ -1057,7 +1061,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             if (source is Projectile && (double)(gameplayObject1 as Ship).shield_max > 0.0)
                                             {
-                                                List<ShipModule> list = new List<ShipModule>();
+                                                list = new List<ShipModule>();
                                                 foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ModuleSlotList)
                                                 {
                                                     if ((double)moduleSlot.module.shield_power > 0.0 && moduleSlot.module.Active)
@@ -1077,7 +1081,7 @@ namespace Ship_Game.Gameplay
                                                     break;
                                                 damageAmount = num2;
                                             }
-                                            List<ModuleSlot> list1 = new List<ModuleSlot>();
+                                            list1 = new List<ModuleSlot>();
                                             foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ExternalSlots)
                                             {
                                                 if (moduleSlot.module.Active && (double)Vector2.Distance(moduleSlot.module.Center, ExplosionCenter) <= (double)damageRadius + (double)moduleSlot.module.Radius)

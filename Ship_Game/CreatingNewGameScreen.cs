@@ -142,8 +142,8 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(75f * StarNumModifier);
-                        this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
+                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.data.Size = new Vector2(13350000, 13350000);
                     }
                     else if (str1 == "Huge")
                     {
@@ -152,8 +152,8 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
+                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.data.Size = new Vector2(18000000f, 18000000f);
                     }
                     else if (str1 == "Epic")
                     {
@@ -162,8 +162,8 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f * 2, 1.8E+07f * 2);
+                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.data.Size = new Vector2(36000000, 36000000);
                         //this.scale = 2;
 
                         //this.numSystems = (int)(125f * StarNumModifier);
@@ -177,9 +177,9 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(150f * StarNumModifier);
+                            this.numSystems = (int)(50f * StarNumModifier);
                         //this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f * 3f, 1.8E+07f * 3f);
+                            this.data.Size = new Vector2(54000000, 54000000);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
 
@@ -542,7 +542,7 @@ namespace Ship_Game
                                     //this.playerShip.GetAI().State = AIState.ManualControl;
                                     this.playerShip.DoOrbit(planet1);
                                     //Added by McShooterz: Starting ship support for automatic naming
-                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
+									if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
                                         this.playerShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role);
                                     else
                                         this.playerShip.VanityName = "Perseverance";
@@ -574,7 +574,7 @@ namespace Ship_Game
                                     ship3.loyalty = index;
                                     ship3.Initialize();
                                     //Added by McShooterz: Starting ship support for automatic naming
-                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
+									if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
                                         ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.Role);
                                     ship3.DoOrbit(planet1);
                                     ship3.GetSO().World = Matrix.CreateTranslation(new Vector3(ship3.Position, 0.0f));
