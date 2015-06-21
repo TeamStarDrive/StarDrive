@@ -160,9 +160,11 @@ namespace Ship_Game
 			this.LoadingRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 64, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 64, 128, 128);
 			this.LoadingPlayer = new VideoPlayer()
 			{
-				IsLooped = true
+				IsLooped = true,
+                Volume = GlobalStats.Config.MusicVolume
 			};
 			this.SplashPlayer = new VideoPlayer();
+            this.SplashPlayer.Volume = GlobalStats.Config.MusicVolume;
 			ResourceManager.Start();
 			ResourceManager.Initialize(base.ScreenManager.Content);
 			base.LoadContent();

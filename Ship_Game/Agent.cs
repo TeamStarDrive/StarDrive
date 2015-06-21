@@ -718,77 +718,110 @@ namespace Ship_Game
             #endregion
         }
 
-		public void Initialize(AgentMission TheMission, Empire Owner)
+		public bool Initialize(AgentMission TheMission, Empire Owner)
 		{
-			switch (TheMission)
+            float spyBudget =0;// = Owner.GetGSAI().spyBudget;
+            if (Owner.isPlayer)
+                Owner.GetGSAI().spyBudget = Owner.Money;
+            bool returnvalue = false;            
+            switch (TheMission)
 			{
 				case AgentMission.Training:
 				{
-					this.TurnsRemaining = ResourceManager.AgentMissionData.TrainingTurns;
-					Empire owner = Owner;
-                    owner.Money = owner.Money - ResourceManager.AgentMissionData.TrainingCost;
-					this.MissionNameIndex = 2196;
-					return;
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.TrainingCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.TrainingTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.TrainingCost;
+                        this.MissionNameIndex = 2196;
+                        returnvalue = true;
+                    }
+					break;
 				}
 				case AgentMission.Infiltrate:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.InfiltrateTurns;
-					Empire money = Owner;
-                    money.Money = money.Money - ResourceManager.AgentMissionData.InfiltrateCost;
-					this.MissionNameIndex = 2188;
-					return;
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.InfiltrateCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.InfiltrateTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.InfiltrateCost;
+                        this.MissionNameIndex = 2188;
+                        returnvalue = true;
+                    }
+                    break;
 				}
 				case AgentMission.Assassinate:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.AssassinateTurns;
-					Empire empire = Owner;
-                    empire.Money = empire.Money - ResourceManager.AgentMissionData.AssassinateCost;
-					this.MissionNameIndex = 2184;
-					return;
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.AssassinateCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.AssassinateTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.AssassinateCost;
+                        this.MissionNameIndex = 2184;
+                        returnvalue = true;
+                    }
+                    break;
 				}
 				case AgentMission.Sabotage:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.SabotageTurns;
-					Empire owner1 = Owner;
-                    owner1.Money = owner1.Money - ResourceManager.AgentMissionData.SabotageCost;
-					this.MissionNameIndex = 2190;
-					return;
+                    if (Owner.GetGSAI().spyBudget > ResourceManager.AgentMissionData.SabotageCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.SabotageTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.SabotageCost;
+                        this.MissionNameIndex = 2190;
+                        returnvalue = true;
+                    }
+                    break;
 				}
 				case AgentMission.StealTech:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.StealTechTurns;
-					Empire money1 = Owner;
-                    money1.Money = money1.Money - ResourceManager.AgentMissionData.StealTechCost;
-					this.MissionNameIndex = 2194;
-					return;
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.StealTechCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.StealTechTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.StealTechCost;
+                        this.MissionNameIndex = 2194;
+                        returnvalue = true;
+                    }
+                    break;
 				}
 				case AgentMission.Robbery:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.RobberyTurns;
-					Empire empire1 = Owner;
-                    empire1.Money = empire1.Money - ResourceManager.AgentMissionData.RobberyCost;
-					this.MissionNameIndex = 2192;
-					return;
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.RobberyCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.RobberyTurns;
+
+                        spyBudget -= ResourceManager.AgentMissionData.RobberyCost;
+                        this.MissionNameIndex = 2192;
+                        returnvalue = true;
+                    }
+                    break;
 				}
 				case AgentMission.InciteRebellion:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.RebellionTurns;
-					Empire owner2 = Owner;
-                    owner2.Money = owner2.Money - ResourceManager.AgentMissionData.RebellionCost;
-					this.MissionNameIndex = 2186;
-					return;
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.RebellionCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.RebellionTurns;
+
+                        spyBudget -= ResourceManager.AgentMissionData.RebellionCost;
+                        this.MissionNameIndex = 2186;
+                        returnvalue = true;
+                    }
+                    break;
 				}
                 case AgentMission.Recovering:
                 {
                     this.TurnsRemaining = ResourceManager.AgentMissionData.RecoveringTurns;
                     this.MissionNameIndex = 6024;
-                    return;
+                    return true;
                 }
 				default:
 				{
-					return;
+					return false;
 				}
+                 
 			}
+            
+            Owner.GetGSAI().spyBudget = spyBudget;
+            if (Owner.isPlayer)
+                Owner.Money-=spyBudget;
+            return returnvalue;
 		}
 
         //Added by McShooterz: add experience to the agent and determine if level up.

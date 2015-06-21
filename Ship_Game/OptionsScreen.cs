@@ -426,9 +426,17 @@ namespace Ship_Game
 				this.MusicVolumeSlider.HandleInput(input);
 				GlobalStats.Config.MusicVolume = this.MusicVolumeSlider.amount;
 				base.ScreenManager.musicCategory.SetVolume(this.MusicVolumeSlider.amount);
+                base.ScreenManager.racialMusic.SetVolume(this.MusicVolumeSlider.amount);
+                base.ScreenManager.combatMusic.SetVolume(this.MusicVolumeSlider.amount);
 				this.EffectsVolumeSlider.HandleInput(input);
 				GlobalStats.Config.EffectsVolume = this.EffectsVolumeSlider.amount;
 				base.ScreenManager.weaponsCategory.SetVolume(this.EffectsVolumeSlider.amount);
+                base.ScreenManager.defaultCategory.SetVolume(this.EffectsVolumeSlider.amount *.5f);
+                if (this.EffectsVolumeSlider.amount == 0 && this.MusicVolumeSlider.amount == 0)
+                    base.ScreenManager.GlobalCategory.SetVolume(0);
+                else
+                    base.ScreenManager.GlobalCategory.SetVolume(1);
+                        
 			}
 			if (!this.ResolutionDropDown.Open)
 			{

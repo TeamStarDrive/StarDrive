@@ -360,7 +360,8 @@ namespace Ship_Game
 						Position = ship.Position,
 						experience = ship.experience,
 						kills = ship.kills,
-						Velocity = ship.Velocity
+						Velocity = ship.Velocity,
+                        
 					};
 					if (ship.GetTether() != null)
 					{

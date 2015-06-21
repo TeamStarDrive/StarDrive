@@ -27,7 +27,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>C:\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
+    <OutputPath>D:\Steam\steamapps\common\StarDrive\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
     <Optimize>true</Optimize>
@@ -231,7 +231,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'crunchies laptop debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
-    <DefineConstants>DEBUG;noPERF noAUTOTIME ALTERTHREAD STEAM  notPLAYERONLY </DefineConstants>
+    <DefineConstants>DEBUG;PERF AUTOTIME ALTERTHREAD STEAM  notPLAYERONLY </DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
@@ -1815,6 +1815,7 @@
     <Content Include="Content\StarterShips\FF-Plasma Strike T.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Forward Base I.xml" />
     <Content Include="Content\StarterShips\FTR-Inq MK2.xml" />
     <Content Include="Content\StarterShips\Ftr-Plasma Tentacle.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1840,6 +1841,7 @@
     <Content Include="Content\StarterShips\Mauler Carrier.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Medium Freighter.xml" />
     <Content Include="Content\StarterShips\Missile Acolyte II.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1914,6 +1916,7 @@
     <Content Include="Content\StarterShips\Ralyeh Prototype.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Resupply Station.xml" />
     <Content Include="Content\StarterShips\Retribution-Class Mk Ib Assault.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2370,6 +2373,8 @@
     <Content Include="Content\StarterShips\Shielded Photon Fang.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\SS-Fighter Base Alpha.xml" />
+    <Content Include="Content\StarterShips\StarBase.xml" />
     <Content Include="Content\StarterShips\T7-48CV.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
