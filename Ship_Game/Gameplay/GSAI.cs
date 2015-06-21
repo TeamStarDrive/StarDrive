@@ -5627,9 +5627,11 @@ namespace Ship_Game.Gameplay
             
             this.spyBudget = income +this.empire.data.SpyBudget;
             this.empire.Money -= income;
+            
             string name = this.empire.data.DiplomaticPersonality.Name;
 			string str = name;
-			if (name != null)
+			if(this.spyBudget >50)
+            if (name != null)
 			{
 				if (str == "Cunning")
 				{
