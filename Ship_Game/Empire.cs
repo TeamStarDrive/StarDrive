@@ -1521,12 +1521,24 @@ namespace Ship_Game
                 foreach (Ship ship in (List<Ship>)this.OwnedShips)
                 {
                     //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
-					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                    //removed because getmaintcost does this now
+                    //if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                    //{
+                    //    this.totalShipMaintenance += ship.GetMaintCostRealism();
+                    //}
+                    //else
                     {
-                        this.totalShipMaintenance += ship.GetMaintCostRealism();
-                    }
-                    else
-                    {
+                        if (ship.Name == "Subspace Projector" && this.data.SSPBudget >0)
+                        {
+                            this.data.SSPBudget -=ship.GetMaintCost();
+                            continue;
+                        }//platform != "Subspace Projector" && orbitalDefense.Role == "platform" && orbitalDefense.BaseStrength >0
+                        if (this.data.DefenseBudget > 0 && ((ship.Role == "platform" && ship.Name != "Subspace Projector" && ship.BaseStrength > 0) 
+                            || (ship.Role == "station" && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
+                        {
+                            this.data.DefenseBudget -= ship.GetMaintCost();
+                            continue;
+                        }
                         this.totalShipMaintenance += ship.GetMaintCost();
                     }
                     //added by gremlin reset border stats.

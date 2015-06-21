@@ -787,7 +787,7 @@ namespace Ship_Game
                  
 			}
             
-            Owner.GetGSAI().spyBudget -= spyBudget;
+            Owner.GetGSAI().spyBudget += spyBudget;
             if (Owner.GetGSAI().spyBudget < 0)
             {
                 Owner.Money -= Owner.GetGSAI().spyBudget;

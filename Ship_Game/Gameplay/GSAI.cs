@@ -5621,12 +5621,11 @@ namespace Ship_Game.Gameplay
 		private void RunAgentManager()
 		{
             
-            int income = (int)((this.empire.Money -this.empire.GrossTaxes*5 ) * (1-this.empire.data.TaxRate));//-this.empire.GrossTaxes*5 );//* .2f);
-            if (income > 250)
-                income = 250;
-            if(income <0)
-            income=0;
-            this.spyBudget = income;
+            int income = (int)((this.empire.Money *.01) * (1-this.empire.data.TaxRate));//-this.empire.GrossTaxes*5 );//* .2f);
+            if (income < 0 || this.empire.data.SpyBudget >this.empire.Money *.5f)
+                income = 0;
+            
+            this.spyBudget = income +this.empire.data.SpyBudget;
             this.empire.Money -= income;
             string name = this.empire.data.DiplomaticPersonality.Name;
 			string str = name;
@@ -5665,7 +5664,7 @@ namespace Ship_Game.Gameplay
                     this.DoCunningAgentManager();
 				
 			}
-            this.empire.Money += this.spyBudget;
+            this.empire.data.SpyBudget = this.spyBudget;
             this.spyBudget = 0;
 		}
 
@@ -5722,6 +5721,12 @@ namespace Ship_Game.Gameplay
            treasuryGoal = treasuryGoal <= 1 ? 1: treasuryGoal;
             float returnAmount = 0f;
             this.empire.data.TaxRate = this.FindTaxRateToReturnAmount( treasuryGoal *(1-(money/treasuryGoal))    );
+
+            float DefBudget = this.empire.Money * this.empire.GetPlanets().Count * .001f * (1 - this.empire.data.TaxRate);
+            if (DefBudget < 0 || this.empire.data.DefenseBudget > this.empire.Money * .01 * this.empire.GetPlanets().Count)
+                DefBudget = 0;
+            this.empire.Money -= DefBudget;
+            this.empire.data.DefenseBudget += DefBudget;
             return;
             if (1==2) //(money < treasuryGoal*10)
             {
@@ -5749,6 +5754,7 @@ namespace Ship_Game.Gameplay
                 single += 0.05f;
                 this.empire.data.TaxRate = single;
             }
+ 
         }
 
 		public void RunEventChecker(KeyValuePair<Empire, Relationship> Them)
@@ -6580,19 +6586,54 @@ namespace Ship_Game.Gameplay
 		private void RunInfrastructurePlanner()
 		{
             //if (this.empire.SpaceRoadsList.Sum(node=> node.NumberOfProjectors) < ShipCountLimit * GlobalStats.spaceroadlimit)
-            float sspBudget = this.empire.Money * .1f * .1f;
+            float sspBudget = this.empire.Money * (.01f *(1-this.empire.data.TaxRate));
+            if (sspBudget < 0 || this.empire.data.SSPBudget > this.empire.Money * .1)
+                sspBudget = 0;
             this.empire.Money -= sspBudget;
+            this.empire.data.SSPBudget += sspBudget;
+            sspBudget = this.empire.data.SSPBudget;
             float roadMaintenance = 0;
             float nodeMaintenance = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(this.empire);
             foreach (SpaceRoad roadBudget in this.empire.SpaceRoadsList)
             {
+                if (roadBudget.NumberOfProjectors == 0)
+                    roadBudget.NumberOfProjectors = roadBudget.RoadNodesList.Count;
                 roadMaintenance += roadBudget.NumberOfProjectors * nodeMaintenance;
             }
             sspBudget -= roadMaintenance;
-            this.SSPBudget = sspBudget;
- 
-
-            if (this.SSPBudget - nodeMaintenance*5 > 0)
+            //this.empire.data.SSPBudget += sspBudget;
+            //sspBudget = this.empire.data.SSPBudget;
+            float UnderConstruction = 0f;
+            foreach (Goal g in this.Goals)
+            {
+                //if (g.GoalName == "BuildOffensiveShips")
+                //    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                //    {
+                //        {
+                //            UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
+                //        }
+                //    }
+                //    else
+                //    {
+                //        {
+                //            UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(this.empire);
+                //        }
+                //    }
+                if (g.GoalName != "BuildConstructionShip")
+                {
+                    continue;
+                }
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                {
+                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
+                }
+                else
+                {
+                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(this.empire);
+                }
+            }
+            sspBudget -= UnderConstruction;
+            if (sspBudget - nodeMaintenance * 5 > 0)
             {
                 foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
                 {
@@ -6621,36 +6662,9 @@ namespace Ship_Game.Gameplay
                             continue;
                         }
                         SpaceRoad newRoad = new SpaceRoad(Origin, ownedSystem, this.empire);
-                        float UnderConstruction = 0f;
-                        foreach (Goal g in this.Goals)
-                        {
-                            if (g.GoalName == "BuildOffensiveShips")
-                                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                                {
-                                    {
-                                        UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
-                                    }
-                                }
-                                else
-                                {
-                                    {
-                                        UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(this.empire);
-                                    }
-                                }
-                            if (g.GoalName != "BuildConstructionShip")
-                            {
-                                continue;
-                            }
-                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                            {
-                                UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
-                            }
-                            else
-                            {
-                                UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(this.empire);
-                            }
-                        }
-                        if (this.SSPBudget - nodeMaintenance * newRoad.NumberOfProjectors < 0)
+                        sspBudget -= nodeMaintenance * newRoad.NumberOfProjectors;
+
+                        if (sspBudget  <= 0)
                         //if (((this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ?
                         //    this.empire.EstimateIncomeAtTaxRate(this.empire.data.TaxRate) - UnderConstruction :
                         //    this.empire.EstimateIncomeAtTaxRate(0.2f) - UnderConstruction)) - 0.24 * (double)newRoad.NumberOfProjectors <= 0.5)
@@ -6665,14 +6679,40 @@ namespace Ship_Game.Gameplay
             //float income = this.empire.Money +this.empire.GrossTaxes; //this.empire.EstimateIncomeAtTaxRate(0.25f) +
 			foreach (SpaceRoad road in this.empire.SpaceRoadsList.OrderBy(ssps => ssps.NumberOfProjectors))
 			{
-                if (road.RoadNodesList.Count == 0 || road.NumberOfProjectors ==0)
+                
+                if (road.RoadNodesList.Count == 0)// || road.NumberOfProjectors ==0)
                 {
+                    //if(road.NumberOfProjectors ==0)
+                    //{
+                        //int rnc=0;
+                        //foreach(RoadNode rn in road.RoadNodesList)
+                        //{
+                        //    foreach(Goal G in this.Goals)                            
+                        //    {                                
+                        //            if (G.type != GoalType.DeepSpaceConstruction || !(g.BuildPosition == rn.Position))
+                        //            {
+                        //                continue;
+                        //            }
+
+                        //    }
+                        //    if (rn.Platform == null)
+                        //        continue;
+                        //    rnc++;
+                        //}
+                        //if (rnc > 0)
+                        //    road.NumberOfProjectors = rnc;
+                        //else
+                     //       ToRemove.Add(road);
+
+                    
+                    //else
                     ToRemove.Add(road);
                     continue;
                 }
-                sspBudget = this.SSPBudget;
+                  
+                                
                 RoadNode ssp = road.RoadNodesList.Where(notNull => notNull != null && notNull.Platform !=null).FirstOrDefault();
-                if (sspBudget <= 0.0f ||  ( ssp != null && (!road.GetOrigin().OwnerList.Contains(this.empire) || !road.GetDestination().OwnerList.Contains(this.empire))))
+                if (sspBudget <= 0.0f || (ssp != null && (!road.GetOrigin().OwnerList.Contains(this.empire) || !road.GetDestination().OwnerList.Contains(this.empire))))
 				{
 					ToRemove.Add(road);
                     sspBudget += road.NumberOfProjectors * nodeMaintenance;
@@ -6728,7 +6768,7 @@ namespace Ship_Game.Gameplay
 					{
 						if (node.Platform != null && node.Platform.Active ) //(node.Platform == null || node.Platform.Active))
 						{
-                            node.Platform.GetAI().OrderScrapShip();
+                            node.Platform.Die(null,true); //.GetAI().OrderScrapShip();
                             
                             continue;
 						}

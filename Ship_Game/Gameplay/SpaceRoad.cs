@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
-{
+{//subspaceprojector
 	public sealed class SpaceRoad
 	{
 		public List<RoadNode> RoadNodesList = new List<RoadNode>();
@@ -26,7 +26,7 @@ namespace Ship_Game.Gameplay
 			float Distance = Vector2.Distance(Origin.Position, Destination.Position);
 
             int galaxySizeMod = (int)((Empire.universeScreen.Size.X ) / 250);
-            float offset = (Empire.ProjectorRadius * 1.5f) + galaxySizeMod;
+            float offset = (Empire.ProjectorRadius * 1.5f);// +galaxySizeMod;
             this.NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
 			for (int i = 0; i < this.NumberOfProjectors; i++)
 			{

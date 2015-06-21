@@ -3766,7 +3766,7 @@ namespace Ship_Game
                                 this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(surplus);
                                 if (FarmerPercentage == 1 & StuffInQueueToBuild)
                                     this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
-                                if (this.FarmerPercentage == 1 && StuffInQueueToBuild)
+                                if (this.Owner.data.Traits.Cybernetic <= 0 &&this.FarmerPercentage == 1 && StuffInQueueToBuild)
                                     this.FarmerPercentage = .9f;
                                 this.WorkerPercentage =
                                 (1f - this.FarmerPercentage) *
@@ -4255,7 +4255,7 @@ namespace Ship_Game
                         this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus);
                         if (FarmerPercentage == 1 & StuffInQueueToBuild)
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
-                        if (this.FarmerPercentage == 1 && StuffInQueueToBuild)
+                        if (this.Owner.data.Traits.Cybernetic <= 0 && this.FarmerPercentage == 1 && StuffInQueueToBuild)
                             this.FarmerPercentage = .9f;
                         this.WorkerPercentage =
                         (1f - this.FarmerPercentage) *
@@ -4797,7 +4797,8 @@ namespace Ship_Game
                     SystemCommander SCom;
                     if (this.Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(this.system, out SCom))
                     {
-                        float DefBudget = this.Owner.Money * .1f * .1f * SCom.PercentageOfValue;
+                        float DefBudget;
+                        DefBudget = this.Owner.data.DefenseBudget * SCom.PercentageOfValue;
 
                         float maxProd = this.GetMaxProductionPotential();
                         //bool buildStation =false;
@@ -4902,6 +4903,7 @@ namespace Ship_Game
                             }
 
                         }
+
                     }
                 }
 
