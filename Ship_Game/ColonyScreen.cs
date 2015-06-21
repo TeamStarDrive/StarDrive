@@ -292,6 +292,7 @@ namespace Ship_Game
                 this.GovernorDropdown.AddOption(Localizer.Token(4066), 4);
                 this.GovernorDropdown.AddOption(Localizer.Token(4067), 3);
                 this.GovernorDropdown.AddOption(Localizer.Token(4068), 5);
+                this.GovernorDropdown.AddOption(Localizer.Token(5087), 6);
                 this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(p);
                 if ((Planet.ColonyType)this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].value != this.p.colonyType)
                 {
@@ -581,7 +582,7 @@ namespace Ship_Game
                                     position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                                     // Use correct upkeep method depending on mod settings
                                     string upkeep = "Doctor rocks";
-                                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+									if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                                     {
                                         upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
                                     }
@@ -613,7 +614,7 @@ namespace Ship_Game
                                     position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                                     // Use correct upkeep method depending on mod settings
                                     string upkeep = "Doctor rocks";
-                                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+									if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                                     {
                                         upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
                                     }
@@ -1208,6 +1209,9 @@ namespace Ship_Game
                     case Planet.ColonyType.Military:
                         Localizer.Token(374);
                         break;
+                    case Planet.ColonyType.TradeHub:
+                        Localizer.Token(393);
+                        break;
                 }
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Governor", position5, Color.White);
                 position5.Y = (float)(this.GovernorDropdown.r.Y + 25);
@@ -1231,6 +1235,9 @@ namespace Ship_Game
                         break;
                     case Planet.ColonyType.Military:
                         text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                        break;
+                    case Planet.ColonyType.TradeHub:
+                        text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                         break;
                 }
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text5, position5, Color.White);
@@ -1949,6 +1956,10 @@ namespace Ship_Game
                     {
                         return 5;
                     }
+                case Planet.ColonyType.TradeHub:
+                    {
+                        return 6;
+                    }
             }
             return 0;
         }
@@ -2457,9 +2468,21 @@ namespace Ship_Game
                         {
                             this.p.ProductionHere = this.p.MAX_STORAGE;
                         }
-                        if ((e.item as QueueItem).pgs != null)
+                        QueueItem item = (e.item as QueueItem);
+                        if (item.pgs != null)
                         {
                             (e.item as QueueItem).pgs.QItem = null;
+                        }
+                        if(item.Goal !=null)
+                        {
+                            if(item.Goal.GoalName=="BuildConstructionShip")
+                            {
+                                p.Owner.GetGSAI().Goals.Remove(item.Goal);
+                                
+                            }
+                            if(item.Goal.GetFleet() !=null)
+                                p.Owner.GetGSAI().Goals.Remove(item.Goal);
+
                         }
                         this.p.ConstructionQueue.Remove(e.item as QueueItem);
                         AudioManager.PlayCue("sd_ui_accept_alt3");

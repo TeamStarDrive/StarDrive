@@ -90,6 +90,7 @@ namespace Ship_Game
 			{
 				return null;
 			}
+            
 			return AudioManager.audioManager.soundBank.GetCue(cueName);
 		}
 
@@ -106,13 +107,15 @@ namespace Ship_Game
 		{
 			if (AudioManager.audioManager != null && AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
 			{
-				AudioManager.audioManager.soundBank.PlayCue(cueName);
+				
+                AudioManager.audioManager.soundBank.PlayCue(cueName);
 			}
 		}
         public static void PlayCue(string cueName, Vector3 listener, Vector3 emitter)
         {
             if (AudioManager.audioManager != null && AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
             {
+                
                 AudioManager.audioManager.soundBank.PlayCue(cueName);
             }
         }

@@ -24,7 +24,8 @@ namespace Ship_Game
 
 		public float PercentageOfValue;
         public float incomingThreatTime;
-
+        public float SystemDevelopmentlevel;
+        public float RankImportance;
 		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
 		public Dictionary<Ship, List<Ship>> EnemyClumpsDict = new Dictionary<Ship, List<Ship>>();

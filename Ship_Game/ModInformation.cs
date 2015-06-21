@@ -16,6 +16,9 @@ namespace Ship_Game
 
 		public string ModImagePath_1920x1280 = "";
 
+        public string URL = "";
+        public string Author = "";
+
         //added by Gremlin
         public string Version;
 

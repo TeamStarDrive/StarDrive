@@ -144,6 +144,13 @@ namespace Ship_Game
         public float PowerFlowMod = 0f;
         public float ShieldPowerMod = 0f;
         public float ExperienceMod = 0f;
+        
+        //economy
+        public float SSPBudget = 0;
+        public float SpyBudget = 0;
+        public float ShipBudget = 0;
+        public float ColonyBudget = 0;
+        public float DefenseBudget = 0;
 
         //unlock at start
         public List<string> unlockBuilding = new List<string>();

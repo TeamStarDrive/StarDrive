@@ -2136,14 +2136,14 @@ namespace Ship_Game
 			this.RaceArchetypeSL = new ScrollList(this.arch, 135);
 			ResourceManager.Empires.Clear();
 			ResourceManager.WhichModPath = "Content";
-			if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
+			if (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.DisableDefaultRaces)
 			{
                 //ResourceManager.WhichModPath = string.Concat("Mods/", GlobalStats.ActiveMod.ModPath);
                
                 ResourceManager.LoadEmpires();
                 //ResourceManager.LoadSubsetEmpires();
 			}
-			else if (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
+			else if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.DisableDefaultRaces)
 			{
 				ResourceManager.LoadEmpires();
                 //ResourceManager.LoadSubsetEmpires();

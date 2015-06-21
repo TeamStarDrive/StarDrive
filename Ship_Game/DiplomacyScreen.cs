@@ -1539,7 +1539,7 @@ namespace Ship_Game
 					this.video = base.ScreenManager.Content.Load<Video>(string.Concat("Video/", this.them.data.Traits.VideoPath));
 					this.player = new VideoPlayer()
 					{
-						Volume = 0.7f,
+                        Volume = GlobalStats.Config.MusicVolume,
 						IsLooped = true
 					};
 					this.player.Play(this.video);
@@ -1549,7 +1549,7 @@ namespace Ship_Game
 					this.video = base.ScreenManager.Content.Load<Video>(string.Concat("ModVideo/", this.them.data.Traits.VideoPath));
 					this.player = new VideoPlayer()
 					{
-						Volume = 0.7f,
+						Volume = GlobalStats.Config.MusicVolume,
 						IsLooped = true
 					};
 					this.player.Play(this.video);
@@ -1558,7 +1558,7 @@ namespace Ship_Game
 			base.ScreenManager.musicCategory.Pause();
 			if (!this.them.data.ModRace)
 			{
-				base.ScreenManager.racialMusic.SetVolume(1f);
+                //base.ScreenManager.racialMusic.SetVolume(GlobalStats.Config.MusicVolume);
 				if (this.them.data.MusicCue != null)
 				{
 					if (this.WarDeclared)
