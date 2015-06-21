@@ -718,81 +718,108 @@ namespace Ship_Game
             #endregion
         }
 
-		public void Initialize(AgentMission TheMission, Empire Owner)
+		public bool Initialize(AgentMission TheMission, Empire Owner)
 		{
-            float spyBudget =0;
+            float spyBudget = Owner.GetGSAI().spyBudget;
+            if (Owner.isPlayer)
+                spyBudget = Owner.Money;
+            bool returnvalue = false;            
             switch (TheMission)
 			{
 				case AgentMission.Training:
 				{
-					this.TurnsRemaining = ResourceManager.AgentMissionData.TrainingTurns;
-                    spyBudget -= ResourceManager.AgentMissionData.TrainingCost;
-					this.MissionNameIndex = 2196;
+                    if (spyBudget >= ResourceManager.AgentMissionData.TrainingCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.TrainingTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.TrainingCost;
+                        this.MissionNameIndex = 2196;
+                        returnvalue = true;
+                    }
 					break;
 				}
 				case AgentMission.Infiltrate:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.InfiltrateTurns;
-                    spyBudget -= ResourceManager.AgentMissionData.InfiltrateCost;
-					this.MissionNameIndex = 2188;
+                    if (spyBudget >= ResourceManager.AgentMissionData.InfiltrateCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.InfiltrateTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.InfiltrateCost;
+                        this.MissionNameIndex = 2188;
+                        returnvalue = true;
+                    }
                     break;
 				}
 				case AgentMission.Assassinate:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.AssassinateTurns;
-                    spyBudget -= ResourceManager.AgentMissionData.AssassinateCost;
-					this.MissionNameIndex = 2184;
+                    if (spyBudget >= ResourceManager.AgentMissionData.AssassinateCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.AssassinateTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.AssassinateCost;
+                        this.MissionNameIndex = 2184;
+                        returnvalue = true;
+                    }
                     break;
 				}
 				case AgentMission.Sabotage:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.SabotageTurns;
-                    spyBudget -= ResourceManager.AgentMissionData.SabotageCost;
-					this.MissionNameIndex = 2190;
+                    if (spyBudget > ResourceManager.AgentMissionData.SabotageCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.SabotageTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.SabotageCost;
+                        this.MissionNameIndex = 2190;
+                        returnvalue = true;
+                    }
                     break;
 				}
 				case AgentMission.StealTech:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.StealTechTurns;
-                    spyBudget -= ResourceManager.AgentMissionData.StealTechCost;
-					this.MissionNameIndex = 2194;
+                    if (spyBudget >= ResourceManager.AgentMissionData.StealTechCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.StealTechTurns;
+                        spyBudget -= ResourceManager.AgentMissionData.StealTechCost;
+                        this.MissionNameIndex = 2194;
+                        returnvalue = true;
+                    }
                     break;
 				}
 				case AgentMission.Robbery:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.RobberyTurns;
-					
-                    spyBudget -= ResourceManager.AgentMissionData.RobberyCost;
-					this.MissionNameIndex = 2192;
+                    if (spyBudget >= ResourceManager.AgentMissionData.RobberyCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.RobberyTurns;
+
+                        spyBudget -= ResourceManager.AgentMissionData.RobberyCost;
+                        this.MissionNameIndex = 2192;
+                        returnvalue = true;
+                    }
                     break;
 				}
 				case AgentMission.InciteRebellion:
 				{
-                    this.TurnsRemaining = ResourceManager.AgentMissionData.RebellionTurns;
-					
-                    spyBudget -= ResourceManager.AgentMissionData.RebellionCost;
-					this.MissionNameIndex = 2186;
+                    if (spyBudget >= ResourceManager.AgentMissionData.RebellionCost)
+                    {
+                        this.TurnsRemaining = ResourceManager.AgentMissionData.RebellionTurns;
+
+                        spyBudget -= ResourceManager.AgentMissionData.RebellionCost;
+                        this.MissionNameIndex = 2186;
+                        returnvalue = true;
+                    }
                     break;
 				}
                 case AgentMission.Recovering:
                 {
                     this.TurnsRemaining = ResourceManager.AgentMissionData.RecoveringTurns;
                     this.MissionNameIndex = 6024;
-                    return;
+                    return true;
                 }
 				default:
 				{
-					return;
+					return false;
 				}
                  
 			}
             
-            Owner.GetGSAI().spyBudget += spyBudget;
-            if (Owner.GetGSAI().spyBudget < 0)
-            {
-                Owner.Money -= Owner.GetGSAI().spyBudget;
-                Owner.GetGSAI().spyBudget = 0;
-            }
+            Owner.GetGSAI().spyBudget = spyBudget;
+            return returnvalue;
 		}
 
         //Added by McShooterz: add experience to the agent and determine if level up.

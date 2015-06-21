@@ -3045,8 +3045,11 @@ namespace Ship_Game
             float NoDivByZero = .0000001f;
             if(this.Owner.data.Traits.Cybernetic >0)
             {
-                
-                 Surplus = (float)((this.consumption + desiredSurplus - this.PlusFlatProductionPerTurn) / ((this.Population / 1000.0) * (this.MineralRichness + this.PlusProductionPerColonist)) * (1 - this.Owner.data.TaxRate) + NoDivByZero);
+
+                Surplus = Surplus = (float)((this.consumption + desiredSurplus - this.PlusFlatProductionPerTurn) / ((this.Population / 1000.0) * (this.MineralRichness + this.PlusProductionPerColonist)) * (1 - this.Owner.data.TaxRate) + NoDivByZero);
+                    //(float)((this.consumption + desiredSurplus - this.PlusFlatProductionPerTurn) / 
+                    //((this.Population / 1000.0) * (this.MineralRichness + this.PlusProductionPerColonist)) * 
+                    //(1 - (this.Owner.data.TaxRate == 1 ? .9 : this.Owner.data.TaxRate)) + NoDivByZero);
                 if (Surplus < 1.0f)
                 {
                     // this.ps = Planet.GoodState.EXPORT;
@@ -3764,9 +3767,9 @@ namespace Ship_Game
                                         //(1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
                                 }
                                 this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(surplus);
-                                if (FarmerPercentage == 1 & StuffInQueueToBuild)
+                                if ( FarmerPercentage == 1 && StuffInQueueToBuild)
                                     this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
-                                if (this.Owner.data.Traits.Cybernetic <= 0 &&this.FarmerPercentage == 1 && StuffInQueueToBuild)
+                                if (this.FarmerPercentage == 1 && StuffInQueueToBuild)
                                     this.FarmerPercentage = .9f;
                                 this.WorkerPercentage =
                                 (1f - this.FarmerPercentage) *
@@ -3774,7 +3777,7 @@ namespace Ship_Game
    
                                 float Remainder = 1f - FarmerPercentage;
                                 //Research is happening
-                                this.WorkerPercentage = (Remainder * (string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1 : (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1))));
+                                this.WorkerPercentage = (Remainder * (string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1 : (1 - (this.ProductionHere ) / (this.MAX_STORAGE ))));
                                 this.ResearcherPercentage = Remainder - this.WorkerPercentage;
                                 if (this.Owner.data.Traits.Cybernetic > 0)
                                 {
@@ -4022,7 +4025,7 @@ namespace Ship_Game
                         {
 
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus);
-                            if (FarmerPercentage == 1 && StuffInQueueToBuild)
+                            if ( FarmerPercentage == 1 && StuffInQueueToBuild)
                                 this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
                             this.WorkerPercentage =
                                 (1f - this.FarmerPercentage)   //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
@@ -4253,9 +4256,9 @@ namespace Ship_Game
                             string.IsNullOrEmpty(this.Owner.ResearchTopic) || StuffInQueueToBuild; //? 1 : .5f;
                         IndySurplus = 0;
                         this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus);
-                        if (FarmerPercentage == 1 & StuffInQueueToBuild)
+                        if (this.Owner.data.Traits.Cybernetic <= 0 && FarmerPercentage == 1 & StuffInQueueToBuild)
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
-                        if (this.Owner.data.Traits.Cybernetic <= 0 && this.FarmerPercentage == 1 && StuffInQueueToBuild)
+                        if (this.FarmerPercentage == 1 && StuffInQueueToBuild)
                             this.FarmerPercentage = .9f;
                         this.WorkerPercentage =
                         (1f - this.FarmerPercentage) *
@@ -4385,7 +4388,7 @@ namespace Ship_Game
                         this.FarmerPercentage = 1f;
                         this.WorkerPercentage = 0.0f;
                         this.ResearcherPercentage = 0.0f;
-                        if ((double)this.FoodHere == (double)this.MAX_STORAGE)
+                        if ((this.Owner.data.Traits.Cybernetic <= 0 ? this.FoodHere:this.ProductionHere) == this.MAX_STORAGE)
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
                             float num1 = 1f - this.FarmerPercentage;
@@ -5327,6 +5330,8 @@ output = maxp * take10 = 5
             }
             float num3 = (float)((double)num2 + num1 *(double)this.Population / 1000.0);
             float num4 = num3;
+            if (this.Owner.data.Traits.Cybernetic > 0)
+                return num4 + this.Owner.data.Traits.ProductionMod * num4 - this.consumption;
             return num4 + this.Owner.data.Traits.ProductionMod * num4;
         }
 
@@ -5477,7 +5482,10 @@ output = maxp * take10 = 5
             //Production
             this.NetProductionPerTurn = (float)((double)this.WorkerPercentage * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
             this.NetProductionPerTurn = this.NetProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.NetProductionPerTurn;
-            this.NetProductionPerTurn = this.NetProductionPerTurn - this.Owner.data.TaxRate * this.NetProductionPerTurn;
+            if (this.Owner.data.Traits.Cybernetic > 0)
+                this.NetProductionPerTurn = this.NetProductionPerTurn - this.Owner.data.TaxRate * (this.NetProductionPerTurn -this.consumption) ;
+            else
+                this.NetProductionPerTurn = this.NetProductionPerTurn - this.Owner.data.TaxRate * this.NetProductionPerTurn;
             
             this.GrossProductionPerTurn = (float)((double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
             this.GrossProductionPerTurn = this.GrossProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.GrossProductionPerTurn;
@@ -5516,18 +5524,10 @@ output = maxp * take10 = 5
             {
                 this.FoodHere = 0.0f;
                 this.NetProductionPerTurn -= this.consumption;
-                //if ((double)this.NetProductionPerTurn < 0.1 && this.Population>100)
-                //{
-                //    this.unfed = -this.Population /1000 + .1f;
-                //    this.NetProductionPerTurn += .1f;
-                //}
 
-                //else 
-                if ((double)this.NetProductionPerTurn < 0.0)
-                {
-                 
-                    this.ProductionHere += this.NetProductionPerTurn;
-                }
+                 if(this.NetProductionPerTurn <0f)
+                   this.ProductionHere += this.NetProductionPerTurn;
+                
               if ((double)this.ProductionHere > (double)this.MAX_STORAGE)
                 {
                     this.unfed = 0.0f;
