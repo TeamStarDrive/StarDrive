@@ -720,15 +720,15 @@ namespace Ship_Game
 
 		public bool Initialize(AgentMission TheMission, Empire Owner)
 		{
-            float spyBudget = Owner.GetGSAI().spyBudget;
+            float spyBudget =0;// = Owner.GetGSAI().spyBudget;
             if (Owner.isPlayer)
-                spyBudget = Owner.Money;
+                Owner.GetGSAI().spyBudget = Owner.Money;
             bool returnvalue = false;            
             switch (TheMission)
 			{
 				case AgentMission.Training:
 				{
-                    if (spyBudget >= ResourceManager.AgentMissionData.TrainingCost)
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.TrainingCost)
                     {
                         this.TurnsRemaining = ResourceManager.AgentMissionData.TrainingTurns;
                         spyBudget -= ResourceManager.AgentMissionData.TrainingCost;
@@ -739,7 +739,7 @@ namespace Ship_Game
 				}
 				case AgentMission.Infiltrate:
 				{
-                    if (spyBudget >= ResourceManager.AgentMissionData.InfiltrateCost)
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.InfiltrateCost)
                     {
                         this.TurnsRemaining = ResourceManager.AgentMissionData.InfiltrateTurns;
                         spyBudget -= ResourceManager.AgentMissionData.InfiltrateCost;
@@ -750,7 +750,7 @@ namespace Ship_Game
 				}
 				case AgentMission.Assassinate:
 				{
-                    if (spyBudget >= ResourceManager.AgentMissionData.AssassinateCost)
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.AssassinateCost)
                     {
                         this.TurnsRemaining = ResourceManager.AgentMissionData.AssassinateTurns;
                         spyBudget -= ResourceManager.AgentMissionData.AssassinateCost;
@@ -761,7 +761,7 @@ namespace Ship_Game
 				}
 				case AgentMission.Sabotage:
 				{
-                    if (spyBudget > ResourceManager.AgentMissionData.SabotageCost)
+                    if (Owner.GetGSAI().spyBudget > ResourceManager.AgentMissionData.SabotageCost)
                     {
                         this.TurnsRemaining = ResourceManager.AgentMissionData.SabotageTurns;
                         spyBudget -= ResourceManager.AgentMissionData.SabotageCost;
@@ -772,7 +772,7 @@ namespace Ship_Game
 				}
 				case AgentMission.StealTech:
 				{
-                    if (spyBudget >= ResourceManager.AgentMissionData.StealTechCost)
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.StealTechCost)
                     {
                         this.TurnsRemaining = ResourceManager.AgentMissionData.StealTechTurns;
                         spyBudget -= ResourceManager.AgentMissionData.StealTechCost;
@@ -783,7 +783,7 @@ namespace Ship_Game
 				}
 				case AgentMission.Robbery:
 				{
-                    if (spyBudget >= ResourceManager.AgentMissionData.RobberyCost)
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.RobberyCost)
                     {
                         this.TurnsRemaining = ResourceManager.AgentMissionData.RobberyTurns;
 
@@ -795,7 +795,7 @@ namespace Ship_Game
 				}
 				case AgentMission.InciteRebellion:
 				{
-                    if (spyBudget >= ResourceManager.AgentMissionData.RebellionCost)
+                    if (Owner.GetGSAI().spyBudget >= ResourceManager.AgentMissionData.RebellionCost)
                     {
                         this.TurnsRemaining = ResourceManager.AgentMissionData.RebellionTurns;
 
@@ -819,6 +819,8 @@ namespace Ship_Game
 			}
             
             Owner.GetGSAI().spyBudget = spyBudget;
+            if (Owner.isPlayer)
+                Owner.Money-=spyBudget;
             return returnvalue;
 		}
 
