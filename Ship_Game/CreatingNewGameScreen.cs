@@ -163,7 +163,8 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                            this.data.Size = new Vector2(36000000, 36000000);
+                            this.data.Size = new Vector2(54000000, 54000000);
+                            //this.data.Size = new Vector2(36000000, 36000000);
                         //this.scale = 2;
 
                         //this.numSystems = (int)(125f * StarNumModifier);
