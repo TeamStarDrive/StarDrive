@@ -305,7 +305,7 @@ namespace Ship_Game
                 }
                 IOrderedEnumerable<Ship> strsorted =
                     from ship in this.DefenseDict[defenseDict.Key].GetShipList()
-                    where !ship.InCombat && ship.GetAI().State == AIState.AwaitingOrders
+                    where !ship.GetAI().BadGuysNear && ship.GetAI().State == AIState.AwaitingOrders
                     orderby ship.GetStrength()
                     select ship;
                 using (IEnumerator<Ship> enumerator = strsorted.GetEnumerator())
@@ -336,7 +336,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    if (defensiveForcePool.GetAI().State == AIState.AwaitingOrders)
+                    if (!defensiveForcePool.InCombat && defensiveForcePool.GetAI().State == AIState.AwaitingOrders)
                     ShipsAvailableForAssignment.Add(defensiveForcePool);
                 }
                 else
