@@ -3767,7 +3767,7 @@ namespace Ship_Game.Gameplay
             this.speed = this.velocityMaximum;
             this.rotationRadiansPerSecond = (float)((double)this.TurnThrust / (double)this.Mass / 700.0);
             this.rotationRadiansPerSecond += (float)((double)this.rotationRadiansPerSecond * (double)this.Level * 0.0500000007450581);
-            this.yBankAmount = this.rotationRadiansPerSecond / 50f;
+            this.yBankAmount = this.rotationRadiansPerSecond * elapsedTime;// 50f;
             if (this.engineState == Ship.MoveState.Warp)
             {
                 if (this.FTLmodifier != 1f)
