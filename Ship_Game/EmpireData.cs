@@ -104,6 +104,8 @@ namespace Ship_Game
 
 		public float MassModifier = 1f;
 
+        public float ArmourMassModifier = 1f;
+
 		public float SubLightModifier = 1f;
 
 		public float EmpireFertilityBonus;
