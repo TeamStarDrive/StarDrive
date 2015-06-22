@@ -762,6 +762,8 @@ namespace Ship_Game
                     }
                     if (str == "Mass Reduction" || str == "Percent Mass Adjustment")
                         this.data.MassModifier += unlockedBonus.Bonus;
+                    if (str == "ArmourMass")
+                        this.data.ArmourMassModifier += unlockedBonus.Bonus;
                     if (str == "Resistance is Futile" || str == "Allow Assimilation")
                         this.data.Traits.Assimilators = true;
                     if (str == "Cryogenic Suspension" || str == "Passenger Modifier")
