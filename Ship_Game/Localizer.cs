@@ -79,7 +79,7 @@ namespace Ship_Game
             }
             catch
             {
-                str = "";
+                str = "String not found";
             }
             return str;
         }
