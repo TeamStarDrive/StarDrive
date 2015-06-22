@@ -575,15 +575,20 @@ namespace Ship_Game.Gameplay
         {
 
             float distanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
+            float spacerdistance = this.Owner.Radius * 3 + this.Target.Radius;
+            if (spacerdistance > this.Owner.maxWeaponsRange * .35f)
+                spacerdistance = this.Owner.maxWeaponsRange * .35f;
 
 
-            if (distanceToTarget > this.Owner.Radius * 3f + this.Target.Radius && distanceToTarget > this.Owner.maxWeaponsRange * .5f)
+            if (distanceToTarget > spacerdistance && distanceToTarget > this.Owner.maxWeaponsRange * .35f)
             {
                 this.runTimer = 0f;
                 this.AttackRunStarted = false;
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
+
+
             if (distanceToTarget < this.Owner.maxWeaponsRange * .35f)// *.35f)
             {
                 ArtificialIntelligence artificialIntelligence = this;
@@ -619,6 +624,10 @@ namespace Ship_Game.Gameplay
                 }
 
             }
+            //else
+            //{
+            //    this.DoNonFleetArtillery(elapsedTime);
+            //}
 
 
         }
@@ -1540,8 +1549,8 @@ namespace Ship_Game.Gameplay
                 {
                     //float turnspeed =(this.Owner.maxBank - Math.Abs(this.Owner.yRotation)) / this.Owner.maxBank;                    //    this.Owner.speed=this.orbitSpeed;
                     //this.Owner.speed = this.Owner.speed * turnspeed;
-                    if (this.Owner.rotationRadiansPerSecond > 0 )
-                        this.Owner.speed = ((radius) * ((this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond < .1f ? .1f : this.Owner.rotationRadiansPerSecond) * .35f));
+                    //if (this.Owner.rotationRadiansPerSecond > 0 )
+                      //  this.Owner.speed = ((radius) * ((this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond < .1f ? .1f : this.Owner.rotationRadiansPerSecond) * .35f));
                     
                    
                 }
@@ -6291,14 +6300,18 @@ namespace Ship_Game.Gameplay
                 this.Owner.isThrusting = true;
 
                 Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
+                //wantedForward = Vector2.Normalize(wantedForward);
                 Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                //forward = Vector2.Normalize(forward);
                 Vector2 right = new Vector2(-forward.Y, forward.X);
-                double angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
+                //right = Vector2.Normalize(right);
+                double angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                double facing = (Vector2.Dot(wantedForward, right)> 0f ? 1f : -1f);
+                //facing = facing/(mag1*mag2);
                 #region warp
                 if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
                 {
-                    this.Owner.speed *= 0.999f;
+                    //this.Owner.speed *= 0.999f;
                     if (this.ActiveWayPoints.Count > 1)
                     {
                         wantedForward= Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
@@ -6373,10 +6386,12 @@ namespace Ship_Game.Gameplay
                 //if (angleDiff > 0.125000000372529f)
                 //    if (this.Owner.engineState == Ship.MoveState.Warp)
                 //        this.Owner.speed *= .8f;
-                if (angleDiff > this.Owner.rotationRadiansPerSecond *elapsedTime*.35f ) //0.025000000372529f )//*
+                float TurnSpeed = 1;
+                if (angleDiff > this.Owner.yBankAmount*.1) // this.Owner.rotationRadiansPerSecond *elapsedTime*.1 ) //0.025000000372529f )//*
                 {
 
-                    double RotAmount = Math.Min(angleDiff, facing*  this.Owner.rotationRadiansPerSecond *elapsedTime);
+                    double RotAmount = Math.Min(angleDiff, facing *  this.Owner.yBankAmount); //this.Owner.rotationRadiansPerSecond * elapsedTime);
+                    //RotAmount *= facing;
                     if (RotAmount > 0f)
                     {
                         
@@ -6397,9 +6412,18 @@ namespace Ship_Game.Gameplay
 
                     this.Owner.isTurning = true;
                     Ship rotation = this.Owner;
-                    rotation.Rotation = rotation.Rotation + (RotAmount > angleDiff ? (float)angleDiff : (float)RotAmount);
-                    
-                    //return;
+                    rotation.Rotation = rotation.Rotation + (RotAmount > angleDiff ? (float)angleDiff: (float)RotAmount);
+
+                    //if (RotAmount > .05f)
+                    {
+                        float nimble = this.Owner.rotationRadiansPerSecond ;
+                        if (angleDiff < nimble)
+                            TurnSpeed = (float)((nimble*2 - angleDiff) / (nimble*2));     //(float)RotAmount / (this.Owner.rotationRadiansPerSecond * elapsedTime);
+
+                        else
+                            return;
+                    }
+                   
                 }
                 if (this.State != AIState.FormationWarp || this.Owner.fleet == null)
                 {
@@ -6417,7 +6441,7 @@ namespace Ship_Game.Gameplay
                         if (angleDiff > .1f)
                         {
 
-                            speedLimit =(this.Owner.speed); // this.Owner.speed;
+                            speedLimit = (this.Owner.speed); // this.Owner.speed;
                         }
                         else
                             speedLimit = (int)(this.Owner.velocityMaximum);
@@ -6427,9 +6451,9 @@ namespace Ship_Game.Gameplay
                         //if (angleDiff > .1f)
                         //    speedLimit = this.Owner.speed;
                         //else
-                        speedLimit = (this.Owner.speed); 
+                        speedLimit = (this.Owner.speed);
                     }
-
+                    speedLimit *= TurnSpeed;
                     Ship velocity = this.Owner;
                     velocity.Velocity = velocity.Velocity +   (Vector2.Normalize(forward) * (elapsedTime * speedLimit));//((forward) * (elapsedTime * speedLimit));
                     if (this.Owner.Velocity.Length() > speedLimit)

@@ -98,6 +98,7 @@ namespace Ship_Game
 			this.GovernorDropdown.AddOption(Localizer.Token(4066), 4);
 			this.GovernorDropdown.AddOption(Localizer.Token(4067), 3);
 			this.GovernorDropdown.AddOption(Localizer.Token(4068), 5);
+            this.GovernorDropdown.AddOption(Localizer.Token(393), 6);
 			this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(this.SelectedPlanet);
 			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value != (int)this.SelectedPlanet.colonyType)
 			{
