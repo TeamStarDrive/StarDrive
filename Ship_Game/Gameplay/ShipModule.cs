@@ -240,6 +240,28 @@ namespace Ship_Game.Gameplay
         //added by gremlin: target value
         public int TargetValue=0;
 
+        //Weapon-type specific damage resistance/vulnerability
+        public float KineticResist = 0f;
+        public float EnergyResist = 0f;
+        public float GuidedResist = 0f; // added for completeness' sake - can't really see how an armour can be more resistant/vulnerable to something guided specifically
+        public float MissileResist = 0f;
+        public float HybridResist = 0f;
+        public float BeamResist = 0f;
+        public float ExplosiveResist = 0f;
+        public float InterceptResist = 0f;
+        public float RailgunResist = 0f;
+        public float SpaceBombResist = 0f;
+        public float BombResist = 0f; // In case a spatial weapon is tagged as bomb
+        public float BioWeaponResist = 0f; // In case a spatial weapon is tagged as biological
+        public float DroneResist = 0f;
+        public float WarpResist = 0f;
+        public float TorpedoResist = 0f;
+        public float CannonResist = 0f;
+        public float SubspaceResist = 0f;
+        public float PDResist = 0f;
+        public float FlakResist = 0f;
+
+
 
 		public bool IsWeapon
 		{
@@ -289,6 +311,163 @@ namespace Ship_Game.Gameplay
 			{
 				damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
+
+
+            if (source is Projectile && (source as Projectile).weapon.Tag_Kinetic)
+            {
+                damageAmount = damageAmount - (damageAmount * this.KineticResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Energy)
+            {
+                damageAmount = damageAmount - (damageAmount * this.EnergyResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Guided)
+            {
+                damageAmount = damageAmount - (damageAmount * this.GuidedResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Missile)
+            {
+                damageAmount = damageAmount - (damageAmount * this.MissileResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Hybrid)
+            {
+                damageAmount = damageAmount - (damageAmount * this.HybridResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Intercept)
+            {
+                damageAmount = damageAmount - (damageAmount * this.InterceptResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Explosive)
+            {
+                damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Railgun)
+            {
+                damageAmount = damageAmount - (damageAmount * this.RailgunResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_SpaceBomb)
+            {
+                damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Bomb)
+            {
+                damageAmount = damageAmount - (damageAmount * this.BombResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_BioWeapon)
+            {
+                damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Drone)
+            {
+                damageAmount = damageAmount - (damageAmount * this.DroneResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Warp)
+            {
+                damageAmount = damageAmount - (damageAmount * this.WarpResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Torpedo)
+            {
+                damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Cannon)
+            {
+                damageAmount = damageAmount - (damageAmount * this.CannonResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Subspace)
+            {
+                damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_PD)
+            {
+                damageAmount = damageAmount - (damageAmount * this.PDResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Flak)
+            {
+                damageAmount = damageAmount - (damageAmount * this.FlakResist);
+            }
+
+
+            if (source is Beam && (source as Beam).weapon.Tag_Beam)
+            {
+                damageAmount = damageAmount - (damageAmount * this.BeamResist);
+
+                // most of these simply don't apply to beam weapons, but calculated within this if to ensure different beam types also have resistances/vulnerabilities applied
+
+                if ((source as Beam).weapon.Tag_Kinetic)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.KineticResist);
+                }
+                if ((source as Beam).weapon.Tag_Energy)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.EnergyResist);
+                }
+                if ((source as Beam).weapon.Tag_Guided)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.GuidedResist);
+                }
+                if ((source as Beam).weapon.Tag_Missile)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.MissileResist);
+                }
+                if ((source as Beam).weapon.Tag_Hybrid)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.HybridResist);
+                }
+                if ((source as Beam).weapon.Tag_Intercept)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.InterceptResist);
+                }
+                if ((source as Beam).weapon.Tag_Explosive)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
+                }
+                if ((source as Beam).weapon.Tag_Railgun)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.RailgunResist);
+                }
+                if ((source as Beam).weapon.Tag_SpaceBomb)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
+                }
+                if ((source as Beam).weapon.Tag_Bomb)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.BombResist);
+                }
+                if ((source as Beam).weapon.Tag_BioWeapon)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
+                }
+                if ((source as Beam).weapon.Tag_Drone)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.DroneResist);
+                }
+                if ((source as Beam).weapon.Tag_Warp)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.WarpResist);
+                }
+                if ((source as Beam).weapon.Tag_Torpedo)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
+                }
+                if ((source as Beam).weapon.Tag_Cannon)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.CannonResist);
+                }
+                if ((source as Beam).weapon.Tag_Subspace)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
+                }
+                if ((source as Beam).weapon.Tag_PD)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.PDResist);
+                }
+                if ((source as Beam).weapon.Tag_Flak)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.FlakResist);
+                }
+
+            }
+
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
 			{
@@ -440,6 +619,165 @@ namespace Ship_Game.Gameplay
                     damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
                 }
             }
+
+            // Vulnerabilities and resistances for modules, XML-defined.
+
+            if (source is Projectile && (source as Projectile).weapon.Tag_Kinetic)
+            {
+                damageAmount = damageAmount - (damageAmount * this.KineticResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Energy)
+            {
+                damageAmount = damageAmount - (damageAmount * this.EnergyResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Guided)
+            {
+                damageAmount = damageAmount - (damageAmount * this.GuidedResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Missile)
+            {
+                damageAmount = damageAmount - (damageAmount * this.MissileResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Hybrid)
+            {
+                damageAmount = damageAmount - (damageAmount * this.HybridResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Intercept)
+            {
+                damageAmount = damageAmount - (damageAmount * this.InterceptResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Explosive)
+            {
+                damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Railgun)
+            {
+                damageAmount = damageAmount - (damageAmount * this.RailgunResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_SpaceBomb)
+            {
+                damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Bomb)
+            {
+                damageAmount = damageAmount - (damageAmount * this.BombResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_BioWeapon)
+            {
+                damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Drone)
+            {
+                damageAmount = damageAmount - (damageAmount * this.DroneResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Warp)
+            {
+                damageAmount = damageAmount - (damageAmount * this.WarpResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Torpedo)
+            {
+                damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Cannon)
+            {
+                damageAmount = damageAmount - (damageAmount * this.CannonResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Subspace)
+            {
+                damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_PD)
+            {
+                damageAmount = damageAmount - (damageAmount * this.PDResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Flak)
+            {
+                damageAmount = damageAmount - (damageAmount * this.FlakResist);
+            }
+
+
+            if (source is Beam && (source as Beam).weapon.Tag_Beam)
+            {
+                damageAmount = damageAmount - (damageAmount * this.BeamResist);
+                
+                // most of these simply don't apply to beam weapons, but calculated within this if to ensure different beam types also have resistances/vulnerabilities applied
+
+                if ((source as Beam).weapon.Tag_Kinetic)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.KineticResist);
+                }
+                if ((source as Beam).weapon.Tag_Energy)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.EnergyResist);
+                }
+                if ((source as Beam).weapon.Tag_Guided)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.GuidedResist);
+                }
+                if ((source as Beam).weapon.Tag_Missile)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.MissileResist);
+                }
+                if ((source as Beam).weapon.Tag_Hybrid)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.HybridResist);
+                }
+                if ((source as Beam).weapon.Tag_Intercept)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.InterceptResist);
+                }
+                if ((source as Beam).weapon.Tag_Explosive)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
+                }
+                if ((source as Beam).weapon.Tag_Railgun)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.RailgunResist);
+                }
+                if ((source as Beam).weapon.Tag_SpaceBomb)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
+                }
+                if ((source as Beam).weapon.Tag_Bomb)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.BombResist);
+                }
+                if ((source as Beam).weapon.Tag_BioWeapon)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
+                }
+                if ((source as Beam).weapon.Tag_Drone)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.DroneResist);
+                }
+                if ((source as Beam).weapon.Tag_Warp)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.WarpResist);
+                }
+                if ((source as Beam).weapon.Tag_Torpedo)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
+                }
+                if ((source as Beam).weapon.Tag_Cannon)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.CannonResist);
+                }
+                if ((source as Beam).weapon.Tag_Subspace)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
+                }
+                if ((source as Beam).weapon.Tag_PD)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.PDResist);
+                }
+                if ((source as Beam).weapon.Tag_Flak)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.FlakResist);
+                }
+                
+            }
+
+
             if (source is Ship && (source as Ship).Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
             {
                 damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
@@ -710,6 +1048,161 @@ namespace Ship_Game.Gameplay
 			{
 				damageAmount = damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
+
+            if (source is Projectile && (source as Projectile).weapon.Tag_Kinetic)
+            {
+                damageAmount = damageAmount - (damageAmount * this.KineticResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Energy)
+            {
+                damageAmount = damageAmount - (damageAmount * this.EnergyResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Guided)
+            {
+                damageAmount = damageAmount - (damageAmount * this.GuidedResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Missile)
+            {
+                damageAmount = damageAmount - (damageAmount * this.MissileResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Hybrid)
+            {
+                damageAmount = damageAmount - (damageAmount * this.HybridResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Intercept)
+            {
+                damageAmount = damageAmount - (damageAmount * this.InterceptResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Explosive)
+            {
+                damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Railgun)
+            {
+                damageAmount = damageAmount - (damageAmount * this.RailgunResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_SpaceBomb)
+            {
+                damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Bomb)
+            {
+                damageAmount = damageAmount - (damageAmount * this.BombResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_BioWeapon)
+            {
+                damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Drone)
+            {
+                damageAmount = damageAmount - (damageAmount * this.DroneResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Warp)
+            {
+                damageAmount = damageAmount - (damageAmount * this.WarpResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Torpedo)
+            {
+                damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Cannon)
+            {
+                damageAmount = damageAmount - (damageAmount * this.CannonResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Subspace)
+            {
+                damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_PD)
+            {
+                damageAmount = damageAmount - (damageAmount * this.PDResist);
+            }
+            if (source is Projectile && (source as Projectile).weapon.Tag_Flak)
+            {
+                damageAmount = damageAmount - (damageAmount * this.FlakResist);
+            }
+
+
+            if (source is Beam && (source as Beam).weapon.Tag_Beam)
+            {
+                damageAmount = damageAmount - (damageAmount * this.BeamResist);
+
+                // most of these simply don't apply to beam weapons, but calculated within this if to ensure different beam types also have resistances/vulnerabilities applied
+
+                if ((source as Beam).weapon.Tag_Kinetic)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.KineticResist);
+                }
+                if ((source as Beam).weapon.Tag_Energy)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.EnergyResist);
+                }
+                if ((source as Beam).weapon.Tag_Guided)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.GuidedResist);
+                }
+                if ((source as Beam).weapon.Tag_Missile)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.MissileResist);
+                }
+                if ((source as Beam).weapon.Tag_Hybrid)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.HybridResist);
+                }
+                if ((source as Beam).weapon.Tag_Intercept)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.InterceptResist);
+                }
+                if ((source as Beam).weapon.Tag_Explosive)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
+                }
+                if ((source as Beam).weapon.Tag_Railgun)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.RailgunResist);
+                }
+                if ((source as Beam).weapon.Tag_SpaceBomb)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
+                }
+                if ((source as Beam).weapon.Tag_Bomb)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.BombResist);
+                }
+                if ((source as Beam).weapon.Tag_BioWeapon)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
+                }
+                if ((source as Beam).weapon.Tag_Drone)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.DroneResist);
+                }
+                if ((source as Beam).weapon.Tag_Warp)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.WarpResist);
+                }
+                if ((source as Beam).weapon.Tag_Torpedo)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
+                }
+                if ((source as Beam).weapon.Tag_Cannon)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.CannonResist);
+                }
+                if ((source as Beam).weapon.Tag_Subspace)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
+                }
+                if ((source as Beam).weapon.Tag_PD)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.PDResist);
+                }
+                if ((source as Beam).weapon.Tag_Flak)
+                {
+                    damageAmount = damageAmount - (damageAmount * this.FlakResist);
+                }
+
+            }
 			this.Parent.InCombatTimer = 15f;
 			if (this.ModuleType == ShipModuleType.Dummy)
 			{
