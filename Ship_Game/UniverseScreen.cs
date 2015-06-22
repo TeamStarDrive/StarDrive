@@ -6235,14 +6235,16 @@ namespace Ship_Game
                 if ((double)num2 < 5.0)
                     num2 = 5f;
                 float scale = num2 / (float)(45 - GlobalStats.IconSize); //45
-                
+                float check = this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView);
                 if (ship.Role != "fighter" && ship.Role != "scout")
                 {
-                    scale2 *= (this.camHeight / this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView));
+                    
+                    scale2 *= (this.camHeight / (check + (check*2 -camHeight*2)));
                 }
                 else
                 {
-                    scale2 *= this.camHeight * 2 > this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView) ? 1 : this.camHeight * 2 / this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView);
+                   // scale2 *= this.camHeight * 2 > this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView) ? 1 : this.camHeight * 2 / this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView);
+                     scale2 *= (this.camHeight * 3 / this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView));
                 }
 
                 
