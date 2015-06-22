@@ -7782,6 +7782,82 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6141</Index>
       <Text>Shield Strength Modifier</Text>
     </Token>
+	<Token>
+      <Index>6142</Index>
+      <Text>Kinetic Resist</Text>
+    </Token>	
+	<Token>
+      <Index>6143</Index>
+      <Text>Energy Resist</Text>
+    </Token>
+	<Token>
+      <Index>6144</Index>
+      <Text>Guided Resist</Text>
+    </Token>
+	<Token>
+      <Index>6145</Index>
+      <Text>Missile Resist</Text>
+    </Token>
+	<Token>
+      <Index>6146</Index>
+      <Text>Hybrid Resist</Text>
+    </Token>
+	<Token>
+      <Index>6147</Index>
+      <Text>Beam Resist</Text>
+    </Token>
+	<Token>
+      <Index>6148</Index>
+      <Text>Explosive Resist</Text>
+    </Token>
+	<Token>
+      <Index>6149</Index>
+      <Text>Intercept Resist</Text>
+    </Token>
+	<Token>
+      <Index>6150</Index>
+      <Text>Railgun Resist</Text>
+    </Token>
+	<Token>
+      <Index>6151</Index>
+      <Text>Sp. Bomb Resist</Text>
+    </Token>
+	<Token>
+      <Index>6152</Index>
+      <Text>Bombard Resist</Text>
+    </Token>
+	<Token>
+      <Index>6153</Index>
+      <Text>Biological Resist</Text>
+    </Token>
+	<Token>
+      <Index>6154</Index>
+      <Text>Drone Resist</Text>
+    </Token>
+	<Token>
+      <Index>6155</Index>
+      <Text>Warp Resist</Text>
+    </Token>
+	<Token>
+      <Index>6156</Index>
+      <Text>Torpedo Resist</Text>
+    </Token>
+	<Token>
+      <Index>6157</Index>
+      <Text>Cannon Resist</Text>
+    </Token>
+	<Token>
+      <Index>6158</Index>
+      <Text>Subspace Resist</Text>
+    </Token>
+	<Token>
+      <Index>6159</Index>
+      <Text>PD Resist</Text>
+    </Token>
+	<Token>
+      <Index>6160</Index>
+      <Text>Flak Resist</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -7897,7 +7973,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7028</Index>
       <Text>The effective power drain of this module when the ship is at FTL</Text>
     </Token>
-		<Token>
+	<Token>
       <Index>7029</Index>
       <Text>The number of troops this module can house</Text>
     </Token>
@@ -7964,6 +8040,82 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7045</Index>
       <Text>Opens the Fleet Manager</Text>
+    </Token>
+	<Token>
+      <Index>7046</Index>
+      <Text>Indicates resistance to kinetic-type damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token> 
+	<Token>
+      <Index>7047</Index>
+      <Text>Indicates resistance to energy weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7048</Index>
+      <Text>Indicates resistance to guided weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7049</Index>
+      <Text>Indicates resistance to missile weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7050</Index>
+      <Text>Indicates resistance to hybrid weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7051</Index>
+      <Text>Indicates resistance to beam weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7052</Index>
+      <Text>Indicates resistance to explosive damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7053</Index>
+      <Text>Indicates resistance to interceptable weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7054</Index>
+      <Text>Indicates resistance to railgun weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7055</Index>
+      <Text>Indicates resistance to spatial bomb weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7056</Index>
+      <Text>Indicates resistance to bombardment weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7057</Index>
+      <Text>Indicates resistance to biological weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7058</Index>
+      <Text>Indicates resistance to drone weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7059</Index>
+      <Text>Indicates resistance to warp weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7060</Index>
+      <Text>Indicates resistance to torpedo weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7061</Index>
+      <Text>Indicates resistance to cannon weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7062</Index>
+      <Text>Indicates resistance to subspace weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7063</Index>
+      <Text>Indicates resistance to PD weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+    </Token>
+	<Token>
+      <Index>7064</Index>
+      <Text>Indicates resistance to flak weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>

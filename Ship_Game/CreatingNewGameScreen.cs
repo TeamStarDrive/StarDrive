@@ -713,6 +713,7 @@ namespace Ship_Game
             empireData.FuelCellModifier = data.FuelCellModifier;
             empireData.Inhibitors = data.Inhibitors;
             empireData.MassModifier = data.MassModifier;
+            empireData.ArmourMassModifier = data.ArmourMassModifier;
             empireData.MissileDodgeChance = data.MissileDodgeChance;
             empireData.MissileHPModifier = data.MissileHPModifier;
             empireData.OrdnanceEffectivenessBonus = data.OrdnanceEffectivenessBonus;

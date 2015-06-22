@@ -1298,7 +1298,26 @@ namespace Ship_Game
                 TransporterRange = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterRange,
                 TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant,
                 TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding,
-                TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault
+                TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault,
+                KineticResist = Ship_Game.ResourceManager.ShipModulesDict[uid].KineticResist,
+                EnergyResist = Ship_Game.ResourceManager.ShipModulesDict[uid].EnergyResist,
+                GuidedResist = Ship_Game.ResourceManager.ShipModulesDict[uid].GuidedResist,
+                MissileResist = Ship_Game.ResourceManager.ShipModulesDict[uid].MissileResist,
+                HybridResist = Ship_Game.ResourceManager.ShipModulesDict[uid].HybridResist,
+                BeamResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BeamResist,
+                ExplosiveResist = Ship_Game.ResourceManager.ShipModulesDict[uid].ExplosiveResist,
+                InterceptResist = Ship_Game.ResourceManager.ShipModulesDict[uid].InterceptResist,
+                RailgunResist = Ship_Game.ResourceManager.ShipModulesDict[uid].RailgunResist,
+                SpaceBombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SpaceBombResist,
+                BombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BombResist,
+                BioWeaponResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BioWeaponResist,
+                DroneResist = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneResist,
+                WarpResist = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpResist,
+                TorpedoResist = Ship_Game.ResourceManager.ShipModulesDict[uid].TorpedoResist,
+                CannonResist = Ship_Game.ResourceManager.ShipModulesDict[uid].CannonResist,
+                SubspaceResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SubspaceResist,
+                PDResist = Ship_Game.ResourceManager.ShipModulesDict[uid].PDResist,
+                FlakResist = Ship_Game.ResourceManager.ShipModulesDict[uid].FlakResist
 			};
 
             #region TargetWeight
@@ -2130,7 +2149,7 @@ namespace Ship_Game
 		public static void LoadMods(string ModPath)
 		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
-            ResourceManager.OffSet = 32000;
+            ResourceManager.OffSet = 0;
             Ship_Game.ResourceManager.LoadLanguage();
 			Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
