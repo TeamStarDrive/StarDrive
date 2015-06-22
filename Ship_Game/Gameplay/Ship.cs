@@ -2005,7 +2005,13 @@ namespace Ship_Game.Gameplay
                     this.Transporters.Add(moduleSlotList.module);
                 if (moduleSlotList.module.InstalledWeapon != null && moduleSlotList.module.InstalledWeapon.isRepairBeam)
                     this.RepairBeams.Add(moduleSlotList.module);
-                this.mass += moduleSlotList.module.Mass;
+                if (moduleSlotList.module.ModuleType == ShipModuleType.Armor && this.loyalty != null)
+                {
+                    float modifiedMass = moduleSlotList.module.Mass * this.loyalty.data.ArmourMassModifier;
+                    this.mass += modifiedMass;
+                }
+                else
+                    this.mass += moduleSlotList.module.Mass;
                 this.Thrust += moduleSlotList.module.thrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
                 this.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? this.loyalty.data.FuelCellModifier : 0);
@@ -2233,7 +2239,14 @@ namespace Ship_Game.Gameplay
                         this.ECMValue = 0f;
                 }
                 Ship ship1 = this;
+
                 double num1 = (double)ship1.mass + (double)moduleSlot.module.Mass;
+
+                if (moduleSlot.module.ModuleType == ShipModuleType.Armor && this.loyalty != null)
+                {
+                    float modifiedMass = moduleSlot.module.Mass * this.loyalty.data.ArmourMassModifier;
+                    num1 = (double)ship1.mass + (double)modifiedMass;
+                }
                 ship1.mass = (float)num1;
                 this.Thrust += moduleSlot.module.thrust;
                 this.MechanicalBoardingDefense += moduleSlot.module.MechanicalBoardingDefense;
@@ -3325,7 +3338,18 @@ namespace Ship_Game.Gameplay
                             else if ((double)moduleSlot.module.Mass > 0.0)
                             {
                                 Ship ship3 = this;
-                                double num3 = (double)ship3.Mass + (double)moduleSlot.module.Mass;
+                                
+                                double num3;
+                                if (moduleSlot.module.ModuleType == ShipModuleType.Armor && this.loyalty != null)
+                                {
+                                    float ArmourMassModifier = this.loyalty.data.ArmourMassModifier;
+                                    double ArmourMass = (double)moduleSlot.module.Mass * ArmourMassModifier;
+                                    num3 = (double)ship3.Mass + ArmourMass;
+                                }
+                                else
+                                {
+                                    num3 = (double)ship3.Mass + (double)moduleSlot.module.Mass;
+                                }
                                 ship3.Mass = (float)num3;
                             }
                             //Checks to see if there is an active command module
