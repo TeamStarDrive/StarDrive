@@ -818,9 +818,13 @@ namespace Ship_Game
                  
 			}
             
-            Owner.GetGSAI().spyBudget = spyBudget;
+            
             if (Owner.isPlayer)
-                Owner.Money-=spyBudget;
+                Owner.Money+=spyBudget;
+            else
+            {
+                Owner.GetGSAI().spyBudget += spyBudget;
+            }
             return returnvalue;
 		}
 
