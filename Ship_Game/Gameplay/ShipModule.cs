@@ -2068,29 +2068,31 @@ namespace Ship_Game.Gameplay
 
 		public void SetNewExternals()
 		{
-			Vector2 up = new Vector2(this.XMLPosition.X, this.XMLPosition.Y - 16f);
-			if (this.Parent.GetMD().ContainsKey(up) && this.Parent.GetMD()[up].module.Active && !this.Parent.GetMD()[up].module.isExternal)
+
+            ModuleSlot module;
+            Vector2 up = new Vector2(this.XMLPosition.X, this.XMLPosition.Y - 16f);
+            if (this.Parent.GetMD().TryGetValue(up, out module) && module.module.Active && !module.module.isExternal)
 			{
-				this.Parent.GetMD()[up].module.isExternal = true;
-				this.Parent.ExternalSlots.Add(this.Parent.GetMD()[up]);
+                module.module.isExternal = true;               
+                this.Parent.ExternalSlots.Add(module);
 			}
 			Vector2 right = new Vector2(this.XMLPosition.X + 16f, this.XMLPosition.Y);
-			if (this.Parent.GetMD().ContainsKey(right) && this.Parent.GetMD()[right].module.Active && !this.Parent.GetMD()[right].module.isExternal)
+			if (this.Parent.GetMD().TryGetValue(right,out module) && module.module.Active && !module.module.isExternal)
 			{
-				this.Parent.GetMD()[right].module.isExternal = true;
-				this.Parent.ExternalSlots.Add(this.Parent.GetMD()[right]);
+				module.module.isExternal = true;               
+                this.Parent.ExternalSlots.Add(module);
 			}
 			Vector2 left = new Vector2(this.XMLPosition.X - 16f, this.XMLPosition.Y);
-			if (this.Parent.GetMD().ContainsKey(left) && this.Parent.GetMD()[left].module.Active && !this.Parent.GetMD()[left].module.isExternal)
+            if (this.Parent.GetMD().TryGetValue(left, out module) && module.module.Active && !module.module.isExternal)
 			{
-				this.Parent.GetMD()[left].module.isExternal = true;
-				this.Parent.ExternalSlots.Add(this.Parent.GetMD()[left]);
+                module.module.isExternal = true;
+                this.Parent.ExternalSlots.Add(module);
 			}
 			Vector2 down = new Vector2(this.XMLPosition.X, this.XMLPosition.Y + 16f);
-			if (this.Parent.GetMD().ContainsKey(down) && this.Parent.GetMD()[down].module.Active && !this.Parent.GetMD()[down].module.isExternal)
+            if (this.Parent.GetMD().TryGetValue(down,out module) && module.module.Active && !module.module.isExternal)
 			{
-				this.Parent.GetMD()[down].module.isExternal = true;
-				this.Parent.ExternalSlots.Add(this.Parent.GetMD()[down]);
+                module.module.isExternal = true;
+                this.Parent.ExternalSlots.Add(module);
 			}
 		}
 
