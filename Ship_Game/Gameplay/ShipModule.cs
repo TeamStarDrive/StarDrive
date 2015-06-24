@@ -261,7 +261,8 @@ namespace Ship_Game.Gameplay
         public float PDResist = 0f;
         public float FlakResist = 0f;
 
-
+        //record which quadrant the module lives in. Currently only for external modules. internal modules will have an upredicable value.
+        public sbyte quadrant = -1;
 
 		public bool IsWeapon
 		{
@@ -2073,25 +2074,29 @@ namespace Ship_Game.Gameplay
             Vector2 up = new Vector2(this.XMLPosition.X, this.XMLPosition.Y - 16f);
             if (this.Parent.GetMD().TryGetValue(up, out module) && module.module.Active && !module.module.isExternal)
 			{
-                module.module.isExternal = true;               
+                module.module.isExternal = true;
+                module.module.quadrant = 1;
                 this.Parent.ExternalSlots.Add(module);
 			}
 			Vector2 right = new Vector2(this.XMLPosition.X + 16f, this.XMLPosition.Y);
 			if (this.Parent.GetMD().TryGetValue(right,out module) && module.module.Active && !module.module.isExternal)
 			{
-				module.module.isExternal = true;               
+				module.module.isExternal = true;
+                module.module.quadrant = 2;
                 this.Parent.ExternalSlots.Add(module);
 			}
 			Vector2 left = new Vector2(this.XMLPosition.X - 16f, this.XMLPosition.Y);
             if (this.Parent.GetMD().TryGetValue(left, out module) && module.module.Active && !module.module.isExternal)
 			{
                 module.module.isExternal = true;
+                module.module.quadrant = 4;
                 this.Parent.ExternalSlots.Add(module);
 			}
 			Vector2 down = new Vector2(this.XMLPosition.X, this.XMLPosition.Y + 16f);
             if (this.Parent.GetMD().TryGetValue(down,out module) && module.module.Active && !module.module.isExternal)
 			{
                 module.module.isExternal = true;
+                module.module.quadrant = 3;
                 this.Parent.ExternalSlots.Add(module);
 			}
 		}

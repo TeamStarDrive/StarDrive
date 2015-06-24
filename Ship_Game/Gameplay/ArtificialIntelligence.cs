@@ -1508,7 +1508,7 @@ namespace Ship_Game.Gameplay
 
                 if (distanceToOrbitSpot < radius || this.Owner.speed == 0)
                 {
-                    this.OrbitalAngle += MathHelper.ToDegrees((float)Math.Asin(this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond < .1f ? .1f : this.Owner.rotationRadiansPerSecond));//* elapsedTime);// MathHelper.ToDegrees((float)Math.Asin((double)this.Owner.rotationRadiansPerSecond / 1500.0));
+                    this.OrbitalAngle += MathHelper.ToDegrees((float)Math.Asin( this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond )) ;//< .1f ? .1f : this.Owner.rotationRadiansPerSecond));//* elapsedTime);// MathHelper.ToDegrees((float)Math.Asin((double)this.Owner.rotationRadiansPerSecond / 1500.0));
                     if ((double)this.OrbitalAngle >= 360.0)
                         this.OrbitalAngle -= 360f;
                     //this.OrbitalAngle = this.OrbitalAngle + MathHelper.ToDegrees(this.Owner.rotationRadiansPerSecond );// * .75f); //15f
@@ -1517,7 +1517,7 @@ namespace Ship_Game.Gameplay
                    // this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f ); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
                       
                 }
-                this.findNewPosTimer = 1;// elapsedTime;// 1; //1.5
+                this.findNewPosTimer = 1;// elapsedTime * 60;// this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond;///< .1f ? .1f : this.Owner.rotationRadiansPerSecond) ;// this.Owner.rotationRadiansPerSecond;// elapsedTime;// 1; //1.5
                 this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, radius);// 1500 ); //2500f //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
             }
             else
@@ -3106,7 +3106,8 @@ namespace Ship_Game.Gameplay
 
 		private void MoveToWithin1000(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
         {
-            if (goal.TargetPlanet != null)
+
+            if (this.OrderQueue.Count > 1 && this.OrderQueue.Skip(1).First().Plan != Plan.MoveToWithin1000 && goal.TargetPlanet != null)
             {
                 lock (this.wayPointLocker)
                 {
@@ -3755,7 +3756,7 @@ namespace Ship_Game.Gameplay
 					{
 						ArtificialIntelligence.ShipGoal finalApproach = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.MakeFinalApproach, waypoint, desiredFacing)
 						{
-							TargetPlanet=TargetPlanet,
+							TargetPlanet=p,
                             SpeedLimit = this.Owner.speed
 						};
 						this.OrderQueue.AddLast(finalApproach);
@@ -6416,13 +6417,14 @@ namespace Ship_Game.Gameplay
 
                     //if (RotAmount > .05f)
                     {
-                        float nimble = this.Owner.rotationRadiansPerSecond ;
+                        float nimble = this.Owner.rotationRadiansPerSecond;
                         if (angleDiff < nimble)
-                            TurnSpeed = (float)((nimble*2 - angleDiff) / (nimble*2));     //(float)RotAmount / (this.Owner.rotationRadiansPerSecond * elapsedTime);
+                            TurnSpeed = (float)((nimble * 2 - angleDiff) / (nimble * 2));     //(float)RotAmount / (this.Owner.rotationRadiansPerSecond * elapsedTime);
 
                         else
                             return;
                     }
+
                    
                 }
                 if (this.State != AIState.FormationWarp || this.Owner.fleet == null)
