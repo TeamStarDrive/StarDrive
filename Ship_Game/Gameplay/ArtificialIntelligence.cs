@@ -2467,7 +2467,7 @@ namespace Ship_Game.Gameplay
                         }
                         //Visible weapon firing
                         float lag =Ship.universeScreen.perfavg2.Average();
-                        lag = lag >.04f? lag: 0f;
+                        lag = lag >.03f? lag: 0f;
                         if (GlobalStats.ForceFullSim || ((float)index / (float)this.Owner.Weapons.Count) * .1f> lag && (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum))
                         {
                             fireTarget = null;

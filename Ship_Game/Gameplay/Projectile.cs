@@ -560,7 +560,7 @@ namespace Ship_Game.Gameplay
 				this.missileAI = new MissileAI(this);
 				this.missileAI.SetTarget(Target);
 			}
-			if ((this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
+            if (this.ProjSO !=null &&(this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
 			{
 				this.wasAddedToSceneGraph = true;
 				lock (GlobalStats.ObjectManagerLocker)
@@ -696,12 +696,13 @@ namespace Ship_Game.Gameplay
 		{
 			this.texturePath = texturePath;
 			this.modelPath = modelPath;
-			this.ProjSO = new SceneObject(Ship_Game.ResourceManager.ProjectileMeshDict[modelPath])
-			{
-				Visibility = ObjectVisibility.Rendered,
-				ObjectType = ObjectType.Dynamic
-			};
-			if (Projectile.universeScreen != null)
+            //if(this.owner.Projectiles.Count <20)
+            this.ProjSO = new SceneObject(Ship_Game.ResourceManager.ProjectileMeshDict[modelPath])
+            {
+                Visibility = ObjectVisibility.Rendered,
+                ObjectType = ObjectType.Dynamic
+            };
+			if (Projectile.universeScreen != null && this.ProjSO !=null)
 			{
 				if (this.weapon.WeaponEffectType == "RocketTrail")
 				{
@@ -732,7 +733,7 @@ namespace Ship_Game.Gameplay
                 }
 
 			}
-			if (this.weapon.Animated == 1)
+			if (this.weapon.Animated == 1 && this.ProjSO !=null)
 			{
 				string remainder = this.AnimationFrame.ToString(this.fmt);
 				this.texturePath = string.Concat(this.weapon.AnimationPath, remainder);
@@ -996,7 +997,7 @@ namespace Ship_Game.Gameplay
                     this.missileAI.Think(elapsedTime);
                 if (this.droneAI != null)
                     this.droneAI.Think(elapsedTime);
-                if ((this.WeaponType == "Rocket" || this.WeaponType == "Drone" || this.WeaponType == "Missile") && (this.system != null && this.system.isVisible && (!this.wasAddedToSceneGraph && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)))
+                if (this.ProjSO !=null &&(this.WeaponType == "Rocket" || this.WeaponType == "Drone" || this.WeaponType == "Missile") && (this.system != null && this.system.isVisible && (!this.wasAddedToSceneGraph && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)))
                 {
                     this.wasAddedToSceneGraph = true;
                     lock (GlobalStats.ObjectManagerLocker)
@@ -1011,7 +1012,7 @@ namespace Ship_Game.Gameplay
                 else
                     this.Center = new Vector2(this.Position.X, this.Position.Y);
                 this.emitter.Position = new Vector3(this.Center, 0.0f);
-                if ((this.isInDeepSpace || this.system != null && this.system.isVisible) && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (this.ProjSO !=null && (this.isInDeepSpace || this.system != null && this.system.isVisible) && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
                     if ((double)this.zStart < -25.0)
                         this.zStart += this.velocityMaximum * elapsedTime;

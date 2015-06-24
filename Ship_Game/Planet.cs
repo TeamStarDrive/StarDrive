@@ -5065,7 +5065,7 @@ namespace Ship_Game
                 return false;
             
             QueueItem item = this.ConstructionQueue[Index];
-            float amountToRush = item.Cost - item.productionTowards; //(int)(this.ProductionHere * .5f);
+            float amountToRush = (int)(this.ProductionHere * .25f); //item.Cost - item.productionTowards;
             float amount = amountToRush < this.ProductionHere ? amountToRush : this.ProductionHere;
             if (amount < 1)
             {
