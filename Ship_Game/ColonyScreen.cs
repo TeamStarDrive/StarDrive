@@ -2436,6 +2436,7 @@ namespace Ship_Game
                         {
                             if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                             {
+                                
                                 if (this.p.ApplyStoredProduction(i))
                                 {
                                     AudioManager.PlayCue("sd_ui_accept_alt3");
@@ -2446,10 +2447,10 @@ namespace Ship_Game
                                 }
                             }
                         }
-                        else if (PlanetScreen.screen.Debug)
-                        {
-                            this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
-                        }
+                        //else if (PlanetScreen.screen.Debug)
+                        //{
+                        //    this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
+                        //}
                         else if (this.p.ProductionHere == 0f)
                         {
                             AudioManager.PlayCue("UI_Misc20");
