@@ -3143,14 +3143,14 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-                else if(this.ColonizeTarget !=null)
-                {
-                    lock (this.wayPointLocker)
-                    {
-                        this.ActiveWayPoints.First().Equals(this.ColonizeTarget.Position);
-                        this.OrderQueue.First().MovePosition = this.ColonizeTarget.Position;
-                    }
-                }
+                //else if(this.ColonizeTarget !=null)
+                //{
+                //    lock (this.wayPointLocker)
+                //    {
+                //        this.ActiveWayPoints.First().Equals(this.ColonizeTarget.Position);
+                //        this.OrderQueue.First().MovePosition = this.ColonizeTarget.Position;
+                //    }
+                //}
                 
 
             }
@@ -3167,18 +3167,18 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-                if (this.ColonizeTarget != null )
-                {
-                    lock (this.wayPointLocker)
-                    {
+                //if (this.ColonizeTarget != null )
+                //{
+                //    lock (this.wayPointLocker)
+                //    {
 
-                        if (this.OrderQueue.Where(cgoal => cgoal.Plan == Plan.MoveToWithin1000).Count() == 1)
-                        {
-                            this.ActiveWayPoints.First().Equals(this.ColonizeTarget.Position);
-                            this.OrderQueue.First().MovePosition = this.ColonizeTarget.Position;
-                        }
-                    }
-                }
+                //        if (this.OrderQueue.Where(cgoal => cgoal.Plan == Plan.MoveToWithin1000).Count() == 1)
+                //        {
+                //            this.ActiveWayPoints.First().Equals(this.ColonizeTarget.Position);
+                //            this.OrderQueue.First().MovePosition = this.ColonizeTarget.Position;
+                //        }
+                //    }
+                //}
             }
             else if (single <= 1500f)
             {
@@ -3191,13 +3191,13 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            else if (this.ColonizeTarget != null)
-            {
-                lock (this.wayPointLocker)
-                {
-                    this.ActiveWayPoints.First().Equals(this.ColonizeTarget.Position);
-                }
-            }
+            //else if (this.ColonizeTarget != null)
+            //{
+            //    lock (this.wayPointLocker)
+            //    {
+            //        this.ActiveWayPoints.First().Equals(this.ColonizeTarget.Position);
+            //    }
+            //}
         }
 
 		private void MoveToWithin1000Fleet(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
