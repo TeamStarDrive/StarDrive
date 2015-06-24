@@ -4321,15 +4321,19 @@ namespace Ship_Game.Gameplay
                 return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
             }
 
+            float Damageradius = Vector2.Distance(ClosestES.module.Position, this.Center);
             if (level > 1)
-                this.AttackerTargetting = this.ModuleSlotList//.AsParallel()
-                    .Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy
-                        && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
-                        && Vector2.Distance(slot.module.Position, ClosestES.module.Position) < this.radius)
-                    .OrderByDescending(distance => Vector2.Distance(ClosestES.module.Position, distance.module.Position))
-                    .ThenByDescending(slot => slot.module.TargetValue + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+            {
 
-                    .ToList();
+                this.AttackerTargetting = this.ModuleSlotList//.AsParallel()
+                       .Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy
+                           && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+                           && Vector2.Distance(slot.module.Position, ClosestES.module.Position) < Damageradius)
+                       .OrderBy(distance => Vector2.Distance(ClosestES.module.Position, distance.module.Position))
+                       .ThenByDescending(slot => slot.module.TargetValue + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+
+                       .ToList();
+            }
             else
                 this.AttackerTargetting = this.ExternalSlots.Where(quadrant => quadrant.module.quadrant == ClosestES.module.quadrant).ToList();
             //             level = 0;
@@ -4384,16 +4388,19 @@ namespace Ship_Game.Gameplay
                 int randomizer = this.AttackerTargetting.Count() / (level + 2);//level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
                 return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
             }
-            if(level >1)
-            this.AttackerTargetting = this.ModuleSlotList//.AsParallel()
-                .Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy 
-                    && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
-                    && Vector2.Distance(slot.module.Position, ClosestES.module.Position) < this.radius)
-                .OrderByDescending(distance => Vector2.Distance(ClosestES.module.Position, distance.module.Position)
-                )
-                .ThenByDescending(slot => slot.module.TargetValue + (slot.module.isExternal ? -5 : 0) + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+            if (level > 1)
+            {
+                float Damageradius = Vector2.Distance(ClosestES.module.Position, this.Center);
+                this.AttackerTargetting = this.ModuleSlotList//.AsParallel()
+                    .Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy
+                        && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+                        && Vector2.Distance(slot.module.Position, ClosestES.module.Position) < Damageradius)
+                    .OrderBy(distance => Vector2.Distance(ClosestES.module.Position, distance.module.Position)
+                    )
+                    .ThenByDescending(slot => slot.module.TargetValue + (slot.module.isExternal ? -5 : 0) + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
 
-                .ToList();
+                    .ToList();
+            }
             else
                 this.AttackerTargetting = this.ExternalSlots.Where(quadrant => quadrant.module.quadrant == ClosestES.module.quadrant).ToList();
 
