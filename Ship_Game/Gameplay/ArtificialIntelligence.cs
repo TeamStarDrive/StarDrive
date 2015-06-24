@@ -1508,7 +1508,8 @@ namespace Ship_Game.Gameplay
 
                 if (distanceToOrbitSpot < radius || this.Owner.speed == 0)
                 {
-                    this.OrbitalAngle += MathHelper.ToDegrees((float)Math.Asin( this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond )) ;//< .1f ? .1f : this.Owner.rotationRadiansPerSecond));//* elapsedTime);// MathHelper.ToDegrees((float)Math.Asin((double)this.Owner.rotationRadiansPerSecond / 1500.0));
+                    
+                    this.OrbitalAngle += MathHelper.ToDegrees((float)Math.Asin(this.Owner.yBankAmount*10));//   this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond )) ;//< .1f ? .1f : this.Owner.rotationRadiansPerSecond));//* elapsedTime);// MathHelper.ToDegrees((float)Math.Asin((double)this.Owner.rotationRadiansPerSecond / 1500.0));
                     if ((double)this.OrbitalAngle >= 360.0)
                         this.OrbitalAngle -= 360f;
                     //this.OrbitalAngle = this.OrbitalAngle + MathHelper.ToDegrees(this.Owner.rotationRadiansPerSecond );// * .75f); //15f
@@ -1517,7 +1518,7 @@ namespace Ship_Game.Gameplay
                    // this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f ); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
                       
                 }
-                this.findNewPosTimer = 1;// elapsedTime * 60;// this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond;///< .1f ? .1f : this.Owner.rotationRadiansPerSecond) ;// this.Owner.rotationRadiansPerSecond;// elapsedTime;// 1; //1.5
+                this.findNewPosTimer =  elapsedTime * 10;// this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond;///< .1f ? .1f : this.Owner.rotationRadiansPerSecond) ;// this.Owner.rotationRadiansPerSecond;// elapsedTime;// 1; //1.5
                 this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, radius);// 1500 ); //2500f //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
             }
             else
@@ -6417,9 +6418,9 @@ namespace Ship_Game.Gameplay
 
                     //if (RotAmount > .05f)
                     {
-                        float nimble = this.Owner.rotationRadiansPerSecond;
+                        float nimble = this.Owner.rotationRadiansPerSecond;// >1?1:this.Owner.rotationRadiansPerSecond;
                         if (angleDiff < nimble)
-                            TurnSpeed = (float)((nimble * 2 - angleDiff) / (nimble * 2));     //(float)RotAmount / (this.Owner.rotationRadiansPerSecond * elapsedTime);
+                            TurnSpeed = (float)((nimble*1.5 -angleDiff )/(nimble*1.5));     //(float)RotAmount / (this.Owner.rotationRadiansPerSecond * elapsedTime);
 
                         else
                             return;
