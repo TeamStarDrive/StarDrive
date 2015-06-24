@@ -514,14 +514,17 @@ namespace Ship_Game
             {
                 this.Destination = this.Destination - (this.Destination - this.owner.Center);
             }
-			this.quadEffect.View = view;
-			this.quadEffect.Projection = projection;
-			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.ActualHitDestination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
-			this.UpperLeft = points[0];
-			this.UpperRight = points[1];
-			this.LowerLeft = points[2];
-			this.LowerRight = points[3];
-			this.FillVertices();
+            //if (this.quadEffect != null)
+            {
+                this.quadEffect.View = view;
+                this.quadEffect.Projection = projection;
+                Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.ActualHitDestination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
+                this.UpperLeft = points[0];
+                this.UpperRight = points[1];
+                this.LowerLeft = points[2];
+                this.LowerRight = points[3];
+                this.FillVertices();
+            }
 			if (this.Duration < 0f && !this.infinite)
 			{
 				this.Die(null, true);
