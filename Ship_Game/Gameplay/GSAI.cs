@@ -3032,7 +3032,7 @@ namespace Ship_Game.Gameplay
         {
             string Names;
 
-            int income = (int)this.spyBudget;
+            float income = this.spyBudget;
 
 
             this.DesiredAgentsPerHostile = (int)(income * .08f) + 1;
@@ -5622,7 +5622,7 @@ namespace Ship_Game.Gameplay
 		{
             
             int income = (int)((this.empire.Money *.01) * (1-this.empire.data.TaxRate));//-this.empire.GrossTaxes*5 );//* .2f);
-            if (income < 0 || this.empire.data.SpyBudget >this.empire.Money *.5f)
+            if (income < 0 || this.empire.data.SpyBudget > this.empire.Money * .75f)
                 income = 0;
             
             this.spyBudget = income +this.empire.data.SpyBudget;
@@ -5723,39 +5723,15 @@ namespace Ship_Game.Gameplay
            treasuryGoal = treasuryGoal <= 1 ? 1: treasuryGoal;
             float returnAmount = 0f;
             this.empire.data.TaxRate = this.FindTaxRateToReturnAmount( treasuryGoal *(1-(money/treasuryGoal))    );
-
+            if (!this.empire.isPlayer)
+                return;
             float DefBudget = this.empire.Money * this.empire.GetPlanets().Count * .001f * (1 - this.empire.data.TaxRate);
             if (DefBudget < 0 || this.empire.data.DefenseBudget > this.empire.Money * .01 * this.empire.GetPlanets().Count)
                 DefBudget = 0;
             this.empire.Money -= DefBudget;
             this.empire.data.DefenseBudget += DefBudget;
             return;
-            if (1==2) //(money < treasuryGoal*10)
-            {
-                //float returnAmount = 0f;
 
-                // This could have been circular if the tax rate was 0 in the new taxation model; at 0 tax the return amount calculated 10% of 0 gross tax leading it to try and maintain 0 cashflow... 'Doc
-                if (this.empire.data.TaxRate > 0)
-                {
-                    // I added the full data for gross income amount such that it calculates 10% of the actual raw income before expenditure, and not only from taxation. Doc'.
-                    returnAmount = this.FindTaxRateToReturnAmount( treasuryGoal *(1-(money/treasuryGoal))    ); //Math.Abs(((this.empire.GrossTaxes * this.empire.data.TaxRate) + this.empire.OtherIncome + this.empire.TradeMoneyAddedThisTurn + this.empire.data.FlatMoneyBonus) * 0.12f));
-                }
-                else
-                {
-                    // If the TaxRate is currently 0%, makes the AI consider it as if we were calculating our gross income at 10% population taxation, instead of 0% which would mean 0 income and the AI trying to find the tax to return... 0 income.
-                    returnAmount = this.FindTaxRateToReturnAmount(Math.Abs(((this.empire.GrossTaxes * 0.1f) + this.empire.OtherIncome + this.empire.TradeMoneyAddedThisTurn + this.empire.data.FlatMoneyBonus) * 0.12f));
-                }
-
-                if (this.empire.data.TaxRate >= 0.5f) 
-                    returnAmount += 0.1f;
-                this.empire.data.TaxRate = returnAmount;
-            }
-            else
-            {
-                float single = this.FindTaxRateToReturnAmount(0);
-                single += 0.05f;
-                this.empire.data.TaxRate = single;
-            }
  
         }
 
