@@ -413,6 +413,7 @@ namespace Ship_Game.Gameplay
             //    beam.damageAmount = this.DamageAmount;
             //    beam.weapon = this;
 
+
             //}
             //else
              
@@ -425,7 +426,8 @@ namespace Ship_Game.Gameplay
                     thickness = this.BeamThickness,
                     Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
                     damageAmount = this.DamageAmount,
-                    weapon = this
+                    weapon = this,
+                    Destination=target.Center
                 };
 
                 }
@@ -446,7 +448,7 @@ namespace Ship_Game.Gameplay
 
 
 
-            if (!beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection))
+            if ( !beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection))
             {
                 beam.Die(null, true);
                 return;
@@ -456,9 +458,10 @@ namespace Ship_Game.Gameplay
             if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && this.moduleAttachedTo.GetParent().InFrustum)
             {
                 //Added by McShooterz: Use sounds from new sound dictionary
-                if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                SoundEffect beamsound = null;
+                if (ResourceManager.SoundEffectDict.TryGetValue(this.fireCueName,out beamsound))
                 {
-                    AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
+                    AudioManager.PlaySoundEffect(beamsound, Weapon.audioListener, this.owner.emitter, 0.5f);
                 }
                 else
                 {
@@ -602,6 +605,7 @@ namespace Ship_Game.Gameplay
                     string remainder = 0.ToString("00000.##");
                     projectile.texturePath = string.Concat(AltFire.AnimationPath, remainder);
                 }
+                if(HelperFunctions.GetRandomIndex((int)(Ship.universeScreen.Lag *100)) <2)
                 if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
                 {
                     projectile.DieSound = true;
@@ -614,9 +618,10 @@ namespace Ship_Game.Gameplay
                         if (AltFire.fireCue != null)
                         {
                             //Added by McShooterz: Use sounds from new sound dictionary
-                            if (ResourceManager.SoundEffectDict.ContainsKey(AltFire.fireCueName))
+                            SoundEffect soundeffect = null;
+                            if (ResourceManager.SoundEffectDict.TryGetValue(AltFire.fireCueName,out soundeffect))
                             {
-                                AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
+                                AudioManager.PlaySoundEffect(soundeffect, Weapon.audioListener, this.owner.emitter, 0.5f);
                             }
                             else
                             {
