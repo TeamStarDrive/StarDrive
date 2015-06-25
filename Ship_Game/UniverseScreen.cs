@@ -266,7 +266,7 @@ namespace Ship_Game
         //public ConcurrentBag<Ship> ShipPool = new ConcurrentBag<Ship>();
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
-
+        public float Lag = 0;
         static UniverseScreen()
         {
         }
@@ -1788,7 +1788,7 @@ namespace Ship_Game
             else
 
                 this.perfavg2[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - beginTime;
-
+            this.Lag = perfavg2.Average();
 
             #region end
 

@@ -371,46 +371,7 @@ namespace Ship_Game
                     this.Active = false;
                     return false;
                 }
-                //{
-                //    try
-                //    {
-                //        GC.GetTotalMemory(true);
-                //        System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed", this.weapon.UID));
-                //        //GC.Collect(0, GCCollectionMode.Optimized);
-                //        Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
-                //        this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
-                //        {
-                //            World = Matrix.Identity,
-                //            View = view,
-                //            Projection = projection,
-                //            TextureEnabled = true,
-                //            Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
-                //        };
-                //        this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                //        Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
-
-                //    }
-                //    catch 
-                //    {
-                //        System.Diagnostics.Debug.WriteLine(string.Concat("Beam Failed again: ", this.weapon.UID));
-                //        GC.GetTotalMemory(true);
-                        
-                //        //GC.Collect(0, GCCollectionMode.Optimized);
-                //        Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
-                //        this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
-                //        {
-                //            World = Matrix.Identity,
-                //            View = view,
-                //            Projection = projection,
-                //            TextureEnabled = true,
-                //            Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
-                //        };
-                //        this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                //        Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
-
-                        
-                //    }
-                //}
+              
 			}
             return true;
 		}
@@ -457,79 +418,80 @@ namespace Ship_Game
 		}
 
 		public void Update(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
-		{
-			if (!this.collidedThisFrame && this.DamageToggleOn)
-			{
-				this.DamageToggleOn = false;
-				if (this.DamageToggleSound != null && this.DamageToggleSound.IsPlaying)
-				{
-					this.DamageToggleSound.Stop(AudioStopOptions.Immediate);
-					if (base.Owner.InFrustum)
-					{
-						this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
-					}
-				}
-			}
-			Ship owner = base.Owner;
-			owner.PowerCurrent = owner.PowerCurrent - this.PowerCost * elapsedTime;
-			if (base.Owner.PowerCurrent < 0f)
-			{
-				base.Owner.PowerCurrent = 0f;
-				this.Die(null, false);
-				this.Duration = 0f;
-				return;
-			}
+        {
+            if (!this.collidedThisFrame && this.DamageToggleOn)
+            {
+                this.DamageToggleOn = false;
+                if (this.DamageToggleSound != null && this.DamageToggleSound.IsPlaying)
+                {
+                    this.DamageToggleSound.Stop(AudioStopOptions.Immediate);
+                    if (base.Owner.InFrustum)
+                    {
+                        this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
+                    }
+                }
+            }
+            Ship owner = base.Owner;
+            owner.PowerCurrent = owner.PowerCurrent - this.PowerCost * elapsedTime;
+            if (base.Owner.PowerCurrent < 0f)
+            {
+                base.Owner.PowerCurrent = 0f;
+                this.Die(null, false);
+                this.Duration = 0f;
+                return;
+            }
             Ship ship = this.Target as Ship;
-            if(this.owner.engineState == Ship.MoveState.Warp || ship !=null && ship.engineState== Ship.MoveState.Warp)
+            if (this.owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp)
             {
                 this.Die(null, false);
                 this.Duration = 0f;
                 return;
             }
             this.Duration -= elapsedTime;
-			this.Source = srcCenter;
-			if (this.Target == null)
-			{
-				this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
-                
-			}
-			else if (!this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
-			{
-				float angle = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, this.Target.Center));
-				if (angle > base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f)
-				{
-					angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f;
-				}
-				else if (angle < base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f)
-				{
-					angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f;
-				}
-				this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, angle, this.range);
-			}
-			else
-			{
-				this.Destination = this.Target.Center;
-			}
+            this.Source = srcCenter;
+            if (this.Target == null)
+            {
+                this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
+
+            }
+            else if (!this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
+            {
+                float angle = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, this.Target.Center));
+                if (angle > base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f)
+                {
+                    angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f;
+                }
+                else if (angle < base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f)
+                {
+                    angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f;
+                }
+                this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, angle, this.range);
+            }
+            else
+            {
+                this.Destination = this.Target.Center;
+            }
             if (Vector2.Distance(this.Destination, this.owner.Center) > this.range)
             {
                 this.Destination = this.Destination - (this.Destination - this.owner.Center);
             }
-            //if (this.quadEffect != null)
+            if (this.quadEffect != null)
             {
                 this.quadEffect.View = view;
                 this.quadEffect.Projection = projection;
-                Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.ActualHitDestination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
-                this.UpperLeft = points[0];
-                this.UpperRight = points[1];
-                this.LowerLeft = points[2];
-                this.LowerRight = points[3];
-                this.FillVertices();
             }
-			if (this.Duration < 0f && !this.infinite)
-			{
-				this.Die(null, true);
-			}
-		}
+            Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.ActualHitDestination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
+            this.UpperLeft = points[0];
+            this.UpperRight = points[1];
+            this.LowerLeft = points[2];
+            this.LowerRight = points[3];
+            this.FillVertices();
+
+            if (this.Duration < 0f && !this.infinite)
+            {
+                this.Die(null, true);
+            }
+        }
 
 		public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
 		{
