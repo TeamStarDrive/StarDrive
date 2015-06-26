@@ -53,6 +53,7 @@ namespace Ship_Game.Gameplay
                 if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && sourceTargetShip.loyalty != this.Owner.loyalty)
                 {
                     this.SetTarget(sourceTargetShip.GetRandomInternalModule(this.Owner));
+                    
                     return;
                 }
             }
