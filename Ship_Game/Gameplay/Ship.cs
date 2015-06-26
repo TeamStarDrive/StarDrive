@@ -918,7 +918,7 @@ namespace Ship_Game.Gameplay
 
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Ship ship)
-        {
+        {           
             Vector2 PickedPos = ship.Center;
             float radius = ship.radius;
             GlobalStats.WeaponArcChecks = GlobalStats.WeaponArcChecks + 1;
@@ -1682,7 +1682,6 @@ namespace Ship_Game.Gameplay
                         if (!this.ModulesDictionary[key1].module.Active)
                         {
                             keyValuePair.Value.module.isExternal = true;
-                            keyValuePair.Value.module.quadrant = 1;
                             
                             this.ExternalSlots.Add(keyValuePair.Value);
 
@@ -1695,7 +1694,7 @@ namespace Ship_Game.Gameplay
                                 if (!this.ModulesDictionary[key2].module.Active)
                                 {
                                     keyValuePair.Value.module.isExternal = true;
-                                    keyValuePair.Value.module.quadrant = 2;
+                                    
                                     this.ExternalSlots.Add(keyValuePair.Value);
                                 }
                                 else
@@ -1706,7 +1705,7 @@ namespace Ship_Game.Gameplay
                                         if (!this.ModulesDictionary[key3].module.Active)
                                         {
                                             keyValuePair.Value.module.isExternal = true;
-                                            keyValuePair.Value.module.quadrant = 4;
+                                            
                                             this.ExternalSlots.Add(keyValuePair.Value);
                                         }
                                         else
@@ -1717,14 +1716,14 @@ namespace Ship_Game.Gameplay
                                                 if (!this.ModulesDictionary[key4].module.Active)
                                                 {
                                                     keyValuePair.Value.module.isExternal = true;
-                                                    keyValuePair.Value.module.quadrant = 3;
+                                                    
                                                     this.ExternalSlots.Add(keyValuePair.Value);
                                                 }
                                             }
                                             else
                                             {
                                                 keyValuePair.Value.module.isExternal = true;
-                                                keyValuePair.Value.module.quadrant = 3;
+                                                keyValuePair.Value.module.quadrant = 4;
                                                 this.ExternalSlots.Add(keyValuePair.Value);
                                             }
                                         }
@@ -1732,7 +1731,7 @@ namespace Ship_Game.Gameplay
                                     else
                                     {
                                         keyValuePair.Value.module.isExternal = true;
-                                        keyValuePair.Value.module.quadrant = 4;
+                                        keyValuePair.Value.module.quadrant = 3;
 
                                         this.ExternalSlots.Add(keyValuePair.Value);
                                     }
@@ -4295,15 +4294,15 @@ namespace Ship_Game.Gameplay
         {
             float nearest=0;
             float temp;
-           
 
+            Vector2 center = source.GetOwner() != null ? source.GetOwner().Center : source.Center;
             ModuleSlot ClosestES=null;
 
             foreach(ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy)
+                if (ES.module.ModuleType == ShipModuleType.Dummy && !ES.module.Active)
                     continue;
-                temp =Vector2.Distance(ES.module.Center,source.GetOwner().Center);
+                temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest )
                 {
                     nearest = temp;
@@ -4311,10 +4310,15 @@ namespace Ship_Game.Gameplay
                 }
             }
             byte level = 0;
+            if (ClosestES == null)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Concat("GetRandomInternal: ClosestES was null: ExternalCount:",this.ExternalSlots.Count," Name: " ,this.VanityName ));
+                return null;
+            }
             if (source.GetOwner() != null)
                 level = (byte)source.GetOwner().Level;
 
-            if (this.AttackerTargetting != null && this.AttackerTargetting.Contains(ClosestES))
+            if (this.AttackerTargetting != null && ClosestES != null && this.AttackerTargetting.Contains(ClosestES))
             {
 
 
@@ -4369,8 +4373,8 @@ namespace Ship_Game.Gameplay
         }
         public ShipModule GetRandomInternalModule(Projectile source)
         {
-            float ourside = Vector2.Distance(this.Center, source.Center);
-            //sbyte quadrant;
+
+            Vector2 center = source.Owner != null ? source.Owner.Center : source.Center;
             float nearest = 0;
             float temp;
            
@@ -4381,13 +4385,15 @@ namespace Ship_Game.Gameplay
             {
                 if (ES.module.ModuleType == ShipModuleType.Dummy)
                     continue;
-                temp = Vector2.Distance(ES.module.Center, source.Owner.Center);
+                temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest)
                 {
                     nearest = temp;
                     ClosestES = ES;
                 }
             }
+            if (ClosestES == null)
+                return null;
             byte level = 0;
             if (source.Owner != null)
                 level = (byte)source.Owner.Level;
