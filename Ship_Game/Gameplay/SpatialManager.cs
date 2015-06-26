@@ -944,14 +944,30 @@ namespace Ship_Game.Gameplay
         {
             if (damageRadius <= 0.0)
                 return;
+
+            float modifiedRadius = damageRadius;
+
             foreach (GameplayObject gameplayObject in this.GetNearby(source).Where(gameplayObject => gameplayObject != null && gameplayObject is Ship && gameplayObject.Active && !(gameplayObject as Ship).dying).OrderBy(gameplayObject => Vector2.Distance(source.Center, gameplayObject.Center)))
             {
+                
+                // Doctor: Up until now, the 'Reactive Armour' bonus used in the vanilla tech tree did exactly nothing. Trying to fix - is meant to reduce effective explosion radius.
+
+                // Doctor: Reset the radius on every foreach loop in case ships of different loyalty are to be affected:
+                modifiedRadius = damageRadius;
+                
                 //Check if valid target
                 //added by gremlin check that projectile owner is not null
                 if (source.Owner == null || source.Owner != null && source.Owner.loyalty != (gameplayObject as Ship).loyalty)
                 {
+                    
+                    // Doctor: Reduces the effective explosion radius on ships with the 'Reactive Armour' type radius reduction in their empire traits.
+                    if ((gameplayObject as Ship).loyalty != null && (gameplayObject as Ship).loyalty.data.ExplosiveRadiusReduction != 0)
+                    {
+                        modifiedRadius *= (1 - (gameplayObject as Ship).loyalty.data.ExplosiveRadiusReduction);
+                    }
+
                     float DamageTracker = 0;
-                    IEnumerable<ModuleSlot> modules = (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center) <= damageRadius + 10f).OrderBy(moduleSlot => (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) - moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center));
+                    IEnumerable<ModuleSlot> modules = (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) <= modifiedRadius + moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center) <= modifiedRadius + 10f).OrderBy(moduleSlot => (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) - moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center));
                     foreach (ModuleSlot moduleSlot in modules)
                     {
                         moduleSlot.module.Damage(source, damageAmount, ref DamageTracker);
