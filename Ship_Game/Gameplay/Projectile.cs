@@ -611,7 +611,7 @@ namespace Ship_Game.Gameplay
 				this.missileAI = new MissileAI(this);
 				this.missileAI.SetTarget(Target);
 			}
-			if ((this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
+			if (this.ProjSO !=null &&(this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
 			{
 				this.wasAddedToSceneGraph = true;
 				lock (GlobalStats.ObjectManagerLocker)
@@ -697,7 +697,7 @@ namespace Ship_Game.Gameplay
 			this.texturePath = texturePath;
 			this.modelPath = modelPath;
             //if(this.owner.Projectiles.Count <20)
-            if (Ship.universeScreen !=null && HelperFunctions.GetRandomIndex((int)(Ship.universeScreen.Lag *100)) <2 )
+            if (Ship.universeScreen !=null && HelperFunctions.GetRandomIndex((int)(Ship.universeScreen.Lag *100)) >3 )
                 return;
             this.ProjSO = new SceneObject(Ship_Game.ResourceManager.ProjectileMeshDict[modelPath])
             {
