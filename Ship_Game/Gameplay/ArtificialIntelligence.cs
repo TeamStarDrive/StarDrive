@@ -2433,6 +2433,7 @@ namespace Ship_Game.Gameplay
             //Reasons not to fire
             //try
             {
+                Dictionary<Weapon, Ship> nonvisible = new Dictionary<Weapon, Ship>();
                 Relationship enemy;
                 TargetShip = this.Target as Ship;
                 if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled ||
@@ -2471,15 +2472,16 @@ namespace Ship_Game.Gameplay
 
                         this.TargetShip = this.Target as Ship;
                         this.fireTarget = null;
-                        lag = lag > .03f ? lag : 0f;
-                        if (GlobalStats.ForceFullSim || ((float)index / (float)this.Owner.Weapons.Count) * .1f > lag && (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum))
+                        lag = lag > .03f && (GlobalStats.ForceFullSim || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum)) ? lag : 0f; //
+                            //||((!weapon.Tag_PD && !weapon.TruePD && !weapon.Tag_Intercept)))) 
+                        if ((float)index / (float)this.Owner.Weapons.Count * .1f > lag || (weapon.Tag_PD && weapon.TruePD && weapon.Tag_Intercept))
                         {
                             fireTarget = null;
                             //Can this weapon fire on ships
                             if (this.BadGuysNear && !weapon.TruePD && this.Owner.hasCommand)
                             {
                                 //Is primary target valid
-                                if (TargetShip != null && this.Target.Active && !TargetShip.dying && weapon.TargetValid(TargetShip.Role))
+                                if (TargetShip != null && this.Target.Active && !TargetShip.dying && weapon.TargetValid(TargetShip.Role) && TargetShip.engineState != Ship.MoveState.Warp && TargetShip.ExternalSlots.Count >0)
                                 {
                                     if (weapon.Tag_Guided && weapon.RotationRadsPerSecond > 3f && Vector2.Distance(this.Owner.Center, this.Target.Center) < weapon.GetModifiedRange())
                                         fireTarget = this.Target;
@@ -2490,20 +2492,30 @@ namespace Ship_Game.Gameplay
                                 if (fireTarget == null)
                                 {
                                     //foreach (Ship ship in this.PotentialTargets)
-                                    TargetShip = null;
-                                    for (int i = 0; i < this.PotentialTargets.Count; i++)
+                                    //TargetShip = null;
+                                    //for (int i = 0; i < this.PotentialTargets.Count; i++)
+                                    Parallel.ForEach(this.PotentialTargets, (PotentialTarget, status) =>
                                     {
-                                        //Ship ship = this.PotentialTargets[i];
-                                        TargetShip = this.PotentialTargets[i];
-                                        if (TargetShip == null || !TargetShip.Active || TargetShip.dying || !weapon.TargetValid(TargetShip.Role) || !this.Owner.CheckIfInsideFireArc(weapon, TargetShip))
-                                            continue;
-                                        fireTarget = TargetShip;
-                                        break;
-                                    }
+                                        //PotentialTarget = PotentialTarget;
+                                        //PotentialTarget = this.PotentialTargets[i];
+                                        if (PotentialTarget == null || !PotentialTarget.Active || PotentialTarget.dying || PotentialTarget.engineState == Ship.MoveState.Warp || !weapon.TargetValid(PotentialTarget.Role) || PotentialTarget.ExternalSlots.Count < 1 || !this.Owner.CheckIfInsideFireArc(weapon, PotentialTarget))
+                                        {
+                                            return;
+                                            //continue;
+                                        }
+                                        fireTarget = PotentialTarget;
+                                        {
+                                            //   break;
+                                            status.Stop();
+                                            //status.Break();
+                                            //return;
+                                        }
+                                    });
                                 }
                                 //If a ship was found to fire on, change to target an internal module
-                                if (fireTarget != null)
+                                if (fireTarget != null) // && TargetShip.ExternalSlots.Count < 1)
                                 {
+                                    
                                     fireTarget = (fireTarget as Ship).GetRandomInternalModule(weapon);
 
                                 }
@@ -2533,7 +2545,8 @@ namespace Ship_Game.Gameplay
                                 //If no projectiles from planets check for projectiles from ships
                                 if (fireTarget == null)
                                 {
-                                    foreach (Ship ship in PotentialTargets)
+                                    //foreach (Ship ship in PotentialTargets)
+                                    Parallel.ForEach(PotentialTargets, (ship,status) =>
                                     {
                                         for (int i = 0; i < ship.Projectiles.Count; i++)
                                         {
@@ -2555,8 +2568,12 @@ namespace Ship_Game.Gameplay
                                             break;
                                         }//);
                                         if (fireTarget != null)
-                                            break;
-                                    }//);
+                                        {
+                                            //break;
+                                            status.Stop();
+                                            return;
+                                        }
+                                    });
                                 }
                             }
                             //If a target was aquired fire on it
@@ -2575,13 +2592,18 @@ namespace Ship_Game.Gameplay
                         //Do the simulated firing on targets
                         else
                         {
-                            GameplayObject target = fireTarget;  
-                            ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
-                           this.FireOnTargetNonVisible(weapon, target);
+                            
+                            //((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f);
+                            nonvisible.Add(weapon, this.TargetShip);
+                            //this.FireOnTargetNonVisible(weapon, this.TargetShip);
                         }
                         //}
 
 
+                    }
+                    foreach (KeyValuePair<Weapon, Ship> fire in nonvisible)
+                    {
+                        this.FireOnTargetNonVisible(fire.Key, fire.Value);
                     }
                 }
             }
@@ -2659,11 +2681,14 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			Ship owner = this.Owner;
+            if (TargetShip == null || !TargetShip.Active || TargetShip.dying || !w.TargetValid(TargetShip.Role) || TargetShip.engineState == Ship.MoveState.Warp || !this.Owner.CheckIfInsideFireArc(w, TargetShip))
+                return;
+            Ship owner = this.Owner;
 			owner.Ordinance = owner.Ordinance - w.OrdinanceRequiredToFire;
 			Ship powerCurrent = this.Owner;
 			powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - w.PowerRequiredToFire;
-			if (fireTarget is Projectile)
+			
+            if (fireTarget is Projectile)
 			{
 				fireTarget.Damage(w.GetOwner(), w.DamageAmount);
 				return;
@@ -2696,6 +2721,20 @@ namespace Ship_Game.Gameplay
 				(fireTarget as Ship).Die(null, true);
 				return;
 			}
+            float nearest = 0;
+            ModuleSlot ClosestES = null;
+            foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
+            {
+                if (ES.module.ModuleType == ShipModuleType.Dummy && !ES.module.Active)
+                    continue;
+                float temp = Vector2.Distance(ES.module.Center, w.GetOwner().Center);
+                if (nearest == 0 || temp < nearest)
+                {
+                    nearest = temp;
+                    ClosestES = ES;
+                }
+            }
+            List<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.Where(close => close.module.quadrant == ClosestES.module.quadrant).ToList();
 			if ((fireTarget as Ship).shield_power > 0f)
 			{
 				for (int i = 0; i < (fireTarget as Ship).GetShields().Count; i++)
@@ -2717,11 +2756,12 @@ namespace Ship_Game.Gameplay
 				}
 				return;
 			}
-			if (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) <= 50f || (fireTarget as Ship).ExternalSlots.ElementAt(0).module.shield_power > 0f)
+
+			if (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) <= 50f || ExternalSlots.ElementAt(0).module.shield_power > 0f)
 			{
-				for (int i = 0; i < (fireTarget as Ship).ExternalSlots.Count; i++)
+				for (int i = 0; i < ExternalSlots.Count(); i++)
 				{
-					if ((fireTarget as Ship).ExternalSlots.ElementAt(i).module.Active && (fireTarget as Ship).ExternalSlots.ElementAt(i).module.shield_power <= 0f)
+					if (ExternalSlots.ElementAt(i).module.Active && ExternalSlots.ElementAt(i).module.shield_power <= 0f)
 					{
 						float damage = w.DamageAmount;
 						if (w.isBeam)
@@ -2732,15 +2772,16 @@ namespace Ship_Game.Gameplay
 						{
 							damage = damage * (float)w.SalvoCount;
 						}
-						(fireTarget as Ship).ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
+                        ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
 						return;
 					}
 				}
 				return;
 			}
-			for (int i = (fireTarget as Ship).ExternalSlots.Count - 1; i > 0; i--)
+
+			for (int i = ExternalSlots.Count - 1; i > 0; i--)
 			{
-				if ((fireTarget as Ship).ExternalSlots.ElementAt(i).module.Active && (fireTarget as Ship).ExternalSlots.ElementAt(i).module.shield_power <= 0f)
+				if (ExternalSlots.ElementAt(i).module.Active && ExternalSlots.ElementAt(i).module.shield_power <= 0f)
 				{
 					float damage = w.DamageAmount;
 					if (w.isBeam)
@@ -2751,7 +2792,7 @@ namespace Ship_Game.Gameplay
 					{
 						damage = damage * (float)w.SalvoCount;
 					}
-					(fireTarget as Ship).ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
+					ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
 					return;
 				}
 			}
