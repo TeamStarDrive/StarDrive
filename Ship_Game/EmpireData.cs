@@ -118,7 +118,7 @@ namespace Ship_Game
 
         public float SpoolTimeModifier = 1.0f;
 
-		public float ExplosiveRadiusReduction;
+		public float ExplosiveRadiusReduction = 0f;
 
 		public float ShieldPenBonusChance;
 
