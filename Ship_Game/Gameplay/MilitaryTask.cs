@@ -116,7 +116,8 @@ namespace Ship_Game.Gameplay
 					if (ship.GetStrength() == 0f 
                         || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
                         || ship.InCombat 
-                        || ship.fleet != null ) //&& ship.fleet != null & ship.fleet.Task == null)
+                        || ship.fleet != null 
+                        || this.empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))// ship.GetAI().SystemToDefend !=null) //&& ship.fleet != null & ship.fleet.Task == null)
 					{
 						continue;
 					}
@@ -336,7 +337,8 @@ namespace Ship_Game.Gameplay
                         || ship.BaseStrength == 0f 
                         || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
                         || ship.InCombat
-                        || ship.fleet != null )//&& ship.fleet.Task == null) //&& ship.fleet != null && ship.fleet.Task == null)
+                        || ship.fleet != null
+                        || this.empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))//&& ship.fleet.Task == null) //&& ship.fleet != null && ship.fleet.Task == null)
                     {
                         continue;
                     }
