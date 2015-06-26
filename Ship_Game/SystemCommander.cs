@@ -47,10 +47,9 @@ namespace Ship_Game
             foreach (KeyValuePair<Guid, Ship> entry in this.ShipsDict)
             {
                 Ship ship = entry.Value;
-                //if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
 
-                //if ((ship == null || ship.GetSystem() != this.system) || (ship.GetAI().Target != null && ship.InCombat ))
-                if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
+
+                if (ship == null || ship.GetAI().BadGuysNear || ship.GetAI().SystemToDefend == this.system)
                 {
                     continue;
                 }

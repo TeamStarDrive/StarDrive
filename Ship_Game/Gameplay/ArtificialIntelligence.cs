@@ -2592,6 +2592,18 @@ namespace Ship_Game.Gameplay
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
+            if (this.Owner.speed == 0 && target.Velocity.Length() == 0)
+            {
+                Vector2 fireatstationary = Vector2.Zero;
+                fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center));
+                if (SalvoFire)
+                    weapon.FireSalvo(fireatstationary, target);
+                else
+                    weapon.Fire(fireatstationary, target);
+                return;
+
+            }
+            
             float distance = Vector2.Distance(weapon.Center, target.Center) + target.Velocity.Length()==0?0: 500;
             Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
             float timeToTarget = distance / dir.Length();
@@ -2817,23 +2829,14 @@ namespace Ship_Game.Gameplay
 
 		public void HoldPosition()
 		{
-            if (this.HasPriorityOrder)
-            {
+
                 if (this.Owner.isSpooling || this.Owner.engineState == Ship.MoveState.Warp)
                 {
                     this.Owner.HyperspaceReturn();
                 }
                 this.State = AIState.HoldPosition;
                 this.Owner.isThrusting = false;
-            }
-            else if(!this.Owner.InCombat)
-            {
-                this.State = AIState.AwaitingOrders;
-            }
-            else
-            {
-                this.CombatState = Gameplay.CombatState.Evade;
-            }
+ 
 		}
 
 		private void MakeFinalApproach(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
