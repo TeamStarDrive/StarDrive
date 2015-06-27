@@ -775,7 +775,7 @@ namespace Ship_Game
                     if (str == "Fuel Cell Upgrade" || str == "Fuel Cell Bonus")
                         this.data.FuelCellModifier += unlockedBonus.Bonus;
                     if (str == "Trade Tariff" || str == "Bonus Money Per Trade")
-                        this.data.Traits.Mercantile += (float)(int)unlockedBonus.Bonus;
+                        this.data.Traits.Mercantile += (float)unlockedBonus.Bonus;
                     if (str == "Missile Armor" || str == "Missile HP Bonus")
                         this.data.MissileHPModifier += unlockedBonus.Bonus;
                     if (str == "Hull Strengthening" || str == "Module HP Bonus")
@@ -808,6 +808,9 @@ namespace Ship_Game
                         this.data.SensorModifier += unlockedBonus.Bonus;
                     if (str == "Privatization")
                         this.data.Privatization = true;
+                    //Doctor: Adding an actually configurable amount of civilian maintenance modification; privatisation is hardcoded at 50% but have left it in for back-compatibility.
+                    if (str == "Civilian Maintenance")
+                        this.data.CivMaintMod -= unlockedBonus.Bonus;
                     if (str == "Armor Piercing" || str == "Armor Phasing")
                         this.data.ArmorPiercingBonus += (int)unlockedBonus.Bonus;
                     if (str == "Kulrathi Might")

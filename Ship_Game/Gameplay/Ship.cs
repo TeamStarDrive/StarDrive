@@ -1106,6 +1106,14 @@ namespace Ship_Game.Gameplay
             }      
 
             // Modifiers below here   
+
+
+            //Doctor: Configurable civilian maintenance modifier.
+            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1)
+            {
+                maint *= this.loyalty.data.CivMaintMod;
+            }
+
             if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
             {
                 maint *= 0.5f;
@@ -1164,6 +1172,11 @@ namespace Ship_Game.Gameplay
             }
 
             // Modifiers below here   
+
+            if ((this.Role == "freighter" || this.Role == "platform") && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1)
+            {
+                maint *= empire.data.CivMaintMod;
+            }
 
             if ((this.Role == "freighter" || this.Role == "platform") && empire != null && !empire.isFaction && empire.data.Privatization)
             {
@@ -1249,6 +1262,12 @@ namespace Ship_Game.Gameplay
                             break;
                         }
                 }
+            }
+
+
+            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1.0)
+            {
+                maint *= this.loyalty.data.CivMaintMod;
             }
 
             //Apply Privatization
@@ -1375,6 +1394,11 @@ namespace Ship_Game.Gameplay
                             break;
                         }
                 }
+            }
+
+            if ((this.Role == "freighter" || this.Role == "platform") && empire.data.CivMaintMod != 1.0)
+            {
+                maint *= empire.data.CivMaintMod;
             }
 
             //Apply Privatization

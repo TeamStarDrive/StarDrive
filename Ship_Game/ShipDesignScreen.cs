@@ -3810,6 +3810,11 @@ namespace Ship_Game
                 }
             }
 
+            if ((ship.Role == "freighter" || ship.Role == "platform") && empire.data.CivMaintMod != 1.0)
+            {
+                maint *= empire.data.CivMaintMod;
+            }
+
             //Apply Privatization
             if ((ship.Role == "freighter" || ship.Role == "platform") && empire.data.Privatization)
             {
@@ -3868,7 +3873,12 @@ namespace Ship_Game
                 maint = fCost * 0.004f;
 
 
-            // Modifiers below here   
+            // Modifiers below here  
+
+            if ((ship.Role == "freighter" || ship.Role == "platform") && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1.0)
+            {
+                maint *= empire.data.CivMaintMod;
+            }
 
             if ((ship.Role == "freighter" || ship.Role == "platform") && empire != null && !empire.isFaction && empire.data.Privatization)
             {

@@ -1317,7 +1317,9 @@ namespace Ship_Game
                 CannonResist = Ship_Game.ResourceManager.ShipModulesDict[uid].CannonResist,
                 SubspaceResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SubspaceResist,
                 PDResist = Ship_Game.ResourceManager.ShipModulesDict[uid].PDResist,
-                FlakResist = Ship_Game.ResourceManager.ShipModulesDict[uid].FlakResist
+                FlakResist = Ship_Game.ResourceManager.ShipModulesDict[uid].FlakResist,
+                APResist = Ship_Game.ResourceManager.ShipModulesDict[uid].APResist,
+                DamageThreshold = Ship_Game.ResourceManager.ShipModulesDict[uid].DamageThreshold
 			};
 
             #region TargetWeight
