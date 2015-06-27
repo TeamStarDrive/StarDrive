@@ -2681,7 +2681,7 @@ namespace Ship_Game.Gameplay
                 if (this.Active)
                 {
                     this.InCombatTimer -= elapsedTime;
-                    if ((double)this.InCombatTimer > 0.0)
+                    if (this.InCombatTimer > 0.0)
                     {
                         this.InCombat = true;
                     }
@@ -3204,7 +3204,7 @@ namespace Ship_Game.Gameplay
                 if (troop.GetOwner() == this.loyalty)
                     this.TroopBoardingDefense += (float)troop.Strength;
             }
-            if ((double)this.updateTimer <= 0.0)
+            if (this.updateTimer <= 0.0)
             {
                 if ((this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip) && this.Weapons.Count > 0)
                 {
@@ -3212,7 +3212,7 @@ namespace Ship_Game.Gameplay
                     bool flag = false;
                     foreach (Weapon weapon in (IEnumerable<Weapon>)orderedEnumerable)
                     {
-                        if ((double)weapon.DamageAmount > 0.0 && !flag)
+                        if (weapon.DamageAmount > 0.0 && !flag)
                         {
                             this.maxWeaponsRange = weapon.Range;
                             flag = true;
@@ -3733,7 +3733,7 @@ namespace Ship_Game.Gameplay
                 if (this.inborders && this.loyalty.data.Traits.InBordersSpeedBonus > 0)
                     this.FTLmodifier += this.loyalty.data.Traits.InBordersSpeedBonus;
             }
-            else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || (double)this.MoveModulesTimer > 0.0 || this.InCombat && GlobalStats.ForceFullSim)
+            else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || (double)this.MoveModulesTimer > 0.0 || this.InCombat && (GlobalStats.ForceFullSim || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
             {
                 if ((double)elapsedTime > 0.0)
                 {

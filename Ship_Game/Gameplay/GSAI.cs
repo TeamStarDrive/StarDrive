@@ -2499,6 +2499,8 @@ namespace Ship_Game.Gameplay
 			}
 			float baseDefensePct = 0.1f;
 			baseDefensePct = baseDefensePct + 0.15f * (float)numWars;
+            float defStr = this.DefensiveCoordinator.GetForcePoolStrength();
+           
 			if (baseDefensePct > 0.35f)
 			{
 				baseDefensePct = 0.35f;
@@ -2509,13 +2511,16 @@ namespace Ship_Game.Gameplay
 				EntireStrength = EntireStrength + ship.GetStrength();
 			}
 			//added by gremlin dont add zero strength ships to defensive force pool
-            if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct && (toAdd.BombBays.Count < toAdd.Weapons.Count || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
+            //if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct 
+            if(this.DefensiveCoordinator.defenseDeficit >0
+                && (toAdd.BombBays.Count*4 < toAdd.Weapons.Count || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
             {
                 this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
                 toAdd.GetAI().SystemToDefend = null;
                 toAdd.GetAI().SystemToDefendGuid = Guid.Empty;
                 toAdd.GetAI().HasPriorityOrder = false;
                 toAdd.GetAI().State = AIState.SystemDefender;
+                this.DefensiveCoordinator.defenseDeficit-=toAdd.BaseStrength;
                 return;
             }
             IOrderedEnumerable<AO> sorted =
@@ -5219,7 +5224,7 @@ namespace Ship_Game.Gameplay
                     maxtech = ship.shipData.techsNeeded.Count;
                 PotentialShips.Add(ship);//   ResourceManager.ShipsDict[shipsWeCanBuild]);
             }
-            float nearmax = maxtech * .75f;
+            float nearmax = maxtech * .5f;
             if (PotentialShips.Count > 0)
             {
                 IOrderedEnumerable<Ship> sortedList =
@@ -5228,23 +5233,27 @@ namespace Ship_Game.Gameplay
                     select ship3;
                 float totalStrength = 0f;
                 maxtech++;
-                foreach (Ship ship1 in sortedList)
-                {
+                ////foreach (Ship ship1 in sortedList)
+                ////{
 
-                        totalStrength += ship1.BaseStrength * (ship1.shipData.techsNeeded.Count +1)/ maxtech;
-                }
-                float ran = RandomMath.RandomBetween(0f, totalStrength);
+                ////        totalStrength += ship1.BaseStrength * (ship1.shipData.techsNeeded.Count +1)/ maxtech;
+                ////}
+                int ran = HelperFunctions.GetRandomIndex(3)-1;
+                if (ran > sortedList.Count()-1)
+                    ran = sortedList.Count()-1;
                 float strcounter = 0f;
-                foreach (Ship ship2 in sortedList)
-                {
-                    strcounter = strcounter + ship2.BaseStrength * (ship2.shipData.techsNeeded.Count+1) / maxtech;
-                    if (strcounter <= ran)
-                    {
-                        continue;
-                    }
-                    name = ship2.Name;
+                name = sortedList.Skip(ran).First().Name;
+                //////foreach (Ship ship2 in sortedList)
+                //////{
+                //////    //strcounter = strcounter + ship2.BaseStrength * (ship2.shipData.techsNeeded.Count+1) / maxtech;
+                //////    //if (strcounter <= ran)
+                //////    //{
+                //////    //    continue;
+                //////    //}
 
-                }
+                //////    name = ship2.Name;
+
+                //////}
             }
             if(string.IsNullOrEmpty(name))
                 PotentialShips.Clear();
@@ -6838,9 +6847,9 @@ namespace Ship_Game.Gameplay
             foreach (Planet p in this.empire.GetPlanets())
             {
                // if (!p.HasShipyard || (p.GetMaxProductionPotential() <2f
-                if ((p.GetMaxProductionPotential() < 5f||( this.empire.data.Traits.Cybernetic !=0 && p.GetMaxProductionPotential()-p.consumption <2f)
-                    || (p.ProductionHere /p.MAX_STORAGE <.10))
-                    )   //p.GetNetProductionPerTurn() < .5f))
+                if ((p.GetMaxProductionPotential() < 2f //||( this.empire.data.Traits.Cybernetic !=0 && p.GetMaxProductionPotential()-p.consumption <2f)
+                    || p.ps == Planet.GoodState.IMPORT
+                    ))   //p.GetNetProductionPerTurn() < .5f))
                 {
                     continue;
                 }
