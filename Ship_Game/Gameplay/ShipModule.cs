@@ -261,6 +261,13 @@ namespace Ship_Game.Gameplay
         public float PDResist = 0f;
         public float FlakResist = 0f;
 
+        //Damage threshold - i.e. damage amounts under the threshold apply no damage to that module
+        public float DamageThreshold = 0f;
+
+        //AP resistance: this is subtracted from the Armour Piercing/Phasing bonus of incoming projectiles to protect from that effect.
+        public int APResist = 0;
+
+
         //record which quadrant the module lives in. Currently only for external modules. internal modules will have an upredicable value.
         public sbyte quadrant = -1;
 
@@ -468,6 +475,10 @@ namespace Ship_Game.Gameplay
                 }
 
             }
+
+            //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
+            if (damageAmount <= this.DamageThreshold)
+                damageAmount = 0f;
 
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
@@ -777,6 +788,10 @@ namespace Ship_Game.Gameplay
                 }
                 
             }
+
+            //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
+            if (damageAmount <= this.DamageThreshold)
+                damageAmount = 0f;
 
 
             if (source is Ship && (source as Ship).Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
@@ -1204,6 +1219,12 @@ namespace Ship_Game.Gameplay
                 }
 
             }
+
+
+            //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
+            if (damageAmount <= this.DamageThreshold)
+                damageAmount = 0f;
+
 			this.Parent.InCombatTimer = 15f;
 			if (this.ModuleType == ShipModuleType.Dummy)
 			{

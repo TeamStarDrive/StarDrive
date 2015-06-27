@@ -94,6 +94,8 @@ namespace Ship_Game
 
 		public bool Privatization;
 
+        public float CivMaintMod = 1f;
+
 		public float FuelCellModifier;
 
 		public float FlatMoneyBonus;
