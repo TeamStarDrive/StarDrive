@@ -3539,17 +3539,17 @@ namespace Ship_Game
                     
                 case ColonyType.TradeHub:
                     
-                 if ((this.Owner.data.Traits.Cybernetic > 0 ? this.consumption : 0) < this.ProductionHere*.1f && (this.ProductionHere > this.MAX_STORAGE * 0.75f || this.ConstructionQueue.Count == 0))
+                 if (this.NetProductionPerTurn > 0  && (this.ProductionHere > this.MAX_STORAGE * 0.33f || this.ConstructionQueue.Count == 0))
                     this.ps = Planet.GoodState.EXPORT;
-                else if (this.ProductionHere > MAX_STORAGE * .33f)
+                else if (this.ProductionHere > MAX_STORAGE * .75f || this.NetProductionPerTurn >0)
                     this.ps = Planet.GoodState.STORE;
                 else
                     this.ps = Planet.GoodState.IMPORT;
 
 
-                if ((this.Owner.data.Traits.Cybernetic == 0 ? this.consumption : 0) < this.FoodHere*.1f && (this.FoodHere > this.MAX_STORAGE * 0.75f ))
+                if (this.NetFoodPerTurn >0 && (this.FoodHere > this.MAX_STORAGE * 0.33f ))
                     this.fs = Planet.GoodState.EXPORT;
-                else if (this.FoodHere > MAX_STORAGE * .33f)
+                else if (this.FoodHere > MAX_STORAGE * .75f || this.NetFoodPerTurn >0 )
                     this.fs = Planet.GoodState.STORE;
                 else
                     this.fs = Planet.GoodState.IMPORT;
