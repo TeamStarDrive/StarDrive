@@ -2975,7 +2975,7 @@ namespace Ship_Game
                         }
                     }
                     else
-                        this.ClickTimer = 0.0f;
+                        this.ClickTimer = 0.5f;
                         //this.ClickTimer = 0.5f;
                 }
                 this.HandleSelectionBox(input);
@@ -3047,15 +3047,16 @@ namespace Ship_Game
                             else if (this.SelectedShipList.Count > 1)
                                 this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);
                             this.SelectedSomethingTimer = 3f;
+
                             if ((double)this.ClickTimer < (double)this.TimerDelay)
-                            {
-                                this.ViewingShip = false;
-                                this.AdjustCamTimer = 0.5f;
-                                this.transitionDestination.X = this.SelectedFleet.findAveragePosition().X;
-                                this.transitionDestination.Y = this.SelectedFleet.findAveragePosition().Y;
-                                if (this.viewState < UniverseScreen.UnivScreenState.SystemView)
-                                    this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
-                            }
+                                {
+                                    this.ViewingShip = false;
+                                    this.AdjustCamTimer = 0.5f;
+                                    this.transitionDestination.X = this.SelectedFleet.findAveragePosition().X;
+                                    this.transitionDestination.Y = this.SelectedFleet.findAveragePosition().Y;
+                                    if (this.viewState < UniverseScreen.UnivScreenState.SystemView)
+                                        this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
+                                }
                             else
                                 this.ClickTimer = 0.0f;
                         }
