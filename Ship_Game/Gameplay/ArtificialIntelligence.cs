@@ -673,18 +673,29 @@ namespace Ship_Game.Gameplay
             if (this.Target != null && !this.Target.Active)
             {
                 this.Target = null;
-                this.State = this.DefaultAIState;
+                //if (!this.BadGuysNear)
+                {
+                    this.State = this.DefaultAIState;                 
+                    this.OrderQueue.Clear();                    
+                }
                 this.Intercepting = false;
-                this.OrderQueue.Clear();
+                
                 return;
+                
             }
-            if (this.Target == null)
+            if (this.Target == null )
             {
                 this.Target = null;
-                this.State = this.DefaultAIState;
+                //if (!this.BadGuysNear)
+                {
+                    this.OrderQueue.Clear();
+                    this.State = this.DefaultAIState;
+                }
                 this.Intercepting = false;
-                this.OrderQueue.Clear();
+                this.ScanForThreatTimer = 0;
                 return;
+                
+               
             }
    
             if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
@@ -701,7 +712,7 @@ namespace Ship_Game.Gameplay
                 //    this.Owner.Mothership.InCombatTimer = 15f;
                 //}
                 if(this.Owner.Role != "troop"
-                    && (this.Owner.Health/ this.Owner.HealthMax <.5f || this.Owner.shield_max>0 && this.Owner.shield_percent <=0.0)
+                    && (this.Owner.Health/ this.Owner.HealthMax <.5f || (this.Owner.shield_max>0 && this.Owner.shield_percent <=0.0))
                     || (this.Owner.OrdinanceMax > 0 && this.Owner.Ordinance / this.Owner.OrdinanceMax <= .1f)
                     || (this.Owner.PowerCurrent <=1f && this.Owner.PowerDraw / this.Owner.PowerFlowMax <=.1f)
                     )
@@ -1364,7 +1375,7 @@ namespace Ship_Game.Gameplay
             float DistanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
             float minRangeMod = this.Owner.maxWeaponsRange < 2000 ? .5f : .75f;
             float maxRangeMod = this.Owner.maxWeaponsRange < 2000 ? .75f : .9f;
-            if (DistanceToTarget > this.Owner.maxWeaponsRange * maxRangeMod)
+            if (DistanceToTarget > this.Owner.maxWeaponsRange * maxRangeMod + this.Target.Radius)
             {
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
@@ -1504,19 +1515,12 @@ namespace Ship_Game.Gameplay
             if ((double)this.findNewPosTimer <= 0.0)//|| distanceToOrbitSpot <1500)
             {
 
-
-
                 if (distanceToOrbitSpot < radius || this.Owner.speed == 0)
                 {
                     
                     this.OrbitalAngle += MathHelper.ToDegrees((float)Math.Asin(this.Owner.yBankAmount*10));//   this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond )) ;//< .1f ? .1f : this.Owner.rotationRadiansPerSecond));//* elapsedTime);// MathHelper.ToDegrees((float)Math.Asin((double)this.Owner.rotationRadiansPerSecond / 1500.0));
                     if ((double)this.OrbitalAngle >= 360.0)
                         this.OrbitalAngle -= 360f;
-                    //this.OrbitalAngle = this.OrbitalAngle + MathHelper.ToDegrees(this.Owner.rotationRadiansPerSecond );// * .75f); //15f
-                    //if ((double)this.OrbitalAngle >= 360.0)
-                    //    this.OrbitalAngle -= 360f;
-                   // this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, 2500f ); //OrbitTarget.ObjectRadius + 1000 + this.Owner.Radius);// 2500f);
-                      
                 }
                 this.findNewPosTimer =  elapsedTime * 10;// this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond;///< .1f ? .1f : this.Owner.rotationRadiansPerSecond) ;// this.Owner.rotationRadiansPerSecond;// elapsedTime;// 1; //1.5
                 this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, radius);// 1500 ); //2500f //OrbitTarget.ObjectRadius +1000 + this.Owner.Radius);// 2500f);
@@ -1539,45 +1543,11 @@ namespace Ship_Game.Gameplay
                 (num1 < 5000 && Vector2.Distance(this.Owner.Center, OrbitTarget.Position) < radius+1000f && this.Owner.engineState != Ship.MoveState.Warp)    //1200.0 && this.Owner.engineState != Ship.MoveState.Warp) (double)this.Owner.speed > 50&&
             {
 
-                
-                //this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 3.5f);
-                //this.Owner.speed = this.Owner.GetSTLSpeed()>350?350:this.Owner.speed;
-                //if(this.Owner.speed >num1)
-                //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, num1);
-                //else
                 float opt = num1;// Vector2.Distance(this.Owner.Center, this.OrbitPos);
-                //if (opt < 2500f)
-                {
-                    //float turnspeed =(this.Owner.maxBank - Math.Abs(this.Owner.yRotation)) / this.Owner.maxBank;                    //    this.Owner.speed=this.orbitSpeed;
-                    //this.Owner.speed = this.Owner.speed * turnspeed;
-                    //if (this.Owner.rotationRadiansPerSecond > 0 )
-                      //  this.Owner.speed = ((radius) * ((this.Owner.rotationRadiansPerSecond > 1 ? 1 : this.Owner.rotationRadiansPerSecond < .1f ? .1f : this.Owner.rotationRadiansPerSecond) * .35f));
-                    
-                   
-                }
-                //else if (opt > 2500f)
-                //{
-                //    this.Owner.speed = opt * .10f;
-                //}
-                //if (this.Owner.speed < 150)
-                //  this.Owner.speed = 150;
-                //this.orbitSpeed = this.Owner.speed;
                 this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
             }
             else
             {
-                //if (this.Owner.engineState == Ship.MoveState.Warp)
-                //    return;
-                //if (this.Owner.speed > num1)//(num1 > 2500 )//OrbitTarget.ObjectRadius + 1100 + this.Owner.Radius)
-                //{
-                //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed / 2f);
-                //}
-                //else
-                //{
-
-                //    this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed> 350 ? 350 : this.Owner.speed);
-                //}
-                this.orbitSpeed = 0;
                 this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);// > 50 ? 50 : this.Owner.speed);
             }
         }
@@ -2622,6 +2592,18 @@ namespace Ship_Game.Gameplay
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
+            if (this.Owner.speed == 0 && target.Velocity.Length() == 0)
+            {
+                Vector2 fireatstationary = Vector2.Zero;
+                fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center));
+                if (SalvoFire)
+                    weapon.FireSalvo(fireatstationary, target);
+                else
+                    weapon.Fire(fireatstationary, target);
+                return;
+
+            }
+            
             float distance = Vector2.Distance(weapon.Center, target.Center) + target.Velocity.Length()==0?0: 500;
             Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
             float timeToTarget = distance / dir.Length();
@@ -2687,7 +2669,7 @@ namespace Ship_Game.Gameplay
 			owner.Ordinance = owner.Ordinance - w.OrdinanceRequiredToFire;
 			Ship powerCurrent = this.Owner;
 			powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - w.PowerRequiredToFire;
-			
+            this.Owner.InCombatTimer = 15f;
             if (fireTarget is Projectile)
 			{
 				fireTarget.Damage(w.GetOwner(), w.DamageAmount);
@@ -2847,12 +2829,14 @@ namespace Ship_Game.Gameplay
 
 		public void HoldPosition()
 		{
-			if (this.Owner.isSpooling || this.Owner.engineState== Ship.MoveState.Warp)
-			{
-				this.Owner.HyperspaceReturn();
-			}
-			this.State = AIState.HoldPosition;
-			this.Owner.isThrusting = false;
+
+                if (this.Owner.isSpooling || this.Owner.engineState == Ship.MoveState.Warp)
+                {
+                    this.Owner.HyperspaceReturn();
+                }
+                this.State = AIState.HoldPosition;
+                this.Owner.isThrusting = false;
+ 
 		}
 
 		private void MakeFinalApproach(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
@@ -5621,10 +5605,10 @@ namespace Ship_Game.Gameplay
 
 
                 else if (
-                    !this.Intercepting && (this.Target as Ship).engineState == Ship.MoveState.Warp ) //||((double)Vector2.Distance(Position, this.Target.Center) > (double)Radius ||
+                    !this.Intercepting && (this.Target as Ship).engineState == Ship.MoveState.Warp) //||((double)Vector2.Distance(Position, this.Target.Center) > (double)Radius ||
                 {
                     this.Target = (GameplayObject)null;
-                    if (!this.HasPriorityOrder  && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+                    if (!this.HasPriorityOrder && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
                         this.State = AIState.AwaitingOrders;
                     return (GameplayObject)null;
                 }
@@ -7029,7 +7013,7 @@ namespace Ship_Game.Gameplay
                             }
                         case ArtificialIntelligence.Plan.Bombard:
                             target = toEvaluate.TargetPlanet;
-                            if ((double)this.Owner.Ordinance < 0.0500000007450581 * (double)this.Owner.OrdinanceMax
+                            if (this.Owner.Ordinance < 0.05* this.Owner.OrdinanceMax
                                 || (target.BuildingList.Count == 0 && target.TroopsHere.Count == 0  && target.Population <0f)
                                 || target.GetGroundStrengthOther(this.Owner.loyalty) * 1.5
                                 <= target.GetGroundStrength(this.Owner.loyalty)
@@ -7047,7 +7031,7 @@ namespace Ship_Game.Gameplay
                                 this.OrderQueue.Clear();
                                 return;
                             }
-                            else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)                                
+                            else if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)                                
                             {                                
                                 using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                 {

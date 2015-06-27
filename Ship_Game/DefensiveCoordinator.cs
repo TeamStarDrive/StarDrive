@@ -58,6 +58,10 @@ namespace Ship_Game
 
             foreach(Ship ship in this.DefensiveForcePool)
             {
+                if(!ship.Active || ship.dying)
+                {
+                    continue;
+                }
                 strength += (int)ship.GetStrength();
             }
             return (float)strength;
@@ -281,6 +285,7 @@ namespace Ship_Game
                     StrToAssign = StrToAssign - Predicted;
                 }
             }
+            this.defenseDeficit = StrToAssign * -1;
             if (StrToAssign < 0f)
             {
                 StrToAssign = 0f;
@@ -295,17 +300,18 @@ namespace Ship_Game
                 SystemCommander idealShipStrength = entry.Value;
                 idealShipStrength.IdealShipStrength = idealShipStrength.IdealShipStrength + entry.Value.PercentageOfValue * StrToAssign;
             }
+            
             Dictionary<Guid, Ship> AssignedShips = new Dictionary<Guid, Ship>();
             List<Ship> ShipsAvailableForAssignment = new List<Ship>();
             foreach (KeyValuePair<SolarSystem, SystemCommander> defenseDict in this.DefenseDict)
             {
-                if (this.DefenseDict[defenseDict.Key].GetOurStrength() <= this.DefenseDict[defenseDict.Key].IdealShipStrength + this.DefenseDict[defenseDict.Key].IdealShipStrength * 0.1f)
+                if (this.DefenseDict[defenseDict.Key].GetOurStrength() <= this.DefenseDict[defenseDict.Key].IdealShipStrength *.5f || defenseDict.Key.DangerTimer >0 )
                 {
                     continue;
                 }
                 IOrderedEnumerable<Ship> strsorted =
                     from ship in this.DefenseDict[defenseDict.Key].GetShipList()
-                    where !ship.GetAI().BadGuysNear && ship.GetAI().State == AIState.AwaitingOrders
+                    //where  !ship.GetAI().BadGuysNear && ship.GetAI().State == AIState.AwaitingOrders
                     orderby ship.GetStrength()
                     select ship;
                 using (IEnumerator<Ship> enumerator = strsorted.GetEnumerator())
@@ -332,17 +338,26 @@ namespace Ship_Game
                     if (defensiveForcePool.GetAI().SystemToDefend != null
                         || defensiveForcePool.GetAI().HasPriorityOrder
                         || defensiveForcePool.GetAI().BadGuysNear
-                        || defensiveForcePool.engineState == Ship.MoveState.Warp)//||defensiveForcePool.GetAI().Target!=null)
+                        || defensiveForcePool.engineState == Ship.MoveState.Warp
+                        || (defensiveForcePool.InCombat )
+                        )
                     {
                         continue;
-                    }
-                    if (!defensiveForcePool.InCombat && defensiveForcePool.GetAI().State == AIState.AwaitingOrders)
+                    }                    
                     ShipsAvailableForAssignment.Add(defensiveForcePool);
                 }
                 else
                 {
                     this.DefensiveForcePool.QueuePendingRemoval(defensiveForcePool);
                 }
+            }
+            foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
+            {
+                if (entry.Key == null)
+                {
+                    continue;
+                }
+                entry.Value.AssignTargets();
             }
             IOrderedEnumerable<SolarSystem> valueSortedList =
                 from system in systems
@@ -399,14 +414,7 @@ namespace Ship_Game
                 }
             }
             this.DefensiveForcePool.ApplyPendingRemovals();
-            foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
-            {
-                if (entry.Key == null)
-                {
-                    continue;
-                }
-                entry.Value.AssignTargets();
-            }
+
 
             #endregion
             #region Manage Troops
