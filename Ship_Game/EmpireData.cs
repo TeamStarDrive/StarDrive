@@ -94,6 +94,8 @@ namespace Ship_Game
 
 		public bool Privatization;
 
+        public float CivMaintMod = 1f;
+
 		public float FuelCellModifier;
 
 		public float FlatMoneyBonus;
@@ -118,7 +120,7 @@ namespace Ship_Game
 
         public float SpoolTimeModifier = 1.0f;
 
-		public float ExplosiveRadiusReduction;
+		public float ExplosiveRadiusReduction = 0f;
 
 		public float ShieldPenBonusChance;
 

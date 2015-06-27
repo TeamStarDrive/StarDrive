@@ -713,6 +713,7 @@ namespace Ship_Game
             empireData.FuelCellModifier = data.FuelCellModifier;
             empireData.Inhibitors = data.Inhibitors;
             empireData.MassModifier = data.MassModifier;
+            //Doctor: Armour Mass Mod
             empireData.ArmourMassModifier = data.ArmourMassModifier;
             empireData.MissileDodgeChance = data.MissileDodgeChance;
             empireData.MissileHPModifier = data.MissileHPModifier;
@@ -729,6 +730,9 @@ namespace Ship_Game
             empireData.TroopNameIndex = data.TroopNameIndex;
             empireData.PowerFlowMod = data.PowerFlowMod;
             empireData.ShieldPowerMod = data.ShieldPowerMod;
+            //Doctor: Civilian Maint Mod
+            empireData.CivMaintMod = data.CivMaintMod;
+
             empireData.Traits = new RacialTrait();
             empireData.Traits.Aquatic = data.Traits.Aquatic;
             empireData.Traits.Assimilators = data.Traits.Assimilators;
