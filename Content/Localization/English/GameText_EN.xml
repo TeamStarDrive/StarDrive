@@ -7784,79 +7784,79 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6142</Index>
-      <Text>Kinetic Resist</Text>
+      <Text>Kinetic Res</Text>
     </Token>	
 	<Token>
       <Index>6143</Index>
-      <Text>Energy Resist</Text>
+      <Text>Energy Res</Text>
     </Token>
 	<Token>
       <Index>6144</Index>
-      <Text>Guided Resist</Text>
+      <Text>Guided Res</Text>
     </Token>
 	<Token>
       <Index>6145</Index>
-      <Text>Missile Resist</Text>
+      <Text>Missile Res</Text>
     </Token>
 	<Token>
       <Index>6146</Index>
-      <Text>Hybrid Resist</Text>
+      <Text>Hybrid Res</Text>
     </Token>
 	<Token>
       <Index>6147</Index>
-      <Text>Beam Resist</Text>
+      <Text>Beam Res</Text>
     </Token>
 	<Token>
       <Index>6148</Index>
-      <Text>Explosive Resist</Text>
+      <Text>Explosive Res</Text>
     </Token>
 	<Token>
       <Index>6149</Index>
-      <Text>Intercept Resist</Text>
+      <Text>Intercept Res</Text>
     </Token>
 	<Token>
       <Index>6150</Index>
-      <Text>Railgun Resist</Text>
+      <Text>Railgun Res</Text>
     </Token>
 	<Token>
       <Index>6151</Index>
-      <Text>Sp. Bomb Resist</Text>
+      <Text>Sp. Bomb Res</Text>
     </Token>
 	<Token>
       <Index>6152</Index>
-      <Text>Bombard Resist</Text>
+      <Text>Bombard Res</Text>
     </Token>
 	<Token>
       <Index>6153</Index>
-      <Text>Biological Resist</Text>
+      <Text>Biological Res</Text>
     </Token>
 	<Token>
       <Index>6154</Index>
-      <Text>Drone Resist</Text>
+      <Text>Drone Res</Text>
     </Token>
 	<Token>
       <Index>6155</Index>
-      <Text>Warp Resist</Text>
+      <Text>Warp Res</Text>
     </Token>
 	<Token>
       <Index>6156</Index>
-      <Text>Torpedo Resist</Text>
+      <Text>Torpedo Res</Text>
     </Token>
 	<Token>
       <Index>6157</Index>
-      <Text>Cannon Resist</Text>
+      <Text>Cannon Res</Text>
     </Token>
 	<Token>
       <Index>6158</Index>
-      <Text>Subspace Resist</Text>
+      <Text>Subspace Res</Text>
     </Token>
 	<Token>
       <Index>6159</Index>
-      <Text>PD Resist</Text>
+      <Text>PD Res</Text>
     </Token>
 	<Token>
       <Index>6160</Index>
-      <Text>Flak Resist</Text>
+      <Text>Flak Res</Text>
     </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -8043,79 +8043,79 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>7046</Index>
-      <Text>Indicates resistance to kinetic-type damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to kinetic-type damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token> 
 	<Token>
       <Index>7047</Index>
-      <Text>Indicates resistance to energy weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7048</Index>
-      <Text>Indicates resistance to guided weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to guided weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7049</Index>
-      <Text>Indicates resistance to missile weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to missile weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7050</Index>
-      <Text>Indicates resistance to hybrid weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to hybrid weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7051</Index>
-      <Text>Indicates resistance to beam weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7052</Index>
-      <Text>Indicates resistance to explosive damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to explosive damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7053</Index>
-      <Text>Indicates resistance to interceptable weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to interceptable weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7054</Index>
-      <Text>Indicates resistance to railgun weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7055</Index>
-      <Text>Indicates resistance to spatial bomb weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to spatial bomb weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7056</Index>
-      <Text>Indicates resistance to bombardment weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to bombardment weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7057</Index>
-      <Text>Indicates resistance to biological weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to biological weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7058</Index>
-      <Text>Indicates resistance to drone weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to drone weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7059</Index>
-      <Text>Indicates resistance to warp weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to warp weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7060</Index>
-      <Text>Indicates resistance to torpedo weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to torpedo weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7061</Index>
-      <Text>Indicates resistance to cannon weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to cannon weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7062</Index>
-      <Text>Indicates resistance to subspace weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to subspace weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7063</Index>
-      <Text>Indicates resistance to PD weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to PD weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
 	<Token>
       <Index>7064</Index>
-      <Text>Indicates resistance to flak weapon damage, where 0 is no resistance, 1 is immunity and -1 is double vulnerability.</Text>
+      <Text>Indicates resistance to flak weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
