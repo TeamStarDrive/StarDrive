@@ -2104,97 +2104,97 @@ namespace Ship_Game
                     }
                     if (mod.KineticResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6142), (float)mod.KineticResist, 189);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6142), (float)mod.KineticResist, 189);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.EnergyResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6143), (float)mod.EnergyResist, 190);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6143), (float)mod.EnergyResist, 190);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.GuidedResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6144), (float)mod.GuidedResist, 191);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6144), (float)mod.GuidedResist, 191);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.MissileResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6145), (float)mod.MissileResist, 192);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6145), (float)mod.MissileResist, 192);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.HybridResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6146), (float)mod.HybridResist, 193);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6146), (float)mod.HybridResist, 193);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.BeamResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6147), (float)mod.BeamResist, 194);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6147), (float)mod.BeamResist, 194);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.ExplosiveResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6148), (float)mod.ExplosiveResist, 195);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6148), (float)mod.ExplosiveResist, 195);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.InterceptResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6149), (float)mod.InterceptResist, 196);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6149), (float)mod.InterceptResist, 196);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.RailgunResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6150), (float)mod.RailgunResist, 197);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6150), (float)mod.RailgunResist, 197);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.SpaceBombResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6151), (float)mod.SpaceBombResist, 198);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6151), (float)mod.SpaceBombResist, 198);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.BombResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6152), (float)mod.BombResist, 199);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6152), (float)mod.BombResist, 199);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.BioWeaponResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6153), (float)mod.BioWeaponResist, 200);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6153), (float)mod.BioWeaponResist, 200);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.DroneResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6154), (float)mod.DroneResist, 201);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6154), (float)mod.DroneResist, 201);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.WarpResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6155), (float)mod.WarpResist, 202);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6155), (float)mod.WarpResist, 202);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.TorpedoResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6156), (float)mod.TorpedoResist, 203);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6156), (float)mod.TorpedoResist, 203);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.CannonResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6157), (float)mod.CannonResist, 204);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6157), (float)mod.CannonResist, 204);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.SubspaceResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6158), (float)mod.SubspaceResist, 205);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6158), (float)mod.SubspaceResist, 205);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.PDResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6159), (float)mod.PDResist, 206);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6159), (float)mod.PDResist, 206);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.FlakResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6160), (float)mod.FlakResist, 207);
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6160), (float)mod.FlakResist, 207);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
 
@@ -3810,6 +3810,11 @@ namespace Ship_Game
                 }
             }
 
+            if ((ship.Role == "freighter" || ship.Role == "platform") && empire.data.CivMaintMod != 1.0)
+            {
+                maint *= empire.data.CivMaintMod;
+            }
+
             //Apply Privatization
             if ((ship.Role == "freighter" || ship.Role == "platform") && empire.data.Privatization)
             {
@@ -3868,7 +3873,12 @@ namespace Ship_Game
                 maint = fCost * 0.004f;
 
 
-            // Modifiers below here   
+            // Modifiers below here  
+
+            if ((ship.Role == "freighter" || ship.Role == "platform") && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1.0)
+            {
+                maint *= empire.data.CivMaintMod;
+            }
 
             if ((ship.Role == "freighter" || ship.Role == "platform") && empire != null && !empire.isFaction && empire.data.Privatization)
             {
@@ -3949,6 +3959,31 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
 			}
 		}
+
+        private void DrawStatPC(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 120f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = stat.ToString("p1");
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
 
         private void DrawStatEnergy(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
