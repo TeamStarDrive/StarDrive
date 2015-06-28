@@ -162,7 +162,7 @@ namespace Ship_Game.Gameplay
         public object wayPointLocker;
         ShipModule moduleTarget;
         Ship TargetShip;
-        private ReaderWriterLockSlim orderqueue = new ReaderWriterLockSlim();
+        public  ReaderWriterLockSlim orderqueue = new ReaderWriterLockSlim();
         public  List<Task> TaskList = new List<Task>();
         
         //adding for thread safe Dispose because class uses unmanaged resources 
@@ -2003,10 +2003,14 @@ namespace Ship_Game.Gameplay
             if (this.SystemToDefend == null)
 			{
 				this.SystemToDefend = this.Owner.GetSystem();
+               
 			}
-			
-           
-                this.AwaitOrders(elapsedTime);
+           //if(this.Owner.GetSystem() != this.SystemToDefend)
+               
+               this.AwaitOrders(elapsedTime);
+           //this.State = AIState.SystemDefender;
+
+                
 		}
 
 		private void DoTroopToShip(float elapsedTime)
@@ -4266,18 +4270,30 @@ namespace Ship_Game.Gameplay
 		{
             //if (this.State == AIState.Intercept || this.Owner.InCombatTimer > 0)
             //    return;
-            bool inSystem = true;
-            if (this.Owner.BaseCanWarp && Vector2.Distance(system.Position, this.Owner.Position) / this.Owner.velocityMaximum > 11)
-                inSystem = false;
-            else 
-                inSystem = this.Owner.GetSystem() == this.SystemToDefend;
-            if (!inSystem || this.State != AIState.SystemDefender )
+            //bool inSystem = true;
+            //if (this.Owner.BaseCanWarp && Vector2.Distance(system.Position, this.Owner.Position) / this.Owner.velocityMaximum > 11)
+            //    inSystem = false;
+            //else 
+            //    inSystem = this.Owner.GetSystem() == this.SystemToDefend;
+            //if (this.SystemToDefend == null)
+            //{
+            //    this.HasPriorityOrder = false;
+            //    this.SystemToDefend = system;
+            //    this.OrderQueue.Clear();
+            //}
+            //else
+
+            ArtificialIntelligence.ShipGoal goal = this.OrderQueue.LastOrDefault();
+
+            this.orderqueue.EnterWriteLock(); //this.Owner.engineState != Ship.MoveState.Warp &&
+            if ( (this.SystemToDefend != system || (this.Owner.GetSystem() != system && goal != null && this.OrderQueue.LastOrDefault().Plan != Plan.DefendSystem)))
 			{
 
 #if SHOWSCRUB
                 if (this.Target != null && (this.Target as Ship).Name == "Subspace Projector")
                     System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", (this.Target as Ship).Name)); 
 #endif
+                this.SystemToDefend = system;
                 this.HasPriorityOrder = false;
 				this.SystemToDefend = system;
 				this.OrderQueue.Clear();
@@ -4299,12 +4315,16 @@ namespace Ship_Game.Gameplay
 						{
 							Ran = Potentials.Count - 1;
 						}
+                       // this.awaitClosest = Potentials[Ran];
 						this.OrderMoveTowardsPosition(Potentials[Ran].Position, 0f, Vector2.One, true,null);
 					}
 				}
-				this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DefendSystem, Vector2.Zero, 0f));
-				this.State = AIState.SystemDefender;
+                this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DefendSystem, Vector2.Zero, 0f));
 			}
+            this.orderqueue.ExitWriteLock();
+            this.State = AIState.SystemDefender;
+         
+            
 		}
 
 		public void OrderThrustTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool ClearOrders)
