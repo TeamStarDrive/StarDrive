@@ -918,6 +918,7 @@ namespace Ship_Game
         public float GetPredictedEnemyPresence(float time, Empire us)
         {
             float prediction = 0f;
+
             foreach (Ship ship in this.ShipList)
             {
                 if (ship == null || ship.loyalty == us || !ship.loyalty.isFaction && !us.GetRelations()[ship.loyalty].AtWar)

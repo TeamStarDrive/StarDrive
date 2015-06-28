@@ -4386,9 +4386,13 @@ namespace Ship_Game.Gameplay
 
                 }
             }
-            
+
             if (this.AttackerTargetting.Count == 0)
-                return null;
+            {
+                if (this.ExternalSlots.Count == 0)
+                    return null;
+                else return this.ExternalSlots[0].module;
+            }
             int randomizer2 = this.AttackerTargetting.Count() / (level + 1);// level > 0 ? this.AttackerTargetting.Count() / (level + 2) : this.AttackerTargetting.Count();
 
             return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer2)].module;
