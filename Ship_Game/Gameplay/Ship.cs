@@ -2974,8 +2974,10 @@ namespace Ship_Game.Gameplay
                     if (moduleSlot.module != null && moduleSlot.module.ModuleType != ShipModuleType.PowerConduit)
                         moduleSlot.module.Powered = true;
                     if (moduleSlot.module.isDummy && moduleSlot.module.ParentOfDummy != null)
-                        moduleSlot.module.ParentOfDummy.Powered = true;
+                        moduleSlot.module.ParentOfDummy.Powered = true;                    
                 }
+                if (!moduleSlot.Powered && moduleSlot.module != null && moduleSlot.module.IndirectPower)
+                    moduleSlot.module.Powered = true;
             }
         }
 
