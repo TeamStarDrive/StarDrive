@@ -287,6 +287,9 @@ namespace Ship_Game.Gameplay
         //AP resistance: this is subtracted from the Armour Piercing/Phasing bonus of incoming projectiles to protect from that effect.
         public int APResist = 0;
 
+        //A module which doesn't require direct powering to function and drain power supplies - e.g. for powered armour.
+        public bool IndirectPower = false;
+
 
         //record which quadrant the module lives in. Currently only for external modules. internal modules will have an upredicable value.
         public sbyte quadrant = -1;

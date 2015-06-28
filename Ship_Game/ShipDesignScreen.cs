@@ -6280,8 +6280,10 @@ namespace Ship_Game
                     if (slotStruct.module != null && slotStruct.module.ModuleType != ShipModuleType.PowerConduit)
                         slotStruct.module.Powered = true;
                     if (slotStruct.parent != null && slotStruct.parent.module != null)
-                        slotStruct.parent.module.Powered = true;
+                        slotStruct.parent.module.Powered = true;                    
                 }
+                if (!slotStruct.Powered && slotStruct.module != null && slotStruct.module.IndirectPower)
+                        slotStruct.module.Powered = true;
             }
         }
 
