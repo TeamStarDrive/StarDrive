@@ -164,6 +164,7 @@ namespace Ship_Game
         private bool disposed;
 
         //designsWeHave our techTree has techs for.
+        public SortButton PLSort = null;
 
 
 
