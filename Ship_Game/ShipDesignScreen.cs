@@ -2006,6 +2006,61 @@ namespace Ship_Game
                         this.DrawStat(ref modTitlePos, Localizer.Token(134), (float)mod.shield_recharge_rate, 95);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
+
+                    // Doc: new shield resistances, UI info.
+
+                    if (mod.shield_kinetic_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6162), (float)mod.shield_kinetic_resist, 209);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_energy_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6163), (float)mod.shield_energy_resist, 210);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_explosive_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6164), (float)mod.shield_explosive_resist, 211);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_missile_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6165), (float)mod.shield_missile_resist, 212);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_flak_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6166), (float)mod.shield_flak_resist, 213);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_hybrid_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6167), (float)mod.shield_hybrid_resist, 214);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_railgun_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6168), (float)mod.shield_railgun_resist, 215);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_subspace_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6169), (float)mod.shield_subspace_resist, 216);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_warp_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6170), (float)mod.shield_warp_resist, 217);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_beam_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6171), (float)mod.shield_beam_resist, 218);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+
+
                     if (mod.SensorRange != 0)
                     {
                         this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
@@ -2195,6 +2250,11 @@ namespace Ship_Game
                     if (mod.FlakResist != 0)
                     {
                         this.DrawStatPC(ref modTitlePos, Localizer.Token(6160), (float)mod.FlakResist, 207);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.APResist != 0)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.FlakResist, 208);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
 
@@ -3971,6 +4031,31 @@ namespace Ship_Game
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = stat.ToString("p1");
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatPCShield(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 120f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
             string numbers = stat.ToString("p1");
             if (stat == 0f)
             {

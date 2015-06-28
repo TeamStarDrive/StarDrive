@@ -7858,6 +7858,53 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6160</Index>
       <Text>Flak Res</Text>
     </Token>
+		<Token>
+      <Index>6161</Index>
+      <Text>AP Res</Text>
+    </Token>
+	
+	<!-- Shield Resists UI -->
+	
+	<Token>
+      <Index>6162</Index>
+      <Text>Kinetic SR</Text>
+    </Token>
+	<Token>
+      <Index>6163</Index>
+      <Text>Energy SR</Text>
+    </Token>
+	<Token>
+      <Index>6164</Index>
+      <Text>Explosive SR</Text>
+    </Token>
+	<Token>
+      <Index>6165</Index>
+      <Text>Missile SR</Text>
+    </Token>
+	<Token>
+      <Index>6166</Index>
+      <Text>Flak SR</Text>
+    </Token>
+	<Token>
+      <Index>6167</Index>
+      <Text>Hybrid SR</Text>
+    </Token>
+	<Token>
+      <Index>6168</Index>
+      <Text>Railgun SR</Text>
+    </Token>
+	<Token>
+      <Index>6169</Index>
+      <Text>Subspace SR</Text>
+    </Token>
+	<Token>
+      <Index>6170</Index>
+      <Text>Warp SR</Text>
+    </Token>	
+	<Token>
+      <Index>6171</Index>
+      <Text>Beam SR</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -8116,6 +8163,55 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7064</Index>
       <Text>Indicates resistance to flak weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	
+	<Token>
+      <Index>7065</Index>
+      <Text>Indicates resistance to Armour Piercing effects - each point of AP resistance negates 1 point of Armour Piercing on enemy projectiles.</Text>
+    </Token>
+	
+	
+	<!-- Shield Resistance Tooltips -->
+	
+	<Token>
+      <Index>7066</Index>
+      <Text>Indicates shield bubble's resistance to kinetic weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7067</Index>
+      <Text>Indicates shield bubble's resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7068</Index>
+      <Text>Indicates shield bubble's resistance to explosive damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7069</Index>
+      <Text>Indicates shield bubble's resistance to missile weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7070</Index>
+      <Text>Indicates shield bubble's resistance to flak weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7071</Index>
+      <Text>Indicates shield bubble's resistance to hybrid weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7072</Index>
+      <Text>Indicates shield bubble's resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7073</Index>
+      <Text>Indicates shield bubble's resistance to subspace weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7074</Index>
+      <Text>Indicates shield bubble's resistance to warp weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>	
+	<Token>
+      <Index>7075</Index>
+      <Text>Indicates shield bubble's resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
