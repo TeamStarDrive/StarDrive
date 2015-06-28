@@ -19,7 +19,14 @@ namespace Ship_Game
 		public SortButton()
 		{
 		}
-
+        public SortButton(SortButton sb, string text)
+        {
+            this.Text = text;
+            if(sb!=null && sb.Text == this.Text)
+            {
+                this.Ascending = sb.Ascending;
+            }
+        }
 		public void Draw(Ship_Game.ScreenManager ScreenManager)
 		{
 			Color orange;
