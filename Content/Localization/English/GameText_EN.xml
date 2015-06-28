@@ -7785,7 +7785,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>6142</Index>
       <Text>Kinetic Res</Text>
-    </Token>	
+    </Token>
 	<Token>
       <Index>6143</Index>
       <Text>Energy Res</Text>
@@ -7808,27 +7808,27 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6148</Index>
-      <Text>Explosive Res</Text>
+      <Text>Expl Res</Text>
     </Token>
 	<Token>
       <Index>6149</Index>
-      <Text>Intercept Res</Text>
+      <Text>Intcpt Res</Text>
     </Token>
 	<Token>
       <Index>6150</Index>
-      <Text>Railgun Res</Text>
+      <Text>Rail Res</Text>
     </Token>
 	<Token>
       <Index>6151</Index>
-      <Text>Sp. Bomb Res</Text>
+      <Text>SpB Res</Text>
     </Token>
 	<Token>
       <Index>6152</Index>
-      <Text>Bombard Res</Text>
+      <Text>Bomb Res</Text>
     </Token>
 	<Token>
       <Index>6153</Index>
-      <Text>Biological Res</Text>
+      <Text>Bio Res</Text>
     </Token>
 	<Token>
       <Index>6154</Index>
@@ -7840,7 +7840,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6156</Index>
-      <Text>Torpedo Res</Text>
+      <Text>Torp Res</Text>
     </Token>
 	<Token>
       <Index>6157</Index>
@@ -7848,7 +7848,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6158</Index>
-      <Text>Subspace Res</Text>
+      <Text>Sub Res</Text>
     </Token>
 	<Token>
       <Index>6159</Index>
@@ -7858,7 +7858,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6160</Index>
       <Text>Flak Res</Text>
     </Token>
-		<Token>
+	<Token>
       <Index>6161</Index>
       <Text>AP Res</Text>
     </Token>
@@ -7875,7 +7875,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6164</Index>
-      <Text>Explosive SR</Text>
+      <Text>Expl SR</Text>
     </Token>
 	<Token>
       <Index>6165</Index>
@@ -7891,11 +7891,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6168</Index>
-      <Text>Railgun SR</Text>
+      <Text>Rail SR</Text>
     </Token>
 	<Token>
       <Index>6169</Index>
-      <Text>Subspace SR</Text>
+      <Text>Sub SR</Text>
     </Token>
 	<Token>
       <Index>6170</Index>

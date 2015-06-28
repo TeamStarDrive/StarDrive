@@ -2254,7 +2254,7 @@ namespace Ship_Game
                     }
                     if (mod.APResist != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.FlakResist, 208);
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.APResist, 208);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
 
