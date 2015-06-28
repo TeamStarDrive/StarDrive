@@ -330,9 +330,10 @@ namespace Ship_Game
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Fleet pos: ", ship.fleet.Position.ToString()), Cursor, Color.White);
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Fleet speed: ", ship.fleet.speed), Cursor, Color.White);
-                    Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Ship speed: ", ship.Velocity.Length()), Cursor, Color.White);
+
 				}
+                Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Ship speed: ", ship.Velocity.Length()), Cursor, Color.White);
 				if (!this.screen.SelectedShip.loyalty.GetForcePool().Contains(this.screen.SelectedShip))
 				{
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -390,7 +391,8 @@ namespace Ship_Game
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("AI State: ", ship.GetAI().State.ToString()), Cursor, Color.White);
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-				if (ship.GetAI().OrderQueue.Count <= 0)
+                ship.GetAI().orderqueue.EnterReadLock();
+                if (ship.GetAI().OrderQueue.Count <= 0)
 				{
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Nothing in the Order queue", Cursor, Color.White);
@@ -407,6 +409,7 @@ namespace Ship_Game
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((ship.GetAI().Target as Ship).Active ? "Active" : "Error - Active"), Cursor, Color.White);
 				}
+                ship.GetAI().orderqueue.ExitReadLock();
 				Cursor = new Vector2((float)(this.win.X + 250), 600f);
 				foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetGSAI().DefensiveCoordinator.DefenseDict)
 				{
