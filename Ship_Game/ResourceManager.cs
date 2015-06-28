@@ -2163,7 +2163,10 @@ namespace Ship_Game
 		public static void LoadMods(string ModPath)
 		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
-            ResourceManager.OffSet = 32000;
+            if (ModPath == "Mods/SD_Extended")
+                ResourceManager.OffSet = 0;
+            else
+                ResourceManager.OffSet = 32000;
             Ship_Game.ResourceManager.LoadLanguage();
 			Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
