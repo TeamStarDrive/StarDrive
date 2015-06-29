@@ -918,20 +918,23 @@ namespace Ship_Game
         public float GetPredictedEnemyPresence(float time, Empire us)
         {
             float prediction = 0f;
-
+            Relationship war = null;
             foreach (Ship ship in this.ShipList)
             {
-                if (ship == null || ship.loyalty == us || !ship.loyalty.isFaction && !us.GetRelations()[ship.loyalty].AtWar)
+                if (ship == null || ship.loyalty == us || (us.GetRelations().TryGetValue(ship.loyalty,out war) && war.Treaty_Alliance ))
                 {
                     continue;
                 }
-                prediction = prediction + ship.GetStrength();
+                if (war.Trust > 25)
+                    prediction = prediction + ship.GetStrength() * ( (125 -war.Trust) /100 );
+                else
+                    prediction = prediction + ship.GetStrength();
             }
             List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
             for (int i = 0; i < nearby.Count; i++)
             {
                 Ship ship = nearby[i] as Ship;
-                if (ship != null && ship.loyalty != us && !this.ShipList.Contains(ship) && (ship.loyalty.isFaction || us.GetRelations()[ship.loyalty].AtWar) && HelperFunctions.IntersectCircleSegment(this.Position, 100000f * UniverseScreen.GameScaleStatic, ship.Center, ship.Center + (ship.Velocity * 60f)))
+                if (ship != null && ship.loyalty != us && !this.ShipList.Contains(ship) && (ship.loyalty.isFaction || us.GetRelations()[ship.loyalty].AtWar) && HelperFunctions.IntersectCircleSegment(this.Position, 100000f * UniverseScreen.GameScaleStatic, ship.Center, ship.Center + (ship.Velocity * time)))
                 {
                     prediction = prediction + ship.GetStrength();
                 }

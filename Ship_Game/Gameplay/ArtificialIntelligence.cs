@@ -317,6 +317,8 @@ namespace Ship_Game.Gameplay
 					closestD = Distance;
 					this.awaitClosest = p;
 				}
+                //if (this.State == AIState.SystemDefender)
+                //    this.State = AIState.AwaitingOrders;
 			}
 		}
 
@@ -2008,7 +2010,7 @@ namespace Ship_Game.Gameplay
            //if(this.Owner.GetSystem() != this.SystemToDefend)
                
                this.AwaitOrders(elapsedTime);
-           //this.State = AIState.SystemDefender;
+           //this.State = AIState.AwaitingOrders;
 
                 
 		}
@@ -4286,7 +4288,7 @@ namespace Ship_Game.Gameplay
             ArtificialIntelligence.ShipGoal goal = this.OrderQueue.LastOrDefault();
 
             this.orderqueue.EnterWriteLock(); //this.Owner.engineState != Ship.MoveState.Warp &&
-            if ( (this.SystemToDefend != system || (this.Owner.GetSystem() != system && goal != null && this.OrderQueue.LastOrDefault().Plan != Plan.DefendSystem)))
+            if (this.SystemToDefend ==null ||(this.SystemToDefend != system || (this.Owner.GetSystem() != system && goal != null && this.OrderQueue.LastOrDefault().Plan != Plan.DefendSystem)))
 			{
 
 #if SHOWSCRUB
