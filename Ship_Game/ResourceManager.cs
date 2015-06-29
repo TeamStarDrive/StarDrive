@@ -1319,7 +1319,22 @@ namespace Ship_Game
                 PDResist = Ship_Game.ResourceManager.ShipModulesDict[uid].PDResist,
                 FlakResist = Ship_Game.ResourceManager.ShipModulesDict[uid].FlakResist,
                 APResist = Ship_Game.ResourceManager.ShipModulesDict[uid].APResist,
-                DamageThreshold = Ship_Game.ResourceManager.ShipModulesDict[uid].DamageThreshold
+                DamageThreshold = Ship_Game.ResourceManager.ShipModulesDict[uid].DamageThreshold,
+                shield_threshold = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_threshold,
+                shield_energy_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_energy_resist,
+                shield_kinetic_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_kinetic_resist,
+                shield_explosive_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_explosive_resist,
+                shield_flak_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_flak_resist,
+                shield_hybrid_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_hybrid_resist,
+                shield_missile_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_missile_resist,
+                shield_railgun_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_railgun_resist,
+                shield_subspace_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_subspace_resist,
+                shield_warp_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_warp_resist,
+                shield_beam_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_beam_resist,
+                IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower,
+                isPowerArmour = Ship_Game.ResourceManager.ShipModulesDict[uid].isPowerArmour,
+                isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead
+
 			};
 
             #region TargetWeight
@@ -2151,7 +2166,10 @@ namespace Ship_Game
 		public static void LoadMods(string ModPath)
 		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
-            ResourceManager.OffSet = 32000;
+            if (ModPath == "Mods/SD_Extended")
+                ResourceManager.OffSet = 0;
+            else
+                ResourceManager.OffSet = 32000;
             Ship_Game.ResourceManager.LoadLanguage();
 			Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
