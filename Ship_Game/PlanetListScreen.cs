@@ -101,7 +101,7 @@ namespace Ship_Game
 			this.eRect.Height = this.eRect.Height - 20;
 			this.ShipSubMenu = new Submenu(ScreenManager, this.eRect);
 			this.PlanetSL = new ScrollList(this.ShipSubMenu, 40);
-            this.LastSorted = this.empUI.empire.data.PLSort;
+           // this.LastSorted = this.empUI.empire.data.PLSort;
 
             foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => Vector2.Distance(distance.Position, EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetWeightedCenter())))
             {
@@ -125,8 +125,8 @@ namespace Ship_Game
             //}
 
 
-            this.ResetList();
-			this.SelectedPlanet = (this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry).planet;
+            //this.ResetList();
+			//this.SelectedPlanet = (this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry).planet;
 			Ref<bool> aeRef = new Ref<bool>(() => this.HideOwned, (bool x) => {
 				this.HideOwned = x;
 				this.ResetList();
@@ -278,6 +278,8 @@ namespace Ship_Game
 		public override void HandleInput(InputState input)
 		{
             //this.LastSorted = empUI.empire.data.PLSort;
+            if (this.PlanetSL.Entries.Count == 0)
+                this.ResetList();
             this.PlanetSL.HandleInput(input);
 			this.cb_hideOwned.HandleInput(input);
 			this.cb_hideUninhabitable.HandleInput(input);
@@ -556,7 +558,7 @@ namespace Ship_Game
             }
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
 			{
-                this.empUI.empire.data.PLSort = this.LastSorted;
+                //this.empUI.empire.data.PLSort = this.LastSorted;
                 this.ExitScreen();
 			}
             //if(this.LastSorted !=null && this.empUI.empire.data.PLSort != this.LastSorted)            
