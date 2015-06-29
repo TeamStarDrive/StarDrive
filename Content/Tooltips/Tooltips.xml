@@ -1099,6 +1099,26 @@
       <Title>Shield Beam Resistance</Title>
       <Data>7075</Data>
     </ToolTip>	
+	<ToolTip>
+      <TIP_ID>219</TIP_ID>
+      <Title>EMP Protection</Title>
+      <Data>7076</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>220</TIP_ID>
+      <Title>EMP Protection ShipTotal</Title>
+      <Data>7077</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>221</TIP_ID>
+      <Title>Damage Threshold</Title>
+      <Data>7078</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>222</TIP_ID>
+      <Title>Shield Damage Threshold</Title>
+      <Data>7079</Data>
+    </ToolTip>	
 	
   </ToolTipsList>
 </Tooltips>

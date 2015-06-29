@@ -7862,6 +7862,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6161</Index>
       <Text>AP Res</Text>
     </Token>
+	<Token>
+      <Index>6172</Index>
+      <Text>Power Armour</Text>
+    </Token>
+	<Token>
+      <Index>6173</Index>
+      <Text>Bulkhead</Text>
+    </Token>
 	
 	<!-- Shield Resists UI -->
 	
@@ -7904,6 +7912,30 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>6171</Index>
       <Text>Beam SR</Text>
+    </Token>
+	<Token>
+      <Index>6172</Index>
+      <Text>Power Armour</Text>
+    </Token>
+	<Token>
+      <Index>6173</Index>
+      <Text>Bulkhead</Text>
+    </Token>
+	<Token>
+      <Index>6174</Index>
+      <Text>EMP Prot</Text>
+    </Token>
+	<Token>
+      <Index>6175</Index>
+      <Text>Dam Thr</Text>
+    </Token>
+	<Token>
+      <Index>6176</Index>
+      <Text>SDam Thr</Text>
+    </Token>
+	<Token>
+      <Index>6177</Index>
+      <Text>EMP Protection</Text>
     </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -8212,6 +8244,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7075</Index>
       <Text>Indicates shield bubble's resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7076</Index>
+      <Text>Indicates the amount of EMP protection that this module adds to the vessel.</Text>
+    </Token>
+	<Token>
+      <Index>7077</Index>
+      <Text>The total EMP protection of this design.</Text>
+    </Token>
+	<Token>
+      <Index>7078</Index>
+      <Text>Weapons that damage less than this threshold do no damage whatsoever to this module.</Text>
+    </Token>
+	<Token>
+      <Index>7079</Index>
+      <Text>Weapons that damage less than this threshold do no damage whatsoever to this shield.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>
