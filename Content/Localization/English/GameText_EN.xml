@@ -7785,7 +7785,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>6142</Index>
       <Text>Kinetic Res</Text>
-    </Token>	
+    </Token>
 	<Token>
       <Index>6143</Index>
       <Text>Energy Res</Text>
@@ -7808,27 +7808,27 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6148</Index>
-      <Text>Explosive Res</Text>
+      <Text>Expl Res</Text>
     </Token>
 	<Token>
       <Index>6149</Index>
-      <Text>Intercept Res</Text>
+      <Text>Intcpt Res</Text>
     </Token>
 	<Token>
       <Index>6150</Index>
-      <Text>Railgun Res</Text>
+      <Text>Rail Res</Text>
     </Token>
 	<Token>
       <Index>6151</Index>
-      <Text>Sp. Bomb Res</Text>
+      <Text>SpB Res</Text>
     </Token>
 	<Token>
       <Index>6152</Index>
-      <Text>Bombard Res</Text>
+      <Text>Bomb Res</Text>
     </Token>
 	<Token>
       <Index>6153</Index>
-      <Text>Biological Res</Text>
+      <Text>Bio Res</Text>
     </Token>
 	<Token>
       <Index>6154</Index>
@@ -7840,7 +7840,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6156</Index>
-      <Text>Torpedo Res</Text>
+      <Text>Torp Res</Text>
     </Token>
 	<Token>
       <Index>6157</Index>
@@ -7848,7 +7848,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 	<Token>
       <Index>6158</Index>
-      <Text>Subspace Res</Text>
+      <Text>Sub Res</Text>
     </Token>
 	<Token>
       <Index>6159</Index>
@@ -7857,6 +7857,85 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>6160</Index>
       <Text>Flak Res</Text>
+    </Token>
+	<Token>
+      <Index>6161</Index>
+      <Text>AP Res</Text>
+    </Token>
+	<Token>
+      <Index>6172</Index>
+      <Text>Power Armour</Text>
+    </Token>
+	<Token>
+      <Index>6173</Index>
+      <Text>Bulkhead</Text>
+    </Token>
+	
+	<!-- Shield Resists UI -->
+	
+	<Token>
+      <Index>6162</Index>
+      <Text>Kinetic SR</Text>
+    </Token>
+	<Token>
+      <Index>6163</Index>
+      <Text>Energy SR</Text>
+    </Token>
+	<Token>
+      <Index>6164</Index>
+      <Text>Expl SR</Text>
+    </Token>
+	<Token>
+      <Index>6165</Index>
+      <Text>Missile SR</Text>
+    </Token>
+	<Token>
+      <Index>6166</Index>
+      <Text>Flak SR</Text>
+    </Token>
+	<Token>
+      <Index>6167</Index>
+      <Text>Hybrid SR</Text>
+    </Token>
+	<Token>
+      <Index>6168</Index>
+      <Text>Rail SR</Text>
+    </Token>
+	<Token>
+      <Index>6169</Index>
+      <Text>Sub SR</Text>
+    </Token>
+	<Token>
+      <Index>6170</Index>
+      <Text>Warp SR</Text>
+    </Token>	
+	<Token>
+      <Index>6171</Index>
+      <Text>Beam SR</Text>
+    </Token>
+	<Token>
+      <Index>6172</Index>
+      <Text>Power Armour</Text>
+    </Token>
+	<Token>
+      <Index>6173</Index>
+      <Text>Bulkhead</Text>
+    </Token>
+	<Token>
+      <Index>6174</Index>
+      <Text>EMP Prot</Text>
+    </Token>
+	<Token>
+      <Index>6175</Index>
+      <Text>Dam Thr</Text>
+    </Token>
+	<Token>
+      <Index>6176</Index>
+      <Text>SDam Thr</Text>
+    </Token>
+	<Token>
+      <Index>6177</Index>
+      <Text>EMP Protection</Text>
     </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -8116,6 +8195,71 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7064</Index>
       <Text>Indicates resistance to flak weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	
+	<Token>
+      <Index>7065</Index>
+      <Text>Indicates resistance to Armour Piercing effects - each point of AP resistance negates 1 point of Armour Piercing on enemy projectiles.</Text>
+    </Token>
+	
+	
+	<!-- Shield Resistance Tooltips -->
+	
+	<Token>
+      <Index>7066</Index>
+      <Text>Indicates shield bubble's resistance to kinetic weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7067</Index>
+      <Text>Indicates shield bubble's resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7068</Index>
+      <Text>Indicates shield bubble's resistance to explosive damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7069</Index>
+      <Text>Indicates shield bubble's resistance to missile weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7070</Index>
+      <Text>Indicates shield bubble's resistance to flak weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7071</Index>
+      <Text>Indicates shield bubble's resistance to hybrid weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7072</Index>
+      <Text>Indicates shield bubble's resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7073</Index>
+      <Text>Indicates shield bubble's resistance to subspace weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7074</Index>
+      <Text>Indicates shield bubble's resistance to warp weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>	
+	<Token>
+      <Index>7075</Index>
+      <Text>Indicates shield bubble's resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7076</Index>
+      <Text>Indicates the amount of EMP protection that this module adds to the vessel.</Text>
+    </Token>
+	<Token>
+      <Index>7077</Index>
+      <Text>The total EMP protection of this design.</Text>
+    </Token>
+	<Token>
+      <Index>7078</Index>
+      <Text>Weapons that damage less than this threshold do no damage whatsoever to this module.</Text>
+    </Token>
+	<Token>
+      <Index>7079</Index>
+      <Text>Weapons that damage less than this threshold do no damage whatsoever to this shield.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>

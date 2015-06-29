@@ -1040,5 +1040,85 @@
       <Title>Flak Resistance</Title>
       <Data>7064</Data>
     </ToolTip>	
+	
+	<ToolTip>
+      <TIP_ID>208</TIP_ID>
+      <Title>AP Resistance</Title>
+      <Data>7065</Data>
+    </ToolTip>	
+	
+	<!-- Shield Resistance tooltips -->
+	
+	<ToolTip>
+      <TIP_ID>209</TIP_ID>
+      <Title>Shield Kinetic Resistance</Title>
+      <Data>7066</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>210</TIP_ID>
+      <Title>Shield Energy Resistance</Title>
+      <Data>7067</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>211</TIP_ID>
+      <Title>Shield Explosive Resistance</Title>
+      <Data>7068</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>212</TIP_ID>
+      <Title>Shield Missile Resistance</Title>
+      <Data>7069</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>213</TIP_ID>
+      <Title>Shield Flak Resistance</Title>
+      <Data>7070</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>214</TIP_ID>
+      <Title>Shield Hybrid Resistance</Title>
+      <Data>7071</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>215</TIP_ID>
+      <Title>Shield Railgun Resistance</Title>
+      <Data>7072</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>216</TIP_ID>
+      <Title>Shield Subspace Resistance</Title>
+      <Data>7073</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>217</TIP_ID>
+      <Title>Shield Warp Resistance</Title>
+      <Data>7074</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>218</TIP_ID>
+      <Title>Shield Beam Resistance</Title>
+      <Data>7075</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>219</TIP_ID>
+      <Title>EMP Protection</Title>
+      <Data>7076</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>220</TIP_ID>
+      <Title>EMP Protection ShipTotal</Title>
+      <Data>7077</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>221</TIP_ID>
+      <Title>Damage Threshold</Title>
+      <Data>7078</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>222</TIP_ID>
+      <Title>Shield Damage Threshold</Title>
+      <Data>7079</Data>
+    </ToolTip>	
+	
   </ToolTipsList>
 </Tooltips>
