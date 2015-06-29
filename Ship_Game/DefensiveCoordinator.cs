@@ -283,6 +283,7 @@ namespace Ship_Game
             //        select system;                    
             int StrToAssign = (int)this.GetForcePoolStrength();
             float StartingStr = StrToAssign;
+            float minimumStrength = 0;
             Parallel.ForEach(SComs, dd=>
                 {
                     SolarSystem solarSystem  = dd.Key;
@@ -295,7 +296,11 @@ namespace Ship_Game
                         else
                         {
                             dd.Value.IdealShipStrength = Predicted * (dd.Value.RankImportance / 10);
-                            Interlocked.Add(ref  StrToAssign, -(int)Predicted);
+                            float min = dd.Value.ValueToUs * dd.Value.RankImportance * 10;
+                            dd.Value.IdealShipStrength += min;
+
+                            Interlocked.Add(ref  StrToAssign, -(int)dd.Value.IdealShipStrength);
+
                         }
                     }
                 });
@@ -322,8 +327,10 @@ namespace Ship_Game
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
                 entry.Value.PercentageOfValue = entry.Value.ValueToUs / TotalValue;
-                //SystemCommander idealShipStrength = entry.Value;
-                //idealShipStrength.IdealShipStrength = idealShipStrength.IdealShipStrength + entry.Value.PercentageOfValue * StrToAssign;
+                float min = StrToAssign * entry.Value.PercentageOfValue; // (entry.Value.RankImportance / (10 * this.DefenseDict.Count));
+                if (entry.Value.IdealShipStrength < min)
+                    entry.Value.IdealShipStrength = min;
+                
             }
             
             Dictionary<Guid, Ship> AssignedShips = new Dictionary<Guid, Ship>();
@@ -352,13 +359,15 @@ namespace Ship_Game
                         Ship remove;
                         defenseDict.Value.ShipsDict.TryRemove(current.guid, out remove);
                         ShipsAvailableForAssignment.Add(current);
+                        current.GetAI().SystemToDefend = null;                        
+                        //current.GetAI().State = AIState.AwaitingOrders;
                     }
                     while (defenseDict.Value.GetOurStrength() >= defenseDict.Value.IdealShipStrength );
                 }
             }
             foreach (Ship defensiveForcePool in this.DefensiveForcePool)
             {
-                if ((!defensiveForcePool.GetAI().HasPriorityOrder || defensiveForcePool.GetAI().State == AIState.Resupply )
+                if (!(defensiveForcePool.GetAI().HasPriorityOrder || defensiveForcePool.GetAI().State == AIState.Resupply )
                     && defensiveForcePool.loyalty == this.us)
                 {
                     //if (defensiveForcePool.GetAI().SystemToDefend == defensiveForcePool.GetSystem()
@@ -388,7 +397,7 @@ namespace Ship_Game
             //    select system;
             if (ShipsAvailableForAssignment.Count > 0)
             {
-                foreach (KeyValuePair<SolarSystem, SystemCommander> SCCOMS in SComs)
+                foreach (KeyValuePair<SolarSystem, SystemCommander> SCCOMS in SComs.OrderByDescending(descending => descending.Value.RankImportance))
                 {
                     SolarSystem solarSystem1 = SCCOMS.Key;
                     if (StartingStr < 0f)
@@ -401,7 +410,7 @@ namespace Ship_Game
                         //select ship;
                     foreach (Ship ship1 in ShipsAvailableForAssignment.OrderBy(ship => Vector2.Distance(ship.Center, solarSystem1.Position)))
                     {
-                        if (ship1.GetAI().State == AIState.Resupply || ship1.GetAI().State == AIState.SystemDefender)
+                        if (ship1.GetAI().State == AIState.Resupply || (ship1.GetAI().State == AIState.SystemDefender && ship1.GetAI().SystemToDefend != null) )
                         {
                             continue;
                         }
@@ -424,10 +433,7 @@ namespace Ship_Game
                             }
                             SCCOMS.Value.ShipsDict.TryAdd(ship1.guid, ship1);
                             StartingStr = StartingStr - ship1.GetStrength();
-                            if ( ship1.GetAI().State == AIState.Resupply)
-                            {
-                                continue;
-                            }
+     
                             ship1.GetAI().OrderSystemDefense(solarSystem1);
                         }
                         else
