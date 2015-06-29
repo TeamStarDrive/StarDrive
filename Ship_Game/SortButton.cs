@@ -70,7 +70,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if(this.saved)
+            if (this.saved)
             {
                 this.saved = false;
 
@@ -90,7 +90,8 @@ namespace Ship_Game
 				this.Hover = true;
 				if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("mouse_over4");
+					
+                    AudioManager.PlayCue("mouse_over4");
                     if (this.saveButton != null)
                     {
                         this.saveButton.saved = true;
