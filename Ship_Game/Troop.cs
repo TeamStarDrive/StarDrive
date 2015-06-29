@@ -231,7 +231,8 @@ namespace Ship_Game
 
 		public Ship Launch()
 		{
-			if (this.p == null)
+            
+            if (this.p == null)
 			{
 				return null;
 			}
@@ -245,7 +246,8 @@ namespace Ship_Game
 				this.p.TroopsHere.Remove(this);
 			}
 			Ship retShip = ResourceManager.CreateTroopShipAtPoint((this.Owner.data.DefaultTroopShip != null) ? this.Owner.data.DefaultTroopShip : this.Owner.data.DefaultSmallTransport, this.Owner, this.p.Position, this);
-			this.p = null;
+			
+            this.p = null;
 			return retShip;
 		}
 

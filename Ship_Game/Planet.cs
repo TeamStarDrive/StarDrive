@@ -6164,6 +6164,37 @@ output = maxp * take10 = 5
 
 
         }
+        public bool TroopsHereAreEnemies(Empire empire)
+        {
+            bool enemies = false;
+            this.TroopsHere.thisLock.EnterReadLock();
+            foreach (Troop trooper in this.TroopsHere)
+            {
+                Relationship trouble;
+                if (!empire.GetRelations().TryGetValue(trooper.GetOwner(), out trouble) || trouble.AtWar)
+                {
+                    enemies=true;
+                    break;
+                }
+
+            }
+            this.TroopsHere.thisLock.ExitReadLock();
+            return enemies;
+        }
+        public bool EventsOnBuildings()
+        {
+            bool events = false;            
+            foreach (Building building in this.BuildingList)
+            {
+                if (building.EventTriggerUID !=null && !building.EventWasTriggered)
+                {
+                    events = true;
+                    break;
+                }
+
+            }            
+            return events;
+        }
         public int GetGroundLandingSpots()
         {
             int spotCount =this.TilesList.Sum(spots => spots.number_allowed_troops);
