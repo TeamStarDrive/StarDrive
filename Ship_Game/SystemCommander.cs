@@ -139,7 +139,7 @@ namespace Ship_Game
                 {
                     if (ship.Value.GetAI().State == AIState.Resupply )
                     {
-                        continue;
+                        continue; 
                     }
                     ship.Value.GetAI().OrderSystemDefense(this.system);
                 }
@@ -153,6 +153,7 @@ namespace Ship_Game
 			{
 				str = str + ship.Value.BaseStrength;//.GetStrength();
 			}
+            
 			return str;
 		}
 

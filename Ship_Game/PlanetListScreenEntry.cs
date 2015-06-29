@@ -219,6 +219,7 @@ namespace Ship_Game
 
                 }
             }
+            this.planet.TroopsHere.thisLock.ExitReadLock();
             if (troops > 0)
             {
                 //TimeSpan totalGameTime = gameTime.TotalGameTime;
@@ -235,7 +236,7 @@ namespace Ship_Game
                 }
 
             }
-            this.planet.TroopsHere.thisLock.ExitReadLock();
+            
             Vector2 rpos = new Vector2()
             {
                 X = (float)this.ShipNameEntry.ClickableArea.X,

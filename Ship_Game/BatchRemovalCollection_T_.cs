@@ -75,6 +75,7 @@ namespace Ship_Game
         {
             thisLock.EnterReadLock();
             var list = this;
+            thisLock.ExitReadLock();
             return this as List<T>;
         }
         new public Enumerator GetEnumerator()
