@@ -15,6 +15,8 @@ namespace Ship_Game
 		public bool Hover;
 
 		public bool Selected;
+        public bool saved =false;
+        private SortButton saveButton;
 
 		public SortButton()
 		{
@@ -25,7 +27,10 @@ namespace Ship_Game
             if(sb!=null && sb.Text == this.Text)
             {
                 this.Ascending = sb.Ascending;
+                this.saved = true;
             }
+            this.saveButton = sb;
+            
         }
 		public void Draw(Ship_Game.ScreenManager ScreenManager)
 		{
@@ -65,7 +70,14 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.rect, input.CursorPosition))
+			if(this.saved)
+            {
+                this.saved = false;
+
+                return true;
+            }
+
+            if (!HelperFunctions.CheckIntersection(this.rect, input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -79,6 +91,12 @@ namespace Ship_Game
 				if (input.InGameSelect)
 				{
 					AudioManager.PlayCue("mouse_over4");
+                    if (this.saveButton != null)
+                    {
+                        this.saveButton.saved = true;
+                        this.saveButton.Text = this.Text;
+                        this.saveButton.Ascending = this.Ascending;
+                    }
 					return true;
 				}
 			}
