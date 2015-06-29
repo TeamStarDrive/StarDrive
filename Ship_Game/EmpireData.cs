@@ -166,6 +166,7 @@ namespace Ship_Game
         //designsWeHave our techTree has techs for.
         public SortButton PLSort = new SortButton();
         public SortButton ESSort = new SortButton();
+        public SortButton SLSort = new SortButton();
 
 
 
