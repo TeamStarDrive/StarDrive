@@ -2059,6 +2059,11 @@ namespace Ship_Game
                         this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6171), (float)mod.shield_beam_resist, 218);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
+                    if (mod.shield_threshold != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6176), (float)mod.shield_threshold, 222);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
 
 
                     if (mod.SensorRange != 0)
@@ -2255,6 +2260,16 @@ namespace Ship_Game
                     if (mod.APResist != 0)
                     {
                         this.DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.APResist, 208);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.DamageThreshold != 0)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6175), (float)mod.DamageThreshold, 221);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.EMP_Protection != 0)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6174), (float)mod.EMP_Protection, 219);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
 
@@ -2955,12 +2970,27 @@ namespace Ship_Game
                         // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
                         else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "fighter" && this.ActiveHull.Role != "scout" && this.ActiveHull.Role != "corvette")
                             continue;
-						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
+						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead && !tmp.isPowerArmour && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
 						{
 							ModuleCategories.Add(tmp.ModuleType.ToString());
 							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
 							this.weaponSL.AddItem(type);
 						}
+
+                        // These need special booleans as they are ModuleType ARMOR - and the armor ModuleType is needed for vsArmor damage calculations - don't want to use new moduletype therefore.
+                        if (tmp.isPowerArmour && tmp.ModuleType == ShipModuleType.Armor && !ModuleCategories.Contains(Localizer.Token(6172)))
+                        {
+                            ModuleCategories.Add(Localizer.Token(6172));
+                            ModuleHeader type = new ModuleHeader(Localizer.Token(6172), 240f);
+                            this.weaponSL.AddItem(type);
+                        }
+                        if (tmp.isBulkhead && tmp.ModuleType == ShipModuleType.Armor && !ModuleCategories.Contains(Localizer.Token(6173)))
+                        {
+                            ModuleCategories.Add(Localizer.Token(6173));
+                            ModuleHeader type = new ModuleHeader(Localizer.Token(6173), 240f);
+                            this.weaponSL.AddItem(type);
+                        }
+
 						tmp = null;
 					}
 					foreach (ScrollList.Entry e in this.weaponSL.Entries)
@@ -3027,10 +3057,18 @@ namespace Ship_Game
                                     continue;
                                 }
                             }
-							if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
+							if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead && !tmp.isPowerArmour && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
 							{
 								e.AddItem(module.Value);
 							}
+                            if (tmp.isPowerArmour && (e.item as ModuleHeader).Text == Localizer.Token(6172))
+                            {
+                                e.AddItem(module.Value);
+                            }
+                            if (tmp.isBulkhead && (e.item as ModuleHeader).Text == Localizer.Token(6173))
+                            {
+                                e.AddItem(module.Value);
+                            }
 							tmp = null;
 						}
 					}
@@ -3384,6 +3422,7 @@ namespace Ship_Game
             float WeaponPowerNeeded = 0f;
             float Upkeep = 0f;
             float FTLSpoolTimer = 0f;
+            float EMPResist = 0f;
             bool bEnergyWeapons = false;
 			foreach (SlotStruct slot in this.Slots)
 			{
@@ -3417,6 +3456,7 @@ namespace Ship_Game
 				PowerFlow += slot.module.PowerFlowMax + slot.module.PowerFlowMax * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.PowerFlowMod;
 				if (slot.module.Powered)
 				{
+                    EMPResist += slot.module.EMP_Protection;
 					WarpableMass = WarpableMass + slot.module.WarpMassCapacity;
                     PowerDraw = PowerDraw + slot.module.PowerDraw;
 					WarpDraw = WarpDraw + slot.module.PowerDrawAtWarp;
@@ -3656,7 +3696,14 @@ namespace Ship_Game
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(114), ":"), (int)ShieldPower, 104);                
             }
+            if (EMPResist > 0)
+            {
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(6177), ":"), (int)EMPResist, 220);
+            }
+
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+            
 
             // The Doctor: removed the mass display. It's a meaningless value to the player, and it takes up a valuable line in the limited space.
 			//this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);

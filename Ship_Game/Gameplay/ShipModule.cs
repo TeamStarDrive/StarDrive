@@ -290,6 +290,11 @@ namespace Ship_Game.Gameplay
         //A module which doesn't require direct powering to function and drain power supplies - e.g. for powered armour.
         public bool IndirectPower = false;
 
+        //Optional-use variable for classification into extra sub-menu in Shipyard for power armour; no module gameplay effect
+        public bool isPowerArmour = false;
+
+        //Optional-use variable for classification into extra sub-menu in Shipyard for bulkheads; no module gameplay effect
+        public bool isBulkhead = false;
 
         //record which quadrant the module lives in. Currently only for external modules. internal modules will have an upredicable value.
         public sbyte quadrant = -1;

@@ -1331,7 +1331,9 @@ namespace Ship_Game
                 shield_subspace_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_subspace_resist,
                 shield_warp_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_warp_resist,
                 shield_beam_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_beam_resist,
-                IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower
+                IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower,
+                isPowerArmour = Ship_Game.ResourceManager.ShipModulesDict[uid].isPowerArmour,
+                isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead
 
 			};
 
