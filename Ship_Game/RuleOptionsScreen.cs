@@ -91,6 +91,7 @@ namespace Ship_Game
 			}
 			this.FTLPenaltySlider.HandleInput(input);
 			GlobalStats.FTLInSystemModifier = this.FTLPenaltySlider.amount;
+            
             if (HelperFunctions.CheckIntersection(this.EnemyFTLPenaltySlider.ContainerRect, input.CursorPosition))
             {
                 ToolTip.CreateTooltip(Localizer.Token(7041), base.ScreenManager);
@@ -189,6 +190,10 @@ namespace Ship_Game
             this.Checkboxes.Add(cb2);
 
             cb2.Tip_Token = 7011;
+
+            Ref<bool> FTLsRef = new Ref<bool>(() => GlobalStats.WarpInSystem, (bool x) => GlobalStats.WarpInSystem = x);
+            Checkbox cb3 = new Checkbox(new Vector2((float)(ftlRect.X + 500), (float)(EftlRect.Y)), "Treat Neutral Systema as Unfriendly", FTLsRef, Fonts.Arial12Bold);
+            this.Checkboxes.Add(cb3);
 
             Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
             this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002),0,20000,GlobalStats.GravityWellRange);
