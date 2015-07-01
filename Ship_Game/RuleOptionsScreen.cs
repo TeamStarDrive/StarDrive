@@ -192,7 +192,7 @@ namespace Ship_Game
             cb2.Tip_Token = 7011;
 
             Ref<bool> FTLsRef = new Ref<bool>(() => GlobalStats.WarpInSystem, (bool x) => GlobalStats.WarpInSystem = x);
-            Checkbox cb3 = new Checkbox(new Vector2((float)(ftlRect.X + 500), (float)(EftlRect.Y)), "Full6 Warp In Neutral System", FTLsRef, Fonts.Arial12Bold);
+            Checkbox cb3 = new Checkbox(new Vector2((float)(ftlRect.X + 500), (float)(EftlRect.Y)), "Treat Neutral Systema as Unfriendly", FTLsRef, Fonts.Arial12Bold);
             this.Checkboxes.Add(cb3);
 
             Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
