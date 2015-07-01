@@ -237,7 +237,13 @@ namespace Ship_Game.Gameplay
             {
             }
         }
-
+        public float GetFTLmodifier 
+        { 
+            get
+            {
+                return this.FTLmodifier;
+            }
+        }
         public BatchRemovalCollection<Projectile> Projectiles
         {
             get
@@ -2479,7 +2485,7 @@ namespace Ship_Game.Gameplay
             //if (!GlobalStats.WarpInSystem && this.system != null)
             //    this.InhibitedTimer = 1f;
             //else 
-                if (Ship.universeScreen.FTLModifier < 1.0 && this.system != null && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed()))
+                if (this.FTLmodifier < 1.0 && this.system != null && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed()))
                 this.HyperspaceReturn();
             if (this.ScuttleTimer > -1.0 || this.ScuttleTimer <-1.0)
             {
@@ -2516,7 +2522,7 @@ namespace Ship_Game.Gameplay
             this.ProjectilesFired.ApplyPendingRemovals();
             this.ShieldRechargeTimer += elapsedTime;
             this.InhibitedTimer -= elapsedTime;
-            this.Inhibited = (double)this.InhibitedTimer > 0.0;
+            this.Inhibited = this.InhibitedTimer > 0.0;
             if (this.Inhibited && this.engineState == Ship.MoveState.Warp)
             {
                 this.HyperspaceReturn();
@@ -3725,11 +3731,11 @@ namespace Ship_Game.Gameplay
                                     break;
                                 }
                             }
-                            if (!friendlySystem || (!Ship.universeScreen.FTLInNuetralSystems && this.system.OwnerList.Count() == 0 ))
+                            if (!friendlySystem || (!Ship.universeScreen.FTLInNuetralSystems && relation ==null))
                             {
-                                ftlmodtemp = Ship.universeScreen.EnemyFTLModifier;
+                                ftlmodtemp *= Ship.universeScreen.EnemyFTLModifier;
                                 modified = true;
-                            }
+                            }                            
                         }
                         if (!modified)
                             ftlmodtemp = 1f;
