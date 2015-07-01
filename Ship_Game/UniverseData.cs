@@ -17,6 +17,8 @@ namespace Ship_Game
 
 		public float FTLSpeedModifier = 1f;
         public float EnemyFTLSpeedModifier = 1f;
+        public float FTLInSystemModifier = 1f;
+        public bool FTLinNeutralSystem = true;
 
 		public bool GravityWells;
 
