@@ -67,6 +67,7 @@ namespace Ship_Game
         public Vector2 Size = new Vector2(5000000f, 5000000f);
         public float FTLModifier = 1f;
         public float EnemyFTLModifier = 1f;
+        public bool FTLInNuetralSystems = true;
         public UniverseData.GameDifficulty GameDifficulty = UniverseData.GameDifficulty.Normal;
         public Vector3 transitionStartPosition = new Vector3();
         public Vector3 camTransitionPosition = new Vector3();
@@ -267,6 +268,8 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         public float Lag = 0;
+
+
         static UniverseScreen()
         {
         }
