@@ -44,6 +44,7 @@ namespace Ship_Game
             this.data.preventFederations=GlobalStats.preventFederations;
             this.data.GravityWellRange=GlobalStats.GravityWellRange;
             this.data.EliminationMode = GlobalStats.EliminationMode;
+            
 
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{

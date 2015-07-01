@@ -1006,11 +1006,11 @@ namespace Ship_Game
                 else
                 {
                     ship.inborders = false;
-                    this.KnownShips.thisLock.EnterWriteLock();
+                    //this.KnownShips.thisLock.EnterWriteLock();
                     {
                         this.KnownShips.Add(ship);
                     }
-                    this.KnownShips.thisLock.ExitWriteLock();
+                    //this.KnownShips.thisLock.ExitWriteLock();
                     if (this.isPlayer)
                     {
                         ship.inSensorRange = true;

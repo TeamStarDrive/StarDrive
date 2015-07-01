@@ -1194,13 +1194,13 @@ namespace Ship_Game.Gameplay
 					}
 					if (Distance > 15000f)
 					{
-                        if (this.Owner.GetFTLSpeed() > Distance && this.Owner.speed >=this.Owner.GetFTLSpeed())
+                        if (this.Owner.velocityMaximum > Distance && this.Owner.speed >= this.Owner.velocityMaximum)
                             this.Owner.speed = Distance;
                         this.ThrustTowardsPosition(this.MovePosition, elapsedTime, this.Owner.speed);
 					}
 					else if (Distance >= 5500f)
 					{
-                        if (this.Owner.GetFTLSpeed() > Distance && this.Owner.speed >= this.Owner.GetFTLSpeed())
+                        if (this.Owner.velocityMaximum > Distance && this.Owner.speed >= this.Owner.velocityMaximum)
                             this.Owner.speed = Distance;
                         this.ThrustTowardsPosition(this.MovePosition, elapsedTime, this.Owner.speed);
 					}
@@ -1590,7 +1590,7 @@ namespace Ship_Game.Gameplay
             }
             else if (this.Owner.speed > 50 && num1 < 5000 && this.Owner.engineState != Ship.MoveState.Warp)    //1200.0 && this.Owner.engineState != Ship.MoveState.Warp)
             {
-                float maxSpeed = this.Owner.GetFTLSpeed();
+                float maxSpeed = this.Owner.velocityMaximum;
                 this.Owner.speed = maxSpeed / (OrbitTarget.OrbitalRadius * (float)Math.PI * 2 * elapsedTime);   //      this.Owner.GetSTLSpeed() > 200 ? 200 : this.Owner.speed;
 
                 this.RotateToFaceMovePosition(elapsedTime, this.OrbitPos);
@@ -3247,7 +3247,7 @@ namespace Ship_Game.Gameplay
 		{
 			float Distance = Vector2.Distance(this.Owner.Center, goal.fleet.Position + this.Owner.FleetOffset);
             float speedLimit = goal.SpeedLimit;
-            if(this.Owner.GetFTLSpeed()>=Distance)
+            if (this.Owner.velocityMaximum >= Distance)
             {
                 speedLimit = Distance;
             }
@@ -4514,7 +4514,7 @@ namespace Ship_Game.Gameplay
 
 
                             //(dest => (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 1f ? 0 : (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 3f ? 1 : (Vector2.Distance(this.Owner.Position, dest.Position)) / (this.Owner.WarpThrust + 1) < 6f ? 2 : 3).ThenBy(dest => dest.MAX_STORAGE - dest.FoodHere);
-                            IOrderedEnumerable<Planet> foodHere = planets.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.FoodHere / dest.MAX_STORAGE);
+                            IOrderedEnumerable<Planet> foodHere = planets.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.velocityMaximum + 1))).ThenBy(dest => dest.FoodHere / dest.MAX_STORAGE);
                             //this.Owner.WarpThrust;                                     
 
                             //from dest in planets
@@ -4629,7 +4629,7 @@ namespace Ship_Game.Gameplay
                         }
                         if (planets1.Count > 0)
                         {
-                            IOrderedEnumerable<Planet> productionHere = planets1.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.ProductionHere / dest.MAX_STORAGE);
+                            IOrderedEnumerable<Planet> productionHere = planets1.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.velocityMaximum + 1))).ThenBy(dest => dest.ProductionHere / dest.MAX_STORAGE);
                             //IOrderedEnumerable<Planet> productionHere =
                             //from dest in planets1
 
@@ -4781,7 +4781,7 @@ namespace Ship_Game.Gameplay
                                     if (planets2.Count > 0)
                                     {
 
-                                        IOrderedEnumerable<Planet> mAXSTORAGE = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.FoodHere);
+                                        IOrderedEnumerable<Planet> mAXSTORAGE = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.velocityMaximum + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.FoodHere);
 
                                         //IOrderedEnumerable<Planet> mAXSTORAGE =
                                         //                                        from dest in planets2
@@ -4889,7 +4889,7 @@ namespace Ship_Game.Gameplay
                     if (planets2.Count > 0)
                     {
 
-                        IOrderedEnumerable<Planet> productionHere1 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.ProductionHere / dest.MAX_STORAGE);
+                        IOrderedEnumerable<Planet> productionHere1 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.velocityMaximum + 1))).ThenBy(dest => dest.ProductionHere / dest.MAX_STORAGE);
                         //                                            from dest in planets2
                         //                                            orderby dest.ProductionHere / dest.MAX_STORAGE
                         //                                            select dest;
@@ -4923,7 +4923,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             continue;
                                         }
-                                        IOrderedEnumerable<Planet> planets3 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.ProductionHere);
+                                        IOrderedEnumerable<Planet> planets3 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.velocityMaximum + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.ProductionHere);
                                         //IOrderedEnumerable<Planet> planets3 =
                                         //                                     from dest in planets2
                                         //                                     orderby dest.MAX_STORAGE - dest.ProductionHere
@@ -4939,7 +4939,7 @@ namespace Ship_Game.Gameplay
                                     }
                                     if (planets2.Count > 0)
                                     {
-                                        IOrderedEnumerable<Planet> mAXSTORAGE4 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.GetFTLSpeed() + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.ProductionHere);
+                                        IOrderedEnumerable<Planet> mAXSTORAGE4 = planets2.OrderBy(dest => Math.Ceiling(Vector2.Distance(this.Owner.Position, dest.Position) / (this.Owner.velocityMaximum + 1))).ThenBy(dest => dest.MAX_STORAGE - dest.ProductionHere);
                                         //IOrderedEnumerable<Planet> mAXSTORAGE4 =
                                         //                                        from dest in planets2
                                         //                                        orderby dest.MAX_STORAGE - dest.ProductionHere
@@ -6378,7 +6378,7 @@ namespace Ship_Game.Gameplay
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (d < 50000f)
-                        if(d<=this.Owner.GetFTLSpeed())
+                        if (d <= this.Owner.velocityMaximum)
                         {
                             if (angleDiffToNext > 0.4f)// 0.649999976158142) //  )
                             {
