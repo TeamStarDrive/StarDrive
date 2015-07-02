@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
@@ -76,8 +77,10 @@ namespace Ship_Game.Gameplay
 		public void AddShip(Ship ship)
 		{
             if (ship.BaseStrength == 0)
-                return;
-            if (!this.Flip)
+                return;            
+            
+            if (this.OffensiveForcePool.Sum(power => power.GetStrength()) <
+                this.CoreFleet.GetStrength())
 			{
 				this.OffensiveForcePool.Add(ship);
 				this.Flip = !this.Flip;

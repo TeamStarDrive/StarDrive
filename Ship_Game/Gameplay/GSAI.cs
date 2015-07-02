@@ -2503,7 +2503,7 @@ namespace Ship_Game.Gameplay
            
 			if (baseDefensePct > 0.35f)
 			{
-				baseDefensePct = 0.35f;
+                baseDefensePct = 0.35f;
 			}
 			float EntireStrength = 0f;
 			foreach (Ship ship in this.empire.GetShips())
@@ -2512,7 +2512,7 @@ namespace Ship_Game.Gameplay
 			}
 			//added by gremlin dont add zero strength ships to defensive force pool
             //if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct 
-            if(this.DefensiveCoordinator.defenseDeficit >0
+            if ((this.DefensiveCoordinator.defenseDeficit > 0) // && this.DefensiveCoordinator.GetForcePoolStrength() < EntireStrength * baseDefensePct)
                 && (toAdd.BombBays.Count*4 < toAdd.Weapons.Count || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
             {
                 this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
