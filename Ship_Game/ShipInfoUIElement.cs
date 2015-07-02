@@ -306,19 +306,34 @@ namespace Ship_Game
 				}
 				numStatus++;
 			}
-            if(this.ship.GetFTLmodifier <1)
+            if(this.ship.GetFTLmodifier <1 && !this.ship.Inhibited)
             {
-                if (this.ship.GetFTLmodifier >0 && this.ship.GetSystem() != null)
-				{
+                //if (this.ship.GetSystem() != null)
+                //{
 					Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.White);
+					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.Yellow);
 					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
 					{
 						
                         ToolTip.CreateTooltip(string.Concat("FTL Reduced in this System by\n", String.Format("{0:P0}", 1 - this.ship.GetFTLmodifier), "\nEngine State: ", this.ship.engineState), this.ScreenManager);
 					}
 					numStatus++;
-				}
+                //}
+
+            }
+            if (this.ship.GetFTLmodifier > 1 && !this.ship.Inhibited && this.ship.engineState == Ship.MoveState.Warp)
+            {
+                //if (this.ship.inborders)
+                //{
+                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.Green);
+                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    {
+
+                        ToolTip.CreateTooltip(string.Concat("FTL Increased in this System by\n", String.Format("{0:P0}",  this.ship.GetFTLmodifier)), this.ScreenManager);
+                    }
+                    numStatus++;
+                //}
 
             }
 

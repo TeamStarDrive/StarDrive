@@ -1791,7 +1791,7 @@ namespace Ship_Game
             else
 
                 this.perfavg2[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - beginTime;
-            this.Lag = perfavg2.Average();
+            
 
             #region end
 
@@ -1932,6 +1932,7 @@ namespace Ship_Game
                 this.perfavg5.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - TotalTime);
             else
                 this.perfavg5[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - TotalTime;
+            this.Lag = perfavg5.Average();
             incrementTimer++;
             //if (this.perfavg5.Average() > .1f)
             //    GlobalStats.ForceFullSim = false;
