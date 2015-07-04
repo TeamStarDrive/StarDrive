@@ -75,7 +75,7 @@ namespace Ship_Game.Gameplay
 				MilitaryTask enemyStrength = this;
 				enemyStrength.EnemyStrength = enemyStrength.EnemyStrength + pin.Value.Strength;
 			}
-			this.MinimumTaskForceStrength = this.EnemyStrength + 0.35f * this.EnemyStrength;
+            this.MinimumTaskForceStrength = this.EnemyStrength *.75f;
 			this.empire = Owner;
 		}
 
@@ -161,7 +161,7 @@ namespace Ship_Game.Gameplay
 					TaskForce.Add(ship);
 					strAdded = strAdded + ship.GetStrength();
 				}
-				while (strAdded <= EnemyShipStr * 1.65f);
+				while (strAdded <= EnemyShipStr );//* 1.65f);
 			}
 			finally
 			{
@@ -193,7 +193,7 @@ namespace Ship_Game.Gameplay
                     numOfTroops++;
                     Troop t = enumerator1.Current;
 					PotentialTroops.Add(t);
-					troopStr = troopStr + (float)t.Strength;
+					troopStr = troopStr + t.Strength;
 				}
 				while (troopStr <= EnemyTroopStr * 1.25f || numOfTroops <15 );
 			}
