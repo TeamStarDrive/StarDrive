@@ -2514,7 +2514,7 @@ namespace Ship_Game.Gameplay
                         bool flag = false;
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
-                            if (!ship.InCombat)
+                            if (!ship.GetAI().BadGuysNear)
                             {
                                 flag = true;
                                 break;

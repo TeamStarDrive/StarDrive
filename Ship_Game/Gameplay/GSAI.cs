@@ -5519,10 +5519,11 @@ namespace Ship_Game.Gameplay
         //addedby gremlin manageAOs
         public void ManageAOs()
         {
-            float aoSize = Empire.universeScreen.Size.X * .2f;
+            
             //Vector2 empireCenter =this.empire.GetWeightedCenter();
             
             List<AO> aOs = new List<AO>();
+            
             foreach (AO areasOfOperation in this.AreasOfOperations)
             {
                 areasOfOperation.ThreatLevel = 0;
@@ -5530,22 +5531,33 @@ namespace Ship_Game.Gameplay
                 {
                     aOs.Add(areasOfOperation);
                 }
-                foreach (Empire empireList in EmpireManager.EmpireList)
+                this.empire.KnownShips.thisLock.EnterReadLock();
+                foreach (Ship ship in this.empire.KnownShips)
                 {
-                    if (empireList == this.empire || empireList.data.Defeated || !this.empire.GetRelations()[empireList].AtWar)
-                    {
+                    if (Vector2.Distance(areasOfOperation.GetPlanet().Position, ship.Center) > areasOfOperation.Radius)
                         continue;
-                    }
-                    foreach (AO aO in empireList.GetGSAI().AreasOfOperations)
-                    {
-                        if (Vector2.Distance(areasOfOperation.Position, aO.Position) >= areasOfOperation.Radius * 2f)
-                        {
-                            continue;
-                        }
-                        AO threatLevel = areasOfOperation;
-                        threatLevel.ThreatLevel = threatLevel.ThreatLevel + 1;
-                    }
+                    areasOfOperation.ThreatLevel += (int)ship.GetStrength();
                 }
+                this.empire.KnownShips.thisLock.ExitReadLock();
+                
+                //foreach (Empire empireList in EmpireManager.EmpireList)
+                //{                                        
+                //    if (empireList == this.empire || empireList.data.Defeated || !this.empire.GetRelations()[empireList].AtWar)
+                //    {
+                //        continue;
+                //    }
+                //    foreach (AO aO in empireList.GetGSAI().AreasOfOperations)
+                //    {
+                //        if (Vector2.Distance(areasOfOperation.Position, aO.Position) >= areasOfOperation.Radius * 2f)
+                //        {
+                //            continue;
+                //        }
+                //        AO threatLevel = areasOfOperation; //try to make threatlevel usefull. still not very usefull
+                //        threatLevel.ThreatLevel = threatLevel.ThreatLevel + aO
+                        
+                //    }
+                //}
+                
             }
             foreach (AO aO1 in aOs)
             {
@@ -5582,8 +5594,20 @@ namespace Ship_Game.Gameplay
                 from planet in planets
                 orderby planet.GetMaxProductionPotential() descending
                 select planet;
+           
             foreach (Planet planet2 in maxProductionPotential)
             {
+                float aoSize = 0;
+                foreach (SolarSystem system in planet2.system.FiveClosestSystems)
+                {
+                    //if (system.OwnerList.Contains(this.empire))
+                    //    continue;
+                    if (aoSize < Vector2.Distance(planet2.Position, system.Position))
+                        aoSize = Vector2.Distance(planet2.Position, system.Position);
+                }
+                float aomax = Empire.universeScreen.Size.X * .2f;
+                if (aoSize > aomax)
+                    aoSize = aomax;
                 bool flag1 = true;
                 foreach (AO areasOfOperation2 in this.AreasOfOperations)
                 {
@@ -5599,6 +5623,8 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
+
+             
                 AO aO2 = new AO(planet2, aoSize);
                 this.AreasOfOperations.Add(aO2);
             }
@@ -5890,7 +5916,7 @@ namespace Ship_Game.Gameplay
 						if (sorted.Count<AO>() > 0)
 						{
 							AO ClosestAO = sorted.First<AO>();
-							if (Vector2.Distance(planetList.Position, ClosestAO.Position) > ClosestAO.Radius * 2.15f)
+							if (Vector2.Distance(planetList.Position, ClosestAO.Position) > ClosestAO.Radius * 1.5f)
 							{
 								continue;
 							}
@@ -6139,7 +6165,7 @@ namespace Ship_Game.Gameplay
                         if (sorted.Count<AO>() > 0)
                         {
                             AO ClosestAO = sorted.First<AO>();
-                            if (Vector2.Distance(planetList.Position, ClosestAO.Position) > ClosestAO.Radius * 2.15f)
+                            if (Vector2.Distance(planetList.Position, ClosestAO.Position) > ClosestAO.Radius * 2f)
                             {
                                 continue;
                             }
