@@ -68,6 +68,21 @@ namespace Ship_Game
 
         }
 
+        public float GetDefensiveThreatFromPlanets(List<Planet> planets)
+        {
+            HashSet<SystemCommander> scoms = new HashSet<SystemCommander>();
+            foreach(Planet planet in planets)
+            {
+                SystemCommander temp =null;
+                if(this.DefenseDict.TryGetValue(planet.system,out temp))
+                {
+                    scoms.Add(temp);
+                }
+
+            }
+            return scoms.Sum(defense => defense.IdealShipStrength);
+        }
+
 		public float GetPctOfForces(SolarSystem system)
 		{
 			return this.DefenseDict[system].GetOurStrength() / this.GetForcePoolStrength();
