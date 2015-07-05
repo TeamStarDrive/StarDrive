@@ -117,6 +117,8 @@ namespace Ship_Game
         {
             SensorNodeLocker = new ReaderWriterLockSlim();
             BorderNodeLocker = new ReaderWriterLockSlim();
+            
+            
         }
 
         public ConcurrentDictionary<int, Fleet> GetFleetsDict()
