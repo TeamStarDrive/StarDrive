@@ -2514,7 +2514,7 @@ namespace Ship_Game.Gameplay
                         bool flag = false;
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
-                            if (!ship.GetAI().BadGuysNear)
+                            if (!ship.GetAI().BadGuysNear || ship.isInDeepSpace)
                             {
                                 flag = true;
                                 break;

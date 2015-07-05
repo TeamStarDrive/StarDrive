@@ -19,15 +19,20 @@ namespace Ship_Game.Gameplay
 		{
 		}
 
-		public SpaceRoad(SolarSystem Origin, SolarSystem Destination, Empire empire)
+        public SpaceRoad(SolarSystem Origin, SolarSystem Destination, Empire empire, float SSPBudget, float nodeMaintenance)
 		{
 			this.Origin = Origin;
 			this.Destination = Destination;
 			float Distance = Vector2.Distance(Origin.Position, Destination.Position);
 
-            int galaxySizeMod = (int)((Empire.universeScreen.Size.X ) / 250);
+            //int galaxySizeMod = (int)((Empire.universeScreen.Size.X ) / 250);
             float offset = (Empire.ProjectorRadius * 1.5f);// +galaxySizeMod;
             this.NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
+            if (SSPBudget - nodeMaintenance * this.NumberOfProjectors <= 0)
+            {
+                this.NumberOfProjectors = 0;
+                return ;
+            }
 			for (int i = 0; i < this.NumberOfProjectors; i++)
 			{
 				RoadNode node = new RoadNode();
@@ -51,6 +56,7 @@ namespace Ship_Game.Gameplay
 					this.RoadNodesList.Add(node);
 				}
 			}
+            return ;
 		}
 
 		public SolarSystem GetDestination()

@@ -2559,14 +2559,14 @@ namespace Ship_Game.Gameplay
 					continue;
 				}
 				Empire Them = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
-				if (Them == this.empire || !Them.isFaction && !this.empire.GetRelations()[Them].AtWar)
+				if (Them == this.empire || !Them.isFaction && this.empire.GetRelations()[Them].Treaty_OpenBorders)
 				{
 					continue;
 				}
 				MilitaryTask enemyStrength = this;
 				enemyStrength.EnemyStrength = enemyStrength.EnemyStrength + pin.Value.Strength;
 			}
-			this.MinimumTaskForceStrength = this.EnemyStrength + 0.35f * this.EnemyStrength;
+            this.MinimumTaskForceStrength = this.EnemyStrength; // +0.35f * this.EnemyStrength;
 			if (this.MinimumTaskForceStrength == 0f)
 			{
 				this.EndTask();
