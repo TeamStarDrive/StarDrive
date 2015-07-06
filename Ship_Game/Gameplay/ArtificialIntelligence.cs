@@ -2521,8 +2521,8 @@ namespace Ship_Game.Gameplay
                                 //If no projectiles from planets check for projectiles from ships
                                 if (fireTarget == null)
                                 {
-                                    //foreach (Ship ship in PotentialTargets)
-                                    Parallel.ForEach(PotentialTargets, (ship,status) =>
+                                    //Parallel.ForEach(PotentialTargets, (ship,status) =>
+                                    foreach(Ship ship in PotentialTargets)
                                     {
                                         for (int i = 0; i < ship.Projectiles.Count; i++)
                                         {
@@ -2545,11 +2545,10 @@ namespace Ship_Game.Gameplay
                                         }//);
                                         if (fireTarget != null)
                                         {
-                                            //break;
-                                            status.Stop();
-                                            return;
+                                            break;
+                                            
                                         }
-                                    });
+                                    }
                                 }
                             }
                             //If a target was aquired fire on it
@@ -2713,7 +2712,7 @@ namespace Ship_Game.Gameplay
             ModuleSlot ClosestES = null;
             foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy && !ES.module.Active)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active)
                     continue;
                 float temp = Vector2.Distance(ES.module.Center, w.GetOwner().Center);
                 if (nearest == 0 || temp < nearest)
@@ -2722,7 +2721,7 @@ namespace Ship_Game.Gameplay
                     ClosestES = ES;
                 }
             }
-            List<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.Where(close => close.module.quadrant == ClosestES.module.quadrant).ToList();
+            List<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.Where(close => close.module.Active && close.module.quadrant == ClosestES.module.quadrant).ToList();
 			if ((fireTarget as Ship).shield_power > 0f)
 			{
 				for (int i = 0; i < (fireTarget as Ship).GetShields().Count; i++)
@@ -5638,40 +5637,40 @@ namespace Ship_Game.Gameplay
             this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.66f;
             SolarSystem thisSystem = this.Owner.GetSystem();
             //if (this.EscortTarget == null || !this.EscortTarget.Active)
-            {
-                foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item =>
-                    item.Active
-                    && !item.dying
-                    &&
-                     (Vector2.Distance(this.Owner.Center, item.Center) <= Radius)
+            //{
+            //    foreach (GameplayObject nearby in UniverseScreen.ShipSpatialManager.GetNearby(Owner).Select(item => item as Ship).Where(item =>
+            //        item.Active
+            //        && !item.dying
+            //        &&
+            //         (Vector2.Distance(this.Owner.Center, item.Center) <= Radius)
                      
 
 
 
-                    )
-                    )
-                {
-                    Ship item = nearby as Ship;
-                    if (item != null && item.Active && !item.dying && item.engineState!= Ship.MoveState.Warp)
-                    {
-                        if (item.loyalty == this.Owner.loyalty)
-                        {
-                            this.FriendliesNearby.Add(item);
-                        }
-                        else if ((item.loyalty != this.Owner.loyalty
-                            && this.Owner.loyalty.GetRelations()[item.loyalty].AtWar
-                            || this.Owner.loyalty.isFaction || item.loyalty.isFaction))//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
-                        {
-                            ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
-                            sw.ship = item;
-                            sw.weight = 1f;
-                            this.NearbyShips.Add(sw);
-                            this.PotentialTargets.Add(item);
-                            this.BadGuysNear = Vector2.Distance(Position, item.Position) <= Radius;
-                        }
-                    }
-                }
-            }
+            //        )
+            //        )
+            //    {
+            //        Ship item = nearby as Ship;
+            //        if (item != null && item.Active && !item.dying && item.engineState!= Ship.MoveState.Warp)
+            //        {
+            //            if (item.loyalty == this.Owner.loyalty)
+            //            {
+            //                this.FriendliesNearby.Add(item);
+            //            }
+            //            else if ((item.loyalty != this.Owner.loyalty
+            //                && this.Owner.loyalty.GetRelations()[item.loyalty].AtWar
+            //                || this.Owner.loyalty.isFaction || item.loyalty.isFaction))//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
+            //            {
+            //                ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
+            //                sw.ship = item;
+            //                sw.weight = 1f;
+            //                this.NearbyShips.Add(sw);
+            //                this.PotentialTargets.Add(item);
+            //                this.BadGuysNear = Vector2.Distance(Position, item.Position) <= Radius;
+            //            }
+            //        }
+            //    }
+            //}
             //else
             {
                 if (this.EscortTarget != null && this.EscortTarget.Active && this.EscortTarget.GetAI().Target != null)
@@ -5685,7 +5684,7 @@ namespace Ship_Game.Gameplay
                 for (int i = 0; i < nearby.Count; i++)
                 {
                     Ship item1 = nearby[i] as Ship;
-                    if (item1 != null && item1.Active && !item1.dying)
+                    if (item1 != null && item1.Active && !item1.dying &&(Vector2.Distance(this.Owner.Center, item1.Center) <= Radius))
                     {
                         Empire empire = item1.loyalty;
                         Ship shipTarget = item1.GetAI().Target as Ship;
@@ -5697,16 +5696,27 @@ namespace Ship_Game.Gameplay
                             && shipTarget != null
                             && shipTarget == this.EscortTarget && item1.engineState != Ship.MoveState.Warp)
                         {
-                            
+
                             ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
                             sw.ship = item1;
                             sw.weight = 3f;
-                            
+
                             this.NearbyShips.Add(sw);
                             this.BadGuysNear = true;
                             this.PotentialTargets.Add(item1);
                         }
-                        
+                        else if ((item1.loyalty != this.Owner.loyalty
+                            && this.Owner.loyalty.GetRelations()[item1.loyalty].AtWar
+                            || this.Owner.loyalty.isFaction || item1.loyalty.isFaction))//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
+                        {
+                            ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
+                            sw.ship = item1;
+                            sw.weight = 1f;
+                            this.NearbyShips.Add(sw);
+                            this.PotentialTargets.Add(item1);
+                            this.BadGuysNear = Vector2.Distance(Position, item1.Position) <= Radius;
+                        }
+
 
                     }
                 }
