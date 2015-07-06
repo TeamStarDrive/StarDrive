@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Configuration;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Ship_Game.Gameplay
 {
@@ -6661,19 +6662,36 @@ namespace Ship_Game.Gameplay
             if (sspBudget > nodeMaintenance*2) //- nodeMaintenance * 5
             {
                 foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
+                //ReaderWriterLockSlim roadlock = new ReaderWriterLockSlim();
+                //Parallel.ForEach(this.empire.GetOwnedSystems(), ownedSystem =>
                 {
 
                     IOrderedEnumerable<SolarSystem> sortedList =
                         from otherSystem in this.empire.GetOwnedSystems()
                         orderby Vector2.Distance(otherSystem.Position, ownedSystem.Position)
                         select otherSystem;
+                    int devLevelos = 0;
+                    foreach (Planet p in ownedSystem.PlanetList)
+                    {
+                        if (p.Owner != this.empire)
+                            continue;
+                        //if (p.ps != Planet.GoodState.EXPORT && p.fs != Planet.GoodState.EXPORT)
+                        //    continue;
+                        devLevelos += p.developmentLevel;
+
+                    }
+                    if (devLevelos == 0)
+                        //return;
+                        continue;
                     foreach (SolarSystem Origin in sortedList)
                     {
                         if (Origin == ownedSystem)
                         {
                             continue;
                         }
+                        int devLevel = devLevelos;
                         bool createRoad = true;
+                        //roadlock.EnterReadLock();
                         foreach (SpaceRoad road in this.empire.SpaceRoadsList)
                         {
                             if (road.GetOrigin() != ownedSystem && road.GetDestination() != ownedSystem)
@@ -6682,24 +6700,32 @@ namespace Ship_Game.Gameplay
                             }
                             createRoad = false;
                         }
-                        
+                       // roadlock.ExitReadLock();
+                        foreach (Planet p in Origin.PlanetList)
+                        {
+                            if (p.Owner != this.empire)
+                                continue;
+                            devLevel += p.developmentLevel;
+                        }
                         if (!createRoad)
                         {
                             continue;
                         }
                         SpaceRoad newRoad = new SpaceRoad(Origin, ownedSystem, this.empire, sspBudget, nodeMaintenance);
-                        
 
-                        if (sspBudget  <= 0||newRoad.NumberOfProjectors ==0)
+                        //roadlock.EnterWriteLock();
+                        if (sspBudget <= 0 || newRoad.NumberOfProjectors == 0 || newRoad.NumberOfProjectors > devLevel)
                         {
-                       
-                            continue;
-                        } 
+                           // roadlock.ExitWriteLock();
+                            continue;                            
+                        }
                         sspBudget -= newRoad.NumberOfProjectors * nodeMaintenance;
-                        UnderConstruction += newRoad.NumberOfProjectors * nodeMaintenance; 
-                        this.empire.SpaceRoadsList.Add(newRoad);
+                        UnderConstruction += newRoad.NumberOfProjectors * nodeMaintenance;
+                        
+                            this.empire.SpaceRoadsList.Add(newRoad);
+                           // roadlock.ExitWriteLock();
                     }
-                } 
+                }//);
             }
             sspBudget = this.empire.data.SSPBudget-roadMaintenance - UnderConstruction;
 			List<SpaceRoad> ToRemove = new List<SpaceRoad>();
