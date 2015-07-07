@@ -3751,7 +3751,7 @@ namespace Ship_Game.Gameplay
                     this.FTLmodifier *= ftlmodtemp;
                 }
             }
-            else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || this.MoveModulesTimer > 0.0 || this.InCombat && (GlobalStats.ForceFullSim || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
+            else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || this.MoveModulesTimer > 0.0 || this.InCombat && (GlobalStats.ForceFullSim)) // || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
             {
                 if (elapsedTime > 0.0)
                 {
