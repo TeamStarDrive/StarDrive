@@ -2978,8 +2978,8 @@ namespace Ship_Game
                             }
                         }
                     }
-                    else
-                        this.ClickTimer = 0.5f;
+                    else if (this.SelectedShip !=null)
+                        this.ClickTimer = 0.0f;
                         //this.ClickTimer = 0.5f;
                 }
                 this.HandleSelectionBox(input);
@@ -3061,7 +3061,7 @@ namespace Ship_Game
                                     if (this.viewState < UniverseScreen.UnivScreenState.SystemView)
                                         this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                                 }
-                            else
+                            else 
                                 this.ClickTimer = 0.0f;
                         }
                     }
@@ -3341,7 +3341,7 @@ namespace Ship_Game
                         if (this.camHeight < this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView))
                             this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                     }
-                    else
+                    else if (this.SelectedFleet != null)
                         this.ClickTimer = 0.0f;
                 }
             }
