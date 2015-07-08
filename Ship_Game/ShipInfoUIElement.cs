@@ -60,6 +60,7 @@ namespace Ship_Game
 		private bool ShowModules = true;
 
 		private string fmt = "0";
+        private float DoubleClickTimer = .25f;
 
 		public ShipInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
 		{
@@ -405,6 +406,7 @@ namespace Ship_Game
                     this.State = UIElement.ElementState.TransitionOff;
                 return true;
             }
+           
             else
             {
                 if (HelperFunctions.CheckIntersection(this.ShipNameArea.ClickableArea, input.CursorPosition))
@@ -436,6 +438,19 @@ namespace Ship_Game
                 {
                     if (this.ship == null)
                         return false;
+                    if (this.DoubleClickTimer > 0)
+                        this.DoubleClickTimer -= 0.01666f;
+                    if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
+                    {
+                        Ship.universeScreen.ViewingShip = false;
+                        Ship.universeScreen.AdjustCamTimer = 0.5f;
+                        Ship.universeScreen.transitionDestination.X = this.ship.Center.X;
+                        Ship.universeScreen.transitionDestination.Y = this.ship.Center.Y;
+                        if (Ship.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView)
+                            Ship.universeScreen.transitionDestination.Z = Ship.universeScreen.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
+                    }
+                    else if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+                        this.DoubleClickTimer = 0.25f;    
                     if (this.ship.loyalty == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
                     {
                         foreach (ToggleButton toggleButton in this.CombatStatusButtons)
@@ -532,6 +547,8 @@ namespace Ship_Game
                         if (flag)
                             return true;
                     }
+                
+                    
                     return false;
                 }
             }
