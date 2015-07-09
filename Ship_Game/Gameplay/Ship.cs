@@ -3709,7 +3709,7 @@ namespace Ship_Game.Gameplay
                 //Change FTL modifier for ship based on solar system
                 
                 {
-                    float ftlmodtemp =0;
+                    float ftlmodtemp =1;
                     if (this.system != null)
                     {
                         bool modified = false;
@@ -3721,17 +3721,18 @@ namespace Ship_Game.Gameplay
                         if (this.system != null)   
                         {
                             bool friendlySystem = true;
-                            Relationship relation = null;
+                            bool count = false;
                             foreach (Empire empire in this.system.OwnerList)
                             {
+                                count = true;
                                 friendlySystem = false;
-                                if (this.loyalty == empire ||( this.loyalty.GetRelations().TryGetValue(empire, out relation) && relation.Treaty_OpenBorders))
+                                if (this.inborders ) //||( this.loyalty.GetRelations().TryGetValue(empire, out relation) && relation.Treaty_OpenBorders))
                                 {
                                     friendlySystem = true;
                                     break;
                                 }
                             }
-                            if (!friendlySystem || (!Ship.universeScreen.FTLInNuetralSystems && relation ==null))
+                            if (!friendlySystem || (!Ship.universeScreen.FTLInNuetralSystems && !count))
                             {
                                 ftlmodtemp *= Ship.universeScreen.EnemyFTLModifier;
                                 modified = true;
@@ -3744,12 +3745,13 @@ namespace Ship_Game.Gameplay
                     else
                         ftlmodtemp = 1f;
                     //Apply in borders bonus through ftl modifier
+                    this.FTLmodifier = 1;
                     if (this.inborders && this.loyalty.data.Traits.InBordersSpeedBonus > 0)
-                        ftlmodtemp += this.loyalty.data.Traits.InBordersSpeedBonus;
-                    this.FTLmodifier = ftlmodtemp;
+                        this.FTLmodifier += this.loyalty.data.Traits.InBordersSpeedBonus;
+                    this.FTLmodifier *= ftlmodtemp;
                 }
             }
-            else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || this.MoveModulesTimer > 0.0 || this.InCombat && (GlobalStats.ForceFullSim || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
+            else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || this.MoveModulesTimer > 0.0 || this.InCombat && (GlobalStats.ForceFullSim)) // || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
             {
                 if (elapsedTime > 0.0)
                 {
@@ -4341,7 +4343,7 @@ namespace Ship_Game.Gameplay
 
             foreach(ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy && !ES.module.Active)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active)
                     continue;
                 temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest )
@@ -4428,7 +4430,7 @@ namespace Ship_Game.Gameplay
 
             foreach (ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active)
                     continue;
                 temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest)

@@ -29,8 +29,8 @@ namespace Ship_Game
         public List<PlanetGridSquare> TilesList = new List<PlanetGridSquare>();
         public string Special = "None";
         public BatchRemovalCollection<Planet.OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<Planet.OrbitalDrop>();
-        public Planet.GoodState fs = Planet.GoodState.IMPORT;
-        public Planet.GoodState ps = Planet.GoodState.IMPORT;
+        public Planet.GoodState fs = Planet.GoodState.STORE;
+        public Planet.GoodState ps = Planet.GoodState.STORE;
         public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
         public List<Building> BuildingList = new List<Building>();
         public SpaceStation Station = new SpaceStation();
@@ -137,6 +137,8 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         private ReaderWriterLockSlim planetLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private bool PSexport = false;
+        private bool FSexport = false;
 
         
         public Planet()
@@ -3080,7 +3082,7 @@ namespace Ship_Game
             }
             else
             {
-                this.fs = Planet.GoodState.IMPORT;
+                //this.fs = Planet.GoodState.IMPORT;
                 //if you cant reach the desired surplus, produce as much as you can
                 return 1.0f;
             }
@@ -3524,40 +3526,148 @@ namespace Ship_Game
         }
         private void SetExportState(ColonyType colonyType)
         {
+            bool FSexport =false;
+            bool PSexport = false;
+            int pc = 0;
+            foreach(Planet planet in this.Owner.GetPlanets())
+            {
+                pc++;
+                if(planet.fs == GoodState.IMPORT)
+                {
+                    FSexport = true;
+                }
+                if(planet.ps == GoodState.IMPORT)
+                {
+                    PSexport = true;
+                }
+            }
+            if(pc==1)
+            {
+                FSexport = false;
+                PSexport = false;
+            }
+            float PRatio = this.ProductionHere /this.MAX_STORAGE;
+            float FRatio = this.FoodHere /this.MAX_STORAGE;
             switch (colonyType)
             {
-                case ColonyType.Core:
+                
                 case ColonyType.Colony:
-                    
+                case ColonyType.Military:
                 case ColonyType.Industrial:
-                    
-                case ColonyType.Research:
+                    if (this.NetProductionPerTurn > this.developmentLevel)
+                    {
+                        if (PRatio < .9 && this.ConstructionQueue.Count > 0)
+                            this.ps = GoodState.IMPORT;
+                        else if (this.ConstructionQueue.Count == 0)
+                        {
+                            this.ps = GoodState.EXPORT;
+                        }
+                        else
+                            this.ps = GoodState.STORE;
+
+                    }
+                    else
+                    {
+                        if (PRatio < .75)
+                            this.ps = GoodState.IMPORT;
+                        else
+                            this.ps = GoodState.STORE;
+                    }
+                    if (FRatio > .75f)
+                        this.fs = Planet.GoodState.STORE;
+                    else
+                        this.fs = Planet.GoodState.IMPORT;
+                break;
+
                     
                 case ColonyType.Agricultural:
-                    
-                case ColonyType.Military:
-                    
-                case ColonyType.TradeHub:
-                    
-                 if (this.NetProductionPerTurn > 0  && (this.ProductionHere > this.MAX_STORAGE * 0.33f || this.ConstructionQueue.Count == 0))
-                    this.ps = Planet.GoodState.EXPORT;
-                else if (this.ProductionHere > MAX_STORAGE * .75f || this.NetProductionPerTurn >0)
+                if(PRatio >.75)
                     this.ps = Planet.GoodState.STORE;
                 else
                     this.ps = Planet.GoodState.IMPORT;
 
 
-                if (this.NetFoodPerTurn >0 && (this.FoodHere > this.MAX_STORAGE * 0.33f ))
+                if (this.NetFoodPerTurn >0 )
                     this.fs = Planet.GoodState.EXPORT;
-                else if (this.FoodHere > MAX_STORAGE * .75f || this.NetFoodPerTurn >0 )
+                else if (FRatio> .75f )
                     this.fs = Planet.GoodState.STORE;
                 else
                     this.fs = Planet.GoodState.IMPORT;
 
                 break;
+                
+                case ColonyType.Research:
+                
+                {
+                    if (PRatio > .75f)
+                        this.ps = Planet.GoodState.STORE;
+                    else
+                        this.ps = Planet.GoodState.IMPORT;
+
+
+                    if (FRatio > .75f)
+                        this.fs = Planet.GoodState.STORE;
+                    else
+                        this.fs = Planet.GoodState.IMPORT;
+
+                    break; 
+                }
+
+                case ColonyType.Core:
+                case ColonyType.TradeHub:
+                if(this.NetProductionPerTurn >this.developmentLevel)
+                {
+
+                    if (PRatio > .33f )
+                        this.ps = GoodState.EXPORT;
+                    else if ( PRatio < .33 )
+                        this.ps = GoodState.STORE;
+                    else
+                        this.ps = GoodState.IMPORT;
+                }
+                else
+                {
+                    if (PRatio > .75)
+                        this.ps = GoodState.STORE;
+                    else
+                        this.ps = GoodState.IMPORT;
+                }
+                
+                if (FRatio > .25)
+                    this.fs = GoodState.EXPORT;
+                else if (this.NetFoodPerTurn > this.developmentLevel * .5)
+                    this.fs = GoodState.STORE;
+                else
+                    this.fs = GoodState.IMPORT;
+                        
+
+                break;
 
                 default:
                     break;
+            }
+            if(!PSexport)
+                this.PSexport = true;
+            else
+            {
+                this.PSexport = false;
+            }
+            if(!FSexport)
+                this.FSexport = true;
+            else
+            {
+                this.FSexport = true;
+            }
+            if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
+            {
+                
+                this.ps = GoodState.STORE;
+            }
+
+            if(this.developmentLevel>1 && this.fs == GoodState.EXPORT && !FSexport)
+            {
+                
+                this.fs = GoodState.STORE;
             }
 
            
@@ -3600,10 +3710,10 @@ namespace Ship_Game
                 this.ResearcherPercentage = 1f - this.WorkerPercentage;
                 if (this.ResearcherPercentage < 0f)
                     ResearcherPercentage = 0f;
-                if (this.ProductionHere > this.MAX_STORAGE * 0.25f && (double)this.GetNetProductionPerTurn() > 1.0)// &&
-                    this.ps = Planet.GoodState.EXPORT;
-                else
-                    this.ps = Planet.GoodState.IMPORT;
+                //if (this.ProductionHere > this.MAX_STORAGE * 0.25f && (double)this.GetNetProductionPerTurn() > 1.0)// &&
+                //    this.ps = Planet.GoodState.EXPORT;
+                //else
+                //    this.ps = Planet.GoodState.IMPORT;
                 float buildingCount = 0.0f;
                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                 {
@@ -3797,7 +3907,7 @@ namespace Ship_Game
                             //if (this.DetermineIfSelfSufficient())
                             #region MyRegion
                             {
-                                this.fs = GoodState.EXPORT;
+                                //this.fs = GoodState.EXPORT;
                                 //Determine if excess food
                                
                                 float surplus = (this.NetFoodPerTurn * (string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1 : .5f)) * (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
@@ -3819,6 +3929,8 @@ namespace Ship_Game
                                 float Remainder = 1f - FarmerPercentage;
                                 //Research is happening
                                 this.WorkerPercentage = (Remainder * (string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1 : (1 - (this.ProductionHere ) / (this.MAX_STORAGE ))));
+                                if (this.ProductionHere / this.MAX_STORAGE > .9 && !StuffInQueueToBuild)
+                                    this.WorkerPercentage = 0;
                                 this.ResearcherPercentage = Remainder - this.WorkerPercentage;
                                 if (this.Owner.data.Traits.Cybernetic > 0)
                                 {
@@ -4052,7 +4164,7 @@ namespace Ship_Game
                         #endregion
                     case Planet.ColonyType.Industrial:
                         #region MyRegion
-                        this.fs = Planet.GoodState.IMPORT;
+                        //this.fs = Planet.GoodState.IMPORT;
 
                         this.FarmerPercentage = 0.0f;
                         this.WorkerPercentage = 1f;
@@ -4072,12 +4184,15 @@ namespace Ship_Game
                         {
 
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus);
+                            this.FarmerPercentage *= (this.FoodHere / MAX_STORAGE) > .25 ? .5f : 1;
                             if ( FarmerPercentage == 1 && StuffInQueueToBuild)
                                 this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
                             this.WorkerPercentage =
                                 (1f - this.FarmerPercentage)   //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
                                 * (ForgetReseachAndBuild ? 1 :
                              (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)));
+                            if (this.ProductionHere / this.MAX_STORAGE >.75 && !StuffInQueueToBuild)
+                                this.WorkerPercentage = 0;
  
                             this.ResearcherPercentage = 1 - this.FarmerPercentage - this.WorkerPercentage;// 0.0f;
                             if (this.Owner.data.Traits.Cybernetic > 0)
@@ -4287,8 +4402,8 @@ namespace Ship_Game
                         #endregion
                     case Planet.ColonyType.Research:
                         #region MyRegion
-                        this.fs = Planet.GoodState.IMPORT;
-                        this.ps = Planet.GoodState.IMPORT;
+                        //this.fs = Planet.GoodState.IMPORT;
+                        //this.ps = Planet.GoodState.IMPORT;
                         this.FarmerPercentage = 0.0f;
                         this.WorkerPercentage = 0.0f;
                         this.ResearcherPercentage = 1f;
@@ -4311,7 +4426,8 @@ namespace Ship_Game
                         this.WorkerPercentage =
                         (1f - this.FarmerPercentage) *
                         (ForgetReseachAndBuild ? 1 : ((1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)) * .25f));
-
+                        if (this.ProductionHere / this.MAX_STORAGE > .9 && !StuffInQueueToBuild)
+                            this.WorkerPercentage = 0;
                         this.ResearcherPercentage = 1f - this.FarmerPercentage - this.WorkerPercentage;
                         if (this.Owner.data.Traits.Cybernetic > 0)
                         {
@@ -4487,7 +4603,8 @@ namespace Ship_Game
                         this.WorkerPercentage =
                         (1f - this.FarmerPercentage) *
                         (ForgetReseachAndBuild ? 1 : (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)));
-
+                        if (this.ProductionHere / this.MAX_STORAGE > .75 && !StuffInQueueToBuild)
+                            this.WorkerPercentage = 0;
 
                         this.ResearcherPercentage = 1f - this.FarmerPercentage - this.WorkerPercentage;
 
@@ -4630,7 +4747,7 @@ namespace Ship_Game
                             this.FarmerPercentage = 0;
                         }
                         this.SetExportState(this.colonyType);
-                        this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
+                        //this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
                         float buildingCount = 0.0f;
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                         {
@@ -4750,7 +4867,7 @@ namespace Ship_Game
                         #region MyRegion
                         {
 
-                            this.fs = Planet.GoodState.IMPORT;
+                            //this.fs = Planet.GoodState.IMPORT;
 
                             this.FarmerPercentage = 0.0f;
                             this.WorkerPercentage = 1f;
@@ -4776,7 +4893,8 @@ namespace Ship_Game
                                     (1f - this.FarmerPercentage)   //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
                                     * (ForgetReseachAndBuild ? 1 :
                                  (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)));
-
+                                if (this.ProductionHere / this.MAX_STORAGE > .75 && !StuffInQueueToBuild)
+                                    this.WorkerPercentage = 0;
                                 this.ResearcherPercentage = 1 - this.FarmerPercentage - this.WorkerPercentage;// 0.0f;
                                 if (this.Owner.data.Traits.Cybernetic > 0)
                                 {
@@ -5066,7 +5184,8 @@ namespace Ship_Game
                 return false;
             
             QueueItem item = this.ConstructionQueue[Index];
-            float amountToRush = (int)(this.ProductionHere * .25f); //item.Cost - item.productionTowards;
+            float amountToRush = this.GetMaxProductionPotential();//(int)(this.ProductionHere * .25f); //item.Cost - item.productionTowards;
+            amountToRush = amountToRush < 5 ? 5 : amountToRush;
             float amount = amountToRush < this.ProductionHere ? amountToRush : this.ProductionHere;
             if (amount < 1)
             {
@@ -5104,28 +5223,27 @@ time2ec = cs/maxp = 1
 take10 = time2ec /10; = .1
 output = maxp * take10 = 5
              * */
-            
-            float maxp = this.GetMaxProductionPotential();
-            float cs = this.ProductionHere;
-            float TimeToEmpty = cs / maxp;
-            float take10Turns = TimeToEmpty / (this.ps == GoodState.EXPORT ? 20:10);
-            float normalAmount = maxp * take10Turns;
 
-            //float divsor = ((this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
-            //float normalAmount = 0;
-            //float modifier=1; 
-            //if(this.ps == GoodState.EXPORT)
-            //    modifier = 1.4f - (this.developmentLevel * .2f);
-            //normalAmount = this.MAX_STORAGE * .15f;
-            //if (modifier > 1)
-            //{
-            //    modifier = 1;
+            float maxp = this.GetMaxProductionPotential() *(1-this.FarmerPercentage); //this.NetProductionPerTurn; //
+            if (maxp < 5)
+                maxp = 5;
+            float StorageRatio = 0;
+                //float TimeToEmpty = cs / maxp;
+            float take10Turns = 0;//TimeToEmpty / (this.ps == GoodState.EXPORT ? 20 : 10);
+            //bool NoNeedToStore = this.Owner.GetPlanets().Count == 1;
+                StorageRatio= this.ProductionHere / this.MAX_STORAGE;
+            take10Turns = maxp * StorageRatio;
 
-            //}
-            //if (normalAmount < 1)
-            //    normalAmount = 1;
-            // normalAmount *= modifier ;
-            //normalAmount *= divsor; 
+               
+                if (!this.PSexport)
+                    take10Turns *= (StorageRatio < .75f ? this.ps == GoodState.EXPORT ? .5f : this.ps == GoodState.STORE ? .25f : 1 : 1);
+                    //take10Turns = maxp;
+            if (!this.GovernorOn)
+                {
+                    take10Turns = this.NetProductionPerTurn; ;
+                }
+                float normalAmount =  take10Turns;// maxp* take10Turns;
+
 
 
             normalAmount = normalAmount < 0 ? 0 : normalAmount;

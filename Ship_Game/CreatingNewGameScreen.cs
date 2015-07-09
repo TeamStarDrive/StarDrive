@@ -135,6 +135,7 @@ namespace Ship_Game
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
                         this.data.Size = new Vector2(9350000f, 9350000f);
+                        Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Large")
                     {
@@ -144,7 +145,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                            this.data.Size = new Vector2(13350000, 13350000);
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Huge")
                     {
@@ -155,6 +156,7 @@ namespace Ship_Game
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
                             this.data.Size = new Vector2(18000000f, 18000000f);
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Epic")
                     {
@@ -165,6 +167,7 @@ namespace Ship_Game
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
                             this.data.Size = new Vector2(54000000, 54000000);
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
                             //this.data.Size = new Vector2(36000000, 36000000);
                         //this.scale = 2;
 
@@ -184,7 +187,7 @@ namespace Ship_Game
                             this.data.Size = new Vector2(54000000, 54000000);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
-
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
 
                     }
                     //if (this.numSystems <= this.numOpponents+2)
@@ -198,6 +201,7 @@ namespace Ship_Game
                 EmpireManager.EmpireList.Add(empire);
                 this.GalacticCenter = new Vector2(this.data.Size.X / 2f, this.data.Size.Y / 2f);
                 StatTracker.SnapshotsDict.Clear();
+                
             }
         }
 

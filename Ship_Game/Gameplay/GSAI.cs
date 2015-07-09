@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Configuration;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Ship_Game.Gameplay
 {
@@ -61,7 +62,7 @@ namespace Ship_Game.Gameplay
         public float PlatformUpkeep = 0f;
         public float StationUpkeep = 0f;
         public float spyBudget = 0;
-        public float SSPBudget = 0;
+        //public float SSPBudget = 0;
 
 
 		//private int ThirdDemand = 75;
@@ -2503,7 +2504,7 @@ namespace Ship_Game.Gameplay
            
 			if (baseDefensePct > 0.35f)
 			{
-				baseDefensePct = 0.35f;
+                baseDefensePct = 0.35f;
 			}
 			float EntireStrength = 0f;
 			foreach (Ship ship in this.empire.GetShips())
@@ -2512,8 +2513,8 @@ namespace Ship_Game.Gameplay
 			}
 			//added by gremlin dont add zero strength ships to defensive force pool
             //if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct 
-            if(this.DefensiveCoordinator.defenseDeficit >0
-                && (toAdd.BombBays.Count*4 < toAdd.Weapons.Count || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
+            if ((this.DefensiveCoordinator.defenseDeficit > 0  && this.DefensiveCoordinator.GetForcePoolStrength() < EntireStrength * baseDefensePct)
+                && (toAdd.BombBays.Count == 0 || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
             {
                 this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
                 toAdd.GetAI().SystemToDefend = null;
@@ -5519,10 +5520,11 @@ namespace Ship_Game.Gameplay
         //addedby gremlin manageAOs
         public void ManageAOs()
         {
-            float aoSize = Empire.universeScreen.Size.X * .2f;
+            
             //Vector2 empireCenter =this.empire.GetWeightedCenter();
             
             List<AO> aOs = new List<AO>();
+            float empireStr = this.empire.currentMilitaryStrength / (this.AreasOfOperations.Count*2+1);
             foreach (AO areasOfOperation in this.AreasOfOperations)
             {
                 areasOfOperation.ThreatLevel = 0;
@@ -5530,22 +5532,37 @@ namespace Ship_Game.Gameplay
                 {
                     aOs.Add(areasOfOperation);
                 }
-                foreach (Empire empireList in EmpireManager.EmpireList)
+                this.empire.KnownShips.thisLock.EnterReadLock();
+
+                foreach (Ship ship in this.empire.KnownShips)
                 {
-                    if (empireList == this.empire || empireList.data.Defeated || !this.empire.GetRelations()[empireList].AtWar)
-                    {
+                    if (ship.loyalty == this.empire || Vector2.Distance(areasOfOperation.GetPlanet().Position, ship.Center) > areasOfOperation.Radius)
                         continue;
-                    }
-                    foreach (AO aO in empireList.GetGSAI().AreasOfOperations)
-                    {
-                        if (Vector2.Distance(areasOfOperation.Position, aO.Position) >= areasOfOperation.Radius * 2f)
-                        {
-                            continue;
-                        }
-                        AO threatLevel = areasOfOperation;
-                        threatLevel.ThreatLevel = threatLevel.ThreatLevel + 1;
-                    }
+                    areasOfOperation.ThreatLevel += (int)ship.GetStrength();
                 }
+                this.empire.KnownShips.thisLock.ExitReadLock();
+
+                int min = (int)(empireStr * (this.DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets())*.1f));
+                if (areasOfOperation.ThreatLevel < min)
+                    areasOfOperation.ThreatLevel = min;
+                //foreach (Empire empireList in EmpireManager.EmpireList)
+                //{                                        
+                //    if (empireList == this.empire || empireList.data.Defeated || !this.empire.GetRelations()[empireList].AtWar)
+                //    {
+                //        continue;
+                //    }
+                //    foreach (AO aO in empireList.GetGSAI().AreasOfOperations)
+                //    {
+                //        if (Vector2.Distance(areasOfOperation.Position, aO.Position) >= areasOfOperation.Radius * 2f)
+                //        {
+                //            continue;
+                //        }
+                //        AO threatLevel = areasOfOperation; //try to make threatlevel usefull. still not very usefull
+                //        threatLevel.ThreatLevel = threatLevel.ThreatLevel + aO
+                        
+                //    }
+                //}
+                
             }
             foreach (AO aO1 in aOs)
             {
@@ -5582,8 +5599,20 @@ namespace Ship_Game.Gameplay
                 from planet in planets
                 orderby planet.GetMaxProductionPotential() descending
                 select planet;
+            
             foreach (Planet planet2 in maxProductionPotential)
             {
+                float aoSize = 0;
+                foreach (SolarSystem system in planet2.system.FiveClosestSystems)
+                {
+                    //if (system.OwnerList.Contains(this.empire))
+                    //    continue;
+                    if (aoSize < Vector2.Distance(planet2.Position, system.Position))
+                        aoSize = Vector2.Distance(planet2.Position, system.Position);
+                }
+                float aomax = Empire.universeScreen.Size.X * .2f;
+                if (aoSize > aomax)
+                    aoSize = aomax;
                 bool flag1 = true;
                 foreach (AO areasOfOperation2 in this.AreasOfOperations)
                 {
@@ -5599,6 +5628,8 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
+
+             
                 AO aO2 = new AO(planet2, aoSize);
                 this.AreasOfOperations.Add(aO2);
             }
@@ -5890,7 +5921,7 @@ namespace Ship_Game.Gameplay
 						if (sorted.Count<AO>() > 0)
 						{
 							AO ClosestAO = sorted.First<AO>();
-							if (Vector2.Distance(planetList.Position, ClosestAO.Position) > ClosestAO.Radius * 2.15f)
+							if (Vector2.Distance(planetList.Position, ClosestAO.Position) > ClosestAO.Radius * 1.5f)
 							{
 								continue;
 							}
@@ -6139,7 +6170,7 @@ namespace Ship_Game.Gameplay
                         if (sorted.Count<AO>() > 0)
                         {
                             AO ClosestAO = sorted.First<AO>();
-                            if (Vector2.Distance(planetList.Position, ClosestAO.Position) > ClosestAO.Radius * 2.15f)
+                            if (Vector2.Distance(planetList.Position, ClosestAO.Position) > ClosestAO.Radius * 2f)
                             {
                                 continue;
                             }
@@ -6575,10 +6606,16 @@ namespace Ship_Game.Gameplay
             //if (this.empire.SpaceRoadsList.Sum(node=> node.NumberOfProjectors) < ShipCountLimit * GlobalStats.spaceroadlimit)
             float sspBudget = this.empire.Money * (.01f *(1-this.empire.data.TaxRate));
             if (sspBudget < 0 || this.empire.data.SSPBudget > this.empire.Money * .1)
+            {
                 sspBudget = 0;
-            this.empire.Money -= sspBudget;
-            this.empire.data.SSPBudget += sspBudget;
-            sspBudget = this.empire.data.SSPBudget;
+                
+            }
+            else
+            {
+                this.empire.Money -= sspBudget;
+                this.empire.data.SSPBudget += sspBudget;
+            }
+            sspBudget = this.empire.data.SSPBudget *.1f;            
             float roadMaintenance = 0;
             float nodeMaintenance = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(this.empire);
             foreach (SpaceRoad roadBudget in this.empire.SpaceRoadsList)
@@ -6587,7 +6624,9 @@ namespace Ship_Game.Gameplay
                     roadBudget.NumberOfProjectors = roadBudget.RoadNodesList.Count;
                 roadMaintenance += roadBudget.NumberOfProjectors * nodeMaintenance;
             }
+  
             sspBudget -= roadMaintenance;
+            
             //this.empire.data.SSPBudget += sspBudget;
             //sspBudget = this.empire.data.SSPBudget;
             float UnderConstruction = 0f;
@@ -6620,22 +6659,39 @@ namespace Ship_Game.Gameplay
                 }
             }
             sspBudget -= UnderConstruction;
-            if (sspBudget - nodeMaintenance * 5 > 0)
+            if (sspBudget > nodeMaintenance*2) //- nodeMaintenance * 5
             {
                 foreach (SolarSystem ownedSystem in this.empire.GetOwnedSystems())
+                //ReaderWriterLockSlim roadlock = new ReaderWriterLockSlim();
+                //Parallel.ForEach(this.empire.GetOwnedSystems(), ownedSystem =>
                 {
 
                     IOrderedEnumerable<SolarSystem> sortedList =
                         from otherSystem in this.empire.GetOwnedSystems()
                         orderby Vector2.Distance(otherSystem.Position, ownedSystem.Position)
                         select otherSystem;
+                    int devLevelos = 0;
+                    foreach (Planet p in ownedSystem.PlanetList)
+                    {
+                        if (p.Owner != this.empire)
+                            continue;
+                        //if (p.ps != Planet.GoodState.EXPORT && p.fs != Planet.GoodState.EXPORT)
+                        //    continue;
+                        devLevelos += p.developmentLevel;
+
+                    }
+                    if (devLevelos == 0)
+                        //return;
+                        continue;
                     foreach (SolarSystem Origin in sortedList)
                     {
                         if (Origin == ownedSystem)
                         {
                             continue;
                         }
+                        int devLevel = devLevelos;
                         bool createRoad = true;
+                        //roadlock.EnterReadLock();
                         foreach (SpaceRoad road in this.empire.SpaceRoadsList)
                         {
                             if (road.GetOrigin() != ownedSystem && road.GetDestination() != ownedSystem)
@@ -6644,30 +6700,40 @@ namespace Ship_Game.Gameplay
                             }
                             createRoad = false;
                         }
+                       // roadlock.ExitReadLock();
+                        foreach (Planet p in Origin.PlanetList)
+                        {
+                            if (p.Owner != this.empire)
+                                continue;
+                            devLevel += p.developmentLevel;
+                        }
                         if (!createRoad)
                         {
                             continue;
                         }
-                        SpaceRoad newRoad = new SpaceRoad(Origin, ownedSystem, this.empire);
-                        sspBudget -= nodeMaintenance * newRoad.NumberOfProjectors;
+                        SpaceRoad newRoad = new SpaceRoad(Origin, ownedSystem, this.empire, sspBudget, nodeMaintenance);
 
-                        if (sspBudget  <= 0)
-                        //if (((this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ?
-                        //    this.empire.EstimateIncomeAtTaxRate(this.empire.data.TaxRate) - UnderConstruction :
-                        //    this.empire.EstimateIncomeAtTaxRate(0.2f) - UnderConstruction)) - 0.24 * (double)newRoad.NumberOfProjectors <= 0.5)
+                        //roadlock.EnterWriteLock();
+                        if (sspBudget <= 0 || newRoad.NumberOfProjectors == 0 || newRoad.NumberOfProjectors > devLevel)
                         {
-                            continue;
+                           // roadlock.ExitWriteLock();
+                            continue;                            
                         }
-                        this.empire.SpaceRoadsList.Add(newRoad);
+                        sspBudget -= newRoad.NumberOfProjectors * nodeMaintenance;
+                        UnderConstruction += newRoad.NumberOfProjectors * nodeMaintenance;
+                        
+                            this.empire.SpaceRoadsList.Add(newRoad);
+                           // roadlock.ExitWriteLock();
                     }
-                } 
+                }//);
             }
+            sspBudget = this.empire.data.SSPBudget-roadMaintenance - UnderConstruction;
 			List<SpaceRoad> ToRemove = new List<SpaceRoad>();
             //float income = this.empire.Money +this.empire.GrossTaxes; //this.empire.EstimateIncomeAtTaxRate(0.25f) +
 			foreach (SpaceRoad road in this.empire.SpaceRoadsList.OrderBy(ssps => ssps.NumberOfProjectors))
 			{
                 
-                if (road.RoadNodesList.Count == 0)// || road.NumberOfProjectors ==0)
+                if (road.RoadNodesList.Count == 0 ||sspBudget <= 0.0f )// || road.NumberOfProjectors ==0)
                 {
                     //if(road.NumberOfProjectors ==0)
                     //{
@@ -6694,12 +6760,13 @@ namespace Ship_Game.Gameplay
                     
                     //else
                     ToRemove.Add(road);
+                    sspBudget += road.NumberOfProjectors * nodeMaintenance;
                     continue;
                 }
                   
                                 
                 RoadNode ssp = road.RoadNodesList.Where(notNull => notNull != null && notNull.Platform !=null).FirstOrDefault();
-                if (sspBudget <= 0.0f || (ssp != null && (!road.GetOrigin().OwnerList.Contains(this.empire) || !road.GetDestination().OwnerList.Contains(this.empire))))
+                if ((ssp != null && (!road.GetOrigin().OwnerList.Contains(this.empire) || !road.GetDestination().OwnerList.Contains(this.empire))))
 				{
 					ToRemove.Add(road);
                     sspBudget += road.NumberOfProjectors * nodeMaintenance;
@@ -6759,32 +6826,56 @@ namespace Ship_Game.Gameplay
                             
                             continue;
 						}
-						foreach (Goal g in this.Goals)
-						{
-							if (g.type != GoalType.DeepSpaceConstruction || !(g.BuildPosition == node.Position))
-							{
-								continue;
-							}
-							this.Goals.QueuePendingRemoval(g);
-							foreach (Planet p in this.empire.GetPlanets())
-							{
-								foreach (QueueItem qi in p.ConstructionQueue)
-								{
-									if (qi.Goal != g)
-									{
-										continue;
-									}
-									Planet productionHere = p;
-									productionHere.ProductionHere = productionHere.ProductionHere + qi.productionTowards;
-									if (p.ProductionHere > p.MAX_STORAGE)
-									{
-										p.ProductionHere = p.MAX_STORAGE;
-									}
-									p.ConstructionQueue.QueuePendingRemoval(qi);
-								}
-								p.ConstructionQueue.ApplyPendingRemovals();
-							}
-						}
+
+
+                        foreach (Goal g in this.Goals)
+                        {
+                            if (g.type != GoalType.DeepSpaceConstruction || !(g.BuildPosition == node.Position))
+                            {
+                                continue;
+                            }
+                            this.Goals.QueuePendingRemoval(g);
+                            foreach (Planet p in this.empire.GetPlanets())
+                            {
+                                foreach (QueueItem qi in p.ConstructionQueue)
+                                {
+                                    if (qi.Goal != g)
+                                    {
+                                        continue;
+                                    }
+                                    Planet productionHere = p;
+                                    productionHere.ProductionHere = productionHere.ProductionHere + qi.productionTowards;
+                                    if (p.ProductionHere > p.MAX_STORAGE)
+                                    {
+                                        p.ProductionHere = p.MAX_STORAGE;
+                                    }
+                                    p.ConstructionQueue.QueuePendingRemoval(qi);
+                                }
+                                p.ConstructionQueue.ApplyPendingRemovals();
+                            }
+                            this.empire.GetShips().thisLock.EnterReadLock();
+                                                            
+                            foreach (Ship ship in this.empire.GetShips())
+                            {
+                                ship.GetAI().orderqueue.EnterReadLock();
+                                bool flag = false;
+                                ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.LastOrDefault();
+                                
+                                if (goal == null || goal.goal == null || goal.goal.type != GoalType.DeepSpaceConstruction || goal.goal.BuildPosition != node.Position)
+                                {
+                                    flag = true;
+                                }
+                                ship.GetAI().orderqueue.ExitReadLock();
+                                if (flag)
+                                    continue;
+                                ship.GetAI().OrderScrapShip();
+                                
+                                break;
+
+                            }
+                            this.empire.GetShips().thisLock.ExitReadLock();
+
+                        }
 						this.Goals.ApplyPendingRemovals();
 					}
                     this.empire.SpaceRoadsList.Remove(road);

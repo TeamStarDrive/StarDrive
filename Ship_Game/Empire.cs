@@ -117,6 +117,8 @@ namespace Ship_Game
         {
             SensorNodeLocker = new ReaderWriterLockSlim();
             BorderNodeLocker = new ReaderWriterLockSlim();
+            
+            
         }
 
         public ConcurrentDictionary<int, Fleet> GetFleetsDict()
@@ -1079,25 +1081,27 @@ namespace Ship_Game
             //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>  
             
             {
+                List<Empire.InfluenceNode> influenceNodes;
+                //lock (GlobalStats.SensorNodeLocker)
+                this.SensorNodeLocker.EnterReadLock();
+                {
+                    influenceNodes = new List<InfluenceNode>(this.SensorNodes);
+                }
+                this.SensorNodeLocker.ExitReadLock();
                 Parallel.ForEach(rangePartitioner, (range, loopState) =>
                 {
                     bool flag = false;
                     bool border = false;
 
-                    List<Empire.InfluenceNode> influenceNodes;
-                    //lock (GlobalStats.SensorNodeLocker)
-                    this.SensorNodeLocker.EnterReadLock();
-                    {
-                        influenceNodes = new List<InfluenceNode>(this.SensorNodes);
-                    }
-                    this.SensorNodeLocker.ExitReadLock();
+ 
+                    List<Ship> toadd = new List<Ship>();
                     for (int i = range.Item1; i < range.Item2; i++)
                     {
-                        //Ship nearby = Empire.universeScreen.MasterShipList[i];
+                        toadd.Clear();
                         Ship nearby = source[i];
                         if (nearby.loyalty != this)
                         {
-                            List<Ship> toadd = new List<Ship>();
+                            
                              flag = false;
                              border = false;
 
@@ -1113,7 +1117,8 @@ namespace Ship_Game
                                     continue;
                                     //return;
                                 }
-                                if (!this.Relationships[nearby.loyalty].Known)
+                                Relationship loyalty = null;
+                                if (this.Relationships.TryGetValue(nearby.loyalty,out loyalty) && !loyalty.Known)
                                 {
                                     GlobalStats.UILocker.EnterWriteLock();
                                     this.DoFirstContact(nearby.loyalty);
@@ -1126,13 +1131,13 @@ namespace Ship_Game
                                     || (node.KeyedObject as Ship).Name == "Subspace Projector" || (node.KeyedObject as Ship).GetAI().State == AIState.SystemTrader)) || node.KeyedObject is SolarSystem)
                                 {
                                     border = true;
-          
-                                    if (this.Relationships[nearby.loyalty].AtWar)
+
+                                    if (loyalty.AtWar)
                                     {
                                         nearby.IsIndangerousSpace = true;
                                         
                                     }
-                                    else if (this.Relationships[nearby.loyalty].Treaty_Alliance)
+                                    else if (loyalty.Treaty_Alliance)
                                         nearby.IsInFriendlySpace = true;
                                     else //if (this.Relationships[nearby.loyalty].Treaty_OpenBorders || this.Relationships[nearby.loyalty].Treaty_NAPact)
                                         nearby.IsInNeutralSpace = true;
@@ -1146,7 +1151,7 @@ namespace Ship_Game
                                     //return;
                                 }
                                 nearby.inSensorRange = true;
-                                if (nearby.GetSystem() == null || !this.isFaction && !nearby.loyalty.isFaction && !this.Relationships[nearby.loyalty].AtWar)
+                                if (nearby.GetSystem() == null || !this.isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
                                 {
                                     break;
 
@@ -1218,7 +1223,10 @@ namespace Ship_Game
                                     {
                                         continue;
                                     }
-                                    nearby.inborders = true;
+                                    {
+                                        nearby.inborders = true;
+                                        nearby.IsInFriendlySpace = true;
+                                    }
                                     break;
                                 }
                                 foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.Relationships)
@@ -1234,6 +1242,10 @@ namespace Ship_Game
                                             continue;
                                         }
                                         nearby.inborders = true;
+                                        if (Relationship.Value.Treaty_Alliance)
+                                            nearby.IsInFriendlySpace = true;
+                                        else
+                                            nearby.IsInNeutralSpace = true;
                                         break;
                                     }
                                 }
