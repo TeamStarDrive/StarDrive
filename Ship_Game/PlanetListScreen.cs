@@ -20,7 +20,7 @@ namespace Ship_Game
 
 		private float ClickTimer;
 
-		private float ClickDelay = 0.15f;
+		private float ClickDelay = 0.25f;
 
 		private Planet SelectedPlanet;
 

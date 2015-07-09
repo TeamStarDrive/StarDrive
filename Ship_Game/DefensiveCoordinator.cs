@@ -68,6 +68,23 @@ namespace Ship_Game
 
         }
 
+        public float GetDefensiveThreatFromPlanets(List<Planet> planets)
+        {
+            if (this.DefenseDict.Count == 0)
+                return 0;
+            HashSet<SystemCommander> scoms = new HashSet<SystemCommander>();
+            foreach(Planet planet in planets)
+            {
+                SystemCommander temp =null;
+                if(this.DefenseDict.TryGetValue(planet.system,out temp))
+                {
+                    scoms.Add(temp);
+                }
+
+            }
+            return scoms.Average(defense => defense.RankImportance);
+        }
+
 		public float GetPctOfForces(SolarSystem system)
 		{
 			return this.DefenseDict[system].GetOurStrength() / this.GetForcePoolStrength();
@@ -296,7 +313,7 @@ namespace Ship_Game
                         else
                         {
                             dd.Value.IdealShipStrength = Predicted * (dd.Value.RankImportance / 10);
-                            float min = dd.Value.ValueToUs * dd.Value.RankImportance * 10;
+                            float min = (float)Math.Pow((double)dd.Value.ValueToUs,3) * dd.Value.RankImportance ;
                             dd.Value.IdealShipStrength += min;
 
                             Interlocked.Add(ref  StrToAssign, -(int)dd.Value.IdealShipStrength);
