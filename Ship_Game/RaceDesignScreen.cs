@@ -500,12 +500,12 @@ namespace Ship_Game
 			}
 			if (this.RaceSummary.Cybernetic <= 0)
 			{
-				if (this.RaceSummary.ReproductionMod > 0f)
+				if (this.RaceSummary.PopGrowthMin > 0f)
 				{
 					RaceDesignScreen raceDesignScreen5 = this;
 					raceDesignScreen5.rd = string.Concat(raceDesignScreen5.rd, Localizer.Token(1305));
 				}
-				else if (this.RaceSummary.ReproductionMod >= 0f)
+                else if (this.RaceSummary.PopGrowthMin ==0 && this.RaceSummary.PopGrowthMax==0)
 				{
 					RaceDesignScreen raceDesignScreen6 = this;
 					raceDesignScreen6.rd = string.Concat(raceDesignScreen6.rd, Localizer.Token(1307));
@@ -516,12 +516,12 @@ namespace Ship_Game
 					raceDesignScreen7.rd = string.Concat(raceDesignScreen7.rd, Localizer.Token(1306));
 				}
 			}
-			else if (this.RaceSummary.ReproductionMod > 0f)
+            else if (this.RaceSummary.PopGrowthMin > 0f)
 			{
 				RaceDesignScreen raceDesignScreen8 = this;
 				raceDesignScreen8.rd = string.Concat(raceDesignScreen8.rd, Localizer.Token(1308));
 			}
-			else if (this.RaceSummary.ReproductionMod >= 0f)
+            else if (this.RaceSummary.PopGrowthMin == 0 && this.RaceSummary.PopGrowthMax == 0)
 			{
 				RaceDesignScreen raceDesignScreen9 = this;
 				raceDesignScreen9.rd = string.Concat(raceDesignScreen9.rd, Localizer.Token(1310));
@@ -2553,7 +2553,9 @@ namespace Ship_Game
                 this.RaceSummary.DiplomacyMod += t.trait.DiplomacyMod;
                 this.RaceSummary.EnergyDamageMod += t.trait.EnergyDamageMod;
                 this.RaceSummary.MaintMod += t.trait.MaintMod;
-                this.RaceSummary.ReproductionMod += t.trait.ReproductionMod;
+                this.RaceSummary.ReproductionMod += t.trait.ReproductionMod;// t.trait.ReproductionMod;
+                //this.RaceSummary.ReproductionMod += t.trait.PopGrowthMin;
+                //this.RaceSummary.ReproductionMod -= t.trait.PopGrowthMax;
                 this.RaceSummary.PopGrowthMax += t.trait.PopGrowthMax;
                 this.RaceSummary.PopGrowthMin += t.trait.PopGrowthMin;
                 this.RaceSummary.ResearchMod += t.trait.ResearchMod;

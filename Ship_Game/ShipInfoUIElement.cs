@@ -60,6 +60,7 @@ namespace Ship_Game
 		private bool ShowModules = true;
 
 		private string fmt = "0";
+        private float DoubleClickTimer = .25f;
 
 		public ShipInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
 		{
@@ -306,19 +307,34 @@ namespace Ship_Game
 				}
 				numStatus++;
 			}
-            if(this.ship.GetFTLmodifier <1)
+            if(this.ship.GetFTLmodifier <1 && !this.ship.Inhibited)
             {
-                if (this.ship.GetFTLmodifier >0 && this.ship.GetSystem() != null)
-				{
+                //if (this.ship.GetSystem() != null)
+                //{
 					Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.White);
+					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.Yellow);
 					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
 					{
 						
                         ToolTip.CreateTooltip(string.Concat("FTL Reduced in this System by\n", String.Format("{0:P0}", 1 - this.ship.GetFTLmodifier), "\nEngine State: ", this.ship.engineState), this.ScreenManager);
 					}
 					numStatus++;
-				}
+                //}
+
+            }
+            if (this.ship.GetFTLmodifier > 1 && !this.ship.Inhibited && this.ship.engineState == Ship.MoveState.Warp)
+            {
+                //if (this.ship.inborders)
+                //{
+                    Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.Green);
+                    if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
+                    {
+
+                        ToolTip.CreateTooltip(string.Concat("FTL Increased in this System by\n", String.Format("{0:P0}",  this.ship.GetFTLmodifier)), this.ScreenManager);
+                    }
+                    numStatus++;
+                //}
 
             }
 
@@ -390,6 +406,7 @@ namespace Ship_Game
                     this.State = UIElement.ElementState.TransitionOff;
                 return true;
             }
+           
             else
             {
                 if (HelperFunctions.CheckIntersection(this.ShipNameArea.ClickableArea, input.CursorPosition))
@@ -421,6 +438,19 @@ namespace Ship_Game
                 {
                     if (this.ship == null)
                         return false;
+                    if (this.DoubleClickTimer > 0)
+                        this.DoubleClickTimer -= 0.01666f;
+                    if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
+                    {
+                        Ship.universeScreen.ViewingShip = false;
+                        Ship.universeScreen.AdjustCamTimer = 0.5f;
+                        Ship.universeScreen.transitionDestination.X = this.ship.Center.X;
+                        Ship.universeScreen.transitionDestination.Y = this.ship.Center.Y;
+                        if (Ship.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView)
+                            Ship.universeScreen.transitionDestination.Z = Ship.universeScreen.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
+                    }
+                    else if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+                        this.DoubleClickTimer = 0.25f;    
                     if (this.ship.loyalty == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
                     {
                         foreach (ToggleButton toggleButton in this.CombatStatusButtons)
@@ -517,6 +547,8 @@ namespace Ship_Game
                         if (flag)
                             return true;
                     }
+                
+                    
                     return false;
                 }
             }

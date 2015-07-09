@@ -195,6 +195,7 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
+        private float HoldTimer = .25f;
 
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
@@ -5421,6 +5422,10 @@ namespace Ship_Game
                         }
                     }
                 }
+                else if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+                    this.HoldTimer -= .01666f;
+                else
+                    this.HoldTimer = 0.25f;
                 foreach (SlotStruct slotStruct in this.Slots)
                 {
                     if (slotStruct.ModuleUID != null && this.HighlightedModule != null && (slotStruct.module == this.HighlightedModule && (double)slotStruct.module.FieldOfFire != 0.0) && slotStruct.module.ModuleType == ShipModuleType.Turret)
@@ -5438,8 +5443,13 @@ namespace Ship_Game
                                 num3 = (float)(-1.0 * (360.0 - (double)num3));
                             num4 = Math.Abs(num2 - num3);
                         }
-                        if ((double)num4 < (double)num1 && (double)Vector2.Distance(spaceFromWorldSpace, vector2) < 300.0 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed))
+                        if ((double)num4 < (double)num1 && (double)Vector2.Distance(spaceFromWorldSpace, vector2) < 300.0
+                            && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
+                        {
+
                             this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+                        }
+
                     }
                 }
                 foreach (UIButton uiButton in this.Buttons)
