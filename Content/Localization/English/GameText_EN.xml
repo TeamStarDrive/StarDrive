@@ -7938,6 +7938,21 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>EMP Protection</Text>
     </Token>
 	
+	<!-- The Doctor: I'm adding various bits of UI text into proper localisation, starting with the rule options and FTL inhibition UI -->
+	
+	<Token>
+      <Index>6178</Index>
+      <Text>Treat Neutral Systems as Unfriendly</Text>
+    </Token>
+	<Token>
+      <Index>6179</Index>
+      <Text>FTL Speed reduced in this system by </Text>
+    </Token>
+	<Token>
+      <Index>6180</Index>
+      <Text>FTL Speed increased in this system by </Text>
+    </Token>
+	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
 	<Token>
@@ -8261,5 +8276,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7079</Index>
       <Text>Weapons that damage less than this threshold do no damage whatsoever to this shield.</Text>
     </Token>
+	
+	<Token>
+      <Index>7080</Index>
+      <Text>Assigns vessel to system defence duties</Text>
+    </Token>
+	
   </TokenList>
 </LocalizationFile>
