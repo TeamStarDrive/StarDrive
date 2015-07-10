@@ -44,6 +44,10 @@ namespace Ship_Game
 
 		private TexturedButton ScrapButton;
 
+        private TexturedButton PatrolButton; //System Defence button for ShipListScreen
+
+        private TexturedButton ExploreButton; //Auto-explore button for ShipListScreen
+
 		public ShipListScreen screen;
 
 		public string Status_Text;
@@ -75,10 +79,18 @@ namespace Ship_Game
 			{
 				width = width + 1f;
 			}
+
+
+
 			Rectangle refit = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 2 - 5 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"].Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height);
-			this.RefitButton = new TexturedButton(refit, "NewUI/icon_queue_rushconstruction", "NewUI/icon_queue_rushconstruction_hover1", "NewUI/icon_queue_rushconstruction_hover2");
-			Rectangle rectangle = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 2 + 5, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"].Width, ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"].Height);
-			this.ScrapButton = new TexturedButton(refit, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
+
+            this.ExploreButton = new TexturedButton(refit, "NewUI/icon_order_explore", "NewUI/icon_order_explore_hover1", "NewUI/icon_order_explore_hover2");
+            this.PatrolButton = new TexturedButton(refit, "NewUI/icon_order_patrol", "NewUI/icon_order_patrol_hover1", "NewUI/icon_order_patrol_hover2");
+            this.RefitButton = new TexturedButton(refit, "NewUI/icon_queue_rushconstruction", "NewUI/icon_queue_rushconstruction_hover1", "NewUI/icon_queue_rushconstruction_hover2");			
+            this.ScrapButton = new TexturedButton(refit, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
+
+            
+
 			if (this.ship.Role == "station" || this.ship.Role == "platform" || this.ship.Thrust <= 0f)
 			{
 				this.isScuttle = true;
@@ -168,8 +180,12 @@ namespace Ship_Game
 			{
 				float scuttleTimer = this.ship.ScuttleTimer;
 			}
+
+            this.ExploreButton.Draw(ScreenManager);
+            this.PatrolButton.Draw(ScreenManager);
 			this.RefitButton.Draw(ScreenManager);
 			this.ScrapButton.Draw(ScreenManager);
+            
 		}
 
 		public static string GetStatusText(Ship ship)
@@ -532,11 +548,44 @@ namespace Ship_Game
 
 		public void HandleInput(InputState input)
 		{
-			if (this.RefitButton.HandleInput(input))
-			{
-				AudioManager.PlayCue("echo_affirm");
-				this.screen.ScreenManager.AddScreen(new RefitToWindow(this, this.screen));
-			}
+			
+            // Explore button for ship list
+            if (this.ExploreButton.HandleInput(input))
+            {
+                if (this.ship.GetAI().State == AIState.Explore)
+                {
+                    this.ship.GetAI().State = AIState.AwaitingOrders;
+                    this.ship.GetAI().OrderQueue.Clear();
+                }
+                else
+                {
+                    this.ship.GetAI().OrderExplore();
+                }
+                this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
+            }
+
+            // System defence button for ship list
+            if (this.PatrolButton.HandleInput(input))
+            {
+                if (this.ship.GetAI().State == AIState.SystemDefender || this.ship.DoingSystemDefense)
+                {
+                    this.ship.DoingSystemDefense = false;
+                    this.ship.GetAI().State = AIState.AwaitingOrders;
+                    this.ship.GetAI().OrderQueue.Clear();
+                }
+                else
+                {
+                    this.ship.DoingSystemDefense = true;
+                }
+                this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
+            }
+
+            if (this.RefitButton.HandleInput(input))
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.screen.ScreenManager.AddScreen(new RefitToWindow(this, this.screen));
+            }
+
 			if (this.ScrapButton.HandleInput(input))
 			{
 				if (!this.isScuttle)
@@ -618,12 +667,26 @@ namespace Ship_Game
 			this.ShipIconRect = new Rectangle(this.ShipNameRect.X + 5, this.ShipNameRect.Y + 2, 28, 28);
 			string shipName = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
 			this.ShipNameEntry.ClickableArea = new Rectangle(this.ShipIconRect.X + this.ShipIconRect.Width + 10, 2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
-			Rectangle refit = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 2 - 5 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"].Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height);
-			this.RefitButton.r = refit;
-			Rectangle scrap = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 2 + 5, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"].Width, ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"].Height);
-			this.ScrapButton.r = scrap;
+
+            Rectangle explore = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 4 + 5 - ResourceManager.TextureDict["NewUI/icon_order_explore_hover1"].Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_order_explore_hover1"].Height / 2, ResourceManager.TextureDict["NewUI/icon_order_explore_hover1"].Width, ResourceManager.TextureDict["NewUI/icon_order_explore_hover1"].Height);
+            Rectangle patrol = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 4 + 10, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_order_patrol_hover2"].Height / 2, ResourceManager.TextureDict["NewUI/icon_order_patrol_hover2"].Width, ResourceManager.TextureDict["NewUI/icon_order_patrol_hover2"].Height);
+            Rectangle refit = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 4 + 15 + ResourceManager.TextureDict["NewUI/icon_order_patrol_hover1"].Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height);
+            Rectangle scrap = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 4 + 20 + ResourceManager.TextureDict["NewUI/icon_order_patrol_hover1"].Width + ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"].Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"].Width, ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"].Height);
+            
+            
+            this.ExploreButton.r = explore;
+            this.PatrolButton.r = patrol;
+            this.RefitButton.r = refit;
+            this.ScrapButton.r = scrap;
+
+
+            this.ExploreButton.LocalizerTip = 2171;
+            this.PatrolButton.LocalizerTip = 7080;
 			this.RefitButton.LocalizerTip = 2213;
 			this.ScrapButton.LocalizerTip = 2214;
+            
+
+
 			float width = (float)((int)((float)this.OrdersRect.Width * 0.8f));
 			while (width % 10f != 0f)
 			{
