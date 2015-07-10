@@ -42,21 +42,21 @@ namespace Ship_Game
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2226;
 
-            this.ScoutDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 180, 18));
+            this.ScoutDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
 			Ref<bool> acRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoColonize, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoColonize = x);
 			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 65)), Localizer.Token(306), acRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2227;
 
-			this.ColonyShipDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 65 + Fonts.Arial12Bold.LineSpacing + 7, 180, 18));
+			this.ColonyShipDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 65 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
 			Ref<bool> afRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoFreighters, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoFreighters = x);
 			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 105)), Localizer.Token(308), afRef, Fonts.Arial12Bold);
 			this.Checkboxes.Add(cb);
 			cb.Tip_Token = 2229;
 
-			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 180, 18));
+			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 15, this.win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
             Ref<bool> abRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoBuild, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoBuild = x);
             cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 160)), string.Concat(Localizer.Token(307), " Projectors"), abRef, Fonts.Arial12Bold);
