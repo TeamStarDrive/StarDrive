@@ -270,7 +270,6 @@ namespace Ship_Game
         public float Lag = 0;
         public Ship previousSelection;
 
-
         static UniverseScreen()
         {
         }
@@ -622,7 +621,7 @@ namespace Ship_Game
             this.snappingToShip = true;
             this.HeightOnSnap = this.camHeight;
             this.transitionDestination.Z = 3500f;
-            this.AdjustCamTimer = 1.5f;
+            this.AdjustCamTimer = 1.0f;
             this.transitionElapsedTime = 0.0f;
             this.transitionDestination.Z = 4500f;
             this.snappingToShip = true;
@@ -2638,11 +2637,15 @@ namespace Ship_Game
         {
             if (this.previousSelection != null && input.CurrentMouseState.XButton1 == ButtonState.Pressed)
             {
-                Ship tempship = this.previousSelection;
-                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                    this.previousSelection = this.SelectedShip;
-                this.SelectedShip = tempship;
-
+                this.SelectedPlanet = (Planet)null;  //fbedard: clear planet selection
+                this.SelectedShip = this.previousSelection;
+                this.ShipInfoUIElement.SetShip(this.SelectedShip);
+                this.SelectedShipList.Clear();
+            }
+            //fbedard: Set camera chase on ship
+            if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
+            {
+                this.ViewToShip(null);
             }
             if (this.ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && this.ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
                 this.Paused = !this.Paused;
@@ -2716,8 +2719,6 @@ namespace Ship_Game
             }
             else
             {
-                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                    this.previousSelection = this.SelectedShip;
                 this.SelectedFleet = (Fleet)null;
                 this.SelectedShip = (Ship)null;
                 this.SelectedShipList.Clear();
@@ -2934,8 +2935,6 @@ namespace Ship_Game
                     if ((double)this.ClickTimer < (double)this.TimerDelay)
                     {
                         this.SelectedShipList.Clear();
-                        if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                            this.previousSelection = this.SelectedShip;
                         this.SelectedShip = (Ship)null;
                         if (this.viewState <= UniverseScreen.UnivScreenState.SystemView)
                         {
@@ -3038,8 +3037,6 @@ namespace Ship_Game
             }
             if (input.InGameSelect && !this.pickedSomethingThisFrame && (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && !this.pieMenu.Visible))
             {
-                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                    this.previousSelection = this.SelectedShip;
                 this.SelectedShip = (Ship)null;
                 this.SelectedShipList.Clear();
                 this.SelectedFleet = (Fleet)null;
@@ -3061,6 +3058,7 @@ namespace Ship_Game
                             {
                                 this.SelectedShip = this.SelectedShipList[0];
                                 this.ShipInfoUIElement.SetShip(this.SelectedShip);
+                                this.previousSelection = this.SelectedShip;  //fbedard
                                 this.SelectedShipList.Clear();
                             }
                             else if (this.SelectedShipList.Count > 1)
@@ -3207,8 +3205,6 @@ namespace Ship_Game
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
                     }
                     this.player.GetFleetsDict()[index].AutoArrange();
-                    if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                        this.previousSelection = this.SelectedShip;
                     this.SelectedShip = (Ship)null;
                     this.SelectedShipList.Clear();
                     this.SelectedFlank = (List<Fleet.Squad>)null;
@@ -3285,8 +3281,6 @@ namespace Ship_Game
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
                     }
                     this.player.GetFleetsDict()[index].AutoArrange();
-                    if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                        this.previousSelection = this.SelectedShip;
                     this.SelectedShip = (Ship)null;
                     this.SelectedShipList.Clear();
                     this.SelectedFlank = (List<Fleet.Squad>)null;
@@ -3329,8 +3323,6 @@ namespace Ship_Game
                 if (index != 10)
                 {
                     this.SelectedPlanet = (Planet)null;
-                    if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                        this.previousSelection = this.SelectedShip;
                     this.SelectedShip = (Ship)null;
                     this.SelectedFlank = (List<Fleet.Squad>)null;
                     if (this.player.GetFleetsDict()[index].Ships.Count > 0)
@@ -3720,6 +3712,7 @@ namespace Ship_Game
                             if (ship != null)
                             {
                                 this.SelectedShip = ship;
+                                this.previousSelection = this.SelectedShip;  //fbedard
                                 if (ship.loyalty == this.player)
                                     this.LoadShipMenuNodes(1);
                                 else
@@ -3754,8 +3747,6 @@ namespace Ship_Game
                             this.SelectedSomethingTimer = 3f;
                             if (this.SelectedShip.Role == "construction")
                             {
-                                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                                    this.previousSelection = this.SelectedShip;
                                 this.SelectedShip = (Ship)null;
                                 AudioManager.PlayCue("UI_Misc20");
                                 return;
@@ -4082,19 +4073,20 @@ namespace Ship_Game
                 this.snappingToShip = false;
                 this.ViewingShip = false;
             }
-            if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
-            {
-                this.snappingToShip = false;
-                this.ViewingShip = false;
-            }
-            if (input.CurrentMouseState.MiddleButton != ButtonState.Pressed || input.LastMouseState.MiddleButton != ButtonState.Released)
-                return;
-            Vector2 spaceFromScreenSpace2 = this.GetWorldSpaceFromScreenSpace(input.CursorPosition);
-            this.transitionDestination.X = spaceFromScreenSpace2.X;
-            this.transitionDestination.Y = spaceFromScreenSpace2.Y;
-            this.transitionDestination.Z = this.camHeight;
-            this.AdjustCamTimer = 1f;
-            this.transitionElapsedTime = 0.0f;
+            //fbedard: remove middle button scrolling
+            //if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
+            //{
+            //    this.snappingToShip = false;
+            //    this.ViewingShip = false;
+            //}
+            //if (input.CurrentMouseState.MiddleButton != ButtonState.Pressed || input.LastMouseState.MiddleButton != ButtonState.Released)
+            //    return;
+            //Vector2 spaceFromScreenSpace2 = this.GetWorldSpaceFromScreenSpace(input.CursorPosition);
+            //this.transitionDestination.X = spaceFromScreenSpace2.X;
+            //this.transitionDestination.Y = spaceFromScreenSpace2.Y;
+            //this.transitionDestination.Z = this.camHeight;
+            //this.AdjustCamTimer = 1f;
+            //this.transitionElapsedTime = 0.0f;
         }
 
         protected void HandleScrolls(InputState input)
@@ -4104,8 +4096,9 @@ namespace Ship_Game
             if ((input.ScrollOut || input.BButtonHeld) && !this.LookingAtPlanet)
             {
                 float num = (float)(1500.0 * (double)this.camHeight / 3000.0 + 100.0);
-                if ((double)this.camHeight < 10000.0)
-                    num -= 200f;
+                //fbedard: faster scroll
+                //if ((double)this.camHeight < 10000.0)
+                //    num -= 200f;
                 this.transitionDestination.X = this.camPos.X;
                 this.transitionDestination.Y = this.camPos.Y;
                 this.transitionDestination.Z = this.camHeight + num;
@@ -4137,8 +4130,9 @@ namespace Ship_Game
             if (!input.YButtonHeld && !input.ScrollIn || this.LookingAtPlanet)
                 return;
             float num1 = (float)(1500.0 * (double)this.camHeight / 3000.0 + 100.0);
-            if ((double)this.camHeight < 10000.0)
-                num1 -= 200f;
+            //fbedard: faster scroll
+            //if ((double)this.camHeight < 10000.0)
+            //    num1 -= 200f;
             this.transitionDestination.Z = this.camHeight - num1;
             if ((double)this.camHeight >= 16000.0)
             {
@@ -4153,9 +4147,30 @@ namespace Ship_Game
             if (this.ViewingShip)
                 return;
             if ((double)this.camHeight <= 450.0)
-                this.camHeight = 450f;
+               this.camHeight = 450f;
             float num2 = this.transitionDestination.Z;
-            this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+            //fbedard: add a scroll on selected object
+            if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+            {
+                if (this.SelectedShip != null)
+                {
+                    this.transitionDestination = new Vector3(this.SelectedShip.Position.X, this.SelectedShip.Position.Y, num2);
+                }
+                else
+                    if (this.SelectedPlanet != null)
+                    {
+                        this.transitionDestination = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, num2);
+                    }  
+                    else
+                        if (this.SelectedFleet != null)
+                        {                            
+                            this.transitionDestination = new Vector3(this.SelectedFleet.findAveragePositioncg().X, this.SelectedFleet.findAveragePositioncg().Y, num2);
+                        }
+                        else
+                            this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+            }
+            else
+                this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
         }
 
         protected void HandleScrollsSectorMiniMap(InputState input)
@@ -4298,6 +4313,7 @@ namespace Ship_Game
                                     this.pickedSomethingThisFrame = true;
                                     AudioManager.GetCue("techy_affirm1").Play();
                                     this.SelectedShip = clickableShip.shipToClick;
+                                    this.previousSelection = this.SelectedShip;  //fbedard
                                     this.SelectedSomethingTimer = 3f;
                                     if (!this.SelectedShipList.Contains(clickableShip.shipToClick))
                                     {
@@ -4320,7 +4336,10 @@ namespace Ship_Game
                             }
                         }
                         if (this.SelectedShip != null && this.SelectedShipList.Count == 1)
+                        {
+                            this.previousSelection = this.SelectedShip;  //fbedard
                             this.ShipInfoUIElement.SetShip(this.SelectedShip);
+                        }
                         else if (this.SelectedShipList.Count > 1)
                             this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, false);
                         bool flag3 = false;
@@ -4398,7 +4417,10 @@ namespace Ship_Game
             if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
                 this.SelectionBox = new Rectangle(input.CurrentMouseState.X, input.CurrentMouseState.Y, 0, 0);
             if (this.SelectedShipList.Count == 1)
+            {
                 this.SelectedShip = this.SelectedShipList[0];
+                this.previousSelection = this.SelectedShip;  //fbedard
+            }
             if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
             {
                 this.SelectingWithBox = true;
@@ -4473,6 +4495,7 @@ namespace Ship_Game
                 else if (this.SelectedShipList.Count == 1)
                 {
                     this.SelectedShip = this.SelectedShipList[0];
+                    this.previousSelection = this.SelectedShip;  //fbedard
                     this.ShipInfoUIElement.SetShip(this.SelectedShip);
                 }
                 this.SelectionBox = new Rectangle(0, 0, -1, -1);
@@ -4585,11 +4608,15 @@ namespace Ship_Game
                             this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, false);
                     }
                     if (this.SelectedFleet == null)
+                    {
+                        this.previousSelection = this.SelectedShipList[0];  //fbedard
                         this.ShipInfoUIElement.SetShip(this.SelectedShipList[0]);
+                    }
                 }
                 else if (this.SelectedShipList.Count == 1)
                 {
                     this.SelectedShip = this.SelectedShipList[0];
+                    this.previousSelection = this.SelectedShip;  //fbedard
                     this.ShipInfoUIElement.SetShip(this.SelectedShip);
                     if (this.SelectedShipList[0] == this.playerShip)
                         this.LoadShipMenuNodes(1);
