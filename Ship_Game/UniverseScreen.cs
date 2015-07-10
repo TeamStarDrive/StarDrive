@@ -221,6 +221,9 @@ namespace Ship_Game
         public bool DefiningAO;
         public Rectangle AORect;
         public bool showingDSBW;
+
+        public bool showingFTLOverlay;
+
         public DeepSpaceBuildingWindow dsbw;
         private DebugInfoScreen debugwin;
         //private bool doubleTime;
@@ -5231,6 +5234,7 @@ namespace Ship_Game
             if (this.LookingAtPlanet && this.SelectedPlanet != null && this.workersPanel != null)
                 this.workersPanel.Draw(this.ScreenManager.SpriteBatch, gameTime);
             this.DrawShipsInRange();
+
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 try
@@ -5251,8 +5255,68 @@ namespace Ship_Game
                 {
                 }
             }
+
+
+            
             this.DrawTacticalPlanetIcons();
+            if (this.showingFTLOverlay && GlobalStats.PlanetaryGravityWells && GlobalStats.FTLInSystemModifier != 0 && !this.LookingAtPlanet)
+            {
+                lock (GlobalStats.ClickableSystemsLock)
+                {
+                    foreach (UniverseScreen.ClickablePlanets item_1 in this.ClickPlanetList)
+                    {
+                        float local_14 = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(item_1.planetToClick.scale)) / 1.5)));
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color((byte)200, (byte)0, (byte)0, (byte)50), 0.0f, local_22, SpriteEffects.None, 1f);
+                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 1f);
+                    }
+                }
+                foreach (ClickableShip ship in this.ClickableShipsList)
+                {
+                    if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0)
+                    {
+                        float local_14 = (float)(ship.shipToClick.InhibitionRadius);
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, ship.shipToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color((byte)200, (byte)0, (byte)0, (byte)40), 0.0f, local_22, SpriteEffects.None, 1f);
+                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 1f);
+                    }
+                }
+            }
+            if (this.showingDSBW && !this.LookingAtPlanet)
+            {
+                lock (GlobalStats.ClickableSystemsLock)
+                {
+                    foreach (UniverseScreen.ClickablePlanets item_1 in this.ClickPlanetList)
+                    {
+                        float local_14 = 2500f * item_1.planetToClick.scale;
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], local_21, new Rectangle?(), new Color((byte)0, (byte)0, byte.MaxValue, (byte)50), 0.0f, local_22, SpriteEffects.None, 1f);
+                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)165, (byte)0, (byte)150), 1f);
+                    }
+                }
+                this.dsbw.Draw(gameTime);
+            }
             this.DrawFleetIcons(gameTime);
+
+
+
+            
+            
             if (!this.LookingAtPlanet)
                 this.pieMenu.Draw(this.ScreenManager.SpriteBatch, Fonts.Arial12Bold);
             Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, this.SelectionBox, Color.Green, 1f);
@@ -5323,25 +5387,9 @@ namespace Ship_Game
             this.DrawToolTip();
             if (!this.LookingAtPlanet)
                 this.NotificationManager.Draw();
-            if (this.showingDSBW && !this.LookingAtPlanet)
-            {
-                lock (GlobalStats.ClickableSystemsLock)
-                {
-                    foreach (UniverseScreen.ClickablePlanets item_1 in this.ClickPlanetList)
-                    {
-                        float local_14 = 2500f * item_1.planetToClick.scale;
-                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
-                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], local_21, new Rectangle?(), new Color((byte)0, (byte)0, byte.MaxValue, (byte)50), 0.0f, local_22, SpriteEffects.None, 1f);
-                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)165, (byte)0, (byte)150), 3f);
-                    }
-                }
-                this.dsbw.Draw(gameTime);
-            }
+            
+
+
             if (this.Debug && this.showdebugwindow)
                 this.debugwin.Draw(gameTime);
             if (this.aw.isOpen && !this.LookingAtPlanet)
