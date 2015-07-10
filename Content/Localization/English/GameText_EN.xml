@@ -1028,11 +1028,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>253</Index>
-      <Text>Opens the ship list for your empire</Text>
+      <Text>Gravity Well/Inhibitor Overlay</Text>
     </Token>
     <Token>
       <Index>254</Index>
-      <Text>Opens a list of all known planets</Text>
+      <Text>Opens Planet Reconnaissance Panel</Text>
     </Token>
     <Token>
       <Index>255</Index>
