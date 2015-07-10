@@ -315,8 +315,8 @@ namespace Ship_Game
 					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.Yellow);
 					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
 					{
-						
-                        ToolTip.CreateTooltip(string.Concat("FTL Reduced in this System by\n", String.Format("{0:P0}", 1 - this.ship.GetFTLmodifier), "\nEngine State: ", this.ship.engineState), this.ScreenManager);
+
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), String.Format("{0:P0}", 1 - this.ship.GetFTLmodifier), "\nEngine State: ", this.ship.engineState), this.ScreenManager);
 					}
 					numStatus++;
                 //}
@@ -331,7 +331,7 @@ namespace Ship_Game
                     if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
                     {
 
-                        ToolTip.CreateTooltip(string.Concat("FTL Increased in this System by\n", String.Format("{0:P0}",  this.ship.GetFTLmodifier)), this.ScreenManager);
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), String.Format("{0:P0}",  this.ship.GetFTLmodifier)), this.ScreenManager);
                     }
                     numStatus++;
                 //}

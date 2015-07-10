@@ -29,7 +29,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;STEAM ALTERTHREAD</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
@@ -108,6 +108,9 @@
     <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
+    <DefineConstants>TRACE;DEBUG;STEAM ALTERTHREAD</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_Gravity_RC_|x86' ">
     <OutputPath>..\stardrive mod\</OutputPath>
