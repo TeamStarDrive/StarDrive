@@ -316,7 +316,7 @@ namespace Ship_Game
 					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
 					{
 
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), String.Format("{0:P0}", 1 - this.ship.GetFTLmodifier), "\nEngine State: ", this.ship.engineState), this.ScreenManager);
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), String.Format("{0:P0}", 1 - this.ship.GetFTLmodifier), "\n\nEngine State: ", this.ship.engineState), this.ScreenManager);
 					}
 					numStatus++;
                 //}
