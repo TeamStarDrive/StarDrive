@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using System.Runtime.CompilerServices;
+using System.Linq; //fbedard: used for .where
+
 
 namespace Ship_Game
 {
@@ -66,7 +68,7 @@ namespace Ship_Game
         private ToggleButton RightColony;
 
         private UIButton launchTroops;
-
+        private UIButton SendTroops;  //fbedard
         private DropOptions GovernorDropdown;
 
         public CloseButton close;
@@ -253,6 +255,16 @@ namespace Ship_Game
             this.launchTroops.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
             this.launchTroops.Text = "Launch Troops";
             this.launchTroops.Launches = "Launch Troops";
+
+            //fbedard: Add Send Troops button
+            this.SendTroops = new UIButton();
+            this.SendTroops.Rect = new Rectangle(theMenu9.X + theMenu9.Width - this.launchTroops.Rect.Width - 185, theMenu9.Y - 5, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
+            this.SendTroops.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+            this.SendTroops.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
+            this.SendTroops.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
+            this.SendTroops.Text = "Send Troops";
+            this.SendTroops.Launches = "Send Troops";
+
             this.CommoditiesSL = new ScrollList(this.pFacilities, 40);
             Rectangle theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (double)(theMenu3.Height - 60)));
             this.build = new Submenu(ScreenManager, theMenu10);
@@ -419,6 +431,21 @@ namespace Ship_Game
             this.pFacilities.Draw();
             if (this.p.Owner == PlanetScreen.screen.player && this.p.TroopsHere.Count > 0)
                 this.launchTroops.Draw(this.ScreenManager.SpriteBatch);
+            //fbedard: Display button
+            if (this.p.Owner == PlanetScreen.screen.player)
+            {
+                int troopsInvading = this.eui.empire.GetShips()
+         .Where(troop => troop.TroopList.Count > 0)
+         .Where(troopAI => troopAI.GetAI().OrderQueue
+             .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.p).Count() > 0).Count();
+                if (troopsInvading > 0)
+                    this.SendTroops.Text = "Landing: " + troopsInvading.ToString();
+                else
+                {
+                    this.SendTroops.Text = "Send Troops";
+                }
+                this.SendTroops.Draw(ScreenManager.SpriteBatch);
+            }
             Vector2 vector2_1 = new Vector2((float)(this.pFacilities.Menu.X + 15), (float)(this.pFacilities.Menu.Y + 35));
             this.DrawDetailInfo(vector2_1);
             this.build.Draw();
@@ -2076,6 +2103,50 @@ namespace Ship_Game
 
                         AudioManager.PlayCue("sd_troop_takeoff");
                     }
+                }
+            }
+            //fbedard: Click button to send troops
+            if (!HelperFunctions.CheckIntersection(this.SendTroops.Rect, input.CursorPosition))
+            {
+                this.SendTroops.State = UIButton.PressState.Normal;
+            }
+            else
+            {
+                this.SendTroops.State = UIButton.PressState.Hover;
+                if (input.InGameSelect)
+                {
+                    this.eui.empire.GetShips().thisLock.EnterReadLock();
+                    List<Ship> troopShips = new List<Ship>(this.eui.empire.GetShips()
+                        .Where(troop => troop.TroopList.Count > 0
+                            && troop.GetAI().State == AIState.AwaitingOrders
+                            && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.p.Position)));
+                    this.eui.empire.GetShips().thisLock.ExitReadLock();
+                    this.eui.empire.GetPlanets().thisLock.EnterReadLock();
+                    List<Planet> planetTroops = new List<Planet>(this.eui.empire.GetPlanets()
+                        .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, this.p.Position))
+                        .Where(Name => Name.Name != this.p.Name));
+                    this.eui.empire.GetPlanets().thisLock.ExitReadLock();
+                    if (troopShips.Count > 0)
+                    {
+                        AudioManager.PlayCue("echo_affirm");
+                        troopShips.First().GetAI().OrderRebase(this.p,true);
+                    }
+                    else
+                        if (planetTroops.Count > 0)
+                        {
+                            {
+                                Ship troop = planetTroops.First().TroopsHere.First().Launch();
+                                if (troop != null)
+                                {
+                                    AudioManager.PlayCue("echo_affirm");
+                                    troop.GetAI().OrderRebase(this.p,true);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            AudioManager.PlayCue("blip_click");
+                        }
                 }
             }
             if (!HelperFunctions.CheckIntersection(this.edit_name_button, MousePos))
