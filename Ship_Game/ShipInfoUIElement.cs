@@ -312,7 +312,7 @@ namespace Ship_Game
                 //if (this.ship.GetSystem() != null)
                 //{
 					Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.Yellow);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], FoodRect, Color.PaleVioletRed);
 					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
 					{
                         string EState = this.ship.engineState == Ship.MoveState.Warp ? "FTL" : "Sublight";
@@ -345,7 +345,7 @@ namespace Ship_Game
 				{
 					foreach (Ship_Game.Planet p in this.ship.GetSystem().PlanetList)
 					{
-						if (Vector2.Distance(p.Position, this.ship.Position) >= GlobalStats.GravityWellRange)
+                        if (Vector2.Distance(p.Position, this.ship.Position) >= (GlobalStats.GravityWellRange * (1 + ((Math.Log(p.scale)) / 1.5))))
 						{
 							continue;
 						}
@@ -355,7 +355,7 @@ namespace Ship_Game
 				if (Planet)
 				{
 					Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.White);
+					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_gravwell"], FoodRect, Color.White);
 					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
 					{
 						ToolTip.CreateTooltip(Localizer.Token(2287), this.ScreenManager);
@@ -376,7 +376,7 @@ namespace Ship_Game
 				else
 				{
 					Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.White);
+					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_flux"], FoodRect, Color.White);
 					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
 					{
 						ToolTip.CreateTooltip(Localizer.Token(2285), this.ScreenManager);
