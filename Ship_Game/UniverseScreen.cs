@@ -223,6 +223,7 @@ namespace Ship_Game
         public bool showingDSBW;
 
         public bool showingFTLOverlay;
+        public bool showingRangeOverlay;
 
         public DeepSpaceBuildingWindow dsbw;
         private DebugInfoScreen debugwin;
@@ -232,7 +233,7 @@ namespace Ship_Game
         private float Memory;
         public bool Paused;
         private bool SkipRightOnce;
-        private bool UseRealLights;
+        private bool UseRealLights = true;
         private bool showdebugwindow;
         private bool NeedARelease;
         //private int counter;
@@ -355,7 +356,7 @@ namespace Ship_Game
                         local_2.Intensity = 2.5f;
                         local_2.ObjectType = ObjectType.Dynamic;
                         local_2.FillLight = true;
-                        local_2.Radius = 100000f;
+                        local_2.Radius = 150000f;
                         local_2.Position = new Vector3(item_0.Position, 2500f);
                         local_2.World = Matrix.Identity * Matrix.CreateTranslation(local_2.Position);
                         local_2.Enabled = true;
@@ -858,7 +859,7 @@ namespace Ship_Game
             Weapon.audioListener = this.listener;
             GameplayObject.audioListener = this.listener;
             this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, (float)this.ScreenManager.GraphicsDevice.Viewport.Width / (float)this.ScreenManager.GraphicsDevice.Viewport.Height, 1000f, 3E+07f);
-            this.SetLighting(false);
+            this.SetLighting(this.UseRealLights);
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 foreach (string FleetUID in solarSystem.DefensiveFleets)
@@ -2657,10 +2658,19 @@ namespace Ship_Game
             }
             this.input = input;
             this.ShowTacticalCloseup = input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt);
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && input.LastKeyboardState.IsKeyUp(Keys.P) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+            // something nicer...
+            //if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && input.LastKeyboardState.IsKeyUp(Keys.P) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.F5) && input.LastKeyboardState.IsKeyUp(Keys.F5))
             {
-                this.UseRealLights = !this.UseRealLights;
-                this.SetLighting(this.UseRealLights);
+                if (this.UseRealLights)
+                {
+                    this.UseRealLights = false;
+                }
+                else
+                {
+                    this.UseRealLights = true;
+                    this.SetLighting(this.UseRealLights);
+                }
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde) && input.LastKeyboardState.IsKeyUp(Keys.OemTilde) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))
             {
@@ -2682,7 +2692,7 @@ namespace Ship_Game
                     this.GameSpeed = 1f;
                 else
                     ++this.GameSpeed;
-                if (this.GameSpeed > 4.0 && !GlobalStats.LimitSpeed)
+                if (this.GameSpeed > 4.0 && GlobalStats.LimitSpeed)
                     this.GameSpeed = 4f;
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.OemMinus) && input.LastKeyboardState.IsKeyUp(Keys.OemMinus))
@@ -2847,6 +2857,16 @@ namespace Ship_Game
                     }
                     else
                         this.showingFTLOverlay = false;
+                }
+                if (input.CurrentKeyboardState.IsKeyDown(Keys.F2) && !input.LastKeyboardState.IsKeyDown(Keys.F2))
+                {
+                    AudioManager.PlayCue("sd_ui_accept_alt3");
+                    if (!this.showingRangeOverlay)
+                    {
+                        this.showingRangeOverlay = true;
+                    }
+                    else
+                        this.showingRangeOverlay = false;
                 }
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.K) && !input.LastKeyboardState.IsKeyDown(Keys.K))
                 {
@@ -5269,7 +5289,7 @@ namespace Ship_Game
 
             
             this.DrawTacticalPlanetIcons();
-            if (this.showingFTLOverlay && GlobalStats.PlanetaryGravityWells && GlobalStats.FTLInSystemModifier != 0 && !this.LookingAtPlanet)
+            if (this.showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !this.LookingAtPlanet)
             {
                 lock (GlobalStats.ClickableSystemsLock)
                 {
@@ -5302,6 +5322,38 @@ namespace Ship_Game
                     }
                 }
             }
+
+            if (this.showingRangeOverlay && !this.LookingAtPlanet)
+            {
+                foreach (ClickableShip ship in this.ClickableShipsList)
+                {
+                    if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0 && ship.shipToClick.loyalty == EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty))
+                    {
+                        float local_14 = (float)(ship.shipToClick.RangeForOverlay);
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, ship.shipToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_shiprange"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_shiprange"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_shiprange"], local_21, new Rectangle?(), new Color((byte)0, (byte)200, (byte)0, (byte)30), 0.0f, local_22, SpriteEffects.None, 1f);
+                        //Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 2f);
+                    }
+                    else if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0)
+                    {
+                        float local_14 = (float)(ship.shipToClick.RangeForOverlay);
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, ship.shipToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_shiprange"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_shiprange"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_shiprange"], local_21, new Rectangle?(), new Color((byte)200, (byte)0, (byte)0, (byte)30), 0.0f, local_22, SpriteEffects.None, 1f);
+                        //Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 2f);
+                    }
+                }
+            }
+            
             if (this.showingDSBW && !this.LookingAtPlanet)
             {
                 lock (GlobalStats.ClickableSystemsLock)
