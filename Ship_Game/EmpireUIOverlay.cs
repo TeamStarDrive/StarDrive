@@ -592,7 +592,7 @@ namespace Ship_Game
                             }
                             case "ShipList":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(7044), Ship.universeScreen.ScreenManager, "K");
+                                ToolTip.CreateTooltip(Localizer.Token(7044), Ship.universeScreen.ScreenManager);
                                 break;
                             }
                             case "Fleets":
