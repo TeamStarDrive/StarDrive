@@ -220,7 +220,7 @@ namespace Ship_Game
 			}
 			if (HelperFunctions.CheckIntersection(this.sList.r, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(55, screen.ScreenManager, "K");
+				ToolTip.CreateTooltip(55, screen.ScreenManager, "F1");
 			}
 			if (this.sList.HandleInput(input))
 			{                
