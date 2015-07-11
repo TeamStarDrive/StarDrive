@@ -315,8 +315,8 @@ namespace Ship_Game
 					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.Yellow);
 					if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
 					{
-
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), String.Format("{0:P0}", 1 - this.ship.GetFTLmodifier), "\n\nEngine State: ", this.ship.engineState), this.ScreenManager);
+                        string EState = this.ship.engineState == Ship.MoveState.Warp ? "FTL" : "Sublight";
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), String.Format("{0:P0}", 1 - this.ship.GetFTLmodifier), "\n\nEngine State: ", EState), this.ScreenManager);
 					}
 					numStatus++;
                 //}
@@ -331,7 +331,7 @@ namespace Ship_Game
                     if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
                     {
 
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), String.Format("{0:P0}",  this.ship.GetFTLmodifier)), this.ScreenManager);
+                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), String.Format("{0:P0}", 1 - this.ship.GetFTLmodifier), "\n\nEngine State: FTL"), this.ScreenManager);
                     }
                     numStatus++;
                 //}

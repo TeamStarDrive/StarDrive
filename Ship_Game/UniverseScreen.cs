@@ -2838,6 +2838,16 @@ namespace Ship_Game
                     AudioManager.PlayCue("sd_ui_accept_alt3");
                     this.ScreenManager.AddScreen((GameScreen)new PlanetListScreen(this.ScreenManager, this.EmpireUI));
                 }
+                if (input.CurrentKeyboardState.IsKeyDown(Keys.F1) && !input.LastKeyboardState.IsKeyDown(Keys.F1))
+                {
+                    AudioManager.PlayCue("sd_ui_accept_alt3");
+                    if (!this.showingFTLOverlay)
+                    {
+                        this.showingFTLOverlay = true;
+                    }
+                    else
+                        this.showingFTLOverlay = false;
+                }
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.K) && !input.LastKeyboardState.IsKeyDown(Keys.K))
                 {
                     AudioManager.PlayCue("sd_ui_accept_alt3");
