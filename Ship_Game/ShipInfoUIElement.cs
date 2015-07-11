@@ -327,7 +327,7 @@ namespace Ship_Game
                 //if (this.ship.inborders)
                 //{
                     Rectangle FoodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_inhibited"], FoodRect, Color.Green);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["StatusIcons/icon_boosted"], FoodRect, Color.LightGreen);
                     if (HelperFunctions.CheckIntersection(FoodRect, MousePos))
                     {
 
