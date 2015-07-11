@@ -1980,7 +1980,10 @@ namespace Ship_Game.Gameplay
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Colony)
                     this.isColonyShip = true;
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Construction)
+                {
                     this.isConstructor = true;
+                    this.Role = "Construction";
+                }
 
                 if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
                 {
