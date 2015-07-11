@@ -75,6 +75,7 @@ namespace Ship_Game.Gameplay
         public bool IsSupplyShip;
         public bool reserved;
         public bool isColonyShip;
+        public bool isConstructor;
         public string StrategicIconPath;
         private Planet TetheredTo;
         public Vector2 TetherOffset;
@@ -1978,6 +1979,9 @@ namespace Ship_Game.Gameplay
                     continue;
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Colony)
                     this.isColonyShip = true;
+                if (moduleSlotList.module.ModuleType == ShipModuleType.Construction)
+                    this.isConstructor = true;
+
                 if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
                 {
                     Dictionary<string, float> maxGoodStorageDict = this.MaxGoodStorageDict;
