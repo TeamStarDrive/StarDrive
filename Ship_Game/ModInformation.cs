@@ -42,6 +42,7 @@ namespace Ship_Game
         public bool useProportionalUpkeep;
         public bool reconDropDown;
         public bool ColoniserMenu;
+        public bool ConstructionModule;
         
         public float ShipyardBonus;
         public float UpkeepBaseline;

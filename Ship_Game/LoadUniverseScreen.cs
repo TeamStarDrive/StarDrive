@@ -129,6 +129,12 @@ namespace Ship_Game
                     e.data.CurrentAutoColony = data.CurrentAutoColony;
                 else
                     e.data.CurrentAutoColony = e.data.DefaultColonyShip;
+
+                if (data.CurrentConstructor != null)
+                    e.data.CurrentConstructor = data.CurrentConstructor;
+                else
+                    e.data.CurrentConstructor = e.data.DefaultConstructor;
+
 			}
 			e.Initialize();
 			e.Money = data.Money;

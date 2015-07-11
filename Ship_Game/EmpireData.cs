@@ -22,6 +22,8 @@ namespace Ship_Game
 
 		public string CurrentAutoScout = "";
 
+        public string CurrentConstructor = "";
+
 		public string DiplomacyDialogPath;
 
 		public DTrait DiplomaticPersonality;
@@ -49,6 +51,8 @@ namespace Ship_Game
 		public string DefaultSmallTransport;
 
         public string DefaultTroopShip;
+
+        public string DefaultConstructor;
 
         public string DefaultShipyard = "Shipyard";
 
