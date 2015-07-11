@@ -7952,6 +7952,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6180</Index>
       <Text>FTL Speed increased in this system by </Text>
     </Token>
+	<Token>
+      <Index>6181</Index>
+      <Text>Constructor Design:</Text>
+    </Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
