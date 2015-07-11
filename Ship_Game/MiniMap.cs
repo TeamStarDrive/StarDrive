@@ -33,18 +33,19 @@ namespace Ship_Game
 		{
 			this.Housing = housing;
 			this.ActualMap = new Rectangle(housing.X + 61, housing.Y + 43, 200, 200);
+
 			this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70, 22, 22);
-			this.zIn = new ToggleButton(this.R, "Minimap/button_normal", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "Minimap/icons_zoomctrl");
+			this.zIn = new ToggleButton(this.R, "Minimap/button_C_normal", "Minimap/button_C_normal", "Minimap/button_C_hover", "Minimap/button_C_normal", "Minimap/icons_zoomctrl");
 			this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 25, 22, 22);
-			this.zOut = new ToggleButton(this.R, "Minimap/button_normal", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "Minimap/icons_zoomout");
+			this.zOut = new ToggleButton(this.R, "Minimap/button_C_normal", "Minimap/button_C_normal", "Minimap/button_C_hover", "Minimap/button_C_normal", "Minimap/icons_zoomout");
 			this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 50, 22, 22);
-			this.DSB = new ToggleButton(this.R, "Minimap/button_active", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_dsbw");
+			this.pList = new ToggleButton(this.R, "Minimap/button_B_normal", "Minimap/button_B_normal", "Minimap/button_B_hover", "Minimap/button_B_normal", "UI/icon_planetslist");
 			this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 75, 22, 22);
-			this.pList = new ToggleButton(this.R, "Minimap/button_active", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_planetslist");
+			this.sList = new ToggleButton(this.R, "Minimap/button_active", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_ftloverlay");
 			this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 100, 22, 22);
-			this.sList = new ToggleButton(this.R, "Minimap/button_active", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_shipslist");
+			this.Fleets = new ToggleButton(this.R, "Minimap/button_active", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_rangeoverlay");
 			this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 125, 22, 22);
-			this.Fleets = new ToggleButton(this.R, "Minimap/button_normal", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_fleets");
+			this.DSB = new ToggleButton(this.R, "Minimap/button_active", "Minimap/button_normal", "Minimap/button_hover", "Minimap/button_normal", "UI/icon_dsbw");
 			this.R = new Rectangle(this.Housing.X + 14, this.Housing.Y + 70 + 150, 22, 26);
 			this.Auto = new ToggleButton(this.R, "Minimap/button_down_active", "Minimap/button_down_inactive", "Minimap/button_down_hover", "Minimap/button_down_inactive", "AI");
 		}
@@ -151,6 +152,15 @@ namespace Ship_Game
                 this.Auto.Active = false;
             }
 
+            if (screen.showingRangeOverlay)
+            {
+                this.Fleets.Active = true;
+            }
+            else
+            {
+                this.Fleets.Active = false;
+            }
+
 			this.zOut.DrawIconResized(ScreenManager);
 			this.zIn.DrawIconResized(ScreenManager);
 			this.DSB.DrawIconResized(ScreenManager);
@@ -220,7 +230,7 @@ namespace Ship_Game
 			}
 			if (HelperFunctions.CheckIntersection(this.sList.r, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(55, screen.ScreenManager, "F1");
+				ToolTip.CreateTooltip(223, screen.ScreenManager, "F1");
 			}
 			if (this.sList.HandleInput(input))
 			{                
@@ -237,12 +247,20 @@ namespace Ship_Game
 			}
 			if (HelperFunctions.CheckIntersection(this.Fleets.r, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(60, screen.ScreenManager, "J");
+				ToolTip.CreateTooltip(224, screen.ScreenManager, "F2");
 			}
 			if (this.Fleets.HandleInput(input))
 			{
 				AudioManager.PlayCue("sd_ui_accept_alt3");
-				screen.ScreenManager.AddScreen(new FleetDesignScreen(screen.EmpireUI));
+                if (screen.showingRangeOverlay)
+                {
+                    screen.showingRangeOverlay = false;
+                }
+                else
+                {
+                    screen.showingRangeOverlay = true;
+                }
+				//screen.ScreenManager.AddScreen(new FleetDesignScreen(screen.EmpireUI));
 				return true;
 			}
 			if (HelperFunctions.CheckIntersection(this.Auto.r, input.CursorPosition))

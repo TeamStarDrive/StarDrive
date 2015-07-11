@@ -1120,5 +1120,16 @@
       <Data>7079</Data>
     </ToolTip>	
 	
+	<ToolTip>
+      <TIP_ID>223</TIP_ID>
+      <Title>FTL Overlay</Title>
+      <Data>6182</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>224</TIP_ID>
+      <Title>Weapons Range overlay</Title>
+      <Data>6183</Data>
+    </ToolTip>	
+	
   </ToolTipsList>
 </Tooltips>

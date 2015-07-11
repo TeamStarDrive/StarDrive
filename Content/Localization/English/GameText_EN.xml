@@ -1028,7 +1028,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>253</Index>
-      <Text>Gravity Well/Inhibitor Overlay</Text>
+      <Text>Opens the ships list, which allows you to browse, filter and control all the vessels under your command</Text>
     </Token>
     <Token>
       <Index>254</Index>
@@ -7956,6 +7956,16 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6181</Index>
       <Text>Constructor Design:</Text>
     </Token>
+	
+	<Token>
+	<Index>6182</Index>
+	<Text>FTL Overlay: displays FTL inhibiting gravity wells and fields.</Text>
+	</Token>
+	
+	<Token>
+	<Index>6183</Index>
+	<Text>Weapons Range Overlay: visualises ships' maximum weapon range.</Text>
+	</Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
