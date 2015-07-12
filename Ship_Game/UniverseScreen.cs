@@ -2636,14 +2636,7 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            if (this.previousSelection != null && input.CurrentMouseState.XButton1 == ButtonState.Pressed)
-            {
-                Ship tempship = this.previousSelection;
-                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                    this.previousSelection = this.SelectedShip;
-                this.SelectedShip = tempship;
 
-            }
             if (this.ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && this.ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
                 this.Paused = !this.Paused;
             for (int index = 0; index < this.SelectedShipList.Count; ++index)
@@ -2651,6 +2644,25 @@ namespace Ship_Game
                 Ship ship = this.SelectedShipList[index];
                 if (!ship.Active)
                     this.SelectedShipList.QueuePendingRemoval(ship);
+            }
+            if (this.previousSelection != null && input.CurrentMouseState.XButton1 == ButtonState.Pressed && input.LastMouseState.XButton1 == ButtonState.Released)
+            {
+                Ship tempship = this.previousSelection;
+                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
+                    this.previousSelection = this.SelectedShip;
+                this.SelectedShip = tempship;
+                this.SelectedShipList.Clear();
+                this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                this.SelectedSystem = (SolarSystem)null;
+                this.SelectedShipList.Add(this.SelectedShip);
+                //if(this.SelectedShipList.Contains(this.previousSelection))
+                //{
+                //    //this.SelectedShipList.Remove(this.previousSelection);
+                //    this.SelectedShipList.Clear();
+
+                //}
+
+
             }
             this.input = input;
             this.ShowTacticalCloseup = input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt);
