@@ -54,16 +54,21 @@ namespace Ship_Game
 		private int indexLast;
 
 		private Rectangle STRIconRect;
+        private SortButton SB_STR;
 
 		private bool StrSorted = true;
 
 		private Rectangle MaintRect;
+        private SortButton Maint;
 
 		private Rectangle TroopRect;
+        private SortButton SB_Troop;
 
 		private Rectangle FTL;
+        private SortButton SB_FTL;
 
 		private Rectangle STL;
+        private SortButton SB_STL;
 
 		private Rectangle AutoButton;
 
@@ -135,9 +140,16 @@ namespace Ship_Game
 			// this.ShowRoles.AddOption("Player Designs Only", 7);
             
 			this.AutoButton = new Rectangle(0, 0, 243, 33);
-			this.SortSystem = new SortButton();
-			this.SortName = new SortButton();
-			this.SortRole = new SortButton();
+			this.SortSystem = new SortButton(this.empUI.empire.data.SLSort,Localizer.Token(192));
+            this.SortName = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(193));
+			this.SortRole = new SortButton(this.empUI.empire.data.SLSort,Localizer.Token(194));
+            //Localizer.Token(193)
+            this.Maint = new SortButton(this.empUI.empire.data.SLSort, "maint");
+            this.SB_FTL = new SortButton(this.empUI.empire.data.SLSort, "FTL");
+            this.SB_STL = new SortButton(this.empUI.empire.data.SLSort, "STL");
+            this.SB_Troop = new SortButton(this.empUI.empire.data.SLSort, "Troop");
+            this.SB_STR = new SortButton(this.empUI.empire.data.SLSort, "STR");
+            //this.Maint.rect = this.MaintRect;
 		}
 
 
@@ -181,29 +193,35 @@ namespace Ship_Game
 					ShipListScreenEntry entry = this.ShipSL.Copied[this.ShipSL.indexAtTop].item as ShipListScreenEntry;
 					Vector2 TextCursor = new Vector2((float)(entry.SysNameRect.X + entry.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 					this.SortSystem.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X, Fonts.Arial20Bold.LineSpacing);
-					this.SortSystem.Text = Localizer.Token(192);
+					
 					this.SortSystem.Draw(base.ScreenManager, Fonts.Arial20Bold);
 					TextCursor = new Vector2((float)(entry.ShipNameRect.X + entry.ShipNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 					this.SortName.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X, Fonts.Arial20Bold.LineSpacing);
-					this.SortName.Text = Localizer.Token(193);
+					
 					this.SortName.Draw(base.ScreenManager, Fonts.Arial20Bold);
 					TextCursor = new Vector2((float)(entry.RoleRect.X + entry.RoleRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 					this.SortRole.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X, Fonts.Arial20Bold.LineSpacing);
-					this.SortRole.Text = Localizer.Token(194);
+					
 					this.SortRole.Draw(base.ScreenManager, Fonts.Arial20Bold);
 					TextCursor = new Vector2((float)(entry.OrdersRect.X + entry.OrdersRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 30));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(195), TextCursor, new Color(255, 239, 208));
 					this.STRIconRect = new Rectangle(entry.STRRect.X + entry.STRRect.Width / 2 - 6, this.eRect.Y - 18 + 30, 18, 18);
-					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], this.STRIconRect, Color.White);
-					this.MaintRect = new Rectangle(entry.MaintRect.X + entry.MaintRect.Width / 2 - 7, this.eRect.Y - 20 + 30, 21, 20);
+                    this.SB_STR.rect = this.STRIconRect;
+					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], this.STRIconRect, Color.White);                    
+                    this.MaintRect = new Rectangle(entry.MaintRect.X + entry.MaintRect.Width / 2 - 7, this.eRect.Y - 20 + 30, 21, 20);
+                    this.Maint.rect = this.MaintRect;
+                    //this.Maint.Draw(base.ScreenManager, null);
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MaintRect, Color.White);
 					this.TroopRect = new Rectangle(entry.TroopRect.X + entry.TroopRect.Width / 2 - 5, this.eRect.Y - 22 + 30, 18, 22);
+                    this.SB_Troop.rect = this.TroopRect;
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], this.TroopRect, Color.White);
 					TextCursor = new Vector2((float)(entry.FTLRect.X + entry.FTLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, (float)(this.eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
 					HelperFunctions.ClampVectorToInt(ref TextCursor);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "FTL", TextCursor, new Color(255, 239, 208));
 					this.FTL = new Rectangle(entry.FTLRect.X, this.eRect.Y - 20 + 35, entry.FTLRect.Width, 20);
+                    this.SB_FTL.rect = this.FTL;
 					this.STL = new Rectangle(entry.STLRect.X, this.eRect.Y - 20 + 35, entry.STLRect.Width, 20);
+                    this.SB_STL.rect = this.STL;
 					TextCursor = new Vector2((float)(entry.STLRect.X + entry.STLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, (float)(this.eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
 					HelperFunctions.ClampVectorToInt(ref TextCursor);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "STL", TextCursor, new Color(255, 239, 208));
@@ -321,14 +339,15 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.FTL, input.CursorPosition))
+			if (this.SB_FTL.HandleInput(input))  //HelperFunctions.CheckIntersection(this.FTL, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Faster Than Light Speed of Ship", base.ScreenManager);
-				if (input.InGameSelect)
+				
+				//if (input.InGameSelect)
 				{
 					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.StrSorted = !this.StrSorted;
-					if (!this.StrSorted)
+                    this.SB_FTL.Ascending = !this.SB_FTL.Ascending;
+                    this.StrSorted = this.SB_FTL.Ascending;
+                    if (!this.SB_FTL.Ascending)
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
 							from theship in this.ShipSL.Entries
@@ -346,14 +365,17 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.STL, input.CursorPosition))
+            else if(this.SB_FTL.Hover)
+                ToolTip.CreateTooltip("Faster Than Light Speed of Ship", base.ScreenManager);
+			if (this.SB_STL.HandleInput(input))//HelperFunctions.CheckIntersection(this.STL, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Sublight Speed of Ship", base.ScreenManager);
-				if (input.InGameSelect)
+				
+				//if (input.InGameSelect)
 				{
 					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.StrSorted = !this.StrSorted;
-					if (!this.StrSorted)
+                    this.SB_STL.Ascending = !this.SB_STL.Ascending;
+                    this.StrSorted = this.SB_STL.Ascending;
+                    if (!this.SB_STL.Ascending)
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
 							from theship in this.ShipSL.Entries
@@ -371,37 +393,19 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.MaintRect, input.CursorPosition))
+            else if (this.SB_STL.Hover)
+                ToolTip.CreateTooltip("Sublight Speed of Ship", base.ScreenManager);
+			if (this.Maint.HandleInput(input))//  HelperFunctions.CheckIntersection(this.MaintRect, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable", base.ScreenManager);
-                if (input.InGameSelect)
+				
+                //if (input.InGameSelect)
                 {
-					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                    //reduntant maintenance check no longer needed.
                     {
                         AudioManager.PlayCue("sd_ui_accept_alt3");
-                        this.StrSorted = !this.StrSorted;
-                        if (!this.StrSorted)
-                        {
-                            IOrderedEnumerable<ScrollList.Entry> sortedList =
-                                from theship in this.ShipSL.Entries
-                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCostRealism() descending
-                                select theship;
-                            this.ResetListSorted(sortedList);
-                        }
-                        else
-                        {
-                            IOrderedEnumerable<ScrollList.Entry> sortedList =
-                                from theship in this.ShipSL.Entries
-                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCostRealism()
-                                select theship;
-                            this.ResetListSorted(sortedList);
-                        }
-                    }
-                    else
-                    {
-                        AudioManager.PlayCue("sd_ui_accept_alt3");
-                        this.StrSorted = !this.StrSorted;
-                        if (!this.StrSorted)
+                        this.Maint.Ascending = !this.Maint.Ascending;
+                        this.StrSorted = this.Maint.Ascending;
+                        if (!this.Maint.Ascending)
                         {
                             IOrderedEnumerable<ScrollList.Entry> sortedList =
                                 from theship in this.ShipSL.Entries
@@ -420,14 +424,17 @@ namespace Ship_Game
                     }
                 }
 			}
-			if (HelperFunctions.CheckIntersection(this.TroopRect, input.CursorPosition))
+            else if (this.Maint.Hover)
+                ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable", base.ScreenManager);
+			if (SB_Troop.HandleInput(input)  )//)HelperFunctions.CheckIntersection(this.TroopRect, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable", base.ScreenManager);
-				if (input.InGameSelect)
+				
+				//if (input.InGameSelect)
 				{
 					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.StrSorted = !this.StrSorted;
-					if (!this.StrSorted)
+					//this.StrSorted = !this.StrSorted;
+                    this.SB_Troop.Ascending = !this.SB_Troop.Ascending;
+                    if (!this.SB_Troop.Ascending)
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
 							from theship in this.ShipSL.Entries
@@ -445,13 +452,16 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.STRIconRect, input.CursorPosition))
+            else if(this.SB_Troop.Hover)
+                ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable", base.ScreenManager);
+			if (this.SB_STR.HandleInput(input))//HelperFunctions.CheckIntersection(this.STRIconRect, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Indicates Ship Strength; sortable", base.ScreenManager);
-				if (input.InGameSelect)
+				
+				//if (input.InGameSelect)
 				{
 					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.StrSorted = !this.StrSorted;
+                    this.SB_STR.Ascending = !this.SB_STR.Ascending;
+                    this.StrSorted = this.SB_STR.Ascending ;
 					if (!this.StrSorted)
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
@@ -470,6 +480,8 @@ namespace Ship_Game
 					}
 				}
 			}
+            else if(this.SB_STR.Hover)
+                ToolTip.CreateTooltip("Indicates Ship Strength; sortable", base.ScreenManager);
 			if (this.SortName.HandleInput(input))
 			{
 				AudioManager.PlayCue("blip_click");

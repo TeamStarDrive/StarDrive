@@ -1105,15 +1105,15 @@ namespace Ship_Game
                                     if (planetGridSquare2.TroopsHere.Count > 0)
                                     {
                                         if (planetGridSquare1.TroopsHere.Count != 0 && 
-                                            (double)num1 <= (double)planetGridSquare1.TroopsHere[0].Range && 
-                                            ((double)num2 <= (double)planetGridSquare1.TroopsHere[0].Range && 
+                                            num1 <= planetGridSquare1.TroopsHere[0].Range && 
+                                            (num2 <= planetGridSquare1.TroopsHere[0].Range && 
                                             planetGridSquare2.TroopsHere[0].GetOwner() != ActiveTroop.TroopsHere[0].GetOwner()))
                                             return true;
                                     }
                                     else if (planetGridSquare2.building != null && 
                                         planetGridSquare2.building.CombatStrength > 0 && 
-                                        ((double)num1 <= (double)planetGridSquare1.TroopsHere[0].Range && 
-                                        (double)num2 <= (double)planetGridSquare1.TroopsHere[0].Range))
+                                        (num1 <= planetGridSquare1.TroopsHere[0].Range && 
+                                        num2 <= planetGridSquare1.TroopsHere[0].Range))
                                     {
                                         if (p.Owner == null)
                                             return false;

@@ -141,7 +141,8 @@ namespace Ship_Game
 
 		public virtual void ExitScreen()
 		{
-			if (this.TransitionOffTime != TimeSpan.Zero)
+			
+            if (this.TransitionOffTime != TimeSpan.Zero)
 			{
 				this.isExiting = true;
 				return;

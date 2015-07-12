@@ -44,6 +44,7 @@ namespace Ship_Game
             this.data.preventFederations=GlobalStats.preventFederations;
             this.data.GravityWellRange=GlobalStats.GravityWellRange;
             this.data.EliminationMode = GlobalStats.EliminationMode;
+            
 
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{
@@ -360,7 +361,8 @@ namespace Ship_Game
 						Position = ship.Position,
 						experience = ship.experience,
 						kills = ship.kills,
-						Velocity = ship.Velocity
+						Velocity = ship.Velocity,
+                        
 					};
 					if (ship.GetTether() != null)
 					{

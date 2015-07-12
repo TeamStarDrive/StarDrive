@@ -75,7 +75,7 @@ namespace Ship_Game.Gameplay
 				MilitaryTask enemyStrength = this;
 				enemyStrength.EnemyStrength = enemyStrength.EnemyStrength + pin.Value.Strength;
 			}
-			this.MinimumTaskForceStrength = this.EnemyStrength + 0.35f * this.EnemyStrength;
+            this.MinimumTaskForceStrength = this.EnemyStrength *.75f;
 			this.empire = Owner;
 		}
 
@@ -116,7 +116,8 @@ namespace Ship_Game.Gameplay
 					if (ship.GetStrength() == 0f 
                         || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
                         || ship.InCombat 
-                        || ship.fleet != null ) //&& ship.fleet != null & ship.fleet.Task == null)
+                        || ship.fleet != null 
+                        || this.empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))// ship.GetAI().SystemToDefend !=null) //&& ship.fleet != null & ship.fleet.Task == null)
 					{
 						continue;
 					}
@@ -160,7 +161,7 @@ namespace Ship_Game.Gameplay
 					TaskForce.Add(ship);
 					strAdded = strAdded + ship.GetStrength();
 				}
-				while (strAdded <= EnemyShipStr * 1.65f);
+				while (strAdded <= EnemyShipStr );//* 1.65f);
 			}
 			finally
 			{
@@ -192,7 +193,7 @@ namespace Ship_Game.Gameplay
                     numOfTroops++;
                     Troop t = enumerator1.Current;
 					PotentialTroops.Add(t);
-					troopStr = troopStr + (float)t.Strength;
+					troopStr = troopStr + t.Strength;
 				}
 				while (troopStr <= EnemyTroopStr * 1.25f || numOfTroops <15 );
 			}
@@ -336,7 +337,8 @@ namespace Ship_Game.Gameplay
                         || ship.BaseStrength == 0f 
                         || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
                         || ship.InCombat
-                        || ship.fleet != null )//&& ship.fleet.Task == null) //&& ship.fleet != null && ship.fleet.Task == null)
+                        || ship.fleet != null
+                        || this.empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))//&& ship.fleet.Task == null) //&& ship.fleet != null && ship.fleet.Task == null)
                     {
                         continue;
                     }
@@ -2557,14 +2559,14 @@ namespace Ship_Game.Gameplay
 					continue;
 				}
 				Empire Them = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
-				if (Them == this.empire || !Them.isFaction && !this.empire.GetRelations()[Them].AtWar)
+				if (Them == this.empire || !Them.isFaction && this.empire.GetRelations()[Them].Treaty_OpenBorders)
 				{
 					continue;
 				}
 				MilitaryTask enemyStrength = this;
 				enemyStrength.EnemyStrength = enemyStrength.EnemyStrength + pin.Value.Strength;
 			}
-			this.MinimumTaskForceStrength = this.EnemyStrength + 0.35f * this.EnemyStrength;
+            this.MinimumTaskForceStrength = this.EnemyStrength; // +0.35f * this.EnemyStrength;
 			if (this.MinimumTaskForceStrength == 0f)
 			{
 				this.EndTask();

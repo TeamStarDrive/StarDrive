@@ -55,6 +55,7 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
+        private bool firstSort = true;
 
 		public EmpireScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
 		{
@@ -67,11 +68,7 @@ namespace Ship_Game
 			{
 				//this.LowRes = true;
 			}
-			this.pop = new SortButton();
-			this.food = new SortButton();
-			this.prod = new SortButton();
-			this.res = new SortButton();
-			this.money = new SortButton();
+
 			Rectangle titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
 			this.TitleBar = new Menu2(ScreenManager, titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(383)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
@@ -85,11 +82,19 @@ namespace Ship_Game
 			}
 			this.ColonySubMenu = new Submenu(ScreenManager, this.eRect);
 			this.ColoniesList = new ScrollList(this.ColonySubMenu, 80);
-			foreach (Planet p in EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetPlanets())
-			{
-				EmpireScreenEntry entry = new EmpireScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 80, this);
-				this.ColoniesList.AddItem(entry);
-			}
+            //if (!this.firstSort || this.pop.Ascending !=true)
+            {
+                foreach (Planet p in EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetPlanets())
+                {
+                    EmpireScreenEntry entry = new EmpireScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 80, this);
+                    this.ColoniesList.AddItem(entry);
+                }
+            }
+            this.pop = new SortButton(this.eui.empire.data.ESSort, "pop");
+            this.food = new SortButton(this.eui.empire.data.ESSort, "food");
+            this.prod = new SortButton(this.eui.empire.data.ESSort, "prod");
+            this.res = new SortButton(this.eui.empire.data.ESSort, "res");
+            this.money = new SortButton(this.eui.empire.data.ESSort, "money");
 			this.SelectedPlanet = (this.ColoniesList.Entries[this.ColoniesList.indexAtTop].item as EmpireScreenEntry).p;
 			this.GovernorDropdown = new DropOptions(new Rectangle(0, 0, 100, 18));
 			this.GovernorDropdown.AddOption("--", 1);
@@ -98,6 +103,7 @@ namespace Ship_Game
 			this.GovernorDropdown.AddOption(Localizer.Token(4066), 4);
 			this.GovernorDropdown.AddOption(Localizer.Token(4067), 3);
 			this.GovernorDropdown.AddOption(Localizer.Token(4068), 5);
+            this.GovernorDropdown.AddOption(Localizer.Token(393), 6);
 			this.GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(this.SelectedPlanet);
 			if (this.GovernorDropdown.Options[this.GovernorDropdown.ActiveIndex].@value != (int)this.SelectedPlanet.colonyType)
 			{
@@ -118,6 +124,7 @@ namespace Ship_Game
 				}
 			}
 			this.AutoButton = new Rectangle(0, 0, 140, 33);
+            this.firstSort = true;
 		}
 
 		       public void Dispose()
@@ -318,6 +325,11 @@ namespace Ship_Game
 					Localizer.Token(374);
 					break;
 				}
+                case Planet.ColonyType.TradeHub:
+                {
+                    Localizer.Token(393);
+                    break;
+                }
 			}
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Governor", TextPosition, Color.White);
 			TextPosition.Y = (float)(this.GovernorDropdown.r.Y + 25);
@@ -354,6 +366,11 @@ namespace Ship_Game
 					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
+                case Planet.ColonyType.TradeHub:
+                {
+                    desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+                    break;
+                }
 			}
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, TextPosition, Color.White);
 			desc = Localizer.Token(388);
@@ -550,9 +567,10 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(Localizer.Token(2278), base.ScreenManager);
 			}
-			if (this.pop.HandleInput(input))
-			{
-				if (!this.pop.Ascending)
+			if (this.pop.HandleInput(input) )
+            {
+                this.pop.saved = false;
+                if (!this.pop.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
 						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
@@ -575,8 +593,8 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(139, base.ScreenManager);
 			}
-			if (this.food.HandleInput(input))
-			{
+            if (this.food.HandleInput(input) )
+            {
 				if (!this.food.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
@@ -600,9 +618,10 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(140, base.ScreenManager);
 			}
-			if (this.prod.HandleInput(input))
-			{
-				if (!this.prod.Ascending)
+            if (this.prod.HandleInput(input) )
+            {
+                
+                if (!this.prod.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().OrderBy<Planet, float>((Planet p) => {
 						if (p.Owner.data.Traits.Cybernetic == 0)
@@ -713,7 +732,8 @@ namespace Ship_Game
 					}
 					else
 					{
-						this.eui.screen.SelectedPlanet = this.SelectedPlanet;
+						
+                        this.eui.screen.SelectedPlanet = this.SelectedPlanet;
 						this.eui.screen.ViewPlanet(null);
 						this.ExitScreen();
 					}

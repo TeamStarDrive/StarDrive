@@ -98,8 +98,9 @@ namespace Ship_Game
                 this.data = new UniverseData()
                 {
                     FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
-                    EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
-                    GravityWells = GlobalStats.PlanetaryGravityWells
+                    EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,                    
+                    GravityWells = GlobalStats.PlanetaryGravityWells,
+                    FTLinNeutralSystem = GlobalStats.WarpInSystem
                 };
                 string str = size;
                 string str1 = str;
@@ -134,6 +135,7 @@ namespace Ship_Game
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
                         this.data.Size = new Vector2(9350000f, 9350000f);
+                        Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Large")
                     {
@@ -143,7 +145,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                        this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Huge")
                     {
@@ -153,7 +155,8 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
+                            this.data.Size = new Vector2(18000000f, 18000000f);
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Epic")
                     {
@@ -163,7 +166,9 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f * 2, 1.8E+07f * 2);
+                            this.data.Size = new Vector2(54000000, 54000000);
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
+                            //this.data.Size = new Vector2(36000000, 36000000);
                         //this.scale = 2;
 
                         //this.numSystems = (int)(125f * StarNumModifier);
@@ -179,10 +184,10 @@ namespace Ship_Game
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
                         //this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f * 3f, 1.8E+07f * 3f);
+                            this.data.Size = new Vector2(54000000, 54000000);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
-
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
 
                     }
                     //if (this.numSystems <= this.numOpponents+2)
@@ -196,6 +201,7 @@ namespace Ship_Game
                 EmpireManager.EmpireList.Add(empire);
                 this.GalacticCenter = new Vector2(this.data.Size.X / 2f, this.data.Size.Y / 2f);
                 StatTracker.SnapshotsDict.Clear();
+                
             }
         }
 
@@ -712,6 +718,8 @@ namespace Ship_Game
             empireData.FuelCellModifier = data.FuelCellModifier;
             empireData.Inhibitors = data.Inhibitors;
             empireData.MassModifier = data.MassModifier;
+            //Doctor: Armour Mass Mod
+            empireData.ArmourMassModifier = data.ArmourMassModifier;
             empireData.MissileDodgeChance = data.MissileDodgeChance;
             empireData.MissileHPModifier = data.MissileHPModifier;
             empireData.OrdnanceEffectivenessBonus = data.OrdnanceEffectivenessBonus;
@@ -727,6 +735,9 @@ namespace Ship_Game
             empireData.TroopNameIndex = data.TroopNameIndex;
             empireData.PowerFlowMod = data.PowerFlowMod;
             empireData.ShieldPowerMod = data.ShieldPowerMod;
+            //Doctor: Civilian Maint Mod
+            empireData.CivMaintMod = data.CivMaintMod;
+
             empireData.Traits = new RacialTrait();
             empireData.Traits.Aquatic = data.Traits.Aquatic;
             empireData.Traits.Assimilators = data.Traits.Assimilators;
