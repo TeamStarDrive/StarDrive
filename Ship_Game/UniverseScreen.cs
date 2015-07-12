@@ -2635,7 +2635,6 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-
             if (this.ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && this.ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
                 this.Paused = !this.Paused;
             for (int index = 0; index < this.SelectedShipList.Count; ++index)
@@ -2644,6 +2643,7 @@ namespace Ship_Game
                 if (!ship.Active)
                     this.SelectedShipList.QueuePendingRemoval(ship);
             }
+            //CG: previous target code. 
             if (this.previousSelection != null && input.CurrentMouseState.XButton1 == ButtonState.Pressed && input.LastMouseState.XButton1 == ButtonState.Released)
             {
                 Ship tempship = this.previousSelection;
@@ -2656,23 +2656,11 @@ namespace Ship_Game
                 this.SelectedSystem = (SolarSystem)null;
                 this.SelectedPlanet = (Planet)null;
                 this.SelectedShipList.Add(this.SelectedShip);
-
-
-
             }
             //fbedard: Set camera chase on ship
             if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
             {
                 this.ViewToShip(null);
-            }
-            if (this.ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && this.ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
-                this.Paused = !this.Paused;
-            for (int index = 0; index < this.SelectedShipList.Count; ++index)
-            {
-                Ship ship = this.SelectedShipList[index];
-                if (!ship.Active)
-                    this.SelectedShipList.QueuePendingRemoval(ship);
-
             }
             this.input = input;
             this.ShowTacticalCloseup = input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt);
