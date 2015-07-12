@@ -7955,16 +7955,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>6181</Index>
       <Text>Constructor Design:</Text>
-    </Token>
-	
+    </Token>	
 	<Token>
-	<Index>6182</Index>
-	<Text>FTL Overlay: displays FTL inhibiting gravity wells and fields.</Text>
+		<Index>6182</Index>
+		<Text>FTL Overlay: displays FTL inhibiting gravity wells and fields.</Text>
+	</Token>	
+	<Token>
+		<Index>6183</Index>
+		<Text>Weapons Range Overlay: visualises ships' maximum weapon range.</Text>
 	</Token>
-	
 	<Token>
-	<Index>6183</Index>
-	<Text>Weapons Range Overlay: visualises ships' maximum weapon range.</Text>
+		<Index>6184</Index>
+		<Text>Keyboard Fire Arc Locking</Text>
 	</Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -8294,6 +8296,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7080</Index>
       <Text>Assigns vessel to system defence duties</Text>
+    </Token>
+	<Token>
+      <Index>7081</Index>
+      <Text>When active, arcs in the shipyard can only be moved by ALT-clicking them, preventing accidental rotation while providing immediate control of arcs when using ALT.\n\nWhen inactive, arcs in the shipyard can be moved by left-clicking and holding for a time delay to grab the arc.</Text>
     </Token>
 	
   </TokenList>
