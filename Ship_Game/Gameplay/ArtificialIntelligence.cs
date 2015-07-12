@@ -3340,7 +3340,7 @@ namespace Ship_Game.Gameplay
 
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
+                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_NAPact && !this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Alliance)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
@@ -4014,7 +4014,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
+                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_NAPact && !this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Alliance)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
