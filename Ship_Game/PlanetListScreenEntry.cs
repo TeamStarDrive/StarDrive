@@ -289,17 +289,28 @@ namespace Ship_Game
                 }
                 this.SendTroops.Draw(ScreenManager.SpriteBatch);
             }
-            
-
-
+            //fbedard : Add Send Button for your planets
+            if (this.planet.Owner == this.screen.empUI.screen.player)
+            {
+                int troopsInvading = this.screen.empUI.empire.GetShips()
+         .Where(troop => troop.TroopList.Count > 0)
+         .Where(troopAI => troopAI.GetAI().OrderQueue
+             .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet).Count() > 0).Count();
+                if (troopsInvading > 0)
+                    this.SendTroops.Text = "Landing: " + troopsInvading.ToString();
+                else
+                {
+                    this.SendTroops.Text = "Send Troops";
+                }
+                this.SendTroops.Draw(ScreenManager.SpriteBatch);
+            }
         }
 
 		public void HandleInput(InputState input)
 		{
             if (!HelperFunctions.CheckIntersection(this.SendTroops.Rect, input.CursorPosition))
             {
-                this.SendTroops.State = UIButton.PressState.Normal;
-                
+                this.SendTroops.State = UIButton.PressState.Normal;              
             }
             else
             {
@@ -314,27 +325,23 @@ namespace Ship_Game
                             && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.planet.Position)));
                     this.screen.empUI.empire.GetShips().thisLock.ExitReadLock();
                     this.screen.empUI.empire.GetPlanets().thisLock.EnterReadLock();
-                    List<Planet> planetTroops = new List<Planet>(this.screen.empUI.empire.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, this.planet.Position)));
+                    List<Planet> planetTroops = new List<Planet>(this.screen.empUI.empire.GetPlanets()
+                        .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, this.planet.Position))
+                        .Where(Name => Name.Name != this.planet.Name));
                     this.screen.empUI.empire.GetPlanets().thisLock.ExitReadLock();
                     if (troopShips.Count > 0)
                     {
                         AudioManager.PlayCue("echo_affirm");
                         troopShips.First().GetAI().OrderAssaultPlanet(this.planet);
-
                     }
                     else
                         if (planetTroops.Count > 0)
                         {
-
-
                             {
                                 Ship troop = planetTroops.First().TroopsHere.First().Launch();
                                 if (troop != null)
                                 {
-
-
                                     AudioManager.PlayCue("echo_affirm");
-
                                     troop.GetAI().OrderAssaultPlanet(this.planet);
                                 }
                             }
@@ -343,7 +350,6 @@ namespace Ship_Game
                         {
                             AudioManager.PlayCue("blip_click");
                         }
-
                 }
             }
             if (!HelperFunctions.CheckIntersection(this.Colonize.Rect, input.CursorPosition))
