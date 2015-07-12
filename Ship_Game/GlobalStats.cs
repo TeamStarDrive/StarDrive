@@ -181,13 +181,13 @@ namespace Ship_Game
             GlobalStats.RemnantActivation = 0;
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
-            GlobalStats.AltArcControl = false;
 			try
 			{
 				GlobalStats.GravityWellRange = float.Parse(ConfigurationManager.AppSettings["GravityWellRange"]); // 8000f;
 	            GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
 	            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
 	            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
+                GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
 	
 	            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
 	            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
@@ -221,6 +221,7 @@ namespace Ship_Game
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.EliminationMode = bool.Parse(ConfigurationManager.AppSettings["EliminationMode"]);
             GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
+            GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
         }
 		public GlobalStats()
 		{
