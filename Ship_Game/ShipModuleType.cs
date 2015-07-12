@@ -27,5 +27,6 @@ namespace Ship_Game
         Transporter,
         Troop,
         Ordnance,
+        Construction,
 	}
 }
