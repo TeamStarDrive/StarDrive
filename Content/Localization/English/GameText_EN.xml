@@ -7957,9 +7957,9 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Constructor Design:</Text>
     </Token>	
 	<Token>
-		<Index>6182</Index>
-		<Text>FTL Overlay: displays FTL inhibiting gravity wells and fields.</Text>
-	</Token>	
+	<Index>6182</Index>
+	<Text>FTL Overlay: visualises subspace projection and FTL inhibiting gravity wells and fields.</Text>
+	</Token>		
 	<Token>
 		<Index>6183</Index>
 		<Text>Weapons Range Overlay: visualises ships' maximum weapon range.</Text>
