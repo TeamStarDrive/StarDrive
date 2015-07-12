@@ -5327,7 +5327,7 @@ namespace Ship_Game
                     influenceNodes = new List<Empire.InfluenceNode>(this.player.BorderNodes);
                 }
 
-                Color col = EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).EmpireColor;
+                //Color col = EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).EmpireColor;
                 this.player.BorderNodeLocker.ExitReadLock();
                 {
                     try
@@ -5343,7 +5343,7 @@ namespace Ship_Game
                                 float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
                                 Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
                                 Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color(col.R, col.G, col.B, (byte)15), 0.0f, local_22, SpriteEffects.None, 1f);
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color((byte)0, (byte)200, (byte)0, (byte)20), 0.0f, local_22, SpriteEffects.None, 1f);
                                 Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color((byte)30, (byte)30, (byte)150, (byte)150), 1f);
                             }
                         }
@@ -6305,8 +6305,12 @@ namespace Ship_Game
 
         private void DrawTacticalIcons(Ship ship)
         {
-            if (this.LookingAtPlanet || ship.IsPlatform && this.viewState == UniverseScreen.UnivScreenState.GalaxyView)
+            if (this.LookingAtPlanet || (!this.showingFTLOverlay && ship.IsPlatform && this.viewState == UniverseScreen.UnivScreenState.GalaxyView))
                 return;
+            if (this.showingFTLOverlay && ship.IsPlatform && ship.Name != "Subspace Projector")
+            {
+                return;
+            }
             if (this.viewState == UniverseScreen.UnivScreenState.GalaxyView)
             {
                 float num1 = ship.GetSO().WorldBoundingSphere.Radius;
