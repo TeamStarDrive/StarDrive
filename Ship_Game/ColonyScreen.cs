@@ -555,6 +555,13 @@ namespace Ship_Game
                 if (this.shipsCanBuildLast != this.p.Owner.ShipsWeCanBuild.Count || this.Reset)
                 {
                     this.buildSL.Reset();
+
+                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.ColoniserMenu)
+                    {
+                        list.Add("Coloniser");
+                        this.buildSL.AddItem((object)new ModuleHeader("Coloniser"));
+                    }
+
                     foreach (string ship in this.p.Owner.ShipsWeCanBuild)
                     {
                         if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected || ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].NoBuild)
@@ -574,8 +581,24 @@ namespace Ship_Game
                         {
                             foreach (string ship in this.p.Owner.ShipsWeCanBuild)
                             {
-                                if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
-                                    entry.AddItem((object)ResourceManager.ShipsDict[ship], 1, 1);
+                                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.ColoniserMenu)
+                                {
+                                    if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && ResourceManager.ShipsDict[ship].isColonyShip && (entry.item as ModuleHeader).Text == "Coloniser")
+                                    {
+                                        entry.AddItem((object)ResourceManager.ShipsDict[ship], 1, 1);
+                                    }
+                                    else if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && !ResourceManager.ShipsDict[ship].isColonyShip && Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
+                                    {
+                                        entry.AddItem((object)ResourceManager.ShipsDict[ship], 1, 1);
+                                    }
+                                }
+                                else
+                                {
+                                    if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
+                                    {
+                                        entry.AddItem((object)ResourceManager.ShipsDict[ship], 1, 1);
+                                    }
+                                }
                             }
                         }
                     }

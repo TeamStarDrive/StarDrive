@@ -226,6 +226,7 @@ namespace Ship_Game
                 empireToSave.CurrentAutoScout = e.data.CurrentAutoScout;
                 empireToSave.CurrentAutoFreighter = e.data.CurrentAutoFreighter;
                 empireToSave.CurrentAutoColony = e.data.CurrentAutoColony;
+                empireToSave.CurrentConstructor = e.data.CurrentConstructor;
 				empireToSave.OwnedShips = new List<SavedGame.ShipSaveData>();
 				empireToSave.TechTree = new List<TechEntry>();
 				foreach (AO area in e.GetGSAI().AreasOfOperations)
@@ -573,6 +574,8 @@ namespace Ship_Game
             public string CurrentAutoColony;
 
             public string CurrentAutoScout;
+
+            public string CurrentConstructor;
 		}
 
 		public struct FleetSave
