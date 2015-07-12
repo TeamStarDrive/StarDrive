@@ -94,6 +94,8 @@ namespace Ship_Game
 
 		public bool Privatization;
 
+        public float CivMaintMod = 1f;
+
 		public float FuelCellModifier;
 
 		public float FlatMoneyBonus;
@@ -103,6 +105,8 @@ namespace Ship_Game
 		public float FTLModifier = 35f;
 
 		public float MassModifier = 1f;
+
+        public float ArmourMassModifier = 1f;
 
 		public float SubLightModifier = 1f;
 
@@ -116,7 +120,7 @@ namespace Ship_Game
 
         public float SpoolTimeModifier = 1.0f;
 
-		public float ExplosiveRadiusReduction;
+		public float ExplosiveRadiusReduction = 0f;
 
 		public float ShieldPenBonusChance;
 
@@ -144,6 +148,13 @@ namespace Ship_Game
         public float PowerFlowMod = 0f;
         public float ShieldPowerMod = 0f;
         public float ExperienceMod = 0f;
+        
+        //economy
+        public float SSPBudget = 0;
+        public float SpyBudget = 0;
+        public float ShipBudget = 0;
+        public float ColonyBudget = 0;
+        public float DefenseBudget = 0;
 
         //unlock at start
         public List<string> unlockBuilding = new List<string>();
@@ -153,6 +164,10 @@ namespace Ship_Game
         private bool disposed;
 
         //designsWeHave our techTree has techs for.
+        //sortsaves
+        public SortButton PLSort = new SortButton();
+        public SortButton ESSort = new SortButton();
+        public SortButton SLSort = new SortButton();
 
 
 

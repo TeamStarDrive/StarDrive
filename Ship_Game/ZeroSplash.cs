@@ -78,7 +78,9 @@ namespace Ship_Game
 			{
 				IsLooped = false
 			};
-			this.player.Play(this.video);
+            this.player.Volume = GlobalStats.Config.MusicVolume;
+			
+            this.player.Play(this.video);
 			base.ScreenManager.musicCategory.SetVolume(0f);
 			base.ScreenManager.racialMusic.SetVolume(0.7f);
 			this.Portrait = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 640, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 360, 1280, 720);

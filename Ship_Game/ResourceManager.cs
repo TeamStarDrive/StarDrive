@@ -1298,7 +1298,43 @@ namespace Ship_Game
                 TransporterRange = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterRange,
                 TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant,
                 TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding,
-                TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault
+                TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault,
+                KineticResist = Ship_Game.ResourceManager.ShipModulesDict[uid].KineticResist,
+                EnergyResist = Ship_Game.ResourceManager.ShipModulesDict[uid].EnergyResist,
+                GuidedResist = Ship_Game.ResourceManager.ShipModulesDict[uid].GuidedResist,
+                MissileResist = Ship_Game.ResourceManager.ShipModulesDict[uid].MissileResist,
+                HybridResist = Ship_Game.ResourceManager.ShipModulesDict[uid].HybridResist,
+                BeamResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BeamResist,
+                ExplosiveResist = Ship_Game.ResourceManager.ShipModulesDict[uid].ExplosiveResist,
+                InterceptResist = Ship_Game.ResourceManager.ShipModulesDict[uid].InterceptResist,
+                RailgunResist = Ship_Game.ResourceManager.ShipModulesDict[uid].RailgunResist,
+                SpaceBombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SpaceBombResist,
+                BombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BombResist,
+                BioWeaponResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BioWeaponResist,
+                DroneResist = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneResist,
+                WarpResist = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpResist,
+                TorpedoResist = Ship_Game.ResourceManager.ShipModulesDict[uid].TorpedoResist,
+                CannonResist = Ship_Game.ResourceManager.ShipModulesDict[uid].CannonResist,
+                SubspaceResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SubspaceResist,
+                PDResist = Ship_Game.ResourceManager.ShipModulesDict[uid].PDResist,
+                FlakResist = Ship_Game.ResourceManager.ShipModulesDict[uid].FlakResist,
+                APResist = Ship_Game.ResourceManager.ShipModulesDict[uid].APResist,
+                DamageThreshold = Ship_Game.ResourceManager.ShipModulesDict[uid].DamageThreshold,
+                shield_threshold = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_threshold,
+                shield_energy_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_energy_resist,
+                shield_kinetic_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_kinetic_resist,
+                shield_explosive_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_explosive_resist,
+                shield_flak_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_flak_resist,
+                shield_hybrid_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_hybrid_resist,
+                shield_missile_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_missile_resist,
+                shield_railgun_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_railgun_resist,
+                shield_subspace_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_subspace_resist,
+                shield_warp_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_warp_resist,
+                shield_beam_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_beam_resist,
+                IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower,
+                isPowerArmour = Ship_Game.ResourceManager.ShipModulesDict[uid].isPowerArmour,
+                isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead
+
 			};
 
             #region TargetWeight
@@ -2130,7 +2166,10 @@ namespace Ship_Game
 		public static void LoadMods(string ModPath)
 		{		
             Ship_Game.ResourceManager.WhichModPath = ModPath;
-            ResourceManager.OffSet = 32000;
+            if (ModPath == "Mods/SD_Extended")
+                ResourceManager.OffSet = 0;
+            else
+                ResourceManager.OffSet = 32000;
             Ship_Game.ResourceManager.LoadLanguage();
 			Ship_Game.ResourceManager.LoadTroops();
 			Ship_Game.ResourceManager.LoadTextures();
@@ -2848,7 +2887,7 @@ namespace Ship_Game
                     {
                         bonus.BonusNameIndex += OffSet;
                         Localizer.used[bonus.BonusNameIndex] = true;
-                    }
+                    }                   
                 }
                 data.UID = Path.GetFileNameWithoutExtension(FI.Name);
                
@@ -2864,6 +2903,73 @@ namespace Ship_Game
 					
                     Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
+                //catagorize uncatagoried techs
+                {
+                    if(data.TechnologyType == TechnologyType.General)
+                    {
+                        if (data.HullsUnlocked.Count > 0)
+                        {
+                            data.TechnologyType = TechnologyType.ShipHull;
+                        }
+                        else if (data.BuildingsUnlocked.Count > 0)
+                        {
+                            foreach (Technology.UnlockedBuilding buildingU in data.BuildingsUnlocked)
+                            {
+                                Building building;
+                                if (ResourceManager.BuildingsDict.TryGetValue(buildingU.Name, out building))
+                                {
+                                    if (building.AllowInfantry || building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0 || building.isWeapon || building.Strength > 0)
+                                        data.TechnologyType = TechnologyType.GroundCombat;
+                                    else if (building.AllowShipBuilding || building.PlusFlatProductionAmount > 0 || building.PlusProdPerRichness > 0
+                                        || building.StorageAdded > 0 || building.PlusFlatProductionAmount > 0)
+                                        data.TechnologyType = TechnologyType.Industry;
+                                    else if (building.PlusTaxPercentage > 0 || building.CreditsPerColonist > 0)
+                                        data.TechnologyType = TechnologyType.Economic;
+                                    else if (building.PlusFlatResearchAmount > 0 || building.PlusResearchPerColonist > 0)
+                                        data.TechnologyType = TechnologyType.Research;
+                                    else if (building.PlusFoodPerColonist > 0 || building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0
+                                        || building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0
+                                        )
+                                        data.TechnologyType = TechnologyType.Colonization;
+                                }
+
+                            }
+
+
+                        }
+                        else if (data.TroopsUnlocked.Count > 0)
+                        {
+                            data.TechnologyType = TechnologyType.GroundCombat;
+                        }
+                        else if (data.ModulesUnlocked.Count > 0)
+                        {
+                            foreach (Technology.UnlockedMod moduleU in data.ModulesUnlocked)
+                            {
+                                ShipModule module;
+                                if (ResourceManager.ShipModulesDict.TryGetValue(moduleU.ModuleUID, out module))
+                                {
+                                    if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
+                                        || module.ModuleType == ShipModuleType.Hangar
+                                        )
+                                        data.TechnologyType = TechnologyType.ShipWeapons;
+                                    else if (module.shield_power > 0 || module.ModuleType == ShipModuleType.Armor
+                                        || module.ModuleType == ShipModuleType.Countermeasure
+                                        || module.ModuleType == ShipModuleType.Shield
+
+                                        )
+                                        data.TechnologyType = TechnologyType.ShipDefense;
+                                    else
+                                        data.TechnologyType = TechnologyType.ShipGeneral;
+
+                                }
+                            }
+                        }
+                        else data.TechnologyType = TechnologyType.General;
+
+                        
+                    }
+                }
+
 			}
 			textList = null;
 		}

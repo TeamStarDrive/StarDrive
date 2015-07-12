@@ -197,7 +197,7 @@ namespace Ship_Game
 			p.LoadAttributes();
 			p.Crippled_Turns = data.Crippled_Turns;
 			p.planetTilt = RandomMath.RandomBetween(45f, 135f);
-			p.ObjectRadius = 100f * p.scale;
+            p.ObjectRadius = 100f * (float)(1 + ((Math.Log(p.scale)) / 1.5)); // p.scale; //(1 + ((Math.Log(planet.scale))/1.5) )
 			foreach (Guid guid in data.StationsList)
 			{
 				p.Shipyards.TryAdd(guid, new Ship());
@@ -374,6 +374,7 @@ namespace Ship_Game
             {
                 var attributeOverrides = new XmlAttributeOverrides();
                 attributeOverrides.Add(typeof(SavedGame.SolarSystemSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
+                attributeOverrides.Add(typeof(SavedGame.EmpireSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
                 serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData), attributeOverrides);
             }
 			FileStream stream = decompressed.OpenRead();
@@ -562,6 +563,7 @@ namespace Ship_Game
 			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
             this.data.EnemyFTLSpeedModifier = this.savedData.EnemyFTLModifier;
 			this.data.GravityWells = this.savedData.GravityWells;
+            Empire.ProjectorRadius = this.data.Size.X / 70f;
 			EmpireManager.EmpireList.Clear();
             if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
                 Empire.universeScreen.MasterShipList.Clear();
