@@ -2410,7 +2410,7 @@ namespace Ship_Game.Gameplay
                 TargetShip = this.Target as Ship;
                 GameplayObject secondarytarget =null;
                 GameplayObject pdtarget = null;
-                if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled ||
+                if(this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled ||
                     (this.Target != null && !this.Owner.loyalty.isFaction
                     && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy)
                     && (enemy.Treaty_NAPact || enemy.Treaty_Alliance)))
@@ -3340,7 +3340,7 @@ namespace Ship_Game.Gameplay
 
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_NAPact && !this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Alliance)
+                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
@@ -4014,7 +4014,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_NAPact && !this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Alliance)
+                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
