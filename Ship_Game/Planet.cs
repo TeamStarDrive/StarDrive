@@ -139,6 +139,8 @@ namespace Ship_Game
         private ReaderWriterLockSlim planetLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private bool PSexport = false;
         private bool FSexport = false;
+        public bool UniqueHab = false;
+        public int uniqueHabPercent;
 
         
         public Planet()
@@ -881,61 +883,112 @@ namespace Ship_Game
             }
             if (!this.habitable)
                 this.MineralRichness = 0.0f;
-            if (this.Type == "Barren")
-            {
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        double num3 = (double)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, false));
-                    }
-                }
-            }
-            if (this.Type == "Ice")
+
+            if (this.UniqueHab)
             {
                 for (int x = 0; x < 7; ++x)
                 {
                     for (int y = 0; y < 5; ++y)
                     {
                         int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < 15));
+                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < this.uniqueHabPercent));
                     }
                 }
             }
-            if (this.Type == "Terran")
+            else
             {
-                for (int x = 0; x < 7; ++x)
+                if (this.Type == "Barren")
                 {
-                    for (int y = 0; y < 5; ++y)
+                    for (int x = 0; x < 7; ++x)
                     {
-                        int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 25));
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.BarrenHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, false));
+                            }
+                        }
+                    }
+                }
+                if (this.Type == "Ice")
+                {
+                    for (int x = 0; x < 7; ++x)
+                    {
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.IceHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < 15));
+                            }
+                        }
+                    }
+                }
+                if (this.Type == "Terran")
+                {
+                    for (int x = 0; x < 7; ++x)
+                    {
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.TerranHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 25));
+                            }
+                        }
+                    }
+                }
+                if (this.Type == "Oceanic" || this.Type == "Desert" || this.Type == "Tundra")
+                {
+                    for (int x = 0; x < 7; ++x)
+                    {
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.OceanHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 50));
+                            }
+                        }
+                    }
+                }
+                if (this.Type == "Steppe" || this.Type == "Swamp")
+                {
+                    for (int x = 0; x < 7; ++x)
+                    {
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.SteppeHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 33));
+                            }
+                        }
                     }
                 }
             }
-            if (this.Type == "Oceanic" || this.Type == "Desert" || this.Type == "Tundra")
-            {
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 50));
-                    }
-                }
-            }
-            if (this.Type == "Steppe" || this.Type == "Swamp")
-            {
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 33));
-                    }
-                }
-            }
+
             if ((double)RandomMath.RandomBetween(0.0f, 100f) <= 15.0 && this.habitable)
             {
                 List<string> list = new List<string>();

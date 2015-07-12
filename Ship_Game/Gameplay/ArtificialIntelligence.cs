@@ -2413,7 +2413,7 @@ namespace Ship_Game.Gameplay
                 if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled ||
                     (this.Target != null && !this.Owner.loyalty.isFaction
                     && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy)
-                    && enemy.Treaty_Peace))
+                    && (enemy.Treaty_NAPact || enemy.Treaty_Alliance)))
                 {
                     return;
                 }
@@ -3331,7 +3331,7 @@ namespace Ship_Game.Gameplay
 
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
+                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_NAPact && !this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Alliance)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
@@ -4005,7 +4005,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
+                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_NAPact && !this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Alliance)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
@@ -5053,7 +5053,10 @@ namespace Ship_Game.Gameplay
                 {
                     if (this.Owner.AreaOfOperation.Count <= 0)
                     {
-                        if (p.Population <= 1500f)
+                        //Doc: How fucking broken is this? Exclude endpoints which have less than 1.5 pop?
+                        //if (p.Population <= 1500f)
+
+                        if (((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation) || ((double)p.MaxPopulation <= 3000 && (double)(p.MaxPopulation - p.Population) <= (0.7 * (double)p.MaxPopulation)) || p == this.start)
                         {
                             continue;
                         }
@@ -5090,15 +5093,13 @@ namespace Ship_Game.Gameplay
                 return;
             }
             this.OrderQueue.Clear();
-            List<Planet> Possible = new List<Planet>();
 
-
-
+            List<Planet> Possible = new List<Planet>();            
             foreach (Planet p in SafePlanets)
                 {
                     if (this.Owner.AreaOfOperation.Count <= 0)
                     {
-                        if (p.Population <= 1000f)
+                        if (p.Population <= 2000f || ((double)p.Population / (double)p.MaxPopulation < 0.4))
                         {
                             continue;
                         }
@@ -5108,7 +5109,7 @@ namespace Ship_Game.Gameplay
                     {
                         foreach (Rectangle AO in this.Owner.AreaOfOperation)
                         {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 2000f || ((double)p.Population / (double)p.MaxPopulation < 0.4))
                             {
                                 continue;
                             }
@@ -5126,6 +5127,8 @@ namespace Ship_Game.Gameplay
                 }
                 this.start = Possible[random];
             }
+
+
             Possible = new List<Planet>();
             foreach (Planet p in SafePlanets)
             {
@@ -5135,7 +5138,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
-                    if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
+                    if (((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation) || ((double)p.MaxPopulation <= 3000 && (double)(p.MaxPopulation - p.Population) <= (0.7 * (double)p.MaxPopulation)))
                     {
                         continue;
                     }
@@ -5145,7 +5148,7 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
-                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || ((double)p.MaxPopulation <= 3000 && (double)(p.MaxPopulation - p.Population) <= (0.7 * (double)p.MaxPopulation)))
                         {
                             continue;
                         }
@@ -5196,7 +5199,7 @@ namespace Ship_Game.Gameplay
 				{
 					if (this.Owner.AreaOfOperation.Count <= 0)
 					{
-						if (p.Population <= 1500f)
+						if (p.Population >= 2000f)
 						{
 							continue;
 						}

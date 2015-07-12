@@ -75,6 +75,7 @@ namespace Ship_Game.Gameplay
         public bool IsSupplyShip;
         public bool reserved;
         public bool isColonyShip;
+        public bool isConstructor;
         public string StrategicIconPath;
         private Planet TetheredTo;
         public Vector2 TetherOffset;
@@ -203,6 +204,8 @@ namespace Ship_Game.Gameplay
         public bool hasRepairBeam;
         public bool hasCommand;
         private float FTLmodifier = 1f;
+
+        public float RangeForOverlay;
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         Random shiprandom = new Random();
         //adding for thread safe Dispose because class uses unmanaged resources 
@@ -1949,10 +1952,17 @@ namespace Ship_Game.Gameplay
             this.TroopBoardingDefense = 0f;
             this.ECMValue = 0f;
             this.FTLSpoolTime = 0f;
+            this.RangeForOverlay = 0f;
 
             string troopType = "Wyvern";
             string tankType = "Wyvern";
             string redshirtType = "Wyvern";
+
+            foreach (Weapon w in this.Weapons)
+            {
+                if (w.GetModifiedRange() > this.RangeForOverlay)
+                    this.RangeForOverlay = w.GetModifiedRange();
+            }
 
             #endregion
             #region TroopListFix
@@ -1970,6 +1980,7 @@ namespace Ship_Game.Gameplay
             }
             #endregion
             #region ModuleCheck
+            
             foreach (ModuleSlot moduleSlotList in this.ModuleSlotList)
             {
                 if (moduleSlotList.Restrictions == Restrictions.I)
@@ -1978,6 +1989,12 @@ namespace Ship_Game.Gameplay
                     continue;
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Colony)
                     this.isColonyShip = true;
+                if (moduleSlotList.module.ModuleType == ShipModuleType.Construction)
+                {
+                    this.isConstructor = true;
+                    this.Role = "construction";
+                }
+                
                 if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
                 {
                     Dictionary<string, float> maxGoodStorageDict = this.MaxGoodStorageDict;
@@ -3216,13 +3233,13 @@ namespace Ship_Game.Gameplay
             {
                 if ((this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip) && this.Weapons.Count > 0)
                 {
-                    IOrderedEnumerable<Weapon> orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)this.Weapons, (Func<Weapon, float>)(weapon => weapon.Range));
+                    IOrderedEnumerable<Weapon> orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)this.Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
                     bool flag = false;
                     foreach (Weapon weapon in (IEnumerable<Weapon>)orderedEnumerable)
                     {
                         if (weapon.DamageAmount > 0.0 && !flag)
                         {
-                            this.maxWeaponsRange = weapon.Range;
+                            this.maxWeaponsRange = weapon.GetModifiedRange();
                             flag = true;
                         }
                         weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;

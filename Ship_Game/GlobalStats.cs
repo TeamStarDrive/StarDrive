@@ -87,6 +87,10 @@ namespace Ship_Game
 
 		public static bool AutoCombat;
 
+
+        // Option for keyboard hotkey based arc movement
+        public static bool AltArcControl;
+
 		public static int TimesPlayed;
 
 		public static ModEntry ActiveMod;
@@ -183,6 +187,7 @@ namespace Ship_Game
 	            GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
 	            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
 	            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
+                GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
 	
 	            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
 	            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
@@ -194,7 +199,7 @@ namespace Ship_Game
 	            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
 	            GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
 	            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
-	            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);
+	            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);                
 			}
 			catch (Exception)
 			{
@@ -216,6 +221,7 @@ namespace Ship_Game
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.EliminationMode = bool.Parse(ConfigurationManager.AppSettings["EliminationMode"]);
             GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
+            GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
         }
 		public GlobalStats()
 		{
