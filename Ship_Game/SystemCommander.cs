@@ -24,7 +24,8 @@ namespace Ship_Game
 
 		public float PercentageOfValue;
         public float incomingThreatTime;
-
+        public float SystemDevelopmentlevel;
+        public float RankImportance;
 		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
 		public Dictionary<Ship, List<Ship>> EnemyClumpsDict = new Dictionary<Ship, List<Ship>>();
@@ -46,10 +47,9 @@ namespace Ship_Game
             foreach (KeyValuePair<Guid, Ship> entry in this.ShipsDict)
             {
                 Ship ship = entry.Value;
-                //if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
 
-                //if ((ship == null || ship.GetSystem() != this.system) || (ship.GetAI().Target != null && ship.InCombat ))
-                if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
+
+                if (ship == null || ship.GetAI().BadGuysNear || ship.GetAI().SystemToDefend == this.system)
                 {
                     continue;
                 }
@@ -139,7 +139,7 @@ namespace Ship_Game
                 {
                     if (ship.Value.GetAI().State == AIState.Resupply )
                     {
-                        continue;
+                        continue; 
                     }
                     ship.Value.GetAI().OrderSystemDefense(this.system);
                 }
@@ -153,6 +153,7 @@ namespace Ship_Game
 			{
 				str = str + ship.Value.BaseStrength;//.GetStrength();
 			}
+            
 			return str;
 		}
 

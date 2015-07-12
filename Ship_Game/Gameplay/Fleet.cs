@@ -639,7 +639,7 @@ namespace Ship_Game.Gameplay
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
                 ship.GetAI().SetPriorityOrder();
-                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true);
+                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true,null);
             }
         }
 
@@ -651,7 +651,7 @@ namespace Ship_Game.Gameplay
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
                 ship.GetAI().SetPriorityOrder();
-                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, false);
+                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, false,null);
             }
         }
 
@@ -2514,7 +2514,7 @@ namespace Ship_Game.Gameplay
                         bool flag = false;
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
-                            if (!ship.InCombat)
+                            if (!ship.GetAI().BadGuysNear || ship.isInDeepSpace)
                             {
                                 flag = true;
                                 break;

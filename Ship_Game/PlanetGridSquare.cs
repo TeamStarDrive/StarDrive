@@ -18,7 +18,7 @@ namespace Ship_Game
 
 		public int number_allowed_troops = 1;
 
-		public List<Troop> TroopsHere = new List<Troop>();
+		public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
 
 		public bool Biosphere;
 

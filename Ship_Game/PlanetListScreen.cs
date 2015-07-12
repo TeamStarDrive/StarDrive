@@ -20,7 +20,7 @@ namespace Ship_Game
 
 		private float ClickTimer;
 
-		private float ClickDelay = 0.15f;
+		private float ClickDelay = 0.25f;
 
 		private Planet SelectedPlanet;
 
@@ -86,12 +86,14 @@ namespace Ship_Game
 			this.EMenu = new Menu2(ScreenManager, this.leftRect);
 			this.close = new CloseButton(new Rectangle(this.leftRect.X + this.leftRect.Width - 40, this.leftRect.Y + 20, 20, 20));
 			this.eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 15);
-			this.sb_Sys = new SortButton();
-			this.sb_Name = new SortButton();
-			this.sb_Fert = new SortButton();
-			this.sb_Rich = new SortButton();
-			this.sb_Pop = new SortButton();
-			this.sb_Owned = new SortButton();
+            this.sb_Sys = new SortButton(this.empUI.empire.data.PLSort, Localizer.Token(192));
+			this.sb_Name = new SortButton(this.empUI.empire.data.PLSort, Localizer.Token(389));
+			this.sb_Fert = new SortButton(this.empUI.empire.data.PLSort,Localizer.Token(386) );
+			this.sb_Rich = new SortButton(this.empUI.empire.data.PLSort,Localizer.Token(387));
+			this.sb_Pop = new SortButton(this.empUI.empire.data.PLSort,Localizer.Token(1403));
+			this.sb_Owned = new SortButton(this.empUI.empire.data.PLSort, "Owner");
+            
+
 			while (this.eRect.Height % 40 != 0)
 			{
 				this.eRect.Height = this.eRect.Height - 1;
@@ -99,27 +101,32 @@ namespace Ship_Game
 			this.eRect.Height = this.eRect.Height - 20;
 			this.ShipSubMenu = new Submenu(ScreenManager, this.eRect);
 			this.PlanetSL = new ScrollList(this.ShipSubMenu, 40);
-			foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance=> Vector2.Distance(distance.Position,EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetWeightedCenter())))
-			{
-				foreach (Planet p in system.PlanetList)
-				{
-					if (!p.ExploredDict[EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty)])
-					{
-						continue;
-					}
-					this.planets.Add(p);
-				}
-			}
-			foreach (Planet p in this.planets)
-			{
-				if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
-				{
-					continue;
-				}
-				PlanetListScreenEntry entry = new PlanetListScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 40, this);
-				this.PlanetSL.AddItem(entry);
-			}
-			this.SelectedPlanet = (this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry).planet;
+           // this.LastSorted = this.empUI.empire.data.PLSort;
+
+            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => Vector2.Distance(distance.Position, EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetWeightedCenter())))
+            {
+                foreach (Planet p in system.PlanetList)
+                {
+                    if (!p.ExploredDict[EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty)])
+                    {
+                        continue;
+                    }
+                    this.planets.Add(p);
+                }
+            }
+            //foreach (Planet p in this.planets)
+            //{
+            //    if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
+            //    {
+            //        continue;
+            //    }
+            //    PlanetListScreenEntry entry = new PlanetListScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 40, this);
+            //    this.PlanetSL.AddItem(entry);
+            //}
+
+
+            //this.ResetList();
+			//this.SelectedPlanet = (this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry).planet;
 			Ref<bool> aeRef = new Ref<bool>(() => this.HideOwned, (bool x) => {
 				this.HideOwned = x;
 				this.ResetList();
@@ -131,6 +138,7 @@ namespace Ship_Game
 			});
 			this.cb_hideUninhabitable = new Checkbox(new Vector2((float)(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 15), (float)(this.TitleBar.Menu.Y + 35)), "Hide Uninhabitable", aeRef, Fonts.Arial12Bold);
 			this.AutoButton = new Rectangle(0, 0, 243, 33);
+            
 		}
 
         public void Dispose()
@@ -169,11 +177,11 @@ namespace Ship_Game
 				PlanetListScreenEntry e1 = this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry;
 				PlanetListScreenEntry entry = this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry;
 				Vector2 TextCursor = new Vector2((float)(entry.SysNameRect.X + entry.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				this.sb_Sys.Text = Localizer.Token(192);
+				
 				this.sb_Sys.Update(TextCursor);
 				this.sb_Sys.Draw(base.ScreenManager);
 				TextCursor = new Vector2((float)(entry.PlanetNameRect.X + entry.PlanetNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(389)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				this.sb_Name.Text = Localizer.Token(389);
+				
 				this.sb_Name.Update(TextCursor);
 				this.sb_Name.Draw(base.ScreenManager);
 				TextCursor = new Vector2((float)(entry.FertRect.X + entry.FertRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(386)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
@@ -181,7 +189,7 @@ namespace Ship_Game
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
 				}
-				this.sb_Fert.Text = Localizer.Token(386);
+				
 				this.sb_Fert.Update(TextCursor);
 				this.sb_Fert.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				TextCursor = new Vector2((float)(entry.RichRect.X + entry.RichRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(387)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
@@ -189,7 +197,7 @@ namespace Ship_Game
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
 				}
-				this.sb_Rich.Text = Localizer.Token(387);
+				
 				this.sb_Rich.Update(TextCursor);
 				this.sb_Rich.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				TextCursor = new Vector2((float)(entry.PopRect.X + entry.PopRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(1403)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
@@ -197,7 +205,7 @@ namespace Ship_Game
 				{
 					TextCursor = TextCursor + new Vector2(15f, 10f);
 				}
-				this.sb_Pop.Text = Localizer.Token(1403);
+				
 				this.sb_Pop.Update(TextCursor);
 				this.sb_Pop.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				TextCursor = new Vector2((float)(entry.OwnerRect.X + entry.OwnerRect.Width / 2) - Fonts.Arial20Bold.MeasureString("Owner").X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
@@ -205,7 +213,7 @@ namespace Ship_Game
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
 				}
-				this.sb_Owned.Text = "Owner";
+				
 				this.sb_Owned.Update(TextCursor);
 				this.sb_Owned.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				Color smallHighlight = TextColor;
@@ -224,7 +232,7 @@ namespace Ship_Game
 					entry2.SetNewPos(this.eRect.X + 22, this.PlanetSL.Entries[i].clickRect.Y);
 					entry2.Draw(base.ScreenManager, gameTime);
 					Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, entry2.TotalEntrySize, TextColor);
-				}
+				}                
 				Color lineColor = new Color(118, 102, 67, 255);
 				Vector2 topLeftSL = new Vector2((float)e1.SysNameRect.X, (float)(this.eRect.Y + 35));
 				Vector2 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + this.eRect.Height));
@@ -269,7 +277,10 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-			this.PlanetSL.HandleInput(input);
+            //this.LastSorted = empUI.empire.data.PLSort;
+            if (this.PlanetSL.Entries.Count == 0)
+                this.ResetList();
+            this.PlanetSL.HandleInput(input);
 			this.cb_hideOwned.HandleInput(input);
 			this.cb_hideUninhabitable.HandleInput(input);
 			if (this.sb_Sys.HandleInput(input))
@@ -434,7 +445,7 @@ namespace Ship_Game
 			}
 			if (this.sb_Pop.HandleInput(input))
 			{
-				this.LastSorted = this.sb_Pop;
+				//this.LastSorted = this.sb_Pop;
 				AudioManager.PlayCue("blip_click");
 				this.sb_Pop.Ascending = !this.sb_Pop.Ascending;
 				this.PlanetSL.Entries.Clear();
@@ -512,6 +523,7 @@ namespace Ship_Game
 					}
 				}
 			}
+            
 			for (int i = this.PlanetSL.indexAtTop; i < this.PlanetSL.Entries.Count && i < this.PlanetSL.indexAtTop + this.PlanetSL.entriesToDisplay; i++)
 			{
 				PlanetListScreenEntry entry = this.PlanetSL.Entries[i].item as PlanetListScreenEntry;
@@ -546,13 +558,16 @@ namespace Ship_Game
             }
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
 			{
-				this.ExitScreen();
+                //this.empUI.empire.data.PLSort = this.LastSorted;
+                this.ExitScreen();
 			}
+            //if(this.LastSorted !=null && this.empUI.empire.data.PLSort != this.LastSorted)            
 		}
 
 		public void ResetList()
 		{
-			List<Planet> pList = new List<Planet>();
+            
+            List<Planet> pList = new List<Planet>();
 			foreach (ScrollList.Entry entry in this.PlanetSL.Entries)
 			{
 				pList.Add((entry.item as PlanetListScreenEntry).planet);
@@ -574,7 +589,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				if (this.sb_Sys == this.LastSorted)
+                if (this.LastSorted.Text == this.sb_Sys.Text)   // (this.sb_Sys == this.LastSorted)
 				{
 					if (!this.sb_Sys.Ascending)
 					{
@@ -609,7 +624,7 @@ namespace Ship_Game
 						}
 					}
 				}
-				if (this.sb_Name == this.LastSorted)
+				if (this.sb_Name.Text == this.LastSorted.Text)
 				{
 					if (!this.sb_Name.Ascending)
 					{
@@ -644,9 +659,13 @@ namespace Ship_Game
 						}
 					}
 				}
-				if (this.sb_Fert == this.LastSorted)
+				if (this.sb_Fert.Text == this.LastSorted.Text)
 				{
-					if (!this.sb_Fert.Ascending)
+                    AudioManager.PlayCue("blip_click");
+                    
+                    this.PlanetSL.Entries.Clear();
+                    this.PlanetSL.Copied.Clear();
+                    if (!this.sb_Fert.Ascending)
 					{
 						IOrderedEnumerable<Planet> sortedList = 
 							from planet in this.planets
@@ -679,11 +698,11 @@ namespace Ship_Game
 						}
 					}
 				}
-				if (this.sb_Rich == this.LastSorted)
+				if (this.LastSorted.Text == this.sb_Rich.Text   )//1this.sb_Rich == this.LastSorted)
 				{
 					this.LastSorted = this.sb_Rich;
 					AudioManager.PlayCue("blip_click");
-					this.sb_Rich.Ascending = !this.sb_Rich.Ascending;
+					//this.sb_Rich.Ascending = !this.sb_Rich.Ascending;
 					this.PlanetSL.Entries.Clear();
 					this.PlanetSL.Copied.Clear();
 					if (!this.sb_Rich.Ascending)
@@ -719,11 +738,11 @@ namespace Ship_Game
 						}
 					}
 				}
-				if (this.sb_Pop == this.LastSorted)
+				if (this.sb_Pop.Text == this.LastSorted.Text)
 				{
 					this.LastSorted = this.sb_Pop;
 					AudioManager.PlayCue("blip_click");
-					this.sb_Pop.Ascending = !this.sb_Pop.Ascending;
+					//this.sb_Pop.Ascending = !this.sb_Pop.Ascending;
 					this.PlanetSL.Entries.Clear();
 					this.PlanetSL.Copied.Clear();
 					if (!this.sb_Pop.Ascending)
@@ -759,11 +778,11 @@ namespace Ship_Game
 						}
 					}
 				}
-				if (this.sb_Owned == this.LastSorted)
+				if (this.sb_Owned.Text == this.LastSorted.Text)
 				{
 					this.LastSorted = this.sb_Owned;
 					AudioManager.PlayCue("blip_click");
-					this.sb_Owned.Ascending = !this.sb_Owned.Ascending;
+					//this.sb_Owned.Ascending = !this.sb_Owned.Ascending;
 					this.PlanetSL.Entries.Clear();
 					this.PlanetSL.Copied.Clear();
 					if (!this.sb_Owned.Ascending)
@@ -806,6 +825,8 @@ namespace Ship_Game
 				return;
 			}
 			this.SelectedPlanet = (this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry).planet;
+            
+            //this.empUI.empire.data.PLSort = this.LastSorted;
 		}
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
@@ -813,6 +834,7 @@ namespace Ship_Game
 			float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 			PlanetListScreen clickTimer = this;
 			clickTimer.ClickTimer = clickTimer.ClickTimer + elapsedTime;
+            
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}

@@ -390,7 +390,7 @@ namespace Ship_Game
 			this.EffectsVolumeSlider.DrawDecimal(base.ScreenManager);
             this.IconSize.Draw(base.ScreenManager);
             this.memoryLimit.Draw(base.ScreenManager);
-            this.AntiAliasingDD.Draw(base.ScreenManager.SpriteBatch);
+            //this.AntiAliasingDD.Draw(base.ScreenManager.SpriteBatch);
 			this.ResolutionDropDown.Draw(base.ScreenManager.SpriteBatch);
             this.FreighterLimiter.Draw(base.ScreenManager);
             this.ShipLimiter.Draw(base.ScreenManager);
@@ -421,14 +421,22 @@ namespace Ship_Game
             this.FreighterLimiter.HandleInput(input);
             GlobalStats.freighterlimit = (int)this.FreighterLimiter.amountRange;
                 
-			if (!this.ResolutionDropDown.Open && !this.AntiAliasingDD.Open)
+			if (!this.ResolutionDropDown.Open)// && !this.AntiAliasingDD.Open)
 			{
 				this.MusicVolumeSlider.HandleInput(input);
 				GlobalStats.Config.MusicVolume = this.MusicVolumeSlider.amount;
 				base.ScreenManager.musicCategory.SetVolume(this.MusicVolumeSlider.amount);
+                base.ScreenManager.racialMusic.SetVolume(this.MusicVolumeSlider.amount);
+                base.ScreenManager.combatMusic.SetVolume(this.MusicVolumeSlider.amount);
 				this.EffectsVolumeSlider.HandleInput(input);
 				GlobalStats.Config.EffectsVolume = this.EffectsVolumeSlider.amount;
 				base.ScreenManager.weaponsCategory.SetVolume(this.EffectsVolumeSlider.amount);
+                base.ScreenManager.defaultCategory.SetVolume(this.EffectsVolumeSlider.amount *.5f);
+                if (this.EffectsVolumeSlider.amount == 0 && this.MusicVolumeSlider.amount == 0)
+                    base.ScreenManager.GlobalCategory.SetVolume(0);
+                else
+                    base.ScreenManager.GlobalCategory.SetVolume(1);
+                        
 			}
 			if (!this.ResolutionDropDown.Open)
 			{
@@ -570,30 +578,30 @@ namespace Ship_Game
                 }
             }
             int qualityLevels = 0;
-            this.AntiAliasingDD = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y + 26, 105, 18));
-            if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
-                this.AntiAliasingDD.AddOption("8x AA", 8);
-            if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
-                this.AntiAliasingDD.AddOption("4x AA", 4);
-            if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
-                this.AntiAliasingDD.AddOption("2x AA", 2);
-            this.AntiAliasingDD.AddOption("No AA", 0);
-            this.AntiAliasingDD.ActiveIndex = 0;
-            switch (GlobalStats.Config.AASamples)
-            {
-                case 0:
-                    this.AntiAliasingDD.ActiveIndex = 3;
-                    break;
-                case 2:
-                    this.AntiAliasingDD.ActiveIndex = 2;
-                    break;
-                case 4:
-                    this.AntiAliasingDD.ActiveIndex = 1;
-                    break;
-                case 8:
-                    this.AntiAliasingDD.ActiveIndex = 0;
-                    break;
-            }
+            //this.AntiAliasingDD = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y + 26, 105, 18));
+            //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
+            //    this.AntiAliasingDD.AddOption("8x AA", 8);
+            //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
+            //    this.AntiAliasingDD.AddOption("4x AA", 4);
+            //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
+            //    this.AntiAliasingDD.AddOption("2x AA", 2);
+            //this.AntiAliasingDD.AddOption("No AA", 0);
+            //this.AntiAliasingDD.ActiveIndex = 0;
+            //switch (GlobalStats.Config.AASamples)
+            //{
+            //    case 0:
+            //        this.AntiAliasingDD.ActiveIndex = 3;
+            //        break;
+            //    case 2:
+            //        this.AntiAliasingDD.ActiveIndex = 2;
+            //        break;
+            //    case 4:
+            //        this.AntiAliasingDD.ActiveIndex = 1;
+            //        break;
+            //    case 8:
+            //        this.AntiAliasingDD.ActiveIndex = 0;
+            //        break;
+            //}
             foreach (OptionsScreen.Option option in this.ResolutionOptions)
             {
                 if (this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth == option.x && this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight == option.y)

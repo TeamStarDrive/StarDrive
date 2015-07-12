@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
@@ -75,7 +76,11 @@ namespace Ship_Game.Gameplay
 
 		public void AddShip(Ship ship)
 		{
-			if (!this.Flip)
+            if (ship.BaseStrength == 0)
+                return;
+
+            if (this.ThreatLevel <
+                this.CoreFleet.GetStrength())
 			{
 				this.OffensiveForcePool.Add(ship);
 				this.Flip = !this.Flip;
@@ -161,16 +166,20 @@ namespace Ship_Game.Gameplay
 
 		public void Update()
 		{
-			foreach (Ship ship in this.OffensiveForcePool)
+			
+            foreach (Ship ship in this.OffensiveForcePool)
 			{
-				if (ship.Active && ship.fleet == null)
+                if (ship.Active && ship.fleet == null && ship.Role != "troop")
 				{
 					continue;
 				}
-				this.OffensiveForcePool.QueuePendingRemoval(ship);
+                //this.OffensiveForcePool.Remove(ship);
+                this.OffensiveForcePool.QueuePendingRemoval(ship);
 			}
 			this.OffensiveForcePool.ApplyPendingRemovals();
-			if (this.ShipsWaitingForCoreFleet.Count > 0 && (this.CoreFleet.Ships.Count == 0 || this.CoreFleet.Task == null))
+            
+			if (this.ShipsWaitingForCoreFleet.Count > 0 && this.CoreFleet.Ships.Count < this.ThreatLevel +1 
+                && (this.CoreFleet.Ships.Count == 0 || this.CoreFleet.Task == null))
 			{
 				foreach (Ship waiting in this.ShipsWaitingForCoreFleet)
 				{
@@ -192,7 +201,7 @@ namespace Ship_Game.Gameplay
 				AO turnsToRelax = this;
 				turnsToRelax.TurnsToRelax = turnsToRelax.TurnsToRelax + 1;
 			}
-			if (this.TurnsToRelax > 10)
+			if (this.ThreatLevel  * ( 1-( this.TurnsToRelax /10)) < this.CoreFleet.GetStrength())
 			{
 				if (this.CoreFleet.Task == null && this.CoreWorld.Owner != Ship.universeScreen.player)
 				{
@@ -209,20 +218,20 @@ namespace Ship_Game.Gameplay
 					if (this.CoreFleet.Owner == null)
 					{
 						this.CoreFleet.Owner = this.CoreWorld.Owner;
-						lock (GlobalStats.TaskLocker)
+						//lock (GlobalStats.TaskLocker)
 						{
 							this.CoreFleet.Owner.GetGSAI().TaskList.Add(clearArea);
 						}
 					}
 					else
 					{
-						lock (GlobalStats.TaskLocker)
+						//lock (GlobalStats.TaskLocker)
 						{
 							this.CoreFleet.Owner.GetGSAI().TaskList.Add(clearArea);
 						}
 					}
 				}
-				this.TurnsToRelax = 0;
+				this.TurnsToRelax = 1;
 			}
 		}
         public void Dispose()
