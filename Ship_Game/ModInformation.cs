@@ -56,6 +56,7 @@ namespace Ship_Game
         public float UpkeepPlatform;
         public float UpkeepStation;
         public float UpkeepDrone;
+        public float Spaceportscale = 0.8f;
         
         public int RemnantTechCount;
 
