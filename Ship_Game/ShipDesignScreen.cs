@@ -196,8 +196,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-        //The Doctor: Obsolete, implementing ALT-KEY based arc picking system
-        //private float HoldTimer = .25f;
+        private float HoldTimer = .50f;
 
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
@@ -5424,13 +5423,10 @@ namespace Ship_Game
                         }
                     }
                 }
-
-                // The Doctor: Obsolete
-
-                /* else if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+                else if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
                     this.HoldTimer -= .01666f;
                 else
-                    this.HoldTimer = 0.25f; */
+                    this.HoldTimer = 0.50f;
 
                 foreach (SlotStruct slotStruct in this.Slots)
                 {
@@ -5449,13 +5445,27 @@ namespace Ship_Game
                                 num3 = (float)(-1.0 * (360.0 - (double)num3));
                             num4 = Math.Abs(num2 - num3);
                         }
-                        //The Doctor: I've removed the timer functionality in favour of using ALT (either) + LEFT CLICK to pick and move arcs. This way, it's impossible to accidentally pick the wrong arc, while it's just as responsive and smooth as the original method when you are trying to.                    
-                        if ((double)num4 < (double)num1 && (double)Vector2.Distance(spaceFromWorldSpace, vector2) < 500.0
-                            && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && ((input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt) || input.LastKeyboardState.IsKeyDown(Keys.LeftAlt)) || (input.CurrentKeyboardState.IsKeyDown(Keys.RightAlt) || input.LastKeyboardState.IsKeyDown(Keys.RightAlt)))))
-                        {
 
-                            this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+                        if (GlobalStats.AltArcControl)
+                        {
+                            //The Doctor: ALT (either) + LEFT CLICK to pick and move arcs. This way, it's impossible to accidentally pick the wrong arc, while it's just as responsive and smooth as the original method when you are trying to.                    
+                            if ((double)num4 < (double)num1 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && ((input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt) || input.LastKeyboardState.IsKeyDown(Keys.LeftAlt)) || (input.CurrentKeyboardState.IsKeyDown(Keys.RightAlt) || input.LastKeyboardState.IsKeyDown(Keys.RightAlt)))))
+                            {
+
+                                this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+                            }
                         }
+                        else
+                        {
+                            //Delay method
+                            if ((double)num4 < (double)num1 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
+                            {
+                                this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+                            }                           
+                            
+                        }
+
+                        
 
                     }
                 }
