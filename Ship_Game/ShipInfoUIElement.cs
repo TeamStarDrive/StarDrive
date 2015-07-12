@@ -440,7 +440,7 @@ namespace Ship_Game
                         return false;
                     if (this.DoubleClickTimer > 0)
                         this.DoubleClickTimer -= 0.01666f;
-                    if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
+                    if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
                     {
                         Ship.universeScreen.ViewingShip = false;
                         Ship.universeScreen.AdjustCamTimer = 0.5f;
@@ -449,7 +449,7 @@ namespace Ship_Game
                         if (Ship.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView)
                             Ship.universeScreen.transitionDestination.Z = Ship.universeScreen.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                     }
-                    else if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+                    else if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
                         this.DoubleClickTimer = 0.25f;    
                     if (this.ship.loyalty == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
                     {
