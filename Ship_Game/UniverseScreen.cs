@@ -5321,6 +5321,38 @@ namespace Ship_Game
                         Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 1f);
                     }
                 }
+                List<Empire.InfluenceNode> influenceNodes;
+                this.player.BorderNodeLocker.EnterReadLock();
+                {
+                    influenceNodes = new List<Empire.InfluenceNode>(this.player.BorderNodes);
+                }
+
+                Color col = EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).EmpireColor;
+                this.player.BorderNodeLocker.ExitReadLock();
+                {
+                    try
+                    {
+                        if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
+                        {
+                            foreach (Empire.InfluenceNode item_0 in influenceNodes)
+                            {
+                                float local_14 = (float)(item_0.Radius);
+                                Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                                Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                                Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_0.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                                float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                                Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                                Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color(col.R, col.G, col.B, (byte)15), 0.0f, local_22, SpriteEffects.None, 1f);
+                                Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color((byte)30, (byte)30, (byte)150, (byte)150), 1f);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+
             }
 
             if (this.showingRangeOverlay && !this.LookingAtPlanet)
