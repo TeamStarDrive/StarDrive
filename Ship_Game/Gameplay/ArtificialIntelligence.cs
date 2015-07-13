@@ -2441,8 +2441,8 @@ namespace Ship_Game.Gameplay
 
                         this.TargetShip = this.Target as Ship;
                         this.fireTarget = null;
-                        lag = lag > .03f && (!GlobalStats.ForceFullSim ) ? lag : 0f; 
-                        if ( lag ==0 || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum) || (weapon.Tag_PD && weapon.TruePD && weapon.Tag_Intercept))
+                        lag = lag > .05f && (!GlobalStats.ForceFullSim ) ? lag : 0f;                        
+                        if (lag ==0 || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum) || (weapon.Tag_PD && weapon.TruePD && weapon.Tag_Intercept))
                         {
                             fireTarget = null;
                             //Can this weapon fire on ships
@@ -2683,12 +2683,15 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-            if (TargetShip == null || !TargetShip.Active || TargetShip.dying || !w.TargetValid(TargetShip.Role) || TargetShip.engineState == Ship.MoveState.Warp || !this.Owner.CheckIfInsideFireArc(w, TargetShip))
+            if (TargetShip == null || !TargetShip.Active || TargetShip.dying || !w.TargetValid(TargetShip.Role) 
+                || TargetShip.engineState == Ship.MoveState.Warp || !this.Owner.CheckIfInsideFireArc(w, TargetShip))
                 return;
             Ship owner = this.Owner;
 			owner.Ordinance = owner.Ordinance - w.OrdinanceRequiredToFire;
 			Ship powerCurrent = this.Owner;
 			powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - w.PowerRequiredToFire;
+            powerCurrent.PowerCurrent -= w.BeamPowerCostPerSecond * w.BeamDuration;
+            
             this.Owner.InCombatTimer = 15f;
             if (fireTarget is Projectile)
 			{
@@ -2727,7 +2730,7 @@ namespace Ship_Game.Gameplay
             ModuleSlot ClosestES = null;
             foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <=0)
                     continue;
                 float temp = Vector2.Distance(ES.module.Center, w.GetOwner().Center);
                 if (nearest == 0 || temp < nearest)
@@ -2738,7 +2741,8 @@ namespace Ship_Game.Gameplay
             }
             if (ClosestES == null)
                 return;
-            List<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.Where(close => close.module.Active && close.module.quadrant == ClosestES.module.quadrant).ToList();
+           // List<ModuleSlot> 
+            IEnumerable<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.Where(close => close.module.Active && close.module.quadrant == ClosestES.module.quadrant && close.module.Health >0);//.ToList();   //.OrderByDescending(shields=> shields.Shield_Power >0);//.ToList();
 			if ((fireTarget as Ship).shield_power > 0f)
 			{
 				for (int i = 0; i < (fireTarget as Ship).GetShields().Count; i++)
@@ -2760,8 +2764,8 @@ namespace Ship_Game.Gameplay
 				}
 				return;
 			}
-
-			if (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) <= 50f || ExternalSlots.ElementAt(0).module.shield_power > 0f)
+            //this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) <= 50f ||
+			if ( ExternalSlots.ElementAt(0).module.shield_power > 0f)
 			{
 				for (int i = 0; i < ExternalSlots.Count(); i++)
 				{
@@ -2783,23 +2787,23 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 
-			for (int i = ExternalSlots.Count - 1; i > 0; i--)
-			{
-				if (ExternalSlots.ElementAt(i).module.Active && ExternalSlots.ElementAt(i).module.shield_power <= 0f)
-				{
-					float damage = w.DamageAmount;
-					if (w.isBeam)
-					{
-						damage = damage * 90f;
-					}
-					if (w.SalvoCount > 0)
-					{
-						damage = damage * (float)w.SalvoCount;
-					}
-					ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
-					return;
-				}
-			}
+            for (int i = 0; i < ExternalSlots.Count(); i++)
+            {
+                if (ExternalSlots.ElementAt(i).module.Active && ExternalSlots.ElementAt(i).module.shield_power <= 0f)
+                {
+                    float damage = w.DamageAmount;
+                    if (w.isBeam)
+                    {
+                        damage = damage * 90f;
+                    }
+                    if (w.SalvoCount > 0)
+                    {
+                        damage = damage * (float)w.SalvoCount;
+                    }
+                    ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
+                    return;
+                }
+            }
 		}
         
 		private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
