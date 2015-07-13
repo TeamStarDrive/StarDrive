@@ -5246,7 +5246,7 @@ namespace Ship_Game.Gameplay
 
             if (this.start != null && this.end != null)
             {
-                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.end);
+                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.start);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
             }
             this.State = AIState.PassengerTransport;
@@ -5591,7 +5591,7 @@ namespace Ship_Game.Gameplay
 
             if (this.start != null && this.end != null)
             {
-                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.end);
+                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.start);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
             }
             this.State = AIState.PassengerTransport;
