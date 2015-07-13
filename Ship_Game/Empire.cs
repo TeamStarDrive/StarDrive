@@ -2826,7 +2826,7 @@ namespace Ship_Game
             //    (export.Population > 3000 && export.MaxPopulation > 3000)).Count();
             
             int inneed = 0;
-            int inneedofciv = 0;
+            //int inneedofciv = 0;
             foreach(Planet planet in this.OwnedPlanets)
             {
                 if (planet.fs == Planet.GoodState.EXPORT)
@@ -2876,20 +2876,26 @@ namespace Ship_Game
                 if ((ship.shipData.ShipCategory != ShipData.Category.Unclassified &&  ship.shipData.ShipCategory == ShipData.Category.Civilian) || ship.Role != "freighter" || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
                     continue;
                 if(ship.GetAI().State != AIState.Scrap )
-                this.freighterBudget += ship.GetMaintCost();
+                    this.freighterBudget += ship.GetMaintCost();
                 if (ship.GetAI().State == AIState.SystemTrader)
                 {
                     if (tradeShips < TradeLimit)
                         tradeShips++;
                     else
-                        ship.GetAI().OrderScrapShip();
+                        if (ship.CargoSpace_Used == 0)  //fbedard: dont scrap loaded ship
+                            ship.GetAI().OrderScrapShip();
+                        else
+                            unusedFreighters.Add(ship);
                 }
                 else if (ship.GetAI().State == AIState.PassengerTransport)
                 {
                     if (passengerShips < PassLimit)
                         passengerShips++;
                     else
-                        ship.GetAI().OrderScrapShip();
+                        if (ship.CargoSpace_Used == 0)  //fbedard: dont scrap loaded ship
+                            ship.GetAI().OrderScrapShip();
+                        else
+                            unusedFreighters.Add(ship);
                 }
                 else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
                     unusedFreighters.Add(ship);
@@ -2904,7 +2910,7 @@ namespace Ship_Game
             }
             if (unusedFreighters.Count > 1)
                 naturalLimit = 0;
-            int doesntHelp = 0;
+            //int doesntHelp = 0;
             int extraFrieghters =0;
             //foreach (Planet needs in this.GetPlanets())
             //{
@@ -2972,7 +2978,7 @@ namespace Ship_Game
                     });
             }
             foreach (Ship ship in unusedFreighters)
-                ship.GetAI().OrderTrade();
+                ship.GetAI().OrderTransportPassengers();  //fbedard: default to passenger
         }
 
         public void ReportGoalComplete(Goal g)
