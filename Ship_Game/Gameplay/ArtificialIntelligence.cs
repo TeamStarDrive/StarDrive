@@ -2431,11 +2431,6 @@ namespace Ship_Game.Gameplay
                     float index = 0; //count up weapons.
                     foreach (Weapon weapon in this.Owner.Weapons)//.OrderByDescending(fd=> fd.fireDelay))
                     {
-                        
-
-
-                        //GameplayObject fireTarget = this.fireTarget;
-
                         //Reasons for this weapon not to fire                    
                         if (!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                         {
@@ -2446,9 +2441,8 @@ namespace Ship_Game.Gameplay
 
                         this.TargetShip = this.Target as Ship;
                         this.fireTarget = null;
-                        //lag = lag > .03f && (GlobalStats.ForceFullSim || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum)) ? lag : 0f; //
-                            //||((!weapon.Tag_PD && !weapon.TruePD && !weapon.Tag_Intercept)))) 
-                        if ( GlobalStats.ForceFullSim || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum) || (weapon.Tag_PD && weapon.TruePD && weapon.Tag_Intercept))
+                        lag = lag > .03f && (!GlobalStats.ForceFullSim ) ? lag : 0f; 
+                        if ( lag ==0 || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum) || (weapon.Tag_PD && weapon.TruePD && weapon.Tag_Intercept))
                         {
                             fireTarget = null;
                             //Can this weapon fire on ships
@@ -2467,9 +2461,7 @@ namespace Ship_Game.Gameplay
                                 {
                                     if (secondarytarget == null)
                                         for (int i = 0; i < this.PotentialTargets.Count && i < this.Owner.Level; i++)
-                                        //Parallel.ForEach(this.PotentialTargets, (PotentialTarget, status) =>
                                         {
-                                            //PotentialTarget = PotentialTarget;
                                             Ship PotentialTarget = this.PotentialTargets[i];
                                             if (PotentialTarget == null || !PotentialTarget.Active || PotentialTarget.dying || PotentialTarget.engineState == Ship.MoveState.Warp || !weapon.TargetValid(PotentialTarget.Role) || PotentialTarget.ExternalSlots.Count < 1 || !this.Owner.CheckIfInsideFireArc(weapon, PotentialTarget))
                                             {
@@ -2480,11 +2472,8 @@ namespace Ship_Game.Gameplay
                                             secondarytarget = fireTarget;
                                             {
                                                 break;
-                                                //status.Stop();
-                                                //status.Break();
-                                                //return;
                                             }
-                                        }//);
+                                        }
                                     else
                                         if (this.Owner.CheckIfInsideFireArc(weapon, secondarytarget))
                                         fireTarget = secondarytarget;
@@ -2737,6 +2726,8 @@ namespace Ship_Game.Gameplay
                     ClosestES = ES;
                 }
             }
+            if (ClosestES == null)
+                return;
             List<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.Where(close => close.module.Active && close.module.quadrant == ClosestES.module.quadrant).ToList();
 			if ((fireTarget as Ship).shield_power > 0f)
 			{
@@ -5033,9 +5024,11 @@ namespace Ship_Game.Gameplay
 		}
 
 
-        // PLEASE FIX ME CRUNCHY I DON'T WORK ANYMORE
-		public void OrderTransportPassengers()
+        public void OrderTransportPassengers()
         {
+            float closestD;
+            float Distance;
+
             List<SolarSystem> OwnedSystems = new List<SolarSystem>(this.Owner.loyalty.GetOwnedSystems());
             if (OwnedSystems.Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
@@ -5055,59 +5048,22 @@ namespace Ship_Game.Gameplay
             }
             List<Planet> SafePlanets = new List<Planet>(this.Owner.loyalty.GetPlanets());
             SafePlanets = SafePlanets.Where(combat => combat.ParentSystem.combatTimer <= 0).ToList();
-            if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
-            {
-                List<Planet> PossibleEnds = new List<Planet>();
-                foreach (Planet p in SafePlanets)
-                {
-                    if (this.Owner.AreaOfOperation.Count <= 0)
-                    {
-                        if (p.Population <= 1500f)
-                        {
-                            continue;
-                        }
-                        PossibleEnds.Add(p);
-                    }
-                    else
-                    {
-                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
-                        {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p == this.start)
-                            {
-                                continue;
-                            }
-                            PossibleEnds.Add(p);
-                        }
-                    }
-                }
-                if (PossibleEnds.Count > 0)
-                {
-                    int random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)PossibleEnds.Count + 0.85f);
-                    if (random > PossibleEnds.Count - 1)
-                    {
-                        random = PossibleEnds.Count - 1;
-                    }
-                    this.end = PossibleEnds[random];
-                }
-                this.OrderQueue.Clear();
-                if (this.end != null)
-                {
-                    this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true,this.end);
-                    this.State = AIState.PassengerTransport;
-                    this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
-                }
-                return;
-            }
-            this.OrderQueue.Clear();
+
             List<Planet> Possible = new List<Planet>();
 
-
-
-            foreach (Planet p in SafePlanets)
+            // fbedard: Where to drop nearest Population
+            if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
+            {
+                foreach (Planet p in SafePlanets)
                 {
+                    if (p == this.start)
+                    {
+                        continue;
+                    }
                     if (this.Owner.AreaOfOperation.Count <= 0)
                     {
-                        if (p.Population <= 1000f)
+                        //if (p.Population <= 1500f)  That was wrong !!!
+                        if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
                         {
                             continue;
                         }
@@ -5117,7 +5073,7 @@ namespace Ship_Game.Gameplay
                     {
                         foreach (Rectangle AO in this.Owner.AreaOfOperation)
                         {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
                             {
                                 continue;
                             }
@@ -5125,26 +5081,67 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-            
-            if (Possible.Count > 0)
-            {
-                int random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)Possible.Count + 0.85f);
-                if (random > Possible.Count - 1)
+                if (Possible.Count == 0)
                 {
-                    random = Possible.Count - 1;
+                    foreach (Planet p in SafePlanets)
+                    {
+                        if (p == this.start)
+                        {
+                            continue;
+                        }
+                        if (this.Owner.AreaOfOperation.Count <= 0)
+                        {
+                            if ((p.Population / p.MaxPopulation) >= 0.5)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                        else
+                        {
+                            foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                            {
+                                if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
+                                {
+                                    continue;
+                                }
+                                Possible.Add(p);
+                            }
+                        }
+                    }
                 }
-                this.start = Possible[random];
+                closestD = 999999999f;
+                this.end = null;
+                this.OrderQueue.Clear();
+                foreach (Planet p in Possible)
+                {
+                    Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                    if (Distance >= closestD)
+                    {
+                        continue;
+                    }
+                    closestD = Distance;
+                    this.end = p;
+                }
+                if (this.end != null)
+                {
+                    this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true, this.end);
+                    this.State = AIState.PassengerTransport;
+                    this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
+                }
+                return;
             }
+
+            //fbedard: Where to load nearest Population
+            this.start = null;
+            this.OrderQueue.Clear();
             Possible = new List<Planet>();
             foreach (Planet p in SafePlanets)
             {
-                if (p == this.start)
-                {
-                    continue;
-                }
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
-                    if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
+                    //if (p.Population <= 1000f)
+                    if ((p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
                     {
                         continue;
                     }
@@ -5154,7 +5151,8 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
-                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
+                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
                         {
                             continue;
                         }
@@ -5162,18 +5160,93 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (Possible.Count > 0)
+            closestD = 999999999f;
+            foreach (Planet p in Possible)
             {
-                int random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)Possible.Count + 0.85f);
-                if (random > Possible.Count - 1)
+                Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                if (Distance >= closestD)
                 {
-                    random = Possible.Count - 1;
+                    continue;
                 }
-                this.end = Possible[random];
+                closestD = Distance;
+                this.start = p;
             }
+
+            // fbedard: Where to drop nearest Population
+            this.end = null;
+            Possible = new List<Planet>();
+            foreach (Planet p in SafePlanets)
+            {
+                if (p == this.start)
+                {
+                    continue;
+                }
+                if (this.Owner.AreaOfOperation.Count <= 0)
+                {
+                    //if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
+                    if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                    {
+                        continue;
+                    }
+                    Possible.Add(p);
+                }
+                else
+                {
+                    foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                    {
+                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                }
+            }
+            if (Possible.Count == 0)
+            {
+                foreach (Planet p in SafePlanets)
+                {
+                    if (p == this.start)
+                    {
+                        continue;
+                    }
+                    if (this.Owner.AreaOfOperation.Count <= 0)
+                    {
+                        if ((p.Population / p.MaxPopulation) >= 0.5)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                    else
+                    {
+                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                        {
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                    }
+                }
+            }
+            closestD = 999999999f;
+            foreach (Planet p in Possible)
+            {
+                Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                if (Distance >= closestD)
+                {
+                    continue;
+                }
+                closestD = Distance;
+                this.end = p;
+            }
+
             if (this.start != null && this.end != null)
             {
-                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true,this.start);
+                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.end);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
             }
             this.State = AIState.PassengerTransport;
@@ -5181,6 +5254,9 @@ namespace Ship_Game.Gameplay
 
 		public void OrderTransportPassengersFromSave()
 		{
+            float closestD;
+            float Distance;
+
             if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
             if (this.Owner.CargoSpace_Max > 0
@@ -5193,11 +5269,12 @@ namespace Ship_Game.Gameplay
                 this.State = AIState.AwaitingOrders;
 
             }
-            
+ 
             if (!this.Owner.GetCargo().ContainsKey("Colonists_1000"))
 			{
 				this.Owner.GetCargo().Add("Colonists_1000", 0f);
 			}
+/*
 			if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
 			{
 				List<Planet> PossibleEnds = new List<Planet>();
@@ -5205,7 +5282,7 @@ namespace Ship_Game.Gameplay
 				{
 					if (this.Owner.AreaOfOperation.Count <= 0)
 					{
-						if (p.Population <= 1500f)
+						if (p.Population >= 1500f)
 						{
 							continue;
 						}
@@ -5316,7 +5393,209 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
 			}
 			this.State = AIState.PassengerTransport;
-		}
+*/		
+            List<Planet> Possible = new List<Planet>();
+
+            // fbedard: Where to drop nearest Population
+            if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
+            {
+                foreach (Planet p in this.Owner.loyalty.GetPlanets())
+                {
+                    if (p == this.start)
+                    {
+                        continue;
+                    }
+                    if (this.Owner.AreaOfOperation.Count <= 0)
+                    {
+                        //if (p.Population <= 1500f)  That was wrong !!!
+                        if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                    else
+                    {
+                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                        {
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                    }
+                }
+                if (Possible.Count == 0)
+                {
+                    foreach (Planet p in this.Owner.loyalty.GetPlanets())
+                    {
+                        if (p == this.start)
+                        {
+                            continue;
+                        }
+                        if (this.Owner.AreaOfOperation.Count <= 0)
+                        {
+                            if ((p.Population / p.MaxPopulation) >= 0.5)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                        else
+                        {
+                            foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                            {
+                                if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
+                                {
+                                    continue;
+                                }
+                                Possible.Add(p);
+                            }
+                        }
+                    }
+                }
+                closestD = 999999999f;
+                this.end = null;
+                this.OrderQueue.Clear();
+                foreach (Planet p in Possible)
+                {
+                    Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                    if (Distance >= closestD)
+                    {
+                        continue;
+                    }
+                    closestD = Distance;
+                    this.end = p;
+                }
+                if (this.end != null)
+                {
+                    this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true, this.end);
+                    this.State = AIState.PassengerTransport;
+                    this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
+                }
+                return;
+            }
+
+            //fbedard: Where to load nearest Population
+            this.start = null;
+            this.OrderQueue.Clear();
+            Possible = new List<Planet>();
+            foreach (Planet p in this.Owner.loyalty.GetPlanets())
+            {
+                if (this.Owner.AreaOfOperation.Count <= 0)
+                {
+                    //if (p.Population <= 1000f)
+                    if ((p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
+                    {
+                        continue;
+                    }
+                    Possible.Add(p);
+                }
+                else
+                {
+                    foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                    {
+                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                }
+            }
+            closestD = 999999999f;
+            foreach (Planet p in Possible)
+            {
+                Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                if (Distance >= closestD)
+                {
+                    continue;
+                }
+                closestD = Distance;
+                this.start = p;
+            }
+
+            // fbedard: Where to drop nearest Population
+            this.end = null;
+            Possible = new List<Planet>();
+            foreach (Planet p in this.Owner.loyalty.GetPlanets())
+            {
+                if (p == this.start)
+                {
+                    continue;
+                }
+                if (this.Owner.AreaOfOperation.Count <= 0)
+                {
+                    //if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
+                    if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                    {
+                        continue;
+                    }
+                    Possible.Add(p);
+                }
+                else
+                {
+                    foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                    {
+                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                }
+            }
+            if (Possible.Count == 0)
+            {
+                foreach (Planet p in this.Owner.loyalty.GetPlanets())
+                {
+                    if (p == this.start)
+                    {
+                        continue;
+                    }
+                    if (this.Owner.AreaOfOperation.Count <= 0)
+                    {
+                        if ((p.Population / p.MaxPopulation) >= 0.5)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                    else
+                    {
+                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                        {
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                    }
+                }
+            }
+            closestD = 999999999f;
+            foreach (Planet p in Possible)
+            {
+                Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                if (Distance >= closestD)
+                {
+                    continue;
+                }
+                closestD = Distance;
+                this.end = p;
+            }
+
+            if (this.start != null && this.end != null)
+            {
+                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.end);
+                this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
+            }
+            this.State = AIState.PassengerTransport;
+        }
 
 		public void OrderTroopToBoardShip(Ship s)
 		{
