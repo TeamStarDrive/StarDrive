@@ -2441,8 +2441,8 @@ namespace Ship_Game.Gameplay
 
                         this.TargetShip = this.Target as Ship;
                         this.fireTarget = null;
-                        lag = lag > .03f && (!GlobalStats.ForceFullSim ) ? lag : 0f; 
-                        if ( lag ==0 || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum) || (weapon.Tag_PD && weapon.TruePD && weapon.Tag_Intercept))
+                        //lag = lag > .03f && (!GlobalStats.ForceFullSim ) ? lag : 0f; 
+                        if (GlobalStats.ForceFullSim || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum) || (weapon.Tag_PD && weapon.TruePD && weapon.Tag_Intercept))
                         {
                             fireTarget = null;
                             //Can this weapon fire on ships
