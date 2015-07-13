@@ -2410,10 +2410,10 @@ namespace Ship_Game.Gameplay
                 TargetShip = this.Target as Ship;
                 GameplayObject secondarytarget =null;
                 GameplayObject pdtarget = null;
-                if(this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled ||
+                if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled ||
                     (this.Target != null && !this.Owner.loyalty.isFaction
                     && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy)
-                    && (enemy.Treaty_NAPact || enemy.Treaty_Alliance || enemy.Treaty_OpenBorders)))
+                    && enemy.Treaty_Peace))
                 {
                     return;
                 }
@@ -2441,8 +2441,8 @@ namespace Ship_Game.Gameplay
 
                         this.TargetShip = this.Target as Ship;
                         this.fireTarget = null;
-                        lag = lag > .05f && (!GlobalStats.ForceFullSim ) ? lag : 0f;                        
-                        if (lag ==0 || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum) || (weapon.Tag_PD && weapon.TruePD && weapon.Tag_Intercept))
+                        lag = lag > .03f && (!GlobalStats.ForceFullSim ) ? lag : 0f; 
+                        if ( lag ==0 || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum) || (weapon.Tag_PD && weapon.TruePD && weapon.Tag_Intercept))
                         {
                             fireTarget = null;
                             //Can this weapon fire on ships
@@ -2602,20 +2602,10 @@ namespace Ship_Game.Gameplay
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
-
-            // Doctor: I think this totally fixes our targeting woes for stationary vessels - it worked for my platforms at least!
             if (this.Owner.speed == 0 && target.Velocity.Length() == 0)
             {
                 Vector2 fireatstationary = Vector2.Zero;
-                float statdistance = Vector2.Distance(weapon.Center, target.Center) + target.Velocity.Length() == 0 ? 0 : 500;
-                Vector2 statdir = this.findVectorToTarget(weapon.Center, target.Center);
-                fireatstationary = Vector2.Normalize(statdir) * weapon.ProjectileSpeed;
-                float sttt = statdistance / fireatstationary.Length();
-                Vector2 sProjectedPosition = target.Center + (target.Velocity * sttt);
-                fireatstationary = this.findVectorToTarget(weapon.Center, sProjectedPosition);
-                fireatstationary.Y *= -1f;
-                fireatstationary = Vector2.Normalize(fireatstationary);
-
+                fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center));
                 if (SalvoFire)
                     weapon.FireSalvo(fireatstationary, target);
                 else
@@ -2683,15 +2673,12 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-            if (TargetShip == null || !TargetShip.Active || TargetShip.dying || !w.TargetValid(TargetShip.Role) 
-                || TargetShip.engineState == Ship.MoveState.Warp || !this.Owner.CheckIfInsideFireArc(w, TargetShip))
+            if (TargetShip == null || !TargetShip.Active || TargetShip.dying || !w.TargetValid(TargetShip.Role) || TargetShip.engineState == Ship.MoveState.Warp || !this.Owner.CheckIfInsideFireArc(w, TargetShip))
                 return;
             Ship owner = this.Owner;
 			owner.Ordinance = owner.Ordinance - w.OrdinanceRequiredToFire;
 			Ship powerCurrent = this.Owner;
 			powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - w.PowerRequiredToFire;
-            powerCurrent.PowerCurrent -= w.BeamPowerCostPerSecond * w.BeamDuration;
-            
             this.Owner.InCombatTimer = 15f;
             if (fireTarget is Projectile)
 			{
@@ -2730,7 +2717,7 @@ namespace Ship_Game.Gameplay
             ModuleSlot ClosestES = null;
             foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <=0)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active)
                     continue;
                 float temp = Vector2.Distance(ES.module.Center, w.GetOwner().Center);
                 if (nearest == 0 || temp < nearest)
@@ -2741,8 +2728,7 @@ namespace Ship_Game.Gameplay
             }
             if (ClosestES == null)
                 return;
-           // List<ModuleSlot> 
-            IEnumerable<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.Where(close => close.module.Active && close.module.quadrant == ClosestES.module.quadrant && close.module.Health >0);//.ToList();   //.OrderByDescending(shields=> shields.Shield_Power >0);//.ToList();
+            List<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.Where(close => close.module.Active && close.module.quadrant == ClosestES.module.quadrant).ToList();
 			if ((fireTarget as Ship).shield_power > 0f)
 			{
 				for (int i = 0; i < (fireTarget as Ship).GetShields().Count; i++)
@@ -2764,8 +2750,8 @@ namespace Ship_Game.Gameplay
 				}
 				return;
 			}
-            //this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) <= 50f ||
-			if ( ExternalSlots.ElementAt(0).module.shield_power > 0f)
+
+			if (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) <= 50f || ExternalSlots.ElementAt(0).module.shield_power > 0f)
 			{
 				for (int i = 0; i < ExternalSlots.Count(); i++)
 				{
@@ -2787,23 +2773,23 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 
-            for (int i = 0; i < ExternalSlots.Count(); i++)
-            {
-                if (ExternalSlots.ElementAt(i).module.Active && ExternalSlots.ElementAt(i).module.shield_power <= 0f)
-                {
-                    float damage = w.DamageAmount;
-                    if (w.isBeam)
-                    {
-                        damage = damage * 90f;
-                    }
-                    if (w.SalvoCount > 0)
-                    {
-                        damage = damage * (float)w.SalvoCount;
-                    }
-                    ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
-                    return;
-                }
-            }
+			for (int i = ExternalSlots.Count - 1; i > 0; i--)
+			{
+				if (ExternalSlots.ElementAt(i).module.Active && ExternalSlots.ElementAt(i).module.shield_power <= 0f)
+				{
+					float damage = w.DamageAmount;
+					if (w.isBeam)
+					{
+						damage = damage * 90f;
+					}
+					if (w.SalvoCount > 0)
+					{
+						damage = damage * (float)w.SalvoCount;
+					}
+					ExternalSlots.ElementAt(i).module.Damage(this.Owner, damage);
+					return;
+				}
+			}
 		}
         
 		private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
@@ -3345,7 +3331,7 @@ namespace Ship_Game.Gameplay
 
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
+				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
@@ -4019,7 +4005,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
+				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
@@ -5038,9 +5024,11 @@ namespace Ship_Game.Gameplay
 		}
 
 
-        // PLEASE FIX ME CRUNCHY I DON'T WORK ANYMORE
-		public void OrderTransportPassengers()
+        public void OrderTransportPassengers()
         {
+            float closestD;
+            float Distance;
+
             List<SolarSystem> OwnedSystems = new List<SolarSystem>(this.Owner.loyalty.GetOwnedSystems());
             if (OwnedSystems.Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
@@ -5060,60 +5048,22 @@ namespace Ship_Game.Gameplay
             }
             List<Planet> SafePlanets = new List<Planet>(this.Owner.loyalty.GetPlanets());
             SafePlanets = SafePlanets.Where(combat => combat.ParentSystem.combatTimer <= 0).ToList();
+
+            List<Planet> Possible = new List<Planet>();
+
+            // fbedard: Where to drop nearest Population
             if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
             {
-                List<Planet> PossibleEnds = new List<Planet>();
                 foreach (Planet p in SafePlanets)
                 {
+                    if (p == this.start)
+                    {
+                        continue;
+                    }
                     if (this.Owner.AreaOfOperation.Count <= 0)
                     {
-                        //Doc: How fucking broken is this? Exclude endpoints which have less than 1.5 pop?
-                        //if (p.Population <= 1500f)
-
-                        if (((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation) || ((double)p.MaxPopulation <= 3000 && (double)(p.MaxPopulation - p.Population) <= (0.7 * (double)p.MaxPopulation)) || p == this.start)
-                        {
-                            continue;
-                        }
-                        PossibleEnds.Add(p);
-                    }
-                    else
-                    {
-                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
-                        {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p == this.start)
-                            {
-                                continue;
-                            }
-                            PossibleEnds.Add(p);
-                        }
-                    }
-                }
-                if (PossibleEnds.Count > 0)
-                {
-                    int random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)PossibleEnds.Count + 0.85f);
-                    if (random > PossibleEnds.Count - 1)
-                    {
-                        random = PossibleEnds.Count - 1;
-                    }
-                    this.end = PossibleEnds[random];
-                }
-                this.OrderQueue.Clear();
-                if (this.end != null)
-                {
-                    this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true,this.end);
-                    this.State = AIState.PassengerTransport;
-                    this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
-                }
-                return;
-            }
-            this.OrderQueue.Clear();
-
-            List<Planet> Possible = new List<Planet>();            
-            foreach (Planet p in SafePlanets)
-                {
-                    if (this.Owner.AreaOfOperation.Count <= 0)
-                    {
-                        if (p.Population <= 2000f || ((double)p.Population / (double)p.MaxPopulation < 0.4))
+                        //if (p.Population <= 1500f)  That was wrong !!!
+                        if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
                         {
                             continue;
                         }
@@ -5123,7 +5073,7 @@ namespace Ship_Game.Gameplay
                     {
                         foreach (Rectangle AO in this.Owner.AreaOfOperation)
                         {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 2000f || ((double)p.Population / (double)p.MaxPopulation < 0.4))
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
                             {
                                 continue;
                             }
@@ -5131,28 +5081,67 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-            
-            if (Possible.Count > 0)
-            {
-                int random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)Possible.Count + 0.85f);
-                if (random > Possible.Count - 1)
+                if (Possible.Count == 0)
                 {
-                    random = Possible.Count - 1;
+                    foreach (Planet p in SafePlanets)
+                    {
+                        if (p == this.start)
+                        {
+                            continue;
+                        }
+                        if (this.Owner.AreaOfOperation.Count <= 0)
+                        {
+                            if ((p.Population / p.MaxPopulation) >= 0.5)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                        else
+                        {
+                            foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                            {
+                                if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
+                                {
+                                    continue;
+                                }
+                                Possible.Add(p);
+                            }
+                        }
+                    }
                 }
-                this.start = Possible[random];
+                closestD = 999999999f;
+                this.end = null;
+                this.OrderQueue.Clear();
+                foreach (Planet p in Possible)
+                {
+                    Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                    if (Distance >= closestD)
+                    {
+                        continue;
+                    }
+                    closestD = Distance;
+                    this.end = p;
+                }
+                if (this.end != null)
+                {
+                    this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true, this.end);
+                    this.State = AIState.PassengerTransport;
+                    this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
+                }
+                return;
             }
 
-
+            //fbedard: Where to load nearest Population
+            this.start = null;
+            this.OrderQueue.Clear();
             Possible = new List<Planet>();
             foreach (Planet p in SafePlanets)
             {
-                if (p == this.start)
-                {
-                    continue;
-                }
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
-                    if (((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation) || ((double)p.MaxPopulation <= 3000 && (double)(p.MaxPopulation - p.Population) <= (0.7 * (double)p.MaxPopulation)))
+                    //if (p.Population <= 1000f)
+                    if ((p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
                     {
                         continue;
                     }
@@ -5162,7 +5151,8 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
-                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || ((double)p.MaxPopulation <= 3000 && (double)(p.MaxPopulation - p.Population) <= (0.7 * (double)p.MaxPopulation)))
+                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
                         {
                             continue;
                         }
@@ -5170,18 +5160,93 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (Possible.Count > 0)
+            closestD = 999999999f;
+            foreach (Planet p in Possible)
             {
-                int random = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)Possible.Count + 0.85f);
-                if (random > Possible.Count - 1)
+                Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                if (Distance >= closestD)
                 {
-                    random = Possible.Count - 1;
+                    continue;
                 }
-                this.end = Possible[random];
+                closestD = Distance;
+                this.start = p;
             }
+
+            // fbedard: Where to drop nearest Population
+            this.end = null;
+            Possible = new List<Planet>();
+            foreach (Planet p in SafePlanets)
+            {
+                if (p == this.start)
+                {
+                    continue;
+                }
+                if (this.Owner.AreaOfOperation.Count <= 0)
+                {
+                    //if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
+                    if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                    {
+                        continue;
+                    }
+                    Possible.Add(p);
+                }
+                else
+                {
+                    foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                    {
+                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                }
+            }
+            if (Possible.Count == 0)
+            {
+                foreach (Planet p in SafePlanets)
+                {
+                    if (p == this.start)
+                    {
+                        continue;
+                    }
+                    if (this.Owner.AreaOfOperation.Count <= 0)
+                    {
+                        if ((p.Population / p.MaxPopulation) >= 0.5)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                    else
+                    {
+                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                        {
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                    }
+                }
+            }
+            closestD = 999999999f;
+            foreach (Planet p in Possible)
+            {
+                Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                if (Distance >= closestD)
+                {
+                    continue;
+                }
+                closestD = Distance;
+                this.end = p;
+            }
+
             if (this.start != null && this.end != null)
             {
-                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true,this.start);
+                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.start);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
             }
             this.State = AIState.PassengerTransport;
@@ -5189,6 +5254,9 @@ namespace Ship_Game.Gameplay
 
 		public void OrderTransportPassengersFromSave()
 		{
+            float closestD;
+            float Distance;
+
             if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
             if (this.Owner.CargoSpace_Max > 0
@@ -5201,11 +5269,12 @@ namespace Ship_Game.Gameplay
                 this.State = AIState.AwaitingOrders;
 
             }
-            
+ 
             if (!this.Owner.GetCargo().ContainsKey("Colonists_1000"))
 			{
 				this.Owner.GetCargo().Add("Colonists_1000", 0f);
 			}
+/*
 			if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
 			{
 				List<Planet> PossibleEnds = new List<Planet>();
@@ -5213,7 +5282,7 @@ namespace Ship_Game.Gameplay
 				{
 					if (this.Owner.AreaOfOperation.Count <= 0)
 					{
-						if (p.Population >= 2000f)
+						if (p.Population >= 1500f)
 						{
 							continue;
 						}
@@ -5324,7 +5393,209 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
 			}
 			this.State = AIState.PassengerTransport;
-		}
+*/		
+            List<Planet> Possible = new List<Planet>();
+
+            // fbedard: Where to drop nearest Population
+            if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
+            {
+                foreach (Planet p in this.Owner.loyalty.GetPlanets())
+                {
+                    if (p == this.start)
+                    {
+                        continue;
+                    }
+                    if (this.Owner.AreaOfOperation.Count <= 0)
+                    {
+                        //if (p.Population <= 1500f)  That was wrong !!!
+                        if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                    else
+                    {
+                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                        {
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                    }
+                }
+                if (Possible.Count == 0)
+                {
+                    foreach (Planet p in this.Owner.loyalty.GetPlanets())
+                    {
+                        if (p == this.start)
+                        {
+                            continue;
+                        }
+                        if (this.Owner.AreaOfOperation.Count <= 0)
+                        {
+                            if ((p.Population / p.MaxPopulation) >= 0.5)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                        else
+                        {
+                            foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                            {
+                                if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
+                                {
+                                    continue;
+                                }
+                                Possible.Add(p);
+                            }
+                        }
+                    }
+                }
+                closestD = 999999999f;
+                this.end = null;
+                this.OrderQueue.Clear();
+                foreach (Planet p in Possible)
+                {
+                    Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                    if (Distance >= closestD)
+                    {
+                        continue;
+                    }
+                    closestD = Distance;
+                    this.end = p;
+                }
+                if (this.end != null)
+                {
+                    this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true, this.end);
+                    this.State = AIState.PassengerTransport;
+                    this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
+                }
+                return;
+            }
+
+            //fbedard: Where to load nearest Population
+            this.start = null;
+            this.OrderQueue.Clear();
+            Possible = new List<Planet>();
+            foreach (Planet p in this.Owner.loyalty.GetPlanets())
+            {
+                if (this.Owner.AreaOfOperation.Count <= 0)
+                {
+                    //if (p.Population <= 1000f)
+                    if ((p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
+                    {
+                        continue;
+                    }
+                    Possible.Add(p);
+                }
+                else
+                {
+                    foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                    {
+                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                }
+            }
+            closestD = 999999999f;
+            foreach (Planet p in Possible)
+            {
+                Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                if (Distance >= closestD)
+                {
+                    continue;
+                }
+                closestD = Distance;
+                this.start = p;
+            }
+
+            // fbedard: Where to drop nearest Population
+            this.end = null;
+            Possible = new List<Planet>();
+            foreach (Planet p in this.Owner.loyalty.GetPlanets())
+            {
+                if (p == this.start)
+                {
+                    continue;
+                }
+                if (this.Owner.AreaOfOperation.Count <= 0)
+                {
+                    //if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
+                    if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                    {
+                        continue;
+                    }
+                    Possible.Add(p);
+                }
+                else
+                {
+                    foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                    {
+                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                }
+            }
+            if (Possible.Count == 0)
+            {
+                foreach (Planet p in this.Owner.loyalty.GetPlanets())
+                {
+                    if (p == this.start)
+                    {
+                        continue;
+                    }
+                    if (this.Owner.AreaOfOperation.Count <= 0)
+                    {
+                        if ((p.Population / p.MaxPopulation) >= 0.5)
+                        {
+                            continue;
+                        }
+                        Possible.Add(p);
+                    }
+                    else
+                    {
+                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
+                        {
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
+                            {
+                                continue;
+                            }
+                            Possible.Add(p);
+                        }
+                    }
+                }
+            }
+            closestD = 999999999f;
+            foreach (Planet p in Possible)
+            {
+                Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                if (Distance >= closestD)
+                {
+                    continue;
+                }
+                closestD = Distance;
+                this.end = p;
+            }
+
+            if (this.start != null && this.end != null)
+            {
+                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.start);
+                this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
+            }
+            this.State = AIState.PassengerTransport;
+        }
 
 		public void OrderTroopToBoardShip(Ship s)
 		{
@@ -5697,52 +5968,51 @@ namespace Ship_Game.Gameplay
             //}
             //else
             {
-
+                if (this.EscortTarget != null && this.EscortTarget.Active && this.EscortTarget.GetAI().Target != null)
+                {
+                    ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
+                    sw.ship = this.EscortTarget.GetAI().Target as Ship;
+                    sw.weight = 2f;
+                    this.NearbyShips.Add(sw);
+                }
                 List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(Owner);
                 for (int i = 0; i < nearby.Count; i++)
                 {
                     Ship item1 = nearby[i] as Ship;
-                    if (item1 != null && item1.Active && !item1.dying && item1.engineState != Ship.MoveState.Warp && (Vector2.Distance(this.Owner.Center, item1.Center) <= Radius))
+                    if (item1 != null && item1.Active && !item1.dying &&(Vector2.Distance(this.Owner.Center, item1.Center) <= Radius))
                     {
                         Empire empire = item1.loyalty;
-                        
-                        
+                        Ship shipTarget = item1.GetAI().Target as Ship;
                         if (empire == Owner.loyalty)
                         {
                             this.FriendliesNearby.Add(item1);
                         }
-                        else
+                        else if (empire != this.Owner.loyalty
+                            && shipTarget != null
+                            && shipTarget == this.EscortTarget && item1.engineState != Ship.MoveState.Warp)
                         {
-                            Ship shipTarget = item1.GetAI().Target as Ship;
-                            Relationship Treaty = null;
-                            this.Owner.loyalty.GetRelations().TryGetValue(item1.loyalty, out Treaty);
-                                
 
-                            if (
-                                (this.Owner.loyalty.isFaction || item1.loyalty.isFaction)
-                                || !(Treaty.Treaty_OpenBorders || Treaty.Treaty_Alliance || Treaty.Treaty_NAPact 
-                                || (Treaty.Treaty_Trade && (item1.GetAI().State == AIState.PassengerTransport &&item1.GetAI().State == AIState.SystemTrader ))
-                                ))
-                            {
-                                ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
-                                sw.ship = item1;
-                                sw.weight = 1f;
-                                this.NearbyShips.Add(sw);
-                                this.PotentialTargets.Add(item1);
-                                this.BadGuysNear = Vector2.Distance(Position, item1.Position) <= Radius;
-                                if (this.EscortTarget !=null && this.EscortTarget.Active 
-                                    && ((shipTarget != null  && shipTarget == this.EscortTarget) 
-                                    ||( this.EscortTarget.GetAI().Target == item1))
-                                    )
-                                {
-                                    sw.weight += 2f;     
-                                }
+                            ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
+                            sw.ship = item1;
+                            sw.weight = 3f;
 
-                            }
-     
-
-
+                            this.NearbyShips.Add(sw);
+                            this.BadGuysNear = true;
+                            this.PotentialTargets.Add(item1);
                         }
+                        else if ((item1.loyalty != this.Owner.loyalty
+                            && this.Owner.loyalty.GetRelations()[item1.loyalty].AtWar
+                            || this.Owner.loyalty.isFaction || item1.loyalty.isFaction))//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
+                        {
+                            ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
+                            sw.ship = item1;
+                            sw.weight = 1f;
+                            this.NearbyShips.Add(sw);
+                            this.PotentialTargets.Add(item1);
+                            this.BadGuysNear = Vector2.Distance(Position, item1.Position) <= Radius;
+                        }
+
+
                     }
                 }
             }
@@ -5861,6 +6131,7 @@ namespace Ship_Game.Gameplay
             }   
             //}           
             foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips )
+            //Parallel.ForEach(this.NearbyShips, nearbyShip =>
             {
                 if (nearbyShip.ship.loyalty != this.Owner.loyalty)
                 {
@@ -5900,7 +6171,7 @@ namespace Ship_Game.Gameplay
                     else if (rangeToTarget > this.CombatAI.PreferredEngagementDistance)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
-                        shipWeight1.weight = shipWeight1.weight - (rangeToTarget /(this.CombatAI.PreferredEngagementDistance+1));
+                        shipWeight1.weight = shipWeight1.weight - 2.5f *(rangeToTarget /(this.CombatAI.PreferredEngagementDistance+1));
                     }
                     if(nearbyShip.ship.Weapons.Count <1)
                     {
@@ -5986,11 +6257,6 @@ namespace Ship_Game.Gameplay
                         senseCenter = this.Owner.Mothership.Center;
                         radius = this.Owner.Mothership.SensorRange;
                     }
-                    else
-                    {
-                        radius = this.Owner.SensorRange;
-                        if (this.Owner.inborders) radius += 10000;
-                    }
                 }
                 else
                 {
@@ -6011,6 +6277,10 @@ namespace Ship_Game.Gameplay
             }
             else if (!this.hasPriorityTarget)
             {
+//#if DEBUG
+//                if (this.State == AIState.Intercept && this.Target != null)
+//                    System.Diagnostics.Debug.WriteLine(this.Target); 
+//#endif
                 this.Target = this.ScanForCombatTargets(senseCenter, radius);
             }
             else
