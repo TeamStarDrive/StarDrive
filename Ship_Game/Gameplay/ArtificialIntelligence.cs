@@ -2602,10 +2602,20 @@ namespace Ship_Game.Gameplay
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
+
+            // Doctor: I think this totally fixes our targeting woes for stationary vessels - it worked for my platforms at least!
             if (this.Owner.speed == 0 && target.Velocity.Length() == 0)
             {
                 Vector2 fireatstationary = Vector2.Zero;
-                fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center));
+                float statdistance = Vector2.Distance(weapon.Center, target.Center) + target.Velocity.Length() == 0 ? 0 : 500;
+                Vector2 statdir = this.findVectorToTarget(weapon.Center, target.Center);
+                fireatstationary = Vector2.Normalize(statdir) * weapon.ProjectileSpeed;
+                float sttt = statdistance / fireatstationary.Length();
+                Vector2 sProjectedPosition = target.Center + (target.Velocity * sttt);
+                fireatstationary = this.findVectorToTarget(weapon.Center, sProjectedPosition);
+                fireatstationary.Y *= -1f;
+                fireatstationary = Vector2.Normalize(fireatstationary);
+
                 if (SalvoFire)
                     weapon.FireSalvo(fireatstationary, target);
                 else
