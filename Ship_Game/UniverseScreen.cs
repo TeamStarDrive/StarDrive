@@ -274,7 +274,6 @@ namespace Ship_Game
         public float Lag = 0;
         public Ship previousSelection;
 
-
         static UniverseScreen()
         {
         }
@@ -626,7 +625,7 @@ namespace Ship_Game
             this.snappingToShip = true;
             this.HeightOnSnap = this.camHeight;
             this.transitionDestination.Z = 3500f;
-            this.AdjustCamTimer = 1.5f;
+            this.AdjustCamTimer = 1.0f;
             this.transitionElapsedTime = 0.0f;
             this.transitionDestination.Z = 4500f;
             this.snappingToShip = true;
@@ -2640,14 +2639,6 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            if (this.previousSelection != null && input.CurrentMouseState.XButton1 == ButtonState.Pressed)
-            {
-                Ship tempship = this.previousSelection;
-                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                    this.previousSelection = this.SelectedShip;
-                this.SelectedShip = tempship;
-
-            }
             if (this.ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && this.ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
                 this.Paused = !this.Paused;
             for (int index = 0; index < this.SelectedShipList.Count; ++index)
@@ -2655,6 +2646,25 @@ namespace Ship_Game
                 Ship ship = this.SelectedShipList[index];
                 if (!ship.Active)
                     this.SelectedShipList.QueuePendingRemoval(ship);
+            }
+            //CG: previous target code. 
+            if (this.previousSelection != null && input.CurrentMouseState.XButton1 == ButtonState.Pressed && input.LastMouseState.XButton1 == ButtonState.Released)
+            {
+                Ship tempship = this.previousSelection;
+                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
+                    this.previousSelection = this.SelectedShip;
+                this.SelectedShip = tempship;
+                this.SelectedFleet = (Fleet)null;
+                this.SelectedShipList.Clear();
+                this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                this.SelectedSystem = (SolarSystem)null;
+                this.SelectedPlanet = (Planet)null;
+                this.SelectedShipList.Add(this.SelectedShip);
+            }
+            //fbedard: Set camera chase on ship
+            if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
+            {
+                this.ViewToShip(null);
             }
             this.input = input;
             this.ShowTacticalCloseup = input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt);
@@ -4115,19 +4125,20 @@ namespace Ship_Game
                 this.snappingToShip = false;
                 this.ViewingShip = false;
             }
-            if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
-            {
-                this.snappingToShip = false;
-                this.ViewingShip = false;
-            }
-            if (input.CurrentMouseState.MiddleButton != ButtonState.Pressed || input.LastMouseState.MiddleButton != ButtonState.Released)
-                return;
-            Vector2 spaceFromScreenSpace2 = this.GetWorldSpaceFromScreenSpace(input.CursorPosition);
-            this.transitionDestination.X = spaceFromScreenSpace2.X;
-            this.transitionDestination.Y = spaceFromScreenSpace2.Y;
-            this.transitionDestination.Z = this.camHeight;
-            this.AdjustCamTimer = 1f;
-            this.transitionElapsedTime = 0.0f;
+            //fbedard: remove middle button scrolling
+            //if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
+            //{
+            //    this.snappingToShip = false;
+            //    this.ViewingShip = false;
+            //}
+            //if (input.CurrentMouseState.MiddleButton != ButtonState.Pressed || input.LastMouseState.MiddleButton != ButtonState.Released)
+            //    return;
+            //Vector2 spaceFromScreenSpace2 = this.GetWorldSpaceFromScreenSpace(input.CursorPosition);
+            //this.transitionDestination.X = spaceFromScreenSpace2.X;
+            //this.transitionDestination.Y = spaceFromScreenSpace2.Y;
+            //this.transitionDestination.Z = this.camHeight;
+            //this.AdjustCamTimer = 1f;
+            //this.transitionElapsedTime = 0.0f;
         }
 
         protected void HandleScrolls(InputState input)
@@ -4137,8 +4148,9 @@ namespace Ship_Game
             if ((input.ScrollOut || input.BButtonHeld) && !this.LookingAtPlanet)
             {
                 float num = (float)(1500.0 * (double)this.camHeight / 3000.0 + 100.0);
-                if ((double)this.camHeight < 10000.0)
-                    num -= 200f;
+                //fbedard: faster scroll
+                //if ((double)this.camHeight < 10000.0)
+                //    num -= 200f;
                 this.transitionDestination.X = this.camPos.X;
                 this.transitionDestination.Y = this.camPos.Y;
                 this.transitionDestination.Z = this.camHeight + num;
@@ -4170,8 +4182,9 @@ namespace Ship_Game
             if (!input.YButtonHeld && !input.ScrollIn || this.LookingAtPlanet)
                 return;
             float num1 = (float)(1500.0 * (double)this.camHeight / 3000.0 + 100.0);
-            if ((double)this.camHeight < 10000.0)
-                num1 -= 200f;
+            //fbedard: faster scroll
+            //if ((double)this.camHeight < 10000.0)
+            //    num1 -= 200f;
             this.transitionDestination.Z = this.camHeight - num1;
             if ((double)this.camHeight >= 16000.0)
             {
@@ -4186,9 +4199,30 @@ namespace Ship_Game
             if (this.ViewingShip)
                 return;
             if ((double)this.camHeight <= 450.0)
-                this.camHeight = 450f;
+               this.camHeight = 450f;
             float num2 = this.transitionDestination.Z;
-            this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+            //fbedard: add a scroll on selected object
+            if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+            {
+                if (this.SelectedShip != null)
+                {
+                    this.transitionDestination = new Vector3(this.SelectedShip.Position.X, this.SelectedShip.Position.Y, num2);
+                }
+                else
+                    if (this.SelectedPlanet != null)
+                    {
+                        this.transitionDestination = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, num2);
+                    }  
+                    else
+                        if (this.SelectedFleet != null)
+                        {                            
+                            this.transitionDestination = new Vector3(this.SelectedFleet.findAveragePositioncg().X, this.SelectedFleet.findAveragePositioncg().Y, num2);
+                        }
+                        else
+                            this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+            }
+            else
+                this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
         }
 
         protected void HandleScrollsSectorMiniMap(InputState input)
