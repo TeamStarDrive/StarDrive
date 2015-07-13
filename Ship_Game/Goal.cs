@@ -429,7 +429,7 @@ namespace Ship_Game
                     queueItem.Goal = this;
                     queueItem.Cost = ResourceManager.ShipsDict[this.ToBuildUID].GetCost(this.empire);
                     queueItem.NotifyOnEmpty = false;
-                    if (ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentConstructor))
+                    if (!string.IsNullOrEmpty(this.empire.data.CurrentConstructor) && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentConstructor))
                     {
                         this.beingBuilt = ResourceManager.ShipsDict[this.empire.data.CurrentConstructor];
                     }

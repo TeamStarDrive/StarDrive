@@ -5693,13 +5693,7 @@ namespace Ship_Game.Gameplay
             //}
             //else
             {
-                if (this.EscortTarget != null && this.EscortTarget.Active && this.EscortTarget.GetAI().Target != null)
-                {
-                    ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
-                    sw.ship = this.EscortTarget.GetAI().Target as Ship;
-                    sw.weight = 2f;
-                    this.NearbyShips.Add(sw);
-                }
+
                 List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(Owner);
                 for (int i = 0; i < nearby.Count; i++)
                 {
@@ -5724,7 +5718,7 @@ namespace Ship_Game.Gameplay
                                 (this.Owner.loyalty.isFaction || item1.loyalty.isFaction)
                                 || !(Treaty.Treaty_OpenBorders || Treaty.Treaty_Alliance || Treaty.Treaty_NAPact 
                                 || (Treaty.Treaty_Trade && (item1.GetAI().State == AIState.PassengerTransport &&item1.GetAI().State == AIState.SystemTrader ))
-                                ))//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
+                                ))
                             {
                                 ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
                                 sw.ship = item1;
@@ -5732,13 +5726,14 @@ namespace Ship_Game.Gameplay
                                 this.NearbyShips.Add(sw);
                                 this.PotentialTargets.Add(item1);
                                 this.BadGuysNear = Vector2.Distance(Position, item1.Position) <= Radius;
-                                if (shipTarget != null && shipTarget == this.EscortTarget)
+                                if (this.EscortTarget !=null && this.EscortTarget.Active 
+                                    && ((shipTarget != null  && shipTarget == this.EscortTarget) 
+                                    ||( this.EscortTarget.GetAI().Target == item1))
+                                    )
                                 {
-                                    sw.weight += 2f;
-                                    //this.NearbyShips.Add(sw);
-                                    //this.BadGuysNear = true;
-                                    //this.PotentialTargets.Add(item1);
+                                    sw.weight += 2f;     
                                 }
+
                             }
      
 
@@ -5862,7 +5857,6 @@ namespace Ship_Game.Gameplay
             }   
             //}           
             foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips )
-            //Parallel.ForEach(this.NearbyShips, nearbyShip =>
             {
                 if (nearbyShip.ship.loyalty != this.Owner.loyalty)
                 {
@@ -5902,7 +5896,7 @@ namespace Ship_Game.Gameplay
                     else if (rangeToTarget > this.CombatAI.PreferredEngagementDistance)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
-                        shipWeight1.weight = shipWeight1.weight - 2.5f *(rangeToTarget /(this.CombatAI.PreferredEngagementDistance+1));
+                        shipWeight1.weight = shipWeight1.weight - (rangeToTarget /(this.CombatAI.PreferredEngagementDistance+1));
                     }
                     if(nearbyShip.ship.Weapons.Count <1)
                     {
@@ -5988,6 +5982,11 @@ namespace Ship_Game.Gameplay
                         senseCenter = this.Owner.Mothership.Center;
                         radius = this.Owner.Mothership.SensorRange;
                     }
+                    else
+                    {
+                        radius = this.Owner.SensorRange;
+                        if (this.Owner.inborders) radius += 10000;
+                    }
                 }
                 else
                 {
@@ -6008,10 +6007,6 @@ namespace Ship_Game.Gameplay
             }
             else if (!this.hasPriorityTarget)
             {
-//#if DEBUG
-//                if (this.State == AIState.Intercept && this.Target != null)
-//                    System.Diagnostics.Debug.WriteLine(this.Target); 
-//#endif
                 this.Target = this.ScanForCombatTargets(senseCenter, radius);
             }
             else
