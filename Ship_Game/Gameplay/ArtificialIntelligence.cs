@@ -2410,7 +2410,7 @@ namespace Ship_Game.Gameplay
                 TargetShip = this.Target as Ship;
                 GameplayObject secondarytarget =null;
                 GameplayObject pdtarget = null;
-                if (this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled ||
+                if(this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled ||
                     (this.Target != null && !this.Owner.loyalty.isFaction
                     && this.Target is Ship && this.Owner.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy)
                     && (enemy.Treaty_NAPact || enemy.Treaty_Alliance || enemy.Treaty_OpenBorders)))
@@ -2602,10 +2602,20 @@ namespace Ship_Game.Gameplay
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
+
+            // Doctor: I think this totally fixes our targeting woes for stationary vessels - it worked for my platforms at least!
             if (this.Owner.speed == 0 && target.Velocity.Length() == 0)
             {
                 Vector2 fireatstationary = Vector2.Zero;
-                fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center));
+                float statdistance = Vector2.Distance(weapon.Center, target.Center) + target.Velocity.Length() == 0 ? 0 : 500;
+                Vector2 statdir = this.findVectorToTarget(weapon.Center, target.Center);
+                fireatstationary = Vector2.Normalize(statdir) * weapon.ProjectileSpeed;
+                float sttt = statdistance / fireatstationary.Length();
+                Vector2 sProjectedPosition = target.Center + (target.Velocity * sttt);
+                fireatstationary = this.findVectorToTarget(weapon.Center, sProjectedPosition);
+                fireatstationary.Y *= -1f;
+                fireatstationary = Vector2.Normalize(fireatstationary);
+
                 if (SalvoFire)
                     weapon.FireSalvo(fireatstationary, target);
                 else
@@ -3331,7 +3341,7 @@ namespace Ship_Game.Gameplay
 
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_NAPact && !this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Alliance)
+                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
@@ -4005,7 +4015,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
 			{
-                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_NAPact && !this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Alliance)
+                if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
