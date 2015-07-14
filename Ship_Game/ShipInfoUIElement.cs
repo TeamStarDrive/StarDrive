@@ -586,7 +586,7 @@ namespace Ship_Game
 					return;
 				}
 			}
-			if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop")
+            if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop" && this.ship.Role != "station")
 			{
 				OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
 				{
@@ -651,11 +651,14 @@ namespace Ship_Game
 						})
 					};
 					this.Orders.Add(ob);
-					OrdersButton ob2 = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterRecall, 146)
-					{
-						ValueToModify = new Ref<bool>(() => this.ship.RecallFightersBeforeFTL, (bool x) => this.ship.RecallFightersBeforeFTL = x)
-					};
-					this.Orders.Add(ob2);
+                    if (this.ship.Role != "station")
+                    {
+					    OrdersButton ob2 = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterRecall, 146)
+					    {
+						    ValueToModify = new Ref<bool>(() => this.ship.RecallFightersBeforeFTL, (bool x) => this.ship.RecallFightersBeforeFTL = x)
+					    };
+					    this.Orders.Add(ob2);
+                    }
 				}
 				if (hasTroops)
 				{
@@ -669,22 +672,25 @@ namespace Ship_Game
 					this.Orders.Add(ob);
 				}
 			}
-			OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
-			{
-				ValueToModify = new Ref<bool>(() => this.ship.DoingExplore, (bool x) => this.ship.DoingExplore = x)
-			};
-			this.Orders.Add(exp);
-			OrdersButton resupply = new OrdersButton(this.ship, Vector2.Zero, OrderType.OrderResupply, 149)
-			{
-				ValueToModify = new Ref<bool>(() => this.ship.DoingResupply, (bool x) => this.ship.DoingResupply = x)
-			};
-			this.Orders.Add(resupply);
-			OrdersButton SystemDefense = new OrdersButton(this.ship, Vector2.Zero, OrderType.EmpireDefense, 150)
-			{
-				ValueToModify = new Ref<bool>(() => this.ship.DoingSystemDefense, (bool x) => this.ship.DoingSystemDefense = x),
-				Active = false
-			};
-			this.Orders.Add(SystemDefense);
+            if (this.ship.Role != "station")
+            {
+			    OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
+			    {
+				    ValueToModify = new Ref<bool>(() => this.ship.DoingExplore, (bool x) => this.ship.DoingExplore = x)
+			    };
+			    this.Orders.Add(exp);
+			    OrdersButton resupply = new OrdersButton(this.ship, Vector2.Zero, OrderType.OrderResupply, 149)
+			    {
+				    ValueToModify = new Ref<bool>(() => this.ship.DoingResupply, (bool x) => this.ship.DoingResupply = x)
+			    };
+			    this.Orders.Add(resupply);
+			    OrdersButton SystemDefense = new OrdersButton(this.ship, Vector2.Zero, OrderType.EmpireDefense, 150)
+			    {
+				    ValueToModify = new Ref<bool>(() => this.ship.DoingSystemDefense, (bool x) => this.ship.DoingSystemDefense = x),
+				    Active = false
+			    };
+			    this.Orders.Add(SystemDefense);
+            }
             //Added by McShooterz: scrap order
             OrdersButton sc = new OrdersButton(this.ship, Vector2.Zero, OrderType.Scrap, 157)
             {
