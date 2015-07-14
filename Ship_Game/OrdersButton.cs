@@ -102,12 +102,13 @@ namespace Ship_Game
 						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], iconRect, Color.White);
 						return;
 					}
-					case OrderType.TradeProduction:
-					{
-						iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], iconRect, Color.White);
-						return;
-					}
+                    //fbedard: keep only 1 trade button
+					//case OrderType.TradeProduction:
+					//{
+					//	iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+					//	ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], iconRect, Color.White);
+					//	return;
+					//}
 					case OrderType.PassTran:
 					{
 						iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_passtran"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_passtran"].Height / 2, ResourceManager.TextureDict["UI/icon_passtran"].Width, ResourceManager.TextureDict["UI/icon_passtran"].Height);
@@ -204,12 +205,13 @@ namespace Ship_Game
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], iconRect, Color.White);
 					return;
 				}
-				case OrderType.TradeProduction:
-				{
-					iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], iconRect, Color.White);
-					return;
-				}
+                //fbedard: keep only 1 trade button
+				//case OrderType.TradeProduction:
+				//{
+				//	iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+				//	ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], iconRect, Color.White);
+				//	return;
+				//}
 				case OrderType.PassTran:
 				{
 					iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_passtran"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_passtran"].Height / 2, ResourceManager.TextureDict["UI/icon_passtran"].Width, ResourceManager.TextureDict["UI/icon_passtran"].Height);
@@ -283,14 +285,15 @@ namespace Ship_Game
 							}
 							return true;
 						}
-						case OrderType.TradeProduction:
-						{
-							for (int i = 0; i < this.ShipList.Count; i++)
-							{
-								this.ShipList[i].GetAI().OrderTrade();
-							}
-							return true;
-						}
+                        //fbedard: keep only 1 trade button
+						//case OrderType.TradeProduction:
+						//{
+						//	for (int i = 0; i < this.ShipList.Count; i++)
+						//	{
+						//		this.ShipList[i].GetAI().OrderTrade();
+						//	}
+						//	return true;
+						//}
 						case OrderType.PassTran:
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
