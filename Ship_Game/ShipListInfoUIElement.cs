@@ -612,7 +612,10 @@ namespace Ship_Game
                             {
                                 this.screen.SelectedFleet = null;
                                 this.screen.SelectedShipList.Clear();
-                                this.screen.SelectedShip = this.HoveredShip;
+                                this.screen.SelectedShip = this.HoveredShip;  //fbedard: multi-select
+                                if (this.screen.SelectedShip != null && this.screen.SelectedShip != this.screen.previousSelection)
+                                    this.screen.previousSelection = this.screen.SelectedShip;
+                                this.screen.ShipInfoUIElement.SetShip(this.HoveredShip);
                             }
 							return true;
 						}

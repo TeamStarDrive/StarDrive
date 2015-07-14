@@ -622,6 +622,12 @@ namespace Ship_Game
             if (this.SelectedShip == null)
                 return;
             this.ShipToView = this.SelectedShip;
+            this.ShipInfoUIElement.SetShip(this.SelectedShip);  //fbedard: was not updating correctly from shiplist
+            this.SelectedFleet = (Fleet)null;
+            this.SelectedShipList.Clear();
+            this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+            this.SelectedSystem = (SolarSystem)null;
+            this.SelectedPlanet = (Planet)null;
             this.snappingToShip = true;
             this.HeightOnSnap = this.camHeight;
             this.transitionDestination.Z = 3500f;
@@ -2650,16 +2656,22 @@ namespace Ship_Game
             //CG: previous target code. 
             if (this.previousSelection != null && input.CurrentMouseState.XButton1 == ButtonState.Pressed && input.LastMouseState.XButton1 == ButtonState.Released)
             {
-                Ship tempship = this.previousSelection;
-                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                    this.previousSelection = this.SelectedShip;
-                this.SelectedShip = tempship;
-                this.SelectedFleet = (Fleet)null;
-                this.SelectedShipList.Clear();
-                this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
-                this.SelectedSystem = (SolarSystem)null;
-                this.SelectedPlanet = (Planet)null;
-                this.SelectedShipList.Add(this.SelectedShip);
+                if (this.previousSelection.Active)
+                {
+                    Ship tempship = this.previousSelection;
+                    if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
+                        this.previousSelection = this.SelectedShip;
+                    this.SelectedShip = tempship;
+                    this.ShipInfoUIElement.SetShip(this.SelectedShip);
+                    this.SelectedFleet = (Fleet)null;
+                    this.SelectedShipList.Clear();
+                    this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                    this.SelectedSystem = (SolarSystem)null;
+                    this.SelectedPlanet = (Planet)null;
+                    this.SelectedShipList.Add(this.SelectedShip);
+                }
+                else
+                    this.SelectedShip = null;  //fbedard: remove inactive ship
             }
             //fbedard: Set camera chase on ship
             if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)

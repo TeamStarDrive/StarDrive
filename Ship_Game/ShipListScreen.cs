@@ -328,7 +328,9 @@ namespace Ship_Game
 					else
 					{
 						this.ExitScreen();
-						this.empUI.screen.SelectedShip = entry.ship;
+                        if (this.empUI.screen.SelectedShip != null && entry.ship != this.empUI.screen.SelectedShip) //fbedard
+                            this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
+                        this.empUI.screen.SelectedShip = entry.ship;                        
 						this.empUI.screen.ViewToShip(null);
 						this.empUI.screen.returnToShip = false;
 					}
