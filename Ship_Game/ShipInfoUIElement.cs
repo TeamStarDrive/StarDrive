@@ -568,7 +568,7 @@ namespace Ship_Game
 			this.ShipNameArea.Text = s.VanityName;
 			this.Orders.Clear();
 			this.ship = s;
-			if (this.ship.loyalty != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+			if (this.ship.loyalty != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) || ship.Mothership != null)  //fbedard: ships created from hangar dont have order
 			{
 				return;
 			}
@@ -602,12 +602,13 @@ namespace Ship_Game
 					RightClickValueToModify = new Ref<bool>(() => this.ship.TransportingFood, (bool x) => this.ship.TransportingFood = x)
 				};
 				this.Orders.Add(tf);
-				OrdersButton tp = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeProduction, 17)
-				{
-					ValueToModify = new Ref<bool>(() => this.ship.DoingTransport, (bool x) => this.ship.DoingTransport = x),
-					RightClickValueToModify = new Ref<bool>(() => this.ship.TransportingProduction, (bool x) => this.ship.TransportingProduction = x)
-				};
-				this.Orders.Add(tp);
+                //fbedard: keep only 1 trade button
+				//OrdersButton tp = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeProduction, 17)
+				//{
+				//	ValueToModify = new Ref<bool>(() => this.ship.DoingTransport, (bool x) => this.ship.DoingTransport = x),
+				//	RightClickValueToModify = new Ref<bool>(() => this.ship.TransportingProduction, (bool x) => this.ship.TransportingProduction = x)
+				//};
+				//this.Orders.Add(tp);
 				OrdersButton tpass = new OrdersButton(this.ship, Vector2.Zero, OrderType.PassTran, 137)
 				{
 					ValueToModify = new Ref<bool>(() => this.ship.DoingPassTransport, (bool x) => this.ship.DoingPassTransport = x)
