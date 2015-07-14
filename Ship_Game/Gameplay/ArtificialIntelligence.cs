@@ -7763,7 +7763,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             TriggerDelay -= elapsedTime;
-            if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat  )
+            if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat)
             {
                 if (this.TriggerDelay < 0)
                 {
@@ -7775,40 +7775,41 @@ namespace Ship_Game.Gameplay
 #if !DEBUG
                         try
 #endif
+                    {
+
+
+
+                        docombat = (!this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat));
+
+
+                        if (docombat)//|| this.OrderQueue.Count == 0))
                         {
-
-
-
-                            docombat = (!this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat));
-
-
-                            if (docombat)//|| this.OrderQueue.Count == 0))
-                            {
-                                this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
-                            }
-
-
-                            //this.fireTask = Task.Factory.StartNew(this.FireOnTarget);//,TaskCreationOptions.LongRunning);
-                            //fireTask = new Task(this.FireOnTarget);                    
-                            this.FireOnTarget();
-
-
+                            this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                         }
+
+
+                        //this.fireTask = Task.Factory.StartNew(this.FireOnTarget);//,TaskCreationOptions.LongRunning);
+                        //fireTask = new Task(this.FireOnTarget);                    
+                        this.FireOnTarget();
+
+
+                    }
 
 #if !DEBUG
                         catch
                         {
                         }
-                }
+                
 #endif
+                }
             }
             else
             {
                 if (this.Owner.GetHangars().Count > 0 && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
                 {
-                    foreach (ShipModule hangar in this.Owner.GetHangars())                        
+                    foreach (ShipModule hangar in this.Owner.GetHangars())
                     {
-                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null 
+                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null
                             //||hangar.GetHangarShip().InCombat
                             || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar)
                         {
@@ -7821,14 +7822,14 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (ShipModule hangar in this.Owner.GetHangars())
                     {
-                        if (hangar.IsTroopBay 
-                            || hangar.IsSupplyBay 
-                            || hangar.GetHangarShip() == null 
+                        if (hangar.IsTroopBay
+                            || hangar.IsSupplyBay
+                            || hangar.GetHangarShip() == null
                             || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar
                             //|| hangar.GetHangarShip().InCombat
-                            || hangar.GetHangarShip().GetAI().hasPriorityTarget 
+                            || hangar.GetHangarShip().GetAI().hasPriorityTarget
                             || hangar.GetHangarShip().GetAI().HasPriorityOrder
-                            
+
                             )
                         {
                             continue;
