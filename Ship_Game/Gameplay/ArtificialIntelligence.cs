@@ -133,7 +133,7 @@ namespace Ship_Game.Gameplay
 
 		public List<Ship> TargetQueue = new List<Ship>();
 
-		private float TriggerDelay = .1f;
+		private float TriggerDelay = 0;
 
 		public Guid TargetGuid;
 
@@ -7763,38 +7763,42 @@ namespace Ship_Game.Gameplay
                 }
             }
             TriggerDelay -= elapsedTime;
-            if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat && this.TriggerDelay <0 )
+            if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat  )
             {
-                TriggerDelay = elapsedTime*2;
-                bool docombat = false;
-                LinkedListNode<ArtificialIntelligence.ShipGoal> tempShipGoal = this.OrderQueue.First ;
-                ShipGoal firstgoal = tempShipGoal !=null  ? tempShipGoal.Value : null;  //.FirstOrDefault<ArtificialIntelligence.ShipGoal>();
-                if (this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0)
+                if (this.TriggerDelay < 0)
+                {
+                    TriggerDelay = elapsedTime * 2;
+                    bool docombat = false;
+                    LinkedListNode<ArtificialIntelligence.ShipGoal> tempShipGoal = this.OrderQueue.First;
+                    ShipGoal firstgoal = tempShipGoal != null ? tempShipGoal.Value : null;  //.FirstOrDefault<ArtificialIntelligence.ShipGoal>();
+                    if (this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0)
 #if !DEBUG
-                    try
+                        try
 #endif
-                {
+                        {
 
 
 
-                    docombat = (!this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat));
+                            docombat = (!this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat));
 
 
-                    if (  docombat )//|| this.OrderQueue.Count == 0))
-                    {
-                        this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
-                    }
+                            if (docombat)//|| this.OrderQueue.Count == 0))
+                            {
+                                this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
+                            }
 
-                    
-                    //this.fireTask = Task.Factory.StartNew(this.FireOnTarget);//,TaskCreationOptions.LongRunning);
-                    //fireTask = new Task(this.FireOnTarget);                    
-                    this.FireOnTarget();
-                        
 
-                }
+                            //this.fireTask = Task.Factory.StartNew(this.FireOnTarget);//,TaskCreationOptions.LongRunning);
+                            //fireTask = new Task(this.FireOnTarget);                    
+                            this.FireOnTarget();
+
+
+                        }
+
 #if !DEBUG
-                catch
-                {
+                        catch
+                        {
+                        }
                 }
 #endif
             }
