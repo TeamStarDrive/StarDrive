@@ -529,13 +529,14 @@ namespace Ship_Game
 				PlanetListScreenEntry entry = this.PlanetSL.Entries[i].item as PlanetListScreenEntry;
 				entry.HandleInput(input);
 				entry.SetNewPos(this.eRect.X + 22, this.PlanetSL.Entries[i].clickRect.Y);
-				if (HelperFunctions.CheckIntersection(entry.TotalEntrySize, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (!GlobalStats.TakingInput
+                    && HelperFunctions.CheckIntersection(entry.TotalEntrySize, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
 				{
 					if (this.ClickTimer >= this.ClickDelay)
 					{
 						this.ClickTimer = 0f;
 					}
-                    else if (!GlobalStats.TakingInput)
+                    else 
                     {
                         {
                             this.ExitScreen();
