@@ -277,6 +277,7 @@ namespace Ship_Game
 
             if (i > 0 && this.planet.Owner ==null)
             {
+                this.screen.empUI.empire.GetShips().thisLock.EnterReadLock();
                 int troopsInvading = this.screen.empUI.empire.GetShips()
          .Where(troop => troop.TroopList.Count > 0)
          .Where(troopAI => troopAI.GetAI().OrderQueue
@@ -288,10 +289,12 @@ namespace Ship_Game
                     this.SendTroops.Text = "Send Troops";
                 }
                 this.SendTroops.Draw(ScreenManager.SpriteBatch);
+                this.screen.empUI.empire.GetShips().thisLock.ExitReadLock();
             }
             //fbedard : Add Send Button for your planets
             if (this.planet.Owner == this.screen.empUI.screen.player)
             {
+                this.screen.empUI.empire.GetShips().thisLock.EnterReadLock();
                 int troopsInvading = this.screen.empUI.empire.GetShips()
          .Where(troop => troop.TroopList.Count > 0)
          .Where(troopAI => troopAI.GetAI().OrderQueue
@@ -303,6 +306,7 @@ namespace Ship_Game
                     this.SendTroops.Text = "Send Troops";
                 }
                 this.SendTroops.Draw(ScreenManager.SpriteBatch);
+                this.screen.empUI.empire.GetShips().thisLock.ExitReadLock();
             }
         }
 
@@ -314,10 +318,11 @@ namespace Ship_Game
             }
             else
             {
+                GlobalStats.TakingInput = true; 
                 this.SendTroops.State = UIButton.PressState.Hover;
                 if (input.InGameSelect)
                 {
-                    //this.SendTroops.Text = "Send Troops";   
+                     
                     this.screen.empUI.empire.GetShips().thisLock.EnterReadLock();
                     List<Ship> troopShips = new List<Ship>(this.screen.empUI.empire.GetShips()
                         .Where(troop => troop.TroopList.Count > 0
@@ -329,29 +334,59 @@ namespace Ship_Game
                         .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, this.planet.Position))
                         .Where(Name => Name.Name != this.planet.Name));
                     this.screen.empUI.empire.GetPlanets().thisLock.ExitReadLock();
-                    if (troopShips.Count > 0)
+                    if (this.planet.Owner != this.screen.empUI.empire)
                     {
-                        AudioManager.PlayCue("echo_affirm");
-                        troopShips.First().GetAI().OrderAssaultPlanet(this.planet);
-                    }
-                    else
-                        if (planetTroops.Count > 0)
+                        if (troopShips.Count > 0)
                         {
-                            {
-                                Ship troop = planetTroops.First().TroopsHere.First().Launch();
-                                if (troop != null)
-                                {
-                                    AudioManager.PlayCue("echo_affirm");
-                                    troop.GetAI().OrderAssaultPlanet(this.planet);
-                                }
-                            }
+                            AudioManager.PlayCue("echo_affirm");
+                            troopShips.First().GetAI().OrderAssaultPlanet(this.planet);
                         }
                         else
+                            if (planetTroops.Count > 0)
+                            {
+                                {
+                                    Ship troop = planetTroops.First().TroopsHere.First().Launch();
+                                    if (troop != null)
+                                    {
+                                        AudioManager.PlayCue("echo_affirm");
+                                        troop.GetAI().OrderAssaultPlanet(this.planet);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                AudioManager.PlayCue("blip_click");
+                            } 
+                    }
+                    else
+                    {
+                        if (troopShips.Count > 0)
                         {
-                            AudioManager.PlayCue("blip_click");
+                            AudioManager.PlayCue("echo_affirm");
+                            troopShips.First().GetAI().OrderRebase(this.planet, true);
+                            //troopShips.First().GetAI().OrderAssaultPlanet(this.planet);
                         }
+                        else
+                            if (planetTroops.Count > 0)
+                            {
+                                {
+                                    Ship troop = planetTroops.First().TroopsHere.First().Launch();
+                                    if (troop != null)
+                                    {
+                                        AudioManager.PlayCue("echo_affirm");
+                                        troopShips.First().GetAI().OrderRebase(this.planet,false);
+                                        //troop.GetAI().OrderAssaultPlanet(this.planet);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                AudioManager.PlayCue("blip_click");
+                            } 
+                    }
                 }
             }
+            GlobalStats.TakingInput = false;
             if (!HelperFunctions.CheckIntersection(this.Colonize.Rect, input.CursorPosition))
 			{
 				this.Colonize.State = UIButton.PressState.Normal;
@@ -370,7 +405,8 @@ namespace Ship_Game
 						this.marked = true;
 						return;
 					}
-					foreach (Goal g in Ship.universeScreen.player.GetGSAI().Goals)
+                    Ship.universeScreen.player.GetGSAI().Goals.thisLock.EnterReadLock();
+                    foreach (Goal g in Ship.universeScreen.player.GetGSAI().Goals)
 					{
 						if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != this.planet)
 						{
@@ -386,6 +422,7 @@ namespace Ship_Game
 						this.Colonize.Text = "Colonize";
 						break;
 					}
+                    Ship.universeScreen.player.GetGSAI().Goals.thisLock.ExitReadLock();
 					Ship.universeScreen.player.GetGSAI().Goals.ApplyPendingRemovals();
 					return;
 				}
