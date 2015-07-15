@@ -55,6 +55,8 @@ namespace Ship_Game
 
 		private Rectangle TroopRect;
 
+        private Rectangle FlagRect;  //fbedard
+
 		private bool CanRename = true;
 
 		private bool ShowModules = true;
@@ -67,6 +69,7 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = sm;
 			this.ElementRect = r;
+            this.FlagRect = new Rectangle(r.X + 150, r.Y + 50, 40, 40);
 			this.sel = new Selector(this.ScreenManager, r, Color.Black);
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -252,6 +255,14 @@ namespace Ship_Game
 					button.Draw(this.ScreenManager);
 				}
 			}
+            else  //fbedard: Display race icon of enemy ship in Ship UI
+            {
+                Rectangle FlagShip = new Rectangle(this.FlagRect.X + 190, this.FlagRect.Y + 130, 40, 40);
+                SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
+                KeyValuePair<string, Texture2D> keyValuePair = ResourceManager.FlagTextures[this.ship.loyalty.data.Traits.FlagIndex];
+                spriteBatch1.Draw(keyValuePair.Value, FlagShip, this.ship.loyalty.EmpireColor);
+            }
+
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
