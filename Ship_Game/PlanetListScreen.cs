@@ -535,19 +535,21 @@ namespace Ship_Game
 					{
 						this.ClickTimer = 0f;
 					}
-					else
-					{
-						this.ExitScreen();
-						this.empUI.screen.SelectedPlanet = entry.planet;
-						this.empUI.screen.ViewPlanet(null);
-						this.empUI.screen.transitionStartPosition = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, 10000f);
-						this.empUI.screen.returnToShip = false;
-					}
-					if (this.SelectedPlanet != entry.planet)
-					{
-						AudioManager.PlayCue("sd_ui_accept_alt3");
-						this.SelectedPlanet = entry.planet;
-					}
+                    else if (!GlobalStats.TakingInput)
+                    {
+                        {
+                            this.ExitScreen();
+                            this.empUI.screen.SelectedPlanet = entry.planet;
+                            this.empUI.screen.ViewPlanet(null);
+                            this.empUI.screen.transitionStartPosition = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, 10000f);
+                            this.empUI.screen.returnToShip = false;
+                        }
+                        if (this.SelectedPlanet != entry.planet)
+                        {
+                            AudioManager.PlayCue("sd_ui_accept_alt3");
+                            this.SelectedPlanet = entry.planet;
+                        }
+                    }
 				}
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.L) && !input.LastKeyboardState.IsKeyDown(Keys.L) && !GlobalStats.TakingInput)
@@ -556,7 +558,7 @@ namespace Ship_Game
                 this.ExitScreen();
                 return;
             }
-			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
+            if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input) )
 			{
                 //this.empUI.empire.data.PLSort = this.LastSorted;
                 this.ExitScreen();
