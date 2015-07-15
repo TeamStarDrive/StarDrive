@@ -2818,7 +2818,8 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
-            int naturalLimit = 0; //this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
+            int naturalLimit = 0; 
+            //this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
             //    export.ps == Planet.GoodState.EXPORT ||
             //    (export.Population >3000 && export.MaxPopulation > 3000)).Count();
             //naturalLimit += this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
@@ -2826,20 +2827,22 @@ namespace Ship_Game
             //    (export.Population > 3000 && export.MaxPopulation > 3000)).Count();
             
             int inneed = 0;
-            //int inneedofciv = 0;
+            float inneedofciv = 0f;  //fbedard: New formulas for passenger needed
+            bool exportPop = false;
             foreach(Planet planet in this.OwnedPlanets)
             {
                 if (planet.fs == Planet.GoodState.EXPORT)
-                {
                     naturalLimit++;
-
-                }
                 if (planet.ps == Planet.GoodState.EXPORT)
                     naturalLimit++;
-                if (planet.Population / planet.MaxPopulation > .5f && planet.MaxPopulation >3000)
+                if (planet.Population / planet.MaxPopulation > .5 && planet.MaxPopulation >3000)
                     naturalLimit++;
                 if (planet.Population / planet.MaxPopulation < .5 && planet.MaxPopulation > 3000)
                     inneed++;
+                if (planet.Population < 2000)
+                    inneedofciv++;
+                else
+                    exportPop = true;
                 if (planet.fs == Planet.GoodState.IMPORT && planet.FoodHere /planet.MAX_STORAGE <.25f)
                     inneed++;
                 if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere / planet.MAX_STORAGE <.25f)
@@ -2848,14 +2851,12 @@ namespace Ship_Game
             naturalLimit *= inneed;
             float moneyForFreighters = (this.Money * .1f) * .1f -this.freighterBudget;
             this.freighterBudget = 0;
-            if(naturalLimit >0 && moneyForFreighters <0)
-            {
-                //naturalLimit *= this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
-                //export.ps == Planet.GoodState.IMPORT ||
-                //export.Population /export.MaxPopulation <.2).Count();
-            }
+
             int freighterLimit = (naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : naturalLimit );
-            int TradeLimit = (int)(freighterLimit * 0.8f);
+            float CivLimit = (inneedofciv / this.OwnedPlanets.Count);
+            if (CivLimit > 0.3) CivLimit = .3f;
+            if (!exportPop) CivLimit = 0f;
+            int TradeLimit = (int)(freighterLimit * (1f - CivLimit));
             int PassLimit = freighterLimit - TradeLimit;
             List<Ship> unusedFreighters = new List<Ship>();
             List<Ship> assignedShips = new List<Ship>();
@@ -2884,8 +2885,6 @@ namespace Ship_Game
                     else
                         if (ship.CargoSpace_Used == 0)  //fbedard: dont scrap loaded ship
                             ship.GetAI().OrderScrapShip();
-                        else
-                            unusedFreighters.Add(ship);
                 }
                 else if (ship.GetAI().State == AIState.PassengerTransport)
                 {
@@ -2894,8 +2893,6 @@ namespace Ship_Game
                     else
                         if (ship.CargoSpace_Used == 0)  //fbedard: dont scrap loaded ship
                             ship.GetAI().OrderScrapShip();
-                        else
-                            unusedFreighters.Add(ship);
                 }
                 else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
                     unusedFreighters.Add(ship);
