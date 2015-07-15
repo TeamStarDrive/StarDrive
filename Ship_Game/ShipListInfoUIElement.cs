@@ -642,6 +642,8 @@ namespace Ship_Game
 
 		public void SetShipList(List<Ship> shipList, bool isFleet)
 		{
+            bool SomeMothership = false;  //fbedard: check for mothership
+
 			this.Orders.Clear();
 			this.isFleet = isFleet;
 			if (shipList != this.ShipList)
@@ -684,6 +686,10 @@ namespace Ship_Game
 				{
 					AllFreighters = false;
 				}
+                if(ship.Mothership != null)
+                {
+                    SomeMothership = true;
+                }
 			}
 			OrdersButton resupply = new OrdersButton(shipList, Vector2.Zero, OrderType.OrderResupply, 149)
 			{
@@ -691,6 +697,9 @@ namespace Ship_Game
 				Active = AllResupply
 			};
 			this.Orders.Add(resupply);
+
+            if (!SomeMothership)
+            {
 			OrdersButton SystemDefense = new OrdersButton(shipList, Vector2.Zero, OrderType.EmpireDefense, 150)
 			{
 				SimpleToggle = true,
@@ -725,6 +734,7 @@ namespace Ship_Game
 				};
 				this.Orders.Add(tpass);
 			}
+            }
 			int ex = 0;
 			int y = 0;
 			for (int i = 0; i < this.Orders.Count; i++)
