@@ -5062,8 +5062,7 @@ namespace Ship_Game.Gameplay
                     }
                     if (this.Owner.AreaOfOperation.Count <= 0)
                     {
-                        //if (p.Population <= 1500f)  That was wrong !!!
-                        if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                        if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                         {
                             continue;
                         }
@@ -5073,7 +5072,7 @@ namespace Ship_Game.Gameplay
                     {
                         foreach (Rectangle AO in this.Owner.AreaOfOperation)
                         {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || ((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                             {
                                 continue;
                             }
@@ -5081,35 +5080,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-                if (Possible.Count == 0)
-                {
-                    foreach (Planet p in SafePlanets)
-                    {
-                        if (p == this.start)
-                        {
-                            continue;
-                        }
-                        if (this.Owner.AreaOfOperation.Count <= 0)
-                        {
-                            if ((p.Population / p.MaxPopulation) >= 0.5)
-                            {
-                                continue;
-                            }
-                            Possible.Add(p);
-                        }
-                        else
-                        {
-                            foreach (Rectangle AO in this.Owner.AreaOfOperation)
-                            {
-                                if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
-                                {
-                                    continue;
-                                }
-                                Possible.Add(p);
-                            }
-                        }
-                    }
-                }
+
                 closestD = 999999999f;
                 this.end = null;
                 this.OrderQueue.Clear();
@@ -5141,7 +5112,7 @@ namespace Ship_Game.Gameplay
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
                     //if (p.Population <= 1000f)
-                    if ((p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
+                    if (p.Population <= 2000f)
                     {
                         continue;
                     }
@@ -5152,7 +5123,7 @@ namespace Ship_Game.Gameplay
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
                         //if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
-                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 2000f)
                         {
                             continue;
                         }
@@ -5184,7 +5155,7 @@ namespace Ship_Game.Gameplay
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
                     //if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
-                    if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                    if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                     {
                         continue;
                     }
@@ -5195,7 +5166,7 @@ namespace Ship_Game.Gameplay
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
                         //if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
-                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || ((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                         {
                             continue;
                         }
@@ -5203,35 +5174,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (Possible.Count == 0)
-            {
-                foreach (Planet p in SafePlanets)
-                {
-                    if (p == this.start)
-                    {
-                        continue;
-                    }
-                    if (this.Owner.AreaOfOperation.Count <= 0)
-                    {
-                        if ((p.Population / p.MaxPopulation) >= 0.5)
-                        {
-                            continue;
-                        }
-                        Possible.Add(p);
-                    }
-                    else
-                    {
-                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
-                        {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
-                            {
-                                continue;
-                            }
-                            Possible.Add(p);
-                        }
-                    }
-                }
-            }
+
             closestD = 999999999f;
             foreach (Planet p in Possible)
             {
@@ -5274,126 +5217,7 @@ namespace Ship_Game.Gameplay
 			{
 				this.Owner.GetCargo().Add("Colonists_1000", 0f);
 			}
-/*
-			if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
-			{
-				List<Planet> PossibleEnds = new List<Planet>();
-				foreach (Planet p in this.Owner.loyalty.GetPlanets())
-				{
-					if (this.Owner.AreaOfOperation.Count <= 0)
-					{
-						if (p.Population >= 1500f)
-						{
-							continue;
-						}
-						PossibleEnds.Add(p);
-					}
-					else
-					{
-						foreach (Rectangle AO in this.Owner.AreaOfOperation)
-						{
-							if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p == this.start)
-							{
-								continue;
-							}
-							PossibleEnds.Add(p);
-						}
-					}
-				}
-				if (PossibleEnds.Count > 0)
-				{
-					int random = (int)RandomMath.RandomBetween(0f, (float)PossibleEnds.Count + 0.85f);
-					if (random > PossibleEnds.Count - 1)
-					{
-						random = PossibleEnds.Count - 1;
-					}
-					this.end = PossibleEnds[random];
-				}
-				this.OrderQueue.Clear();
-				if (this.end != null)
-				{
-					this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true,this.end);
-					this.State = AIState.PassengerTransport;
-					this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
-				}
-				return;
-			}
-			this.OrderQueue.Clear();
-			List<Planet> Possible = new List<Planet>();
-			foreach (Planet p in this.Owner.loyalty.GetPlanets())
-			{
-				if (this.Owner.AreaOfOperation.Count <= 0)
-				{
-					if (p.Population <= 1000f)
-					{
-						continue;
-					}
-					Possible.Add(p);
-				}
-				else
-				{
-					foreach (Rectangle AO in this.Owner.AreaOfOperation)
-					{
-						if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
-						{
-							continue;
-						}
-						Possible.Add(p);
-					}
-				}
-			}
-			if (Possible.Count > 0)
-			{
-				int random = (int)RandomMath.RandomBetween(0f, (float)Possible.Count + 0.85f);
-				if (random > Possible.Count - 1)
-				{
-					random = Possible.Count - 1;
-				}
-				this.start = Possible[random];
-			}
-			Possible = new List<Planet>();
-			foreach (Planet p in this.Owner.loyalty.GetPlanets())
-			{
-				if (p == this.start)
-				{
-					continue;
-				}
-				if (this.Owner.AreaOfOperation.Count <= 0)
-				{
-					if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
-					{
-						continue;
-					}
-					Possible.Add(p);
-				}
-				else
-				{
-					foreach (Rectangle AO in this.Owner.AreaOfOperation)
-					{
-						if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
-						{
-							continue;
-						}
-						Possible.Add(p);
-					}
-				}
-			}
-			if (Possible.Count > 0)
-			{
-				int random = (int)RandomMath.RandomBetween(0f, (float)Possible.Count + 0.85f);
-				if (random > Possible.Count - 1)
-				{
-					random = Possible.Count - 1;
-				}
-				this.end = Possible[random];
-			}
-			if (this.start != null && this.end != null)
-			{
-				this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true,this.end);
-				this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
-			}
-			this.State = AIState.PassengerTransport;
-*/		
+
             List<Planet> Possible = new List<Planet>();
 
             // fbedard: Where to drop nearest Population
@@ -5408,7 +5232,7 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.AreaOfOperation.Count <= 0)
                     {
                         //if (p.Population <= 1500f)  That was wrong !!!
-                        if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                        if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                         {
                             continue;
                         }
@@ -5418,7 +5242,7 @@ namespace Ship_Game.Gameplay
                     {
                         foreach (Rectangle AO in this.Owner.AreaOfOperation)
                         {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || ((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                             {
                                 continue;
                             }
@@ -5426,35 +5250,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-                if (Possible.Count == 0)
-                {
-                    foreach (Planet p in this.Owner.loyalty.GetPlanets())
-                    {
-                        if (p == this.start)
-                        {
-                            continue;
-                        }
-                        if (this.Owner.AreaOfOperation.Count <= 0)
-                        {
-                            if ((p.Population / p.MaxPopulation) >= 0.5)
-                            {
-                                continue;
-                            }
-                            Possible.Add(p);
-                        }
-                        else
-                        {
-                            foreach (Rectangle AO in this.Owner.AreaOfOperation)
-                            {
-                                if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
-                                {
-                                    continue;
-                                }
-                                Possible.Add(p);
-                            }
-                        }
-                    }
-                }
+
                 closestD = 999999999f;
                 this.end = null;
                 this.OrderQueue.Clear();
@@ -5486,7 +5282,7 @@ namespace Ship_Game.Gameplay
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
                     //if (p.Population <= 1000f)
-                    if ((p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
+                    if (p.Population <= 2000f)
                     {
                         continue;
                     }
@@ -5497,7 +5293,7 @@ namespace Ship_Game.Gameplay
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
                         //if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
-                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) <= 0.5 || p.Population <= 2000f)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 2000f)
                         {
                             continue;
                         }
@@ -5529,7 +5325,8 @@ namespace Ship_Game.Gameplay
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
                     //if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
-                    if ((p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f)
+                    if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
+
                     {
                         continue;
                     }
@@ -5540,7 +5337,7 @@ namespace Ship_Game.Gameplay
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
                         //if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
-                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p.Population >= 2000f || p == this.start)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || ((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                         {
                             continue;
                         }
@@ -5548,35 +5345,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (Possible.Count == 0)
-            {
-                foreach (Planet p in this.Owner.loyalty.GetPlanets())
-                {
-                    if (p == this.start)
-                    {
-                        continue;
-                    }
-                    if (this.Owner.AreaOfOperation.Count <= 0)
-                    {
-                        if ((p.Population / p.MaxPopulation) >= 0.5)
-                        {
-                            continue;
-                        }
-                        Possible.Add(p);
-                    }
-                    else
-                    {
-                        foreach (Rectangle AO in this.Owner.AreaOfOperation)
-                        {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || (p.Population / p.MaxPopulation) >= 0.5 || p == this.start)
-                            {
-                                continue;
-                            }
-                            Possible.Add(p);
-                        }
-                    }
-                }
-            }
+
             closestD = 999999999f;
             foreach (Planet p in Possible)
             {
