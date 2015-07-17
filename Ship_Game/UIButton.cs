@@ -26,12 +26,16 @@ namespace Ship_Game
 
 		public int ToolTip;
 
+        public bool Active = true;
+
 		public UIButton()
 		{
 		}
 
 		public void Draw(SpriteBatch spriteBatch, Rectangle r)
 		{
+            if (!Active) return;
+
 			Vector2 textCursor = new Vector2();
 			if (!string.IsNullOrEmpty(this.Text))
 			{
@@ -69,6 +73,8 @@ namespace Ship_Game
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
+            if (!Active) return;
+
 			Vector2 textCursor = new Vector2();
 			if (!string.IsNullOrEmpty(this.Text))
 			{
@@ -106,6 +112,8 @@ namespace Ship_Game
 
 		public void DrawInActive(SpriteBatch spriteBatch)
 		{
+            if (!Active) return;
+
 			Vector2 textCursor = new Vector2();
 			if (!string.IsNullOrEmpty(this.Text))
 			{
@@ -143,6 +151,8 @@ namespace Ship_Game
 
 		public void DrawLowRes(SpriteBatch spriteBatch)
 		{
+            if (!Active) return;
+
 			Vector2 textCursor = new Vector2();
 			if (!string.IsNullOrEmpty(this.Text))
 			{
