@@ -83,15 +83,15 @@ namespace Ship_Game
         private bool disposed;
 
 		public CombatScreen(Ship_Game.ScreenManager sm, Planet p)
-		{
-			this.p = p;
+		{            
+            this.p = p;
 			this.ScreenManager = sm;
 			int screenWidth = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
 			this.GridRect = new Rectangle(screenWidth / 2 - 639, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
 			Rectangle titleRect = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
 			this.TitleBar = new Menu2(this.ScreenManager, titleRect);
 			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-			this.SelectedItemRect = new Rectangle(screenWidth - 240, 48, 225, 205);
+			this.SelectedItemRect = new Rectangle(screenWidth - 240, 100, 225, 205);
 			this.AssetsRect = new Rectangle(10, 48, 225, 200);
 			this.HoveredItemRect = new Rectangle(10, 248, 225, 200);
 			this.assetsUI = new OrbitalAssetsUIElement(this.AssetsRect, this.ScreenManager, PlanetScreen.screen, p);
@@ -105,6 +105,8 @@ namespace Ship_Game
 			this.orbitalResourcesSub = new Submenu(this.ScreenManager, psubRect);
 			this.orbitalResourcesSub.AddTab("In Orbit");
 			this.OrbitSL = new ScrollList(this.orbitalResourcesSub);
+            universeScreen.ShipsInCombat.Active = false;
+            universeScreen.PlanetsInCombat.Active = false;
 			this.LandAll = new UIButton()
 			{
 				Rect = new Rectangle(this.orbitalResourcesSub.Menu.X + 20, this.orbitalResourcesSub.Menu.Y - 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
@@ -1011,6 +1013,12 @@ namespace Ship_Game
 			this.DetermineAttackAndMove();
 			this.hInfo.SetPGS(this.HoveredSquare);
 			this.previousMouse = this.currentMouse;
+
+            if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+            {
+                universeScreen.ShipsInCombat.Active = true;
+                universeScreen.PlanetsInCombat.Active = true;
+            }
 		}
         
 		private void ResetTroopList()

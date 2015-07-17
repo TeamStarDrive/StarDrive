@@ -212,6 +212,9 @@ namespace Ship_Game
             Rectangle theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + theMenu6.Height + 40, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
             this.pStorage = new Submenu(ScreenManager, theMenu7);
             this.pStorage.AddTab(Localizer.Token(328));
+            this.eui.screen.ShipsInCombat.Active = false;
+            this.eui.screen.PlanetsInCombat.Active = false;
+
             if (GlobalStats.HardcoreRuleset)
             {
                 int num2 = (theMenu7.Width - 40) / 4;
@@ -2773,7 +2776,12 @@ namespace Ship_Game
             this.buildingsHereLast = this.p.BuildingList.Count;
             this.buildingsCanBuildLast = this.BuildingsCanBuild.Count;
             this.previousMouse = this.currentMouse;
-            
+
+            if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+            {
+                this.eui.screen.ShipsInCombat.Active = true;
+                this.eui.screen.PlanetsInCombat.Active = true;
+            }
         }
 
         private void HandleSlider()
