@@ -91,6 +91,8 @@ namespace Ship_Game
         public Planet Capital;
         public int EmpireShipCountReserve;
         public int empireShipTotal;
+        public int empireShipCombat;    //fbedard
+        public int empirePlanetCombat;  //fbedard
         public bool canBuildCapitals;
         public bool canBuildCruisers;
         public bool canBuildFrigates;
@@ -1436,9 +1438,50 @@ namespace Ship_Game
                             break;
                         }
                     }
+
+                //fbedard: Number of planets where you have combat
+                this.empirePlanetCombat = 0;
+                bool flagPlanet;
+                if (this.isPlayer)
+                    foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+                    {
+                        foreach (Planet p in system.PlanetList)
+                        {
+                            if (p.ExploredDict[EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty)] && p.RecentCombat)
+                            {
+                                if (p.Owner == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                    this.empirePlanetCombat++;
+                                else
+                                {
+                                    flagPlanet = false;
+                                    foreach (PlanetGridSquare planetGridSquare in p.TilesList)
+                                    {
+                                        if (!flagPlanet) 
+                                        {
+                                            planetGridSquare.TroopsHere.thisLock.EnterReadLock();
+                                            foreach (Troop troop in planetGridSquare.TroopsHere)
+                                            {
+                                                if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                                {
+                                                    flagPlanet = true;
+                                                    break;
+                                                }
+                                            }
+                                            planetGridSquare.TroopsHere.thisLock.ExitReadLock();
+                                        }
+                                    }
+                                    if (flagPlanet) this.empirePlanetCombat++;
+                                }
+                            }
+                        }
+                    }
+
                 this.empireShipTotal = 0;
+                this.empireShipCombat = 0;
                 foreach (Ship ship in this.OwnedShips)
                 {
+                    if (ship.fleet == null && ship.InCombat && ship.Mothership == null && ship.Name != "Subspace Projector")  //fbedard: total ships in combat
+                        this.empireShipCombat++;
                     if (ship.Mothership != null || ship.Role == "troop" || ship.Name == "Subspace Projector" || ship.Role == "freighter")
                         continue;
                     this.empireShipTotal++;

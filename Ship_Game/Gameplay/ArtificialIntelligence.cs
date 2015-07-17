@@ -967,10 +967,8 @@ namespace Ship_Game.Gameplay
             {
                 TargetPlanet = OrbitTarget
             };
-            this.orderqueue.EnterWriteLock();
             this.OrderQueue.Clear();
             this.OrderQueue.AddLast(shipGoal);
-            this.orderqueue.ExitWriteLock();
         }
         public void OrderAssaultPlanetorig(Planet p)
         {
@@ -1104,6 +1102,7 @@ namespace Ship_Game.Gameplay
 
                     Notification cNote = new Notification()
                     {
+                        Pause = false,
                         RelevantEmpire = this.Owner.loyalty,
                         Message = string.Concat(system.Name, " system explored."),
                         ReferencedItem1 = system,
@@ -4046,9 +4045,7 @@ namespace Ship_Game.Gameplay
             }
             if (ClearOrders)
             {
-                this.orderqueue.EnterWriteLock();
                 this.OrderQueue.Clear();
-                this.orderqueue.ExitWriteLock();
             }
             int troops = this.Owner.loyalty.GetShips()
     .Where(troop => troop.TroopList.Count > 0)
@@ -4068,9 +4065,7 @@ namespace Ship_Game.Gameplay
             {
                 TargetPlanet = p
             };
-            this.orderqueue.EnterWriteLock();
             this.OrderQueue.AddLast(rebase);
-            this.orderqueue.ExitWriteLock();
             this.State = AIState.Rebase;
             this.HasPriorityOrder = true;
         }
