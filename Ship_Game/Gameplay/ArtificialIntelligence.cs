@@ -6942,6 +6942,7 @@ namespace Ship_Game.Gameplay
                                                 {
                                                     if (this.EscortTarget == null || !this.EscortTarget.Active)
                                                     {
+                                                        this.State = AIState.AwaitingOrders;   //fbedard
                                                         break;
                                                     }
                                                     this.OrbitShip(this.EscortTarget, elapsedTime);
