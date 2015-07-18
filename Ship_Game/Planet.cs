@@ -2995,6 +2995,7 @@ namespace Ship_Game
                     this.queueEmptySent = true;
                     Notification cNote = new Notification()
                     {
+                        Pause = false,
                         RelevantEmpire = this.Owner,
                         Message = string.Concat(this.Name, " is not producing anything."),
                         ReferencedItem1 = this, //this.system,

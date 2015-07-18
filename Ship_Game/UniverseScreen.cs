@@ -274,6 +274,12 @@ namespace Ship_Game
         public float Lag = 0;
         public Ship previousSelection;
 
+        //fbedard
+        public UIButton ShipsInCombat;    
+        public UIButton PlanetsInCombat;
+        public int lastshipcombat = 0;
+        public int lastplanetcombat = 0;
+
         static UniverseScreen()
         {
         }
@@ -1262,6 +1268,24 @@ namespace Ship_Game
             this.ScreenRectangle = new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
             this.starfield = new Starfield(Vector2.Zero, this.ScreenManager.GraphicsDevice, this.ScreenManager.Content);
             this.starfield.LoadContent();
+
+            //fbedard: new button for ShipsInCombat
+            this.ShipsInCombat = new UIButton();
+            ShipsInCombat.Rect = new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 275, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height);
+            ShipsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
+            ShipsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
+            ShipsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+            ShipsInCombat.Text = "Ships: 0";
+            ShipsInCombat.Launches = "ShipsInCombat";
+
+            //fbedard: new button for PlanetsInCombat
+            this.PlanetsInCombat = new UIButton();
+            PlanetsInCombat.Rect = new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 135, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height);
+            PlanetsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
+            PlanetsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
+            PlanetsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+            PlanetsInCombat.Text = "Planets: 0";
+            PlanetsInCombat.Launches = "PlanetsInCombat";
         }
 
         protected void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
@@ -2592,6 +2616,11 @@ namespace Ship_Game
                 flag = true;
             if (this.NotificationManager.HandleInput(input))
                 flag = true;
+            if (HelperFunctions.CheckIntersection(this.ShipsInCombat.Rect, input.CursorPosition))  //fbedard
+                flag = true;
+            if (HelperFunctions.CheckIntersection(this.PlanetsInCombat.Rect, input.CursorPosition))  //fbedard
+                flag = true;
+
             return flag;
         }
 
@@ -2740,6 +2769,144 @@ namespace Ship_Game
                 else
                     --this.GameSpeed;
             }
+
+            //fbedard: Click button to Cycle through ships in Combat
+            if (!HelperFunctions.CheckIntersection(this.ShipsInCombat.Rect, input.CursorPosition))
+            {
+                this.ShipsInCombat.State = UIButton.PressState.Normal;
+            }
+            else
+            {
+                this.ShipsInCombat.State = UIButton.PressState.Hover;
+                if (input.InGameSelect)
+                {
+                    if (this.player.empireShipCombat > 0)
+                    {
+                        AudioManager.PlayCue("echo_affirm");
+                        int nbrship = 0;
+                        if (lastshipcombat >= this.player.empireShipCombat)
+                            lastshipcombat = 0;
+                        foreach (Ship ship in EmpireManager.GetEmpireByName(this.PlayerLoyalty).GetShips())
+                        {
+                            if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active || ship.Name == "Subspace Projector")
+                                continue;
+                            else
+                            {
+                                if (nbrship == lastshipcombat)
+                                {
+                                    if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
+                                        this.previousSelection = this.SelectedShip;
+                                    this.SelectedShip = ship;
+                                    this.ViewToShip(null);
+                                    this.SelectedShipList.Add(this.SelectedShip);
+                                    lastshipcombat++;
+                                    break;
+                                }
+                                else nbrship++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        AudioManager.PlayCue("blip_click");
+                    }
+                }
+            }
+
+            //fbedard: Click button to Cycle through Planets in Combat
+            if (!HelperFunctions.CheckIntersection(this.PlanetsInCombat.Rect, input.CursorPosition))
+            {
+                this.PlanetsInCombat.State = UIButton.PressState.Normal;
+            }
+            else
+            {
+                this.PlanetsInCombat.State = UIButton.PressState.Hover;
+                if (input.InGameSelect)
+                {
+                    if (this.player.empirePlanetCombat > 0)
+                    {
+                        AudioManager.PlayCue("echo_affirm");
+                        Planet PlanetToView = (Planet)null;
+                        int nbrplanet = 0;
+                        if (lastplanetcombat >= this.player.empirePlanetCombat)
+                            lastplanetcombat = 0;
+                        bool flagPlanet;
+
+                        foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+                        {
+                            foreach (Planet p in system.PlanetList)
+                            {
+                                if (p.ExploredDict[EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty)] && p.RecentCombat)
+                                {
+                                    if (p.Owner == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                    {
+                                        if (nbrplanet == lastplanetcombat)
+                                            PlanetToView = p;
+                                        else
+                                            nbrplanet++;
+                                    }
+                                    else
+                                    {
+                                        flagPlanet = false;
+                                        foreach (PlanetGridSquare planetGridSquare in p.TilesList)
+                                        {
+                                            if (!flagPlanet) 
+                                            {
+                                                planetGridSquare.TroopsHere.thisLock.EnterReadLock();
+                                                foreach (Troop troop in planetGridSquare.TroopsHere)
+                                                {
+                                                    if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                                    {
+                                                        flagPlanet = true;
+                                                        break;
+                                                    }
+                                                }
+                                                planetGridSquare.TroopsHere.thisLock.ExitReadLock();
+                                            }
+                                        }
+                                        if (flagPlanet) 
+                                        {
+                                            if (nbrplanet == lastplanetcombat)
+                                                PlanetToView = p;
+                                            else
+                                                nbrplanet++;
+                                        }
+                                    }
+                                }
+                            }                       
+                        }
+                        if (PlanetToView != null)
+                        {
+                            this.SelectedShip = (Ship)null;
+                            //this.ShipInfoUIElement.SetShip(this.SelectedShip);
+                            this.SelectedFleet = (Fleet)null;
+                            this.SelectedShipList.Clear();
+                            this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                            this.SelectedSystem = (SolarSystem)null;
+                            this.SelectedPlanet = PlanetToView;
+                            this.pInfoUI.SetPlanet(PlanetToView);
+                            lastplanetcombat++;
+
+                            this.transitionDestination = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, 9000f);
+                            this.LookingAtPlanet = false;
+                            this.transitionStartPosition = this.camPos;
+                            this.AdjustCamTimer = 2f;
+                            this.transitionElapsedTime = 0.0f;
+                            this.transDuration = 5f;
+                            this.returnToShip = false;
+                            this.ViewingShip = false;
+                            this.snappingToShip = false;
+                            this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                            //PlanetToView.OpenCombatMenu(null);
+                        }
+                    }
+                    else
+                    {
+                        AudioManager.PlayCue("blip_click");
+                    }
+                }
+            }
+
             if (!this.LookingAtPlanet)
             {
                 if (this.HandleGUIClicks(input))
@@ -3137,6 +3304,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             this.cState = this.SelectedShip != null || this.SelectedShipList.Count > 0 ? UniverseScreen.CursorState.Move : UniverseScreen.CursorState.Normal;
             if (this.SelectedShip == null && this.SelectedShipList.Count <= 0)
                 return;
@@ -5453,10 +5621,37 @@ namespace Ship_Game
             }
             this.DrawFleetIcons(gameTime);
 
+            //fbedard: display values in new buttons
+            this.ShipsInCombat.Text = "Ships: " + this.player.empireShipCombat.ToString();  
+            if (this.player.empireShipCombat > 0)
+            {
+                ShipsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"];
+                ShipsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"];
+                ShipsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"];
+            }
+            else
+            {
+                ShipsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
+                ShipsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
+                ShipsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+            }
+            this.ShipsInCombat.Draw(ScreenManager.SpriteBatch);
 
+            this.PlanetsInCombat.Text = "Planets: " + this.player.empirePlanetCombat.ToString();
+            if (this.player.empirePlanetCombat > 0)
+            {
+                PlanetsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"];
+                PlanetsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"];
+                PlanetsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"];
+            }
+            else
+            {
+                PlanetsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
+                PlanetsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
+                PlanetsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+            }
+            this.PlanetsInCombat.Draw(ScreenManager.SpriteBatch);
 
-            
-            
             if (!this.LookingAtPlanet)
                 this.pieMenu.Draw(this.ScreenManager.SpriteBatch, Fonts.Arial12Bold);
             Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, this.SelectionBox, Color.Green, 1f);
