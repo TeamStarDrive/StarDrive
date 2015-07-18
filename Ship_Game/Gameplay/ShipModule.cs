@@ -2471,7 +2471,7 @@ namespace Ship_Game.Gameplay
 		public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
 		{
 			this.Move(elapsedTime, cos, sin, tan);
-			if ((double)this.Parent.percent >= 0.5 || (double)base.Health >= 0.25 * (double)this.HealthMax)
+			if (this.Parent.percent >= 0.5 || base.Health >= 0.25 * this.HealthMax)
 			{
 				this.reallyFuckedUp = false;
 			}
@@ -2479,27 +2479,30 @@ namespace Ship_Game.Gameplay
 			{
 				this.reallyFuckedUp = true;
 			}
-			if (this.Active && this.onFire && this.trailEmitter == null && this.firetrailEmitter == null)
-			{
-				this.trailEmitter = new ParticleEmitter(ShipModule.universeScreen.projectileTrailParticles, 50f, this.Center3D);
-				this.firetrailEmitter = new ParticleEmitter(ShipModule.universeScreen.fireTrailParticles, 60f, this.Center3D);
-				this.flameEmitter = new ParticleEmitter(ShipModule.universeScreen.flameParticles, 50f, this.Center3D);
-			}
-			if (this.trailEmitter != null && this.reallyFuckedUp && this.Active)
-			{
-				this.trailEmitter.Update(elapsedTime, this.Center3D);
-				this.flameEmitter.Update(elapsedTime, this.Center3D);
-			}
-			else if (this.trailEmitter != null && this.onFire && this.Active)
-			{
-				this.trailEmitter.Update(elapsedTime, this.Center3D);
-				this.firetrailEmitter.Update(elapsedTime, this.Center3D);
-			}
-			else if (!this.Active && this.trailEmitter != null)
-			{
-				this.trailEmitter = null;
-				this.firetrailEmitter = null;
-			}
+            if (this.Parent.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            {
+                if (this.Active && this.onFire && this.trailEmitter == null && this.firetrailEmitter == null)
+                {
+                    this.trailEmitter = new ParticleEmitter(ShipModule.universeScreen.projectileTrailParticles, 50f, this.Center3D);
+                    this.firetrailEmitter = new ParticleEmitter(ShipModule.universeScreen.fireTrailParticles, 60f, this.Center3D);
+                    this.flameEmitter = new ParticleEmitter(ShipModule.universeScreen.flameParticles, 50f, this.Center3D);
+                }
+                if (this.trailEmitter != null && this.reallyFuckedUp && this.Active)
+                {
+                    this.trailEmitter.Update(elapsedTime, this.Center3D);
+                    this.flameEmitter.Update(elapsedTime, this.Center3D);
+                }
+                else if (this.trailEmitter != null && this.onFire && this.Active)
+                {
+                    this.trailEmitter.Update(elapsedTime, this.Center3D);
+                    this.firetrailEmitter.Update(elapsedTime, this.Center3D);
+                }
+                else if (!this.Active && this.trailEmitter != null)
+                {
+                    this.trailEmitter = null;
+                    this.firetrailEmitter = null;
+                } 
+            }
 			base.Rotation = this.Parent.Rotation;
 		}
 
