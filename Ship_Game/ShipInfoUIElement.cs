@@ -683,7 +683,7 @@ namespace Ship_Game
 					this.Orders.Add(ob);
 				}
 			}
-            if (this.ship.Role != "station")
+            if (this.ship.Role != "station" && this.ship.Role != "platform")
             {
                 OrdersButton resupply = new OrdersButton(this.ship, Vector2.Zero, OrderType.OrderResupply, 149)
                 {
@@ -691,7 +691,7 @@ namespace Ship_Game
                 };
                 this.Orders.Add(resupply);
             }
-            if (this.ship.Role != "station" && ship.Mothership == null)
+            if (this.ship.Role != "station" && ship.Mothership == null && this.ship.Role != "platform")
             {
 			    OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
 			    {
