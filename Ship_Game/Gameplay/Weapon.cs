@@ -242,6 +242,9 @@ namespace Ship_Game.Gameplay
 
         public GameplayObject SalvoTarget = null;
         public float ExplosionRadiusVisual = 4.5f;
+        public GameplayObject fireTarget = null;
+        public float TargetChangeTimer = 0;
+        public bool PrimaryTarget = false;
        
 
 		public static AudioListener audioListener
