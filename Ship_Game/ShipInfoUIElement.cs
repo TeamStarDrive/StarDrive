@@ -597,7 +597,15 @@ namespace Ship_Game
 					return;
 				}
 			}
-            if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop" && this.ship.Role != "station" && ship.Mothership == null)
+            if (this.ship.Role != "station" && this.ship.Role != "platform")
+            {
+                OrdersButton resupply = new OrdersButton(this.ship, Vector2.Zero, OrderType.OrderResupply, 149)
+                {
+                    ValueToModify = new Ref<bool>(() => this.ship.DoingResupply, (bool x) => this.ship.DoingResupply = x)
+                };
+                this.Orders.Add(resupply);
+            }
+            if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "station" && ship.Mothership == null)
 			{
 				OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
 				{
@@ -683,15 +691,7 @@ namespace Ship_Game
 					this.Orders.Add(ob);
 				}
 			}
-            if (this.ship.Role != "station" && this.ship.Role != "platform")
-            {
-                OrdersButton resupply = new OrdersButton(this.ship, Vector2.Zero, OrderType.OrderResupply, 149)
-                {
-                    ValueToModify = new Ref<bool>(() => this.ship.DoingResupply, (bool x) => this.ship.DoingResupply = x)
-                };
-                this.Orders.Add(resupply);
-            }
-            if (this.ship.Role != "station" && ship.Mothership == null && this.ship.Role != "platform")
+            if (this.ship.Role != "station" && ship.Mothership == null && this.ship.Role != "platform" && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "freighter")
             {
 			    OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
 			    {
@@ -707,6 +707,12 @@ namespace Ship_Game
             }
             if (ship.Mothership == null)
             {
+                OrdersButton rf = new OrdersButton(this.ship, Vector2.Zero, OrderType.Refit, 158)
+                {
+                    ValueToModify = new Ref<bool>(() => this.ship.doingRefit, (bool x) => this.ship.doingRefit = x),
+                    Active = false
+                };
+                this.Orders.Add(rf);
                 //Added by McShooterz: scrap order
                 OrdersButton sc = new OrdersButton(this.ship, Vector2.Zero, OrderType.Scrap, 157)
                 {
@@ -714,12 +720,6 @@ namespace Ship_Game
                     Active = false
                 };
                 this.Orders.Add(sc);
-                OrdersButton rf = new OrdersButton(this.ship, Vector2.Zero, OrderType.Refit, 158)
-                {
-                    ValueToModify = new Ref<bool>(() => this.ship.doingRefit, (bool x) => this.ship.doingRefit = x),
-                    Active = false
-                };
-                this.Orders.Add(rf);
             }
 
 			int ex = 0;

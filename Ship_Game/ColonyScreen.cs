@@ -155,6 +155,7 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
+        private bool rmouse = false;
 
 
         public ColonyScreen(Planet p, Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
@@ -2043,7 +2044,6 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            
             this.pFacilities.HandleInputNoReset(this);
             if (HelperFunctions.CheckIntersection(this.RightColony.r, input.CursorPosition))
             {
@@ -2073,6 +2073,11 @@ namespace Ship_Game
 
                     System.Diagnostics.Debug.WriteLine("Colony Screen Handle Inpu. Likely null reference.");
                 }
+                if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
+                {
+                    this.eui.screen.ShipsInCombat.Active = true;
+                    this.eui.screen.PlanetsInCombat.Active = true;
+                }
                 return;
             }
             if ((input.Left || this.LeftColony.HandleInput(input)) && (PlanetScreen.screen.Debug || this.p.Owner == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty)))
@@ -2083,6 +2088,11 @@ namespace Ship_Game
                 {
                     this.p = this.p.Owner.GetPlanets()[thisindex];
                     PlanetScreen.screen.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
+                }
+                if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
+                {
+                    this.eui.screen.ShipsInCombat.Active = true;
+                    this.eui.screen.PlanetsInCombat.Active = true;
                 }
                 return;
             }
@@ -2096,6 +2106,11 @@ namespace Ship_Game
             if (this.p.Owner != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
             {
                 this.HandleDetailInfo(input);
+                if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
+                {
+                    this.eui.screen.ShipsInCombat.Active = true;
+                    this.eui.screen.PlanetsInCombat.Active = true;
+                }
                 return;
             }
             if (!HelperFunctions.CheckIntersection(this.launchTroops.Rect, input.CursorPosition))
@@ -2121,7 +2136,7 @@ namespace Ship_Game
                         this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                         pgs.TroopsHere[0].SetPlanet(null);
                         pgs.TroopsHere.Clear();
-                        //this.ClickedTroop = true;
+                        this.ClickedTroop = true;
                         this.detailInfo = null;
                     }
                     if (play)
@@ -2387,8 +2402,9 @@ namespace Ship_Game
                     pgs.TroopsHere.Clear();
                     this.ClickedTroop = true;
                     this.detailInfo = null;
+                    rmouse = true;
                 }
-                return;
+                return;                
             }
             if (!this.ClickedTroop)
             {
@@ -2405,7 +2421,9 @@ namespace Ship_Game
                             MessageBoxScreen messageBox = new MessageBoxScreen(message);
                             messageBox.Accepted += new EventHandler<EventArgs>(this.ScrapAccepted);
                             this.ScreenManager.AddScreen(messageBox);
-                            //this.ClickedTroop = true;
+                            this.ClickedTroop = true;
+                            rmouse = true;
+                            return;
                         }
                     }
                     if (pgs.TroopsHere.Count <= 0 || !HelperFunctions.CheckIntersection(pgs.TroopClickRect, input.CursorPosition))
@@ -2655,7 +2673,7 @@ namespace Ship_Game
                 }
                 if (this.currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
                 {
-                    //this.ClickedTroop = true;
+                    this.ClickedTroop = true;
                     this.ActiveBuildingEntry = null;
                 }
             }
@@ -2775,13 +2793,13 @@ namespace Ship_Game
             this.shipsCanBuildLast = this.p.Owner.ShipsWeCanBuild.Count;
             this.buildingsHereLast = this.p.BuildingList.Count;
             this.buildingsCanBuildLast = this.BuildingsCanBuild.Count;
-            this.previousMouse = this.currentMouse;
-
-            if (this.ClickedTroop && (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released))
+            if (input.RightMouseClick && !this.ClickedTroop) rmouse = false;
+            if (!rmouse && (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released))
             {
                 this.eui.screen.ShipsInCombat.Active = true;
                 this.eui.screen.PlanetsInCombat.Active = true;
             }
+            this.previousMouse = this.currentMouse;
         }
 
         private void HandleSlider()
