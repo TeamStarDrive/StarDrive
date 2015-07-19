@@ -2121,7 +2121,7 @@ namespace Ship_Game
                         this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                         pgs.TroopsHere[0].SetPlanet(null);
                         pgs.TroopsHere.Clear();
-                        this.ClickedTroop = true;
+                        //this.ClickedTroop = true;
                         this.detailInfo = null;
                     }
                     if (play)
@@ -2405,7 +2405,7 @@ namespace Ship_Game
                             MessageBoxScreen messageBox = new MessageBoxScreen(message);
                             messageBox.Accepted += new EventHandler<EventArgs>(this.ScrapAccepted);
                             this.ScreenManager.AddScreen(messageBox);
-                            this.ClickedTroop = true;
+                            //this.ClickedTroop = true;
                         }
                     }
                     if (pgs.TroopsHere.Count <= 0 || !HelperFunctions.CheckIntersection(pgs.TroopClickRect, input.CursorPosition))
@@ -2655,7 +2655,7 @@ namespace Ship_Game
                 }
                 if (this.currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
                 {
-                    this.ClickedTroop = true;
+                    //this.ClickedTroop = true;
                     this.ActiveBuildingEntry = null;
                 }
             }
@@ -2777,7 +2777,7 @@ namespace Ship_Game
             this.buildingsCanBuildLast = this.BuildingsCanBuild.Count;
             this.previousMouse = this.currentMouse;
 
-            if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+            if (this.ClickedTroop && (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released))
             {
                 this.eui.screen.ShipsInCombat.Active = true;
                 this.eui.screen.PlanetsInCombat.Active = true;
