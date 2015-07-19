@@ -642,8 +642,6 @@ namespace Ship_Game
 
 		public void SetShipList(List<Ship> shipList, bool isFleet)
 		{
-            bool SomeMothership = false;  //fbedard: check for mothership
-
 			this.Orders.Clear();
 			this.isFleet = isFleet;
 			if (shipList != this.ShipList)
@@ -656,6 +654,7 @@ namespace Ship_Game
 			bool AllResupply = true;
 			this.AllShipsMine = true;
 			bool AllFreighters = true;
+            bool AllCombat = true;
 			for (int i = 0; i < shipList.Count; i++)
 			{
 				Ship ship = shipList[i];
@@ -682,13 +681,14 @@ namespace Ship_Game
 				{
 					this.AllShipsMine = false;
 				}
-				if (ship.CargoSpace_Max == 0f)
+				//if (ship.CargoSpace_Max == 0f)
+                if (ship.CargoSpace_Max == 0f || ship.Role == "troop" || ship.GetAI().State == AIState.Colonize || ship.Role == "station" || ship.Mothership != null)
 				{
 					AllFreighters = false;
 				}
-                if(ship.Mothership != null)
+                if (ship.Role == "construction" || ship.Role == "platform" || ship.Role == "freighter" || ship.Role == "troop" || ship.GetAI().State == AIState.Colonize || ship.Role == "station" || ship.Mothership != null)
                 {
-                    SomeMothership = true;
+                    AllCombat = false;
                 }
 			}
 			OrdersButton resupply = new OrdersButton(shipList, Vector2.Zero, OrderType.OrderResupply, 149)
@@ -698,7 +698,8 @@ namespace Ship_Game
 			};
 			this.Orders.Add(resupply);
 
-            if (!SomeMothership)
+
+            if (AllCombat)
             {
 			OrdersButton SystemDefense = new OrdersButton(shipList, Vector2.Zero, OrderType.EmpireDefense, 150)
 			{
@@ -712,15 +713,10 @@ namespace Ship_Game
 				Active = false
 			};
 			this.Orders.Add(Explore);
-            //Added by McShooterz: fleet scrap button
-            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
-            {
-                SimpleToggle = true,
-                Active = false
-            };
-            this.Orders.Add(Scrap);
 			OrdersButton ordersButton = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15);
 			SystemDefense.SimpleToggle = true;
+            }
+
 			if (AllFreighters)
 			{
 				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 15)
@@ -734,7 +730,15 @@ namespace Ship_Game
 				};
 				this.Orders.Add(tpass);
 			}
-            }
+
+            //Added by McShooterz: fleet scrap button
+            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
+            {
+                SimpleToggle = true,
+                Active = false
+            };
+            this.Orders.Add(Scrap);
+
 			int ex = 0;
 			int y = 0;
 			for (int i = 0; i < this.Orders.Count; i++)
