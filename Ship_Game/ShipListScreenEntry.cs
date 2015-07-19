@@ -335,7 +335,11 @@ namespace Ship_Game
 					}
 					else
 					{
-						text = ship.GetAI().OrderQueue.First.Value.Plan.ToString();
+                        if (ship.GetAI().OrderQueue.First.Value.TargetPlanet == null)  //fbedard
+						    text = ship.GetAI().OrderQueue.First.Value.Plan.ToString();
+                        else
+                            //text = ship.GetAI().OrderQueue.First.Value.Plan.ToString();
+                            text = string.Concat(ship.GetAI().OrderQueue.First.Value.Plan.ToString(), " to ", ship.GetAI().OrderQueue.First.Value.TargetPlanet.Name);
 						break;
 					}
 				}
@@ -466,7 +470,8 @@ namespace Ship_Game
 				}
 				case AIState.Rebase:
 				{
-					text = Localizer.Token(178);
+					//text = Localizer.Token(178);
+                    text = string.Concat(Localizer.Token(178), " to ", ship.GetAI().OrderQueue.Last.Value.TargetPlanet.Name);  //fbedard
 					break;
 				}
 				case AIState.Bombard:
