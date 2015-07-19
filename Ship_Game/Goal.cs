@@ -435,7 +435,12 @@ namespace Ship_Game
                     }
                     else
                     {
-                        this.beingBuilt = ResourceManager.ShipsDict[ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultConstructor];
+                        this.beingBuilt = null;
+                        ResourceManager.ShipsDict.TryGetValue(ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultConstructor,out this.beingBuilt);
+                        if(this.beingBuilt == null)
+                        {
+                            ResourceManager.ShipsDict.TryGetValue(ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport, out this.beingBuilt);
+                        }
                         this.empire.data.DefaultConstructor = ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultConstructor;
                     }
                     Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Add(queueItem);
