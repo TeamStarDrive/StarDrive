@@ -2520,10 +2520,10 @@ namespace Ship_Game.Gameplay
 
                                                                }               
                                                            }
-                                                           //If a ship was found to fire on, change to target an internal module if target is visible
+                                                           //If a ship was found to fire on, change to target an internal module if target is visible  || weapon.Tag_Intercept
                                                            if (weapon.fireTarget != null) 
                                                            {
-                                                               if (weapon.fireTarget is Ship && (GlobalStats.ForceFullSim || weapon.Tag_Intercept || this.Owner.InFrustum || (weapon.fireTarget as Ship).InFrustum))// || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum)))
+                                                               if (weapon.fireTarget is Ship && (GlobalStats.ForceFullSim  || this.Owner.InFrustum || (weapon.fireTarget as Ship).InFrustum))// || (this.Owner.InFrustum || this.Target != null && TargetShip.InFrustum)))
                                                                {
                                                                    weapon.fireTarget = (weapon.fireTarget as Ship).GetRandomInternalModule(weapon);
                                                                    //weapon.fireTarget;// = fireTarget;
