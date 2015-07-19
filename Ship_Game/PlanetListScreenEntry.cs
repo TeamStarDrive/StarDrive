@@ -283,7 +283,8 @@ namespace Ship_Game
                 this.Colonize.Draw(ScreenManager.SpriteBatch);
             }
 
-            if (i > 0 && this.planet.Owner ==null)
+            //if (i > 0 && this.planet.Owner == null)
+            if (this.planet.Owner ==null && this.planet.habitable)  //fbedard: can send troop anywhere
             {
                 int troopsInvading = this.screen.empUI.empire.GetShips()
          .Where(troop => troop.TroopList.Count > 0)
