@@ -1055,7 +1055,8 @@ namespace Ship_Game.Gameplay
 
 		public virtual void Fire(Vector2 direction, GameplayObject target)
 		{
-            if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f)
+            
+            if (this.owner.engineState == Ship.MoveState.Warp || this.timeToNextFire > 0f ||! this.owner.CheckRangeToTarget(this,target))
 				return;
 			this.owner.InCombatTimer = 15f;
 
@@ -1220,7 +1221,7 @@ namespace Ship_Game.Gameplay
 
 		public virtual void FireSalvo(Vector2 direction, GameplayObject target)
 		{
-			if (this.owner.engineState == Ship.MoveState.Warp)
+			if (this.owner.engineState == Ship.MoveState.Warp ) //|| (this.owner !=null && this.owner.CheckIfInsideFireArc(this,target)))
 			{
 				return;
 			}
@@ -1567,14 +1568,15 @@ namespace Ship_Game.Gameplay
 					continue;
 				}
                 //this.FireSalvo(salvo.Direction, this.SalvoTarget);
-                if (this.SalvoTarget != null)
+                
+                if (this.SalvoTarget !=null && this.owner.CheckIfInsideFireArc(this,SalvoTarget))
                 {
                     if (this.Tag_Guided)
                         this.FireSalvo(salvo.Direction, SalvoTarget);
                     else
                         this.GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
                 }
-                else
+                else if (this.SalvoTarget != null)
                     this.FireSalvo(salvo.Direction, null);
 				this.SalvoList.QueuePendingRemoval(salvo);
 			}
