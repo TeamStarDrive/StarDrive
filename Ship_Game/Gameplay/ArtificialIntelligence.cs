@@ -968,8 +968,10 @@ namespace Ship_Game.Gameplay
             {
                 TargetPlanet = OrbitTarget
             };
+            this.orderqueue.EnterWriteLock();
             this.OrderQueue.Clear();
             this.OrderQueue.AddLast(shipGoal);
+            this.orderqueue.ExitWriteLock();
         }
         public void OrderAssaultPlanetorig(Planet p)
         {
@@ -4190,7 +4192,10 @@ namespace Ship_Game.Gameplay
 			{
 				TargetPlanet = p
 			};
-			this.OrderQueue.AddLast(rebase);
+
+            this.orderqueue.EnterWriteLock();
+            this.OrderQueue.AddLast(rebase);
+            this.orderqueue.ExitWriteLock();
 			this.State = AIState.Rebase;
 			this.HasPriorityOrder = true;
 		}
@@ -4203,7 +4208,9 @@ namespace Ship_Game.Gameplay
 			}
 			this.HasPriorityOrder = true;
 			this.IgnoreCombat = true;
+            this.orderqueue.EnterWriteLock();
 			this.OrderQueue.Clear();
+            this.orderqueue.ExitWriteLock();
 			IOrderedEnumerable<Ship_Game.Planet> sortedList = 
 				from planet in this.Owner.loyalty.GetPlanets()
 				orderby Vector2.Distance(this.Owner.Center, planet.Position)
