@@ -5292,7 +5292,7 @@ output = maxp * take10 = 5
                 if (!this.PSexport)
                     take10Turns *= (StorageRatio < .75f ? this.ps == GoodState.EXPORT ? .5f : this.ps == GoodState.STORE ? .25f : 1 : 1);
                     //take10Turns = maxp;
-            if (!this.GovernorOn)
+            if (!this.GovernorOn || this.colonyType == ColonyType.Colony)
                 {
                     take10Turns = this.NetProductionPerTurn; ;
                 }
