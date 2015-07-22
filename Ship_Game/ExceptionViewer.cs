@@ -35,7 +35,9 @@ namespace Ship_Game
 
         private void btClose_Click(object sender, EventArgs e)
         {
+            
             Close();
+
         }
 
         private void btOpenBugTracker_Click(object sender, EventArgs e)
