@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
+using System.Globalization;
 
 namespace Ship_Game
 {
@@ -523,7 +524,9 @@ namespace Ship_Game
 			};
 			string str = DateTime.Now.ToString("M/d/yyyy");
 			DateTime now = DateTime.Now;
-			header.RealDate = string.Concat(str, " ", now.ToShortTimeString());
+            //gremlin force time to us standard to prevent game load failure on different clock formats.
+            header.RealDate = string.Concat(str, " ", now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat)); 
+			//header.RealDate = string.Concat(str, " ", now.ToShortTimeString());
 			header.SaveName = data.SaveAs;
 			if (GlobalStats.ActiveMod != null)
 			{
