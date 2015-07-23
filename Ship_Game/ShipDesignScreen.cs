@@ -195,7 +195,8 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
-        private float HoldTimer = .25f;
+
+        private float HoldTimer = .50f;
 
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
@@ -3295,7 +3296,7 @@ namespace Ship_Game
                                 continue;
                             }
                         }
-                        if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter || tmp.ModuleType == ShipModuleType.Ordnance) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
+                        if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter || tmp.ModuleType == ShipModuleType.Ordnance || tmp.ModuleType == ShipModuleType.Construction) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
 						{
 							ModuleCategories.Add(tmp.ModuleType.ToString());
 							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
@@ -3366,7 +3367,7 @@ namespace Ship_Game
                                     continue;
                                 }
                             }
-                            if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter || tmp.ModuleType == ShipModuleType.Ordnance) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
+                            if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter || tmp.ModuleType == ShipModuleType.Ordnance || tmp.ModuleType == ShipModuleType.Construction) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
 							{
 								e.AddItem(module.Value);
 							}
@@ -5425,7 +5426,8 @@ namespace Ship_Game
                 else if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
                     this.HoldTimer -= .01666f;
                 else
-                    this.HoldTimer = 0.25f;
+                    this.HoldTimer = 0.50f;
+
                 foreach (SlotStruct slotStruct in this.Slots)
                 {
                     if (slotStruct.ModuleUID != null && this.HighlightedModule != null && (slotStruct.module == this.HighlightedModule && (double)slotStruct.module.FieldOfFire != 0.0) && slotStruct.module.ModuleType == ShipModuleType.Turret)
@@ -5443,12 +5445,27 @@ namespace Ship_Game
                                 num3 = (float)(-1.0 * (360.0 - (double)num3));
                             num4 = Math.Abs(num2 - num3);
                         }
-                        if ((double)num4 < (double)num1 && (double)Vector2.Distance(spaceFromWorldSpace, vector2) < 300.0
-                            && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
-                        {
 
-                            this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+                        if (GlobalStats.AltArcControl)
+                        {
+                            //The Doctor: ALT (either) + LEFT CLICK to pick and move arcs. This way, it's impossible to accidentally pick the wrong arc, while it's just as responsive and smooth as the original method when you are trying to.                    
+                            if ((double)num4 < (double)num1 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && ((input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt) || input.LastKeyboardState.IsKeyDown(Keys.LeftAlt)) || (input.CurrentKeyboardState.IsKeyDown(Keys.RightAlt) || input.LastKeyboardState.IsKeyDown(Keys.RightAlt)))))
+                            {
+
+                                this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+                            }
                         }
+                        else
+                        {
+                            //Delay method
+                            if ((double)num4 < (double)num1 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
+                            {
+                                this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+                            }                           
+                            
+                        }
+
+                        
 
                     }
                 }

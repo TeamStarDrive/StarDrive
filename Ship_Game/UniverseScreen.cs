@@ -221,6 +221,10 @@ namespace Ship_Game
         public bool DefiningAO;
         public Rectangle AORect;
         public bool showingDSBW;
+
+        public bool showingFTLOverlay;
+        public bool showingRangeOverlay;
+
         public DeepSpaceBuildingWindow dsbw;
         private DebugInfoScreen debugwin;
         //private bool doubleTime;
@@ -229,7 +233,7 @@ namespace Ship_Game
         private float Memory;
         public bool Paused;
         private bool SkipRightOnce;
-        private bool UseRealLights;
+        private bool UseRealLights = true;
         private bool showdebugwindow;
         private bool NeedARelease;
         //private int counter;
@@ -269,6 +273,12 @@ namespace Ship_Game
         private bool disposed;
         public float Lag = 0;
         public Ship previousSelection;
+
+        //fbedard
+        public UIButton ShipsInCombat;    
+        public UIButton PlanetsInCombat;
+        public int lastshipcombat = 0;
+        public int lastplanetcombat = 0;
 
         static UniverseScreen()
         {
@@ -351,7 +361,7 @@ namespace Ship_Game
                         local_2.Intensity = 2.5f;
                         local_2.ObjectType = ObjectType.Dynamic;
                         local_2.FillLight = true;
-                        local_2.Radius = 100000f;
+                        local_2.Radius = 150000f;
                         local_2.Position = new Vector3(item_0.Position, 2500f);
                         local_2.World = Matrix.Identity * Matrix.CreateTranslation(local_2.Position);
                         local_2.Enabled = true;
@@ -618,6 +628,12 @@ namespace Ship_Game
             if (this.SelectedShip == null)
                 return;
             this.ShipToView = this.SelectedShip;
+            this.ShipInfoUIElement.SetShip(this.SelectedShip);  //fbedard: was not updating correctly from shiplist
+            this.SelectedFleet = (Fleet)null;
+            this.SelectedShipList.Clear();
+            this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+            this.SelectedSystem = (SolarSystem)null;
+            this.SelectedPlanet = (Planet)null;
             this.snappingToShip = true;
             this.HeightOnSnap = this.camHeight;
             this.transitionDestination.Z = 3500f;
@@ -854,7 +870,7 @@ namespace Ship_Game
             Weapon.audioListener = this.listener;
             GameplayObject.audioListener = this.listener;
             this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, (float)this.ScreenManager.GraphicsDevice.Viewport.Width / (float)this.ScreenManager.GraphicsDevice.Viewport.Height, 1000f, 3E+07f);
-            this.SetLighting(false);
+            this.SetLighting(this.UseRealLights);
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 foreach (string FleetUID in solarSystem.DefensiveFleets)
@@ -1252,6 +1268,24 @@ namespace Ship_Game
             this.ScreenRectangle = new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
             this.starfield = new Starfield(Vector2.Zero, this.ScreenManager.GraphicsDevice, this.ScreenManager.Content);
             this.starfield.LoadContent();
+
+            //fbedard: new button for ShipsInCombat
+            this.ShipsInCombat = new UIButton();
+            ShipsInCombat.Rect = new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 275, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height);
+            ShipsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
+            ShipsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
+            ShipsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+            ShipsInCombat.Text = "Ships: 0";
+            ShipsInCombat.Launches = "ShipsInCombat";
+
+            //fbedard: new button for PlanetsInCombat
+            this.PlanetsInCombat = new UIButton();
+            PlanetsInCombat.Rect = new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 135, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height);
+            PlanetsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
+            PlanetsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
+            PlanetsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+            PlanetsInCombat.Text = "Planets: 0";
+            PlanetsInCombat.Launches = "PlanetsInCombat";
         }
 
         protected void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
@@ -2582,6 +2616,11 @@ namespace Ship_Game
                 flag = true;
             if (this.NotificationManager.HandleInput(input))
                 flag = true;
+            if (HelperFunctions.CheckIntersection(this.ShipsInCombat.Rect, input.CursorPosition))  //fbedard
+                flag = true;
+            if (HelperFunctions.CheckIntersection(this.PlanetsInCombat.Rect, input.CursorPosition))  //fbedard
+                flag = true;
+
             return flag;
         }
 
@@ -2635,7 +2674,6 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-
             if (this.ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && this.ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
                 this.Paused = !this.Paused;
             for (int index = 0; index < this.SelectedShipList.Count; ++index)
@@ -2644,42 +2682,82 @@ namespace Ship_Game
                 if (!ship.Active)
                     this.SelectedShipList.QueuePendingRemoval(ship);
             }
+            //CG: previous target code. 
             if (this.previousSelection != null && input.CurrentMouseState.XButton1 == ButtonState.Pressed && input.LastMouseState.XButton1 == ButtonState.Released)
             {
-                Ship tempship = this.previousSelection;
-                if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
-                    this.previousSelection = this.SelectedShip;
-                this.SelectedShip = tempship;
-                this.SelectedFleet = (Fleet)null;
-                this.SelectedShipList.Clear();
-                this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
-                this.SelectedSystem = (SolarSystem)null;
-                this.SelectedPlanet = (Planet)null;
-                this.SelectedShipList.Add(this.SelectedShip);
-
-
-
+                if (this.previousSelection.Active)
+                {
+                    Ship tempship = this.previousSelection;
+                    if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
+                        this.previousSelection = this.SelectedShip;
+                    this.SelectedShip = tempship;
+                    this.ShipInfoUIElement.SetShip(this.SelectedShip);
+                    this.SelectedFleet = (Fleet)null;
+                    this.SelectedShipList.Clear();
+                    this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                    this.SelectedSystem = (SolarSystem)null;
+                    this.SelectedPlanet = (Planet)null;
+                    this.SelectedShipList.Add(this.SelectedShip);
+                }
+                else
+                    this.SelectedShip = null;  //fbedard: remove inactive ship
             }
             //fbedard: Set camera chase on ship
             if (input.CurrentMouseState.MiddleButton == ButtonState.Pressed)
             {
                 this.ViewToShip(null);
             }
-            if (this.ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && this.ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
-                this.Paused = !this.Paused;
-            for (int index = 0; index < this.SelectedShipList.Count; ++index)
-            {
-                Ship ship = this.SelectedShipList[index];
-                if (!ship.Active)
-                    this.SelectedShipList.QueuePendingRemoval(ship);
-
-            }
             this.input = input;
             this.ShowTacticalCloseup = input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt);
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && input.LastKeyboardState.IsKeyUp(Keys.P) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+            // something nicer...
+            //if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && input.LastKeyboardState.IsKeyUp(Keys.P) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.F5) && input.LastKeyboardState.IsKeyUp(Keys.F5))
             {
-                this.UseRealLights = !this.UseRealLights;
-                this.SetLighting(this.UseRealLights);
+                if (this.UseRealLights)
+                {
+                    this.UseRealLights = false;
+                }
+                else
+                {
+                    this.UseRealLights = true;
+                    this.SetLighting(this.UseRealLights);
+                }
+            } if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.active)
+            {
+                bool switchedmode = false;
+#if RELEASE //only switch screens in release
+                
+                if (Game1.Instance.graphics.IsFullScreen)
+                {
+                    switchedmode = true;
+                    Game1.Instance.graphics.ToggleFullScreen();
+                }
+#endif
+                Exception ex = new Exception("Manual Report");
+
+                  ExceptionTracker.TrackException(ex);
+
+
+                // if(ExceptionViewer.ActiveForm == null)
+                {
+                    bool paused = false;
+                    if (!this.Paused)
+                    {
+                        paused = true;
+                        this.Paused = true;
+                    }
+                    ExceptionTracker.DisplayException(ex);
+                    if (paused)
+                    {
+                        
+                        this.Paused = false;
+                    }
+                }
+                if (switchedmode)
+                {
+                    switchedmode = false;
+                    Game1.Instance.graphics.ToggleFullScreen();
+                }
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde) && input.LastKeyboardState.IsKeyUp(Keys.OemTilde) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))
             {
@@ -2701,7 +2779,7 @@ namespace Ship_Game
                     this.GameSpeed = 1f;
                 else
                     ++this.GameSpeed;
-                if (this.GameSpeed > 4.0 && !GlobalStats.LimitSpeed)
+                if (this.GameSpeed > 4.0 && GlobalStats.LimitSpeed)
                     this.GameSpeed = 4f;
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.OemMinus) && input.LastKeyboardState.IsKeyUp(Keys.OemMinus))
@@ -2727,6 +2805,144 @@ namespace Ship_Game
                 else
                     --this.GameSpeed;
             }
+
+            //fbedard: Click button to Cycle through ships in Combat
+            if (!HelperFunctions.CheckIntersection(this.ShipsInCombat.Rect, input.CursorPosition))
+            {
+                this.ShipsInCombat.State = UIButton.PressState.Normal;
+            }
+            else
+            {
+                this.ShipsInCombat.State = UIButton.PressState.Hover;
+                if (input.InGameSelect)
+                {
+                    if (this.player.empireShipCombat > 0)
+                    {
+                        AudioManager.PlayCue("echo_affirm");
+                        int nbrship = 0;
+                        if (lastshipcombat >= this.player.empireShipCombat)
+                            lastshipcombat = 0;
+                        foreach (Ship ship in EmpireManager.GetEmpireByName(this.PlayerLoyalty).GetShips())
+                        {
+                            if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active || ship.Name == "Subspace Projector")
+                                continue;
+                            else
+                            {
+                                if (nbrship == lastshipcombat)
+                                {
+                                    if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
+                                        this.previousSelection = this.SelectedShip;
+                                    this.SelectedShip = ship;
+                                    this.ViewToShip(null);
+                                    this.SelectedShipList.Add(this.SelectedShip);
+                                    lastshipcombat++;
+                                    break;
+                                }
+                                else nbrship++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        AudioManager.PlayCue("blip_click");
+                    }
+                }
+            }
+
+            //fbedard: Click button to Cycle through Planets in Combat
+            if (!HelperFunctions.CheckIntersection(this.PlanetsInCombat.Rect, input.CursorPosition))
+            {
+                this.PlanetsInCombat.State = UIButton.PressState.Normal;
+            }
+            else
+            {
+                this.PlanetsInCombat.State = UIButton.PressState.Hover;
+                if (input.InGameSelect)
+                {
+                    if (this.player.empirePlanetCombat > 0)
+                    {
+                        AudioManager.PlayCue("echo_affirm");
+                        Planet PlanetToView = (Planet)null;
+                        int nbrplanet = 0;
+                        if (lastplanetcombat >= this.player.empirePlanetCombat)
+                            lastplanetcombat = 0;
+                        bool flagPlanet;
+
+                        foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+                        {
+                            foreach (Planet p in system.PlanetList)
+                            {
+                                if (p.ExploredDict[EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty)] && p.RecentCombat)
+                                {
+                                    if (p.Owner == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                    {
+                                        if (nbrplanet == lastplanetcombat)
+                                            PlanetToView = p;
+                                        else
+                                            nbrplanet++;
+                                    }
+                                    else
+                                    {
+                                        flagPlanet = false;
+                                        foreach (PlanetGridSquare planetGridSquare in p.TilesList)
+                                        {
+                                            if (!flagPlanet) 
+                                            {
+                                                planetGridSquare.TroopsHere.thisLock.EnterReadLock();
+                                                foreach (Troop troop in planetGridSquare.TroopsHere)
+                                                {
+                                                    if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                                    {
+                                                        flagPlanet = true;
+                                                        break;
+                                                    }
+                                                }
+                                                planetGridSquare.TroopsHere.thisLock.ExitReadLock();
+                                            }
+                                        }
+                                        if (flagPlanet) 
+                                        {
+                                            if (nbrplanet == lastplanetcombat)
+                                                PlanetToView = p;
+                                            else
+                                                nbrplanet++;
+                                        }
+                                    }
+                                }
+                            }                       
+                        }
+                        if (PlanetToView != null)
+                        {
+                            this.SelectedShip = (Ship)null;
+                            //this.ShipInfoUIElement.SetShip(this.SelectedShip);
+                            this.SelectedFleet = (Fleet)null;
+                            this.SelectedShipList.Clear();
+                            this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                            this.SelectedSystem = (SolarSystem)null;
+                            this.SelectedPlanet = PlanetToView;
+                            this.pInfoUI.SetPlanet(PlanetToView);
+                            lastplanetcombat++;
+
+                            this.transitionDestination = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, 9000f);
+                            this.LookingAtPlanet = false;
+                            this.transitionStartPosition = this.camPos;
+                            this.AdjustCamTimer = 2f;
+                            this.transitionElapsedTime = 0.0f;
+                            this.transDuration = 5f;
+                            this.returnToShip = false;
+                            this.ViewingShip = false;
+                            this.snappingToShip = false;
+                            this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                            //PlanetToView.OpenCombatMenu(null);
+                        }
+                    }
+                    else
+                    {
+                        AudioManager.PlayCue("blip_click");
+                    }
+                }
+            }
+
             if (!this.LookingAtPlanet)
             {
                 if (this.HandleGUIClicks(input))
@@ -2856,6 +3072,26 @@ namespace Ship_Game
                 {
                     AudioManager.PlayCue("sd_ui_accept_alt3");
                     this.ScreenManager.AddScreen((GameScreen)new PlanetListScreen(this.ScreenManager, this.EmpireUI));
+                }
+                if (input.CurrentKeyboardState.IsKeyDown(Keys.F1) && !input.LastKeyboardState.IsKeyDown(Keys.F1))
+                {
+                    AudioManager.PlayCue("sd_ui_accept_alt3");
+                    if (!this.showingFTLOverlay)
+                    {
+                        this.showingFTLOverlay = true;
+                    }
+                    else
+                        this.showingFTLOverlay = false;
+                }
+                if (input.CurrentKeyboardState.IsKeyDown(Keys.F2) && !input.LastKeyboardState.IsKeyDown(Keys.F2))
+                {
+                    AudioManager.PlayCue("sd_ui_accept_alt3");
+                    if (!this.showingRangeOverlay)
+                    {
+                        this.showingRangeOverlay = true;
+                    }
+                    else
+                        this.showingRangeOverlay = false;
                 }
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.K) && !input.LastKeyboardState.IsKeyDown(Keys.K))
                 {
@@ -3104,6 +3340,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             this.cState = this.SelectedShip != null || this.SelectedShipList.Count > 0 ? UniverseScreen.CursorState.Move : UniverseScreen.CursorState.Normal;
             if (this.SelectedShip == null && this.SelectedShipList.Count <= 0)
                 return;
@@ -3225,7 +3462,7 @@ namespace Ship_Game
                     this.player.GetFleetsDict()[index].Owner = this.player;
                     foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                     {
-                        if (ship.loyalty == this.player && ship.Role != "construction")
+                        if (ship.loyalty == this.player && ship.Role != "construction" && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
                     }
                     this.player.GetFleetsDict()[index].AutoArrange();
@@ -3303,7 +3540,7 @@ namespace Ship_Game
                     }
                     foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                     {
-                        if (ship.loyalty == this.player && ship.Role != "construction" && (ship.fleet ==null ||ship.fleet.Name != str + " Fleet"))
+                        if (ship.loyalty == this.player && ship.Role != "construction" && (ship.fleet ==null ||ship.fleet.Name != str + " Fleet") && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
                     }
                     this.player.GetFleetsDict()[index].AutoArrange();
@@ -4257,8 +4494,8 @@ namespace Ship_Game
                 return;
             if (this.SelectedShip != null)
             {
-                if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R))
-                    this.SelectedShip.FightersOut = !this.SelectedShip.FightersOut;
+                //if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R))  //fbedard: what is that !!!!
+                //    this.SelectedShip.FightersOut = !this.SelectedShip.FightersOut;
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.Q) && !input.LastKeyboardState.IsKeyDown(Keys.Q))
                 {
                     if (!this.pieMenu.Visible)
@@ -5277,6 +5514,7 @@ namespace Ship_Game
             if (this.LookingAtPlanet && this.SelectedPlanet != null && this.workersPanel != null)
                 this.workersPanel.Draw(this.ScreenManager.SpriteBatch, gameTime);
             this.DrawShipsInRange();
+
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 try
@@ -5297,8 +5535,159 @@ namespace Ship_Game
                 {
                 }
             }
+
+
+            
             this.DrawTacticalPlanetIcons();
+            if (this.showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !this.LookingAtPlanet)
+            {
+                lock (GlobalStats.ClickableSystemsLock)
+                {
+                    foreach (UniverseScreen.ClickablePlanets item_1 in this.ClickPlanetList)
+                    {
+                        float local_14 = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(item_1.planetToClick.scale)) / 1.5)));
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color((byte)200, (byte)0, (byte)0, (byte)50), 0.0f, local_22, SpriteEffects.None, 1f);
+                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 1f);
+                    }
+                }
+                foreach (ClickableShip ship in this.ClickableShipsList)
+                {
+                    if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0)
+                    {
+                        float local_14 = (float)(ship.shipToClick.InhibitionRadius);
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, ship.shipToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color((byte)200, (byte)0, (byte)0, (byte)40), 0.0f, local_22, SpriteEffects.None, 1f);
+                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 1f);
+                    }
+                }
+                List<Empire.InfluenceNode> influenceNodes;
+                this.player.BorderNodeLocker.EnterReadLock();
+                {
+                    influenceNodes = new List<Empire.InfluenceNode>(this.player.BorderNodes);
+                }
+
+                //Color col = EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).EmpireColor;
+                this.player.BorderNodeLocker.ExitReadLock();
+                {
+                    try
+                    {
+                        if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
+                        {
+                            foreach (Empire.InfluenceNode item_0 in influenceNodes)
+                            {
+                                float local_14 = (float)(item_0.Radius);
+                                Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                                Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                                Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_0.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                                float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                                Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                                Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color((byte)0, (byte)200, (byte)0, (byte)20), 0.0f, local_22, SpriteEffects.None, 1f);
+                                Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color((byte)30, (byte)30, (byte)150, (byte)150), 1f);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+
+            }
+
+            if (this.showingRangeOverlay && !this.LookingAtPlanet)
+            {
+                foreach (ClickableShip ship in this.ClickableShipsList)
+                {
+                    if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0 && ship.shipToClick.loyalty == EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty))
+                    {
+                        float local_14 = (float)(ship.shipToClick.RangeForOverlay);
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, ship.shipToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_shiprange"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_shiprange"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_shiprange"], local_21, new Rectangle?(), new Color((byte)0, (byte)200, (byte)0, (byte)30), 0.0f, local_22, SpriteEffects.None, 1f);
+                        //Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 2f);
+                    }
+                    else if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0)
+                    {
+                        float local_14 = (float)(ship.shipToClick.RangeForOverlay);
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, ship.shipToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_shiprange"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_shiprange"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_shiprange"], local_21, new Rectangle?(), new Color((byte)200, (byte)0, (byte)0, (byte)30), 0.0f, local_22, SpriteEffects.None, 1f);
+                        //Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 2f);
+                    }
+                }
+            }
+            
+            if (this.showingDSBW && !this.LookingAtPlanet)
+            {
+                lock (GlobalStats.ClickableSystemsLock)
+                {
+                    foreach (UniverseScreen.ClickablePlanets item_1 in this.ClickPlanetList)
+                    {
+                        float local_14 = 2500f * item_1.planetToClick.scale;
+                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], local_21, new Rectangle?(), new Color((byte)0, (byte)0, byte.MaxValue, (byte)50), 0.0f, local_22, SpriteEffects.None, 1f);
+                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)165, (byte)0, (byte)150), 1f);
+                    }
+                }
+                this.dsbw.Draw(gameTime);
+            }
             this.DrawFleetIcons(gameTime);
+
+            //fbedard: display values in new buttons
+            this.ShipsInCombat.Text = "Ships: " + this.player.empireShipCombat.ToString();  
+            if (this.player.empireShipCombat > 0)
+            {
+                ShipsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"];
+                ShipsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"];
+                ShipsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"];
+            }
+            else
+            {
+                ShipsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
+                ShipsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
+                ShipsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+            }
+            this.ShipsInCombat.Draw(ScreenManager.SpriteBatch);
+
+            this.PlanetsInCombat.Text = "Planets: " + this.player.empirePlanetCombat.ToString();
+            if (this.player.empirePlanetCombat > 0)
+            {
+                PlanetsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"];
+                PlanetsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"];
+                PlanetsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"];
+            }
+            else
+            {
+                PlanetsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
+                PlanetsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
+                PlanetsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+            }
+            this.PlanetsInCombat.Draw(ScreenManager.SpriteBatch);
+
             if (!this.LookingAtPlanet)
                 this.pieMenu.Draw(this.ScreenManager.SpriteBatch, Fonts.Arial12Bold);
             Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, this.SelectionBox, Color.Green, 1f);
@@ -5369,25 +5758,9 @@ namespace Ship_Game
             this.DrawToolTip();
             if (!this.LookingAtPlanet)
                 this.NotificationManager.Draw();
-            if (this.showingDSBW && !this.LookingAtPlanet)
-            {
-                lock (GlobalStats.ClickableSystemsLock)
-                {
-                    foreach (UniverseScreen.ClickablePlanets item_1 in this.ClickPlanetList)
-                    {
-                        float local_14 = 2500f * item_1.planetToClick.scale;
-                        Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
-                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], local_21, new Rectangle?(), new Color((byte)0, (byte)0, byte.MaxValue, (byte)50), 0.0f, local_22, SpriteEffects.None, 1f);
-                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)165, (byte)0, (byte)150), 3f);
-                    }
-                }
-                this.dsbw.Draw(gameTime);
-            }
+            
+
+
             if (this.Debug && this.showdebugwindow)
                 this.debugwin.Draw(gameTime);
             if (this.aw.isOpen && !this.LookingAtPlanet)
@@ -6209,8 +6582,12 @@ namespace Ship_Game
 
         private void DrawTacticalIcons(Ship ship)
         {
-            if (this.LookingAtPlanet || ship.IsPlatform && this.viewState == UniverseScreen.UnivScreenState.GalaxyView)
+            if (this.LookingAtPlanet || (!this.showingFTLOverlay && ship.IsPlatform && this.viewState == UniverseScreen.UnivScreenState.GalaxyView))
                 return;
+            if (this.showingFTLOverlay && ship.IsPlatform && ship.Name != "Subspace Projector")
+            {
+                return;
+            }
             if (this.viewState == UniverseScreen.UnivScreenState.GalaxyView)
             {
                 float num1 = ship.GetSO().WorldBoundingSphere.Radius;

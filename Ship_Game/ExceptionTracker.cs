@@ -13,7 +13,7 @@ namespace Ship_Game
     {
         public const string BugtrackerURL = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new";
         const string DefaultText = "Whoops! Please post this StarDrive forums or in the Bugtracker";
-
+        public static bool active = false;
         private static string GenerateErrorLines(Exception ex)
         {
 
@@ -71,6 +71,7 @@ namespace Ship_Game
             msg += data+rn+rn;
             msg += "Exception : "+ ex.Message.ToString()+rn;
             msg += "ExceptionClass : "+ex.GetType().ToString()+rn;
+            if(ex.StackTrace != null)
             msg += "Stacktrace: " + rn + ex.StackTrace.ToString()+ rn ;
             if (ex.InnerException != null)
             {
@@ -96,6 +97,7 @@ namespace Ship_Game
         {
             try
             {
+                ExceptionTracker.active = true;
                 string dts = DateTime.Now.ToString("yyyy-MM-dd hh-mm-ss");
                 string path = AppDomain.CurrentDomain.BaseDirectory + "Exception " + dts + ".log";
                 System.IO.StreamWriter file = new System.IO.StreamWriter(path);
@@ -114,17 +116,21 @@ namespace Ship_Game
         public static void DisplayException(Exception ex)
         {
 #if DEBUG
+            if(ex.Message != "Manual Report")
             return;
 #endif
+            
             try
             {
                 ExceptionViewer exviewer = new ExceptionViewer();
                 exviewer.ShowDialog(GenerateErrorLines_withWhoops(ex));
+               
             }
             catch (Exception)
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
             }
+            ExceptionTracker.active = false;
         }
 
         #if DEBUG

@@ -753,6 +753,7 @@ namespace Ship_Game
                             scale += 2.5f;
                         }
                     }
+
 					float planetRadius = 100f * scale;
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = newSys.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
@@ -773,6 +774,11 @@ namespace Ship_Game
 					newOrbital.InitializeUpdate();
                     if (!data.RingList[i - 1].HomePlanet || Owner == null)
 					{
+                        if (data.RingList[i - 1].UniqueHabitat)
+                        {
+                            newOrbital.UniqueHab = true;
+                            newOrbital.uniqueHabPercent = data.RingList[i - 1].UniqueHabPC;
+                        }
                         newOrbital.SetPlanetAttributes();
                         if (data.RingList[i - 1].MaxPopDefined > 0)
                             newOrbital.MaxPopulation = data.RingList[i - 1].MaxPopDefined * 1000f;

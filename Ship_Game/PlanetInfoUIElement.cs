@@ -263,6 +263,8 @@ namespace Ship_Game
 					};
 					this.ToolTipItems.Add(ti);
 				}
+
+                //Ship troopShip
                 ti = new PlanetInfoUIElement.TippedItem()
                 {
                     r = pIcon,
@@ -272,21 +274,16 @@ namespace Ship_Game
                 this.ToolTipItems.Add(ti);
 
                 this.SendTroops = new Rectangle(this.Mark.X, this.Mark.Y - this.Mark.Height -5, 182, 25);
-                Text = new Vector2((float)(SendTroops.X + 25), (float)(SendTroops.Y));
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], SendTroops, Color.White);
-                 //Ship troopShip; 
-
-                
+                Text = new Vector2((float)(SendTroops.X + 25), (float)(SendTroops.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2));
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], SendTroops, Color.White);         
                 troops= this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0 )
                      .Where(troopAI => troopAI.GetAI().OrderQueue
                          .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() >0).Count();
-                    
-                     
-          
-
-
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,String.Concat("Invading : ",troops) , Text, new Color(88, 108, 146)); // Localizer.Token(1425)
+                if (!HelperFunctions.CheckIntersection(this.SendTroops, MousePos))
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,String.Concat("Invading : ",troops) , Text, new Color(88, 108, 146)); // Localizer.Token(1425)
+                else
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text, new Color(174, 202, 255)); // Localizer.Token(1425)
 
 				this.Inspect.Draw(this.ScreenManager);
 				this.Invade.Draw(this.ScreenManager);
@@ -557,16 +554,11 @@ namespace Ship_Game
                 else
                     if (planetTroops.Count > 0)
                     {
-
-
                         {
                             Ship troop = planetTroops.First().TroopsHere.First().Launch();
                             if (troop != null)
                             {
-
-
-                                AudioManager.PlayCue("echo_affirm");
-                                
+                                AudioManager.PlayCue("echo_affirm");                              
                                 troop.GetAI().OrderAssaultPlanet(this.p);
                             }
                         }

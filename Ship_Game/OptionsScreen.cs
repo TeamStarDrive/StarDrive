@@ -73,6 +73,8 @@ namespace Ship_Game
         private FloatSlider ShipLimiter;
         private FloatSlider FreighterLimiter;
 
+        private Checkbox KeyboardArc;
+
 		//private float transitionElapsedTime;
 
 		public OptionsScreen(MainMenuScreen s, Rectangle dimensions)
@@ -128,7 +130,7 @@ namespace Ship_Game
 				}
 				this.MainOptionsRect = new Rectangle(this.r.X + 20, this.r.Y + 175, 300, 375);
 				this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width + 20, this.MainOptionsRect.Y, 210, 305);
-				this.GamespeedCap = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 300)), Localizer.Token(2206), new Ref<bool>(() => GlobalStats.LimitSpeed, (bool x) => GlobalStats.LimitSpeed = x), Fonts.Arial12Bold)
+				/*this.GamespeedCap = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 300)), Localizer.Token(2206), new Ref<bool>(() => GlobalStats.LimitSpeed, (bool x) => GlobalStats.LimitSpeed = x), Fonts.Arial12Bold)
 				{
 					Tip_Token = 2205
 				};
@@ -156,11 +158,12 @@ namespace Ship_Game
 					Value = Game1.Instance.CurrentMode,
 					ClickableArea = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.FullScreen.NamePosition.Y, (int)Fonts.Arial20Bold.MeasureString(this.FullScreen.Value.ToString()).X, Fonts.Arial20Bold.LineSpacing)
 				};
-				Rectangle ftlRect = new Rectangle(this.MainOptionsRect.X + 20, (int)this.FullScreen.NamePosition.Y + 40, 270, 50);
+                 */
+				Rectangle ftlRect = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 65, 270, 50);
 				this.MusicVolumeSlider = new FloatSlider(ftlRect, "Music Volume");
 				this.MusicVolumeSlider.SetAmount(GlobalStats.Config.MusicVolume);
 				this.MusicVolumeSlider.amount = GlobalStats.Config.MusicVolume;
-				ftlRect = new Rectangle(this.MainOptionsRect.X + 20, (int)ftlRect.Y + 50, 270, 50);
+				ftlRect = new Rectangle(this.MainOptionsRect.X + 9, (int)ftlRect.Y + 50, 270, 50);
 				this.EffectsVolumeSlider = new FloatSlider(ftlRect, "Effects Volume");
 				this.EffectsVolumeSlider.SetAmount(GlobalStats.Config.EffectsVolume);
 				this.EffectsVolumeSlider.amount = GlobalStats.Config.EffectsVolume;
@@ -171,7 +174,8 @@ namespace Ship_Game
                 
                 Vector2 Cursor = new Vector2((float)(this.SecondaryOptionsRect.X + 10), (float)(this.SecondaryOptionsRect.Y + 10));
 				this.ResolutionOptions.Clear();
-				this.ResolutionDropDown = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y + 3, 105, 18));
+				//this.ResolutionDropDown = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y + 3, 105, 18));
+                this.ResolutionDropDown = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y - 2, 105, 18));
 				foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
 				{
 					if (mode.Width < 1280)
@@ -218,7 +222,7 @@ namespace Ship_Game
 						this.ResolutionDropDown.ActiveIndex = this.ResolutionDropDown.Options.IndexOf(e);
 					}
 				}
-				Cursor = new Vector2((float)this.SecondaryOptionsRect.X, (float)(this.SecondaryOptionsRect.Y + this.SecondaryOptionsRect.Height + 15));
+				Cursor = new Vector2((float)this.SecondaryOptionsRect.X, (float)(this.SecondaryOptionsRect.Y + this.SecondaryOptionsRect.Height + 60));
 				this.Apply.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
 				this.Apply.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
 				this.Apply.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
@@ -386,6 +390,7 @@ namespace Ship_Game
 			this.GamespeedCap.Draw(base.ScreenManager);
 			this.ForceFullSim.Draw(base.ScreenManager);
             this.pauseOnNotification.Draw(base.ScreenManager);
+            this.KeyboardArc.Draw(base.ScreenManager);
 			this.MusicVolumeSlider.DrawDecimal(base.ScreenManager);
 			this.EffectsVolumeSlider.DrawDecimal(base.ScreenManager);
             this.IconSize.Draw(base.ScreenManager);
@@ -412,6 +417,7 @@ namespace Ship_Game
 			this.GamespeedCap.HandleInput(input);
 			this.ForceFullSim.HandleInput(input);
             this.pauseOnNotification.HandleInput(input);
+            this.KeyboardArc.HandleInput(input);
             this.IconSize.HandleInput(input);
             GlobalStats.IconSize = (int)this.IconSize.amountRange;
             this.memoryLimit.HandleInput(input);
@@ -501,16 +507,24 @@ namespace Ship_Game
         {
             base.LoadContent();
             this.MainOptionsRect = new Rectangle(this.r.X + 20, this.r.Y + 175, 300, 375);
-            this.GamespeedCap = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 300)), Localizer.Token(2206), new Ref<bool>((Func<bool>)(() => GlobalStats.LimitSpeed), (Action<bool>)(x => GlobalStats.LimitSpeed = x)), Fonts.Arial12Bold);
-            this.GamespeedCap.Tip_Token = 2205;
-            this.ForceFullSim = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 330)), "Force Full Simulation", new Ref<bool>((Func<bool>)(() => GlobalStats.ForceFullSim), (Action<bool>)(x => GlobalStats.ForceFullSim = x)), Fonts.Arial12Bold);
-            this.ForceFullSim.Tip_Token = 2205;
-            this.pauseOnNotification = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 360)), Localizer.Token(6007), new Ref<bool>((Func<bool>)(() => GlobalStats.PauseOnNotification), (Action<bool>)(x => GlobalStats.PauseOnNotification = x)), Fonts.Arial12Bold);
-            this.pauseOnNotification.Tip_Token = 7004;
-            this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width + 20, this.MainOptionsRect.Y, 210, 305);
+
             this.Resolution = new OptionsScreen.Option();
             this.Resolution.Name = Localizer.Token(9) + ":";
             this.Resolution.NamePosition = new Vector2((float)(this.MainOptionsRect.X + 20), (float)this.MainOptionsRect.Y);
+
+            this.GamespeedCap = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y)), Localizer.Token(2206), new Ref<bool>((Func<bool>)(() => GlobalStats.LimitSpeed), (Action<bool>)(x => GlobalStats.LimitSpeed = x)), Fonts.Arial12Bold);
+            this.GamespeedCap.Tip_Token = 2205;
+            this.ForceFullSim = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y + 30)), "Force Full Simulation", new Ref<bool>((Func<bool>)(() => GlobalStats.ForceFullSim), (Action<bool>)(x => GlobalStats.ForceFullSim = x)), Fonts.Arial12Bold);
+            this.ForceFullSim.Tip_Token = 2205;
+            this.pauseOnNotification = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y + 60)), Localizer.Token(6007), new Ref<bool>((Func<bool>)(() => GlobalStats.PauseOnNotification), (Action<bool>)(x => GlobalStats.PauseOnNotification = x)), Fonts.Arial12Bold);
+            this.pauseOnNotification.Tip_Token = 7004;
+
+            this.KeyboardArc = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y + 90)), Localizer.Token(6184), new Ref<bool>((Func<bool>)(() => GlobalStats.AltArcControl), (Action<bool>)(x => GlobalStats.AltArcControl = x)), Fonts.Arial12Bold);
+            this.KeyboardArc.Tip_Token = 7081;
+
+
+            this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width + 20, this.MainOptionsRect.Y, 210, 305);
+            
             string str1 = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth.ToString();
             string str2 = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight.ToString();
             this.startingx = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
@@ -527,7 +541,7 @@ namespace Ship_Game
             this.FullScreen.NamePosition = new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + Fonts.Arial20Bold.LineSpacing * 2 + 2 + 17));
             this.FullScreen.Value = (object)((object)Game1.Instance.CurrentMode).ToString();
             this.FullScreen.ClickableArea = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.FullScreen.NamePosition.Y, (int)Fonts.Arial20Bold.MeasureString(this.FullScreen.Value.ToString()).X, Fonts.Arial20Bold.LineSpacing);
-            Rectangle r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 40, 270, 50);
+            Rectangle r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 65, 270, 50);
             this.MusicVolumeSlider = new FloatSlider(r, "Music Volume");
             this.MusicVolumeSlider.SetAmount(GlobalStats.Config.MusicVolume);
             this.MusicVolumeSlider.amount = GlobalStats.Config.MusicVolume;
@@ -538,20 +552,21 @@ namespace Ship_Game
 
             
 
-            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 140, 225, 50);
+            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 185, 225, 50);
             this.IconSize = new FloatSlider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
 
-            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 190, 225, 50);
+            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 235, 225, 50);
             
             this.memoryLimit = new FloatSlider(r, string.Concat("Memory limit. KBs In Use: ",(int)(GC.GetTotalMemory(true)/1000f)), 150000, 300000, GlobalStats.MemoryLimiter);
             int ships =0;
             if (Empire.universeScreen != null )
              ships= Empire.universeScreen.globalshipCount;
-            r = new Rectangle(this.MainOptionsRect.X - 9 + this.MainOptionsRect.Width, (int)this.FullScreen.NamePosition.Y + 190, 225, 50);
+            r = new Rectangle(this.MainOptionsRect.X - 9 + this.MainOptionsRect.Width, (int)this.FullScreen.NamePosition.Y + 235, 225, 50);
             this.ShipLimiter = new FloatSlider(r, string.Concat("All AI Ship Limit. AI Ships: ", ships), 500, 3500, GlobalStats.ShipCountLimit);
-            r = new Rectangle(this.MainOptionsRect.X - 9 + this.MainOptionsRect.Width, (int)this.FullScreen.NamePosition.Y + 140, 225, 50);
+            r = new Rectangle(this.MainOptionsRect.X - 9 + this.MainOptionsRect.Width, (int)this.FullScreen.NamePosition.Y + 185, 225, 50);
             this.FreighterLimiter = new FloatSlider(r, string.Concat("Per AI Freighter Limit."), 25, 125, GlobalStats.freighterlimit);
             Vector2 vector2 = new Vector2((float)(this.SecondaryOptionsRect.X + 10), (float)(this.SecondaryOptionsRect.Y + 10));
+
             this.ResolutionDropDown = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y - 2, 105, 18));
             foreach (DisplayMode displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
             {
@@ -613,7 +628,7 @@ namespace Ship_Game
                     }
                 }
             }
-            vector2 = new Vector2((float)this.SecondaryOptionsRect.X, (float)(this.SecondaryOptionsRect.Y + this.SecondaryOptionsRect.Height + 15));
+            vector2 = new Vector2((float)this.SecondaryOptionsRect.X, (float)(this.SecondaryOptionsRect.Y + this.SecondaryOptionsRect.Height + 60));
             this.Apply = new UIButton();
             this.Apply.Rect = new Rectangle((int)vector2.X, (int)vector2.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
             this.Apply.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
@@ -723,6 +738,7 @@ namespace Ship_Game
 			config.AppSettings.Settings["RanOnce"].Value = "true";
 			config.AppSettings.Settings["ForceFullSim"].Value = (GlobalStats.ForceFullSim ? "true" : "false");
             config.AppSettings.Settings["PauseOnNotification"].Value = (GlobalStats.PauseOnNotification ? "true" : "false");
+            config.AppSettings.Settings["AltArcControl"].Value = (GlobalStats.AltArcControl ? "true" : "false");
             config.AppSettings.Settings["freighterlimit"].Value = GlobalStats.freighterlimit.ToString();
             config.AppSettings.Settings["shipcountlimit"].Value = GlobalStats.ShipCountLimit.ToString();
 			config.Save();
