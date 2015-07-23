@@ -42,10 +42,27 @@ namespace Ship_Game
 			this.ConstructionSubMenu = new Submenu(ScreenManager, this.win, true);
 			this.ConstructionSubMenu.AddTab("Build Menu");
 			this.SL = new ScrollList(this.ConstructionSubMenu, 40);
+
+            //The Doctor: Ensure Subspace Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
+            foreach (string s in EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild)
+            {
+                if (ResourceManager.GetShip(s).Name == "Subspace Projector")
+                {
+                    this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
+                    break;
+                }
+                else
+                    continue;
+            }
 			foreach (string s in EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild)
 			{
-				this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
-			}
+                if (ResourceManager.GetShip(s).Name != "Subspace Projector")
+                {
+                    this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
+                }
+                else
+                    continue;
+            }
 			this.TextPos = new Vector2((float)(this.win.X + this.win.Width / 2) - Fonts.Arial12Bold.MeasureString("Deep Space Construction").X / 2f, (float)(this.win.Y + 25));
 		}
 
@@ -92,7 +109,16 @@ namespace Ship_Game
                 bCursor.X = (float)e.clickRect.X - 9;
 				if (e.clickRectHover != 0)
 				{
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    if ((e.item as Ship).Name == "Subspace Projector")
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ShipIcons/subspace_projector"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    }
+                    else
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    }
+                    
+
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     string name = (e.item as Ship).Name;
                     SpriteFont nameFont = Fonts.Arial10;
@@ -152,7 +178,14 @@ namespace Ship_Game
 				}
 				else
 				{
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    if ((e.item as Ship).Name == "Subspace Projector")
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ShipIcons/subspace_projector"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    }
+                    else
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    }
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     string name = (e.item as Ship).Name;
                     SpriteFont nameFont = Fonts.Arial10;

@@ -248,14 +248,30 @@ namespace Ship_Game
             //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
             //}
             //else 
+            if (!Ship_Game.ResourceManager.ShipsDict.TryGetValue(key, out newShip))
+            {
+                Ship_Game.ResourceManager.ShipsDict.TryGetValue(Owner.data.StartingScout, out newShip);
                 newShip = new Ship()
-			{
-				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
-				Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
-                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
-                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
-                
-			};
+                {
+                    Role = newShip.Role,
+                    Name = newShip.Name,
+                    BaseStrength = newShip.BaseStrength,
+                    BaseCanWarp = newShip.BaseCanWarp,
+                    VanityName = "I am a bug"
+
+                };
+            }
+            else
+            {
+                newShip = new Ship()
+                    {
+                        Role = newShip.Role,
+                        Name = newShip.Name,
+                        BaseStrength = newShip.BaseStrength,
+                        BaseCanWarp = newShip.BaseCanWarp
+
+                    };
+            }
 			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)

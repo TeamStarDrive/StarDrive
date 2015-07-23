@@ -75,6 +75,7 @@ namespace Ship_Game.Gameplay
         public bool IsSupplyShip;
         public bool reserved;
         public bool isColonyShip;
+        public bool isConstructor;
         public string StrategicIconPath;
         private Planet TetheredTo;
         public Vector2 TetherOffset;
@@ -203,6 +204,8 @@ namespace Ship_Game.Gameplay
         public bool hasRepairBeam;
         public bool hasCommand;
         private float FTLmodifier = 1f;
+
+        public float RangeForOverlay;
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         Random shiprandom = new Random();
         //adding for thread safe Dispose because class uses unmanaged resources 
@@ -824,16 +827,33 @@ namespace Ship_Game.Gameplay
             }
             this.lastKBState = this.currentKeyBoardState;
         }
-
-        //Added by McShooterz
-        public bool CheckIfInsideFireArc(Weapon w, GameplayObject target)
+        public bool CheckRangeToTarget(Weapon w, GameplayObject target)
         {
+            if (target == null || !target.Active || target.Health <= 0)
+                return false;
+            if (this.engineState == MoveState.Warp)
+                return false;
+            Ship targetship = target as Ship;
+            ShipModule targetModule = target as ShipModule;
+            if (targetship == null && targetModule != null)
+                targetship = targetModule.GetParent();
+            if (targetship != null)
+            {
+                if (targetship.engineState == MoveState.Warp
+                    || targetship.dying
+                    || !targetship.Active
+                    || targetship.ExternalSlots.Count <= 0
+                    || !w.TargetValid(targetship.Role)
+
+                    )
+                    return false;
+            }
             Vector2 PickedPos = target.Center;
             //radius = target.Radius;
             //added by gremlin attackrun compensator
             float modifyRangeAR = 50f;
             Vector2 pos = PickedPos;
-            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoCount > 0)
+            if (w.PrimaryTarget && !w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && this.maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
                 modifyRangeAR = this.speed;
                 if (modifyRangeAR < 50)
@@ -843,7 +863,17 @@ namespace Ship_Game.Gameplay
             {
                 return false;
             }
-            
+            return true;
+        }
+        //Added by McShooterz
+        public bool CheckIfInsideFireArc(Weapon w, GameplayObject target)
+        {
+            if (!CheckRangeToTarget(w, target))
+                return false;
+            if (w.Tag_Guided && w.RotationRadsPerSecond > 3f)
+                return true;
+            Vector2 PickedPos = target.Center;            
+            Vector2 pos = PickedPos;
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
@@ -874,6 +904,8 @@ namespace Ship_Game.Gameplay
             }
             return false;
         }
+  
+ 
         public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos )
         {
 
@@ -1919,7 +1951,7 @@ namespace Ship_Game.Gameplay
             return this.PlayerShip;
         }
 
-        //added by gremlin Initialize status from deveks mod. 
+        ///added by gremlin Initialize status from deveks mod. 
         public void InitializeStatus()
         {
             #region Variables
@@ -1949,10 +1981,17 @@ namespace Ship_Game.Gameplay
             this.TroopBoardingDefense = 0f;
             this.ECMValue = 0f;
             this.FTLSpoolTime = 0f;
+            this.RangeForOverlay = 0f;
 
             string troopType = "Wyvern";
             string tankType = "Wyvern";
             string redshirtType = "Wyvern";
+
+            foreach (Weapon w in this.Weapons)
+            {
+                if (w.GetModifiedRange() > this.RangeForOverlay)
+                    this.RangeForOverlay = w.GetModifiedRange();
+            }
 
             #endregion
             #region TroopListFix
@@ -1970,6 +2009,7 @@ namespace Ship_Game.Gameplay
             }
             #endregion
             #region ModuleCheck
+            
             foreach (ModuleSlot moduleSlotList in this.ModuleSlotList)
             {
                 if (moduleSlotList.Restrictions == Restrictions.I)
@@ -1978,6 +2018,12 @@ namespace Ship_Game.Gameplay
                     continue;
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Colony)
                     this.isColonyShip = true;
+                if (moduleSlotList.module.ModuleType == ShipModuleType.Construction)
+                {
+                    this.isConstructor = true;
+                    this.Role = "construction";
+                }
+                
                 if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
                 {
                     Dictionary<string, float> maxGoodStorageDict = this.MaxGoodStorageDict;
@@ -2103,7 +2149,6 @@ namespace Ship_Game.Gameplay
             if (this.FTLSpoolTime == 0)
                 this.FTLSpoolTime = 3f;
         }
-
         public void RenderOverlay(SpriteBatch spriteBatch, Rectangle where, bool ShowModules)
         {
             if (Ship_Game.ResourceManager.HullsDict.ContainsKey(this.shipData.Hull) && !string.IsNullOrEmpty(Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic) && !ShowModules)
@@ -2467,7 +2512,7 @@ namespace Ship_Game.Gameplay
                 moduleSlot.InitializeForLoad();
                 moduleSlot.module.Health = moduleSlot.ModuleHealth;
                 moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                if ((double)moduleSlot.module.Health == 0.0)
+                if (moduleSlot.module.Health == 0.0)
                     moduleSlot.module.Active = false;
             }
             this.RecalculatePower();
@@ -3216,13 +3261,13 @@ namespace Ship_Game.Gameplay
             {
                 if ((this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip) && this.Weapons.Count > 0)
                 {
-                    IOrderedEnumerable<Weapon> orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)this.Weapons, (Func<Weapon, float>)(weapon => weapon.Range));
+                    IOrderedEnumerable<Weapon> orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)this.Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
                     bool flag = false;
                     foreach (Weapon weapon in (IEnumerable<Weapon>)orderedEnumerable)
                     {
                         if (weapon.DamageAmount > 0.0 && !flag)
                         {
-                            this.maxWeaponsRange = weapon.Range;
+                            this.maxWeaponsRange = weapon.GetModifiedRange();
                             flag = true;
                         }
                         weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
@@ -3751,12 +3796,26 @@ namespace Ship_Game.Gameplay
                     this.FTLmodifier *= ftlmodtemp;
                 }
             }
-            else if (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView || this.MoveModulesTimer > 0.0 || this.InCombat && (GlobalStats.ForceFullSim)) // || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
+            else if (this.GetAI().BadGuysNear || (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView )|| this.MoveModulesTimer > 0.0 ||  GlobalStats.ForceFullSim) // || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
             {
                 if (elapsedTime > 0.0)
                 {
-                    this.UpdatedModulesOnce = false;
+                    //if (this.Velocity != Vector2.Zero)
+                    //this.UpdatedModulesOnce = false;
                     if (this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null)
+                    {
+                        this.UpdatedModulesOnce = false;
+                        float cos = (float)Math.Cos((double)this.Rotation);
+                        float sin = (float)Math.Sin((double)this.Rotation);
+                        float tan = (float)Math.Tan((double)this.yRotation);
+                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                        //Parallel.ForEach(this.ModuleSlotList, moduleSlot =>
+                        {
+                            ++GlobalStats.ModuleUpdates;
+                            moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                        }//);
+                    }
+                    else if( !this.UpdatedModulesOnce)
                     {
                         float cos = (float)Math.Cos((double)this.Rotation);
                         float sin = (float)Math.Sin((double)this.Rotation);
@@ -3767,6 +3826,7 @@ namespace Ship_Game.Gameplay
                             ++GlobalStats.ModuleUpdates;
                             moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
                         }//);
+                        this.UpdatedModulesOnce = true;
                     }
                 }
                 else if (elapsedTime < 0.0 && !this.UpdatedModulesOnce)
@@ -4214,11 +4274,13 @@ namespace Ship_Game.Gameplay
         {
             this.Active = false;
             this.AI.Target = (GameplayObject)null;
+            this.AI.TargetShip = (Ship)null;
             this.AI.ColonizeTarget = (Planet)null;
             this.AI.EscortTarget = (Ship)null;
             this.AI.start = (Planet)null;
             this.AI.end = (Planet)null;
             this.AI.PotentialTargets.Clear();
+            this.AI.TrackProjectiles.Clear();
             this.AI.NearbyShips.Clear();
             this.AI.FriendliesNearby.Clear();
             Ship.universeScreen.MasterShipList.QueuePendingRemoval(this);
@@ -4343,7 +4405,7 @@ namespace Ship_Game.Gameplay
 
             foreach(ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <=0)
                     continue;
                 temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest )
@@ -4361,60 +4423,60 @@ namespace Ship_Game.Gameplay
             if (source.GetOwner() != null)
                 level = (byte)source.GetOwner().Level;
 
-            if (this.AttackerTargetting != null && ClosestES != null && this.AttackerTargetting.Contains(ClosestES))
+
+            lock (this.AttackerTargetting)
             {
-
-
-                if (this.AttackerTargetting.Count == 0)
-                    return null;
-                int randomizer = this.AttackerTargetting.Count() / (level + 1);//level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
-                return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
-            }
-
-
-            if (level > 1)
-            {
-                float Damageradius = Vector2.Distance(ClosestES.module.Center, this.Center); //16 * (7 - level);// 
-                this.AttackerTargetting.Clear();
-                foreach (ModuleSlot slot in this.ModuleSlotList)
-                {
-                    if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
-                                               && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
-                                               && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+                if (this.AttackerTargetting == null || !this.AttackerTargetting.Contains(ClosestES))
+                    if (level > 1)
                     {
-                        this.AttackerTargetting.Add(slot);
+                        float Damageradius = Vector2.Distance(ClosestES.module.Center, this.Center); //16 * (7 - level);// 
+                        this.AttackerTargetting.Clear();
+                        foreach (ModuleSlot slot in this.ModuleSlotList)
+                        {
+                            if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
+                                                       && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+                                                       && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+                            {
+                                this.AttackerTargetting.Add(slot);
+                            }
+
+                        }
+                        this.AttackerTargetting = this.AttackerTargetting.OrderByDescending(slot => slot.module.TargetValue + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+
+                               .ToList();
                     }
-
-                }
-                this.AttackerTargetting = this.AttackerTargetting.OrderByDescending(slot => slot.module.TargetValue + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
-
-                       .ToList();
-            }
-            else
-            {
-                float Damageradius = Vector2.Distance(ClosestES.module.Center, this.Center);
-                this.AttackerTargetting.Clear();
-                foreach (ModuleSlot slot in this.ModuleSlotList)
-                {
-                    if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
-                                               && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
-                                               && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+                    else
                     {
-                        this.AttackerTargetting.Add(slot);
+                        float Damageradius = Vector2.Distance(ClosestES.module.Center, this.Center);
+                        this.AttackerTargetting.Clear();
+                        foreach (ModuleSlot slot in this.ModuleSlotList)
+                        {
+                            if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
+                                                       && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+                                                       && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+                            {
+                                this.AttackerTargetting.Add(slot);
+                            }
+
+                        }
                     }
-
-                }
             }
-
             if (this.AttackerTargetting.Count == 0)
             {
                 if (this.ExternalSlots.Count == 0)
                     return null;
                 else return this.ExternalSlots[0].module;
             }
-            int randomizer2 = this.AttackerTargetting.Count() / (level + 1);// level > 0 ? this.AttackerTargetting.Count() / (level + 2) : this.AttackerTargetting.Count();
+          
+            {
 
-            return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer2)].module;
+
+                if (this.AttackerTargetting.Count == 0)
+                    return null;
+                int randomizer = this.AttackerTargetting.Count() / (level + 1);
+                return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
+            }
+
             
             
         }
@@ -4430,7 +4492,7 @@ namespace Ship_Game.Gameplay
 
             foreach (ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active ||  ES.module.Health <=0)
                     continue;
                 temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest)
@@ -4444,58 +4506,109 @@ namespace Ship_Game.Gameplay
             byte level = 0;
             if (source.Owner != null)
                 level = (byte)source.Owner.Level;
+            lock (this.AttackerTargetting)
+            {
+                if (this.AttackerTargetting == null || !this.AttackerTargetting.Contains(ClosestES))
+                    if (level > 1)
+                    {
+                        float Damageradius = Vector2.Distance(ClosestES.module.Center, this.Center); //16 * (7 - level);// 
+                        this.AttackerTargetting.Clear();
+                        foreach (ModuleSlot slot in this.ModuleSlotList)
+                        {
+                            if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
+                                                       && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+                                                       && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+                            {
+                                this.AttackerTargetting.Add(slot);
+                            }
 
-            if(this.AttackerTargetting != null && this.AttackerTargetting.Contains(ClosestES))
-           // if (source.Owner != null && lastAttacker == source.Owner)
+                        }
+                        this.AttackerTargetting = this.AttackerTargetting.OrderByDescending(slot => slot.module.TargetValue + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+
+                               .ToList();
+                    }
+                    else
+                    {
+                        float Damageradius = Vector2.Distance(ClosestES.module.Center, this.Center);
+                        this.AttackerTargetting.Clear();
+                        foreach (ModuleSlot slot in this.ModuleSlotList)
+                        {
+                            if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
+                                                       && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+                                                       && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+                            {
+                                this.AttackerTargetting.Add(slot);
+                            }
+
+                        }
+                    }
+            }
+            if (this.AttackerTargetting.Count == 0)
+            {
+                if (this.ExternalSlots.Count == 0)
+                    return null;
+                else return this.ExternalSlots[0].module;
+            }
+
             {
 
 
                 if (this.AttackerTargetting.Count == 0)
                     return null;
-                int randomizer = this.AttackerTargetting.Count() / (level + 1);//level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
+                int randomizer = this.AttackerTargetting.Count() / (level + 1);
                 return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
             }
-            if (level > 1)
-            {
-                float Damageradius = Vector2.Distance(ClosestES.module.Position, this.Center);
-                this.AttackerTargetting.Clear();
-                foreach (ModuleSlot slot in this.ModuleSlotList)
-                {
-                    if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
-                                               && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
-                                               && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
-                    {
-                        this.AttackerTargetting.Add(slot);
-                    }
-
-                }
-                this.AttackerTargetting = this.AttackerTargetting.OrderByDescending(slot => slot.module.TargetValue + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
-
-                       .ToList();
-
-            }
-            else
-            {
-                float Damageradius = Vector2.Distance(ClosestES.module.Position, this.Center);
-                this.AttackerTargetting.Clear();
-                foreach (ModuleSlot slot in this.ModuleSlotList)
-                {
-                    if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
-                                               && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
-                                               && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
-                    {
-                        this.AttackerTargetting.Add(slot);
-                    }
-
-                }
-            }
+           // if(this.AttackerTargetting != null && this.AttackerTargetting.Contains(ClosestES))
+           //// if (source.Owner != null && lastAttacker == source.Owner)
+           // {
 
 
-            if (this.AttackerTargetting.Count == 0)
-                return null;
-            int randomizer2 = this.AttackerTargetting.Count() / (level + 1);// level > 0 ? this.AttackerTargetting.Count() / (level + 2) : this.AttackerTargetting.Count();
+           //     if (this.AttackerTargetting.Count == 0)
+           //         return null;
+           //     int randomizer = this.AttackerTargetting.Count() / (level + 1);//level > 0 ? this.AttackerTargetting.Count() / (level + 1) : this.AttackerTargetting.Count();
+           //     return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer)].module;
+           // }
+           // if (level > 1)
+           // {
+           //     float Damageradius = Vector2.Distance(ClosestES.module.Position, this.Center);
+           //     this.AttackerTargetting.Clear();
+           //     foreach (ModuleSlot slot in this.ModuleSlotList)
+           //     {
+           //         if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
+           //                                    && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+           //                                    && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+           //         {
+           //             this.AttackerTargetting.Add(slot);
+           //         }
 
-            return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer2)].module;
+           //     }
+           //     this.AttackerTargetting = this.AttackerTargetting.OrderByDescending(slot => slot.module.TargetValue + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+
+           //            .ToList();
+
+           // }
+           // else
+           // {
+           //     float Damageradius = Vector2.Distance(ClosestES.module.Position, this.Center);
+           //     this.AttackerTargetting.Clear();
+           //     foreach (ModuleSlot slot in this.ModuleSlotList)
+           //     {
+           //         if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
+           //                                    && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+           //                                    && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+           //         {
+           //             this.AttackerTargetting.Add(slot);
+           //         }
+
+           //     }
+           // }
+
+
+           // if (this.AttackerTargetting.Count == 0)
+           //     return null;
+           // int randomizer2 = this.AttackerTargetting.Count() / (level + 1);// level > 0 ? this.AttackerTargetting.Count() / (level + 2) : this.AttackerTargetting.Count();
+
+           // return this.AttackerTargetting[HelperFunctions.GetRandomIndex(randomizer2)].module;
 
 
         }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
+using System.Globalization;
 
 namespace Ship_Game
 {
@@ -226,6 +227,7 @@ namespace Ship_Game
                 empireToSave.CurrentAutoScout = e.data.CurrentAutoScout;
                 empireToSave.CurrentAutoFreighter = e.data.CurrentAutoFreighter;
                 empireToSave.CurrentAutoColony = e.data.CurrentAutoColony;
+                empireToSave.CurrentConstructor = e.data.CurrentConstructor;
 				empireToSave.OwnedShips = new List<SavedGame.ShipSaveData>();
 				empireToSave.TechTree = new List<TechEntry>();
 				foreach (AO area in e.GetGSAI().AreasOfOperations)
@@ -522,7 +524,9 @@ namespace Ship_Game
 			};
 			string str = DateTime.Now.ToString("M/d/yyyy");
 			DateTime now = DateTime.Now;
-			header.RealDate = string.Concat(str, " ", now.ToShortTimeString());
+            //gremlin force time to us standard to prevent game load failure on different clock formats.
+            header.RealDate = string.Concat(str, " ", now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat)); 
+			//header.RealDate = string.Concat(str, " ", now.ToShortTimeString());
 			header.SaveName = data.SaveAs;
 			if (GlobalStats.ActiveMod != null)
 			{
@@ -573,6 +577,8 @@ namespace Ship_Game
             public string CurrentAutoColony;
 
             public string CurrentAutoScout;
+
+            public string CurrentConstructor;
 		}
 
 		public struct FleetSave

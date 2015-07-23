@@ -14,9 +14,17 @@ namespace Ship_Game
 
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-             
+
             try
             {
+                if (Game1.Instance.graphics.IsFullScreen)
+                    Game1.Instance.graphics.ToggleFullScreen();
+            }
+            catch
+            { }
+            try
+            {
+                
                 //added by CrimsonED
                 //---
                 Exception ex = (Exception)e.ExceptionObject;
