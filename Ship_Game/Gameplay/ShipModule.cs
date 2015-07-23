@@ -1935,7 +1935,125 @@ namespace Ship_Game.Gameplay
 			}
 			base.Initialize();
 		}
-
+        public void InitializeFromSave(Vector2 pos)
+        {
+            DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
+            this.XMLPosition = pos;
+            this.radius = 8f;
+            base.Position = pos;
+            base.Dimensions = new Vector2(16f, 16f);
+            Vector2 RelativeShipCenter = new Vector2(512f, 512f);
+            this.moduleCenter.X = base.Position.X + 256f;
+            this.moduleCenter.Y = base.Position.Y + 256f;
+            this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
+            float scaleFactor = 1f;
+            ShipModule shipModule = this;
+            shipModule.distanceToParentCenter = shipModule.distanceToParentCenter * scaleFactor;
+            this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
+            this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
+            this.SetInitialPosition();
+            this.SetAttributesByType();
+            //if (this.Parent != null && this.Parent.loyalty != null)
+            //{
+            //    //bool flag = false;
+            //    //if (this.HealthMax == base.Health)
+            //    //    flag = true;
+            //    this.HealthMax = this.HealthMax + this.HealthMax * this.Parent.loyalty.data.Traits.ModHpModifier;
+            //    base.Health = base.Health + base.Health * this.Parent.loyalty.data.Traits.ModHpModifier;
+            //    this.Health = base.Health;
+            //    //if (flag)
+            //    //    this.Health = this.HealthMax;
+            //}
+            if (!this.isDummy && (this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
+            {
+                byte xsize = this.YSIZE;
+                byte ysize = this.XSIZE;
+                this.XSIZE = xsize;
+                this.YSIZE = ysize;
+            }
+            if (this.XSIZE > 1)
+            {
+                for (int xs = this.XSIZE; xs > 1; xs--)
+                {
+                    ShipModule dummy = new ShipModule()
+                    {
+                        XMLPosition = this.XMLPosition
+                    };
+                    dummy.XMLPosition.X = dummy.XMLPosition.X + (float)(16 * (xs - 1));
+                    dummy.isDummy = true;
+                    dummy.ParentOfDummy = this;
+                    dummy.Mass = 0f;
+                    dummy.Parent = this.Parent;
+                    dummy.Health = base.Health;
+                    dummy.HealthMax = this.HealthMax;
+                    dummy.ModuleType = ShipModuleType.Dummy;
+                    dummy.Initialize();
+                    this.LinkedModulesList.Add(dummy);
+                    if (this.YSIZE > 1)
+                    {
+                        for (int ys = this.YSIZE; ys > 1; ys--)
+                        {
+                            dummy = new ShipModule()
+                            {
+                                ParentOfDummy = this,
+                                XMLPosition = this.XMLPosition
+                            };
+                            dummy.XMLPosition.X = dummy.XMLPosition.X + (float)(16 * (xs - 1));
+                            dummy.XMLPosition.Y = dummy.XMLPosition.Y + (float)(16 * (ys - 1));
+                            dummy.isDummy = true;
+                            dummy.Mass = 0f;
+                            dummy.Health = base.Health;
+                            dummy.HealthMax = this.HealthMax;
+                            dummy.ModuleType = ShipModuleType.Dummy;
+                            dummy.Parent = this.Parent;
+                            dummy.Initialize();
+                            this.LinkedModulesList.Add(dummy);
+                        }
+                    }
+                }
+            }
+            if (this.YSIZE > 1)
+            {
+                for (int ys = this.YSIZE; ys > 1; ys--)
+                {
+                    ShipModule dummy = new ShipModule()
+                    {
+                        XMLPosition = this.XMLPosition
+                    };
+                    dummy.XMLPosition.Y = dummy.XMLPosition.Y + (float)(16 * (ys - 1));
+                    dummy.isDummy = true;
+                    dummy.ParentOfDummy = this;
+                    dummy.Mass = 0f;
+                    dummy.Parent = this.Parent;
+                    dummy.Health = base.Health;
+                    dummy.HealthMax = this.HealthMax;
+                    dummy.ModuleType = ShipModuleType.Dummy;
+                    dummy.Initialize();
+                    this.LinkedModulesList.Add(dummy);
+                }
+            }
+            if (!this.isDummy)
+            {
+                foreach (ShipModule module in this.LinkedModulesList)
+                {
+                    module.Parent = this.Parent;
+                    module.system = this.Parent.GetSystem();
+                    module.Dimensions = base.Dimensions;
+                    module.IconTexturePath = this.IconTexturePath;
+                    foreach (ModuleSlot slot in this.Parent.ModuleSlotList)
+                    {
+                        if (slot.Position != module.XMLPosition)
+                        {
+                            continue;
+                        }
+                        slot.module = module;
+                        break;
+                    }
+                    module.Initialize(module.XMLPosition);
+                }
+            }
+            base.Initialize();
+        }
 		public void InitializeLite(Vector2 pos)
 		{
 			this.XMLPosition = pos;
