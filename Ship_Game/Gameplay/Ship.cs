@@ -2472,7 +2472,7 @@ namespace Ship_Game.Gameplay
                 moduleSlot.SetParent(this);
                 if (!Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
                     return false;
-                moduleSlot.Initialize();
+                moduleSlot.InitializeFromSave();
                 if (moduleSlot.module == null)
                 {
                     list.Add(moduleSlot);
