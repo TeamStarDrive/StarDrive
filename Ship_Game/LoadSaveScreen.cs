@@ -114,7 +114,14 @@ namespace Ship_Game
 				tCursor.Y = tCursor.Y + (float)Fonts.Arial20Bold.LineSpacing;
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(data.PlayerName, " StarDate ", data.StarDate), tCursor, Color.White);
 				tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.RealDate, tCursor, Color.White);
+                try
+                {
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.RealDate, tCursor, Color.White);
+                }
+                catch
+                {
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "badDate", tCursor, Color.White);
+                }
 			}
 			this.SavesSL.Draw(base.ScreenManager.SpriteBatch);
 			this.EnterNameArea.Draw(Fonts.Arial12Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, gameTime, (this.EnterNameArea.Hover ? Color.White : Color.Orange));
