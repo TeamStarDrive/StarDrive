@@ -1951,7 +1951,7 @@ namespace Ship_Game.Gameplay
             return this.PlayerShip;
         }
 
-        //added by gremlin Initialize status from deveks mod. 
+        ///added by gremlin Initialize status from deveks mod. 
         public void InitializeStatus()
         {
             #region Variables
@@ -2149,7 +2149,6 @@ namespace Ship_Game.Gameplay
             if (this.FTLSpoolTime == 0)
                 this.FTLSpoolTime = 3f;
         }
-
         public void RenderOverlay(SpriteBatch spriteBatch, Rectangle where, bool ShowModules)
         {
             if (Ship_Game.ResourceManager.HullsDict.ContainsKey(this.shipData.Hull) && !string.IsNullOrEmpty(Ship_Game.ResourceManager.HullsDict[this.shipData.Hull].SelectionGraphic) && !ShowModules)
@@ -2513,7 +2512,7 @@ namespace Ship_Game.Gameplay
                 moduleSlot.InitializeForLoad();
                 moduleSlot.module.Health = moduleSlot.ModuleHealth;
                 moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                if ((double)moduleSlot.module.Health == 0.0)
+                if (moduleSlot.module.Health == 0.0)
                     moduleSlot.module.Active = false;
             }
             this.RecalculatePower();
