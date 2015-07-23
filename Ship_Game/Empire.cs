@@ -91,6 +91,8 @@ namespace Ship_Game
         public Planet Capital;
         public int EmpireShipCountReserve;
         public int empireShipTotal;
+        public int empireShipCombat;    //fbedard
+        public int empirePlanetCombat;  //fbedard
         public bool canBuildCapitals;
         public bool canBuildCruisers;
         public bool canBuildFrigates;
@@ -1436,9 +1438,50 @@ namespace Ship_Game
                             break;
                         }
                     }
+
+                //fbedard: Number of planets where you have combat
+                this.empirePlanetCombat = 0;
+                bool flagPlanet;
+                if (this.isPlayer)
+                    foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+                    {
+                        foreach (Planet p in system.PlanetList)
+                        {
+                            if (p.ExploredDict[EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty)] && p.RecentCombat)
+                            {
+                                if (p.Owner == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                    this.empirePlanetCombat++;
+                                else
+                                {
+                                    flagPlanet = false;
+                                    foreach (PlanetGridSquare planetGridSquare in p.TilesList)
+                                    {
+                                        if (!flagPlanet) 
+                                        {
+                                            planetGridSquare.TroopsHere.thisLock.EnterReadLock();
+                                            foreach (Troop troop in planetGridSquare.TroopsHere)
+                                            {
+                                                if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                                {
+                                                    flagPlanet = true;
+                                                    break;
+                                                }
+                                            }
+                                            planetGridSquare.TroopsHere.thisLock.ExitReadLock();
+                                        }
+                                    }
+                                    if (flagPlanet) this.empirePlanetCombat++;
+                                }
+                            }
+                        }
+                    }
+
                 this.empireShipTotal = 0;
+                this.empireShipCombat = 0;
                 foreach (Ship ship in this.OwnedShips)
                 {
+                    if (ship.fleet == null && ship.InCombat && ship.Mothership == null && ship.Name != "Subspace Projector")  //fbedard: total ships in combat
+                        this.empireShipCombat++;
                     if (ship.Mothership != null || ship.Role == "troop" || ship.Name == "Subspace Projector" || ship.Role == "freighter")
                         continue;
                     this.empireShipTotal++;
@@ -2818,7 +2861,8 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
-            int naturalLimit = 0; //this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
+            int naturalLimit = 0; 
+            //this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
             //    export.ps == Planet.GoodState.EXPORT ||
             //    (export.Population >3000 && export.MaxPopulation > 3000)).Count();
             //naturalLimit += this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
@@ -2826,20 +2870,22 @@ namespace Ship_Game
             //    (export.Population > 3000 && export.MaxPopulation > 3000)).Count();
             
             int inneed = 0;
-            int inneedofciv = 0;
+            float inneedofciv = 0f;  //fbedard: New formulas for passenger needed
+            bool exportPop = false;
             foreach(Planet planet in this.OwnedPlanets)
             {
                 if (planet.fs == Planet.GoodState.EXPORT)
-                {
                     naturalLimit++;
-
-                }
                 if (planet.ps == Planet.GoodState.EXPORT)
                     naturalLimit++;
-                if (planet.Population / planet.MaxPopulation > .5f && planet.MaxPopulation >3000)
+                if (planet.Population / planet.MaxPopulation > .5 && planet.MaxPopulation >3000)
                     naturalLimit++;
                 if (planet.Population / planet.MaxPopulation < .5 && planet.MaxPopulation > 3000)
                     inneed++;
+                if (planet.Population < 2000)
+                    inneedofciv++;
+                else
+                    exportPop = true;
                 if (planet.fs == Planet.GoodState.IMPORT && planet.FoodHere /planet.MAX_STORAGE <.25f)
                     inneed++;
                 if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere / planet.MAX_STORAGE <.25f)
@@ -2848,14 +2894,12 @@ namespace Ship_Game
             naturalLimit *= inneed;
             float moneyForFreighters = (this.Money * .1f) * .1f -this.freighterBudget;
             this.freighterBudget = 0;
-            if(naturalLimit >0 && moneyForFreighters <0)
-            {
-                //naturalLimit *= this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.IMPORT ||
-                //export.ps == Planet.GoodState.IMPORT ||
-                //export.Population /export.MaxPopulation <.2).Count();
-            }
+
             int freighterLimit = (naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : naturalLimit );
-            int TradeLimit = (int)(freighterLimit * 0.8f);
+            float CivLimit = (inneedofciv / this.OwnedPlanets.Count);
+            if (CivLimit > 0.3) CivLimit = .3f;
+            if (!exportPop) CivLimit = 0f;
+            int TradeLimit = (int)(freighterLimit * (1f - CivLimit));
             int PassLimit = freighterLimit - TradeLimit;
             List<Ship> unusedFreighters = new List<Ship>();
             List<Ship> assignedShips = new List<Ship>();
@@ -2876,20 +2920,22 @@ namespace Ship_Game
                 if ((ship.shipData.ShipCategory != ShipData.Category.Unclassified &&  ship.shipData.ShipCategory == ShipData.Category.Civilian) || ship.Role != "freighter" || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
                     continue;
                 if(ship.GetAI().State != AIState.Scrap )
-                this.freighterBudget += ship.GetMaintCost();
+                    this.freighterBudget += ship.GetMaintCost();
                 if (ship.GetAI().State == AIState.SystemTrader)
                 {
                     if (tradeShips < TradeLimit)
                         tradeShips++;
                     else
-                        ship.GetAI().OrderScrapShip();
+                        if (ship.CargoSpace_Used == 0)  //fbedard: dont scrap loaded ship
+                            ship.GetAI().OrderScrapShip();
                 }
                 else if (ship.GetAI().State == AIState.PassengerTransport)
                 {
                     if (passengerShips < PassLimit)
                         passengerShips++;
                     else
-                        ship.GetAI().OrderScrapShip();
+                        if (ship.CargoSpace_Used == 0)  //fbedard: dont scrap loaded ship
+                            ship.GetAI().OrderScrapShip();
                 }
                 else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
                     unusedFreighters.Add(ship);
@@ -2904,7 +2950,7 @@ namespace Ship_Game
             }
             if (unusedFreighters.Count > 1)
                 naturalLimit = 0;
-            int doesntHelp = 0;
+            //int doesntHelp = 0;
             int extraFrieghters =0;
             //foreach (Planet needs in this.GetPlanets())
             //{
@@ -2972,7 +3018,7 @@ namespace Ship_Game
                     });
             }
             foreach (Ship ship in unusedFreighters)
-                ship.GetAI().OrderTrade();
+                ship.GetAI().OrderTransportPassengers();  //fbedard: default to passenger
         }
 
         public void ReportGoalComplete(Goal g)

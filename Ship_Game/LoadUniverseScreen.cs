@@ -129,6 +129,12 @@ namespace Ship_Game
                     e.data.CurrentAutoColony = data.CurrentAutoColony;
                 else
                     e.data.CurrentAutoColony = e.data.DefaultColonyShip;
+
+                if (data.CurrentConstructor != null)
+                    e.data.CurrentConstructor = data.CurrentConstructor;
+                else
+                    e.data.CurrentConstructor = e.data.DefaultConstructor;
+
 			}
 			e.Initialize();
 			e.Money = data.Money;
@@ -503,9 +509,9 @@ namespace Ship_Game
 			}
             this.us.MasterShipList.ApplyPendingRemovals();
 			base.ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
-			this.ExitScreen();
 			this.us.EmpireUI.empire = this.us.player;
 			base.ScreenManager.AddScreenNoLoad(this.us);
+            this.ExitScreen();
 		}
 
 		public override void HandleInput(InputState input)
@@ -563,6 +569,9 @@ namespace Ship_Game
 			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
             this.data.EnemyFTLSpeedModifier = this.savedData.EnemyFTLModifier;
 			this.data.GravityWells = this.savedData.GravityWells;
+            //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
+            //this is pretty bad as its not connected to the creating game screen code that sets the map sizes. If someone changes the map size they wont know to change this as well.
+            if (this.data.Size.X > 7300000f)
             Empire.ProjectorRadius = this.data.Size.X / 70f;
 			EmpireManager.EmpireList.Clear();
             if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
@@ -1332,7 +1341,15 @@ namespace Ship_Game
 				float starDate = this.savedData.StarDate;
 				this.us.StarDate = this.savedData.StarDate;
 				this.us.ScreenManager = base.ScreenManager;
+
+                // Just to be sure
+                this.camPos = savedData.campos;
+                this.camHeight = savedData.camheight;
+
 				this.us.camPos = new Vector3(this.camPos.X, this.camPos.Y, this.camHeight);
+                // Finally fucking fixes the 'LOOK AT ME PA I'M ZOOMED RIGHT IN' vanilla bug when loading a saved game: the universe screen uses camheight separately to the campos z vector to actually do zoom.
+                this.us.camHeight = this.camHeight;
+
 				this.us.player = EmpireManager.GetEmpireByName(this.PlayerLoyalty);
 				this.us.LoadContent();
 				this.us.UpdateAllSystems(0.01f);

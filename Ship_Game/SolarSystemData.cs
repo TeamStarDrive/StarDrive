@@ -42,6 +42,10 @@ namespace Ship_Game
             public List<string> Guardians;
 
             public float MaxPopDefined;
+
+            //Using a separate boolean to ensure that modders can define an unusual 0-habitability planet (e.g. 0 tile Terran); otherwise would have to disregard 0.
+            public bool UniqueHabitat;
+            public int UniqueHabPC;
 		}
 
         public struct Moon

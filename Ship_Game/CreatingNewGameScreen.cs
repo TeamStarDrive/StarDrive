@@ -95,6 +95,7 @@ namespace Ship_Game
                 empire.data.CurrentAutoColony = empire.data.DefaultColonyShip;
                 empire.data.CurrentAutoFreighter = empire.data.DefaultSmallTransport;
                 empire.data.CurrentAutoScout = empire.data.StartingScout;
+                empire.data.CurrentConstructor = empire.data.DefaultConstructor;
                 this.data = new UniverseData()
                 {
                     FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
@@ -703,6 +704,7 @@ namespace Ship_Game
             empireData.DefaultColonyShip = data.DefaultColonyShip;
             empireData.DefaultSmallTransport = data.DefaultSmallTransport;
             empireData.DefaultTroopShip = data.DefaultTroopShip;
+            empireData.DefaultConstructor = data.DefaultConstructor;
             empireData.DefaultShipyard = data.DefaultShipyard;
             empireData.DiplomacyDialogPath = data.DiplomacyDialogPath;
             empireData.DiplomaticPersonality = data.DiplomaticPersonality;

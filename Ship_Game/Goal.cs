@@ -425,18 +425,28 @@ namespace Ship_Game
                     queueItem.isShip = true;
                     queueItem.DisplayName = "Construction Ship";
                     queueItem.QueueNumber = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Count;
-                    queueItem.sData = !ResourceManager.ShipsDict.ContainsKey(this.empire.data.DefaultSmallTransport) ? ResourceManager.ShipsDict[ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport].GetShipData() : ResourceManager.ShipsDict[this.empire.data.DefaultSmallTransport].GetShipData();
+                    queueItem.sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentConstructor].GetShipData();
                     queueItem.Goal = this;
                     queueItem.Cost = ResourceManager.ShipsDict[this.ToBuildUID].GetCost(this.empire);
                     queueItem.NotifyOnEmpty = false;
-                    if (ResourceManager.ShipsDict.ContainsKey(this.empire.data.DefaultSmallTransport))
+                    if (!string.IsNullOrEmpty(this.empire.data.CurrentConstructor) && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentConstructor))
                     {
-                        this.beingBuilt = ResourceManager.ShipsDict[this.empire.data.DefaultSmallTransport];
+                        this.beingBuilt = ResourceManager.ShipsDict[this.empire.data.CurrentConstructor];
                     }
                     else
                     {
-                        this.beingBuilt = ResourceManager.ShipsDict[ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport];
-                        this.empire.data.DefaultSmallTransport = ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport;
+                        this.beingBuilt = null;
+                        string empiredefaultShip = this.empire.data.DefaultConstructor;
+                        if (string.IsNullOrEmpty(empiredefaultShip))
+                        {
+                            empiredefaultShip = this.empire.data.DefaultSmallTransport;
+                        }
+                        ResourceManager.ShipsDict.TryGetValue(empiredefaultShip, out this.beingBuilt);
+                        //if(this.beingBuilt == null)
+                        //{
+                        //    ResourceManager.ShipsDict.TryGetValue(ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport, out this.beingBuilt);
+                        //}
+                        this.empire.data.DefaultConstructor = empiredefaultShip;
                     }
                     Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Add(queueItem);
                     ++this.Step;

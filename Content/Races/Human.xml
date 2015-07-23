@@ -8,6 +8,8 @@
   <PrototypeShip>Prototype Frigate</PrototypeShip>
   <DefaultSmallTransport>Small Transport</DefaultSmallTransport>
   <DefaultColonyShip>Colony Ship</DefaultColonyShip>
+  <DefaultConstructor>Small Transport</DefaultConstructor>
+  
   <ExcludedDTraits>
     <string>Pacifist</string>
   </ExcludedDTraits>

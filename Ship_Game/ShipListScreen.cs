@@ -122,7 +122,7 @@ namespace Ship_Game
 			}
 			Ref<bool> aeRef = new Ref<bool>(() => this.HidePlatforms, (bool x) => {
 				this.HidePlatforms = x;
-                this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value);
+               this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value);
 			});
 			this.cb_hide_proj = new Checkbox(new Vector2((float)(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 10), (float)(this.TitleBar.Menu.Y + 15)), Localizer.Token(191), aeRef, Fonts.Arial12Bold);
 			this.ShowRoles = new DropOptions(new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
@@ -150,6 +150,7 @@ namespace Ship_Game
             this.SB_Troop = new SortButton(this.empUI.empire.data.SLSort, "Troop");
             this.SB_STR = new SortButton(this.empUI.empire.data.SLSort, "STR");
             //this.Maint.rect = this.MaintRect;
+            ResetList(1);  //fbedard: initial filter
 		}
 
 
@@ -328,7 +329,9 @@ namespace Ship_Game
 					else
 					{
 						this.ExitScreen();
-						this.empUI.screen.SelectedShip = entry.ship;
+                        if (this.empUI.screen.SelectedShip != null && entry.ship != this.empUI.screen.SelectedShip) //fbedard
+                            this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
+                        this.empUI.screen.SelectedShip = entry.ship;                        
 						this.empUI.screen.ViewToShip(null);
 						this.empUI.screen.returnToShip = false;
 					}
@@ -595,7 +598,7 @@ namespace Ship_Game
 			{
 				foreach (Ship ship in EmpireManager.GetEmpireByName(this.empUI.screen.PlayerLoyalty).GetShips())
 				{
-					if (!ship.IsPlayerDesign && this.HidePlatforms)
+					if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null)  //fbedard: never list ships created from hangar
 					{
 						continue;
 					}
