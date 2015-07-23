@@ -569,6 +569,9 @@ namespace Ship_Game
 			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
             this.data.EnemyFTLSpeedModifier = this.savedData.EnemyFTLModifier;
 			this.data.GravityWells = this.savedData.GravityWells;
+            //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
+            //this is pretty bad as its not connected to the creating game screen code that sets the map sizes. If someone changes the map size they wont know to change this as well.
+            if (this.data.Size.X > 7300000f)
             Empire.ProjectorRadius = this.data.Size.X / 70f;
 			EmpireManager.EmpireList.Clear();
             if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
