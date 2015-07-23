@@ -1935,6 +1935,10 @@ namespace Ship_Game.Gameplay
 			}
 			base.Initialize();
 		}
+        /// <summary>
+        /// Seperate module intialization for ships loaded from save games. 
+        /// </summary>
+        /// <param name="pos"></param>
         public void InitializeFromSave(Vector2 pos)
         {
             DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
