@@ -4457,7 +4457,7 @@ namespace Ship_Game
             //fbedard: add a scroll on selected object
             if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
             {
-                if (this.SelectedShip != null)
+                if (this.SelectedShip != null && this.SelectedShip.Active)
                 {
                     this.transitionDestination = new Vector3(this.SelectedShip.Position.X, this.SelectedShip.Position.Y, num2);
                 }
@@ -4467,7 +4467,7 @@ namespace Ship_Game
                         this.transitionDestination = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, num2);
                     }  
                     else
-                        if (this.SelectedFleet != null)
+                        if (this.SelectedFleet != null && this.SelectedFleet.Ships.Count > 0)
                         {                            
                             this.transitionDestination = new Vector3(this.SelectedFleet.findAveragePositioncg().X, this.SelectedFleet.findAveragePositioncg().Y, num2);
                         }
