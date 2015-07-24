@@ -2481,6 +2481,12 @@ namespace Ship_Game.Gameplay
                                                for (int T = range.Item1; T < range.Item2; T++)
                                                {
                                                    Weapon weapon = this.Owner.Weapons[T];
+                                                   //Reasons for this weapon not to fire 
+                                                   if ( !weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
+                                                   {
+                                                       //continue;
+                                                       return;
+                                                   }
                                                    ShipModule moduletarget = weapon.fireTarget as ShipModule;
                                                    //if firing at the primary target mark weapon as firing on primary.
                                                    if (!(weapon.fireTarget is Projectile) &&( weapon.fireTarget == this.Target || (moduletarget !=null && (moduletarget.GetParent() as GameplayObject) ==this.Target)))
@@ -2495,10 +2501,19 @@ namespace Ship_Game.Gameplay
                                                            || (this.Target !=null &&(!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target) ))                                                         
                                                            )
                                                        {
-                                                           
+                                                           weapon.TargetChangeTimer = .5f;
                                                            weapon.fireTarget = null;
-                                                          
-                                                           weapon.TargetChangeTimer = .15f;
+                                                           if (weapon.isBeam || weapon.isMainGun)
+                                                               weapon.TargetChangeTimer = .90f;
+                                                           if (weapon.isTurret)
+                                                               weapon.TargetChangeTimer *= .5f;
+                                                           if(weapon.Tag_PD)
+                                                           {
+                                                               weapon.TargetChangeTimer *= .5f;
+                                                           }
+
+                             
+                                                           
                                                        }
                                                        
                                                    }
@@ -2510,7 +2525,7 @@ namespace Ship_Game.Gameplay
                                                            weapon.PrimaryTarget = false;
                                                    }
                                                    //Reasons for this weapon not to fire                    
-                                                   if (  (weapon.fireTarget == null && weapon.TargetChangeTimer >0 ) ||!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
+                                                   if (weapon.fireTarget == null && weapon.TargetChangeTimer >0 ) // ||!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                                                    {
                                                        //continue;
                                                        return;

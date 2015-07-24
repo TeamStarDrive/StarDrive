@@ -822,7 +822,9 @@ namespace Ship_Game.Gameplay
                                                             if ((source as Projectile).isSecondary)
                                                             {
                                                                 Weapon shooter = (source as Projectile).weapon;
-                                                                damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                                                                ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
+                                                                damageAmount *= shooter.EffectVSShields; 
+                                                                //damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
                                                             }
                                                             else
                                                             {
@@ -889,7 +891,9 @@ namespace Ship_Game.Gameplay
                                                                             if ((source as Projectile).isSecondary)
                                                                             {
                                                                                 Weapon shooter = (source as Projectile).weapon;
-                                                                                explosionRay.Damage *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                                                                                ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
+                                                                                explosionRay.Damage *= shooter.EffectVsArmor; 
+                                                                                //explosionRay.Damage *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
                                                                             }
                                                                             else
                                                                             {
