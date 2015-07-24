@@ -2568,7 +2568,7 @@ namespace Ship_Game.Gameplay
                                                            if (weapon.fireTarget == null)
                                                            {
                                                                //limit to one target per level.
-                                                               for (int i = 0; i < this.PotentialTargets.Count; i++) //&& i < this.Owner.Level
+                                                               for (int i = 0; i < this.PotentialTargets.Count && i < this.Owner.Level+1; i++) //
                                                                {
                                                                    Ship PotentialTarget = this.PotentialTargets[i];
                                                                    if (PotentialTarget == this.TargetShip
@@ -2603,7 +2603,7 @@ namespace Ship_Game.Gameplay
                                                            if (weapon.fireTarget == null)
                                                            {
 
-                                                               for (int i = 0; i < this.TrackProjectiles.Count; i++)
+                                                               for (int i = 0; i < this.TrackProjectiles.Count && i < this.Owner.Level+1;i++)
                                                                {
                                                                    Projectile proj;
                                                                    {
