@@ -2722,7 +2722,8 @@ namespace Ship_Game
                     this.UseRealLights = true;
                     this.SetLighting(this.UseRealLights);
                 }
-            } if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.active)
+            } 
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.active)
             {
                 bool switchedmode = false;
 #if RELEASE //only switch screens in release
@@ -2750,6 +2751,42 @@ namespace Ship_Game
                     if (paused)
                     {
                         
+                        this.Paused = false;
+                    }
+                }
+                if (switchedmode)
+                {
+                    switchedmode = false;
+                    Game1.Instance.graphics.ToggleFullScreen();
+                }
+            }
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.F7) && input.LastKeyboardState.IsKeyUp(Keys.F7) && !ExceptionTracker.active)
+            {
+                bool switchedmode = false;
+#if RELEASE //only switch screens in release
+                
+                if (Game1.Instance.graphics.IsFullScreen)
+                {
+                    switchedmode = true;
+                    Game1.Instance.graphics.ToggleFullScreen();
+                }
+#endif
+                Exception ex = new Exception("Kudos");
+                
+                ExceptionTracker.TrackException(ex);
+                ExceptionTracker.Kudos = true;
+                // if(ExceptionViewer.ActiveForm == null)
+                {
+                    bool paused = false;
+                    if (!this.Paused)
+                    {
+                        paused = true;
+                        this.Paused = true;
+                    }
+                    ExceptionTracker.DisplayException(ex);
+                    if (paused)
+                    {
+
                         this.Paused = false;
                     }
                 }
