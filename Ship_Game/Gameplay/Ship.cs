@@ -211,9 +211,10 @@ namespace Ship_Game.Gameplay
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         List<ModuleSlot> AttackerTargetting = new List<ModuleSlot>();
-        Ship lastAttacker;
+        public sbyte TrackingPower = 0;
         
         public ushort purgeCount =0;
+        public Ship lastAttacker = null;
 
         //public class diplomacticSpace
         //{
@@ -3404,6 +3405,7 @@ namespace Ship_Game.Gameplay
                         this.ECMValue = 0f;
                         this.FTLSpoolTime = 0f;
                         this.hasCommand = this.IsPlatform;
+                        this.TrackingPower = 0;
                     }
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     {
@@ -3416,13 +3418,13 @@ namespace Ship_Game.Gameplay
                         if (this.shipStatusChanged)
                         {
                             this.RepairRate += moduleSlot.module.BonusRepairRate;
-                            if ((double)moduleSlot.module.Mass < 0.0 && moduleSlot.Powered)
+                            if (moduleSlot.module.Mass < 0.0 && moduleSlot.Powered)
                             {
                                 Ship ship3 = this;
                                 double num3 = (double)ship3.Mass + (double)moduleSlot.module.Mass;
                                 ship3.Mass = (float)num3;
                             }
-                            else if ((double)moduleSlot.module.Mass > 0.0)
+                            else if (moduleSlot.module.Mass > 0.0)
                             {
                                 Ship ship3 = this;
                                 
@@ -3431,11 +3433,11 @@ namespace Ship_Game.Gameplay
                                 {
                                     float ArmourMassModifier = this.loyalty.data.ArmourMassModifier;
                                     double ArmourMass = (double)moduleSlot.module.Mass * ArmourMassModifier;
-                                    num3 = (double)ship3.Mass + ArmourMass;
+                                    num3 =ship3.Mass + ArmourMass;
                                 }
                                 else
                                 {
-                                    num3 = (double)ship3.Mass + (double)moduleSlot.module.Mass;
+                                    num3 = ship3.Mass + moduleSlot.module.Mass;
                                 }
                                 ship3.Mass = (float)num3;
                             }
@@ -3445,6 +3447,8 @@ namespace Ship_Game.Gameplay
                             {
                                 if (!this.hasCommand && moduleSlot.module.IsCommandModule)
                                     this.hasCommand = true;
+                                if (this.TrackingPower < moduleSlot.module.TargetTracking)
+                                    this.TrackingPower = moduleSlot.module.TargetTracking;
                                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                                 this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                                 this.InhibitionRadius += moduleSlot.module.InhibitionRadius;
@@ -4169,6 +4173,8 @@ namespace Ship_Game.Gameplay
             this.ModuleSlotList.Clear();
             this.ExternalSlots.Clear();
             this.ModulesDictionary.Clear();
+            this.ThrusterList.Clear();
+            this.AttackerTargetting.Clear();
             this.Velocity = Vector2.Zero;
             this.velocityMaximum = 0.0f;
             this.AfterBurnerAmount = 0.0f;
