@@ -2915,8 +2915,7 @@ namespace Ship_Game
                                     {
                                         if (nbrplanet == lastplanetcombat)
                                             PlanetToView = p;
-                                        else
-                                            nbrplanet++;
+                                        nbrplanet++;
                                     }
                                     else
                                     {
@@ -2941,8 +2940,7 @@ namespace Ship_Game
                                         {
                                             if (nbrplanet == lastplanetcombat)
                                                 PlanetToView = p;
-                                            else
-                                                nbrplanet++;
+                                            nbrplanet++;
                                         }
                                     }
                                 }
