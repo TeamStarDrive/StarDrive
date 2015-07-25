@@ -124,7 +124,13 @@ namespace Ship_Game
             if(!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
             return;
 #endif
-            
+            try
+            {
+                Form form = (Form)Control.FromHandle(Game1.Instance.Window.Handle);
+                form.WindowState = FormWindowState.Minimized;
+                form.Update();
+            }
+            catch { }
             try
             {
                 ExceptionViewer exviewer = new ExceptionViewer();

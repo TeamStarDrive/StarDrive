@@ -2424,6 +2424,15 @@ namespace Ship_Game.Gameplay
                     //Target is dead or dying, will need a new one.
                     if (this.Target != null && (!this.Target.Active || TargetShip != null && TargetShip.dying))
                     {
+                        foreach (Weapon purge in this.Owner.Weapons)
+                        {
+                            if (purge.PrimaryTarget)
+                            {
+                                purge.PrimaryTarget = false;
+                                purge.fireTarget = null;
+                                purge.SalvoTarget = null;
+                            }
+                        }
                         this.Target = null;
                         TargetShip = null;
                     }
@@ -2539,7 +2548,7 @@ namespace Ship_Game.Gameplay
                                                            //if there are projectile to hit and weapons that can shoot at them. do so. 
                                                            if(this.TrackProjectiles.Count >0 && weapon.Tag_PD)
                                                            {
-                                                               for (int i = 0; i < this.TrackProjectiles.Count; i++)
+                                                               for (int i = 0; i < this.TrackProjectiles.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++)
                                                                {
                                                                    Projectile proj;
                                                                    {
@@ -2568,7 +2577,7 @@ namespace Ship_Game.Gameplay
                                                            if (weapon.fireTarget == null)
                                                            {
                                                                //limit to one target per level.
-                                                               for (int i = 0; i < this.PotentialTargets.Count && i < this.Owner.Level+1; i++) //
+                                                               for (int i = 0; i < this.PotentialTargets.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++) //
                                                                {
                                                                    Ship PotentialTarget = this.PotentialTargets[i];
                                                                    if (PotentialTarget == this.TargetShip
@@ -2603,7 +2612,7 @@ namespace Ship_Game.Gameplay
                                                            if (weapon.fireTarget == null)
                                                            {
 
-                                                               for (int i = 0; i < this.TrackProjectiles.Count && i < this.Owner.Level+1;i++)
+                                                               for (int i = 0; i < this.TrackProjectiles.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++)
                                                                {
                                                                    Projectile proj;
                                                                    {
@@ -2646,7 +2655,7 @@ namespace Ship_Game.Gameplay
                                     weapon.FireTargetedBeam(target);
                                 else if (weapon.Tag_Guided)
                                 {
-                                    if (index > 10 && lag > .03 && !GlobalStats.ForceFullSim && (!weapon.Tag_Intercept) && (weapon.fireTarget is ShipModule))
+                                    if (index > 10 && lag > .05 && !GlobalStats.ForceFullSim && (!weapon.Tag_Intercept) && (weapon.fireTarget is ShipModule))
                                         this.FireOnTargetNonVisible(weapon, (weapon.fireTarget as ShipModule).GetParent());
                                     else
                                         weapon.Fire(new Vector2((float)Math.Sin((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing))), target);
@@ -2654,7 +2663,7 @@ namespace Ship_Game.Gameplay
                                 }
                                 else
                                 {
-                                    if (index > 10 && lag > .03 && !GlobalStats.ForceFullSim && (weapon.fireTarget is ShipModule))
+                                    if (index > 10 && lag > .05 && !GlobalStats.ForceFullSim && (weapon.fireTarget is ShipModule))
                                         this.FireOnTargetNonVisible(weapon, (weapon.fireTarget as ShipModule).GetParent());
                                     else
                                         CalculateAndFire(weapon, target, false);
@@ -7650,6 +7659,15 @@ namespace Ship_Game.Gameplay
             }
             else
             {
+                foreach (Weapon purge in this.Owner.Weapons)
+                {
+                    if (purge.fireTarget != null)
+                    {
+                        purge.PrimaryTarget = false;
+                        purge.fireTarget = null;
+                        purge.SalvoTarget = null;
+                    }
+                }
                 if (this.Owner.GetHangars().Count > 0 && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
                 {
                     foreach (ShipModule hangar in this.Owner.GetHangars())
