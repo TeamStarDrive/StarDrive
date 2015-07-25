@@ -1454,20 +1454,12 @@ namespace Ship_Game
                                 else
                                 {
                                     flagPlanet = false;
-                                    foreach (PlanetGridSquare planetGridSquare in p.TilesList)
+                                    foreach (Troop troop in p.TroopsHere)
                                     {
-                                        if (!flagPlanet) 
+                                        if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
                                         {
-                                            planetGridSquare.TroopsHere.thisLock.EnterReadLock();
-                                            foreach (Troop troop in planetGridSquare.TroopsHere)
-                                            {
-                                                if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
-                                                {
-                                                    flagPlanet = true;
-                                                    break;
-                                                }
-                                            }
-                                            planetGridSquare.TroopsHere.thisLock.ExitReadLock();
+                                            flagPlanet = true;
+                                            break;
                                         }
                                     }
                                     if (flagPlanet) this.empirePlanetCombat++;
