@@ -299,6 +299,9 @@ namespace Ship_Game.Gameplay
         //record which quadrant the module lives in. Currently only for external modules. internal modules will have an upredicable value.
         public sbyte quadrant = -1;
 
+        //targetTracking ability of module.
+        public sbyte TargetTracking = 0;
+
 		public bool IsWeapon
 		{
 			get
@@ -2166,7 +2169,7 @@ namespace Ship_Game.Gameplay
 			this.Center3D.X = this.Center.X;
 			this.Center3D.Y = this.Center.Y;
 			this.Center3D.Z = tan * num;
-			if (this.Parent.dying)
+			if (this.Parent.dying && this.Parent.InFrustum)
 			{
 				if (this.trailEmitter == null && this.firetrailEmitter == null && this.reallyFuckedUp)
 				{
@@ -2323,8 +2326,11 @@ namespace Ship_Game.Gameplay
                     this.isWeapon = true;
                     this.Parent.Weapons.Add(this.InstalledWeapon);
                     break;
+                case ShipModuleType.Command:
+                    this.TargetTracking = Convert.ToSByte((this.XSIZE*this.YSIZE) / 3);
+                    break;
             }
-            if ((double)this.shield_power_max > 0.0)
+            if (this.shield_power_max > 0.0)
             {
                 this.shield = new Shield();
                 this.shield.World = Matrix.Identity * Matrix.CreateScale(2f) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.Center.X, this.Center.Y, 0.0f);
@@ -2332,7 +2338,7 @@ namespace Ship_Game.Gameplay
                 this.shield.displacement = 0.0f;
                 this.shield.texscale = 2.8f;
                 this.shield.Rotation = this.Rotation;
-                lock (GlobalStats.ShieldLocker)
+                //lock (GlobalStats.ShieldLocker)
                     ShieldManager.shieldList.Add(this.shield);
             }
             if (this.IsSupplyBay)
@@ -2384,6 +2390,9 @@ namespace Ship_Game.Gameplay
                     this.InstalledWeapon.SetOwner(this.Parent);
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
+                    break;
+                case ShipModuleType.Command:
+                    this.TargetTracking = Convert.ToSByte((this.XSIZE * this.YSIZE) / 3);
                     break;
             }
             this.Health = this.HealthMax;
