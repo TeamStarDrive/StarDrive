@@ -283,15 +283,14 @@ namespace Ship_Game
 							}
 							return true;
 						}
-                        //fbedard: keep only 1 trade button
-						//case OrderType.TradeProduction:
-						//{
-						//	for (int i = 0; i < this.ShipList.Count; i++)
-						//	{
-						//		this.ShipList[i].GetAI().OrderTrade();
-						//	}
-						//	return true;
-						//}
+						case OrderType.TradeProduction:
+						{
+							for (int i = 0; i < this.ShipList.Count; i++)
+							{
+								this.ShipList[i].GetAI().OrderTrade();
+							}
+							return true;
+						}
 						case OrderType.PassTran:
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)

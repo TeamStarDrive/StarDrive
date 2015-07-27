@@ -113,12 +113,15 @@ namespace Ship_Game
 					ShipListScreenEntry entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
 					this.ShipSL.AddItem(entry);
 				}
-                if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
-                {
-                    this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-                }
-                else
-                    this.SelectedShip = null;
+                //if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
+                //{
+                //    foreach (ScrollList.Entry sel in this.ShipSL.Entries)
+                //        (sel.item as ShipListScreenEntry).Selected = false;
+                    //this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+                    //(this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
+                //}
+                //else
+                this.SelectedShip = null;
 			}
 			Ref<bool> aeRef = new Ref<bool>(() => this.HidePlatforms, (bool x) => {
 				this.HidePlatforms = x;
@@ -127,6 +130,7 @@ namespace Ship_Game
 			this.cb_hide_proj = new Checkbox(new Vector2((float)(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 10), (float)(this.TitleBar.Menu.Y + 15)), Localizer.Token(191), aeRef, Fonts.Arial12Bold);
 			this.ShowRoles = new DropOptions(new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
 			this.ShowRoles.AddOption("All Ships", 1);
+            this.ShowRoles.AddOption("Not in Fleets", 11);
 			this.ShowRoles.AddOption("Fighters", 2);
             this.ShowRoles.AddOption("Corvettes", 10);
 			this.ShowRoles.AddOption("Frigates", 3);
@@ -134,7 +138,7 @@ namespace Ship_Game
 			this.ShowRoles.AddOption("Capitals", 5);
             this.ShowRoles.AddOption("Civilian", 8);
             this.ShowRoles.AddOption("All Structures", 9);
-			this.ShowRoles.AddOption("Fleets Only", 6);
+			this.ShowRoles.AddOption("In Fleets Only", 6);
 
             // Replaced using the tick-box for player design filtering. Platforms now can be browsed with 'structures'
 			// this.ShowRoles.AddOption("Player Designs Only", 7);
@@ -228,17 +232,20 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "STL", TextCursor, new Color(255, 239, 208));
 				}
 				Color smallHighlight = TextColor;
-				smallHighlight.A = (byte)(TextColor.A / 2);
+				//smallHighlight.A = (byte)(TextColor.A / 2);
+                smallHighlight = Color.DarkGreen;
 				for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Entries.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
 				{
 					ShipListScreenEntry entry = this.ShipSL.Entries[i].item as ShipListScreenEntry;
-					if (i % 2 == 0)
+					//if (i % 2 == 0)
+					//{
+					//	Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, smallHighlight);
+					//}
+					//if (entry.ship == this.SelectedShip)
+                    if (entry.Selected)
 					{
-						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, smallHighlight);
-					}
-					if (entry.ship == this.SelectedShip)
-					{
-						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
+						//Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
+                        Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, smallHighlight);
 					}
 					entry.SetNewPos(this.eRect.X + 22, this.ShipSL.Entries[i].clickRect.Y);
 					entry.Draw(base.ScreenManager, gameTime);
@@ -331,6 +338,7 @@ namespace Ship_Game
 						this.ExitScreen();
                         if (this.empUI.screen.SelectedShip != null && entry.ship != this.empUI.screen.SelectedShip) //fbedard
                             this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
+                        this.empUI.screen.SelectedShipList.Clear();
                         this.empUI.screen.SelectedShip = entry.ship;                        
 						this.empUI.screen.ViewToShip(null);
 						this.empUI.screen.returnToShip = false;
@@ -338,7 +346,13 @@ namespace Ship_Game
 					if (this.SelectedShip != entry.ship)
 					{
 						AudioManager.PlayCue("sd_ui_accept_alt3");
+                        if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+                        {
+                            foreach (ScrollList.Entry sel in this.ShipSL.Entries)
+                                (sel.item as ShipListScreenEntry).Selected = false;
+			            }
 						this.SelectedShip = entry.ship;
+                        entry.Selected = true;
 					}
 				}
 			}
@@ -555,11 +569,59 @@ namespace Ship_Game
             {
                 AudioManager.PlayCue("echo_affirm");
                 this.ExitScreen();
+
+                this.empUI.screen.SelectedShipList.Clear();
+                this.empUI.screen.returnToShip = false;
+                this.empUI.screen.SkipRightOnce = true;
+                if (this.SelectedShip !=null)
+                {                   
+                    this.empUI.screen.SelectedFleet = (Fleet)null;
+                    this.empUI.screen.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                    this.empUI.screen.SelectedSystem = (SolarSystem)null;
+                    this.empUI.screen.SelectedPlanet = (Planet)null;
+                    this.empUI.screen.returnToShip = false;
+                    foreach (ScrollList.Entry sel in this.ShipSL.Entries)
+                        if ((sel.item as ShipListScreenEntry).Selected)
+                            this.empUI.screen.SelectedShipList.Add((sel.item as ShipListScreenEntry).ship);
+
+                    if (this.empUI.screen.SelectedShipList.Count == 1)
+                    {
+                        this.empUI.screen.SelectedShip = this.SelectedShip;
+                        this.empUI.screen.ShipInfoUIElement.SetShip(this.SelectedShip);
+                        this.empUI.screen.SelectedShipList.Clear();
+                    }
+                    else if (this.empUI.screen.SelectedShipList.Count > 1)
+                        this.empUI.screen.shipListInfoUI.SetShipList((List<Ship>)this.empUI.screen.SelectedShipList, false);
+                }
                 return;
             }
+
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
 			{
 				this.ExitScreen();
+                this.empUI.screen.SelectedShipList.Clear();
+                this.empUI.screen.returnToShip = false;
+                this.empUI.screen.SkipRightOnce = true;
+                if (this.SelectedShip !=null)
+                {                   
+                    this.empUI.screen.SelectedFleet = (Fleet)null;
+                    this.empUI.screen.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                    this.empUI.screen.SelectedSystem = (SolarSystem)null;
+                    this.empUI.screen.SelectedPlanet = (Planet)null;
+                    this.empUI.screen.returnToShip = false;
+                    foreach (ScrollList.Entry sel in this.ShipSL.Entries)
+                        if ((sel.item as ShipListScreenEntry).Selected)
+                            this.empUI.screen.SelectedShipList.Add((sel.item as ShipListScreenEntry).ship);
+
+                    if (this.empUI.screen.SelectedShipList.Count == 1)
+                    {
+                        this.empUI.screen.SelectedShip = this.SelectedShip;
+                        this.empUI.screen.ShipInfoUIElement.SetShip(this.SelectedShip);
+                        this.empUI.screen.SelectedShipList.Clear();
+                    }
+                    else if (this.empUI.screen.SelectedShipList.Count > 1)
+                        this.empUI.screen.shipListInfoUI.SetShipList((List<Ship>)this.empUI.screen.SelectedShipList, false);
+                }
 			}
 		}
 
@@ -579,11 +641,12 @@ namespace Ship_Game
 					ShipListScreenEntry entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
 					this.ShipSL.AddItem(entry);
 				}
-                if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
-                {
-                    this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-                    return;
-                }
+                //if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
+                //{
+                //    this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+                //    (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
+                //    return;
+                //}
                 this.SelectedShip = null;
 			}
 		}
@@ -704,17 +767,28 @@ namespace Ship_Game
                             this.ShipSL.AddItem(entry);
                             continue;
                         }
+                        case 11: 
+                        {
+                            if (ship.fleet != null)
+                            {
+                                continue;
+                            }
+                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                            this.ShipSL.AddItem(entry);
+                            continue;
+                        }
 						default:
 						{
 							continue;
 						}
 					}
 				}
-				if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
-				{
-					this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-					return;
-				}
+                //if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
+				//{
+					//this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+                    //(this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
+					//return;
+				//}
 				this.SelectedShip = null;
 			}
 		}
@@ -732,7 +806,8 @@ namespace Ship_Game
 			{
 				this.ShipSL.AddItem(ship);
 			}
-			this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+			//this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+            //(this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
 		}
 
 		private void ResetPos()

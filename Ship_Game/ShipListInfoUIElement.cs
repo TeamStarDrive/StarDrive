@@ -713,13 +713,17 @@ namespace Ship_Game
 				Active = false
 			};
 			this.Orders.Add(Explore);
-			OrdersButton ordersButton = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15);
-			SystemDefense.SimpleToggle = true;
             }
 
 			if (AllFreighters)
 			{
-				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 15)
+                //OrdersButton ao = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15)
+                //{
+                //  SimpleToggle = true,
+                //  Active = false
+                //};
+                //this.Orders.Add(ao);
+				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 16)
 				{
 					SimpleToggle = true
 				};

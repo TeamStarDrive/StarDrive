@@ -605,7 +605,7 @@ namespace Ship_Game
                 };
                 this.Orders.Add(resupply);
             }
-            if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "station" && ship.Mothership == null)
+            if (this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "station" && ship.Mothership == null)
 			{
 				OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
 				{
@@ -614,7 +614,10 @@ namespace Ship_Game
 						this.screen.AORect = new Rectangle(0, 0, 0, 0);
 					})
 				};
-				this.Orders.Add(ao);
+                this.Orders.Add(ao);
+            }
+            if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "station" && ship.Mothership == null)
+			{
 				OrdersButton tf = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeFood, 16)
 				{
 					ValueToModify = new Ref<bool>(() => this.ship.DoingTransport, (bool x) => this.ship.DoingTransport = x),
