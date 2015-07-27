@@ -54,6 +54,8 @@ namespace Ship_Game
 
 		private bool isScuttle;
 
+        public bool Selected = false;  //fbedard: for multi-select
+
 		public ShipListScreenEntry(Ship s, int x, int y, int width1, int height, ShipListScreen caller)
 		{
 			this.screen = caller;

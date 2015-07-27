@@ -232,7 +232,7 @@ namespace Ship_Game
         public InputState input;
         private float Memory;
         public bool Paused;
-        private bool SkipRightOnce;
+        public bool SkipRightOnce;
         private bool UseRealLights = true;
         private bool showdebugwindow;
         private bool NeedARelease;
