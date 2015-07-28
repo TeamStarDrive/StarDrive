@@ -4607,7 +4607,7 @@ namespace Ship_Game
                                         this.SelectedShipList.Clear();
                                     this.pickedSomethingThisFrame = true;
                                     AudioManager.GetCue("techy_affirm1").Play();
-                                    this.SelectedShip = clickableShip.shipToClick;
+                                    //this.SelectedShip = clickableShip.shipToClick;  removed by fbedard
                                     this.SelectedSomethingTimer = 3f;
                                     if (!this.SelectedShipList.Contains(clickableShip.shipToClick))
                                     {

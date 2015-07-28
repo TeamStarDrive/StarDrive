@@ -77,6 +77,8 @@ namespace Ship_Game
 
 		//private bool AutoButtonHover;
 
+        private int CurrentLine;
+
 		public ShipListScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
 		{
 			this.empUI = empUI;
@@ -351,8 +353,17 @@ namespace Ship_Game
                             foreach (ScrollList.Entry sel in this.ShipSL.Entries)
                                 (sel.item as ShipListScreenEntry).Selected = false;
 			            }
+                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && this.SelectedShip != null)
+                            if (i >= CurrentLine)
+                                for (int l = CurrentLine; l <= i; l++)
+                                    (this.ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
+                            else
+                                for (int l = i; l <= CurrentLine; l++)
+                                    (this.ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
+
 						this.SelectedShip = entry.ship;
                         entry.Selected = true;
+                        CurrentLine = i;
 					}
 				}
 			}
@@ -648,6 +659,7 @@ namespace Ship_Game
                 //    return;
                 //}
                 this.SelectedShip = null;
+                CurrentLine = 0;
 			}
 		}
 
@@ -790,6 +802,7 @@ namespace Ship_Game
 					//return;
 				//}
 				this.SelectedShip = null;
+                CurrentLine = 0;
 			}
 		}
 
