@@ -196,7 +196,9 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
+            if (this.screen.SelectedShipList == null) return;  //fbedard
+
+            float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
 			int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
 			if (this.AllShipsMine)
 			{
@@ -305,7 +307,9 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
-			List<Ship> ships = new List<Ship>();
+            if (this.screen.SelectedShipList == null) return false;  //fbedard
+
+            List<Ship> ships = new List<Ship>();
 			bool reset = false;
 			for (int i = this.SelectedShipsSL.indexAtTop; i < this.SelectedShipsSL.Entries.Count && i < this.SelectedShipsSL.indexAtTop + this.SelectedShipsSL.entriesToDisplay; i++)
 			{

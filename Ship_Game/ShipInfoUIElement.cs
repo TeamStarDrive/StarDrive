@@ -195,6 +195,8 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
+            if (this.screen.SelectedShip == null) return;  //fbedard
+
 			float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
 			int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
 			this.sliding_element.Draw(this.ScreenManager, (int)((float)(columns * 55) * (1f - base.TransitionPosition)) + (this.sliding_element.Open ? 20 - columns : 0));
@@ -409,6 +411,8 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (this.screen.SelectedShip == null) return false;  //fbedard
+
             if (this.sliding_element.HandleInput(input))
             {
                 if (this.sliding_element.Open)
