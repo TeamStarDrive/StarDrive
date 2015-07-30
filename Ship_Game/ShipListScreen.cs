@@ -51,7 +51,7 @@ namespace Ship_Game
 
 		private float ClickDelay = 0.25f;
 
-		private int indexLast;
+		private static int indexLast;
 
 		private Rectangle STRIconRect;
         private SortButton SB_STR;
@@ -156,7 +156,8 @@ namespace Ship_Game
             this.SB_Troop = new SortButton(this.empUI.empire.data.SLSort, "Troop");
             this.SB_STR = new SortButton(this.empUI.empire.data.SLSort, "STR");
             //this.Maint.rect = this.MaintRect;
-            ResetList(1);  //fbedard: initial filter
+            this.ShowRoles.ActiveIndex = indexLast;  //fbedard: remember last filter
+            this.ResetList(this.ShowRoles.Options[indexLast].@value);
 		}
 
 
@@ -318,13 +319,13 @@ namespace Ship_Game
 			this.ShipSL.HandleInput(input);
 			this.cb_hide_proj.HandleInput(input);
 			this.ShowRoles.HandleInput(input);
-			if (this.ShowRoles.ActiveIndex != this.indexLast)
+			if (this.ShowRoles.ActiveIndex != indexLast)
 			{
 				this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value);
-				this.indexLast = this.ShowRoles.ActiveIndex;
+                indexLast = this.ShowRoles.ActiveIndex;
 				return;
 			}
-			this.indexLast = this.ShowRoles.ActiveIndex;
+			//this.indexLast = this.ShowRoles.ActiveIndex;
 			for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
 			{
 				ShipListScreenEntry entry = this.ShipSL.Copied[i].item as ShipListScreenEntry;
@@ -677,7 +678,8 @@ namespace Ship_Game
 					{
 						continue;
 					}
-					switch (this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value)
+					//switch (this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value)
+                    switch (omit)  //fbedard
 					{
 						case 1:
 						{
