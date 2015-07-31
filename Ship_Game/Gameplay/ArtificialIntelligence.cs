@@ -7022,6 +7022,8 @@ namespace Ship_Game.Gameplay
                                                 {
                                                     if (this.EscortTarget == null || !this.EscortTarget.Active)
                                                     {
+                                                        this.OrderQueue.Clear();
+                                                        this.ClearOrdersNext = false;
                                                         this.State = AIState.AwaitingOrders;   //fbedard
                                                         break;
                                                     }
@@ -7083,6 +7085,8 @@ namespace Ship_Game.Gameplay
                                         {
                                             break;
                                         }
+                                        this.OrderQueue.Clear();
+                                        this.ClearOrdersNext = false;
                                         this.State = AIState.AwaitingOrders;
                                         break;
                                     }
