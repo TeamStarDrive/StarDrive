@@ -2932,7 +2932,7 @@ namespace Ship_Game.Gameplay
                     this.beams.ApplyPendingRemovals();
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals();
+                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear);
 
                     
                 }
