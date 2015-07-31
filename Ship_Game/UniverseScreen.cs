@@ -4458,11 +4458,16 @@ namespace Ship_Game
                     }  
                     else
                         if (this.SelectedFleet != null && this.SelectedFleet.Ships.Count > 0)
-                        {                            
-                            this.transitionDestination = new Vector3(this.SelectedFleet.findAveragePositioncg().X, this.SelectedFleet.findAveragePositioncg().Y, num2);
+                        {
+                            this.transitionDestination = new Vector3(this.SelectedFleet.findAveragePosition().X, this.SelectedFleet.findAveragePosition().Y, num2);
                         }
                         else
-                            this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+                            if (this.SelectedShipList.Count > 0 && this.SelectedShipList[0] != null && this.SelectedShipList[0].Active)
+                            {
+                                this.transitionDestination = new Vector3(this.SelectedShipList[0].Position.X, this.SelectedShipList[0].Position.Y, num2);
+                            }
+                            else
+                                this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
             }
             else
                 this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
@@ -4778,7 +4783,8 @@ namespace Ship_Game
                         this.SelectedShipList.ApplyPendingRemovals();
                     }
                     this.SelectedShip = (Ship)null;
-                    this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);
+                    //this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);
+                    this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, false);  //fbedard: this is not a fleet!
                 }
                 else if (this.SelectedShipList.Count == 1)
                 {
