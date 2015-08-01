@@ -783,7 +783,7 @@ namespace Ship_Game
                         }
                         case 11: 
                         {
-                            if (ship.fleet != null)
+                            if (ship.fleet != null || ship.Role == "platform" || ship.Role == "station")
                             {
                                 continue;
                             }
