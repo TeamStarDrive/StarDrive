@@ -438,6 +438,7 @@ namespace Ship_Game
             //fbedard: Display button
             if (this.p.Owner == PlanetScreen.screen.player)
             {
+               
                 int troopsInvading = this.eui.empire.GetShips()
          .Where(troop => troop.TroopList.Count > 0)
          .Where(troopAI => troopAI.GetAI().OrderQueue
@@ -2176,12 +2177,14 @@ namespace Ship_Game
                         if (planetTroops.Count > 0)
                         {
                             {
+                                planetTroops.First().TroopsHere.thisLock.EnterWriteLock();
                                 Ship troop = planetTroops.First().TroopsHere.First().Launch();
                                 if (troop != null)
                                 {
                                     AudioManager.PlayCue("echo_affirm");
                                     troop.GetAI().OrderRebase(this.p,true);
                                 }
+                                planetTroops.First().TroopsHere.thisLock.ExitWriteLock();
                             }
                         }
                         else

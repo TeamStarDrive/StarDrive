@@ -132,7 +132,9 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			string str;
+			if (this.p == null) return;  //fbedard
+
+            string str;
 			string str1;
 			MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
 			this.ToolTipItems.Clear();

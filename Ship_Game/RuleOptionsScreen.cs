@@ -140,7 +140,7 @@ namespace Ship_Game
             
             if (HelperFunctions.CheckIntersection(this.StartingPlanetRichness.ContainerRect, input.CursorPosition))
             {
-                ToolTip.CreateTooltip("Add to all Stating Empire Planets this Value", base.ScreenManager);
+                ToolTip.CreateTooltip("Add to all Starting Empire Planets this Value", base.ScreenManager);
             }
             this.StartingPlanetRichness.HandleInput(input);
             GlobalStats.StartingPlanetRichness = this.StartingPlanetRichness.amountRange;

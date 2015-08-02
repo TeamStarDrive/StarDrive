@@ -196,7 +196,9 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
+            if (this.screen.SelectedShipList == null) return;  //fbedard
+
+            float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
 			int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
 			if (this.AllShipsMine)
 			{
@@ -305,7 +307,9 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
-			List<Ship> ships = new List<Ship>();
+            if (this.screen.SelectedShipList == null) return false;  //fbedard
+
+            List<Ship> ships = new List<Ship>();
 			bool reset = false;
 			for (int i = this.SelectedShipsSL.indexAtTop; i < this.SelectedShipsSL.Entries.Count && i < this.SelectedShipsSL.indexAtTop + this.SelectedShipsSL.entriesToDisplay; i++)
 			{
@@ -713,13 +717,17 @@ namespace Ship_Game
 				Active = false
 			};
 			this.Orders.Add(Explore);
-			OrdersButton ordersButton = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15);
-			SystemDefense.SimpleToggle = true;
             }
 
 			if (AllFreighters)
 			{
-				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 15)
+                //OrdersButton ao = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15)
+                //{
+                //  SimpleToggle = true,
+                //  Active = false
+                //};
+                //this.Orders.Add(ao);
+				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 16)
 				{
 					SimpleToggle = true
 				};

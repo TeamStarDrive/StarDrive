@@ -12,8 +12,10 @@ namespace Ship_Game
     internal static class ExceptionTracker
     {
         public const string BugtrackerURL = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new";
+        public const string KudosURL = "http://www.indiedb.com/mods/deveks-mod/reviews";
         const string DefaultText = "Whoops! Please post this StarDrive forums or in the Bugtracker";
         public static bool active = false;
+        public static bool Kudos = false;
         private static string GenerateErrorLines(Exception ex)
         {
 
@@ -90,7 +92,10 @@ namespace Ship_Game
         }
         private static string GenerateErrorLines_withWhoops(Exception ex)
         {
+            if (!(ex.Message == "Manual Report" || ex.Message == "Kudos"))
             return DefaultText + Environment.NewLine + GenerateErrorLines(ex);
+            else
+                return ex.Message + Environment.NewLine + GenerateErrorLines(ex);            
         }
 
         public static void TrackException(Exception ex)
@@ -116,10 +121,16 @@ namespace Ship_Game
         public static void DisplayException(Exception ex)
         {
 #if DEBUG
-            if(ex.Message != "Manual Report")
+            if(!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
             return;
 #endif
-            
+            try
+            {
+                Form form = (Form)Control.FromHandle(Game1.Instance.Window.Handle);
+                form.WindowState = FormWindowState.Minimized;
+                form.Update();
+            }
+            catch { }
             try
             {
                 ExceptionViewer exviewer = new ExceptionViewer();

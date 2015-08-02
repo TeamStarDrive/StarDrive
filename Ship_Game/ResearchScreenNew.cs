@@ -285,16 +285,18 @@ namespace Ship_Game
 				this.ExitScreen();
 				return;
 			}
-			if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+            if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
 			{
 				this.StartDragPos = input.CursorPosition;
 				this.cameraVelocity.X = 0f;
 				this.cameraVelocity.Y = 0f;
 			}
-			if (input.CurrentMouseState.RightButton != ButtonState.Pressed || input.LastMouseState.RightButton != ButtonState.Pressed)
+            if (input.CurrentMouseState.RightButton != ButtonState.Pressed || input.LastMouseState.RightButton != ButtonState.Pressed || this.RightClicked) 
 			{
 				this.cameraVelocity.X = 0f;
 				this.cameraVelocity.Y = 0f;
+                if (this.RightClicked)  //fbedard: prevent screen scroll
+                    this.StartDragPos = input.CursorPosition;
 			}
 			else
 			{
@@ -375,6 +377,8 @@ namespace Ship_Game
 			{
 				if (!(tech.Value as TreeNode).HandleInput(input, base.ScreenManager, this.camera))
 				{
+                    if ((tech.Value as TreeNode).screen.RightClicked)  //fbedard: popup open
+                        this.RightClicked = true;
 					continue;
 				}
 				if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.Key].Unlocked)
