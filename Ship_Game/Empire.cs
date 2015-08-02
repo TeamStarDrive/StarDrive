@@ -1454,20 +1454,12 @@ namespace Ship_Game
                                 else
                                 {
                                     flagPlanet = false;
-                                    foreach (PlanetGridSquare planetGridSquare in p.TilesList)
+                                    foreach (Troop troop in p.TroopsHere)
                                     {
-                                        if (!flagPlanet) 
+                                        if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
                                         {
-                                            planetGridSquare.TroopsHere.thisLock.EnterReadLock();
-                                            foreach (Troop troop in planetGridSquare.TroopsHere)
-                                            {
-                                                if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
-                                                {
-                                                    flagPlanet = true;
-                                                    break;
-                                                }
-                                            }
-                                            planetGridSquare.TroopsHere.thisLock.ExitReadLock();
+                                            flagPlanet = true;
+                                            break;
                                         }
                                     }
                                     if (flagPlanet) this.empirePlanetCombat++;
@@ -2878,11 +2870,11 @@ namespace Ship_Game
                     naturalLimit++;
                 if (planet.ps == Planet.GoodState.EXPORT)
                     naturalLimit++;
-                if (planet.Population / planet.MaxPopulation > .5 && planet.MaxPopulation >3000)
+                if (planet.Population / planet.MaxPopulation > .5 && planet.MaxPopulation > 3000)
                     naturalLimit++;
                 if (planet.Population / planet.MaxPopulation < .5 && planet.MaxPopulation > 3000)
                     inneed++;
-                if (planet.Population < 2000)
+                if (planet.Population < 2000 && planet.Population / planet.MaxPopulation < 0.8)
                     inneedofciv++;
                 else
                     exportPop = true;

@@ -211,9 +211,10 @@ namespace Ship_Game.Gameplay
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         List<ModuleSlot> AttackerTargetting = new List<ModuleSlot>();
-        Ship lastAttacker;
+        public sbyte TrackingPower = 0;
         
         public ushort purgeCount =0;
+        public Ship lastAttacker = null;
 
         //public class diplomacticSpace
         //{
@@ -2472,7 +2473,7 @@ namespace Ship_Game.Gameplay
                 moduleSlot.SetParent(this);
                 if (!Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
                     return false;
-                moduleSlot.Initialize();
+                moduleSlot.InitializeFromSave();
                 if (moduleSlot.module == null)
                 {
                     list.Add(moduleSlot);
@@ -2481,7 +2482,7 @@ namespace Ship_Game.Gameplay
                 {
                     moduleSlot.module.Health = moduleSlot.ModuleHealth;
                     moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                    if ((double)moduleSlot.module.Health == 0.0)
+                    if (moduleSlot.module.Health == 0.0)
                         moduleSlot.module.Active = false;
                 }
             }
@@ -2604,7 +2605,7 @@ namespace Ship_Game.Gameplay
                         this.dieCue.Play();
                     }
                 }
-                if ((double)this.dietimer <= 0.0)
+                if (this.dietimer <= 0.0)
                 {
                     this.reallyDie = true;
                     this.Die(this.LastDamagedBy, true);
@@ -2931,7 +2932,7 @@ namespace Ship_Game.Gameplay
                     this.beams.ApplyPendingRemovals();
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals();
+                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear);
 
                     
                 }
@@ -3404,6 +3405,7 @@ namespace Ship_Game.Gameplay
                         this.ECMValue = 0f;
                         this.FTLSpoolTime = 0f;
                         this.hasCommand = this.IsPlatform;
+                        this.TrackingPower = 0;
                     }
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     {
@@ -3416,13 +3418,13 @@ namespace Ship_Game.Gameplay
                         if (this.shipStatusChanged)
                         {
                             this.RepairRate += moduleSlot.module.BonusRepairRate;
-                            if ((double)moduleSlot.module.Mass < 0.0 && moduleSlot.Powered)
+                            if (moduleSlot.module.Mass < 0.0 && moduleSlot.Powered)
                             {
                                 Ship ship3 = this;
                                 double num3 = (double)ship3.Mass + (double)moduleSlot.module.Mass;
                                 ship3.Mass = (float)num3;
                             }
-                            else if ((double)moduleSlot.module.Mass > 0.0)
+                            else if (moduleSlot.module.Mass > 0.0)
                             {
                                 Ship ship3 = this;
                                 
@@ -3431,11 +3433,11 @@ namespace Ship_Game.Gameplay
                                 {
                                     float ArmourMassModifier = this.loyalty.data.ArmourMassModifier;
                                     double ArmourMass = (double)moduleSlot.module.Mass * ArmourMassModifier;
-                                    num3 = (double)ship3.Mass + ArmourMass;
+                                    num3 =ship3.Mass + ArmourMass;
                                 }
                                 else
                                 {
-                                    num3 = (double)ship3.Mass + (double)moduleSlot.module.Mass;
+                                    num3 = ship3.Mass + moduleSlot.module.Mass;
                                 }
                                 ship3.Mass = (float)num3;
                             }
@@ -3445,6 +3447,8 @@ namespace Ship_Game.Gameplay
                             {
                                 if (!this.hasCommand && moduleSlot.module.IsCommandModule)
                                     this.hasCommand = true;
+                                if (this.TrackingPower < moduleSlot.module.TargetTracking)
+                                    this.TrackingPower = moduleSlot.module.TargetTracking;
                                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                                 this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                                 this.InhibitionRadius += moduleSlot.module.InhibitionRadius;
@@ -4166,12 +4170,18 @@ namespace Ship_Game.Gameplay
                     this.dieCue.Play();
                 }
             }
+
+
             this.ModuleSlotList.Clear();
             this.ExternalSlots.Clear();
             this.ModulesDictionary.Clear();
+            this.ThrusterList.Clear();
+            this.GetAI().PotentialTargets.Clear();
+            this.AttackerTargetting.Clear();
             this.Velocity = Vector2.Zero;
             this.velocityMaximum = 0.0f;
             this.AfterBurnerAmount = 0.0f;
+            
             Vector3 Position = new Vector3(this.Center.X, this.Center.Y, -100f);
             if (this.Active)
             {
@@ -4304,7 +4314,11 @@ namespace Ship_Game.Gameplay
                         shipModule.SetHangarShip((Ship)null);
                 }
             }
-
+            foreach (ShipModule hanger in this.Hangars)
+            {
+                if (hanger.GetHangarShip() != null)
+                    hanger.GetHangarShip().Mothership = (Ship)null;
+            }
             for (int index = 0; index < this.projectiles.Count; ++index)
                 this.projectiles[index].Die((GameplayObject)this, false);
             this.projectiles.Clear();

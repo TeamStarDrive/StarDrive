@@ -299,6 +299,9 @@ namespace Ship_Game.Gameplay
         //record which quadrant the module lives in. Currently only for external modules. internal modules will have an upredicable value.
         public sbyte quadrant = -1;
 
+        //targetTracking ability of module.
+        public sbyte TargetTracking = 0;
+
 		public bool IsWeapon
 		{
 			get
@@ -532,7 +535,9 @@ namespace Ship_Game.Gameplay
                     if ((source as Projectile).isSecondary)
                     {
                         Weapon shooter = (source as Projectile).weapon;
-                        damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                        ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
+                        damageAmount *= shooter.EffectVsArmor;
+                        //damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
                     }
                     else
                     {
@@ -576,7 +581,9 @@ namespace Ship_Game.Gameplay
                     if ((source as Projectile).isSecondary)
                     {
                         Weapon shooter = (source as Projectile).weapon;
-                        damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                        ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
+                        damageAmountvsShields *= shooter.EffectVSShields; 
+                        //damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
                     }
                     else
                     {
@@ -990,7 +997,9 @@ namespace Ship_Game.Gameplay
                     if ((source as Projectile).isSecondary)
                     {
                         Weapon shooter = (source as Projectile).weapon;
-                        damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                        ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
+                        damageAmount *= shooter.EffectVsArmor; 
+                        //damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
                     }
                     else
                     {
@@ -1039,7 +1048,9 @@ namespace Ship_Game.Gameplay
                     if ((source as Projectile).isSecondary)
                     {
                         Weapon shooter = (source as Projectile).weapon;
-                        damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                        ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
+                        damageAmountvsShields *= shooter.EffectVSShields; 
+                        //damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
                     }
                     else
                     {
@@ -1501,7 +1512,8 @@ namespace Ship_Game.Gameplay
                         if ((source as Projectile).isSecondary)
                         {
                             Weapon shooter = (source as Projectile).weapon;
-                            damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                            ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
+                            damageAmount *= shooter.EffectVsArmor;  // (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
                         }
                         else
                         {
@@ -1539,7 +1551,9 @@ namespace Ship_Game.Gameplay
                     if ((source as Projectile).isSecondary)
                     {
                         Weapon shooter = (source as Projectile).weapon;
-                        damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
+                        ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
+                        damageAmount *= shooter.EffectVSShields; 
+                        //damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
                     }
                     else
                     {
@@ -1935,7 +1949,129 @@ namespace Ship_Game.Gameplay
 			}
 			base.Initialize();
 		}
-
+        /// <summary>
+        /// Seperate module intialization for ships loaded from save games. 
+        /// </summary>
+        /// <param name="pos"></param>
+        public void InitializeFromSave(Vector2 pos)
+        {
+            DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
+            this.XMLPosition = pos;
+            this.radius = 8f;
+            base.Position = pos;
+            base.Dimensions = new Vector2(16f, 16f);
+            Vector2 RelativeShipCenter = new Vector2(512f, 512f);
+            this.moduleCenter.X = base.Position.X + 256f;
+            this.moduleCenter.Y = base.Position.Y + 256f;
+            this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
+            float scaleFactor = 1f;
+            ShipModule shipModule = this;
+            shipModule.distanceToParentCenter = shipModule.distanceToParentCenter * scaleFactor;
+            this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
+            this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
+            this.SetInitialPosition();
+            this.SetAttributesByType();
+            //if (this.Parent != null && this.Parent.loyalty != null)
+            //{
+            //    //bool flag = false;
+            //    //if (this.HealthMax == base.Health)
+            //    //    flag = true;
+            //    this.HealthMax = this.HealthMax + this.HealthMax * this.Parent.loyalty.data.Traits.ModHpModifier;
+            //    base.Health = base.Health + base.Health * this.Parent.loyalty.data.Traits.ModHpModifier;
+            //    this.Health = base.Health;
+            //    //if (flag)
+            //    //    this.Health = this.HealthMax;
+            //}
+            if (!this.isDummy && (this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
+            {
+                byte xsize = this.YSIZE;
+                byte ysize = this.XSIZE;
+                this.XSIZE = xsize;
+                this.YSIZE = ysize;
+            }
+            if (this.XSIZE > 1)
+            {
+                for (int xs = this.XSIZE; xs > 1; xs--)
+                {
+                    ShipModule dummy = new ShipModule()
+                    {
+                        XMLPosition = this.XMLPosition
+                    };
+                    dummy.XMLPosition.X = dummy.XMLPosition.X + (float)(16 * (xs - 1));
+                    dummy.isDummy = true;
+                    dummy.ParentOfDummy = this;
+                    dummy.Mass = 0f;
+                    dummy.Parent = this.Parent;
+                    dummy.Health = base.Health;
+                    dummy.HealthMax = this.HealthMax;
+                    dummy.ModuleType = ShipModuleType.Dummy;
+                    dummy.Initialize();
+                    this.LinkedModulesList.Add(dummy);
+                    if (this.YSIZE > 1)
+                    {
+                        for (int ys = this.YSIZE; ys > 1; ys--)
+                        {
+                            dummy = new ShipModule()
+                            {
+                                ParentOfDummy = this,
+                                XMLPosition = this.XMLPosition
+                            };
+                            dummy.XMLPosition.X = dummy.XMLPosition.X + (float)(16 * (xs - 1));
+                            dummy.XMLPosition.Y = dummy.XMLPosition.Y + (float)(16 * (ys - 1));
+                            dummy.isDummy = true;
+                            dummy.Mass = 0f;
+                            dummy.Health = base.Health;
+                            dummy.HealthMax = this.HealthMax;
+                            dummy.ModuleType = ShipModuleType.Dummy;
+                            dummy.Parent = this.Parent;
+                            dummy.Initialize();
+                            this.LinkedModulesList.Add(dummy);
+                        }
+                    }
+                }
+            }
+            if (this.YSIZE > 1)
+            {
+                for (int ys = this.YSIZE; ys > 1; ys--)
+                {
+                    ShipModule dummy = new ShipModule()
+                    {
+                        XMLPosition = this.XMLPosition
+                    };
+                    dummy.XMLPosition.Y = dummy.XMLPosition.Y + (float)(16 * (ys - 1));
+                    dummy.isDummy = true;
+                    dummy.ParentOfDummy = this;
+                    dummy.Mass = 0f;
+                    dummy.Parent = this.Parent;
+                    dummy.Health = base.Health;
+                    dummy.HealthMax = this.HealthMax;
+                    dummy.ModuleType = ShipModuleType.Dummy;
+                    dummy.Initialize();
+                    this.LinkedModulesList.Add(dummy);
+                }
+            }
+            if (!this.isDummy)
+            {
+                foreach (ShipModule module in this.LinkedModulesList)
+                {
+                    module.Parent = this.Parent;
+                    module.system = this.Parent.GetSystem();
+                    module.Dimensions = base.Dimensions;
+                    module.IconTexturePath = this.IconTexturePath;
+                    foreach (ModuleSlot slot in this.Parent.ModuleSlotList)
+                    {
+                        if (slot.Position != module.XMLPosition)
+                        {
+                            continue;
+                        }
+                        slot.module = module;
+                        break;
+                    }
+                    module.Initialize(module.XMLPosition);
+                }
+            }
+            base.Initialize();
+        }
 		public void InitializeLite(Vector2 pos)
 		{
 			this.XMLPosition = pos;
@@ -2033,7 +2169,7 @@ namespace Ship_Game.Gameplay
 			this.Center3D.X = this.Center.X;
 			this.Center3D.Y = this.Center.Y;
 			this.Center3D.Z = tan * num;
-			if (this.Parent.dying)
+			if (this.Parent.dying && this.Parent.InFrustum)
 			{
 				if (this.trailEmitter == null && this.firetrailEmitter == null && this.reallyFuckedUp)
 				{
@@ -2190,8 +2326,11 @@ namespace Ship_Game.Gameplay
                     this.isWeapon = true;
                     this.Parent.Weapons.Add(this.InstalledWeapon);
                     break;
+                case ShipModuleType.Command:
+                    this.TargetTracking = Convert.ToSByte((this.XSIZE*this.YSIZE) / 3);
+                    break;
             }
-            if ((double)this.shield_power_max > 0.0)
+            if (this.shield_power_max > 0.0)
             {
                 this.shield = new Shield();
                 this.shield.World = Matrix.Identity * Matrix.CreateScale(2f) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.Center.X, this.Center.Y, 0.0f);
@@ -2199,7 +2338,7 @@ namespace Ship_Game.Gameplay
                 this.shield.displacement = 0.0f;
                 this.shield.texscale = 2.8f;
                 this.shield.Rotation = this.Rotation;
-                lock (GlobalStats.ShieldLocker)
+                //lock (GlobalStats.ShieldLocker)
                     ShieldManager.shieldList.Add(this.shield);
             }
             if (this.IsSupplyBay)
@@ -2251,6 +2390,9 @@ namespace Ship_Game.Gameplay
                     this.InstalledWeapon.SetOwner(this.Parent);
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
+                    break;
+                case ShipModuleType.Command:
+                    this.TargetTracking = Convert.ToSByte((this.XSIZE * this.YSIZE) / 3);
                     break;
             }
             this.Health = this.HealthMax;
