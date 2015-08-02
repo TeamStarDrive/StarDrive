@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class DiplomacyScreen : GameScreen, IDisposable
+	public sealed class DiplomacyScreen : GameScreen, IDisposable
 	{
 		private Empire them;
 
@@ -124,6 +124,10 @@ namespace Ship_Game
 		//private int cNum;
 
 		private string TheirText;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public DiplomacyScreen(Empire e, Empire us, string which)
 		{
@@ -420,20 +424,36 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
+        ~DiplomacyScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.OurItemsSL != null)
+                        this.OurItemsSL.Dispose();
+                    if (this.TheirItemsSL != null)
+                        this.TheirItemsSL.Dispose();
+                    if (this.StatementsSL != null)
+                        this.StatementsSL.Dispose();
+                    if (this.OfferTextSL != null)
+                        this.OfferTextSL.Dispose();
+
+                }
+                this.OurItemsSL = null;
+                this.TheirItemsSL = null;
+                this.StatementsSL = null;
+                this.OfferTextSL = null;
+                this.disposed = true;
+            }
 		}
 
 		private void DoNegotiationResponse(string answer)
@@ -465,7 +485,7 @@ namespace Ship_Game
 			}
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 4 / 5);
 			base.ScreenManager.SpriteBatch.Begin();
-			if (this.them.data.Traits.VideoPath != "")
+			if (!string.IsNullOrEmpty(this.them.data.Traits.VideoPath))
 			{
 				if (this.player.State != MediaState.Stopped)
 				{
@@ -725,7 +745,7 @@ namespace Ship_Game
 			}
 			this.player = null;
 			this.Dispose();
-			GC.Collect();
+			//GC.Collect(1, GCCollectionMode.Optimized);
 			base.ScreenManager.RemoveScreen(this);
 		}
 
@@ -933,9 +953,7 @@ namespace Ship_Game
 			}
 		}*/
 
-        ~DiplomacyScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+   
 
 		public string GetDialogue(float Attitude)
 		{
@@ -998,7 +1016,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				if (dl.Default != "")
+				if (!string.IsNullOrEmpty(dl.Default))
 				{
 					resp = string.Concat(resp, dl.Default);
 				}
@@ -1070,7 +1088,10 @@ namespace Ship_Game
             if (HelperFunctions.CheckIntersection(new Rectangle(this.FearRect.X - (int)Fonts.Pirulen16.MeasureString("Fear").X, this.FearRect.Y, (int)Fonts.Pirulen16.MeasureString("Fear").X + this.FearRect.Width, 14), input.CursorPosition))
                 ToolTip.CreateTooltip(49, this.ScreenManager);
             if (this.Exit.HandleInput(input) && this.dState != DiplomacyScreen.DialogState.TheirOffer)
+            {
                 this.ExitScreen();
+                return;
+            }
             if (this.dState == DiplomacyScreen.DialogState.End)
                 return;
             if (this.dState != DiplomacyScreen.DialogState.TheirOffer)
@@ -1112,7 +1133,7 @@ namespace Ship_Game
                             foreach (DialogOption dialogOption1 in statementSet.DialogOptions)
                             {
                                 string str = dialogOption1.words;
-                                if (dialogOption1.SpecialInquiry != "")
+                                if (!string.IsNullOrEmpty(dialogOption1.SpecialInquiry))
                                     str = this.GetDialogueByName(dialogOption1.SpecialInquiry);
                                 DialogOption dialogOption2 = new DialogOption(n, str, Cursor, Fonts.Consolas18);
                                 dialogOption2.words = this.parseText(str, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
@@ -1511,14 +1532,14 @@ namespace Ship_Game
 			this.OurItemsSL = new ScrollList(ussub, Fonts.Consolas18.LineSpacing + 5, true);
 			Submenu sub = new Submenu(base.ScreenManager, blerdybloo);
 			this.StatementsSL = new ScrollList(sub, Fonts.Consolas18.LineSpacing + 2, true);
-			if (this.them.data.Traits.VideoPath != "")
+			if (!string.IsNullOrEmpty(this.them.data.Traits.VideoPath))
 			{
 				try
 				{
 					this.video = base.ScreenManager.Content.Load<Video>(string.Concat("Video/", this.them.data.Traits.VideoPath));
 					this.player = new VideoPlayer()
 					{
-						Volume = 0.7f,
+                        Volume = GlobalStats.Config.MusicVolume,
 						IsLooped = true
 					};
 					this.player.Play(this.video);
@@ -1528,7 +1549,7 @@ namespace Ship_Game
 					this.video = base.ScreenManager.Content.Load<Video>(string.Concat("ModVideo/", this.them.data.Traits.VideoPath));
 					this.player = new VideoPlayer()
 					{
-						Volume = 0.7f,
+						Volume = GlobalStats.Config.MusicVolume,
 						IsLooped = true
 					};
 					this.player.Play(this.video);
@@ -1537,7 +1558,7 @@ namespace Ship_Game
 			base.ScreenManager.musicCategory.Pause();
 			if (!this.them.data.ModRace)
 			{
-				base.ScreenManager.racialMusic.SetVolume(1f);
+                //base.ScreenManager.racialMusic.SetVolume(GlobalStats.Config.MusicVolume);
 				if (this.them.data.MusicCue != null)
 				{
 					if (this.WarDeclared)
@@ -1793,7 +1814,7 @@ namespace Ship_Game
 				{
 					this.OfferTextSL.AddItem(sent);
 				}
-				else if (sent == "" && (int)lineArray.Length > i + 1 && lineArray[i + 1] != "")
+				else if (string.IsNullOrEmpty(sent) && (int)lineArray.Length > i + 1 && !string.IsNullOrEmpty(lineArray[i + 1]))
 				{
 					this.OfferTextSL.AddItem("\n");
 				}
@@ -1983,18 +2004,18 @@ namespace Ship_Game
                         }
                         else
                         {
-                            List<Empire> list1 = new List<Empire>();
+                            List<Empire> warTargets = new List<Empire>();
                             List<Empire> list2 = new List<Empire>();
                             foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.them.GetRelations())
                             {
                                 if (!keyValuePair.Key.isFaction && keyValuePair.Value.AtWar)
-                                    list1.Add(keyValuePair.Key);
+                                    warTargets.Add(keyValuePair.Key);
                                 if (this.playerEmpire.GetRelations().ContainsKey(keyValuePair.Key) && !keyValuePair.Key.isFaction && ((double)keyValuePair.Value.GetStrength() > 75.0 && this.playerEmpire.GetRelations()[keyValuePair.Key].AtWar))
                                     list2.Add(keyValuePair.Key);
                             }
-                            if (list1.Count > 0)
+                            if (warTargets.Count > 0)
                             {
-                                IOrderedEnumerable<Empire> orderedEnumerable = Enumerable.OrderByDescending<Empire, int>((IEnumerable<Empire>)list1, (Func<Empire, int>)(emp => emp.TotalScore));
+                                IOrderedEnumerable<Empire> orderedEnumerable = Enumerable.OrderByDescending<Empire, int>((IEnumerable<Empire>)warTargets, (Func<Empire, int>)(emp => emp.TotalScore));
                                 if (Enumerable.Count<Empire>((IEnumerable<Empire>)orderedEnumerable) <= 0)
                                     break;
                                 this.empToDiscuss = Enumerable.First<Empire>((IEnumerable<Empire>)orderedEnumerable);

@@ -7,15 +7,15 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ResearchScreenNew : GameScreen, IDisposable
+	public sealed class ResearchScreenNew : GameScreen, IDisposable
 	{
 		public Camera2d camera;
 
-		private Dictionary<string, Node> TechTree = new Dictionary<string, Node>();
+        private Dictionary<string, Node> TechTree = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
 
-		public Dictionary<string, Node> CompleteSubNodeTree = new Dictionary<string, Node>();
+        public Dictionary<string, Node> CompleteSubNodeTree = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
 
-		public Dictionary<string, Node> SubNodes = new Dictionary<string, Node>();
+        public Dictionary<string, Node> SubNodes = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
 
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -71,6 +71,9 @@ namespace Ship_Game
 
 		private Submenu UnlocksSubMenu;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public ResearchScreenNew(EmpireUIOverlay empireUI)
 		{
 			this.empireUI = empireUI;
@@ -80,21 +83,28 @@ namespace Ship_Game
 			this.camera = new Camera2d();
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~ResearchScreenNew() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.qcomponent != null)
+                        this.qcomponent.Dispose();
+
+                }
+                this.qcomponent = null;
+                this.disposed = true;
+            }
+        }
 
         public override void Draw(GameTime gameTime)
         {
@@ -232,20 +242,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ResearchScreenNew() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+	
 
 		private int FindDeepestY()
 		{
@@ -277,21 +274,29 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+                return;
+            }
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();
 				return;
 			}
-			if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+            if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
 			{
 				this.StartDragPos = input.CursorPosition;
 				this.cameraVelocity.X = 0f;
 				this.cameraVelocity.Y = 0f;
 			}
-			if (input.CurrentMouseState.RightButton != ButtonState.Pressed || input.LastMouseState.RightButton != ButtonState.Pressed)
+            if (input.CurrentMouseState.RightButton != ButtonState.Pressed || input.LastMouseState.RightButton != ButtonState.Pressed || this.RightClicked) 
 			{
 				this.cameraVelocity.X = 0f;
 				this.cameraVelocity.Y = 0f;
+                if (this.RightClicked)  //fbedard: prevent screen scroll
+                    this.StartDragPos = input.CursorPosition;
 			}
 			else
 			{
@@ -307,21 +312,30 @@ namespace Ship_Game
 			this.camera._pos.Y = MathHelper.Clamp(this.camera._pos.Y, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2), 3200f);
 			if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F1) && input.LastKeyboardState.IsKeyUp(Keys.F1))
 			{
+               
                 foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
                 {
                     this.UnlockTree(tech.Key);
+                    foreach(Technology.UnlockedMod unlockmod in tech.Value.ModulesUnlocked)
+                    {
+                        EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetMDict()[unlockmod.ModuleUID] = true;
+                    }
                 }
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
                     EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetHDict()[hull.Key] = true;
                 }
-                foreach (KeyValuePair<string, ShipModule> Module in ResourceManager.ShipModulesDict)
-                {
-                    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetMDict()[Module.Key] = true;
-                }
+                //foreach (KeyValuePair<string, ShipModule> Module in ResourceManager.ShipModulesDict)
+                //{
+                    
+                //    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetMDict()[Module.Key] = true;
+                //}
+
+
                 foreach (KeyValuePair<string, Ship_Game.Building> Building in ResourceManager.BuildingsDict)
                 {
-                    if (ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == null || ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == "")
+                    //if (ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == null || ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == "")
+                    if (string.IsNullOrEmpty(ResourceManager.BuildingsDict[Building.Key].EventTriggerUID))
                         EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetBDict()[Building.Key] = true;
                 }
                 EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
@@ -363,6 +377,8 @@ namespace Ship_Game
 			{
 				if (!(tech.Value as TreeNode).HandleInput(input, base.ScreenManager, this.camera))
 				{
+                    if ((tech.Value as TreeNode).screen.RightClicked)  //fbedard: popup open
+                        this.RightClicked = true;
 					continue;
 				}
 				if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.Key].Unlocked)
@@ -393,7 +409,7 @@ namespace Ship_Game
 						while (!EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[techToCheck].Unlocked)
 						{
 							string prereq = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetPreReq(techToCheck);
-							if (prereq == "")
+							if (string.IsNullOrEmpty(prereq))
 							{
 								break;
 							}
@@ -492,7 +508,7 @@ namespace Ship_Game
 			}
 			this.PopulateNodesFromRoot(this.TechTree[GlobalStats.ResearchRootUIDToDisplay] as RootNode);
 			string resTop = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic;
-			if (resTop != "")
+			if (!string.IsNullOrEmpty(resTop))
 			{
 				this.qcomponent.LoadQueue(this.CompleteSubNodeTree[resTop] as TreeNode);
 			}
@@ -765,7 +781,6 @@ namespace Ship_Game
                     {
                         Type = "ADVANCE",
                         privateName = ub.Name,
-                        Description = ub.Description
                     };
                     this.UnlockSL.AddItem(unlock);
                 }

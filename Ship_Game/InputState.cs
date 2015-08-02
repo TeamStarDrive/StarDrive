@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class InputState
+	public sealed class InputState
 	{
 		public KeyboardState CurrentKeyboardState;
 

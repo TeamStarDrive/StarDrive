@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class ShipListInfoUIElement : UIElement
+	public sealed class ShipListInfoUIElement : UIElement, IDisposable
 	{
 		public List<ToggleButton> CombatStatusButtons = new List<ToggleButton>();
 
@@ -68,6 +68,9 @@ namespace Ship_Game
 		private float HoverOff;
 
 		private string fmt = "0";
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public ShipListInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
 		{
@@ -193,7 +196,9 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
+            if (this.screen.SelectedShipList == null) return;  //fbedard
+
+            float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
 			int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
 			if (this.AllShipsMine)
 			{
@@ -260,7 +265,7 @@ namespace Ship_Game
 				this.HoveredShip.RenderOverlay(this.ScreenManager.SpriteBatch, this.ShipInfoRect, this.ShowModules);
 				text = this.HoveredShip.VanityName;
 				Vector2 tpos = new Vector2((float)(this.Housing.X + 38), (float)(this.Housing.Y + 63));
-				string name = (this.HoveredShip.VanityName != "" ? this.HoveredShip.VanityName : this.HoveredShip.Name);
+				string name = (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name);
 				SpriteFont TitleFont = Fonts.Arial14Bold;
                 Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 39), (float)(this.Housing.Y + 79));
 				if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
@@ -269,7 +274,7 @@ namespace Ship_Game
                     tpos.Y = tpos.Y + 1;
                     tpos.X = tpos.X - 8;
 				}
-				this.ScreenManager.SpriteBatch.DrawString(TitleFont, (this.HoveredShip.VanityName != "" ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
+				this.ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
 
@@ -302,7 +307,9 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
-			List<Ship> ships = new List<Ship>();
+            if (this.screen.SelectedShipList == null) return false;  //fbedard
+
+            List<Ship> ships = new List<Ship>();
 			bool reset = false;
 			for (int i = this.SelectedShipsSL.indexAtTop; i < this.SelectedShipsSL.Entries.Count && i < this.SelectedShipsSL.indexAtTop + this.SelectedShipsSL.entriesToDisplay; i++)
 			{
@@ -609,7 +616,10 @@ namespace Ship_Game
                             {
                                 this.screen.SelectedFleet = null;
                                 this.screen.SelectedShipList.Clear();
-                                this.screen.SelectedShip = this.HoveredShip;
+                                this.screen.SelectedShip = this.HoveredShip;  //fbedard: multi-select
+                                if (this.screen.SelectedShip != null && this.screen.SelectedShip != this.screen.previousSelection)
+                                    this.screen.previousSelection = this.screen.SelectedShip;
+                                this.screen.ShipInfoUIElement.SetShip(this.HoveredShip);
                             }
 							return true;
 						}
@@ -648,6 +658,7 @@ namespace Ship_Game
 			bool AllResupply = true;
 			this.AllShipsMine = true;
 			bool AllFreighters = true;
+            bool AllCombat = true;
 			for (int i = 0; i < shipList.Count; i++)
 			{
 				Ship ship = shipList[i];
@@ -674,10 +685,15 @@ namespace Ship_Game
 				{
 					this.AllShipsMine = false;
 				}
-				if (ship.CargoSpace_Max == 0f)
+				//if (ship.CargoSpace_Max == 0f)
+                if (ship.CargoSpace_Max == 0f || ship.Role == "troop" || ship.GetAI().State == AIState.Colonize || ship.Role == "station" || ship.Mothership != null)
 				{
 					AllFreighters = false;
 				}
+                if (ship.Role == "construction" || ship.Role == "platform" || ship.Role == "freighter" || ship.Role == "troop" || ship.GetAI().State == AIState.Colonize || ship.Role == "station" || ship.Mothership != null)
+                {
+                    AllCombat = false;
+                }
 			}
 			OrdersButton resupply = new OrdersButton(shipList, Vector2.Zero, OrderType.OrderResupply, 149)
 			{
@@ -685,6 +701,10 @@ namespace Ship_Game
 				Active = AllResupply
 			};
 			this.Orders.Add(resupply);
+
+
+            if (AllCombat)
+            {
 			OrdersButton SystemDefense = new OrdersButton(shipList, Vector2.Zero, OrderType.EmpireDefense, 150)
 			{
 				SimpleToggle = true,
@@ -697,18 +717,17 @@ namespace Ship_Game
 				Active = false
 			};
 			this.Orders.Add(Explore);
-            //Added by McShooterz: fleet scrap button
-            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
-            {
-                SimpleToggle = true,
-                Active = false
-            };
-            this.Orders.Add(Scrap);
-			OrdersButton ordersButton = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15);
-			SystemDefense.SimpleToggle = true;
+            }
+
 			if (AllFreighters)
 			{
-				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 15)
+                //OrdersButton ao = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15)
+                //{
+                //  SimpleToggle = true,
+                //  Active = false
+                //};
+                //this.Orders.Add(ao);
+				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 16)
 				{
 					SimpleToggle = true
 				};
@@ -719,6 +738,15 @@ namespace Ship_Game
 				};
 				this.Orders.Add(tpass);
 			}
+
+            //Added by McShooterz: fleet scrap button
+            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
+            {
+                SimpleToggle = true,
+                Active = false
+            };
+            this.Orders.Add(Scrap);
+
 			int ex = 0;
 			int y = 0;
 			for (int i = 0; i < this.Orders.Count; i++)
@@ -741,5 +769,30 @@ namespace Ship_Game
 
 			public int TIP_ID;
 		}
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~ShipListInfoUIElement() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.SelectedShipsSL != null)
+                        this.SelectedShipsSL.Dispose();
+             
+
+                }
+                this.SelectedShipsSL = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

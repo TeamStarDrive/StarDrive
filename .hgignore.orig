@@ -1,9 +1,0 @@
-syntax: glob
-obj/
-*.psess
-*.vsp
-Ship_Game\Gameplay\GremlinAI.cs
-<<<<<<< local
-bin/=======
-bin/
-StarDrive.csproj.orig>>>>>>> other

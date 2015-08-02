@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class OrbitalAssetsUIElement : UIElement
+	public sealed class OrbitalAssetsUIElement : UIElement
 	{
 		private Rectangle SliderRect;
 

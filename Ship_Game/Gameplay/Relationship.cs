@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
-	public class Relationship
+	public sealed class Relationship: IDisposable
 	{
 		public FederationQuest FedQuest;
 
@@ -129,6 +129,10 @@ namespace Ship_Game.Gameplay
 
 		public float WeOweThem;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		public bool HaveRejected_Demand_Tech
 		{
 			get
@@ -186,6 +190,9 @@ namespace Ship_Game.Gameplay
             if (EmpireManager.GetEmpireByName(Us.GetUS().PlayerLoyalty)==Them)
                 return;
 #endif
+            
+            if (GlobalStats.perf && EmpireManager.GetEmpireByName(Us.GetUS().PlayerLoyalty) == Them)
+                return;
             string str = why;
 			string str1 = str;
 			if (str != null)
@@ -532,6 +539,8 @@ namespace Ship_Game.Gameplay
             if (EmpireManager.GetEmpireByName(us.GetUS().PlayerLoyalty) == them)
                 return;
 #endif
+            if (GlobalStats.perf && EmpireManager.GetEmpireByName(us.GetUS().PlayerLoyalty) == them)
+                return;
             if (this.FedQuest != null)
             {
                 if (this.FedQuest.type == QuestType.DestroyEnemy && EmpireManager.GetEmpireByName(this.FedQuest.EnemyName).data.Defeated)
@@ -832,6 +841,32 @@ namespace Ship_Game.Gameplay
             turnsKnown.TurnsKnown = turnsKnown.TurnsKnown + 1;
             Relationship relationship3 = this;
             relationship3.turnsSinceLastContact = relationship3.turnsSinceLastContact + 1;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~Relationship() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.TrustEntries != null)
+                        this.TrustEntries.Dispose();
+                    if (this.FearEntries != null)
+                        this.FearEntries.Dispose();
+
+                }
+                this.TrustEntries = null;
+                this.FearEntries = null;
+                this.disposed = true;
+            }
         }
 	}
 }

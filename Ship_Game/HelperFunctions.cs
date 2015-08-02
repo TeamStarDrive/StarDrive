@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	internal class HelperFunctions
+	internal sealed class HelperFunctions
 	{
 		public HelperFunctions()
 		{
@@ -141,6 +141,7 @@ namespace Ship_Game
 			}
 			fleet.Name = data.Name;
 			fleet.FleetIconIndex = data.FleetIconIndex;
+            fleet.DataNodes.thisLock.EnterWriteLock();
 			foreach (FleetDataNode node in fleet.DataNodes)
 			{
 				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.FleetOffset);
@@ -148,6 +149,7 @@ namespace Ship_Game
 				node.SetShip(s);
 				fleet.AddShip(s);
 			}
+            fleet.DataNodes.thisLock.ExitWriteLock();
 			return fleet;
 		}
 
@@ -182,6 +184,7 @@ namespace Ship_Game
 			}
 			fleet.Name = data.Name;
 			fleet.FleetIconIndex = data.FleetIconIndex;
+            fleet.DataNodes.thisLock.EnterWriteLock();
 			foreach (FleetDataNode node in fleet.DataNodes)
 			{
 				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.FleetOffset);
@@ -189,6 +192,7 @@ namespace Ship_Game
 				node.SetShip(s);
 				fleet.AddShip(s);
 			}
+            fleet.DataNodes.thisLock.ExitWriteLock();
 			foreach (Ship s in Owner.GetFleetsDict()[1].Ships)
 			{
 				s.fleet = null;
@@ -240,13 +244,15 @@ namespace Ship_Game
 			fleet.AssignDataPositions(facing);
 			fleet.Name = data.Name;
 			fleet.FleetIconIndex = data.FleetIconIndex;
-			foreach (FleetDataNode node in fleet.DataNodes)
+            fleet.DataNodes.thisLock.EnterWriteLock();
+            foreach (FleetDataNode node in fleet.DataNodes)
 			{
 				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.OrdersOffset, facing);
 				s.RelativeFleetOffset = node.FleetOffset;
 				node.SetShip(s);
 				fleet.AddShip(s);
 			}
+            fleet.DataNodes.thisLock.ExitWriteLock();
 			foreach (Ship s in Owner.GetFleetsDict()[1].Ships)
 			{
 				s.fleet = null;
@@ -610,6 +616,8 @@ namespace Ship_Game
 
 		public static int GetRandomIndex(int Count)
 		{
+            if (Count < 2)
+                return 0;
 			int Random = (int)RandomMath.RandomBetween(0f, (float)Count + 0.95f);
 			if (Random > Count - 1)
 			{
@@ -670,7 +678,7 @@ namespace Ship_Game
 					returnString = string.Concat(returnString, line, '\n');
 					line = string.Empty;
 				}
-				if (word != "")
+				if (!string.IsNullOrEmpty(word))
 				{
 					line = string.Concat(line, word, ' ');
 				}
@@ -687,7 +695,7 @@ namespace Ship_Game
 			for (int i = 0; i < (int)wordArray.Length; i++)
 			{
 				string word = wordArray[i];
-				if (word == "")
+				if (string.IsNullOrEmpty(word))
 				{
 					word = "\n";
 				}
@@ -702,7 +710,7 @@ namespace Ship_Game
 					returnString = string.Concat(returnString, line, '\n');
 					line = string.Empty;
 				}
-				if (word != "")
+				if (!string.IsNullOrEmpty(word))
 				{
 					line = string.Concat(line, word, ' ');
 				}
@@ -715,7 +723,7 @@ namespace Ship_Game
 				{
 					List.AddItem(sent);
 				}
-				else if (sent == "" && (int)lineArray.Length > i + 1 && lineArray[i + 1] != "")
+				else if (string.IsNullOrEmpty(sent) && (int)lineArray.Length > i + 1 && !string.IsNullOrEmpty(lineArray[i + 1]))
 				{
 					List.AddItem("\n");
 				}
@@ -744,8 +752,6 @@ namespace Ship_Game
                 return 4;
             if (ShipModule.ModuleType == ShipModuleType.Armor)
                 return 6;
-            if (ShipModule.ModuleType == ShipModuleType.Dummy)
-                return 7;
             return 5;
         }
 	}

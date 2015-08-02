@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class MessageBoxScreen : GameScreen
+	public sealed class MessageBoxScreen : GameScreen
 	{
 		private const string usageText = "A button = Okay";
 

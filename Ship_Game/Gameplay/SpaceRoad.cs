@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
-{
-	public class SpaceRoad
+{//subspaceprojector
+	public sealed class SpaceRoad
 	{
 		public List<RoadNode> RoadNodesList = new List<RoadNode>();
 
@@ -19,22 +19,27 @@ namespace Ship_Game.Gameplay
 		{
 		}
 
-		public SpaceRoad(SolarSystem Origin, SolarSystem Destination, Empire empire)
+        public SpaceRoad(SolarSystem Origin, SolarSystem Destination, Empire empire, float SSPBudget, float nodeMaintenance)
 		{
 			this.Origin = Origin;
 			this.Destination = Destination;
 			float Distance = Vector2.Distance(Origin.Position, Destination.Position);
 
-            int galaxySizeMod = (int)((Empire.universeScreen.Size.X ) / 250);
-            float offset = Empire.ProjectorRadius * 1.8f + galaxySizeMod;
+            //int galaxySizeMod = (int)((Empire.universeScreen.Size.X ) / 250);
+            float offset = (Empire.ProjectorRadius * 1.5f);// +galaxySizeMod;
             this.NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
+            if (SSPBudget - nodeMaintenance * this.NumberOfProjectors <= 0)
+            {
+                this.NumberOfProjectors = 0;
+                return ;
+            }
 			for (int i = 0; i < this.NumberOfProjectors; i++)
 			{
 				RoadNode node = new RoadNode();
 				float angle = HelperFunctions.findAngleToTarget(Origin.Position, Destination.Position);
-                node.Position = HelperFunctions.GeneratePointOnCircle(angle, Origin.Position,  (float)i * offset );
+                node.Position = HelperFunctions.GeneratePointOnCircle(angle, Origin.Position,  (float)i * (Distance / this.NumberOfProjectors));
 				bool reallyAdd = true;
-				lock (GlobalStats.BorderNodeLocker)
+                empire.BorderNodeLocker.EnterReadLock();
 				{
 					foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
 					{
@@ -45,11 +50,13 @@ namespace Ship_Game.Gameplay
 						reallyAdd = false;
 					}
 				}
+                empire.BorderNodeLocker.ExitReadLock();
 				if (reallyAdd)
 				{
 					this.RoadNodesList.Add(node);
 				}
 			}
+            return ;
 		}
 
 		public SolarSystem GetDestination()

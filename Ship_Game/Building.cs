@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Building
+	public sealed class Building
 	{
 		public string Name;
 
@@ -119,6 +119,10 @@ namespace Ship_Game
         public bool IsProjector;
 
         public float ProjectorRange;
+
+        public float ShipRepair;
+
+        public BuildingCategory Category = BuildingCategory.General;
 
 		public Building()
 		{

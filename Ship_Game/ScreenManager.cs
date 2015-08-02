@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-	public class ScreenManager
+	public sealed class ScreenManager : IDisposable
 	{
 		public List<GameScreen> screens = new List<GameScreen>();
 
@@ -63,9 +63,16 @@ namespace Ship_Game
 
 		public AudioCategory weaponsCategory;
 
+        public AudioCategory defaultCategory;
+        public AudioCategory GlobalCategory;
+
 		public Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
 
 		public Microsoft.Xna.Framework.Graphics.SpriteBatch SpriteBatch;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public ContentManager Content
 		{
@@ -210,6 +217,8 @@ namespace Ship_Game
 				this.combatMusic = AudioManager.getAudioEngine().GetCategory("CombatMusic");
 				this.weaponsCategory = AudioManager.getAudioEngine().GetCategory("Weapons");
 				this.weaponsCategory.SetVolume(0.5f);
+                this.defaultCategory = AudioManager.getAudioEngine().GetCategory("Default");
+                this.GlobalCategory = AudioManager.getAudioEngine().GetCategory("Global");
 			}
 			this.SpriteBatch = new Microsoft.Xna.Framework.Graphics.SpriteBatch(this.GraphicsDevice);
 			this.blankTexture = this.content.Load<Texture2D>("Textures/blank");
@@ -297,5 +306,30 @@ namespace Ship_Game
 				this.TraceScreens();
 			}
 		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~ScreenManager() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.content != null)
+                        this.content.Dispose();
+                    if (this.SpriteBatch != null)
+                        this.SpriteBatch.Dispose();
+
+                }
+                this.content = null;
+                this.SpriteBatch = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

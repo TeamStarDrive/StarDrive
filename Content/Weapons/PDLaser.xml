@@ -1,0 +1,42 @@
+﻿<?xml version="1.0"?>
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Kinetic>false</Tag_Kinetic>
+  <Tag_Energy>true</Tag_Energy>
+  <Tag_Guided>false</Tag_Guided>
+  <Tag_Missile>false</Tag_Missile>
+  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>false</Tag_Intercept>
+  <Tag_Explosive>false</Tag_Explosive>
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_Railgun>false</Tag_Railgun>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  <Tag_Warp>false</Tag_Warp>
+  <Tag_Subspace>false</Tag_Subspace>
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>true</Tag_Cannon>
+  
+  <UID>PDLaser</UID>
+  <fireDelay>0.8</fireDelay>
+  <Range>1200</Range>
+  <PowerRequiredToFire>20</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
+  
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <fireCueName>sd_weapon_laser_small_alt5_01</fireCueName>
+
+  <!-- Projectile Information -->
+  <DamageAmount>8</DamageAmount>
+  <ProjectileSpeed>950</ProjectileSpeed>
+  <explodes>false</explodes>
+  <Scale>.75</Scale>
+  <ProjectileTexturePath>projPulse_01_red_1</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+  <WeaponEffectType>HeavyDisruptor</WeaponEffectType>
+  <WeaponType>Energy Cannon</WeaponType>
+  <ProjectileCount>1</ProjectileCount>
+  <FireArc>0</FireArc>
+  <Tag_PD>true</Tag_PD>
+</Weapon>

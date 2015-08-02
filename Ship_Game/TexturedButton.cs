@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class TexturedButton
+	public sealed class TexturedButton
 	{
 		public Rectangle r;
 
@@ -67,7 +67,7 @@ namespace Ship_Game
 				this.Hover = true;
 				if (this.LocalizerTip != 0)
 				{
-					if (this.Hotkey == "")
+					if (string.IsNullOrEmpty(this.Hotkey))
 					{
 						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip), Ship.universeScreen.ScreenManager, this.Hotkey);
 					}

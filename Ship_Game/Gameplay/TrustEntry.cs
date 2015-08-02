@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class TrustEntry
+	public sealed class TrustEntry
 	{
 		public int TurnTimer;
 

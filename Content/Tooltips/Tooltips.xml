@@ -939,5 +939,197 @@
       <Title>Transporter Assault</Title>
       <Data>7038</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>188</TIP_ID>
+      <Title>Transporter Assault</Title>
+      <Data>7042</Data>
+    </ToolTip>
+	
+	<ToolTip>
+      <TIP_ID>189</TIP_ID>
+      <Title>Kinetic Resistance</Title>
+      <Data>7046</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>190</TIP_ID>
+      <Title>Energy Resistance</Title>
+      <Data>7047</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>191</TIP_ID>
+      <Title>Guided Resistance</Title>
+      <Data>7048</Data>
+    </ToolTip>		
+	<ToolTip>
+      <TIP_ID>192</TIP_ID>
+      <Title>Missile Resistance</Title>
+      <Data>7049</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>193</TIP_ID>
+      <Title>Hybrid Resistance</Title>
+      <Data>7050</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>194</TIP_ID>
+      <Title>Beam Resistance</Title>
+      <Data>7051</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>195</TIP_ID>
+      <Title>Explosive Resistance</Title>
+      <Data>7052</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>196</TIP_ID>
+      <Title>Intercept Resistance</Title>
+      <Data>7053</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>197</TIP_ID>
+      <Title>Railgun Resistance</Title>
+      <Data>7054</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>198</TIP_ID>
+      <Title>Spacebomb Resistance</Title>
+      <Data>7055</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>199</TIP_ID>
+      <Title>Bomb Resistance</Title>
+      <Data>7056</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>200</TIP_ID>
+      <Title>Bioweapon Resistance</Title>
+      <Data>7057</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>201</TIP_ID>
+      <Title>Drone Resistance</Title>
+      <Data>7058</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>202</TIP_ID>
+      <Title>Warp Resistance</Title>
+      <Data>7059</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>203</TIP_ID>
+      <Title>Torpedo Resistance</Title>
+      <Data>7060</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>204</TIP_ID>
+      <Title>Cannon Resistance</Title>
+      <Data>7061</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>205</TIP_ID>
+      <Title>Subspace Resistance</Title>
+      <Data>7062</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>206</TIP_ID>
+      <Title>PD Resistance</Title>
+      <Data>7063</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>207</TIP_ID>
+      <Title>Flak Resistance</Title>
+      <Data>7064</Data>
+    </ToolTip>	
+	
+	<ToolTip>
+      <TIP_ID>208</TIP_ID>
+      <Title>AP Resistance</Title>
+      <Data>7065</Data>
+    </ToolTip>	
+	
+	<!-- Shield Resistance tooltips -->
+	
+	<ToolTip>
+      <TIP_ID>209</TIP_ID>
+      <Title>Shield Kinetic Resistance</Title>
+      <Data>7066</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>210</TIP_ID>
+      <Title>Shield Energy Resistance</Title>
+      <Data>7067</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>211</TIP_ID>
+      <Title>Shield Explosive Resistance</Title>
+      <Data>7068</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>212</TIP_ID>
+      <Title>Shield Missile Resistance</Title>
+      <Data>7069</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>213</TIP_ID>
+      <Title>Shield Flak Resistance</Title>
+      <Data>7070</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>214</TIP_ID>
+      <Title>Shield Hybrid Resistance</Title>
+      <Data>7071</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>215</TIP_ID>
+      <Title>Shield Railgun Resistance</Title>
+      <Data>7072</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>216</TIP_ID>
+      <Title>Shield Subspace Resistance</Title>
+      <Data>7073</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>217</TIP_ID>
+      <Title>Shield Warp Resistance</Title>
+      <Data>7074</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>218</TIP_ID>
+      <Title>Shield Beam Resistance</Title>
+      <Data>7075</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>219</TIP_ID>
+      <Title>EMP Protection</Title>
+      <Data>7076</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>220</TIP_ID>
+      <Title>EMP Protection ShipTotal</Title>
+      <Data>7077</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>221</TIP_ID>
+      <Title>Damage Threshold</Title>
+      <Data>7078</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>222</TIP_ID>
+      <Title>Shield Damage Threshold</Title>
+      <Data>7079</Data>
+    </ToolTip>	
+	
+	<ToolTip>
+      <TIP_ID>223</TIP_ID>
+      <Title>FTL Overlay</Title>
+      <Data>6182</Data>
+    </ToolTip>	
+	<ToolTip>
+      <TIP_ID>224</TIP_ID>
+      <Title>Weapons Range overlay</Title>
+      <Data>6183</Data>
+    </ToolTip>	
+	
   </ToolTipsList>
 </Tooltips>

@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class WeaponTagModifier
+	public sealed class WeaponTagModifier
 	{
 		public float Speed;
 
@@ -16,10 +16,6 @@ namespace Ship_Game
 
 		public float ExplosionRadius;
 
-		public float Accuracy;
-
-		public float Arc;
-
 		public float ShieldDamage;
 
 		public float ArmorDamage;
@@ -27,6 +23,8 @@ namespace Ship_Game
 		public float ShieldPenetration;
 
 		public float HitPoints;
+
+        public float ArmourPenetration;
 
 		public WeaponTagModifier()
 		{

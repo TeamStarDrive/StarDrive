@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class OrdersButton
+	public sealed class OrdersButton
 	{
 		private OrderType orderType;
 
@@ -337,7 +337,7 @@ namespace Ship_Game
 									}
                                     else
                                     {
-                                        EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Remove(ship);
+                                        EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.remove(ship);
                                         ship.GetAI().OrderQueue.Clear();
                                         ship.GetAI().HasPriorityOrder = false;
                                         ship.GetAI().SystemToDefend = null;

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class UnexploredPlanetScreen : PlanetScreen
+	public sealed class UnexploredPlanetScreen : PlanetScreen
 	{
 		private Planet p;
 

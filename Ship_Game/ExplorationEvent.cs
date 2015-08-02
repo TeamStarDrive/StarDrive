@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ExplorationEvent
+	public sealed class ExplorationEvent
 	{
 		public string Name;
 
@@ -14,11 +14,13 @@ namespace Ship_Game
 		{
 		}
 
+
+
 		public void TriggerOutcome(Empire Triggerer, Outcome triggeredOutcome)
 		{
 			if (triggeredOutcome.SecretTechDiscovered != null)
 			{
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.overrideSecretsTree)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
                 {
                     Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
                 }
@@ -177,18 +179,44 @@ namespace Ship_Game
 
 		public void TriggerPlanetEvent(Planet p, Empire Triggerer, PlanetGridSquare eventLocation, Empire PlayerEmpire, UniverseScreen screen)
 		{
-			int Random = (int)RandomMath.RandomBetween(0f, 100f);
+            int ranMax = 0;
+            int ranMin = 0;
+            foreach (Outcome outcome in this.PotentialOutcomes)
+            {
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && Triggerer.isPlayer)
+                {
+                    continue;
+                }
+                else
+                {
+                    ranMax += outcome.Chance;
+                }
+            }
+
+			int Random = (int)RandomMath.RandomBetween(ranMin, ranMax);
+            
 			Outcome triggeredOutcome = new Outcome();
 			int cursor = 0;
 			foreach (Outcome outcome in this.PotentialOutcomes)
 			{
-				cursor = cursor + outcome.Chance;
-				if (Random > cursor)
-				{
-					continue;
-				}
-				triggeredOutcome = outcome;
-				break;
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && Triggerer.isPlayer)
+                {
+                    continue;
+                }
+                else
+                {
+                    cursor = cursor + outcome.Chance;
+                    if (Random > cursor)
+                    {
+                        continue;
+                    }
+                    triggeredOutcome = outcome;
+                    if (Triggerer.isPlayer)
+                    {
+                        outcome.alreadyTriggered = true;
+                    }
+                    break;
+                }
 			}
 			if (triggeredOutcome != null)
 			{
@@ -303,7 +331,7 @@ namespace Ship_Game
 					p.BuildingList.Remove(eventLocation.building);
 					eventLocation.building = null;
 				}
-				if (triggeredOutcome.ReplaceWith != "")
+				if (!string.IsNullOrEmpty(triggeredOutcome.ReplaceWith))
 				{
 					eventLocation.building = ResourceManager.GetBuilding(triggeredOutcome.ReplaceWith);
 					p.BuildingList.Add(eventLocation.building);

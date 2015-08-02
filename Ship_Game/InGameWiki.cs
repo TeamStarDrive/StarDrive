@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class InGameWiki : PopupWindow
+	public sealed class InGameWiki : PopupWindow, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -45,6 +45,10 @@ namespace Ship_Game
 
 		public bool PlayingVideo;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		//private float transitionElapsedTime;
 
 		public InGameWiki(Rectangle r)
@@ -70,21 +74,35 @@ namespace Ship_Game
 			this.ht = (HelpTopics)serializer1.Deserialize(Help[0].OpenRead());
 		}
 
-		public new void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual new void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~InGameWiki() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+               if (disposing)
+                {
+                    if (this.VideoPlayer != null)
+                        this.VideoPlayer.Dispose();
+                    if (this.CategoriesSL != null)
+                        this.CategoriesSL.Dispose();
+                    if (this.TextSL != null)
+                        this.TextSL.Dispose();
+
+                }
+                this.VideoPlayer = null;
+                this.CategoriesSL = null;
+                this.TextSL = null;
+                this.disposed = true;
+            }
+        } 
+		 
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -165,10 +183,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		~InGameWiki()
-		{
-			this.Dispose(false);
-		}
 
 		public override void HandleInput(InputState input)
 		{
@@ -180,6 +194,11 @@ namespace Ship_Game
 			{
 				this.ExitScreen();
 			}
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !input.LastKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+            }
 			this.CategoriesSL.HandleInput(input);
 			this.TextSL.HandleInput(input);
 			if (this.ActiveVideo != null)

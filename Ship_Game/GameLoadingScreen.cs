@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-	public class GameLoadingScreen : GameScreen
+	public sealed class GameLoadingScreen : GameScreen, IDisposable
 	{
 		private Texture2D BGTexture;
 
@@ -46,24 +46,11 @@ namespace Ship_Game
 
 		private Texture2D bridgetexture;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public GameLoadingScreen()
 		{
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -130,6 +117,7 @@ namespace Ship_Game
 		}*/
         ~GameLoadingScreen() {
             //should implicitly do the same thing as the original bad finalize
+            this.Dispose(false);
         }
 
 		public override void HandleInput(InputState input)
@@ -172,9 +160,11 @@ namespace Ship_Game
 			this.LoadingRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 64, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 64, 128, 128);
 			this.LoadingPlayer = new VideoPlayer()
 			{
-				IsLooped = true
+				IsLooped = true,
+                Volume = GlobalStats.Config.MusicVolume
 			};
 			this.SplashPlayer = new VideoPlayer();
+            this.SplashPlayer.Volume = GlobalStats.Config.MusicVolume;
 			ResourceManager.Start();
 			ResourceManager.Initialize(base.ScreenManager.Content);
 			base.LoadContent();
@@ -232,5 +222,29 @@ namespace Ship_Game
 			//this.Loading = true;
 			this.Ready = true;
 		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.LoadingPlayer != null)
+                        this.LoadingPlayer.Dispose();
+                    if (this.SplashPlayer != null)
+                        this.SplashPlayer.Dispose();
+
+                }
+                this.LoadingPlayer = null;
+                this.SplashPlayer = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

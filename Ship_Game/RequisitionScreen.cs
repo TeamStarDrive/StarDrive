@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class RequisitionScreen : GameScreen, IDisposable
+	public sealed class RequisitionScreen : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -118,22 +118,6 @@ namespace Ship_Game
 				g.SetFleet(this.f);
 				node.GoalGUID = g.guid;
 				this.f.Owner.GetGSAI().Goals.Add(g);
-			}
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
 			}
 		}
 
@@ -250,20 +234,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~RequisitionScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+		
 
 		public override void HandleInput(InputState input)
 		{
