@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Troop
+	public sealed class Troop
 	{
 		public string Name;
 
@@ -231,7 +231,8 @@ namespace Ship_Game
 
 		public Ship Launch()
 		{
-			if (this.p == null)
+            
+            if (this.p == null)
 			{
 				return null;
 			}
@@ -244,8 +245,9 @@ namespace Ship_Game
 				pgs.TroopsHere.Clear();
 				this.p.TroopsHere.Remove(this);
 			}
-			Ship retShip = ResourceManager.CreateTroopShipAtPoint((this.Owner.data.DefaultTroopShip != null) ? this.Owner.data.DefaultTroopShip : this.Owner.data.DefaultSmallTransport, this.Owner, this.p.Position, this);
-			this.p = null;
+			Ship retShip = ResourceManager.CreateTroopShipAtPoint((this.Owner.data.DefaultTroopShip != null ? this.Owner.data.DefaultTroopShip : this.Owner.data.DefaultSmallTransport), this.Owner, this.p.Position, this);
+			
+            this.p = null;
 			return retShip;
 		}
 
@@ -290,7 +292,7 @@ namespace Ship_Game
 			{
 				if (!this.Idle)
 				{
-                    try //added by gremlin hot fix to stop troop crashing.
+                    //try //added by gremlin hot fix to stop troop crashing.
                     {
                         this.updateTimer = 0.75f / (float)this.num_attack_frames;
                         Troop whichFrame = this;
@@ -302,7 +304,7 @@ namespace Ship_Game
                             this.Idle = true;
                         }
                     }
-                    catch { }
+                   // catch { }
 				}
 				else
 				{

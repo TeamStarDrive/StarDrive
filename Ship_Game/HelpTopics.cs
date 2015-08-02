@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class HelpTopics
+	public sealed class HelpTopics
 	{
 		public List<HelpTopic> HelpTopicsList;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class SolarSystemData
+	public sealed class SolarSystemData
 	{
 		public string Name;
 
@@ -13,18 +13,6 @@ namespace Ship_Game
 
 		public SolarSystemData()
 		{
-		}
-
-		public struct BuildingData
-		{
-			public string XMLName;
-
-			public int Level;
-		}
-
-		public struct Resource
-		{
-			public string Name;
 		}
 
 		public struct Ring
@@ -47,13 +35,23 @@ namespace Ship_Game
 
 			public string Station;
 
-			public List<SolarSystemData.BuildingData> BuildingDataList;
+            public List<Moon> Moons;
 
-			public List<SolarSystemData.Resource> ResourceList;
+			public List<string> BuildingList;
 
-			public int Population;
+            public List<string> Guardians;
 
             public float MaxPopDefined;
+
+            //Using a separate boolean to ensure that modders can define an unusual 0-habitability planet (e.g. 0 tile Terran); otherwise would have to disregard 0.
+            public bool UniqueHabitat;
+            public int UniqueHabPC;
 		}
+
+        public struct Moon
+        {
+            public int WhichMoon;
+            public float MoonScale;
+        }
 	}
 }

@@ -20,7 +20,7 @@ namespace Ship_Game
         {
             foreach (Empire empire in EmpireManager.EmpireList)
             {
-                if (empire.data.Traits.Name == name)
+                if (string.Equals(empire.data.Traits.Name, name))
                     return empire;
             }
             return (Empire)null;

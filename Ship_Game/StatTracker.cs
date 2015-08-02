@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class StatTracker
+	public sealed class StatTracker
 	{
 		public static SerializableDictionary<string, SerializableDictionary<int, Snapshot>> SnapshotsDict;
 

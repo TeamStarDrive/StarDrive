@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class ShipDesignScreen : GameScreen, IDisposable
+	public sealed class ShipDesignScreen : GameScreen, IDisposable
 	{
 		private Matrix worldMatrix = Matrix.Identity;
 
@@ -189,9 +189,14 @@ namespace Ship_Game
 
         public bool CarrierOnly;
 
-        private string LoadCategory;
+        private ShipData.Category LoadCategory;
 
         public string HangarShipUIDLast = "Undefined";
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+        private float HoldTimer = .50f;
 
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
@@ -225,15 +230,6 @@ namespace Ship_Game
                 ShipCategory = hull.ShipCategory,
                 CarrierShip = hull.CarrierShip,
 				ModuleSlotList = new List<ModuleSlotData>(),
-                //Added by McShooterz: Copy hull bonus
-                ArmoredBonus = hull.ArmoredBonus,
-                SensorBonus = hull.SensorBonus,
-                SpeedBonus = hull.SpeedBonus,
-                StartingCost = hull.StartingCost,
-                CargoBonus = hull.CargoBonus,
-                FireRateBonus = hull.FireRateBonus,
-                RepairBonus = hull.RepairBonus,
-                CostBonus = hull.CostBonus
 			};
             this.CarrierOnly = hull.CarrierShip;
             this.LoadCategory = hull.ShipCategory;
@@ -883,20 +879,33 @@ namespace Ship_Game
 
 		public void Dispose()
 		{
+
 			this.Dispose(true);
-            this.ScreenManager.RemoveScreen(this);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~ShipDesignScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.hullSL != null)
+                        this.hullSL.Dispose();
+                    if (this.weaponSL != null)
+                        this.weaponSL.Dispose();
+                    if (this.ChooseFighterSL != null)
+                        this.ChooseFighterSL.Dispose();
+
+                }
+                this.hullSL = null;
+                this.weaponSL = null;
+                this.ChooseFighterSL = null;
+                this.disposed = true;
+            }
+        }
 
 		private void DoExit(object sender, EventArgs e)
 		{
@@ -1588,12 +1597,20 @@ namespace Ship_Game
 				{
 					rest = "I, O, or E";
 				}
+                else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.IE)
+                {
+                    rest = "I or E only";
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.OE)
+                {
+                    rest = "O or E only";
+                }
 
                 // Concat ship class restrictions
                 string shipRest = "";
                 bool specialString = false;
 
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones && GlobalStats.ActiveModInfo.useDestroyers)
                 {
                     if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1627,7 +1644,7 @@ namespace Ship_Game
                     }
 
                 }
-                if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.useDrones && GlobalStats.ActiveMod.mi.useDestroyers)
+				if (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.useDrones && GlobalStats.ActiveModInfo.useDestroyers)
                 {
                     if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1651,7 +1668,7 @@ namespace Ship_Game
                     }
 
                 }
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones && !GlobalStats.ActiveModInfo.useDestroyers)
                 {
                     if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1684,7 +1701,7 @@ namespace Ship_Game
                         specialString = true;
                     }
                 }
-                if (GlobalStats.ActiveMod == null || (!GlobalStats.ActiveMod.mi.useDrones && !GlobalStats.ActiveMod.mi.useDestroyers))
+				if (GlobalStats.ActiveModInfo == null || (!GlobalStats.ActiveModInfo.useDrones && !GlobalStats.ActiveModInfo.useDestroyers))
                 {
                     if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                     {
@@ -1708,9 +1725,9 @@ namespace Ship_Game
                     }
                 }
 
-                else if (!specialString && (!mod.DroneModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones) || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || (!mod.DestroyerModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDestroyers) || !mod.CruiserModule || !mod.CruiserModule || !mod.CarrierModule || !mod.CapitalModule || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
+				else if (!specialString && (!mod.DroneModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones) || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || (!mod.DestroyerModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDestroyers) || !mod.CruiserModule || !mod.CruiserModule || !mod.CarrierModule || !mod.CapitalModule || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
                 {
-                    if (mod.DroneModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
+					if (mod.DroneModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones)
                         shipRest += "Dr ";
                     if (mod.FighterModule)
                         shipRest += "F ";
@@ -1718,7 +1735,7 @@ namespace Ship_Game
                         shipRest += "CO ";
                     if (mod.FrigateModule)
                         shipRest += "FF ";
-                    if (mod.DestroyerModule && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDestroyers)
+					if (mod.DestroyerModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDestroyers)
                         shipRest += "DD ";
                     if (mod.CruiserModule)
                         shipRest += "CC ";
@@ -1811,7 +1828,7 @@ namespace Ship_Game
                         tag = "";
                     }
 
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats && (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile & !Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Guided))
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.expandedWeaponCats && (Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Missile & !Ship_Game.ResourceManager.WeaponsDict[Ship_Game.ResourceManager.ShipModulesDict[mod.UID].WeaponType].Tag_Guided))
                     {
                         tag = string.Concat(tag, "ROCKET ");
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, tag, modTitlePos, Color.SpringGreen);
@@ -1916,7 +1933,17 @@ namespace Ship_Game
                     }
                     if (mod.Mass != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
+                        float MassMod = (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier;
+                        float ArmourMassMod = (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.ArmourMassModifier;
+
+                        if (mod.ModuleType == ShipModuleType.Armor)
+                        {
+                            this.DrawStat(ref modTitlePos, Localizer.Token(123), (ArmourMassMod * mod.Mass) * MassMod, 79);
+                        }
+                        else
+                        {
+                            this.DrawStat(ref modTitlePos, Localizer.Token(123), MassMod * mod.Mass, 79);
+                        }
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.HealthMax != 0)
@@ -1944,7 +1971,7 @@ namespace Ship_Game
                     }
 					if (mod.BonusRepairRate != 0f)
 					{
-                        this.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), (float)((mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.RepairBonus !=0 ? (1 + (float)this.ActiveHull.RepairBonus / 100f) : 1)), 97);
+						this.DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), (float)((mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1)), 97);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
                     //Shift to next Column
@@ -1968,7 +1995,7 @@ namespace Ship_Game
                     }
                     if (mod.shield_power_max != 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(132), (float)mod.shield_power_max + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.ShieldPowerMod * mod.shield_power_max, 93);
+						this.DrawStat(ref modTitlePos, Localizer.Token(132), mod.shield_power_max * (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus : 1f) + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.ShieldPowerMod * mod.shield_power_max, 93);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                     if (mod.shield_radius != 0)
@@ -1981,6 +2008,66 @@ namespace Ship_Game
                         this.DrawStat(ref modTitlePos, Localizer.Token(134), (float)mod.shield_recharge_rate, 95);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
+
+                    // Doc: new shield resistances, UI info.
+
+                    if (mod.shield_kinetic_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6162), (float)mod.shield_kinetic_resist, 209);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_energy_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6163), (float)mod.shield_energy_resist, 210);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_explosive_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6164), (float)mod.shield_explosive_resist, 211);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_missile_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6165), (float)mod.shield_missile_resist, 212);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_flak_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6166), (float)mod.shield_flak_resist, 213);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_hybrid_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6167), (float)mod.shield_hybrid_resist, 214);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_railgun_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6168), (float)mod.shield_railgun_resist, 215);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_subspace_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6169), (float)mod.shield_subspace_resist, 216);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_warp_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6170), (float)mod.shield_warp_resist, 217);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_beam_resist != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6171), (float)mod.shield_beam_resist, 218);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.shield_threshold != 0)
+                    {
+                        this.DrawStatPCShield(ref modTitlePos, Localizer.Token(6176), (float)mod.shield_threshold, 222);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+
+
                     if (mod.SensorRange != 0)
                     {
                         this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
@@ -2062,7 +2149,7 @@ namespace Ship_Game
                         this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), 178);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM && mod.ECM != 0)
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM && mod.ECM != 0)
                     {
                         this.DrawStatPercent(ref modTitlePos, Localizer.Token(6004), (float)mod.ECM, 154);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -2077,6 +2164,118 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Explodes", modTitlePos, Color.OrangeRed);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
+                    if (mod.KineticResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6142), (float)mod.KineticResist, 189);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.EnergyResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6143), (float)mod.EnergyResist, 190);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.GuidedResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6144), (float)mod.GuidedResist, 191);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.MissileResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6145), (float)mod.MissileResist, 192);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.HybridResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6146), (float)mod.HybridResist, 193);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.BeamResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6147), (float)mod.BeamResist, 194);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.ExplosiveResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6148), (float)mod.ExplosiveResist, 195);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.InterceptResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6149), (float)mod.InterceptResist, 196);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.RailgunResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6150), (float)mod.RailgunResist, 197);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.SpaceBombResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6151), (float)mod.SpaceBombResist, 198);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.BombResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6152), (float)mod.BombResist, 199);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.BioWeaponResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6153), (float)mod.BioWeaponResist, 200);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.DroneResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6154), (float)mod.DroneResist, 201);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.WarpResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6155), (float)mod.WarpResist, 202);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.TorpedoResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6156), (float)mod.TorpedoResist, 203);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.CannonResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6157), (float)mod.CannonResist, 204);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.SubspaceResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6158), (float)mod.SubspaceResist, 205);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.PDResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6159), (float)mod.PDResist, 206);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.FlakResist != 0)
+                    {
+                        this.DrawStatPC(ref modTitlePos, Localizer.Token(6160), (float)mod.FlakResist, 207);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.APResist != 0)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.APResist, 208);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.DamageThreshold != 0)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6175), (float)mod.DamageThreshold, 221);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                    if (mod.EMP_Protection != 0)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6174), (float)mod.EMP_Protection, 219);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+
+
                     if (mod.PermittedHangarRoles.Count != 0)
                     {
                         modTitlePos.Y = Math.Max(modTitlePos.Y, MaxDepth) + (float)Fonts.Arial12Bold.LineSpacing;
@@ -2097,7 +2296,7 @@ namespace Ship_Game
                             bCursor.Y = (float)e.clickRect.Y;
                             base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((e.item as Ship).VanityName != "" ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty((e.item as Ship).VanityName) ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
                             tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         if (this.selector != null)
@@ -2124,23 +2323,27 @@ namespace Ship_Game
 					{
                         if (mod.InstalledWeapon.isRepairBeam)
                         {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(135), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * -90f * mod.InstalledWeapon.BeamDuration, 166);
+                            this.DrawStat(ref modTitlePos, Localizer.Token(135), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * -90f * mod.InstalledWeapon.BeamDuration * GetHullDamageBonus(), 166);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                            this.DrawStat(ref modTitlePos, "Duration", (float)mod.InstalledWeapon.BeamDuration, 188);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         else if (mod.InstalledWeapon.isBeam)
                         {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 90f * mod.InstalledWeapon.BeamDuration, 83);
+                            this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 90f * mod.InstalledWeapon.BeamDuration * GetHullDamageBonus(), 83);
+                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                            this.DrawStat(ref modTitlePos, "Duration", (float)mod.InstalledWeapon.BeamDuration, 188);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         else
                         {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage"), 83);
+                            this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus(), 83);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
 					}
 					else
 					{
-                        this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount, 83);
+                        this.DrawStat(ref modTitlePos, Localizer.Token(127), (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount, 83);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
 					modTitlePos.X = modTitlePos.X + 152f;
@@ -2154,7 +2357,7 @@ namespace Ship_Game
                     {
                         if (mod.InstalledWeapon.isBeam)
                         {
-                            float dps = (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * 90f * mod.InstalledWeapon.BeamDuration / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f));
+                            float dps = (float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() * 90f * mod.InstalledWeapon.BeamDuration / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus());
                             this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                             modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
                         }
@@ -2162,14 +2365,14 @@ namespace Ship_Game
                         {
                             if (mod.InstalledWeapon.SalvoCount <= 1)
                             {
-                                float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
+                                float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus()) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
                                 dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
                                 this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                                 modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                             }
                             else
                             {
-                                float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
+                                float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus()) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.OrdnanceEffectivenessBonus * mod.InstalledWeapon.DamageAmount);
                                 dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
                                 this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                                 modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
@@ -2179,14 +2382,14 @@ namespace Ship_Game
                         }
                         else if (mod.InstalledWeapon.SalvoCount <= 1)
                         {
-                            float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
+                            float dps = 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus()) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
                             dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
                             this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                             modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                         }
                         else
                         {
-                            float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
+                            float dps = (float)mod.InstalledWeapon.SalvoCount / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus()) * ((float)ModifiedWeaponStat(mod.InstalledWeapon, "damage") * GetHullDamageBonus() + (float)mod.InstalledWeapon.DamageAmount * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.EnergyDamageMod);
                             dps = dps * (float)mod.InstalledWeapon.ProjectileCount;
                             this.DrawStat(ref modTitlePos, "DPS", dps, 86);
                             modTitlePos.Y += (float)Fonts.Arial12Bold.LineSpacing;
@@ -2203,7 +2406,7 @@ namespace Ship_Game
                     modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					if (mod.InstalledWeapon.EMPDamage > 0f)
 					{
-                        this.DrawStat(ref modTitlePos, "EMP", 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * ((GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.FireRateBonus != 0) ? (1 - (float)this.ActiveHull.FireRateBonus / 100f) : 1f)) * (float)mod.InstalledWeapon.EMPDamage, 110);
+                        this.DrawStat(ref modTitlePos, "EMP", 1f / (ModifiedWeaponStat(mod.InstalledWeapon, "firedelay") * GetHullFireRateBonus()) * (float)mod.InstalledWeapon.EMPDamage, 110);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
                     if (mod.InstalledWeapon.SiphonDamage > 0f)
@@ -2248,7 +2451,7 @@ namespace Ship_Game
 						this.DrawStat(ref modTitlePos, "Pwr / Shot", (float)mod.InstalledWeapon.PowerRequiredToFire, 90);
 						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
-                    if (mod.InstalledWeapon.Tag_Guided && GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
+					if (mod.InstalledWeapon.Tag_Guided && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
                     {
                         this.DrawStatPercent(ref modTitlePos, Localizer.Token(6005), (float)mod.InstalledWeapon.ECMResist, 155);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -2291,6 +2494,8 @@ namespace Ship_Game
                         this.DrawStat(ref modTitlePos, Localizer.Token(2129), (float)mod.OrdinanceCapacity, 124);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
+
+                    
                     if (mod.InstalledWeapon.TruePD)
                     {
                         string fireRest = "Cannot Target Ships";
@@ -2309,7 +2514,7 @@ namespace Ship_Game
 
                         if (mod.InstalledWeapon.Excludes_Fighters)
                         {
-                            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useDrones)
+							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones)
                             {
                                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Drones", modTitlePos, Color.LightCoral);
                                 modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -2430,7 +2635,7 @@ namespace Ship_Game
                     }
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].Restrictions.ToString(), tCursor, Color.Orange);
 					tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].Restrictions.ToString()).X;
-                    if (Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].InstalledWeapon != null || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].CanRotate || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].XSIZE != Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].YSIZE)
+                    if (Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].InstalledWeapon != null && Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].ModuleType != ShipModuleType.Turret || Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].XSIZE != Ship_Game.ResourceManager.ShipModulesDict[(e.item as ShipModule).UID].YSIZE)
 					{
 						Rectangle rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
 						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_can_rotate"], rotateRect, Color.White);
@@ -2532,7 +2737,7 @@ namespace Ship_Game
                             continue;
 						if (tmp.isWeapon)
 						{
-                            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats)
+							if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.expandedWeaponCats)
                             {
                                 if (tmp.InstalledWeapon.Tag_Flak && !WeaponCategories.Contains("Flak Cannon"))
                                 {
@@ -2657,7 +2862,7 @@ namespace Ship_Game
                                 continue;
 							if (tmp.isWeapon)
 							{
-                                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.expandedWeaponCats)
+								if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.expandedWeaponCats)
                                 {
                                     if (tmp.InstalledWeapon.Tag_Flak || tmp.InstalledWeapon.Tag_Array || tmp.InstalledWeapon.Tag_Railgun || tmp.InstalledWeapon.Tag_Tractor || (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided))
                                     {
@@ -2767,12 +2972,27 @@ namespace Ship_Game
                         // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
                         else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != "fighter" && this.ActiveHull.Role != "scout" && this.ActiveHull.Role != "corvette")
                             continue;
-						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
+						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead && !tmp.isPowerArmour && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
 						{
 							ModuleCategories.Add(tmp.ModuleType.ToString());
 							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
 							this.weaponSL.AddItem(type);
 						}
+
+                        // These need special booleans as they are ModuleType ARMOR - and the armor ModuleType is needed for vsArmor damage calculations - don't want to use new moduletype therefore.
+                        if (tmp.isPowerArmour && tmp.ModuleType == ShipModuleType.Armor && !ModuleCategories.Contains(Localizer.Token(6172)))
+                        {
+                            ModuleCategories.Add(Localizer.Token(6172));
+                            ModuleHeader type = new ModuleHeader(Localizer.Token(6172), 240f);
+                            this.weaponSL.AddItem(type);
+                        }
+                        if (tmp.isBulkhead && tmp.ModuleType == ShipModuleType.Armor && !ModuleCategories.Contains(Localizer.Token(6173)))
+                        {
+                            ModuleCategories.Add(Localizer.Token(6173));
+                            ModuleHeader type = new ModuleHeader(Localizer.Token(6173), 240f);
+                            this.weaponSL.AddItem(type);
+                        }
+
 						tmp = null;
 					}
 					foreach (ScrollList.Entry e in this.weaponSL.Entries)
@@ -2839,10 +3059,18 @@ namespace Ship_Game
                                     continue;
                                 }
                             }
-							if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
+							if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead && !tmp.isPowerArmour && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
 							{
 								e.AddItem(module.Value);
 							}
+                            if (tmp.isPowerArmour && (e.item as ModuleHeader).Text == Localizer.Token(6172))
+                            {
+                                e.AddItem(module.Value);
+                            }
+                            if (tmp.isBulkhead && (e.item as ModuleHeader).Text == Localizer.Token(6173))
+                            {
+                                e.AddItem(module.Value);
+                            }
 							tmp = null;
 						}
 					}
@@ -3068,7 +3296,7 @@ namespace Ship_Game
                                 continue;
                             }
                         }
-                        if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter || tmp.ModuleType == ShipModuleType.Ordnance) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
+                        if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter || tmp.ModuleType == ShipModuleType.Ordnance || tmp.ModuleType == ShipModuleType.Construction) && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
 						{
 							ModuleCategories.Add(tmp.ModuleType.ToString());
 							ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
@@ -3139,7 +3367,7 @@ namespace Ship_Game
                                     continue;
                                 }
                             }
-                            if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter || tmp.ModuleType == ShipModuleType.Ordnance) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
+                            if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony || tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage || tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors || tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter || tmp.ModuleType == ShipModuleType.Ordnance || tmp.ModuleType == ShipModuleType.Construction) && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
 							{
 								e.AddItem(module.Value);
 							}
@@ -3184,20 +3412,19 @@ namespace Ship_Game
 			float WarpThrust = 0f;
 			float TurnThrust = 0f;
 			float WarpableMass = 0f;
-			float BurnerDrain = 0f;
 			float WarpDraw = 0f;
 			float FTLCount = 0f;
 			float FTLSpeed = 0f;
             float RepairRate = 0f;
             float sensorRange = 0f;
             float sensorBonus = 0f;
-            float BeamPowerUsed =0f;
             float BeamLongestDuration = 0f;
             float OrdnanceUsed=0f;
             float OrdnanceRecoverd = 0f;
             float WeaponPowerNeeded = 0f;
             float Upkeep = 0f;
             float FTLSpoolTimer = 0f;
+            float EMPResist = 0f;
             bool bEnergyWeapons = false;
 			foreach (SlotStruct slot in this.Slots)
 			{
@@ -3209,11 +3436,21 @@ namespace Ship_Game
 				HitPoints = HitPoints + (slot.module.Health + EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier * slot.module.Health);
 				if (slot.module.Mass < 0f && slot.Powered)
 				{
-					Mass += slot.module.Mass;
+                    if (slot.module.ModuleType == ShipModuleType.Armor)
+                    {
+                        Mass += slot.module.Mass * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.ArmourMassModifier;
+                    }
+                    else
+					    Mass += slot.module.Mass;
 				}
 				else if (slot.module.Mass > 0f)
 				{
-					Mass += slot.module.Mass;
+                    if (slot.module.ModuleType == ShipModuleType.Armor)
+                    {
+                        Mass += slot.module.Mass * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.ArmourMassModifier;
+                    }
+                    else
+                        Mass += slot.module.Mass;
 				}
                 TroopCount += slot.module.TroopCapacity;
                 PowerCapacity += slot.module.PowerStoreMax + slot.module.PowerStoreMax * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FuelCellModifier; 
@@ -3221,9 +3458,9 @@ namespace Ship_Game
 				PowerFlow += slot.module.PowerFlowMax + slot.module.PowerFlowMax * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.PowerFlowMod;
 				if (slot.module.Powered)
 				{
+                    EMPResist += slot.module.EMP_Protection;
 					WarpableMass = WarpableMass + slot.module.WarpMassCapacity;
                     PowerDraw = PowerDraw + slot.module.PowerDraw;
-					BurnerDrain = BurnerDrain + slot.module.PowerDrawWithAfterburner;
 					WarpDraw = WarpDraw + slot.module.PowerDrawAtWarp;
                     if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.PowerRequiredToFire > 0)
                         bEnergyWeapons = true;
@@ -3242,8 +3479,7 @@ namespace Ship_Game
 					Thrust = Thrust + slot.module.thrust;
 					WarpThrust = WarpThrust + (float)slot.module.WarpThrust;
 					TurnThrust = TurnThrust + (float)slot.module.TurnThrust;
-					AfterThrust = AfterThrust + slot.module.AfterburnerThrust;
-                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.RepairBonus != 0 ? (1 + (float)this.ActiveHull.RepairBonus / 100f) : 1));
+                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1));
                     OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
                     if (slot.module.SensorRange > sensorRange)
                     {
@@ -3252,9 +3488,7 @@ namespace Ship_Game
                     if (slot.module.SensorBonus > sensorBonus)
                         sensorBonus = slot.module.SensorBonus;
                     
-                    //added by gremlin collect weapon stats
-                    
-
+                    //added by gremlin collect weapon stats                  
                     if (slot.module.isWeapon || slot.module.BombType != null)
                     {
                         Weapon weapon;
@@ -3262,10 +3496,10 @@ namespace Ship_Game
                             weapon = slot.module.InstalledWeapon;
                         else
                             weapon = ResourceManager.WeaponsDict[slot.module.BombType];
-
-                        BeamPowerUsed += weapon.BeamPowerCostPerSecond * weapon.BeamDuration;
-                        OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay;
-                        WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay;
+                        OrdnanceUsed += weapon.OrdinanceRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
+                        WeaponPowerNeeded += weapon.PowerRequiredToFire / weapon.fireDelay * weapon.SalvoCount;
+                        if(weapon.isBeam)
+                            WeaponPowerNeeded += weapon.BeamPowerCostPerSecond * weapon.BeamDuration / weapon.fireDelay;
                         if(BeamLongestDuration < weapon.BeamDuration)
                             BeamLongestDuration = weapon.BeamDuration; 
                         
@@ -3285,7 +3519,7 @@ namespace Ship_Game
 			float Speed = 0f;
 			float WarpSpeed = WarpThrust / (Mass + 0.1f);
             //Added by McShooterz: hull bonus speed
-            WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SpeedBonus != 0 ? (1 + (float)this.ActiveHull.SpeedBonus / 100f) : 1);
+            WarpSpeed = WarpSpeed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.FTLModifier * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1);
 			float single = WarpSpeed / 1000f;
 			string WarpString = string.Concat(single.ToString("#.0"), "k");
 			float Turn = 0f;
@@ -3299,55 +3533,73 @@ namespace Ship_Game
 			Turn = (float)MathHelper.ToDegrees(Turn);
             Vector2 Cursor = new Vector2((float)(this.statsSub.Menu.X + 10), (float)(this.ShipStats.Menu.Y + 33));
             //Added by McShooterz: Draw Hull Bonuses
-           if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses)
-           {
+			if (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull))
+            {
                Vector2 LCursor = new Vector2(this.HullSelectionRect.X - 145, HullSelectionRect.Y + 31);
-                if(this.ActiveHull.ArmoredBonus != 0 || this.ActiveHull.SensorBonus != 0 || this.ActiveHull.SpeedBonus != 0 || this.ActiveHull.CargoBonus != 0 || this.ActiveHull.FireRateBonus != 0 || this.ActiveHull.RepairBonus != 0 || this.ActiveHull.CostBonus != 0)
+               if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ArmoredBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus != 0 ||
+                   Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus != 0)
                 {
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana14Bold ,Localizer.Token(6015), LCursor, Color.Orange);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Verdana14Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.ArmoredBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ArmoredBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6016), this.ActiveHull.ArmoredBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6016), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ArmoredBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.SensorBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6017), this.ActiveHull.SensorBonus);
+                    this.DrawHullBonus(ref LCursor, "Shield Strength", Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].ShieldBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.SpeedBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6018), this.ActiveHull.SpeedBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6017), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.CargoBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6019), this.ActiveHull.CargoBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6018), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.FireRateBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6020), this.ActiveHull.FireRateBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6019), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.RepairBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6013), this.ActiveHull.RepairBonus);
+                    this.DrawHullBonus(ref LCursor, "Weapon Damage", Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].DamageBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (this.ActiveHull.CostBonus != 0)
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus != 0)
                 {
-                    this.DrawHullBonus(ref LCursor, Localizer.Token(6021), this.ActiveHull.CostBonus);
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6020), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].FireRateBonus);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                }
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus != 0)
+                {
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6013), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus);
+                    LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                }
+                if (Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus != 0)
+                {
+                    this.DrawHullBonus(ref LCursor, Localizer.Token(6021), Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus);
                     LCursor.Y = LCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
                 }
             }
             //Added by McShooterz: hull bonus starting cost
-            this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses ? this.ActiveHull.StartingCost : 0)) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.CostBonus != 0 ? (1 - (float)this.ActiveHull.CostBonus / 100f) : 1)), 99);
+			this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(109), ":"), (float)(((int)Cost + (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].StartingCost : 0)) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f - Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CostBonus : 1)), 99);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep)
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
                 Upkeep = GetMaintCostShipyardProportional(this.ActiveHull, Cost, EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty));
             }
@@ -3408,20 +3660,20 @@ namespace Ship_Game
             }
             
 
-            float powerconsumed = (BeamPowerUsed + WeaponPowerNeeded) - PowerFlow;
-            float beamduration = 0f;
+            float powerconsumed = WeaponPowerNeeded - PowerFlow;
+            float EnergyDuration = 0f;
             if (powerconsumed > 0)
             {
-                beamduration = BeamPowerUsed + WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
-                if ((beamduration >= BeamLongestDuration) && bEnergyWeapons == true)
+                EnergyDuration = WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
+                if ((EnergyDuration >= BeamLongestDuration) && bEnergyWeapons == true)
                 {
                     Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergy60(ref Cursor, "Power Time:", beamduration, 163);
+                    this.DrawStatEnergy60(ref Cursor, "Power Time:", EnergyDuration, 163);
                 }
                 else if (bEnergyWeapons == true)
                 {
                     Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergyBad(ref Cursor, "Power Time:", beamduration.ToString("N1"), 163);
+                    this.DrawStatEnergyBad(ref Cursor, "Power Time:", EnergyDuration.ToString("N1"), 163);
                 }
 
             }
@@ -3434,13 +3686,6 @@ namespace Ship_Game
                 }
             }
             Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
-            
-                       //added by McShooterz
-            if (BurnerDrain != 0)
-            {
-                this.DrawStat(ref Cursor, "Power with Afterburner:", (int)(PowerFlow - PowerDraw - BurnerDrain), "Power draw of the ship when the afterburner is engaged");
-                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-            }
 			this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(113), ":"), (int)HitPoints, 103);
             //Added by McShooterz: draw total repair
             if (RepairRate > 0)
@@ -3453,7 +3698,14 @@ namespace Ship_Game
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(114), ":"), (int)ShieldPower, 104);                
             }
+            if (EMPResist > 0)
+            {
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(6177), ":"), (int)EMPResist, 220);
+            }
+
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
+            
 
             // The Doctor: removed the mass display. It's a meaningless value to the player, and it takes up a valuable line in the limited space.
 			//this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
@@ -3507,7 +3759,6 @@ namespace Ship_Game
 				if (FTLCount > 0f)
 				{
 					float speed = FTLSpeed / FTLCount;
-					speed = speed + speed * ShipDesignScreen.screen.player.data.FTLBonus;
 					this.DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), (int)speed, 135);
 					Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
@@ -3528,7 +3779,7 @@ namespace Ship_Game
                 this.DrawStatPropulsion(ref Cursor, "FTL Spool:", FTLSpoolTimer, 177);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-            this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SpeedBonus != 0 ? (1 + (float)this.ActiveHull.SpeedBonus / 100f) : 1)), 105);
+            this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(116), ":"), (int)(Speed * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SubLightModifier * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SpeedBonus : 1)), 105);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             //added by McShooterz: afterburn speed
             if (AfterSpeed != 0)
@@ -3576,12 +3827,12 @@ namespace Ship_Game
 
             if (CargoSpace > 0)
             {
-                this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.CargoBonus != 0 ? (1 + (float)this.ActiveHull.CargoBonus / 100f) : 1)), 109);
+				this.DrawStat60(ref Cursor, string.Concat(Localizer.Token(119), ":"), (CargoSpace + (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? CargoSpace * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].CargoBonus : 0)), 109);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (sensorRange != 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.SensorBonus != 0 ? (1 + (float)this.ActiveHull.SensorBonus / 100f) : 1)), 159);
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 159);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);
@@ -3668,6 +3919,11 @@ namespace Ship_Game
                 }
             }
 
+            if ((ship.Role == "freighter" || ship.Role == "platform") && empire.data.CivMaintMod != 1.0)
+            {
+                maint *= empire.data.CivMaintMod;
+            }
+
             //Apply Privatization
             if ((ship.Role == "freighter" || ship.Role == "platform") && empire.data.Privatization)
             {
@@ -3699,35 +3955,39 @@ namespace Ship_Game
 
             // Calculate maintenance by proportion of ship cost, Duh.
             if (ship.Role == "fighter" || ship.Role == "scout")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepFighter;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepFighter;
             else if (ship.Role == "corvette")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCorvette;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCorvette;
             else if (ship.Role == "frigate" || ship.Role == "destroyer")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepFrigate;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepFrigate;
             else if (ship.Role == "cruiser")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCruiser;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCruiser;
             else if (ship.Role == "carrier")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCarrier;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCarrier;
             else if (ship.Role == "capital")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepCapital;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepCapital;
             else if (ship.Role == "freighter")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepFreighter;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepFreighter;
             else if (ship.Role == "platform")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepPlatform;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepPlatform;
             else if (ship.Role == "station")
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepStation;
-            else if (ship.Role == "drone" && GlobalStats.ActiveMod.mi.useDrones)
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepDrone;
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepStation;
+            else if (ship.Role == "drone" && GlobalStats.ActiveModInfo.useDrones)
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepDrone;
             else
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepBaseline;
-
-            if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline > 0)
-                maint = fCost * GlobalStats.ActiveMod.mi.UpkeepBaseline;
-            else if (maint == 0f && GlobalStats.ActiveMod.mi.UpkeepBaseline == 0)
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepBaseline;
+            if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0)
+                maint = fCost * GlobalStats.ActiveModInfo.UpkeepBaseline;
+            else if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline == 0)
                 maint = fCost * 0.004f;
 
 
-            // Modifiers below here   
+            // Modifiers below here  
+
+            if ((ship.Role == "freighter" || ship.Role == "platform") && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1.0)
+            {
+                maint *= empire.data.CivMaintMod;
+            }
 
             if ((ship.Role == "freighter" || ship.Role == "platform") && empire != null && !empire.isFaction && empire.data.Privatization)
             {
@@ -3744,9 +4004,9 @@ namespace Ship_Game
         }
 
 
-        private void DrawHullBonus(ref Vector2 Cursor, string words, byte stat)
+        private void DrawHullBonus(ref Vector2 Cursor, string words, float stat)
         {
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat(stat.ToString(), "% ", words), Cursor, Color.Orange);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12, string.Concat((stat * 100f).ToString(), "% ", words), Cursor, Color.Orange);
         }
 
         private string GetNumberString(float stat)
@@ -3795,7 +4055,7 @@ namespace Ship_Game
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
-            string numbers = GetNumberString(stat);
+            string numbers = stat.ToString("0.0");
 			if (stat == 0f)
 			{
 				numbers = "0";
@@ -3808,6 +4068,56 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
 			}
 		}
+
+        private void DrawStatPC(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 120f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = stat.ToString("p1");
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStatPCShield(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 120f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.LightSkyBlue);
+            string numbers = stat.ToString("p1");
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
 
         private void DrawStatEnergy(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
@@ -4323,7 +4633,7 @@ namespace Ship_Game
             //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
             foreach (Entry e in this.CategoryList.Options)
             {
-                if (e.Name == LoadCategory && this.fmlevenmore)
+                if (e.Name == LoadCategory.ToString() && this.fmlevenmore)
                 {
                     this.CategoryList.ActiveIndex = e.@value - 1;
                     this.fmlevenmore = false;
@@ -4431,21 +4741,6 @@ namespace Ship_Game
 			message.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenLaunchScreen);
 			base.ScreenManager.AddScreen(message);
 		}
-
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ShipDesignScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public float findAngleToTarget(Vector2 origin, Vector2 target)
 		{
@@ -4755,7 +5050,7 @@ namespace Ship_Game
             this.CategoryList.HandleInput(input);
             this.CarrierOnlyBox.HandleInput(input);
 
-            if (this.ActiveModule != null && (this.ActiveModule.InstalledWeapon != null || this.ActiveModule.CanRotate || this.ActiveModule.XSIZE != this.ActiveModule.YSIZE))
+            if (this.ActiveModule != null && (this.ActiveModule.InstalledWeapon != null && this.ActiveModule.ModuleType != ShipModuleType.Turret || this.ActiveModule.XSIZE != this.ActiveModule.YSIZE))
             {
                 if (input.Left)
                     this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Left);
@@ -4765,6 +5060,11 @@ namespace Ship_Game
                     this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Rear);
                 if (input.Up)
                     this.ChangeModuleState(ShipDesignScreen.ActiveModuleState.Normal);
+            }
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.Y) && !input.LastKeyboardState.IsKeyDown(Keys.Y) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
             }
             if (this.close.HandleInput(input))
                 this.ExitScreen();
@@ -5123,6 +5423,11 @@ namespace Ship_Game
                         }
                     }
                 }
+                else if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+                    this.HoldTimer -= .01666f;
+                else
+                    this.HoldTimer = 0.50f;
+
                 foreach (SlotStruct slotStruct in this.Slots)
                 {
                     if (slotStruct.ModuleUID != null && this.HighlightedModule != null && (slotStruct.module == this.HighlightedModule && (double)slotStruct.module.FieldOfFire != 0.0) && slotStruct.module.ModuleType == ShipModuleType.Turret)
@@ -5140,8 +5445,28 @@ namespace Ship_Game
                                 num3 = (float)(-1.0 * (360.0 - (double)num3));
                             num4 = Math.Abs(num2 - num3);
                         }
-                        if ((double)num4 < (double)num1 && (double)Vector2.Distance(spaceFromWorldSpace, vector2) < 300.0 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed))
-                            this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+
+                        if (GlobalStats.AltArcControl)
+                        {
+                            //The Doctor: ALT (either) + LEFT CLICK to pick and move arcs. This way, it's impossible to accidentally pick the wrong arc, while it's just as responsive and smooth as the original method when you are trying to.                    
+                            if ((double)num4 < (double)num1 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && ((input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt) || input.LastKeyboardState.IsKeyDown(Keys.LeftAlt)) || (input.CurrentKeyboardState.IsKeyDown(Keys.RightAlt) || input.LastKeyboardState.IsKeyDown(Keys.RightAlt)))))
+                            {
+
+                                this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+                            }
+                        }
+                        else
+                        {
+                            //Delay method
+                            if ((double)num4 < (double)num1 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
+                            {
+                                this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
+                            }                           
+                            
+                        }
+
+                        
+
                     }
                 }
                 foreach (UIButton uiButton in this.Buttons)
@@ -5462,7 +5787,7 @@ namespace Ship_Game
 
         private void InstallModuleNoStack(SlotStruct slot)
         {
-            System.Diagnostics.Debug.Assert(false);
+            //System.Diagnostics.Debug.Assert(false);
             //looks like this function is not actually used, see if anyone manages to trigger this
             int num = 0;    //check for sufficient slots
             for (int index1 = 0; index1 < (int)this.ActiveModule.YSIZE; ++index1)
@@ -5946,6 +6271,8 @@ namespace Ship_Game
 			{
 				(Ship.universeScreen.workersPanel as ColonyScreen).Reset = true;
 			}
+            //this should go some where else, need to find it a home
+            this.ScreenManager.RemoveScreen(this);
 			base.ExitScreen();
 		}
 
@@ -6027,8 +6354,10 @@ namespace Ship_Game
                     if (slotStruct.module != null && slotStruct.module.ModuleType != ShipModuleType.PowerConduit)
                         slotStruct.module.Powered = true;
                     if (slotStruct.parent != null && slotStruct.parent.module != null)
-                        slotStruct.parent.module.Powered = true;
+                        slotStruct.parent.module.Powered = true;                    
                 }
+                if (!slotStruct.Powered && slotStruct.module != null && slotStruct.module.IndirectPower)
+                        slotStruct.module.Powered = true;
             }
         }
 
@@ -6096,32 +6425,32 @@ namespace Ship_Game
             {
                 case 1:
                     {
-                        this.ActiveHull.ShipCategory = "Unclassified";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
                         break;
                     }
                 case 2:
                     {
-                        this.ActiveHull.ShipCategory = "Civilian";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Civilian;
                         break;
                     }
                 case 3:
                     {
-                        this.ActiveHull.ShipCategory = "Recon";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Recon;
                         break;
                     }
                 case 4:
                     {
-                        this.ActiveHull.ShipCategory = "Fighter";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Fighter;
                         break;
                     }
                 case 5:
                     {
-                        this.ActiveHull.ShipCategory = "Bomber";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Bomber;
                         break;
                     }
                 default:
                     {
-                        this.ActiveHull.ShipCategory = "Unclassified";
+                        this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
                         break;
                     }
             }
@@ -6323,22 +6652,31 @@ namespace Ship_Game
 				{
 					s.ShowValid = true;
 				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.O && (s.Restrictions == Restrictions.O || s.Restrictions == Restrictions.IO))
-				{
-					s.ShowValid = true;
-				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.E && s.Restrictions == Restrictions.E)
-				{
-					s.ShowValid = true;
-				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions != Restrictions.IOE || s.Restrictions != Restrictions.I && s.Restrictions != Restrictions.IO && s.Restrictions != Restrictions.O && s.Restrictions != Restrictions.E)
-				{
-					s.ShowInvalid = true;
-				}
-				else
-				{
-					s.ShowValid = true;
-				}
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.IE && (s.Restrictions == Restrictions.I || s.Restrictions == Restrictions.E))
+                {
+                    s.ShowValid = true;
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.OE && (s.Restrictions == Restrictions.O || s.Restrictions == Restrictions.E))
+                {
+                    s.ShowValid = true;
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.O && (s.Restrictions == Restrictions.O || s.Restrictions == Restrictions.IO))
+                {
+                    s.ShowValid = true;
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.E && s.Restrictions == Restrictions.E)
+                {
+                    s.ShowValid = true;
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions != Restrictions.IOE || s.Restrictions != Restrictions.I && s.Restrictions != Restrictions.IO && s.Restrictions != Restrictions.O && s.Restrictions != Restrictions.E)
+                {
+                    s.ShowInvalid = true;
+                }
+
+                else
+                {
+                    s.ShowValid = true;
+                }
 			}
 			if (this.ActiveModule.ModuleType == ShipModuleType.Hangar)
 			{
@@ -6898,6 +7236,32 @@ namespace Ship_Game
             return value;
         }
 
+        private float GetHullDamageBonus()
+        {
+            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useHullBonuses)
+                return 1f;
+            HullBonus bonus;
+            if (ResourceManager.HullBonuses.TryGetValue(this.ActiveHull.Hull, out bonus))
+            {
+                return 1f + bonus.DamageBonus;
+            }
+            else
+                return 1f;
+        }
+
+        private float GetHullFireRateBonus()
+        {
+            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useHullBonuses)
+                return 1f;
+            HullBonus bonus;
+            if (ResourceManager.HullBonuses.TryGetValue(this.ActiveHull.Hull, out bonus))
+            {
+                return 1f - bonus.FireRateBonus;
+            }
+            else
+                return 1f;
+        }
+
 		public enum ActiveModuleState
 		{
 			Normal,
@@ -6934,187 +7298,3 @@ namespace Ship_Game
 		}
 	}
 }
-
-/*
-if (mod.ModuleType == ShipModuleType.Engine)
-					{
-						this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier, 80);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax + mod.PowerFlowMax * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.PowerFlowMod), 81);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						modTitlePos.X = modTitlePos.X + 152f;
-						modTitlePos.Y = starty;
-						this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(131), (float)mod.thrust, 91);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(2064), (float)mod.WarpThrust, 92);
-                        //added by McShooterz: allow after burner to show up for modules
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(2260), (float)mod.TurnThrust, 148);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
-                        if (mod.PowerDrawAtWarp != 0f)
-                        {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-						return;
-					}
-					if (mod.ModuleType == ShipModuleType.Shield)
-					{
-						this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier, 80);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						modTitlePos.X = modTitlePos.X + 152f;
-						modTitlePos.Y = starty;
-						this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(132), (float)mod.shield_power_max, 93);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(133), (float)mod.shield_radius, 94);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(134), (float)mod.shield_recharge_rate, 95);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
-                        if (mod.PowerDrawAtWarp != 0f)
-                        {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-						return;
-					}
-                    if (mod.ModuleType == ShipModuleType.Countermeasure)
-                    {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier, 80);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        modTitlePos.X = modTitlePos.X + 152f;
-                        modTitlePos.Y = starty;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.enableECM)
-                        {
-                            this.DrawStatPercent(ref modTitlePos, Localizer.Token(6004), (float)mod.ECM, 154);
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-                        return;
-                    }
-					if (mod.ModuleType == ShipModuleType.Sensors)
-					{
-						this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier, 80);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						modTitlePos.X = modTitlePos.X + 152f;
-						modTitlePos.Y = starty;
-						this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        if (mod.SensorRange > 0)
-                        {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-                        if (mod.SensorBonus > 0)
-                        {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(6121), (float)mod.SensorBonus, 167);
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-                        //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
-                        if (mod.PowerDrawAtWarp != 0f)
-                        {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-						return;
-					}
-					if (mod.ModuleType == ShipModuleType.Command)
-					{
-						this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier, 80);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(2231), (float)mod.MechanicalBoardingDefense, 143);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						modTitlePos.X = modTitlePos.X + 152f;
-						modTitlePos.Y = starty;
-						this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						this.DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(135), (float)((mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useHullBonuses && this.ActiveHull.RepairBonus != 0 ? (1 + (float)this.ActiveHull.RepairBonus / 100f) : 1)), 97);
-						modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
-                        if (mod.PowerDrawAtWarp != 0f)
-                        {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), "Power draw persecond when Warp engaged");
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-                        if (mod.TroopCapacity > 0f)
-                        {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(336), (float)mod.TroopCapacity, 173);
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-                        if (mod.HealPerTurn > 0)
-                        {
-                            this.DrawStat(ref modTitlePos, Localizer.Token(6129), mod.HealPerTurn, 174);
-                            modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        }
-						return;
-					}
-                    if (mod.ModuleType == ShipModuleType.Hangar)
-                    {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(123), (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier * mod.Mass, 79);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(124), (float)mod.HealthMax + mod.HealthMax * (float)EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.Traits.ModHpModifier, 80);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(125), (mod.ModuleType != ShipModuleType.PowerPlant ? -(float)mod.PowerDraw : mod.PowerFlowMax), 81);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        modTitlePos.X = modTitlePos.X + 152f;
-                        modTitlePos.Y = starty;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(128), (float)mod.Cost * UniverseScreen.GamePaceStatic, 84);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        this.DrawStat(ref modTitlePos, Localizer.Token(136), (float)mod.hangarTimerConstant, 98);
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                        if (!mod.IsTroopBay && !mod.IsSupplyBay)
-                        {
-                            Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(Localizer.Token(137), " : ", mod.hangarShipUID), shipSelectionPos, Color.Orange);
-                            r = this.ChooseFighterSub.Menu;
-                            r.Y = r.Y + 25;
-                            r.Height = r.Height - 25;
-                            sel = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 210));
-                            sel.Draw();
-                            this.ChooseFighterSub.Draw();
-                            this.ChooseFighterSL.Draw(base.ScreenManager.SpriteBatch);
-                            Vector2 bCursor = new Vector2((float)(this.ChooseFighterSub.Menu.X + 15), (float)(this.ChooseFighterSub.Menu.Y + 25));
-                            for (int i = this.ChooseFighterSL.indexAtTop; i < this.ChooseFighterSL.Entries.Count && i < this.ChooseFighterSL.indexAtTop + this.ChooseFighterSL.entriesToDisplay; i++)
-                            {
-                                ScrollList.Entry e = this.ChooseFighterSL.Entries[i];
-                                bCursor.Y = (float)e.clickRect.Y;
-                                base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                                Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((e.item as Ship).VanityName != "" ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
-                                tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            }
-                            if (this.selector != null)
-                            {
-                                this.selector.Draw();
-                                return;
-                            }
-                        }
-                    }
-*/

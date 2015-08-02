@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ResearchPopup : PopupWindow
+	public sealed class ResearchPopup : PopupWindow, IDisposable
 	{
 		public bool fade = true;
 
@@ -19,6 +19,9 @@ namespace Ship_Game
 		private ScrollList UnlockSL;
 
 		private Rectangle UnlocksRect;
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
 
 		public ResearchPopup(UniverseScreen s, Rectangle dimensions, string uid)
 		{
@@ -35,7 +38,7 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
 			this.r = dimensions;
-			this.TitleText = Localizer.Token(ResourceManager.TechTree[uid].NameIndex);
+            this.TitleText = string.Concat(Localizer.Token(ResourceManager.TechTree[uid].NameIndex), ResourceManager.TechTree[uid].MaxLevel > 1 ? " " + NumberToRomanConvertor.NumberToRoman(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).TechnologyDict[uid].level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[uid].MaxLevel) : "");
 			this.MiddleText = Localizer.Token(ResourceManager.TechTree[uid].DescriptionIndex);
 		}
 
@@ -152,11 +155,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		~ResearchPopup()
-		{
-			this.Dispose(false);
-		}
-
 		public override void HandleInput(InputState input)
 		{
 			this.UnlockSL.HandleInput(input);
@@ -247,5 +245,28 @@ namespace Ship_Game
 		{
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~ResearchPopup() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.UnlockSL != null)
+                        this.UnlockSL.Dispose();
+
+                }
+                this.UnlockSL = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

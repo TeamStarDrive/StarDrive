@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class FTL
+	public sealed class FTL
 	{
 		public Matrix WorldMatrix;
 

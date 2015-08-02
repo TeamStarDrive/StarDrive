@@ -229,7 +229,7 @@ namespace Ship_Game
                     List<Planet> list = new List<Planet>();
                     foreach (Planet planet2 in this.empire.GetPlanets())
                     {
-                        if (planet2.HasShipyard)
+                        if (planet2.HasShipyard  && planet2.colonyType != Planet.ColonyType.Research)
                             list.Add(planet2);
                     }
                     int num1 = 9999999;
@@ -237,9 +237,9 @@ namespace Ship_Game
                     {
                         int num2 = 0;
                         foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
-                            num2 += (int)(((double)queueItem.Cost - (double)queueItem.productionTowards) / (double)planet2.NetProductionPerTurn);
+                            num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());//planet2.NetProductionPerTurn);
                         if (planet2.ConstructionQueue.Count == 0)
-                            num2 = (int)(((double)this.beingBuilt.GetCost(this.empire) - (double)planet2.ProductionHere) / (double)planet2.NetProductionPerTurn);
+                            num2 = (int)((this.beingBuilt.GetCost(this.empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());//planet2.NetProductionPerTurn);
                         if (num2 < num1)
                         {
                             num1 = num2;
@@ -262,15 +262,15 @@ namespace Ship_Game
                     break;
                 case 1:
                     {
-                        if (this.PlanetBuildingAt == null || this.PlanetBuildingAt.ConstructionQueue.Count==0)
+                        if (this.PlanetBuildingAt == null || this.PlanetBuildingAt.ConstructionQueue.Count == 0)
                             break;
-                        if (this.PlanetBuildingAt.ConstructionQueue[0].Goal == this)
-                        {
-                            if (this.PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
-                            {
-                                this.PlanetBuildingAt.ApplyStoredProduction(0);
-                            }
-                        }
+                        //if (this.PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        //{
+                        //    if (this.PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
+                        //    {
+                        //        this.PlanetBuildingAt.ApplyStoredProduction(0);
+                        //    }
+                        //}
 
                         break;
                     }
@@ -321,13 +321,13 @@ namespace Ship_Game
                     break;
                 case 1:
                     {
-                        if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
-                        {
-                            if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
-                            {
-                                PlanetBuildingAt.ApplyStoredProduction(0);
-                            }
-                        }
+                        //if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        //{
+                        //    if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
+                        //    {
+                        //        PlanetBuildingAt.ApplyStoredProduction(0);
+                        //    }
+                        //}
 
                         break;
                     }
@@ -345,14 +345,17 @@ namespace Ship_Game
             switch (this.Step)
             {
                 case 0:
-                    this.PlanetBuildingAt.ConstructionQueue.Add(new QueueItem()
-                    {
-                        isTroop = true,
-                        QueueNumber = this.PlanetBuildingAt.ConstructionQueue.Count,
-                        troop = ResourceManager.CopyTroop(ResourceManager.TroopsDict[this.ToBuildUID]),
-                        Goal = this,
-                        Cost = ResourceManager.TroopsDict[this.ToBuildUID].GetCost()
-                    });
+                    if (this.ToBuildUID != null)
+                        this.PlanetBuildingAt.ConstructionQueue.Add(new QueueItem()
+                        {
+                            isTroop = true,
+                            QueueNumber = this.PlanetBuildingAt.ConstructionQueue.Count,
+                            troop = ResourceManager.CopyTroop(ResourceManager.TroopsDict[this.ToBuildUID]),
+                            Goal = this,
+                            Cost = ResourceManager.TroopsDict[this.ToBuildUID].GetCost()
+                        });
+                    else
+                        System.Diagnostics.Debug.WriteLine(string.Concat("Missing Troop "));
                     this.Step = 1;
 
                     break;
@@ -361,10 +364,10 @@ namespace Ship_Game
                     {
                         if (PlanetBuildingAt.ConstructionQueue.Count >0 && PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {
-                           if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.25f)
-                           {
-                               PlanetBuildingAt.ApplyStoredProduction(0);
-                           }
+                           //if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.25f)
+                           //{
+                           //    PlanetBuildingAt.ApplyStoredProduction(0);
+                           //}
                         }
 
                         break;
@@ -414,7 +417,7 @@ namespace Ship_Game
                         if (planet.HasShipyard)
                             list.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list, (Func<Planet, float>)(planet => Vector2.Distance(planet.Position, this.BuildPosition)));
+                    IOrderedEnumerable<Planet> orderedEnumerable = Enumerable.OrderByDescending<Planet, float>((IEnumerable<Planet>)list, (Func<Planet, float>)(planet => planet.ConstructionQueue.Count ));//Vector2.Distance(planet.Position, this.BuildPosition)));
                     if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable) <= 0)
                         break;
                     this.PlanetBuildingAt = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0);
@@ -422,18 +425,28 @@ namespace Ship_Game
                     queueItem.isShip = true;
                     queueItem.DisplayName = "Construction Ship";
                     queueItem.QueueNumber = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Count;
-                    queueItem.sData = !ResourceManager.ShipsDict.ContainsKey(this.empire.data.DefaultSmallTransport) ? ResourceManager.ShipsDict[ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport].GetShipData() : ResourceManager.ShipsDict[this.empire.data.DefaultSmallTransport].GetShipData();
+                    queueItem.sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentConstructor].GetShipData();
                     queueItem.Goal = this;
                     queueItem.Cost = ResourceManager.ShipsDict[this.ToBuildUID].GetCost(this.empire);
                     queueItem.NotifyOnEmpty = false;
-                    if (ResourceManager.ShipsDict.ContainsKey(this.empire.data.DefaultSmallTransport))
+                    if (!string.IsNullOrEmpty(this.empire.data.CurrentConstructor) && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentConstructor))
                     {
-                        this.beingBuilt = ResourceManager.ShipsDict[this.empire.data.DefaultSmallTransport];
+                        this.beingBuilt = ResourceManager.ShipsDict[this.empire.data.CurrentConstructor];
                     }
                     else
                     {
-                        this.beingBuilt = ResourceManager.ShipsDict[ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport];
-                        this.empire.data.DefaultSmallTransport = ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport;
+                        this.beingBuilt = null;
+                        string empiredefaultShip = this.empire.data.DefaultConstructor;
+                        if (string.IsNullOrEmpty(empiredefaultShip))
+                        {
+                            empiredefaultShip = this.empire.data.DefaultSmallTransport;
+                        }
+                        ResourceManager.ShipsDict.TryGetValue(empiredefaultShip, out this.beingBuilt);
+                        //if(this.beingBuilt == null)
+                        //{
+                        //    ResourceManager.ShipsDict.TryGetValue(ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport, out this.beingBuilt);
+                        //}
+                        this.empire.data.DefaultConstructor = empiredefaultShip;
                     }
                     Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Add(queueItem);
                     ++this.Step;
@@ -481,15 +494,15 @@ namespace Ship_Game
                         }
                         if (planet1 == null)
                             break;
-                        if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) == this.empire && ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoColony))
+                        if (this.empire.isPlayer && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoColony))
                         {
                             planet1.ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
                                 QueueNumber = planet1.ConstructionQueue.Count,
-                                sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoColony].GetShipData(),
+                                sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoColony].GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoColony].GetCost(this.empire)
+                                Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoColony].GetCost(this.empire)
                             });
                             this.PlanetBuildingAt = planet1;
                             ++this.Step;
@@ -642,8 +655,15 @@ namespace Ship_Game
                         foreach (Planet planet2 in list1)
                         {
                             int num2 = 0;
+                            int finCon = 0;
                             foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
-                                num2 += (int)(((double)queueItem.Cost - (double)queueItem.productionTowards) / (double)planet2.NetProductionPerTurn);
+                            {
+                                num2 += (int)(((double)queueItem.Cost - queueItem.productionTowards) / planet2.NetProductionPerTurn);
+                                if (queueItem.Goal != null && queueItem.Goal.GoalName == "IncreaseFreighters")
+                                    finCon++;
+                            }
+                            if (finCon > 2)
+                                continue;
                             if (num2 < num1)
                             {
                                 num1 = num2;
@@ -652,15 +672,15 @@ namespace Ship_Game
                         }
                         if (planet1 == null)
                             break;
-                        if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) == this.empire && EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).AutoFreighters && ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter))
+                        if (this.empire.isPlayer && this.empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoFreighter))
                         {
                             planet1.ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
                                 QueueNumber = planet1.ConstructionQueue.Count,
-                                sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetShipData(),
+                                sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetCost(this.empire),
+                                Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetCost(this.empire),
                                 NotifyOnEmpty =false
                             });
                             ++this.Step;
@@ -762,7 +782,7 @@ namespace Ship_Game
                             if (ResourceManager.ShipsDict[index].Role == "scout")
                                 list2.Add(ResourceManager.ShipsDict[index]);
                         }
-                        IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.PowerFlowMax - ship.PowerDraw));
+                        IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.PowerFlowMax - ship.ModulePowerDraw));
                         if (Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) <= 0)
                             break;
                         planet1.ConstructionQueue.Add(new QueueItem()
@@ -836,15 +856,15 @@ namespace Ship_Game
                         }
                         if (planet1 == null)
                             break;
-                        if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) == this.empire && EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).AutoFreighters && ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter))
+                        if (this.empire.isPlayer && this.empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoFreighter))
                         {
                             planet1.ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
                                 QueueNumber = planet1.ConstructionQueue.Count,
-                                sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetShipData(),
+                                sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoFreighter].GetCost(this.empire),
+                                Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetCost(this.empire),
                                 NotifyOnEmpty=false
                             });
                             ++this.Step;

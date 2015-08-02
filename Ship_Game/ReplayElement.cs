@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	internal class ReplayElement
+	internal sealed class ReplayElement
 	{
 		private GenericButton ShipCount;
 

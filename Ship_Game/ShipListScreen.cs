@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public class ShipListScreen : GameScreen, IDisposable
+	public sealed class ShipListScreen : GameScreen, IDisposable
 	{
 		private EmpireUIOverlay eui;
 
@@ -51,23 +51,33 @@ namespace Ship_Game
 
 		private float ClickDelay = 0.25f;
 
-		private int indexLast;
+		private static int indexLast;
 
 		private Rectangle STRIconRect;
+        private SortButton SB_STR;
 
 		private bool StrSorted = true;
 
 		private Rectangle MaintRect;
+        private SortButton Maint;
 
 		private Rectangle TroopRect;
+        private SortButton SB_Troop;
 
 		private Rectangle FTL;
+        private SortButton SB_FTL;
 
 		private Rectangle STL;
+        private SortButton SB_STL;
 
 		private Rectangle AutoButton;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		//private bool AutoButtonHover;
+
+        private int CurrentLine;
 
 		public ShipListScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
 		{
@@ -105,20 +115,24 @@ namespace Ship_Game
 					ShipListScreenEntry entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
 					this.ShipSL.AddItem(entry);
 				}
-                if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
-                {
-                    this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-                }
-                else
-                    this.SelectedShip = null;
+                //if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
+                //{
+                //    foreach (ScrollList.Entry sel in this.ShipSL.Entries)
+                //        (sel.item as ShipListScreenEntry).Selected = false;
+                    //this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+                    //(this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
+                //}
+                //else
+                this.SelectedShip = null;
 			}
 			Ref<bool> aeRef = new Ref<bool>(() => this.HidePlatforms, (bool x) => {
 				this.HidePlatforms = x;
-                this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value);
+               this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value);
 			});
 			this.cb_hide_proj = new Checkbox(new Vector2((float)(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 10), (float)(this.TitleBar.Menu.Y + 15)), Localizer.Token(191), aeRef, Fonts.Arial12Bold);
 			this.ShowRoles = new DropOptions(new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
 			this.ShowRoles.AddOption("All Ships", 1);
+            this.ShowRoles.AddOption("Not in Fleets", 11);
 			this.ShowRoles.AddOption("Fighters", 2);
             this.ShowRoles.AddOption("Corvettes", 10);
 			this.ShowRoles.AddOption("Frigates", 3);
@@ -126,33 +140,49 @@ namespace Ship_Game
 			this.ShowRoles.AddOption("Capitals", 5);
             this.ShowRoles.AddOption("Civilian", 8);
             this.ShowRoles.AddOption("All Structures", 9);
-			this.ShowRoles.AddOption("Fleets Only", 6);
+			this.ShowRoles.AddOption("In Fleets Only", 6);
 
             // Replaced using the tick-box for player design filtering. Platforms now can be browsed with 'structures'
 			// this.ShowRoles.AddOption("Player Designs Only", 7);
             
 			this.AutoButton = new Rectangle(0, 0, 243, 33);
-			this.SortSystem = new SortButton();
-			this.SortName = new SortButton();
-			this.SortRole = new SortButton();
+			this.SortSystem = new SortButton(this.empUI.empire.data.SLSort,Localizer.Token(192));
+            this.SortName = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(193));
+			this.SortRole = new SortButton(this.empUI.empire.data.SLSort,Localizer.Token(194));
+            //Localizer.Token(193)
+            this.Maint = new SortButton(this.empUI.empire.data.SLSort, "maint");
+            this.SB_FTL = new SortButton(this.empUI.empire.data.SLSort, "FTL");
+            this.SB_STL = new SortButton(this.empUI.empire.data.SLSort, "STL");
+            this.SB_Troop = new SortButton(this.empUI.empire.data.SLSort, "Troop");
+            this.SB_STR = new SortButton(this.empUI.empire.data.SLSort, "STR");
+            //this.Maint.rect = this.MaintRect;
+            this.ShowRoles.ActiveIndex = indexLast;  //fbedard: remember last filter
+            this.ResetList(this.ShowRoles.Options[indexLast].@value);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
+        ~ShipListScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ShipSL != null)
+                        this.ShipSL.Dispose();
+          
+                }
+                this.ShipSL = null;
+                this.disposed = true;
+            }
+        }
 		public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
@@ -171,45 +201,54 @@ namespace Ship_Game
 					ShipListScreenEntry entry = this.ShipSL.Copied[this.ShipSL.indexAtTop].item as ShipListScreenEntry;
 					Vector2 TextCursor = new Vector2((float)(entry.SysNameRect.X + entry.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 					this.SortSystem.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X, Fonts.Arial20Bold.LineSpacing);
-					this.SortSystem.Text = Localizer.Token(192);
+					
 					this.SortSystem.Draw(base.ScreenManager, Fonts.Arial20Bold);
 					TextCursor = new Vector2((float)(entry.ShipNameRect.X + entry.ShipNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 					this.SortName.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X, Fonts.Arial20Bold.LineSpacing);
-					this.SortName.Text = Localizer.Token(193);
+					
 					this.SortName.Draw(base.ScreenManager, Fonts.Arial20Bold);
 					TextCursor = new Vector2((float)(entry.RoleRect.X + entry.RoleRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
 					this.SortRole.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X, Fonts.Arial20Bold.LineSpacing);
-					this.SortRole.Text = Localizer.Token(194);
+					
 					this.SortRole.Draw(base.ScreenManager, Fonts.Arial20Bold);
 					TextCursor = new Vector2((float)(entry.OrdersRect.X + entry.OrdersRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 30));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(195), TextCursor, new Color(255, 239, 208));
 					this.STRIconRect = new Rectangle(entry.STRRect.X + entry.STRRect.Width / 2 - 6, this.eRect.Y - 18 + 30, 18, 18);
-					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], this.STRIconRect, Color.White);
-					this.MaintRect = new Rectangle(entry.MaintRect.X + entry.MaintRect.Width / 2 - 7, this.eRect.Y - 20 + 30, 21, 20);
+                    this.SB_STR.rect = this.STRIconRect;
+					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], this.STRIconRect, Color.White);                    
+                    this.MaintRect = new Rectangle(entry.MaintRect.X + entry.MaintRect.Width / 2 - 7, this.eRect.Y - 20 + 30, 21, 20);
+                    this.Maint.rect = this.MaintRect;
+                    //this.Maint.Draw(base.ScreenManager, null);
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MaintRect, Color.White);
 					this.TroopRect = new Rectangle(entry.TroopRect.X + entry.TroopRect.Width / 2 - 5, this.eRect.Y - 22 + 30, 18, 22);
+                    this.SB_Troop.rect = this.TroopRect;
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], this.TroopRect, Color.White);
 					TextCursor = new Vector2((float)(entry.FTLRect.X + entry.FTLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, (float)(this.eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
 					HelperFunctions.ClampVectorToInt(ref TextCursor);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "FTL", TextCursor, new Color(255, 239, 208));
 					this.FTL = new Rectangle(entry.FTLRect.X, this.eRect.Y - 20 + 35, entry.FTLRect.Width, 20);
+                    this.SB_FTL.rect = this.FTL;
 					this.STL = new Rectangle(entry.STLRect.X, this.eRect.Y - 20 + 35, entry.STLRect.Width, 20);
+                    this.SB_STL.rect = this.STL;
 					TextCursor = new Vector2((float)(entry.STLRect.X + entry.STLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, (float)(this.eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
 					HelperFunctions.ClampVectorToInt(ref TextCursor);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "STL", TextCursor, new Color(255, 239, 208));
 				}
 				Color smallHighlight = TextColor;
-				smallHighlight.A = (byte)(TextColor.A / 2);
+				//smallHighlight.A = (byte)(TextColor.A / 2);
+                smallHighlight = Color.DarkGreen;
 				for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Entries.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
 				{
 					ShipListScreenEntry entry = this.ShipSL.Entries[i].item as ShipListScreenEntry;
-					if (i % 2 == 0)
+					//if (i % 2 == 0)
+					//{
+					//	Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, smallHighlight);
+					//}
+					//if (entry.ship == this.SelectedShip)
+                    if (entry.Selected)
 					{
-						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, smallHighlight);
-					}
-					if (entry.ship == this.SelectedShip)
-					{
-						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
+						//Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
+                        Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, smallHighlight);
 					}
 					entry.SetNewPos(this.eRect.X + 22, this.ShipSL.Entries[i].clickRect.Y);
 					entry.Draw(base.ScreenManager, gameTime);
@@ -270,20 +309,6 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ShipListScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{
@@ -294,13 +319,13 @@ namespace Ship_Game
 			this.ShipSL.HandleInput(input);
 			this.cb_hide_proj.HandleInput(input);
 			this.ShowRoles.HandleInput(input);
-			if (this.ShowRoles.ActiveIndex != this.indexLast)
+			if (this.ShowRoles.ActiveIndex != indexLast)
 			{
 				this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value);
-				this.indexLast = this.ShowRoles.ActiveIndex;
+                indexLast = this.ShowRoles.ActiveIndex;
 				return;
 			}
-			this.indexLast = this.ShowRoles.ActiveIndex;
+			//this.indexLast = this.ShowRoles.ActiveIndex;
 			for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
 			{
 				ShipListScreenEntry entry = this.ShipSL.Copied[i].item as ShipListScreenEntry;
@@ -314,25 +339,44 @@ namespace Ship_Game
 					else
 					{
 						this.ExitScreen();
-						this.empUI.screen.SelectedShip = entry.ship;
+                        if (this.empUI.screen.SelectedShip != null && entry.ship != this.empUI.screen.SelectedShip) //fbedard
+                            this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
+                        this.empUI.screen.SelectedShipList.Clear();
+                        this.empUI.screen.SelectedShip = entry.ship;                        
 						this.empUI.screen.ViewToShip(null);
 						this.empUI.screen.returnToShip = false;
 					}
 					if (this.SelectedShip != entry.ship)
 					{
 						AudioManager.PlayCue("sd_ui_accept_alt3");
+                        if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
+                        {
+                            foreach (ScrollList.Entry sel in this.ShipSL.Entries)
+                                (sel.item as ShipListScreenEntry).Selected = false;
+			            }
+                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && this.SelectedShip != null)
+                            if (i >= CurrentLine)
+                                for (int l = CurrentLine; l <= i; l++)
+                                    (this.ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
+                            else
+                                for (int l = i; l <= CurrentLine; l++)
+                                    (this.ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
+
 						this.SelectedShip = entry.ship;
+                        entry.Selected = true;
+                        CurrentLine = i;
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.FTL, input.CursorPosition))
+			if (this.SB_FTL.HandleInput(input))  //HelperFunctions.CheckIntersection(this.FTL, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Faster Than Light Speed of Ship", base.ScreenManager);
-				if (input.InGameSelect)
+				
+				//if (input.InGameSelect)
 				{
 					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.StrSorted = !this.StrSorted;
-					if (!this.StrSorted)
+                    this.SB_FTL.Ascending = !this.SB_FTL.Ascending;
+                    this.StrSorted = this.SB_FTL.Ascending;
+                    if (!this.SB_FTL.Ascending)
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
 							from theship in this.ShipSL.Entries
@@ -350,14 +394,17 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.STL, input.CursorPosition))
+            else if(this.SB_FTL.Hover)
+                ToolTip.CreateTooltip("Faster Than Light Speed of Ship", base.ScreenManager);
+			if (this.SB_STL.HandleInput(input))//HelperFunctions.CheckIntersection(this.STL, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Sublight Speed of Ship", base.ScreenManager);
-				if (input.InGameSelect)
+				
+				//if (input.InGameSelect)
 				{
 					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.StrSorted = !this.StrSorted;
-					if (!this.StrSorted)
+                    this.SB_STL.Ascending = !this.SB_STL.Ascending;
+                    this.StrSorted = this.SB_STL.Ascending;
+                    if (!this.SB_STL.Ascending)
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
 							from theship in this.ShipSL.Entries
@@ -375,37 +422,19 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.MaintRect, input.CursorPosition))
+            else if (this.SB_STL.Hover)
+                ToolTip.CreateTooltip("Sublight Speed of Ship", base.ScreenManager);
+			if (this.Maint.HandleInput(input))//  HelperFunctions.CheckIntersection(this.MaintRect, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable", base.ScreenManager);
-                if (input.InGameSelect)
+				
+                //if (input.InGameSelect)
                 {
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
+                    //reduntant maintenance check no longer needed.
                     {
                         AudioManager.PlayCue("sd_ui_accept_alt3");
-                        this.StrSorted = !this.StrSorted;
-                        if (!this.StrSorted)
-                        {
-                            IOrderedEnumerable<ScrollList.Entry> sortedList =
-                                from theship in this.ShipSL.Entries
-                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCostRealism() descending
-                                select theship;
-                            this.ResetListSorted(sortedList);
-                        }
-                        else
-                        {
-                            IOrderedEnumerable<ScrollList.Entry> sortedList =
-                                from theship in this.ShipSL.Entries
-                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCostRealism()
-                                select theship;
-                            this.ResetListSorted(sortedList);
-                        }
-                    }
-                    else
-                    {
-                        AudioManager.PlayCue("sd_ui_accept_alt3");
-                        this.StrSorted = !this.StrSorted;
-                        if (!this.StrSorted)
+                        this.Maint.Ascending = !this.Maint.Ascending;
+                        this.StrSorted = this.Maint.Ascending;
+                        if (!this.Maint.Ascending)
                         {
                             IOrderedEnumerable<ScrollList.Entry> sortedList =
                                 from theship in this.ShipSL.Entries
@@ -424,14 +453,17 @@ namespace Ship_Game
                     }
                 }
 			}
-			if (HelperFunctions.CheckIntersection(this.TroopRect, input.CursorPosition))
+            else if (this.Maint.Hover)
+                ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable", base.ScreenManager);
+			if (SB_Troop.HandleInput(input)  )//)HelperFunctions.CheckIntersection(this.TroopRect, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable", base.ScreenManager);
-				if (input.InGameSelect)
+				
+				//if (input.InGameSelect)
 				{
 					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.StrSorted = !this.StrSorted;
-					if (!this.StrSorted)
+					//this.StrSorted = !this.StrSorted;
+                    this.SB_Troop.Ascending = !this.SB_Troop.Ascending;
+                    if (!this.SB_Troop.Ascending)
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
 							from theship in this.ShipSL.Entries
@@ -449,13 +481,16 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (HelperFunctions.CheckIntersection(this.STRIconRect, input.CursorPosition))
+            else if(this.SB_Troop.Hover)
+                ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable", base.ScreenManager);
+			if (this.SB_STR.HandleInput(input))//HelperFunctions.CheckIntersection(this.STRIconRect, input.CursorPosition))
 			{
-				ToolTip.CreateTooltip("Indicates Ship Strength; sortable", base.ScreenManager);
-				if (input.InGameSelect)
+				
+				//if (input.InGameSelect)
 				{
 					AudioManager.PlayCue("sd_ui_accept_alt3");
-					this.StrSorted = !this.StrSorted;
+                    this.SB_STR.Ascending = !this.SB_STR.Ascending;
+                    this.StrSorted = this.SB_STR.Ascending ;
 					if (!this.StrSorted)
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
@@ -474,6 +509,8 @@ namespace Ship_Game
 					}
 				}
 			}
+            else if(this.SB_STR.Hover)
+                ToolTip.CreateTooltip("Indicates Ship Strength; sortable", base.ScreenManager);
 			if (this.SortName.HandleInput(input))
 			{
 				AudioManager.PlayCue("blip_click");
@@ -540,9 +577,63 @@ namespace Ship_Game
 				}
 				this.ResetPos();
 			}
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.K) && !input.LastKeyboardState.IsKeyDown(Keys.K) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+
+                this.empUI.screen.SelectedShipList.Clear();
+                this.empUI.screen.returnToShip = false;
+                this.empUI.screen.SkipRightOnce = true;
+                if (this.SelectedShip !=null)
+                {                   
+                    this.empUI.screen.SelectedFleet = (Fleet)null;
+                    this.empUI.screen.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                    this.empUI.screen.SelectedSystem = (SolarSystem)null;
+                    this.empUI.screen.SelectedPlanet = (Planet)null;
+                    this.empUI.screen.returnToShip = false;
+                    foreach (ScrollList.Entry sel in this.ShipSL.Entries)
+                        if ((sel.item as ShipListScreenEntry).Selected)
+                            this.empUI.screen.SelectedShipList.Add((sel.item as ShipListScreenEntry).ship);
+
+                    if (this.empUI.screen.SelectedShipList.Count == 1)
+                    {
+                        this.empUI.screen.SelectedShip = this.SelectedShip;
+                        this.empUI.screen.ShipInfoUIElement.SetShip(this.SelectedShip);
+                        this.empUI.screen.SelectedShipList.Clear();
+                    }
+                    else if (this.empUI.screen.SelectedShipList.Count > 1)
+                        this.empUI.screen.shipListInfoUI.SetShipList((List<Ship>)this.empUI.screen.SelectedShipList, false);
+                }
+                return;
+            }
+
 			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
 			{
 				this.ExitScreen();
+                this.empUI.screen.SelectedShipList.Clear();
+                this.empUI.screen.returnToShip = false;
+                this.empUI.screen.SkipRightOnce = true;
+                if (this.SelectedShip !=null)
+                {                   
+                    this.empUI.screen.SelectedFleet = (Fleet)null;
+                    this.empUI.screen.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                    this.empUI.screen.SelectedSystem = (SolarSystem)null;
+                    this.empUI.screen.SelectedPlanet = (Planet)null;
+                    this.empUI.screen.returnToShip = false;
+                    foreach (ScrollList.Entry sel in this.ShipSL.Entries)
+                        if ((sel.item as ShipListScreenEntry).Selected)
+                            this.empUI.screen.SelectedShipList.Add((sel.item as ShipListScreenEntry).ship);
+
+                    if (this.empUI.screen.SelectedShipList.Count == 1)
+                    {
+                        this.empUI.screen.SelectedShip = this.SelectedShip;
+                        this.empUI.screen.ShipInfoUIElement.SetShip(this.SelectedShip);
+                        this.empUI.screen.SelectedShipList.Clear();
+                    }
+                    else if (this.empUI.screen.SelectedShipList.Count > 1)
+                        this.empUI.screen.shipListInfoUI.SetShipList((List<Ship>)this.empUI.screen.SelectedShipList, false);
+                }
 			}
 		}
 
@@ -562,12 +653,14 @@ namespace Ship_Game
 					ShipListScreenEntry entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
 					this.ShipSL.AddItem(entry);
 				}
-                if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
-                {
-                    this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-                    return;
-                }
+                //if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
+                //{
+                //    this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+                //    (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
+                //    return;
+                //}
                 this.SelectedShip = null;
+                CurrentLine = 0;
 			}
 		}
 
@@ -581,11 +674,12 @@ namespace Ship_Game
 			{
 				foreach (Ship ship in EmpireManager.GetEmpireByName(this.empUI.screen.PlayerLoyalty).GetShips())
 				{
-					if (!ship.IsPlayerDesign && this.HidePlatforms)
+					if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null)  //fbedard: never list ships created from hangar
 					{
 						continue;
 					}
-					switch (this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value)
+					//switch (this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value)
+                    switch (omit)  //fbedard
 					{
 						case 1:
 						{
@@ -687,18 +781,30 @@ namespace Ship_Game
                             this.ShipSL.AddItem(entry);
                             continue;
                         }
+                        case 11: 
+                        {
+                            if (ship.fleet != null || ship.Role == "platform" || ship.Role == "station")
+                            {
+                                continue;
+                            }
+                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                            this.ShipSL.AddItem(entry);
+                            continue;
+                        }
 						default:
 						{
 							continue;
 						}
 					}
 				}
-				if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
-				{
-					this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-					return;
-				}
+                //if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
+				//{
+					//this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+                    //(this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
+					//return;
+				//}
 				this.SelectedShip = null;
+                CurrentLine = 0;
 			}
 		}
 
@@ -715,7 +821,8 @@ namespace Ship_Game
 			{
 				this.ShipSL.AddItem(ship);
 			}
-			this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+			//this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
+            //(this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
 		}
 
 		private void ResetPos()

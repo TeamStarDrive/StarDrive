@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class DeepSpaceBuildingWindow
+	public sealed class DeepSpaceBuildingWindow: IDisposable
 	{
 		private Ship_Game.ScreenManager ScreenManager;
 
@@ -28,6 +28,9 @@ namespace Ship_Game
 		private Vector2 TetherOffset = new Vector2();
 
 		private Guid TargetPlanet = Guid.Empty;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public DeepSpaceBuildingWindow(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
@@ -39,28 +42,52 @@ namespace Ship_Game
 			this.ConstructionSubMenu = new Submenu(ScreenManager, this.win, true);
 			this.ConstructionSubMenu.AddTab("Build Menu");
 			this.SL = new ScrollList(this.ConstructionSubMenu, 40);
+
+            //The Doctor: Ensure Subspace Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
+            foreach (string s in EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild)
+            {
+                if (ResourceManager.GetShip(s).Name == "Subspace Projector")
+                {
+                    this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
+                    break;
+                }
+                else
+                    continue;
+            }
 			foreach (string s in EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild)
 			{
-				this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
-			}
+                if (ResourceManager.GetShip(s).Name != "Subspace Projector")
+                {
+                    this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
+                }
+                else
+                    continue;
+            }
 			this.TextPos = new Vector2((float)(this.win.X + this.win.Width / 2) - Fonts.Arial12Bold.MeasureString("Deep Space Construction").X / 2f, (float)(this.win.Y + 25));
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+       public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+       ~DeepSpaceBuildingWindow() { Dispose(false); }
+
+       protected void Dispose(bool disposing)
+       {
+           if (!disposed)
+           {
+               if (disposing)
+               {
+                   if (this.SL != null)
+                       this.SL.Dispose();
+
+               }
+               this.SL = null;
+               this.disposed = true;
+           }
+       }
 
 		public void Draw(GameTime gameTime)
 		{
@@ -82,7 +109,16 @@ namespace Ship_Game
                 bCursor.X = (float)e.clickRect.X - 9;
 				if (e.clickRectHover != 0)
 				{
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    if ((e.item as Ship).Name == "Subspace Projector")
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ShipIcons/subspace_projector"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    }
+                    else
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    }
+                    
+
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     string name = (e.item as Ship).Name;
                     SpriteFont nameFont = Fonts.Arial10;
@@ -95,7 +131,7 @@ namespace Ship_Game
                     string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
 
                     string upkeep = "Doctor rocks";
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
                         upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
                     }
@@ -142,7 +178,14 @@ namespace Ship_Game
 				}
 				else
 				{
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    if ((e.item as Ship).Name == "Subspace Projector")
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ShipIcons/subspace_projector"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    }
+                    else
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    }
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     string name = (e.item as Ship).Name;
                     SpriteFont nameFont = Fonts.Arial10;
@@ -155,7 +198,7 @@ namespace Ship_Game
                     string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
 
                     string upkeep = "Doctor rocks";
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.useProportionalUpkeep )
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
                         upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
                     }
@@ -246,11 +289,6 @@ namespace Ship_Game
 				Rectangle? nullable = null;
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_platform"], MousePos, nullable, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
 			}
-		}
-
-		~DeepSpaceBuildingWindow()
-		{
-			this.Dispose(false);
 		}
 
 		public bool HandleInput(InputState input)

@@ -17,6 +17,9 @@
     <UnlockedMod>
       <ModuleUID>PhotonTurret</ModuleUID>
     </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>PhotonTurret3x3</ModuleUID>
+    </UnlockedMod>
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ToggleButton
+	public sealed class ToggleButton
 	{
 		public Rectangle r;
 
@@ -112,6 +112,7 @@ namespace Ship_Game
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.InactivePath], this.r, Color.White);
 			}
+
 			if (!ResourceManager.TextureDict.ContainsKey(this.IconPath))
 			{
 				Vector2 wordPos = new Vector2((float)(this.r.X + 11) - Fonts.Arial12Bold.MeasureString(this.IconPath).X / 2f, (float)(this.r.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
@@ -128,16 +129,8 @@ namespace Ship_Game
 			else
 			{
 				Rectangle iconRect = new Rectangle(this.r.X + this.r.Width / 2 - ResourceManager.TextureDict[this.IconPath].Width / 2, this.r.Y + this.r.Height / 2 - ResourceManager.TextureDict[this.IconPath].Height / 2, ResourceManager.TextureDict[this.IconPath].Width, ResourceManager.TextureDict[this.IconPath].Height);
-				if (this.Active)
-				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat(this.IconPath, "_active")], iconRect, Color.White);
-					return;
-				}
-				if (!this.Active)
-				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.IconPath], iconRect, Color.White);
-					return;
-				}
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.IconPath], iconRect, Color.White);
+				return;
 			}
 		}
 

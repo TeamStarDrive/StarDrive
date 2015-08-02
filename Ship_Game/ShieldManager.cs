@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ShieldManager
+	public sealed class ShieldManager
 	{
 		public static BatchRemovalCollection<Shield> shieldList;
 

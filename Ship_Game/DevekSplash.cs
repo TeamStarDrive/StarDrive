@@ -10,7 +10,7 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
-    class DevekSplash : ZeroSplash
+    sealed class DevekSplash : ZeroSplash
     {
         public void Update2(GameTime gameTime)
         {

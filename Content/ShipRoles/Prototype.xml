@@ -6,5 +6,6 @@
   <KillExp>9.0</KillExp>
   <KillExpPerLevel>2.25</KillExpPerLevel>
   <ExpPerLevel>4.5</ExpPerLevel>
+  <DamageRelations>3.0</DamageRelations>
   <Protected>true</Protected>
 </ShipRole>

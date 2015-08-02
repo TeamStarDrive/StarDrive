@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class EmpireData
+	public sealed class EmpireData : IDisposable
 	{
 		public SerializableDictionary<string, WeaponTagModifier> WeaponTags = new SerializableDictionary<string, WeaponTagModifier>();
 
@@ -22,6 +22,8 @@ namespace Ship_Game
 
 		public string CurrentAutoScout = "";
 
+        public string CurrentConstructor = "";
+
 		public string DiplomacyDialogPath;
 
 		public DTrait DiplomaticPersonality;
@@ -33,8 +35,6 @@ namespace Ship_Game
 		public List<string> ExcludedDTraits = new List<string>();
 
 		public List<string> ExcludedETraits = new List<string>();
-
-		public string TechTree = "Standard";
 
 		public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
 
@@ -51,6 +51,10 @@ namespace Ship_Game
 		public string DefaultSmallTransport;
 
         public string DefaultTroopShip;
+
+        public string DefaultConstructor;
+
+        public string DefaultShipyard = "Shipyard";
 
 		public bool Defeated;
 
@@ -86,11 +90,15 @@ namespace Ship_Game
 
 		public RacialTrait Traits;
 
-		public int Faction;
+		public byte Faction;
 
-		public int TurnsBelowZero;
+        public bool MinorRace;
+
+		public short TurnsBelowZero;
 
 		public bool Privatization;
+
+        public float CivMaintMod = 1f;
 
 		public float FuelCellModifier;
 
@@ -100,11 +108,9 @@ namespace Ship_Game
 
 		public float FTLModifier = 35f;
 
-		public float FTLBonus;
-
-		public float FTLSpeed;
-
 		public float MassModifier = 1f;
+
+        public float ArmourMassModifier = 1f;
 
 		public float SubLightModifier = 1f;
 
@@ -118,15 +124,9 @@ namespace Ship_Game
 
         public float SpoolTimeModifier = 1.0f;
 
-		public float ExplosiveRadiusReduction;
+		public float ExplosiveRadiusReduction = 0f;
 
 		public float ShieldPenBonusChance;
-
-		public float WarpEfficiencyBonus;
-
-		public float BurnerEfficiencyBonus;
-
-		public float AfterBurnerSpeedModifier;
 
 		public float SpyModifier;
 
@@ -149,8 +149,30 @@ namespace Ship_Game
 		public float BaseReproductiveRate = 0.01f;
 
         //Added by McShooterz: power bonus
-        public float PowerFlowMod = 0.0f;
-        public float ShieldPowerMod = 0.0f;
+        public float PowerFlowMod = 0f;
+        public float ShieldPowerMod = 0f;
+        public float ExperienceMod = 0f;
+        
+        //economy
+        public float SSPBudget = 0;
+        public float SpyBudget = 0;
+        public float ShipBudget = 0;
+        public float ColonyBudget = 0;
+        public float DefenseBudget = 0;
+
+        //unlock at start
+        public List<string> unlockBuilding = new List<string>();
+        public List<string> unlockShips = new List<string>();
+
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+        //designsWeHave our techTree has techs for.
+        //sortsaves
+        public SortButton PLSort = new SortButton();
+        public SortButton ESSort = new SortButton();
+        public SortButton SLSort = new SortButton();
+
 
 
 		public EmpireData()
@@ -185,5 +207,31 @@ namespace Ship_Game
 		{
 			return (EmpireData)this.MemberwiseClone();
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~EmpireData() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.AgentList != null)
+                        this.AgentList.Dispose();
+                    if (this.MoleList != null)
+                        this.MoleList.Dispose();
+
+                }
+                this.AgentList = null;
+                this.MoleList = null;
+                this.disposed = true;
+            }
+        }
 	}
-}
+} 

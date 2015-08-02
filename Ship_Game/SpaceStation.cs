@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace Ship_Game
 {
-	public class SpaceStation
+	public sealed class SpaceStation
 	{
 		public SceneObject InnerSO;
 
@@ -40,23 +40,35 @@ namespace Ship_Game
 		{
 			Model InnerModel = ScreenManager.Content.Load<Model>("Model/Stations/spacestation01_inner");
 			Model OuterModel = ScreenManager.Content.Load<Model>("Model/Stations/spacestation01_outer");
+
 			ModelMesh mesh = InnerModel.Meshes[0];
 			this.InnerSO = new SceneObject(mesh)
 			{
 				ObjectType = ObjectType.Dynamic,
 				World = Matrix.Identity
 			};
+
 			ModelMesh mesh1 = OuterModel.Meshes[0];
 			this.OuterSO = new SceneObject(mesh1)
 			{
 				ObjectType = ObjectType.Dynamic,
 				World = Matrix.Identity
 			};
+
+
 			this.Position = this.planet.Position;
+
+            //The Doctor: Mod definable spaceport 'station' art scaling
+            float scale = 0.8f;
+            if (GlobalStats.ActiveMod != null)
+            {
+                scale = GlobalStats.ActiveModInfo.Spaceportscale;
+            }
+
 			if (this.InnerSO != null && this.OuterSO != null)
 			{
-				this.InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(0.8f)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
-				this.OuterSO.World = (((((Matrix.Identity * Matrix.CreateScale(0.8f)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
+				this.InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
+				this.OuterSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
 			}
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -87,10 +99,18 @@ namespace Ship_Game
 			this.Position = this.planet.Position;
 			SpaceStation zrotate = this;
 			zrotate.Zrotate = zrotate.Zrotate + this.rotAmount * elapsedTime;
+
+            //The Doctor: Mod definable spaceport 'station' art scaling
+            float scale = 0.8f;
+            if (GlobalStats.ActiveMod != null)
+            {
+                scale = GlobalStats.ActiveModInfo.Spaceportscale;
+            }
+
 			if (this.InnerSO != null && this.OuterSO != null && this.planet.SO.Visibility == ObjectVisibility.Rendered)
 			{
-				this.InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(0.8f)) * Matrix.CreateRotationZ(1.57079637f + this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
-				this.OuterSO.World = (((((Matrix.Identity * Matrix.CreateScale(0.8f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
+				this.InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f + this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
+				this.OuterSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
 			}
 		}
 	}

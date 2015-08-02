@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 
 namespace Ship_Game
 {
-	public class HaloTestScreen : GameScreen, IDisposable
+	public sealed class HaloTestScreen : GameScreen
 	{
 		private Effect effect;
 
@@ -19,22 +19,6 @@ namespace Ship_Game
 
 		public HaloTestScreen()
 		{
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -59,20 +43,6 @@ namespace Ship_Game
 			base.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~HaloTestScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void LoadContent()
 		{

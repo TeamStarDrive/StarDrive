@@ -5,25 +5,29 @@ using System.Text;
 
 namespace Ship_Game
 {
-    public class ShipRole
+    public sealed class ShipRole
     {
-        public string Name;
+        public string Name = "";
 
         public int Localization;
 
-        public float Upkeep;
+        public float Upkeep = 1;
 
-        public float KillExp;
+        public float KillExp = 1;
 
-        public float KillExpPerLevel;
+        public float KillExpPerLevel = 1;
 
-        public float ExpPerLevel;
+        public float ExpPerLevel = 1;
+
+        public float DamageRelations = 1;
 
         public bool Protected;
 
+        public bool NoBuild = false;
+
         public List<Race> RaceList;
 
-        public struct Race
+        public class Race
         {
             public string ShipType;
             public int Localization;

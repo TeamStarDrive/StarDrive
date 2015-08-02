@@ -6,7 +6,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Billboard
+	public sealed class Billboard
 	{
 		private Vector3 _Position = new Vector3();
 

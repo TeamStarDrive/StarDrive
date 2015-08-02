@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ShipData
+	public sealed class ShipData
 	{
 		public bool Animated;
 
@@ -48,23 +48,21 @@ namespace Ship_Game
 
 		public AIState DefaultAIState;
 
-        //Added by McShooterz: New tags for Hull modifiers
-        public short StartingCost; // additional cost to build
-        public byte ArmoredBonus; // % damage reduction
-        public byte SensorBonus; // % sensor range
-        public byte SpeedBonus; // % speed increase
-        public byte CargoBonus; // % cargo room
-        public byte FireRateBonus; // % fire rate
-        public byte RepairBonus; // % repair rate
-        public byte CostBonus;  // % cost reduction
-
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
-        public string ShipCategory;
+        public Category ShipCategory = Category.Unclassified;
+
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip = false;
         public float BaseStrength;
         public bool BaseCanWarp;
 		public List<ModuleSlotData> ModuleSlotList = new List<ModuleSlotData>();
+        public bool hullUnlockable = false;
+        public bool allModulesUnlocakable = true;
+        public bool unLockable = false;
+        //public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
+        public HashSet<string> techsNeeded = new HashSet<string>();
+        public ushort TechScore = 0;
+        //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
 
 		public ShipData()
 		{
@@ -74,5 +72,14 @@ namespace Ship_Game
 		{
 			return (ShipData)this.MemberwiseClone();
 		}
+
+        public enum Category
+        {
+            Unclassified,
+            Civilian,
+            Recon,
+            Fighter,
+            Bomber,
+        }
 	}
 }

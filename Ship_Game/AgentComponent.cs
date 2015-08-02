@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-	public class AgentComponent
+	public sealed class AgentComponent : IDisposable
 	{
 		public Agent SelectedAgent;
 
@@ -49,6 +49,9 @@ namespace Ship_Game
         public static bool SpyMute = false;
         private static Checkbox cbSpyMute;
         public static int empirePlanetSpys = 0;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
         public AgentComponent(Rectangle r, EspionageScreen Escreen)
         {
@@ -116,7 +119,7 @@ namespace Ship_Game
 					}
 					if ((e.item as Agent).Mission != AgentMission.Defending)
 					{
-						if ((e.item as Agent).TargetEmpire != "" && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
+						if (!string.IsNullOrEmpty((e.item as Agent).TargetEmpire) && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
 						{
 							Vector2 targetCursor = namecursor;
 							targetCursor.X = targetCursor.X + 75f;
@@ -229,7 +232,7 @@ namespace Ship_Game
                     }
                     if ((e.item as Agent).Mission != AgentMission.Defending)
                     {
-                        if ((e.item as Agent).TargetEmpire != "" && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
+                        if (!string.IsNullOrEmpty((e.item as Agent).TargetEmpire) && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
                         {
                             Vector2 targetCursor = namecursor;
                             targetCursor.X = targetCursor.X + 75f;
@@ -492,5 +495,31 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~AgentComponent() { Dispose(false);  }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.AgentSL != null)
+                        this.AgentSL.Dispose();
+                    if (this.OpsSL != null)
+                        this.OpsSL.Dispose();
+
+                }
+                this.AgentSL = null;
+                this.OpsSL = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

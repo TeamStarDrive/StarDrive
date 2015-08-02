@@ -6,10 +6,11 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Ship_Game
 {
-	public class SystemCommander
+	public sealed class SystemCommander
 	{
 		public SolarSystem system;
 
@@ -23,12 +24,15 @@ namespace Ship_Game
 
 		public float PercentageOfValue;
         public float incomingThreatTime;
-
-		public Dictionary<Guid, Ship> ShipsDict = new Dictionary<Guid, Ship>();
+        public float SystemDevelopmentlevel;
+        public float RankImportance;
+		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
 		public Dictionary<Ship, List<Ship>> EnemyClumpsDict = new Dictionary<Ship, List<Ship>>();
 
 		private Empire us;
+        //public ReaderWriterLockSlim 
+        public Dictionary<Planet, PlanetTracker> planetTracker = new Dictionary<Planet, PlanetTracker>();
 
 		public SystemCommander(Empire e, SolarSystem system)
 		{
@@ -43,7 +47,9 @@ namespace Ship_Game
             foreach (KeyValuePair<Guid, Ship> entry in this.ShipsDict)
             {
                 Ship ship = entry.Value;
-                if (ship == null || ship.GetAI().Target == null || ship.GetAI().Target.GetSystem() != null && (ship.GetAI().Target.GetSystem() == null || ship.GetAI().Target.GetSystem() == this.system))
+
+
+                if (ship == null || ship.GetAI().BadGuysNear || ship.GetAI().SystemToDefend == this.system)
                 {
                     continue;
                 }
@@ -87,7 +93,7 @@ namespace Ship_Game
                     float AssignedStr = 0f;
                     foreach (KeyValuePair<Guid, Ship> friendly in this.ShipsDict)
                     {
-                        if (!friendly.Value.InCombat)
+                        if (!friendly.Value.InCombat && friendly.Value.GetSystem() ==this.system)
                         {
                             if (AssignedShips.Contains(friendly.Value) || AssignedStr != 0f && AssignedStr >= enemy.GetStrength() || friendly.Value.GetAI().State == AIState.Resupply)
                             {
@@ -119,7 +125,7 @@ namespace Ship_Game
                 }
                 foreach (Ship ship in UnassignedShips)
                 {
-                    if (ship.GetAI().State == AIState.Resupply)
+                    if (ship.GetAI().State == AIState.Resupply ||ship.GetSystem() !=this.system)
                     {
                         continue;
                     }
@@ -131,9 +137,9 @@ namespace Ship_Game
             {
                 foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
                 {
-                    if (ship.Value.GetAI().State == AIState.Resupply)
+                    if (ship.Value.GetAI().State == AIState.Resupply )
                     {
-                        continue;
+                        continue; 
                     }
                     ship.Value.GetAI().OrderSystemDefense(this.system);
                 }
@@ -147,6 +153,7 @@ namespace Ship_Game
 			{
 				str = str + ship.Value.BaseStrength;//.GetStrength();
 			}
+            
 			return str;
 		}
 
@@ -159,5 +166,39 @@ namespace Ship_Game
 			}
 			return retlist;
 		}
+        public void updatePlanetTracker()
+        {
+            List<Planet> planetsHere = this.system.PlanetList.Where(planet => planet.Owner == this.us).ToList();
+            foreach(Planet planet in  planetsHere)
+            {
+                PlanetTracker currentValue = null;
+                if(!planetTracker.TryGetValue(planet, out currentValue))
+                {
+                    PlanetTracker newEntry = new PlanetTracker(planet);
+                    
+
+                    planetTracker.Add(planet, newEntry);
+                    continue;
+                }
+                if(currentValue.planet.Owner != this.us)
+                {
+                    planetTracker.Remove(currentValue.planet);
+
+                }
+            }
+        }
 	}
+    public class PlanetTracker
+    {
+        public float value;
+        public int troopsWanted;
+        public int troopsHere ;
+        public Planet planet;
+        public PlanetTracker(Planet toTrack)
+        {
+            this.planet = toTrack;
+
+        }
+    }
+
 }

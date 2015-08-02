@@ -4,10 +4,12 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Ship_Game
 {
-	public class PlanetInfoUIElement : UIElement
+	public sealed class PlanetInfoUIElement : UIElement
 	{
 		private Rectangle SliderRect;
 
@@ -24,6 +26,7 @@ namespace Ship_Game
 		private Rectangle flagRect;
 
         private Rectangle moneyRect;
+        private Rectangle SendTroops;
 
         private Rectangle popRect;
 
@@ -129,7 +132,9 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			string str;
+			if (this.p == null) return;  //fbedard
+
+            string str;
 			string str1;
 			MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
 			this.ToolTipItems.Clear();
@@ -260,6 +265,28 @@ namespace Ship_Game
 					};
 					this.ToolTipItems.Add(ti);
 				}
+
+                //Ship troopShip
+                ti = new PlanetInfoUIElement.TippedItem()
+                {
+                    r = pIcon,
+                    TIP_ID = 21
+                };
+                int troops = 0;
+                this.ToolTipItems.Add(ti);
+
+                this.SendTroops = new Rectangle(this.Mark.X, this.Mark.Y - this.Mark.Height -5, 182, 25);
+                Text = new Vector2((float)(SendTroops.X + 25), (float)(SendTroops.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2));
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], SendTroops, Color.White);         
+                troops= this.screen.player.GetShips()
+                     .Where(troop => troop.TroopList.Count > 0 )
+                     .Where(troopAI => troopAI.GetAI().OrderQueue
+                         .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() >0).Count();
+                if (!HelperFunctions.CheckIntersection(this.SendTroops, MousePos))
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,String.Concat("Invading : ",troops) , Text, new Color(88, 108, 146)); // Localizer.Token(1425)
+                else
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text, new Color(174, 202, 255)); // Localizer.Token(1425)
+
 				this.Inspect.Draw(this.ScreenManager);
 				this.Invade.Draw(this.ScreenManager);
 				return;
@@ -283,7 +310,7 @@ namespace Ship_Game
             Vector2 TextCursorMoney = new Vector2((float)this.moneyRect.X + 24, (float)TextCursor3.Y);
 
             float taxRate = this.p.Owner.data.TaxRate;
-            float grossIncome = this.p.EstimateTaxes(taxRate);
+            float grossIncome = (this.p.GrossMoneyPT + this.p.GrossMoneyPT * this.p.Owner.data.Traits.TaxMod) * this.p.Owner.data.TaxRate + this.p.PlusFlatMoneyPerTurn + (this.p.Population / 1000f * this.p.PlusCreditsPerColonist);
             float grossIncomePI = (float)((double)this.p.GrossMoneyPT + (double)this.p.Owner.data.Traits.TaxMod * (double)this.p.GrossMoneyPT);
             float grossUpkeepPI = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn * (double)this.p.Owner.data.Traits.MaintMod);
             float netIncomePI = (float)(grossIncome - grossUpkeepPI);
@@ -513,6 +540,39 @@ namespace Ship_Game
 					EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals.Add(g);
 				}
 			}
+            if (HelperFunctions.CheckIntersection(this.SendTroops, input.CursorPosition) && input.InGameSelect)
+            {
+                List<Ship> troopShips = new List<Ship>(this.screen.player.GetShips()
+                     .Where(troop => troop.TroopList.Count > 0
+                         && troop.GetAI().State == AIState.AwaitingOrders
+                         && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Position)));
+                List<Planet> planetTroops = new List<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
+                if (troopShips.Count > 0)
+                {
+                    AudioManager.PlayCue("echo_affirm");
+                    troopShips.First().GetAI().OrderAssaultPlanet(this.p);
+
+                }
+                else
+                    if (planetTroops.Count > 0)
+                    {
+                        {
+                            Ship troop = planetTroops.First().TroopsHere.First().Launch();
+                            if (troop != null)
+                            {
+                                AudioManager.PlayCue("echo_affirm");                              
+                                troop.GetAI().OrderAssaultPlanet(this.p);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        AudioManager.PlayCue("blip_click");
+                    }
+                
+
+            }
+
 			if (this.Inspect.Hover)
 			{
 				if (this.p.Owner == null || this.p.Owner != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
