@@ -6011,12 +6011,28 @@ namespace Ship_Game.Gameplay
                        // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
-                        shipWeight.weight = shipWeight.weight + 2.5f;
+                        shipWeight.weight = shipWeight.weight + 1f;
                     }
-                    else if (rangeToTarget > this.CombatAI.PreferredEngagementDistance)
+                    else if (rangeToTarget > this.CombatAI.PreferredEngagementDistance + this.Owner.speed)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
-                        shipWeight1.weight = shipWeight1.weight - 2.5f *(rangeToTarget /(this.CombatAI.PreferredEngagementDistance+1));
+                        shipWeight1.weight = shipWeight1.weight - 2.5f *(rangeToTarget /(this.CombatAI.PreferredEngagementDistance + this.Owner.speed ));
+                    }
+                    if(this.Owner.Mothership !=null)
+                    {
+                        rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, this.Owner.Mothership.Center);
+                        if (rangeToTarget < this.CombatAI.PreferredEngagementDistance)
+                            nearbyShip.weight += 1;
+
+                    }
+                    if (this.EscortTarget != null)
+                    {
+                        rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, this.EscortTarget.Center);
+                        if (rangeToTarget < this.CombatAI.PreferredEngagementDistance)
+                            nearbyShip.weight += 1;
+                        else
+                            nearbyShip.weight -= 2;
+
                     }
                     if(nearbyShip.ship.Weapons.Count <1)
                     {
@@ -7081,7 +7097,7 @@ namespace Ship_Game.Gameplay
                                     }
                                 case AIState.Resupply:
                                     {
-                                        if (this.Owner.Ordinance != this.Owner.OrdinanceMax)
+                                        if (this.Owner.Ordinance != this.Owner.OrdinanceMax || this.Owner.Health != this.Owner.HealthMax)
                                         {
                                             break;
                                         }
