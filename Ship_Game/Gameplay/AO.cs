@@ -2,10 +2,11 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game.Gameplay
 {
-	public class AO
+	public sealed class AO : IDisposable
 	{
 		public int ThreatLevel;
 
@@ -37,6 +38,9 @@ namespace Ship_Game.Gameplay
 
 		public int TurnsToRelax;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public Vector2 Position
 		{
 			get
@@ -55,7 +59,7 @@ namespace Ship_Game.Gameplay
 			this.CoreWorld = p;
 			this.CoreWorldGuid = p.guid;
 			this.WhichFleet = p.Owner.GetUnusedKeyForFleet();
-			p.Owner.GetFleetsDict().Add(this.WhichFleet, this.CoreFleet);
+			p.Owner.GetFleetsDict().TryAdd(this.WhichFleet, this.CoreFleet);
 			this.CoreFleet.Name = "Core Fleet";
 			this.CoreFleet.Position = p.Position;
 			this.CoreFleet.Owner = p.Owner;
@@ -72,7 +76,11 @@ namespace Ship_Game.Gameplay
 
 		public void AddShip(Ship ship)
 		{
-			if (!this.Flip)
+            if (ship.BaseStrength == 0)
+                return;
+
+            if (this.ThreatLevel <
+                this.CoreFleet.GetStrength())
 			{
 				this.OffensiveForcePool.Add(ship);
 				this.Flip = !this.Flip;
@@ -83,16 +91,16 @@ namespace Ship_Game.Gameplay
 				ship.GetAI().OrderQueue.Clear();
 				ship.GetAI().HasPriorityOrder = false;
 				this.CoreFleet.AddShip(ship);
-				foreach (Ship waiting in this.ShipsWaitingForCoreFleet)
-				{
-					if (waiting.fleet != null)
-					{
-						continue;
-					}
-					this.CoreFleet.AddShip(waiting);
-					waiting.GetAI().OrderQueue.Clear();
-					waiting.GetAI().HasPriorityOrder = false;
-				}
+                foreach (Ship waiting in this.ShipsWaitingForCoreFleet)
+                {
+                    if (waiting.fleet != null)
+                    {
+                        continue;
+                    }
+                    this.CoreFleet.AddShip(waiting);
+                    waiting.GetAI().OrderQueue.Clear();
+                    waiting.GetAI().HasPriorityOrder = false;
+                }
 				this.CoreFleet.Position = this.CoreWorld.Position;
 				this.CoreFleet.AutoArrange();
 				this.CoreFleet.MoveToNow(this.Position, 0f, new Vector2(0f, -1f));
@@ -158,16 +166,20 @@ namespace Ship_Game.Gameplay
 
 		public void Update()
 		{
-			foreach (Ship ship in this.OffensiveForcePool)
+			
+            foreach (Ship ship in this.OffensiveForcePool)
 			{
-				if (ship.Active && ship.fleet == null)
+                if (ship.Active && ship.fleet == null && ship.Role != "troop")
 				{
 					continue;
 				}
-				this.OffensiveForcePool.QueuePendingRemoval(ship);
+                //this.OffensiveForcePool.Remove(ship);
+                this.OffensiveForcePool.QueuePendingRemoval(ship);
 			}
 			this.OffensiveForcePool.ApplyPendingRemovals();
-			if (this.ShipsWaitingForCoreFleet.Count > 0 && (this.CoreFleet.Ships.Count == 0 || this.CoreFleet.Task == null))
+            
+			if (this.ShipsWaitingForCoreFleet.Count > 0 && this.CoreFleet.Ships.Count < this.ThreatLevel +1 
+                && (this.CoreFleet.Ships.Count == 0 || this.CoreFleet.Task == null))
 			{
 				foreach (Ship waiting in this.ShipsWaitingForCoreFleet)
 				{
@@ -189,7 +201,7 @@ namespace Ship_Game.Gameplay
 				AO turnsToRelax = this;
 				turnsToRelax.TurnsToRelax = turnsToRelax.TurnsToRelax + 1;
 			}
-			if (this.TurnsToRelax > 10)
+			if (this.ThreatLevel  * ( 1-( this.TurnsToRelax /10)) < this.CoreFleet.GetStrength())
 			{
 				if (this.CoreFleet.Task == null && this.CoreWorld.Owner != Ship.universeScreen.player)
 				{
@@ -206,21 +218,48 @@ namespace Ship_Game.Gameplay
 					if (this.CoreFleet.Owner == null)
 					{
 						this.CoreFleet.Owner = this.CoreWorld.Owner;
-						lock (GlobalStats.TaskLocker)
+						//lock (GlobalStats.TaskLocker)
 						{
 							this.CoreFleet.Owner.GetGSAI().TaskList.Add(clearArea);
 						}
 					}
 					else
 					{
-						lock (GlobalStats.TaskLocker)
+						//lock (GlobalStats.TaskLocker)
 						{
 							this.CoreFleet.Owner.GetGSAI().TaskList.Add(clearArea);
 						}
 					}
 				}
-				this.TurnsToRelax = 0;
+				this.TurnsToRelax = 1;
 			}
 		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~AO() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.OffensiveForcePool != null)
+                        this.OffensiveForcePool.Dispose();
+                    if (this.DefensiveForcePool != null)
+                        this.DefensiveForcePool.Dispose();
+                    if (this.CoreFleet != null)
+                        this.CoreFleet.Dispose();
+                }
+                this.OffensiveForcePool = null;
+                this.DefensiveForcePool = null;
+                this.CoreFleet = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

@@ -164,6 +164,9 @@ namespace Ship_Game
 
 		protected string HomeSystemName = "Sol";
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 		public RaceDesignScreen()
 		{
 			base.IsPopup = true;
@@ -439,21 +442,33 @@ namespace Ship_Game
 			return this.currentKeyboardState.IsKeyUp(theKey);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~RaceDesignScreen() { Dispose(false); }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.traitsSL != null)
+                        this.traitsSL.Dispose();
+                    if (this.RaceArchetypeSL != null)
+                        this.RaceArchetypeSL.Dispose();
+                    if (this.DescriptionSL != null)
+                        this.DescriptionSL.Dispose();
+                }
+                this.traitsSL = null;
+                this.RaceArchetypeSL = null;
+                this.DescriptionSL = null;
+                this.disposed = true;
+            }
+        }
 
 		protected void DoRaceDescription()
 		{
@@ -485,12 +500,12 @@ namespace Ship_Game
 			}
 			if (this.RaceSummary.Cybernetic <= 0)
 			{
-				if (this.RaceSummary.ReproductionMod > 0f)
+				if (this.RaceSummary.PopGrowthMin > 0f)
 				{
 					RaceDesignScreen raceDesignScreen5 = this;
 					raceDesignScreen5.rd = string.Concat(raceDesignScreen5.rd, Localizer.Token(1305));
 				}
-				else if (this.RaceSummary.ReproductionMod >= 0f)
+                else if (this.RaceSummary.PopGrowthMin ==0 && this.RaceSummary.PopGrowthMax==0)
 				{
 					RaceDesignScreen raceDesignScreen6 = this;
 					raceDesignScreen6.rd = string.Concat(raceDesignScreen6.rd, Localizer.Token(1307));
@@ -501,12 +516,12 @@ namespace Ship_Game
 					raceDesignScreen7.rd = string.Concat(raceDesignScreen7.rd, Localizer.Token(1306));
 				}
 			}
-			else if (this.RaceSummary.ReproductionMod > 0f)
+            else if (this.RaceSummary.PopGrowthMin > 0f)
 			{
 				RaceDesignScreen raceDesignScreen8 = this;
 				raceDesignScreen8.rd = string.Concat(raceDesignScreen8.rd, Localizer.Token(1308));
 			}
-			else if (this.RaceSummary.ReproductionMod >= 0f)
+            else if (this.RaceSummary.PopGrowthMin == 0 && this.RaceSummary.PopGrowthMax == 0)
 			{
 				RaceDesignScreen raceDesignScreen9 = this;
 				raceDesignScreen9.rd = string.Concat(raceDesignScreen9.rd, Localizer.Token(1310));
@@ -1180,17 +1195,18 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.difficulty.ToString(), new Vector2((float)(this.DifficultyRect.X + 190) - Fonts.Arial12.MeasureString(this.difficulty.ToString()).X, (float)this.DifficultyRect.Y), Color.BurlyWood);
 			string txt = "";
 			int tip = 0;
-			if (this.mode == RaceDesignScreen.GameMode.PreWarp)
-			{
-				txt = "Pre-Warp";
-				tip = 111;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-				if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-				{
-					ToolTip.CreateTooltip("Play with a new, hardcore ruleset that makes radical changes to the StarDrive FTL systems", base.ScreenManager);
-				}
-			}
-			else if (this.mode == RaceDesignScreen.GameMode.Sandbox)
+            //if (this.mode == RaceDesignScreen.GameMode.PreWarp)
+            //{
+            //    txt = "Pre-Warp";
+            //    tip = 111;
+            //    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
+            //    if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            //    {
+            //        ToolTip.CreateTooltip("Play with a new, hardcore ruleset that makes radical changes to the StarDrive FTL systems", base.ScreenManager);
+            //    }
+            //}
+            //else 
+                if (this.mode == RaceDesignScreen.GameMode.Sandbox)
 			{
 				txt = Localizer.Token(2103);
 				tip = 112;
@@ -1210,16 +1226,16 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(tip, base.ScreenManager);
                 }
             }
-            else if (this.mode == RaceDesignScreen.GameMode.Warlords)
-            {
-                txt = "War Lords";//Localizer.Token(2103);
-                tip = 112;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-                {
-                    ToolTip.CreateTooltip(tip, base.ScreenManager);
-                }
-            }
+            //else if (this.mode == RaceDesignScreen.GameMode.Warlords)
+            //{
+            //    txt = "War Lords";//Localizer.Token(2103);
+            //    tip = 112;
+            //    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
+            //    if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            //    {
+            //        ToolTip.CreateTooltip(tip, base.ScreenManager);
+            //    }
+            //}
 			if (HelperFunctions.CheckIntersection(this.ScaleRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 			{
 				ToolTip.CreateTooltip(125, base.ScreenManager);
@@ -1279,20 +1295,7 @@ namespace Ship_Game
 			}
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~RaceDesignScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+		
 
         #region Original handle input
         public void HandleInputorig(InputState input)
@@ -1898,7 +1901,7 @@ namespace Ship_Game
                 {
                     AudioManager.GetCue("blip_click").Play();
                     RaceDesignScreen gamemode = this;
-                    gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Warlords);
+                    gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Elimination);
                     if (this.mode > RaceDesignScreen.GameMode.Elimination)
                     {
                         this.mode = RaceDesignScreen.GameMode.Sandbox;
@@ -2133,14 +2136,14 @@ namespace Ship_Game
 			this.RaceArchetypeSL = new ScrollList(this.arch, 135);
 			ResourceManager.Empires.Clear();
 			ResourceManager.WhichModPath = "Content";
-			if (GlobalStats.ActiveMod != null && !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
+			if (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.DisableDefaultRaces)
 			{
                 //ResourceManager.WhichModPath = string.Concat("Mods/", GlobalStats.ActiveMod.ModPath);
                
                 ResourceManager.LoadEmpires();
                 //ResourceManager.LoadSubsetEmpires();
 			}
-			else if (GlobalStats.ActiveMod == null || !GlobalStats.ActiveMod.mi.DisableDefaultRaces)
+			else if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.DisableDefaultRaces)
 			{
 				ResourceManager.LoadEmpires();
                 //ResourceManager.LoadSubsetEmpires();
@@ -2156,12 +2159,12 @@ namespace Ship_Game
 			}
 			foreach (EmpireData e in ResourceManager.Empires)
 			{
-				if (e.Faction == 1)
+				if (e.Faction == 1 || e.MinorRace)
 				{
 					continue;
 				}
 				this.RaceArchetypeSL.AddItem(e);
-				if (e.Traits.VideoPath == "")
+				if (string.IsNullOrEmpty(e.Traits.VideoPath))
 				{
 					continue;
 				}
@@ -2169,7 +2172,7 @@ namespace Ship_Game
 			}
 			foreach (EmpireData e in ResourceManager.Empires)
 			{
-				if (e.Traits.Singular != "Human")
+                if (e.Traits.Singular != "Human")
 				{
 					continue;
 				}
@@ -2248,12 +2251,13 @@ namespace Ship_Game
 
 		protected virtual void OnEngage()
 		{
-			if (this.mode == RaceDesignScreen.GameMode.PreWarp)
-			{
-				ResourceManager.LoadHardcoreTechTree();
-				GlobalStats.HardcoreRuleset = true;
-			}
-            else if (this.mode == RaceDesignScreen.GameMode.Elimination)
+            //if (this.mode == RaceDesignScreen.GameMode.PreWarp)
+            //{
+            //    ResourceManager.LoadHardcoreTechTree();
+            //    GlobalStats.HardcoreRuleset = true;
+            //}
+            //else 
+                if (this.mode == RaceDesignScreen.GameMode.Elimination)
             {
                 GlobalStats.EliminationMode = true;
             }
@@ -2549,7 +2553,9 @@ namespace Ship_Game
                 this.RaceSummary.DiplomacyMod += t.trait.DiplomacyMod;
                 this.RaceSummary.EnergyDamageMod += t.trait.EnergyDamageMod;
                 this.RaceSummary.MaintMod += t.trait.MaintMod;
-                this.RaceSummary.ReproductionMod += t.trait.ReproductionMod;
+                this.RaceSummary.ReproductionMod += t.trait.ReproductionMod;// t.trait.ReproductionMod;
+                //this.RaceSummary.ReproductionMod += t.trait.PopGrowthMin;
+                //this.RaceSummary.ReproductionMod -= t.trait.PopGrowthMax;
                 this.RaceSummary.PopGrowthMax += t.trait.PopGrowthMax;
                 this.RaceSummary.PopGrowthMin += t.trait.PopGrowthMin;
                 this.RaceSummary.ResearchMod += t.trait.ResearchMod;
@@ -2631,8 +2637,8 @@ namespace Ship_Game
         public enum GameMode
         {
             Sandbox,
-            Warlords,
-            PreWarp,
+            //Warlords,
+            //PreWarp,
             Elimination
         }
 

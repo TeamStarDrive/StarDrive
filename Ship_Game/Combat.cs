@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Combat
+	public sealed class Combat
 	{
 		public float Timer = 4f;
 

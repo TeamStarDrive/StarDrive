@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Notification
+	public sealed class Notification
 	{
 		public object ReferencedItem1;
 
@@ -28,6 +28,8 @@ namespace Ship_Game
 		public string Action;
 
 		public bool ShowMessage;
+        
+        public bool Pause = true;
 
 		public Notification()
 		{

@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-	public class Artifact
+	public sealed class Artifact
 	{
 		public bool Discovered;
 

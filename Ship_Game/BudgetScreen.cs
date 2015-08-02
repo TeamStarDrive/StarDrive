@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class BudgetScreen : GameScreen, IDisposable
+	public sealed class BudgetScreen : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -41,22 +41,6 @@ namespace Ship_Game
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
-
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -203,25 +187,28 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~BudgetScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+        //protected override void Finalize()
+        //{
+        //    try
+        //    {
+        //        this.Dispose(false);
+        //    }
+        //    catch
+        //    {
+        //        //base.Finalize();
+        //    }
+        //}
 
 		public override void HandleInput(InputState input)
 		{
 			this.currentMouse = input.CurrentMouseState;
 			Vector2 vector2 = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
+            {
+                AudioManager.PlayCue("echo_affirm");
+                this.ExitScreen();
+                return;
+            }
 			if (this.close.HandleInput(input))
 			{
 				this.ExitScreen();
@@ -229,10 +216,12 @@ namespace Ship_Game
 			}
 			this.TaxSlider.HandleInput(input);
 			EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.TaxRate = this.TaxSlider.amount;
+            EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets().thisLock.EnterReadLock();
 			foreach (Planet p in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets())
 			{
 				p.UpdateIncomes();
 			}
+            EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets().thisLock.ExitReadLock();
 			if (input.Escaped)
 			{
 				this.ExitScreen();

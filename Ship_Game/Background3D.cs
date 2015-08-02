@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Background3D
+	public sealed class Background3D
 	{
 		private UniverseScreen screen;
 

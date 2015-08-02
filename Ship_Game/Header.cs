@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Header
+	public sealed class Header
 	{
 		public Rectangle leftRect;
 

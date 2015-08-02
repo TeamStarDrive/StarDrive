@@ -46,7 +46,7 @@
   <PowerDraw>10</PowerDraw>
   
   <!-- for Weapons -->
-  <WeaponType>PhotonCannon</WeaponType>
+  <WeaponType>DualPhotonCannon</WeaponType>
   <FieldOfFire>90</FieldOfFire>
   
   

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class Outcome
+	public sealed class Outcome
 	{
 		private Planet SelectedPlanet;
 
@@ -52,6 +52,10 @@ namespace Ship_Game
 		public string SpawnBuildingOnPlanet;
 
 		public string SpawnFleetInOrbitOfPlanet;
+
+        public bool onlyTriggerOnce;
+
+        public bool alreadyTriggered;
 
 		public Outcome()
 		{

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class ExplosionManager
+	public sealed class ExplosionManager
 	{
 		public static UniverseScreen universeScreen;
 

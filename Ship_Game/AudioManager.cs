@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class AudioManager : GameComponent
+	public sealed class AudioManager : GameComponent
 	{
 		private static AudioManager audioManager;
 
@@ -15,6 +15,8 @@ namespace Ship_Game
 		private SoundBank soundBank;
 
 		private WaveBank waveBank;
+
+        private bool disposed;
 
         //Added by McShooterz: store sounds instances
         private List<SoundEffectInstance> SoundEffectInstances;
@@ -50,32 +52,26 @@ namespace Ship_Game
 			}
 		}
 
+        ~AudioManager() { Dispose(false); }
+
 		protected override void Dispose(bool disposing)
 		{
-			try
+			if (!disposed)
 			{
 				if (disposing)
 				{
 					if (this.soundBank != null)
-					{
 						this.soundBank.Dispose();
-						this.soundBank = null;
-					}
 					if (this.waveBank != null)
-					{
 						this.waveBank.Dispose();
-						this.waveBank = null;
-					}
 					if (this.audioEngine != null)
-					{
 						this.audioEngine.Dispose();
-						this.audioEngine = null;
-					}
-				}
-			}
-			finally
-			{
-				base.Dispose(disposing);
+                }
+            this.soundBank = null;
+            this.waveBank = null;
+            this.audioEngine = null;
+            base.Dispose(disposing);
+            disposed=true;
 			}
 		}
 
@@ -94,6 +90,7 @@ namespace Ship_Game
 			{
 				return null;
 			}
+            
 			return AudioManager.audioManager.soundBank.GetCue(cueName);
 		}
 
@@ -110,9 +107,18 @@ namespace Ship_Game
 		{
 			if (AudioManager.audioManager != null && AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
 			{
-				AudioManager.audioManager.soundBank.PlayCue(cueName);
+				
+                AudioManager.audioManager.soundBank.PlayCue(cueName);
 			}
 		}
+        public static void PlayCue(string cueName, Vector3 listener, Vector3 emitter)
+        {
+            if (AudioManager.audioManager != null && AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
+            {
+                
+                AudioManager.audioManager.soundBank.PlayCue(cueName);
+            }
+        }
 
 		public override void Update(GameTime gameTime)
 		{
@@ -127,6 +133,8 @@ namespace Ship_Game
         //Added by McShooterz: Play a sound
         public static void PlaySoundEffect(SoundEffect se, float VolumeMod)
         {
+            if (AudioManager.audioManager.SoundEffectInstances.Count > 20)
+                return;
             SoundEffectInstance sei = se.CreateInstance();
             AudioManager.audioManager.SoundEffectInstances.Add(sei);
             sei.Volume = GlobalStats.Config.EffectsVolume * VolumeMod;
@@ -134,8 +142,10 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: Play 3d sound effect
-        public static void Play3DSoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae, float VolumeMod)
+        public static void PlaySoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae, float VolumeMod)
         {
+            if (AudioManager.audioManager.SoundEffectInstances.Count > 20)
+                return;
             SoundEffectInstance sei = se.CreateInstance();
             AudioManager.audioManager.SoundEffectInstances.Add(sei);
             sei.Apply3D(al, ae);

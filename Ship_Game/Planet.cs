@@ -12,12 +12,15 @@ using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 
 namespace Ship_Game
 {
-    public class Planet
+    public sealed class Planet: IDisposable
     {
         public bool GovBuildings = true;
         public bool GovSliders = true;
@@ -26,16 +29,13 @@ namespace Ship_Game
         public List<PlanetGridSquare> TilesList = new List<PlanetGridSquare>();
         public string Special = "None";
         public BatchRemovalCollection<Planet.OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<Planet.OrbitalDrop>();
-        public BatchRemovalCollection<OrbitalBeam> OrbitalBeams = new BatchRemovalCollection<OrbitalBeam>();
-        public Planet.GoodState fs = Planet.GoodState.IMPORT;
-        public Planet.GoodState ps = Planet.GoodState.IMPORT;
+        public Planet.GoodState fs = Planet.GoodState.STORE;
+        public Planet.GoodState ps = Planet.GoodState.STORE;
         public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
-        public List<Resource> ResourceList = new List<Resource>();
         public List<Building> BuildingList = new List<Building>();
         public SpaceStation Station = new SpaceStation();
-        public List<Ship> ShipsSoldHere = new List<Ship>();
-        public Dictionary<Guid, Ship> Shipyards = new Dictionary<Guid, Ship>();
-        public List<Troop> TroopsHere = new List<Troop>();
+        public ConcurrentDictionary<Guid, Ship> Shipyards = new ConcurrentDictionary<Guid, Ship>();
+        public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         private float ZrotateAmount = 0.03f;
         public BatchRemovalCollection<Ship> BasedShips = new BatchRemovalCollection<Ship>();
@@ -48,7 +48,7 @@ namespace Ship_Game
         public float WorkerPercentage = 0.33f;
         public float ResearcherPercentage = 0.33f;
         public List<string> CommoditiesPresent = new List<string>();
-        private Dictionary<string, float> ResourcesDict = new Dictionary<string, float>();
+        private Dictionary<string, float> ResourcesDict = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
         private float PosUpdateTimer = 1f;
         public float MAX_STORAGE = 10f;
         public string DevelopmentStatus = "Undeveloped";
@@ -58,7 +58,6 @@ namespace Ship_Game
         public bool ResLocked;
         public bool RecentCombat;
         public int Crippled_Turns;
-        public int numGuardians;
         public Planet.ColonyType colonyType;
         public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;
@@ -92,30 +91,20 @@ namespace Ship_Game
         public SceneObject SO;
         public bool habitable;
         public string planetComposition;
-        public float InhabitedLand;
-        public bool hasRuins;
-        public bool hasNatives;
         public float MaxPopulation;
-        public float BuildingRoom;
-        public float Quality;
         public string Type;
-        public float TotalOreExtracted;
-        //private Planet.Richness richness;
-        //private Cue noiseCue;
-        //private float UpdateTimer;
         private float Zrotate;
         public float BuildingRoomUsed;
         public int StorageAdded;
         public float CombatTimer;
         private int numInvadersLast;
-        //private BoundingSphere bs;
         public float ProductionHere;
         public float NetFoodPerTurn;
         public float FoodPercentAdded;
         public float FlatFoodAdded;
         public float NetProductionPerTurn;
+        public float GrossProductionPerTurn;
         public float PlusFlatProductionPerTurn;
-        public float ProductionPercentAdded;
         public float NetResearchPerTurn;
         public float PlusTaxPercentage;
         public float PlusFlatResearchPerTurn;
@@ -133,25 +122,32 @@ namespace Ship_Game
         public int TotalDefensiveStrength;
         public float GrossFood;
         public float GrossMoneyPT;
-        private float PlusCreditsPerColonist;
+        public float PlusCreditsPerColonist;
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
         public float consumption;
         private float unfed;
-        public bool NeedsFoodTransport;
         private Shield shield;
-        //private bool initializing;
         public float FoodHere;
-        public int developmentLevel;
+        public byte developmentLevel;
         public bool CorsairPresence;
-        public bool queueEmptySent ;
+        public bool queueEmptySent =true ;
+        public float RepairPerTurn = 50;
         public List<string> PlanetFleets = new List<string>();
-        
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+        private ReaderWriterLockSlim planetLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private bool PSexport = false;
+        private bool FSexport = false;
+        public bool UniqueHab = false;
+        public int uniqueHabPercent;
 
+        
         public Planet()
         {
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
                 this.AddGood(keyValuePair.Key, 0);
+            this.HasShipyard = false;
         }
 
         public void DropBombORIG(Bomb bomb)
@@ -368,6 +364,7 @@ namespace Ship_Game
                 List<PlanetGridSquare> PotentialHits = new List<PlanetGridSquare>();
                 if (hit)
                 {
+                    int buildingcount = 0;
                     foreach (PlanetGridSquare pgs in this.TilesList)
                     {
                         if (pgs.building == null && pgs.TroopsHere.Count <= 0)
@@ -375,10 +372,16 @@ namespace Ship_Game
                             continue;
                         }
                         PotentialHits.Add(pgs);
+                        if(pgs.building!=null)
+                        {
+                            buildingcount++;
+                        }
                     }
-                    if (PotentialHits.Count <= 0)
+                    if ( PotentialHits.Count <= 0)
                     {
                         hit = false;
+                        if (this.BuildingList.Count > 0)
+                            this.BuildingList.Clear();
                     }
                     else
                     {
@@ -435,16 +438,34 @@ namespace Ship_Game
                         this.BuildingList.Remove(od.Target.building);
                         od.Target.building = null;
 
-
+                        bool flag = od.Target.Biosphere;
                         //Added Code here
                         od.Target.Habitable = false;
                         od.Target.highlighted = false;
                         od.Target.Biosphere = false;
+                        this.TerraformPoints--; 
                         //Building Wasteland = new Building;
                         //Wasteland.Name="Fissionables";
                         //od.Target.building=Wasteland;
+                        if (flag)
+                        {
+                            foreach (Building bios in this.BuildingList)
+                            {
+                                if (bios.Name == "Biospheres")
+                                {
+                                    od.Target.building = bios;
+                                    break;
+                                }
+                            }
+                            if (od.Target.building != null)
+                            {
+                                this.Population -= od.Target.building.MaxPopIncrease;
+                                this.BuildingList.Remove(od.Target.building);
+                                od.Target.building = null;
+                            }
+                        }
 
-
+                   
 
 
 
@@ -470,26 +491,26 @@ namespace Ship_Game
                         if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
                         {
                             Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty));
-                            bool removeowner = true;
-                            if (this.Owner != null)
-                            {
-                                foreach (Planet other in this.system.PlanetList)
-                                {
-                                    if (other.Owner != this.Owner || other == this)
-                                    {
-                                        continue;
-                                    }
-                                    removeowner = false;
-                                }
-                                if (removeowner)
-                                {
-                                    this.system.OwnerList.Remove(this.Owner);
-                                }
-                            }
-                            this.ConstructionQueue.Clear();
-                            this.Owner = null;
-                            return;
                         }
+                        bool removeowner = true;
+                        if (this.Owner != null)
+                        {
+                            foreach (Planet other in this.system.PlanetList)
+                            {
+                                if (other.Owner != this.Owner || other == this)
+                                {
+                                    continue;
+                                }
+                                removeowner = false;
+                            }
+                            if (removeowner)
+                            {
+                                this.system.OwnerList.Remove(this.Owner);
+                            }
+                        }
+                        this.ConstructionQueue.Clear();
+                        this.Owner = null;
+                        return;
                     }
                 }
                 if (ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction != null)
@@ -561,14 +582,6 @@ namespace Ship_Game
                     return;
                 }
             }
-        }
-
-        public void DoOrbitalBeam(PlanetGridSquare pgs)
-        {
-            this.OrbitalBeams.Add(new OrbitalBeam()
-            {
-                pgs = pgs
-            });
         }
 
         public float GetNetFoodPerTurn()
@@ -870,67 +883,118 @@ namespace Ship_Game
             }
             if (!this.habitable)
                 this.MineralRichness = 0.0f;
-            if (this.Type == "Barren")
-            {
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        double num3 = (double)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, false));
-                    }
-                }
-            }
-            if (this.Type == "Ice")
+
+            if (this.UniqueHab)
             {
                 for (int x = 0; x < 7; ++x)
                 {
                     for (int y = 0; y < 5; ++y)
                     {
                         int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < 15));
+                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < this.uniqueHabPercent));
                     }
                 }
             }
-            if (this.Type == "Terran")
+            else
             {
-                for (int x = 0; x < 7; ++x)
+                if (this.Type == "Barren")
                 {
-                    for (int y = 0; y < 5; ++y)
+                    for (int x = 0; x < 7; ++x)
                     {
-                        int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 25));
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.BarrenHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, false));
+                            }
+                        }
+                    }
+                }
+                if (this.Type == "Ice")
+                {
+                    for (int x = 0; x < 7; ++x)
+                    {
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.IceHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < 15));
+                            }
+                        }
+                    }
+                }
+                if (this.Type == "Terran")
+                {
+                    for (int x = 0; x < 7; ++x)
+                    {
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.TerranHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 25));
+                            }
+                        }
+                    }
+                }
+                if (this.Type == "Oceanic" || this.Type == "Desert" || this.Type == "Tundra")
+                {
+                    for (int x = 0; x < 7; ++x)
+                    {
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.OceanHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 50));
+                            }
+                        }
+                    }
+                }
+                if (this.Type == "Steppe" || this.Type == "Swamp")
+                {
+                    for (int x = 0; x < 7; ++x)
+                    {
+                        for (int y = 0; y < 5; ++y)
+                        {
+                            int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
+                            if (GlobalStats.ActiveMod != null)
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < GlobalStats.ActiveModInfo.SteppeHab));
+                            }
+                            else
+                            {
+                                this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 33));
+                            }
+                        }
                     }
                 }
             }
-            if (this.Type == "Oceanic" || this.Type == "Desert" || this.Type == "Tundra")
-            {
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 50));
-                    }
-                }
-            }
-            if (this.Type == "Steppe" || this.Type == "Swamp")
-            {
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 > 33));
-                    }
-                }
-            }
+
             if ((double)RandomMath.RandomBetween(0.0f, 100f) <= 15.0 && this.habitable)
             {
                 List<string> list = new List<string>();
                 foreach (KeyValuePair<string, Building> keyValuePair in ResourceManager.BuildingsDict)
                 {
-                    if (keyValuePair.Value.EventTriggerUID != "" && !keyValuePair.Value.NoRandomSpawn)
+                    if (!string.IsNullOrEmpty(keyValuePair.Value.EventTriggerUID) && !keyValuePair.Value.NoRandomSpawn)
                         list.Add(keyValuePair.Key);
                 }
                 int index = (int)RandomMath.RandomBetween(0.0f, (float)list.Count + 0.85f);
@@ -1673,7 +1737,7 @@ namespace Ship_Game
                         eventLocation.TroopsHere.Add(t);
                         this.TroopsHere.Add(t);
                         t.SetPlanet(this);
-                        if (eventLocation.building == null || !(eventLocation.building.EventTriggerUID != "") || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
+                        if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                             return true;
                         ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), Planet.universeScreen);
                     }
@@ -1705,7 +1769,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (b.Name == "Outpost" || b.EventTriggerUID != "")
+            else if (b.Name == "Outpost" || !string.IsNullOrEmpty(b.EventTriggerUID))
             {
                 list.Clear();
                 foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -1914,12 +1978,12 @@ namespace Ship_Game
 
         public void AddBasedShip(Ship ship)
         {
-            ship.SetHome(this);
             this.BasedShips.Add(ship);
         }
 
         private void DoViewedCombat(float elapsedTime)
         {
+            this.ActiveCombats.thisLock.EnterReadLock();
             foreach (Combat combat in (List<Combat>)this.ActiveCombats)
             {
                 if (combat.Attacker.TroopsHere.Count == 0 && combat.Attacker.building == null)
@@ -2034,10 +2098,13 @@ namespace Ship_Game
                     }
                 }
             }
+            this.ActiveCombats.thisLock.ExitReadLock();
+
         }
 
         private void DoCombatUnviewed(float elapsedTime)
         {
+            this.ActiveCombats.thisLock.EnterReadLock();
             foreach (Combat combat in (List<Combat>)this.ActiveCombats)
             {
                 if (combat.Attacker.TroopsHere.Count == 0 && combat.Attacker.building == null)
@@ -2139,6 +2206,7 @@ namespace Ship_Game
                     }
                 }
             }
+            this.ActiveCombats.thisLock.ExitReadLock();
         }
 
         public void DoCombats(float elapsedTime)
@@ -2169,8 +2237,10 @@ namespace Ship_Game
             int num1 = 0;
             int num2 = 0;
             Empire index = (Empire)null;
+            
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
+                planetGridSquare.TroopsHere.thisLock.EnterReadLock();
                 foreach (Troop troop in planetGridSquare.TroopsHere)
                 {
                     if (troop.GetOwner() != null && troop.GetOwner() != this.Owner)
@@ -2183,9 +2253,11 @@ namespace Ship_Game
                     else
                         ++num1;
                 }
+                planetGridSquare.TroopsHere.thisLock.ExitReadLock();
                 if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
                     ++num1;
             }
+            
             if (num2 > this.numInvadersLast && this.numInvadersLast == 0)
             {
                 if (EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) == this.Owner)
@@ -2209,7 +2281,7 @@ namespace Ship_Game
                 }
             }
             this.numInvadersLast = num2;
-            if (num2 <= 0 || num1 != 0 || this.Owner == null)
+            if (num2 <= 0 || num1 != 0 )//|| this.Owner == null)
                 return;
             if (index.GetRelations().ContainsKey(this.Owner))
             {
@@ -2232,8 +2304,10 @@ namespace Ship_Game
                 {
                     Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty));
                     bool local_7 = true;
+                    
                     if (this.Owner != null)
                     {
+                        this.Owner.GetPlanets().thisLock.EnterReadLock();
                         foreach (Planet item_3 in this.system.PlanetList)
                         {
                             if (item_3.Owner == this.Owner && item_3 != this)
@@ -2241,6 +2315,7 @@ namespace Ship_Game
                         }
                         if (local_7)
                             this.system.OwnerList.Remove(this.Owner);
+                        this.Owner.GetPlanets().thisLock.ExitReadLock();
                     }
                     this.Owner = (Empire)null;
                 }
@@ -2288,21 +2363,25 @@ namespace Ship_Game
             }
             if (index.isFaction)
                 return;
-            this.Owner.GetGSAI().ReformulateWarGoals();
             this.Owner = index;
             this.TurnsSinceTurnover = 0;
-            this.colonyType = this.Owner.AssessColonyNeeds(this);
-            this.GovernorOn = true;
             this.Owner.AddPlanet(this);
             this.ConstructionQueue.Clear();
             this.system.OwnerList.Clear();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
+            {
+                if (keyValuePair.Value.loyalty != this.Owner && keyValuePair.Value.TroopList.Where(loyalty => loyalty.GetOwner() != this.Owner).Count() > 0)
+                    continue;
                 keyValuePair.Value.loyalty = this.Owner;
+            }
+            
             foreach (Planet planet in this.system.PlanetList)
             {
                 if (planet.Owner != null && !this.system.OwnerList.Contains(planet.Owner))
                     this.system.OwnerList.Add(planet.Owner);
-            }
+            }         
+            this.colonyType = this.Owner.AssessColonyNeeds(this);
+            this.GovernorOn = true;
         }
 
         public void DoTroopTimers(float elapsedTime)
@@ -2361,7 +2440,7 @@ namespace Ship_Game
             bool enemyTroopsFound = false;
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() != this.Owner || planetGridSquare.building != null && planetGridSquare.building.EventTriggerUID != "")
+                if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() != this.Owner || planetGridSquare.building != null && !string.IsNullOrEmpty(planetGridSquare.building.EventTriggerUID))
                 {
                     enemyTroopsFound = true;
                     break;
@@ -2483,7 +2562,7 @@ namespace Ship_Game
                                             }
                                         }
                                     }
-                                    else if (planetGridSquare.building != null && (planetGridSquare.building.CombatStrength > 0 || planetGridSquare.building.EventTriggerUID != "") && (this.Owner != pgs.TroopsHere[0].GetOwner() || planetGridSquare.building.EventTriggerUID != ""))
+                                    else if (planetGridSquare.building != null && (planetGridSquare.building.CombatStrength > 0 || !string.IsNullOrEmpty(planetGridSquare.building.EventTriggerUID)) && (this.Owner != pgs.TroopsHere[0].GetOwner() || !string.IsNullOrEmpty(planetGridSquare.building.EventTriggerUID)))
                                     {
                                         if (planetGridSquare.x > pgs.x)
                                         {
@@ -2612,7 +2691,7 @@ namespace Ship_Game
                     start.TroopsHere[0].MoveTimer = (float)start.TroopsHere[0].MoveTimerBase;
                     eventLocation.TroopsHere.Add(start.TroopsHere[0]);
                     start.TroopsHere.Clear();
-                    if (eventLocation.building == null || !(eventLocation.building.EventTriggerUID != "") || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
+                    if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                         return true;
                     ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), Planet.universeScreen);
                 }
@@ -2625,42 +2704,18 @@ namespace Ship_Game
             this.DecisionTimer -= elapsedTime;
             this.CombatTimer -= elapsedTime;
             this.RecentCombat = (double)this.CombatTimer > 0.0;
-            foreach (OrbitalBeam orbitalBeam in (List<OrbitalBeam>)this.OrbitalBeams)
-            {
-                orbitalBeam.Duration -= elapsedTime;
-                if ((double)orbitalBeam.Duration <= 0.0)
-                {
-                    this.OrbitalBeams.QueuePendingRemoval(orbitalBeam);
-                    if (orbitalBeam.pgs.TroopsHere.Count > 0)
-                    {
-                        orbitalBeam.pgs.TroopsHere[0].Strength -= 10;
-                        if (orbitalBeam.pgs.TroopsHere[0].Strength <= 0)
-                        {
-                            this.TroopsHere.Remove(orbitalBeam.pgs.TroopsHere[0]);
-                            orbitalBeam.pgs.TroopsHere.Clear();
-                        }
-                        if (Planet.universeScreen.LookingAtPlanet && Planet.universeScreen.workersPanel is CombatScreen)
-                        {
-                            AudioManager.PlayCue("Explo1");
-                            CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(4);
-                            smallExplosion.grid = orbitalBeam.pgs.TroopClickRect;
-                            lock (GlobalStats.ExplosionLocker)
-                                (Planet.universeScreen.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
-                        }
-                    }
-                }
-            }
-            this.OrbitalBeams.ApplyPendingRemovals();
             List<Guid> list = new List<Guid>();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
             {
-                if (!keyValuePair.Value.Active || keyValuePair.Value.ModuleSlotList.Count == 0)
+                if (!keyValuePair.Value.Active 
+                    || keyValuePair.Value.ModuleSlotList.Count == 0
+                    //|| keyValuePair.Value.loyalty != this.Owner
+                    )
                     list.Add(keyValuePair.Key);
-                else if (keyValuePair.Value.GetShipData() != null && keyValuePair.Value.GetShipData().IsOrbitalDefense)
-                    keyValuePair.Value.OrbitalDefenseTimer -= elapsedTime;
             }
+            Ship remove;
             foreach (Guid key in list)
-                this.Shipyards.Remove(key);
+                this.Shipyards.TryRemove(key,out remove);
             if (!Planet.universeScreen.Paused)
             {
                 if (this.TroopsHere.Count > 0)
@@ -2698,7 +2753,8 @@ namespace Ship_Game
                                     Ship ship = this.system.ShipList[index2];
                                     if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && (double)Vector2.Distance(this.Position, ship.Center) < (double)building.theWeapon.Range)
                                     {
-                                        building.theWeapon.FireFromPlanet(ship.Center - this.Position, this, (GameplayObject)ship);
+                                        building.theWeapon.Center = this.Position;
+                                        building.theWeapon.FireFromPlanet(ship.Center - this.Position, this, ship.GetRandomInternalModule(building.theWeapon));
                                         building.WeaponTimer = building.theWeapon.fireDelay;
                                         break;
                                     }
@@ -2730,35 +2786,36 @@ namespace Ship_Game
         //added by gremlin affectnearbyships
         private void AffectNearbyShips()
         {
+            float RepairPool = this.developmentLevel * this.RepairPerTurn * 20;
             for (int i = 0; i < this.system.ShipList.Count; i++)
             {
-                Ship item = this.system.ShipList[i];
-                if (item != null && item.loyalty == this.Owner && this.HasShipyard && Vector2.Distance(this.Position, item.Position) <= 5000f)
+                Ship ship = this.system.ShipList[i];
+                if (ship != null && ship.loyalty == this.Owner && this.HasShipyard && Vector2.Distance(this.Position, ship.Position) <= 5000f)
                 {
-                    item.PowerCurrent = item.PowerStoreMax;
-                    item.Ordinance = item.OrdinanceMax;
+                    ship.PowerCurrent = ship.PowerStoreMax;
+                    ship.Ordinance = ship.OrdinanceMax;
                     if (GlobalStats.HardcoreRuleset)
                     {
-                        foreach (KeyValuePair<string, float> maxGood in item.GetMaxGoods())
+                        foreach (KeyValuePair<string, float> maxGood in ship.GetMaxGoods())
                         {
-                            if (item.GetCargo()[maxGood.Key] >= maxGood.Value)
+                            if (ship.GetCargo()[maxGood.Key] >= maxGood.Value)
                             {
                                 continue;
                             }
-                            while (this.ResourcesDict[maxGood.Key] > 0f && item.GetCargo()[maxGood.Key] < maxGood.Value)
+                            while (this.ResourcesDict[maxGood.Key] > 0f && ship.GetCargo()[maxGood.Key] < maxGood.Value)
                             {
-                                if (maxGood.Value - item.GetCargo()[maxGood.Key] < 1f)
+                                if (maxGood.Value - ship.GetCargo()[maxGood.Key] < 1f)
                                 {
                                     Dictionary<string, float> resourcesDict = this.ResourcesDict;
                                     Dictionary<string, float> strs = resourcesDict;
                                     string key = maxGood.Key;
                                     string str = key;
-                                    resourcesDict[key] = strs[str] - (maxGood.Value - item.GetCargo()[maxGood.Key]);
-                                    Dictionary<string, float> cargo = item.GetCargo();
+                                    resourcesDict[key] = strs[str] - (maxGood.Value - ship.GetCargo()[maxGood.Key]);
+                                    Dictionary<string, float> cargo = ship.GetCargo();
                                     Dictionary<string, float> strs1 = cargo;
                                     string key1 = maxGood.Key;
                                     string str1 = key1;
-                                    cargo[key1] = strs1[str1] + (maxGood.Value - item.GetCargo()[maxGood.Key]);
+                                    cargo[key1] = strs1[str1] + (maxGood.Value - ship.GetCargo()[maxGood.Key]);
                                 }
                                 else
                                 {
@@ -2766,7 +2823,7 @@ namespace Ship_Game
                                     Dictionary<string, float> strs2 = resourcesDict1;
                                     string key2 = maxGood.Key;
                                     resourcesDict1[key2] = strs2[key2] - 1f;
-                                    Dictionary<string, float> cargo1 = item.GetCargo();
+                                    Dictionary<string, float> cargo1 = ship.GetCargo();
                                     Dictionary<string, float> strs3 = cargo1;
                                     string str2 = maxGood.Key;
                                     cargo1[str2] = strs3[str2] + 1f;
@@ -2774,49 +2831,39 @@ namespace Ship_Game
                             }
                         }
                     }
-
-                    if (item.Health < item.HealthMax && item.LastHitTimer <= 0f)
+                    //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
+                    if (!ship.InCombat && RepairPool > 0 && ship.Health < ship.HealthMax)
                     {
-                        foreach (ModuleSlot moduleSlotList in item.ModuleSlotList.OrderByDescending(slot => slot.module.BonusRepairRate).ThenByDescending(slot => slot.module.PowerRadius > 0))
-                        //Parallel.ForEach(item.ModuleSlotList.OrderByDescending(slot => slot.module.BonusRepairRate).ThenByDescending(slot => slot.module.PowerRadius > 0), moduleSlotList =>
+                        foreach (ModuleSlot slot in ship.ModuleSlotList.Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax))
                         {
-                            if (moduleSlotList.module.Health / moduleSlotList.module.HealthMax >= 1f)
+                            if (slot.module.HealthMax - slot.module.Health > RepairPool)
                             {
-                                continue;
+                                slot.module.Repair(RepairPool);
+                                break;
                             }
-                            ShipModule health = moduleSlotList.module;
-                            health.Health = health.Health + 10f;
-                            if (moduleSlotList.module.Health / moduleSlotList.module.HealthMax <= 1f)
+                            else
                             {
-                                continue;
+                                RepairPool -= slot.module.HealthMax - slot.module.Health;
+                                slot.module.Repair(slot.module.HealthMax);
                             }
-                            moduleSlotList.module.Health = moduleSlotList.module.HealthMax;
-                        }//);
+                        }
                     }
-                    if ((this.ParentSystem.combatTimer <= 0 || item.InCombatTimer <= 0) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
+                    if ((this.ParentSystem.combatTimer <= 0 || !ship.InCombat) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
                     {
-
                         foreach (var pgs in this.TilesList)
                         {
-                            if (item.TroopCapacity ==0 || item.TroopList.Count >= item.TroopCapacity) 
+                            if (ship.TroopCapacity ==0 || ship.TroopList.Count >= ship.TroopCapacity) 
                                 break;
                             if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
                             {
                                 Troop troop = pgs.TroopsHere[0];
-
-                                item.TroopList.Add(troop);
+                                ship.TroopList.Add(troop);
                                 pgs.TroopsHere.Clear();
                                 this.TroopsHere.Remove(troop);
-
                             }
-
-
-
                         }
-
                     }
                 }
-
             }
         }
 
@@ -2936,18 +2983,19 @@ namespace Ship_Game
                 if ((double)this.Fertility > 1.0)
                     this.Fertility = 1f;
             }
-            this.UpdateIncomes();
             if (this.GovernorOn)
                 this.DoGoverning();
             this.UpdateIncomes();
             // ADDED BY SHAHMATT (notification about empty queue)
-            if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
+            if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) 
+                && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
             {
                 if (this.colonyType == Planet.ColonyType.Colony || this.colonyType == Planet.ColonyType.Core || this.colonyType == Planet.ColonyType.Industrial || !this.GovernorOn)
                 {
                     this.queueEmptySent = true;
                     Notification cNote = new Notification()
                     {
+                        Pause = false,
                         RelevantEmpire = this.Owner,
                         Message = string.Concat(this.Name, " is not producing anything."),
                         ReferencedItem1 = this, //this.system,
@@ -2963,7 +3011,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.ConstructionQueue.Count > 0)
+            else if (GlobalStats.ExtraNotiofications && this.Owner !=null && this.Owner.isPlayer && this.ConstructionQueue.Count > 0)
             {
                 this.queueEmptySent = false;
             }
@@ -2980,15 +3028,21 @@ namespace Ship_Game
             if (this.ShieldStrengthCurrent < this.ShieldStrengthMax)
             {
                 Planet shieldStrengthCurrent = this;
-                shieldStrengthCurrent.ShieldStrengthCurrent = shieldStrengthCurrent.ShieldStrengthCurrent + 1f;
-                if (this.ShieldStrengthCurrent > this.ShieldStrengthMax)
+
+                if (!this.RecentCombat)
                 {
+
+                    if (this.ShieldStrengthCurrent > this.ShieldStrengthMax / 10)
+                    {
+                        shieldStrengthCurrent.ShieldStrengthCurrent += shieldStrengthCurrent.ShieldStrengthMax / 10;
+                    }
+                    else
+                    {
+                        shieldStrengthCurrent.ShieldStrengthCurrent++;
+                    }
+                }
+                if ((double)this.ShieldStrengthCurrent > (double)this.ShieldStrengthMax)
                     this.ShieldStrengthCurrent = this.ShieldStrengthMax;
-                }
-                if (this.ShieldStrengthCurrent > this.ShieldStrengthMax / 10 && !this.RecentCombat)
-                {
-                    shieldStrengthCurrent.ShieldStrengthCurrent += shieldStrengthCurrent.ShieldStrengthMax / 10;
-                }
             }
 
             //this.UpdateTimer = 10f;
@@ -2996,7 +3050,7 @@ namespace Ship_Game
             this.ApplyProductionTowardsConstruction();
             this.GrowPopulation();
             //Added by McShooterz         
-            this.HealBuildingsAndTroops();
+            this.HealTroops();
             if ((double)this.FoodHere > (double)this.MAX_STORAGE)
                 this.FoodHere = this.MAX_STORAGE;
             if ((double)this.ProductionHere <= (double)this.MAX_STORAGE)
@@ -3006,42 +3060,94 @@ namespace Ship_Game
 
         private float CalculateCyberneticPercentForSurplus(float desiredSurplus)
         {
-            float num1 = 0.0f;
-            while ((double)num1 < 1.0)
+            // replacing while loop with singal fromula, should save some clock cycles
+            //float Surplus = 0.0f;
+            //while ((double)Surplus < 1.0)
+            //{
+            //    Surplus += 0.01f;
+            //    float num2 = (float)((double)Surplus * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
+            //    //float num3 = num2 - this.consumption;
+            //    //if ((double)(num3 - this.Owner.data.TaxRate * num3) >= (double)desiredSurplus)
+
+            //    //taking taxes out of production first then taking out consumption to fix starvation at high tax rates
+            //    //Allium Sativum trying to fix issue #332
+            //    float num3 = num2 * (1 - this.Owner.data.TaxRate);
+            //    if ((double)(num3 - this.consumption) >= (double)desiredSurplus) 
+            //    {
+            //        this.ps = Planet.GoodState.EXPORT;
+            //        return Surplus;
+            //    }
+            //}
+            //this.fs = Planet.GoodState.IMPORT;
+            //return Surplus;
+
+            float NoDivByZero = .0000001f;
+            float Surplus = (float)((this.consumption + desiredSurplus - this.PlusFlatProductionPerTurn) / ((this.Population / 1000.0) * (this.MineralRichness + this.PlusProductionPerColonist)) * (1 - this.Owner.data.TaxRate)+NoDivByZero);
+            if (Surplus < 1.0f)
             {
-                num1 += 0.01f;
-                float num2 = (float)((double)num1 * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
-                float num3 = num2 + this.ProductionPercentAdded * num2 - this.consumption;
-                if ((double)(num3 - this.Owner.data.TaxRate * num3) >= (double)desiredSurplus)
-                {
-                    this.ps = Planet.GoodState.EXPORT;
-                    return num1;
-                }
+               // this.ps = Planet.GoodState.EXPORT;
+                if (Surplus < 0)
+                    return 0.0f;
+                return Surplus;
             }
-            this.fs = Planet.GoodState.IMPORT;
-            return num1;
+            else
+            {
+               // this.ps = Planet.GoodState.IMPORT;
+                return 1.0f;
+            }
         }
 
         private float CalculateFarmerPercentForSurplus(float desiredSurplus)
         {
-            float num1 = 0.0f;
+            float Surplus = 0.0f;
+            float NoDivByZero = .0000001f;
+            if(this.Owner.data.Traits.Cybernetic >0)
+            {
+
+                Surplus = Surplus = (float)((this.consumption + desiredSurplus - this.PlusFlatProductionPerTurn) / ((this.Population / 1000.0) * (this.MineralRichness + this.PlusProductionPerColonist)) * (1 - this.Owner.data.TaxRate) + NoDivByZero);
+                    //(float)((this.consumption + desiredSurplus - this.PlusFlatProductionPerTurn) / 
+                    //((this.Population / 1000.0) * (this.MineralRichness + this.PlusProductionPerColonist)) * 
+                    //(1 - (this.Owner.data.TaxRate == 1 ? .9 : this.Owner.data.TaxRate)) + NoDivByZero);
+                if (Surplus < 1.0f)
+                {
+                    // this.ps = Planet.GoodState.EXPORT;
+                    if (Surplus < 0)
+                        return 0.0f;
+                    return Surplus;
+                }
+                else
+                {
+                    // this.ps = Planet.GoodState.IMPORT;
+                    return 1.0f;
+                }
+            }
+            
             if ((double)this.Fertility == 0.0)
                 return 0.0f;
-            while ((double)num1 < 1.0)
+            // replacing while loop with singal fromula, should save some clock cycles
+
+           
+            Surplus = (float)((this.consumption + desiredSurplus - this.FlatFoodAdded) / ((this.Population / 1000.0) * (this.Fertility + this.PlusFoodPerColonist) * (1 + this.FoodPercentAdded)+NoDivByZero));
+            if (Surplus < 1)
             {
-                num1 += 0.01f;
-                float num2 = (float)((double)num1 * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
-                if ((double)(num2 + this.FoodPercentAdded * num2 - this.consumption) >= (double)desiredSurplus)
-                    return num1;
+                if (Surplus < 0)
+                    return 0.0f;
+                return Surplus;
             }
-            this.fs = Planet.GoodState.IMPORT;
-            return 0.5f;
+            else
+            {
+                //this.fs = Planet.GoodState.IMPORT;
+                //if you cant reach the desired surplus, produce as much as you can
+                return 1.0f;
+            }
         }
 
         private bool DetermineIfSelfSufficient()
         {
-            float num = (float)(1.0 * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
-            return (double)(num + this.FoodPercentAdded * num - this.consumption) > 0.0;
+            //float num = (float)(1.0 * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
+            //return (double)(num + this.FoodPercentAdded * num - this.consumption) > 0.0;
+             float NoDivByZero = .0000001f;
+            return (float)((this.consumption - this.FlatFoodAdded) / ((this.Population / 1000.0) * (this.Fertility + this.PlusFoodPerColonist) * (1 + this.FoodPercentAdded)+NoDivByZero)) < 1;
         }
 
         public float GetDefendingTroopStrength()
@@ -3051,6 +3157,17 @@ namespace Ship_Game
             {
                 if (troop.GetOwner() == this.Owner)
                     num += troop.Strength;
+            }
+            return num;
+        }
+
+        public int GetDefendingTroopCount()
+        {
+            int num = 0;
+            foreach (Troop troop in this.TroopsHere)
+            {
+                if (troop.GetOwner() == this.Owner)
+                    num++;
             }
             return num;
         }
@@ -3077,6 +3194,13 @@ namespace Ship_Game
                 {
                     Building building1 = ResourceManager.BuildingsDict[keyValuePair.Key];
                     bool flag2 = true;
+                    if(this.Owner.data.Traits.Cybernetic >0)
+                    {
+                        if(building1.PlusFlatFoodAmount >0 || building1.PlusFoodPerColonist >0)
+                        {
+                            continue;
+                        }
+                    }
                     if (!flag1 && (building1.Name == "Outpost" || building1.Name == "Capital City"))
                         flag2 = false;
                     if (building1.BuildOnlyOnce)
@@ -3144,24 +3268,26 @@ namespace Ship_Game
             qi.Cost = ResourceManager.GetBuilding(b.Name).Cost;
             qi.productionTowards = 0.0f;
             qi.NotifyOnEmpty = false;
+            Building terraformer =ResourceManager.GetBuilding("Terraformer");
             if (this.AssignBuildingToTile(b, qi))
                 this.ConstructionQueue.Add(qi);
-            else if (this.Owner.GetBDict()["Terraformer"] && (double)this.Fertility < 1.0)
+
+            else if (this.Owner.GetBDict()[terraformer.Name] && this.Fertility < 1.0 && this.WeCanAffordThis(terraformer, this.colonyType))
             {
                 bool flag = true;
                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                 {
-                    if (queueItem.isBuilding && queueItem.Building.Name == "Terraformer")
+                    if (queueItem.isBuilding && queueItem.Building.Name == terraformer.Name)
                         flag = false;
                 }
                 foreach (Building building in this.BuildingList)
                 {
-                    if (building.Name == "Terraformer")
+                    if (building.Name == terraformer.Name)
                         flag = false;
                 }
                 if (!flag)
                     return;
-                this.AddBuildingToCQ(ResourceManager.GetBuilding("Terraformer"));
+                this.AddBuildingToCQ(terraformer);
             }
             else
             {
@@ -3181,50 +3307,474 @@ namespace Ship_Game
             return false;
         }
 
-        private float AdjustResearchForProfit()
+        public bool WeCanAffordThis(Building building, Planet.ColonyType governor)
         {
-            //return 0.0f;
-            //added by gremlin pre15b code + custom to prevent low tax issues.
-            if (this.Owner.data.TaxRate <= .15f) //this.Owner.Money > this.Owner.GetPlanets().Count * 200 ||
-            {
-                return 0f;
-            }
-            float single = this.EstimateNetWithWorkerPct(this.Owner.data.TaxRate, this.WorkerPercentage, this.ResearcherPercentage);
-            float taxMod = single + this.Owner.data.Traits.TaxMod * single - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
-            float researcherPercentage = this.ResearcherPercentage / 10f;
-            for (int i = 0; i < 10 && taxMod <= 0f; i++)
-            {
-                Planet workerPercentage = this;
-                workerPercentage.WorkerPercentage = workerPercentage.WorkerPercentage + researcherPercentage;
-                Planet planet = this;
-                planet.ResearcherPercentage = planet.ResearcherPercentage - researcherPercentage;
-                single = this.EstimateNetWithWorkerPct(this.Owner.data.TaxRate, this.WorkerPercentage, this.ResearcherPercentage);
-                taxMod = single + this.Owner.data.Traits.TaxMod * single - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
-            }
-            this.EstimateTaxes(this.Owner.data.TaxRate);
-            return taxMod;
-        }
+            if (governor == ColonyType.TradeHub)
+                return true;
+            if (building == null)
+                return false;
+            Empire empire = this.Owner;
+            float buildingMaintenance = empire.GetTotalBuildingMaintenance();
+            float grossTaxes = empire.GrossTaxes;
 
+            if (building.AllowInfantry && !this.BuildingList.Contains(building) &&( this.AllowInfantry || governor == ColonyType.Military))
+                return false;
+
+            //this.data.Traits.MaintMod * this.totalBuildingMaintenance
+            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+            {
+                if (queueItem.isBuilding)
+                    buildingMaintenance += this.Owner.data.Traits.MaintMod * queueItem.Building.Maintenance;                
+            }
+            buildingMaintenance += building.Maintenance + building.Maintenance * this.Owner.data.Traits.MaintMod;
+            bool LowPri = buildingMaintenance / grossTaxes < .25f;
+            bool MedPri = buildingMaintenance / grossTaxes < .60f;
+            bool HighPri = buildingMaintenance / grossTaxes < .80f;
+            float maintCost = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT -building.Maintenance- (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
+            bool makingMoney = maintCost > 0 && this.Owner.data.TaxRate <.5 && this.Owner.GetAverageNetIncome() >0;// this.TotalMaintenanceCostsPerTurn  < this.GrossMoneyPT;
+            int defensiveBuildings = this.BuildingList.Where(combat => combat.Strength > 0 || combat.PlanetaryShieldStrengthAdded >0 ).Count();
+           int offensiveBuildings = this.BuildingList.Where(combat => combat.theWeapon !=null).Count();
+            SystemCommander SC;
+            //float defensiveNeeds =0;
+            bool needDefense =false;
+            if (this.Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(this.system, out SC))
+            {
+                //defensiveNeeds = SC.RankImportance * .1f;
+                if (makingMoney)
+                    needDefense = SC.RankImportance > 10;//(this.BuildingList.Count / (defensiveBuildings + offensiveBuildings+1)) >defensiveNeeds;
+                
+            }
+
+            if (!string.IsNullOrEmpty(building.ExcludesPlanetType) && building.ExcludesPlanetType == this.Type)
+                return false;
+            if (building.Maintenance <= 0.0f)
+                return true;
+            if (building.PlusTaxPercentage * this.GrossMoneyPT > building.Maintenance * 1.25f
+                || building.CreditsPerColonist * (this.Population / 1000f) > building.Maintenance *1.25f
+                
+                ) 
+                return true;
+            if (building .Name == "Outpost" || building.WinsGame  )
+                return true;
+            if (building.PlusFoodPerColonist > 0)// && this.Fertility == 0)
+            {
+                
+                if (this.Fertility == 0|| (this.NetFoodPerTurn >0 && this.FarmerPercentage <.3) &&!this.BuildingList.Contains(building))
+                
+                return false;
+               
+            }
+            if (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn > 0 && this.FarmerPercentage < .3 && !this.BuildingList.Contains(building))
+                return false;
+
+            bool iftrue = false;
+            switch  (governor)
+            {
+                case ColonyType.Agricultural:
+                    #region MyRegion
+                    {
+                        if (building.AllowShipBuilding && this.GetMaxProductionPotential()>20 )
+                        {
+                            return true;
+                        }
+                        if (this.Fertility > 0 && building.MinusFertilityOnBuild > 0 && this.Owner.data.Traits.Cybernetic <=0)
+                            return false;
+                        if (HighPri)
+                        {
+                            if (building.PlusFlatFoodAmount > 0
+                                || (building.PlusFoodPerColonist > 0 && this.Population > 500f)
+                                || building.Name == "Biospheres"
+                                || this.developmentLevel > 4
+                                || ((building.MaxPopIncrease > 0
+                                || building.PlusFlatPopulation > 0 || building.PlusTerraformPoints > 0) && this.Population > this.MaxPopulation * .5f)
+                                || building.PlusFlatFoodAmount > 0
+                                || building.PlusFlatProductionAmount > 0
+                                || (building.StorageAdded > 0 && this.FoodHere == MAX_STORAGE)
+                                || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount>0))
+
+                                )
+                                return true;
+                                //iftrue = true;
+                            
+                        }
+                        if (!iftrue && MedPri)
+                        {
+                            if (
+                                
+                                ( building.PlusTerraformPoints > 0 && this.Fertility <3)
+                                || building.MaxPopIncrease > 0 
+                                || building.PlusFlatPopulation > 0
+                                || this.developmentLevel > 3
+                                )
+                                return true;
+                        }
+                        if (LowPri && this.developmentLevel > 4 && makingMoney)
+                        {
+                            iftrue = true;
+                        }
+                        break;
+                    } 
+                    #endregion
+                case ColonyType.Core:
+                    #region MyRegion
+                    {
+                        if (this.Fertility > 0 && building.MinusFertilityOnBuild > 0 && this.Owner.data.Traits.Cybernetic <= 0)
+                            return false;
+                        if (HighPri)
+                        {
+
+                            if (building.StorageAdded > 0
+                                || ((building.PlusTerraformPoints > 0 && this.Fertility < 1) && this.MaxPopulation > 2000)
+                                || ((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0 ) && this.Population > this.MaxPopulation * .5f)                               
+                                || building.PlusFlatFoodAmount > 0
+                                || building.PlusFoodPerColonist > 0                                
+                                || building.PlusFlatProductionAmount > 0
+                                || building.PlusProdPerRichness >0
+                                || building.PlusProdPerColonist >0
+                                || building.PlusFlatResearchAmount>0
+                                || building.PlusResearchPerColonist * this.Population / 1000 > building.Maintenance
+                                //|| building.Name == "Biospheres"                                
+                                
+                                || needDefense &&(defensiveBuildings <1 && building.PlanetaryShieldStrengthAdded>0)
+                                || needDefense && (offensiveBuildings <1 && building.Strength >0)
+                                || needDefense && (makingMoney && this.developmentLevel >4)
+                                || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0))
+                                )
+                                return true;
+                        }
+                        if (MedPri && this.developmentLevel > 3 &&makingMoney )
+                        {
+                            if ((building.theWeapon != null || building.Strength > 0) && !needDefense)
+                                return false;
+                            iftrue = true;
+                        }
+                        if (!iftrue && LowPri && this.developmentLevel > 4 && makingMoney)
+                        {
+                          
+                            iftrue = true;
+                        }
+                        break;
+                    } 
+                    #endregion
+
+                case ColonyType.Industrial:
+                    #region MyRegion
+                    {
+                        if (building.AllowShipBuilding && this.GetMaxProductionPotential() > 20)
+                        {
+                            return true;
+                        }
+                        if (HighPri)
+                        {
+                            if (building.PlusFlatProductionAmount > 0
+                                || building.PlusProdPerRichness > 0
+                                || building.PlusProdPerColonist > 0
+                                //|| building.PlusFlatProductionAmount > 0
+                                || (this.Fertility < 1f && building.PlusFlatFoodAmount > 0)                             
+                                || building.StorageAdded > 0
+                                || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0))
+                                )
+                                return true;
+                        }
+                        if (MedPri && this.developmentLevel > 2 && makingMoney)
+                        {
+                            if (building.PlusResearchPerColonist * this.Population/1000 >building.Maintenance
+                            ||    ((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0 ) && this.Population > this.MaxPopulation * .5f)
+                            || (building.PlusTerraformPoints > 0 && this.Fertility < 1 && this.Population > this.MaxPopulation * .5f && this.MaxPopulation >2000)
+                               || (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn <0)
+                                )
+                               
+                            {
+                                iftrue = true;
+                            }
+
+                        }
+                        if (!iftrue && LowPri && this.developmentLevel > 3 && makingMoney)
+                        {
+                            if (this.developmentLevel < 3 && (building.theWeapon != null || building.Strength > 0) && !needDefense)
+                                return false;
+                            iftrue = true;
+                        }
+                        break;
+                    } 
+                    #endregion
+                case ColonyType.Military:
+                    #region MyRegion
+                    {
+                        if (this.Fertility > 0 && building.MinusFertilityOnBuild > 0 && this.Owner.data.Traits.Cybernetic <= 0)
+                            return false;
+                        if (HighPri)
+                        {
+                            if (building.isWeapon
+                                || building.IsSensor
+                                || building.Defense > 0
+                                || (this.Fertility < 1f && building.PlusFlatFoodAmount > 0)
+                                || (this.MineralRichness < 1f && building.PlusFlatFoodAmount > 0)
+                                || building.PlanetaryShieldStrengthAdded > 0
+                                || (building.AllowShipBuilding  && this.GrossProductionPerTurn >1)
+                                || (building.ShipRepair > 0&& this.GrossProductionPerTurn >1)
+                                || building.Strength > 0
+                                || (building.AllowInfantry && this.GrossProductionPerTurn >1)
+                                || needDefense &&(building.theWeapon !=null || building.Strength >0)
+                                || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0))
+                                )
+                                iftrue = true;
+                        }
+                        if (!iftrue && MedPri)
+                        {
+                            if (building.PlusFlatProductionAmount > 0
+                                || building.PlusProdPerRichness > 0
+                                || building.PlusProdPerColonist > 0
+                                || building.PlusFlatProductionAmount > 0)
+                                iftrue = true;
+                        }
+                        if (!iftrue && LowPri && this.developmentLevel > 4)
+                        {
+                            //if(building.Name!= "Biospheres")
+                            iftrue = true;
+
+                        }
+                        break;
+                    } 
+                    #endregion
+                case ColonyType.Research:
+                    #region MyRegion
+                    {
+                        if (building.AllowShipBuilding && this.GetMaxProductionPotential() > 20)
+                        {
+                            return true;
+                        }
+                        if (this.Fertility > 0 && building.MinusFertilityOnBuild > 0 && this.Owner.data.Traits.Cybernetic <= 0)
+                            return false;
+                        if (HighPri)
+                        {
+                            if (building.PlusFlatResearchAmount > 0
+                                || (this.Fertility < 1f && building.PlusFlatFoodAmount > 0)
+                                || building.PlusFlatProductionAmount >0
+                                || building.PlusResearchPerColonist > 0
+                                || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusFlatProductionAmount > 0 || building.PlusProdPerColonist > 0 ))
+                                )
+                                return true;
+
+                        }
+                        if ( MedPri && this.developmentLevel > 3 && makingMoney)
+                        {
+                            if (((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && this.Population > this.MaxPopulation * .5f)
+                            || (building.PlusTerraformPoints > 0 && this.Fertility < 1 && this.Population > this.MaxPopulation * .5f && this.MaxPopulation >2000)
+                                || (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn < 0)
+                                )
+                                return true;
+                        }
+                        if ( LowPri && this.developmentLevel > 4 && makingMoney)
+                        {
+                            if ((building.theWeapon != null || building.Strength > 0) && !needDefense)
+                                return false;
+                            return true;
+                        }
+                        break;
+                    } 
+                    #endregion
+            }
+            return iftrue;
+
+        }
+        private void SetExportState(ColonyType colonyType)
+        {
+            bool FSexport =false;
+            bool PSexport = false;
+            int pc = 0;
+            foreach(Planet planet in this.Owner.GetPlanets())
+            {
+                pc++;
+                if(planet.fs == GoodState.IMPORT)
+                {
+                    FSexport = true;
+                }
+                if(planet.ps == GoodState.IMPORT)
+                {
+                    PSexport = true;
+                }
+            }
+            if(pc==1)
+            {
+                FSexport = false;
+                PSexport = false;
+            }
+            float PRatio = this.ProductionHere /this.MAX_STORAGE;
+            float FRatio = this.FoodHere /this.MAX_STORAGE;
+            switch (colonyType)
+            {
+                
+                case ColonyType.Colony:
+                case ColonyType.Military:
+                case ColonyType.Industrial:
+                    if (this.NetProductionPerTurn > this.developmentLevel)
+                    {
+                        if (PRatio < .9 && this.ConstructionQueue.Count > 0)
+                            this.ps = GoodState.IMPORT;
+                        else if (this.ConstructionQueue.Count == 0)
+                        {
+                            this.ps = GoodState.EXPORT;
+                        }
+                        else
+                            this.ps = GoodState.STORE;
+
+                    }
+                    else
+                    {
+                        if (PRatio < .75)
+                            this.ps = GoodState.IMPORT;
+                        else
+                            this.ps = GoodState.STORE;
+                    }
+                    if (FRatio > .75f)
+                        this.fs = Planet.GoodState.STORE;
+                    else
+                        this.fs = Planet.GoodState.IMPORT;
+                break;
+
+                    
+                case ColonyType.Agricultural:
+                if(PRatio >.75)
+                    this.ps = Planet.GoodState.STORE;
+                else
+                    this.ps = Planet.GoodState.IMPORT;
+
+
+                if (this.NetFoodPerTurn >0 )
+                    this.fs = Planet.GoodState.EXPORT;
+                else if (FRatio> .75f )
+                    this.fs = Planet.GoodState.STORE;
+                else
+                    this.fs = Planet.GoodState.IMPORT;
+
+                break;
+                
+                case ColonyType.Research:
+                
+                {
+                    if (PRatio > .75f)
+                        this.ps = Planet.GoodState.STORE;
+                    else
+                        this.ps = Planet.GoodState.IMPORT;
+
+
+                    if (FRatio > .75f)
+                        this.fs = Planet.GoodState.STORE;
+                    else
+                        this.fs = Planet.GoodState.IMPORT;
+
+                    break; 
+                }
+
+                case ColonyType.Core:
+                case ColonyType.TradeHub:
+                if(this.NetProductionPerTurn >this.developmentLevel)
+                {
+
+                    if (PRatio > .33f )
+                        this.ps = GoodState.EXPORT;
+                    else if ( PRatio < .33 )
+                        this.ps = GoodState.STORE;
+                    else
+                        this.ps = GoodState.IMPORT;
+                }
+                else
+                {
+                    if (PRatio > .75)
+                        this.ps = GoodState.STORE;
+                    else
+                        this.ps = GoodState.IMPORT;
+                }
+                
+                if (FRatio > .25)
+                    this.fs = GoodState.EXPORT;
+                else if (this.NetFoodPerTurn > this.developmentLevel * .5)
+                    this.fs = GoodState.STORE;
+                else
+                    this.fs = GoodState.IMPORT;
+                        
+
+                break;
+
+                default:
+                    break;
+            }
+            if(!PSexport)
+                this.PSexport = true;
+            else
+            {
+                this.PSexport = false;
+            }
+            if(!FSexport)
+                this.FSexport = true;
+            else
+            {
+                this.FSexport = true;
+            }
+            if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
+            {
+                
+                this.ps = GoodState.STORE;
+            }
+
+            if(this.developmentLevel>1 && this.fs == GoodState.EXPORT && !FSexport)
+            {
+                
+                this.fs = GoodState.STORE;
+            }
+
+           
+        }
         public void DoGoverning()
         {
+
+            float income = this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn;
             if (this.colonyType == Planet.ColonyType.Colony)
                 return;
-            if (this.Owner.data.Traits.Cybernetic > 0)
+            this.GetBuildingsWeCanBuildHere();
+            Building cheapestFlatfood =
+                this.BuildingsCanBuild.Where(flatfood => flatfood.PlusFlatFoodAmount > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+            if(this.Owner.data.Traits.Cybernetic>0)
             {
+                cheapestFlatfood = this.BuildingsCanBuild.Where(flat => flat.PlusProdPerColonist > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+            }
+            Building cheapestFlatprod = this.BuildingsCanBuild.Where(flat => flat.PlusFlatProductionAmount > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+            Building cheapestFlatResearch = this.BuildingsCanBuild.Where(flat => flat.PlusFlatResearchAmount > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+            Building pro = cheapestFlatprod;
+            Building food = cheapestFlatfood;
+            Building res = cheapestFlatResearch;
+
+            int buildingsinQueue = this.ConstructionQueue.Where(isbuilding => isbuilding.isBuilding).Count();
+            bool needsBiospheres = this.ConstructionQueue.Where(isbuilding => isbuilding.isBuilding && isbuilding.Building.Name == "Biospheres").Count() != buildingsinQueue;
+            bool StuffInQueueToBuild = this.ConstructionQueue.Where(building => building.isBuilding || (building.Cost - building.productionTowards > this.ProductionHere)).Count() > 0;
+            bool ForgetReseachAndBuild =
+     string.IsNullOrEmpty(this.Owner.ResearchTopic) || StuffInQueueToBuild || (this.developmentLevel < 3 && (this.ProductionHere + 1) / (this.MAX_STORAGE + 1) < .9f);
+            if (this.Owner.data.Traits.Cybernetic < 0)
+            #region cybernetic
+            {
+
                 this.FarmerPercentage = 0.0f;
-                this.WorkerPercentage = this.CalculateCyberneticPercentForSurplus(2f);
+
+                float surplus = this.GrossProductionPerTurn - this.consumption;
+                surplus = surplus * (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
+                this.WorkerPercentage = this.CalculateCyberneticPercentForSurplus(surplus);
                 if ((double)this.WorkerPercentage > 1.0)
                     this.WorkerPercentage = 1f;
                 this.ResearcherPercentage = 1f - this.WorkerPercentage;
-                if ((double)this.NetProductionPerTurn > 5.0)
-                    this.ps = Planet.GoodState.EXPORT;
-                float num1 = 0.0f;
+                if (this.ResearcherPercentage < 0f)
+                    ResearcherPercentage = 0f;
+                //if (this.ProductionHere > this.MAX_STORAGE * 0.25f && (double)this.GetNetProductionPerTurn() > 1.0)// &&
+                //    this.ps = Planet.GoodState.EXPORT;
+                //else
+                //    this.ps = Planet.GoodState.IMPORT;
+                float buildingCount = 0.0f;
                 foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                 {
                     if (queueItem.isBuilding)
-                        ++num1;
+                        ++buildingCount;
                     if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                        ++num1;
+                        ++buildingCount;
                 }
                 bool flag1 = true;
                 foreach (Building building in this.BuildingList)
@@ -3249,7 +3799,9 @@ namespace Ship_Game
                 bool flag3 = false;
                 foreach (Building building1 in this.BuildingsCanBuild)
                 {
-                    if ((double)building1.PlusFlatProductionAmount > 0.0 || (double)building1.PlusProdPerColonist > 0.0 || (building1.Name == "Space Port" || (double)building1.PlusProdPerRichness > 0.0) || building1.Name == "Outpost")
+                    if ((double)building1.PlusFlatProductionAmount > 0.0
+                        || (double)building1.PlusProdPerColonist > 0.0
+                        || (building1.Name == "Space Port" || (double)building1.PlusProdPerRichness > 0.0) || building1.Name == "Outpost")
                     {
                         int num2 = 0;
                         foreach (Building building2 in this.BuildingList)
@@ -3266,58 +3818,72 @@ namespace Ship_Game
                 {
                     foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                     {
-                        if (queueItem.isBuilding && ((double)queueItem.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem.Building.PlusProdPerColonist > 0.0 || (double)queueItem.Building.PlusProdPerRichness > 0.0))
+                        if (queueItem.isBuilding
+                            && ((double)queueItem.Building.PlusFlatProductionAmount > 0.0
+                            || (double)queueItem.Building.PlusProdPerColonist > 0.0
+                            || (double)queueItem.Building.PlusProdPerRichness > 0.0))
                         {
                             flag4 = false;
                             break;
                         }
                     }
                 }
-                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 5.0) && (double)this.NetProductionPerTurn > 6.0)
+                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)
+                    && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
+                    && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) && (double)this.GrossMoneyPT > 5.0
+                    && (double)this.NetProductionPerTurn > 6.0)
                 {
-                    bool flag2 = false;
+                    bool hasShipyard = false;
                     foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                     {
                         if (queueItem.isShip && queueItem.sData.IsShipyard)
                         {
-                            flag2 = true;
+                            hasShipyard = true;
                             break;
                         }
                     }
-                    if (!flag2)
+                    if (!hasShipyard)
                         this.ConstructionQueue.Add(new QueueItem()
                         {
                             isShip = true,
-                            sData = ResourceManager.ShipsDict["Shipyard"].GetShipData(),
-                            Cost = ResourceManager.ShipsDict["Shipyard"].GetCost(this.Owner)
+                            sData = ResourceManager.ShipsDict[this.Owner.data.DefaultShipyard].GetShipData(),
+                            Cost = ResourceManager.ShipsDict[this.Owner.data.DefaultShipyard].GetCost(this.Owner)
                         });
                 }
-                if ((double)num1 < 2.0 && flag4)
+                if ((double)buildingCount < 2.0 && flag4)
                 {
                     this.GetBuildingsWeCanBuildHere();
                     Building b = (Building)null;
                     float num2 = 99999f;
                     foreach (Building building in this.BuildingsCanBuild)
                     {
-                        if (!(building.Name == "Terraformer") && (double)building.PlusFlatFoodAmount <= 0.0 && ((double)building.PlusFoodPerColonist <= 0.0 && !(building.Name == "Biospheres")) && ((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population / (double)this.MaxPopulation <= 0.25))
+                        if ((building.PlusTerraformPoints <= 0.0) //(building.Name == "Terraformer") 
+                            && (double)building.PlusFlatFoodAmount <= 0.0
+                            && ((double)building.PlusFoodPerColonist <= 0.0 && !(building.Name == "Biospheres"))
+                            && ((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population / (double)this.MaxPopulation <= 0.25))
                         {
-                            if ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusProdPerColonist > 0.0 || (building.Name == "Space Port" || building.Name == "Outpost"))
+                            if ((double)building.PlusFlatProductionAmount > 0.0
+                                || (double)building.PlusProdPerColonist > 0.0
+                                || (double)building.PlusTaxPercentage > 0.0
+                                || (double)building.PlusProdPerRichness > 0.0
+                                || (double)building.CreditsPerColonist > 0.0
+                                || (building.Name == "Space Port" || building.Name == "Outpost"))
                             {
-                                if (!(building.Name == "Space Port") || (double)this.GetNetProductionPerTurn() >= 2.0)
+                                if ((building.Cost + 1) / ((double)this.GetNetProductionPerTurn() + 1) < 150 || this.ProductionHere > building.Cost * .5) //(building.Name == "Space Port") &&
                                 {
                                     float num3 = building.Cost;
                                     b = building;
                                     break;
                                 }
                             }
-                            else if ((double)building.Cost < (double)num2 && (!(building.Name == "Space Port") || this.BuildingList.Count >= 2))
+                            else if ((double)building.Cost < (double)num2 && (!(building.Name == "Space Port") || this.BuildingList.Count >= 2) || ((building.Cost + 1) / ((double)this.GetNetProductionPerTurn() + 1) < 150 || this.ProductionHere > building.Cost * .5))
                             {
                                 num2 = building.Cost;
                                 b = building;
                             }
                         }
                     }
-                    if (b != null && (double)this.Owner.EstimateIncomeAtTaxRate(0.4f) - (double)b.Maintenance > 0.0)
+                    if (b != null && (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0)))//((double)this.Owner.EstimateIncomeAtTaxRate(0.4f) - (double)b.Maintenance > 0.0 ))
                     {
                         bool flag2 = true;
                         if (b.BuildOnlyOnce)
@@ -3334,33 +3900,41 @@ namespace Ship_Game
                         if (flag2)
                             this.AddBuildingToCQ(b);
                     }
-                    else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0)
+                    else if ((double)buildingCount < 2.0 && this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= .5f)
                     {
                         if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                         {
-                            if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && (double)this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0)
+                            if (this.Population / (this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && (this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3))
                                 this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
                         }
-                        else if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && (double)this.Owner.EstimateIncomeAtTaxRate(0.5f) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0)
+                        else if (this.Population / (this.MaxPopulation + this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(0.5f) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3))
                             this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
                     }
                 }
-                if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                    this.ApplyStoredProduction(0);
                 for (int index = 0; index < this.ConstructionQueue.Count; ++index)
                 {
                     QueueItem queueItem1 = this.ConstructionQueue[index];
-                    if (index == 0 && queueItem1.isBuilding)
+                    if (index == 0 && queueItem1.isBuilding && this.ProductionHere > this.MAX_STORAGE * .5)
                     {
-                        if (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0)
+                        if (queueItem1.Building.Name == "Outpost"
+                            || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0
+                            || (double)queueItem1.Building.PlusProdPerRichness > 0.0
+                            || (double)queueItem1.Building.PlusProdPerColonist > 0.0
+                            //|| (double)queueItem1.Building.PlusTaxPercentage > 0.0
+                            //|| (double)queueItem1.Building.CreditsPerColonist > 0.0
+                            )
                         {
-                            this.ApplyStoredProduction(0);
-                            break;
+                            this.ApplyAllStoredProduction(0);
                         }
-                        else
-                            break;
+                        break;
                     }
-                    else if (queueItem1.isBuilding && ((double)queueItem1.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem1.Building.PlusProdPerColonist > 0.0 || (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusProdPerRichness > 0.0)))
+                    else if (queueItem1.isBuilding
+                        && ((double)queueItem1.Building.PlusFlatProductionAmount > 0.0
+                        || (double)queueItem1.Building.PlusProdPerColonist > 0.0
+                        || (queueItem1.Building.Name == "Outpost"
+                        || (double)queueItem1.Building.PlusProdPerRichness > 0.0
+                        //|| queueItem1.Building.PlusFlatFoodAmount >0f
+                        )))
                     {
                         LinkedList<QueueItem> linkedList = new LinkedList<QueueItem>();
                         foreach (QueueItem queueItem2 in (List<QueueItem>)this.ConstructionQueue)
@@ -3373,294 +3947,317 @@ namespace Ship_Game
                     }
                 }
             }
+            #endregion
             else
             {
+
                 switch (this.colonyType)
                 {
                     case Planet.ColonyType.Core:
-                        this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.5f);
-                        if ((double)this.NetFoodPerTurn - (double)this.consumption < 0.0 && (double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
+                        #region MyRegion
                         {
-                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                            float num = 1f - this.FarmerPercentage;
-                            //Added by McShooterz: No research percentage if not researching
-                            if (this.Owner.ResearchTopic != "")
+                            #region Resource control
+                            //Determine Food needs first
+                            //if (this.DetermineIfSelfSufficient())
+                            #region MyRegion
                             {
-                                this.WorkerPercentage = (float)(num * 2.0 / 5.0);
-                                this.ResearcherPercentage = (float)(num * 3.0 / 5.0);
-                            }
-                            else
-                            {
-                                this.WorkerPercentage = num;
-                                this.ResearcherPercentage = 0.0f;
-                            }
-                        }
-                        else
-                            this.fs = (double)this.FoodHere >= (double)this.MAX_STORAGE * 0.25 ? Planet.GoodState.EXPORT : Planet.GoodState.STORE;
-                        if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
-                            this.fs = Planet.GoodState.IMPORT;
-                        if (this.DetermineIfSelfSufficient() && (double)this.FoodHere > 1.0 && (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
-                        {
-                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(-0.5f);
-                            float num = 1f - this.FarmerPercentage;
-                            //Added by McShooterz: No research percentage if not researching
-                            if (this.Owner.ResearchTopic != "")
-                            {
-                                this.WorkerPercentage = num / 2f;
-                                this.ResearcherPercentage = num / 2f;
-                            }
-                            else
-                            {
-                                this.WorkerPercentage = num;
-                                this.ResearcherPercentage = 0.0f;
-                            }
-                            this.fs = Planet.GoodState.IMPORT;
-                        }
-                        else if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.75)
-                        {
-                            if ((double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
-                            {
-                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                                float num = 1f - this.FarmerPercentage;
-                                //Added by McShooterz: No research percentage if not researching
-                                if (this.Owner.ResearchTopic != "")
+                                //this.fs = GoodState.EXPORT;
+                                //Determine if excess food
+                               
+                                float surplus = (this.NetFoodPerTurn * (string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1 : .5f)) * (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
+                                if(this.Owner.data.Traits.Cybernetic >0)
                                 {
-                                    this.WorkerPercentage = num / 2f;
-                                    this.ResearcherPercentage = num / 2f;
+                                    surplus = this.GrossProductionPerTurn - this.consumption;
+                                    surplus = surplus * ((string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1 : .5f)) * (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
+                                        //(1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
                                 }
-                                else
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(surplus);
+                                if ( FarmerPercentage == 1 && StuffInQueueToBuild)
+                                    this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
+                                if (this.FarmerPercentage == 1 && StuffInQueueToBuild)
+                                    this.FarmerPercentage = .9f;
+                                this.WorkerPercentage =
+                                (1f - this.FarmerPercentage) *
+                                (ForgetReseachAndBuild ? 1 : (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)));
+   
+                                float Remainder = 1f - FarmerPercentage;
+                                //Research is happening
+                                this.WorkerPercentage = (Remainder * (string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1 : (1 - (this.ProductionHere ) / (this.MAX_STORAGE ))));
+                                if (this.ProductionHere / this.MAX_STORAGE > .9 && !StuffInQueueToBuild)
+                                    this.WorkerPercentage = 0;
+                                this.ResearcherPercentage = Remainder - this.WorkerPercentage;
+                                if (this.Owner.data.Traits.Cybernetic > 0)
                                 {
-                                    this.WorkerPercentage = num;
-                                    this.ResearcherPercentage = 0.0f;
+                                    this.WorkerPercentage += this.FarmerPercentage;
+                                    this.FarmerPercentage = 0;
                                 }
                             }
-                            else
+                            #endregion
+                            this.SetExportState(this.colonyType);
+                            //if (this.NetProductionPerTurn > 3f || this.developmentLevel > 2)
+                            //{
+                            //    if (this.ProductionHere > this.MAX_STORAGE * 0.33f)
+                            //        this.ps = Planet.GoodState.EXPORT;
+                            //    else if (this.ConstructionQueue.Count == 0)
+                            //        this.ps = Planet.GoodState.STORE;
+                            //    else
+                            //        this.ps = Planet.GoodState.IMPORT;
+                            //}
+                            ////Not enough production or development
+                            //else if (MAX_STORAGE * .75f > this.ProductionHere)
+                            //{
+                            //    this.ps = Planet.GoodState.IMPORT;
+                            //}
+                            //else if (MAX_STORAGE == this.ProductionHere)
+                            //{
+                            //    this.ps = GoodState.EXPORT;
+                            //}
+                            //else
+                            //    this.ps = GoodState.STORE;
+                            if (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)
+                                && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
+                                && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard)
+
+                                )
+                            // && (double)this.Owner.MoneyLastTurn > 5.0 && (double)this.NetProductionPerTurn > 4.0)
                             {
-                                this.FarmerPercentage = 0.0f;
-                                //Added by McShooterz: No research percentage if not researching
-                                if (this.Owner.ResearchTopic != "")
+                                bool hasShipyard = false;
+                                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                                 {
-                                    this.WorkerPercentage = 0.5f;
-                                    this.ResearcherPercentage = 0.5f;
-                                }
-                                else
-                                {
-                                    this.WorkerPercentage = 1.0f;
-                                    this.ResearcherPercentage = 0.0f;
-                                }
-                            }
-                        }
-                        else if ((double)this.FoodHere / (double)this.MAX_STORAGE > 0.75)
-                        {
-                            this.FarmerPercentage = 0.0f;
-                            //Added by McShooterz: No research percentage if not researching
-                            if (this.Owner.ResearchTopic != "")
-                            {
-                                this.WorkerPercentage = 0.7f;
-                                this.ResearcherPercentage = 0.3f;
-                            }
-                            else
-                            {
-                                this.WorkerPercentage = 1.0f;
-                                this.ResearcherPercentage = 0.0f;
-                            }
-                        }
-                        else
-                        {
-                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                            float num = 1f - this.FarmerPercentage;
-                            //Added by McShooterz: No research percentage if not researching
-                            if (this.Owner.ResearchTopic != "")
-                            {
-                                this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
-                                this.ResearcherPercentage = num / 4f;
-                            }
-                            else
-                            {
-                                this.WorkerPercentage = num;
-                                this.ResearcherPercentage = 0.0f;
-                            }
-                        }
-                        if ((double)this.GrossMoneyPT - (double)this.TotalMaintenanceCostsPerTurn < 0.0 && ((double)this.MineralRichness >= 0.75 || (double)this.PlusProductionPerColonist >= 1.0) && (double)this.ResearcherPercentage > 0.0)
-                        {
-                            double num4 = (double)this.AdjustResearchForProfit();
-                        }
-                        if (this.Shipyards.Count == 0 && this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.Owner.MoneyLastTurn > 5.0) && (double)this.NetProductionPerTurn > 4.0)
-                        {
-                            bool flag = false;
-                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
-                            {
-                                if (queueItem.isShip && queueItem.sData.IsShipyard)
-                                {
-                                    flag = true;
-                                    break;
-                                }
-                            }
-                            if (!flag)
-                                this.ConstructionQueue.Add(new QueueItem()
-                                {
-                                    isShip = true,
-                                    sData = ResourceManager.ShipsDict["Shipyard"].GetShipData(),
-                                    Cost = ResourceManager.ShipsDict["Shipyard"].GetCost(this.Owner) * UniverseScreen.GamePaceStatic
-                                });
-                        }
-                        foreach (Building building in this.BuildingList)
-                        {
-                            if (building.Name == "Space Port")
-                            {
-                                this.ps = Planet.GoodState.EXPORT;
-                                break;
-                            }
-                            else
-                                this.ps = Planet.GoodState.IMPORT;
-                        }
-                        if ((double)this.NetProductionPerTurn < 2.0 && (double)this.Population / 1000.0 < 1.0)
-                            this.ps = Planet.GoodState.IMPORT;
-                        float num5 = 0.0f;
-                        bool flag5 = false;
-                        foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name != "Biospheres")
-                                ++num5;
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                                ++num5;
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                                flag5 = true;
-                        }
-                        bool flag6 = true;
-                        foreach (Building building in this.BuildingList)
-                        {
-                            if (building.Name == "Outpost" || building.Name == "Capital City")
-                                flag6 = false;
-                            if (building.Name == "Terraformer")
-                                flag5 = true;
-                        }
-                        if (flag6)
-                        {
-                            bool flag1 = false;
-                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
-                            {
-                                if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                                {
-                                    flag1 = true;
-                                    break;
-                                }
-                            }
-                            if (!flag1)
-                                this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
-                        }
-                        if ((double)num5 < 2.0)
-                        {
-                            this.GetBuildingsWeCanBuildHere();
-                            Building b = (Building)null;
-                            float num1 = 99999f;
-                            foreach (Building building in this.BuildingsCanBuild)
-                            {
-                                if (((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population <= 1000.0) && ((double)building.MinusFertilityOnBuild <= 0.0 && !(building.Name == "Biospheres")) && (!(building.Name == "Terraformer") || !flag5 && (double)this.Fertility < 1.0) && (!(building.Name == "Deep Core Mine") && ((double)building.PlusFlatPopulation <= 0.0 || (double)this.Population / (double)this.MaxPopulation <= 0.25)))
-                                {
-                                    if ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost")
+                                    if (queueItem.isShip && queueItem.sData.IsShipyard)
                                     {
-                                        float num2 = building.Cost;
-                                        b = building;
+                                        hasShipyard = true;
                                         break;
                                     }
-                                    else if ((double)building.Cost < (double)num1)
+                                }
+                                if (!hasShipyard && this.developmentLevel > 2)
+                                    this.ConstructionQueue.Add(new QueueItem()
                                     {
-                                        num1 = building.Cost;
+                                        isShip = true,
+                                        sData = ResourceManager.ShipsDict[this.Owner.data.DefaultShipyard].GetShipData(),
+                                        Cost = ResourceManager.ShipsDict[this.Owner.data.DefaultShipyard].GetCost(this.Owner) * UniverseScreen.GamePaceStatic
+                                    });
+                            }
+                            #endregion
+                            byte num5 = 0;
+                            bool flag5 = false;
+                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                            {
+                                if (queueItem.isBuilding && queueItem.Building.Name != "Biospheres")
+                                    ++num5;
+                                if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
+                                    ++num5;
+                                if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
+                                    flag5 = true;
+                            }
+                            bool flag6 = true;
+                            foreach (Building building in this.BuildingList)
+                            {
+                                if (building.Name == "Outpost" || building.Name == "Capital City")
+                                    flag6 = false;
+                                if (building.Name == "Terraformer")
+                                    flag5 = true;
+                            }
+                            if (flag6)
+                            {
+                                bool flag1 = false;
+                                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                                {
+                                    if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
+                                    {
+                                        flag1 = true;
+                                        break;
+                                    }
+                                }
+                                if (!flag1)
+                                    this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
+                            }
+                            if (num5 < 2)
+                            {
+                                this.GetBuildingsWeCanBuildHere();
+
+                                foreach (PlanetGridSquare PGS in this.TilesList)
+                                {
+                                    bool qitemTest = PGS.QItem != null;
+                                    if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
+                                        pro = null;
+                                    if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
+                                        food = cheapestFlatfood;
+
+                                    if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
+                                        res = cheapestFlatResearch;
+
+                                }
+
+                                Building buildthis = null;
+                                buildthis = pro;
+                                buildthis = pro ?? food ?? res;
+
+                                if (buildthis != null)
+                                {
+                                    num5++;
+                                    this.AddBuildingToCQ(buildthis);
+                                }
+
+                            }
+                            if (num5 < 2)
+                            {
+                                float coreCost = 99999f;
+                                this.GetBuildingsWeCanBuildHere();
+                                Building b = (Building)null;
+                                foreach (Building building in this.BuildingsCanBuild)
+                                {
+                                    if (!WeCanAffordThis(building, this.colonyType))
+                                        continue;
+
+                                    if (cheapestFlatfood == null && cheapestFlatprod == null &&
+                                        (building.PlusFlatPopulation <= 0.0 || this.Population <= 1000.0)
+                                        && (this.Owner.data.Traits.Cybernetic <=0 && building.MinusFertilityOnBuild <= 0.0 && !(building.Name == "Biospheres"))
+                                        //&& (!(building.Name == "Terraformer") || !flag5 && this.Fertility < 1.0)
+                                        && (building.PlusTerraformPoints < 0 || !flag5 && this.Fertility < 1.0)
+                                        //&& (building.Name != "Deep Core Mine")
+                                        && (building.PlusFlatPopulation <= 0.0
+                                        || this.Population / this.MaxPopulation <= 0.25)
+                                        ||(this.Owner.data.Traits.Cybernetic >=0 && building.PlusProdPerRichness >0)
+                                        )
+                                    {
+
                                         b = building;
+                                        coreCost = b.Cost;
+                                        break;
+                                    }
+                                    else if (building.Cost < coreCost)
+                                    {
+                                        b = building;
+                                        coreCost = b.Cost;
                                     }
                                 }
-                            }
-                            if (b != null && (double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0)
-                            {
-                                bool flag1 = true;
-                                if (b.BuildOnlyOnce)
+
+                                if (b != null && cheapestFlatfood == null && cheapestFlatprod == null &&
+                                   (b.CreditsPerColonist > 0 || b.PlusTaxPercentage > 0
+                                   || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0 || b.PlusProdPerColonist > 0
+                                   || b.PlusFoodPerColonist > 0 || b.PlusFlatFoodAmount > 0
+                                   || b.PlusFlatResearchAmount > 0 || b.PlusResearchPerColonist > 0
+                                   || b.StorageAdded > 0
+                                   ))//&& !b.AllowShipBuilding)))//  ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType)) //
                                 {
-                                    for (int index = 0; index < this.Owner.GetPlanets().Count; ++index)
+                                    bool flag1 = true;
+                                    if (b.BuildOnlyOnce)
                                     {
-                                        if (this.Owner.GetPlanets()[index].BuildingInQueue(b.Name))
+                                        for (int index = 0; index < this.Owner.GetPlanets().Count; ++index)
                                         {
-                                            flag1 = false;
-                                            break;
+                                            if (this.Owner.GetPlanets()[index].BuildingInQueue(b.Name))
+                                            {
+                                                flag1 = false;
+                                                break;
+                                            }
                                         }
                                     }
+                                    if (flag1)
+                                        this.AddBuildingToCQ(b);
                                 }
-                                if (flag1)
-                                    this.AddBuildingToCQ(b);
-                            }
-                            else if (b != null && ((double)b.PlusFlatProductionAmount > 0.0 || (double)b.PlusProdPerColonist > 0.0))
-                            {
-                                bool flag1 = true;
-                                if (b.BuildOnlyOnce)
+                                else if (b != null
+                                    //&& ((double)b.PlusFlatProductionAmount > 0.0 || (double)b.PlusProdPerColonist > 0.0)
+                                    // && WeCanAffordThis(b,this.colonyType)
+                                    )
                                 {
-                                    for (int index = 0; index < this.Owner.GetPlanets().Count; ++index)
+                                    bool flag1 = true;
+                                    if (b.BuildOnlyOnce)
                                     {
-                                        if (this.Owner.GetPlanets()[index].BuildingInQueue(b.Name))
+                                        for (int index = 0; index < this.Owner.GetPlanets().Count; ++index)
                                         {
-                                            flag1 = false;
-                                            break;
+                                            if (this.Owner.GetPlanets()[index].BuildingInQueue(b.Name))
+                                            {
+                                                flag1 = false;
+                                                break;
+                                            }
                                         }
                                     }
+                                    if (flag1)
+                                        this.AddBuildingToCQ(b);
                                 }
-                                if (flag1)
-                                    this.AddBuildingToCQ(b);
-                            }
-                            else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
-                            {
-                                if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
+                                else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
                                 {
-                                    if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && (double)this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0)
+                                    if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
+                                    {
+                                        if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3))
+                                            this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
+                                    }
+                                    else if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && ((double)this.Owner.EstimateIncomeAtTaxRate(0.5f) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3))
                                         this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
                                 }
-                                else if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.949999988079071 && (double)this.Owner.EstimateIncomeAtTaxRate(0.5f) - (double)ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0)
-                                    this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
-                            }
-                        }
-                        for (int index = 0; index < this.ConstructionQueue.Count; ++index)
-                        {
-                            QueueItem queueItem1 = this.ConstructionQueue[index];
-                            if (index == 0 && queueItem1.isBuilding)
-                            {
-                                if (queueItem1.Building.Name == "Outpost" || (double)queueItem1.Building.PlusFlatProductionAmount > 0.0)
-                                {
-                                    this.ApplyStoredProduction(0);
-                                    break;
-                                }
-                                else
-                                    break;
-                            }
-                            else if (queueItem1.isBuilding && ((double)queueItem1.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem1.Building.PlusProdPerColonist > 0.0 || queueItem1.Building.Name == "Outpost"))
-                            {
-                                LinkedList<QueueItem> linkedList = new LinkedList<QueueItem>();
-                                foreach (QueueItem queueItem2 in (List<QueueItem>)this.ConstructionQueue)
-                                    linkedList.AddLast(queueItem2);
-                                linkedList.Remove(queueItem1);
-                                linkedList.AddFirst(queueItem1);
-                                this.ConstructionQueue.Clear();
-                                foreach (QueueItem queueItem2 in linkedList)
-                                    this.ConstructionQueue.Add(queueItem2);
                             }
 
-                            if (((double)this.ProductionHere >= 50.0 || this.ps == Planet.GoodState.IMPORT) && (double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
+                            for (int index = 0; index < this.ConstructionQueue.Count; ++index)
                             {
-                                this.ApplyStoredProduction(0);
-                                break;
+                                QueueItem queueItem1 = this.ConstructionQueue[index];
+                                if (index == 0 && queueItem1.isBuilding)
+                                {
+                                    if (queueItem1.Building.Name == "Outpost" ) //|| (double)queueItem1.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem1.Building.PlusProdPerRichness > 0.0 || (double)queueItem1.Building.PlusProdPerColonist > 0.0)
+                                    {
+                                        this.ApplyAllStoredProduction(0);
+                                    }
+                                    break;
+                                }
+                                else if (queueItem1.isBuilding && ((double)queueItem1.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem1.Building.PlusProdPerColonist > 0.0 || queueItem1.Building.Name == "Outpost"))
+                                {
+                                    LinkedList<QueueItem> linkedList = new LinkedList<QueueItem>();
+                                    foreach (QueueItem queueItem2 in (List<QueueItem>)this.ConstructionQueue)
+                                        linkedList.AddLast(queueItem2);
+                                    linkedList.Remove(queueItem1);
+                                    linkedList.AddFirst(queueItem1);
+                                    this.ConstructionQueue.Clear();
+                                    foreach (QueueItem queueItem2 in linkedList)
+                                        this.ConstructionQueue.Add(queueItem2);
+                                }
                             }
-                        }
-                        
+
+
                             break;
+                        }
+                        #endregion
                     case Planet.ColonyType.Industrial:
-                        this.fs = Planet.GoodState.IMPORT;
+                        #region MyRegion
+                        //this.fs = Planet.GoodState.IMPORT;
+
                         this.FarmerPercentage = 0.0f;
                         this.WorkerPercentage = 1f;
                         this.ResearcherPercentage = 0.0f;
-                        this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
-                        if ((double)this.FoodHere <= (double)this.consumption)
+
+                        //? true : .75f;
+                        //this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
+                        float IndySurplus = (this.NetFoodPerTurn) *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * 
+                            (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
+                        if (this.Owner.data.Traits.Cybernetic > 0)
                         {
-                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                            this.WorkerPercentage = 1f - this.FarmerPercentage;
-                            this.ResearcherPercentage = 0.0f;
+                            IndySurplus = this.GrossProductionPerTurn - this.consumption;
+                            IndySurplus = IndySurplus * (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
+                            //(1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
                         }
+                        //if ((double)this.FoodHere <= (double)this.consumption)
+                        {
+
+                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus);
+                            this.FarmerPercentage *= (this.FoodHere / MAX_STORAGE) > .25 ? .5f : 1;
+                            if ( FarmerPercentage == 1 && StuffInQueueToBuild)
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
+                            this.WorkerPercentage =
+                                (1f - this.FarmerPercentage)   //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
+                                * (ForgetReseachAndBuild ? 1 :
+                             (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)));
+                            if (this.ProductionHere / this.MAX_STORAGE >.75 && !StuffInQueueToBuild)
+                                this.WorkerPercentage = 0;
+ 
+                            this.ResearcherPercentage = 1 - this.FarmerPercentage - this.WorkerPercentage;// 0.0f;
+                            if (this.Owner.data.Traits.Cybernetic > 0)
+                            {
+                                this.WorkerPercentage += this.FarmerPercentage;
+                                this.FarmerPercentage = 0;
+                            }
+                        }
+                        this.SetExportState(this.colonyType);
+                        
+
                         float num6 = 0.0f;
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                         {
@@ -3689,47 +4286,99 @@ namespace Ship_Game
                             if (!flag1)
                                 this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                         }
+
                         bool flag8 = false;
                         this.GetBuildingsWeCanBuildHere();
-                        foreach (Building building1 in this.BuildingsCanBuild)
+                        if (num6 < 2)
                         {
-                            if ((double)building1.PlusFlatProductionAmount > 0.0 || (double)building1.PlusProdPerColonist > 0.0 || (double)building1.PlusProdPerRichness > 0.0)
+
+                            this.GetBuildingsWeCanBuildHere();
+
+                            foreach (PlanetGridSquare PGS in this.TilesList)
                             {
-                                int num1 = 0;
-                                foreach (Building building2 in this.BuildingList)
+                                bool qitemTest = PGS.QItem != null;
+                                if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
+                                    pro = null;
+                                if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
+                                    food = cheapestFlatfood;
+
+                                if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
+                                    res = cheapestFlatResearch;
+
+                            }
+                            Building buildthis = null;
+                            buildthis = pro;
+                            buildthis = pro ?? food ?? res;
+
+                            if (buildthis != null)
+                            {
+                                num6++;
+                                this.AddBuildingToCQ(buildthis);
+                            }
+
+                        }
+                        {
+
+
+                            double num1 = 0;
+                            foreach (Building building1 in this.BuildingsCanBuild)
+                            {
+                                if ((double)building1.PlusFlatProductionAmount > 0.0
+                                    || (double)building1.PlusProdPerColonist > 0.0
+                                    || (double)building1.PlusProdPerRichness > 0.0
+                                    )
                                 {
-                                    if (building2 == building1)
-                                        ++num1;
+
+                                    foreach (Building building2 in this.BuildingList)
+                                    {
+                                        if (building2 == building1)
+                                            ++num1;
+                                    }
+                                    flag8 = num1 <= 9;
+                                    break;
                                 }
-                                flag8 = num1 <= 9;
-                                break;
                             }
                         }
                         bool flag9 = true;
                         if (flag8)
                         {
+                            this.ConstructionQueue.thisLock.EnterReadLock();
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                             {
-                                if (queueItem.isBuilding && ((double)queueItem.Building.PlusFlatProductionAmount > 0.0 || (double)queueItem.Building.PlusProdPerColonist > 0.0 || (double)queueItem.Building.PlusProdPerRichness > 0.0))
+                                if (queueItem.isBuilding
+                                    && ((double)queueItem.Building.PlusFlatProductionAmount > 0.0
+                                    || (double)queueItem.Building.PlusProdPerColonist > 0.0
+                                    || (double)queueItem.Building.PlusProdPerRichness > 0.0)                                    
+                                    )
                                 {
                                     flag9 = false;
                                     break;
                                 }
                             }
+                            this.ConstructionQueue.thisLock.ExitReadLock();
                         }
                         if (flag9 && (double)num6 < 2.0)
                         {
+                            float indycost = 99999f;
                             Building b = (Building)null;
-                            foreach (Building building in this.BuildingsCanBuild)
+                            foreach (Building building in this.BuildingsCanBuild)//.OrderBy(cost=> cost.Cost))
                             {
-                                if ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusProdPerColonist > 0.0 || ((double)building.PlusProdPerRichness > 0.0 || building.StorageAdded > 0))
+                                if (!this.WeCanAffordThis(b, this.colonyType))
+                                    continue;
+                                if ((double)building.PlusFlatProductionAmount > 0.0
+                                    || (double)building.PlusProdPerColonist > 0.0
+                                    || ((double)building.PlusProdPerRichness > 0.0
+                                    || building.StorageAdded > 0
+
+                                    )
+                                    )//this.WeCanAffordThis(b,this.colonyType) )//
                                 {
-                                    double num1 = (double)building.Cost;
+                                    indycost = building.Cost;
                                     b = building;
                                     break;
                                 }
                             }
-                            if (b != null && (double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0)
+                            if (b != null) //(this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) // ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b, this.colonyType)) //
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -3749,7 +4398,9 @@ namespace Ship_Game
                                     ++num6;
                                 }
                             }
-                            else if (b != null && ((double)b.PlusFlatProductionAmount > 0.0 || (double)b.PlusProdPerColonist > 0.0 || (double)b.PlusProdPerRichness > 0.0 && (double)this.MineralRichness > 1.5))
+                            else if (b != null && ((double)b.PlusFlatProductionAmount > 0.0
+                                || (double)b.PlusProdPerColonist > 0.0
+                                || (double)b.PlusProdPerRichness > 0.0 && (double)this.MineralRichness > 1.5)) //this.WeCanAffordThis(b, this.colonyType))//
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -3767,28 +4418,23 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                         }
-                        if ((double)num6 < 2.0)
+                        if ((double)num6 < 2)
                         {
                             Building b = (Building)null;
+
+
                             float num1 = 99999f;
-                            foreach (Building building in this.GetBuildingsWeCanBuildHere())
+                            foreach (Building building in this.GetBuildingsWeCanBuildHere().OrderByDescending(industry => this.MaxPopulation < 4 ? industry.PlusFlatFoodAmount : industry.PlusFoodPerColonist).ThenBy(maintenance => maintenance.Maintenance))
                             {
-                                if ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusTaxPercentage > 0.0 || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Space Port") || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost"))
+                                if (this.WeCanAffordThis(building, this.colonyType) && (int)(building.Cost * .05f) < num1)   //
                                 {
-                                    if (!(building.Name == "Space Port") || (double)this.GetNetProductionPerTurn() >= 2.0)
-                                    {
-                                        float num2 = building.Cost;
-                                        b = building;
-                                        break;
-                                    }
-                                }
-                                else if ((double)building.Cost < (double)num1 && (building.CombatStrength > 0 || (double)building.PlusFlatProductionAmount > 0.0 || ((double)building.PlusFlatResearchAmount > 0.0 || (double)building.PlusFlatFoodAmount > 0.0) || (building.Name == "Space Port" || (double)building.PlusProdPerColonist > 0.0 || (building.Name == "Outpost" || (double)building.CreditsPerColonist > 0.0)) || building.StorageAdded > 0) && (!(building.Name == "Space Port") || this.BuildingList.Count >= 2))
-                                {
-                                    num1 = building.Cost;
                                     b = building;
+                                    num1 = (int)(building.Cost * .05f);
+
                                 }
+
                             }
-                            if (b != null && (double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0)
+                            if (b != null)
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -3806,28 +4452,48 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                         }
-                        if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                        {
-                            this.ApplyStoredProduction(0);
-                            break;
-                        }
-                        else
-                            break;
+                        break;
+                        #endregion
                     case Planet.ColonyType.Research:
-                        this.fs = Planet.GoodState.IMPORT;
-                        this.ps = Planet.GoodState.IMPORT;
+                        #region MyRegion
+                        //this.fs = Planet.GoodState.IMPORT;
+                        //this.ps = Planet.GoodState.IMPORT;
                         this.FarmerPercentage = 0.0f;
                         this.WorkerPercentage = 0.0f;
                         this.ResearcherPercentage = 1f;
-                        if ((double)this.FoodHere <= (double)this.consumption)
+                        StuffInQueueToBuild =
+                            this.ConstructionQueue.Where(building => building.isBuilding
+                                && (building.Building.PlusFlatFoodAmount > 0
+                                || building.Building.PlusFlatProductionAmount > 0
+                                || building.Building.PlusFlatResearchAmount > 0
+                                || building.Building.PlusResearchPerColonist > 0
+                                || building.Building.Name == "Biospheres"
+                                )).Count() > 0;  //(building.Cost > this.NetProductionPerTurn * 10)).Count() > 0;
+                        ForgetReseachAndBuild =
+                            string.IsNullOrEmpty(this.Owner.ResearchTopic) || StuffInQueueToBuild; //? 1 : .5f;
+                        IndySurplus = 0;
+                        this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus);
+                        if (this.Owner.data.Traits.Cybernetic <= 0 && FarmerPercentage == 1 & StuffInQueueToBuild)
+                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
+                        if (this.FarmerPercentage == 1 && StuffInQueueToBuild)
+                            this.FarmerPercentage = .9f;
+                        this.WorkerPercentage =
+                        (1f - this.FarmerPercentage) *
+                        (ForgetReseachAndBuild ? 1 : ((1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)) * .25f));
+                        if (this.ProductionHere / this.MAX_STORAGE > .9 && !StuffInQueueToBuild)
+                            this.WorkerPercentage = 0;
+                        this.ResearcherPercentage = 1f - this.FarmerPercentage - this.WorkerPercentage;
+                        if (this.Owner.data.Traits.Cybernetic > 0)
                         {
-                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
-                            this.ResearcherPercentage = 1f - this.FarmerPercentage;
+                            this.WorkerPercentage += this.FarmerPercentage;
+                            this.FarmerPercentage = 0;
                         }
-                        if ((double)this.GrossMoneyPT - (double)this.TotalMaintenanceCostsPerTurn < 0.0 && ((double)this.MineralRichness >= 0.75 || (double)this.PlusProductionPerColonist >= 1.0) && (double)this.ResearcherPercentage > 0.0)
-                        {
-                            double num7 = (double)this.AdjustResearchForProfit();
-                        }
+                        this.SetExportState(this.colonyType);
+                        //    if ((double)this.FoodHere <= (double)this.consumption)
+                        //{
+                        //    this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
+                        //    this.ResearcherPercentage = 1f - this.FarmerPercentage;
+                        //}
                         float num8 = 0.0f;
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                         {
@@ -3856,28 +4522,67 @@ namespace Ship_Game
                             if (!flag1)
                                 this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                         }
-                        if ((double)num8 < 2.0)
+                        if (num8 < 2.0)
+                        {
+                            this.GetBuildingsWeCanBuildHere();
+
+                            foreach (PlanetGridSquare PGS in this.TilesList)
+                            {
+                                bool qitemTest = PGS.QItem != null;
+                                if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
+                                    pro = null;
+                                if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
+                                    food = cheapestFlatfood;
+
+                                if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
+                                    res = cheapestFlatResearch;
+
+                            }
+                            Building buildthis = null;
+                            buildthis = pro;
+                            buildthis = pro ?? food ?? res;
+
+                            if (buildthis != null)
+                            {
+                                num8++;
+                                this.AddBuildingToCQ(buildthis);
+                            }
+                        }
+                        if (num8 < 2.0)
                         {
                             this.GetBuildingsWeCanBuildHere();
                             Building b = (Building)null;
                             float num1 = 99999f;
                             foreach (Building building in this.BuildingsCanBuild)
                             {
-                                if ((double)building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost")
+                                if (!WeCanAffordThis(building, this.colonyType))
+                                    continue;
+                                if (building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost") //this.WeCanAffordThis(building,this.colonyType)) //
                                 {
-                                    float num2 = building.Cost;
+                                    //float num2 = building.Cost;
                                     b = building;
                                     break;
                                 }
-                                else if ((double)building.Cost < (double)num1 && (building.CombatStrength > 0 || (double)building.PlusResearchPerColonist > 0.0 || ((double)building.PlusFlatResearchAmount > 0.0 || (double)building.PlusFlatFoodAmount > 0.0) || ((double)building.PlusFlatProductionAmount > 0.0 || building.StorageAdded > 0 || (building.Name == "Outpost" || (double)building.CreditsPerColonist > 0.0)) || (building.StorageAdded > 0 || (double)building.PlusTaxPercentage > 0.0)))
+                                else if (building.Cost < num1)
+                                //&& 
+                                //( (double)building.PlusResearchPerColonist > 0.0 
+                                //|| (double)building.PlusFlatResearchAmount > 0.0
+                                //|| (double)building.CreditsPerColonist > 0.0
+                                //|| building.StorageAdded > 0
+                                ////|| (building.PlusTaxPercentage > 0 && !building.AllowShipBuilding)))
+                                //))
                                 {
                                     num1 = building.Cost;
                                     b = building;
                                 }
                             }
-                            if (b != null && (double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0)
+                            if (b != null) // (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 
+                            //|| (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
                             {
                                 bool flag1 = true;
+                                if (b.StorageAdded > 0 && !(this.ps == GoodState.EXPORT && this.fs == GoodState.EXPORT))
+                                    flag1 = false;
+
                                 if (b.BuildOnlyOnce)
                                 {
                                     for (int index = 0; index < this.Owner.GetPlanets().Count; ++index)
@@ -3893,25 +4598,21 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                         }
-                        if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                        {
-                            this.ApplyStoredProduction(0);
-                            break;
-                        }
-                        else
-                            break;
+                        break;
+                        #endregion
                     case Planet.ColonyType.Agricultural:
-                        this.fs = Planet.GoodState.EXPORT;
-                        this.ps = Planet.GoodState.IMPORT;
+                        #region MyRegion
+                        //this.fs = Planet.GoodState.EXPORT;
+                        //this.ps = Planet.GoodState.IMPORT;
                         this.FarmerPercentage = 1f;
                         this.WorkerPercentage = 0.0f;
                         this.ResearcherPercentage = 0.0f;
-                        if ((double)this.FoodHere == (double)this.MAX_STORAGE)
+                        if ((this.Owner.data.Traits.Cybernetic <= 0 ? this.FoodHere:this.ProductionHere) == this.MAX_STORAGE)
                         {
                             this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.0f);
                             float num1 = 1f - this.FarmerPercentage;
                             //Added by McShooterz: No research percentage if not researching
-                            if (this.Owner.ResearchTopic != "")
+                            if (!string.IsNullOrEmpty(this.Owner.ResearchTopic))
                             {
                                 this.WorkerPercentage = num1 / 2f;
                                 this.ResearcherPercentage = num1 / 2f;
@@ -3927,7 +4628,7 @@ namespace Ship_Game
                             float num1 = 1f - this.FarmerPercentage;
                             this.WorkerPercentage = 0.0f;
                             //Added by McShooterz: No research percentage if not researching
-                            if (this.Owner.ResearchTopic != "")
+                            if (!string.IsNullOrEmpty(this.Owner.ResearchTopic))
                             {
                                 this.ResearcherPercentage = num1;
                             }
@@ -3937,6 +4638,31 @@ namespace Ship_Game
                                 this.ResearcherPercentage = 0.0f;
                             }
                         }
+                        if (this.Owner.data.Traits.Cybernetic > 0)
+                        {
+                            this.WorkerPercentage += this.FarmerPercentage;
+                            this.FarmerPercentage = 0;
+                        }
+                        this.SetExportState(this.colonyType);
+                        StuffInQueueToBuild = this.ConstructionQueue.Where(building => building.isBuilding || (building.Cost > this.NetProductionPerTurn * 10)).Count() > 0;
+                        ForgetReseachAndBuild =
+                            string.IsNullOrEmpty(this.Owner.ResearchTopic) || StuffInQueueToBuild; //? 1 : .5f;
+                        IndySurplus = (this.NetFoodPerTurn) *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * * (ForgetReseachAndBuild * .1f)
+    (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
+                        this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus);
+                        if (FarmerPercentage == 1 & StuffInQueueToBuild)
+                            this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
+                        if (this.FarmerPercentage == 1 && StuffInQueueToBuild)
+                            this.FarmerPercentage = .9f;
+                        this.WorkerPercentage =
+                        (1f - this.FarmerPercentage) *
+                        (ForgetReseachAndBuild ? 1 : (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)));
+                        if (this.ProductionHere / this.MAX_STORAGE > .75 && !StuffInQueueToBuild)
+                            this.WorkerPercentage = 0;
+
+                        this.ResearcherPercentage = 1f - this.FarmerPercentage - this.WorkerPercentage;
+
+
                         float num9 = 0.0f;
                         bool flag11 = false;
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
@@ -3953,7 +4679,7 @@ namespace Ship_Game
                         {
                             if (building.Name == "Outpost" || building.Name == "Capital City")
                                 flag12 = false;
-                            if (building.Name == "Terraformer")
+                            if (building.Name == "Terraformer" && this.Fertility >= 1.0)
                                 flag11 = true;
                         }
                         if (flag12)
@@ -3973,23 +4699,69 @@ namespace Ship_Game
                         if ((double)num9 < 2.0)
                         {
                             this.GetBuildingsWeCanBuildHere();
+
+                            foreach (PlanetGridSquare PGS in this.TilesList)
+                            {
+                                bool qitemTest = PGS.QItem != null;
+                                if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
+                                    pro = null;
+                                if (PGS.building != cheapestFlatfood && !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
+                                    food = cheapestFlatfood;
+
+                                if (PGS.building != cheapestFlatResearch && !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
+                                    res = cheapestFlatResearch;
+
+                            }
+                            Building buildthis = null;
+                            buildthis = pro;
+                            buildthis = pro ?? food ?? res;
+
+                            if (buildthis != null)
+                            {
+                                num9++;
+                                this.AddBuildingToCQ(buildthis);
+                            }
+                        }
+
+                        if ((double)num9 < 2.0)
+                        {
+                            this.GetBuildingsWeCanBuildHere();
                             Building b = (Building)null;
                             float num1 = 99999f;
-                            foreach (Building building in this.BuildingsCanBuild)
+                            bool highPri = false;
+                            foreach (Building building in this.BuildingsCanBuild.OrderBy(cost => cost.Cost))
                             {
-                                if ((double)building.PlusFlatProductionAmount > 0.0 || building.Name == "Outpost")
-                                {
+                                if (!WeCanAffordThis(building, this.colonyType))
+                                    continue;
+                                if (building.Name == "Outpost") //this.WeCanAffordThis(building,this.colonyType)) //
+                                {//(double)building.PlusFlatProductionAmount > 0.0 ||
                                     float num2 = building.Cost;
                                     b = building;
                                     break;
                                 }
-                                else if ((double)building.Cost < (double)num1 && (building.CombatStrength > 0 || (double)building.PlusFoodPerColonist > 0.0 || ((double)building.PlusFlatFoodAmount > 0.0 || (double)building.PlusFlatProductionAmount > 0.0) || ((double)building.PlusFlatResearchAmount > 0.0 || building.StorageAdded > 0 || (building.Name == "Outpost" || (double)building.CreditsPerColonist > 0.0)) || (building.StorageAdded > 0 || !flag11 && building.Name == "Terraformer" && (double)this.Fertility < 1.0) || (double)building.PlusTaxPercentage > 0.0))
+                                else if ((double)building.Cost < (double)num1
+                                    && (
+                                     (double)building.PlusFoodPerColonist > 0.0
+                                    || (double)building.PlusFlatFoodAmount > 0.0
+                                    || (building.PlusTerraformPoints > 0f && this.Fertility < 1)
+                                    || building.StorageAdded > 0f
+                                    ))
+                                //|| 
+                                //(double)building.PlusFlatResearchAmount > 0.0 || building.StorageAdded > 0 || (building.Name == "Outpost" || (double)building.CreditsPerColonist > 0.0)) 
+                                //|| (building.StorageAdded > 0 || !flag11 && building.Name == "Terraformer" 
+                                //&& (double)this.Fertility < 1.0) || (double)building.PlusTaxPercentage > 0.0))
+                                {
+                                    highPri = true;
+                                    num1 = building.Cost;
+                                    b = building;
+                                }
+                                else if (!highPri && (double)building.Cost < (double)num1 && cheapestFlatfood == null && cheapestFlatprod == null && cheapestFlatResearch == null)
                                 {
                                     num1 = building.Cost;
                                     b = building;
                                 }
                             }
-                            if (b != null && (double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0)
+                            if (b != null)//&& (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) //((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes *3))
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -4007,17 +4779,13 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                         }
-                        if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                        {
-                            this.ApplyStoredProduction(0);
-                            break;
-                        }
-                        else
-                            break;
+                        break;
+                        #endregion
                     case Planet.ColonyType.Military:
-                        this.fs = Planet.GoodState.IMPORT;
-                        if ((double)this.MAX_STORAGE - (double)this.FoodHere < 25.0)
-                            this.fs = Planet.GoodState.EXPORT;
+                        #region MyRegion
+                        //this.fs = Planet.GoodState.IMPORT;
+                        //if ((double)this.MAX_STORAGE - (double)this.FoodHere < 25.0)
+                        //    this.fs = Planet.GoodState.EXPORT;
                         this.FarmerPercentage = 0.0f;
                         this.WorkerPercentage = 1f;
                         this.ResearcherPercentage = 0.0f;
@@ -4027,77 +4795,91 @@ namespace Ship_Game
                             this.WorkerPercentage = 1f - this.FarmerPercentage;
                             this.ResearcherPercentage = 0.0f;
                         }
-                        this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
-                        float num10 = 0.0f;
+                        if (this.Owner.data.Traits.Cybernetic > 0)
+                        {
+                            this.WorkerPercentage += this.FarmerPercentage;
+                            this.FarmerPercentage = 0;
+                        }
+                        this.SetExportState(this.colonyType);
+                        //this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
+                        float buildingCount = 0.0f;
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                         {
                             if (queueItem.isBuilding)
-                                ++num10;
+                                ++buildingCount;
                             if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                                ++num10;
+                                ++buildingCount;
                         }
-                        bool flag13 = true;
+                        bool missingOutpost = true;
                         foreach (Building building in this.BuildingList)
                         {
                             if (building.Name == "Outpost" || building.Name == "Capital City")
-                                flag13 = false;
+                                missingOutpost = false;
                         }
-                        if (flag13)
+                        if (missingOutpost)
                         {
-                            bool flag1 = false;
+                            bool hasOutpost = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
                                 {
-                                    flag1 = true;
+                                    hasOutpost = true;
                                     break;
                                 }
                             }
-                            if (!flag1)
+                            if (!hasOutpost)
                                 this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                         }
-                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.Shipyards.Count == 0 && (Ship_Game.ResourceManager.TechTree.ContainsKey("Shipyards") && this.Owner.GetTDict()["Shipyards"].Unlocked && (double)this.GrossMoneyPT > 3.0))
+                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)
+                            && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
+                            && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) && (double)this.GrossMoneyPT > 3.0)
                         {
-                            bool flag1 = false;
+                            bool hasShipyard = false;
                             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isShip && queueItem.sData.IsShipyard)
                                 {
-                                    flag1 = true;
+                                    hasShipyard = true;
                                     break;
                                 }
                             }
-                            if (!flag1)
+                            if (!hasShipyard)
                                 this.ConstructionQueue.Add(new QueueItem()
                                 {
                                     isShip = true,
-                                    sData = ResourceManager.ShipsDict["Shipyard"].GetShipData(),
-                                    Cost = ResourceManager.ShipsDict["Shipyard"].GetCost(this.Owner)
+                                    sData = ResourceManager.ShipsDict[this.Owner.data.DefaultShipyard].GetShipData(),
+                                    Cost = ResourceManager.ShipsDict[this.Owner.data.DefaultShipyard].GetCost(this.Owner)
                                 });
                         }
-                        if ((double)num10 < 2.0)
+                        if ((double)buildingCount < 2.0)
                         {
                             this.GetBuildingsWeCanBuildHere();
                             Building b = (Building)null;
                             float num1 = 99999f;
                             foreach (Building building in this.BuildingsCanBuild)
                             {
-                                if ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusFlatResearchAmount > 0.0 || ((double)building.PlusFlatFoodAmount > 0.0 || building.Name == "Space Port") || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost" || ((double)building.CreditsPerColonist > 0.0 || building.CombatStrength > 0)))
+                                if ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusFlatResearchAmount > 0.0 || ((double)building.PlusFlatFoodAmount > 0.0 || building.Name == "Space Port") || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost" || ((double)building.CreditsPerColonist > 0.0 || building.CombatStrength > 0))) //this.WeCanAffordThis(building,this.colonyType)) // 
                                 {
-                                    if (!(building.Name == "Space Port") || (double)this.GetNetProductionPerTurn() >= 2.0)
+                                    if (!(building.Name == "Space Port") || (double)this.GetNetProductionPerTurn() >= 2.0) //this.WeCanAffordThis(building,this.colonyType)) //
                                     {
                                         float num2 = building.Cost;
                                         b = building;
                                         break;
                                     }
                                 }
-                                else if ((double)building.Cost < (double)num1 && ((double)building.PlusFlatProductionAmount > 0.0 || (double)building.PlusFlatResearchAmount > 0.0 || ((double)building.PlusFlatFoodAmount > 0.0 || building.Name == "Space Port") || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost" || ((double)building.CreditsPerColonist > 0.0 || building.CombatStrength > 0)) || ((double)building.PlusTaxPercentage > 0.0 || building.StorageAdded > 0)) && (building.CombatStrength <= 0 && (!(building.Name == "Space Port") || this.BuildingList.Count >= 2)))
+                                else if ((double)building.Cost < (double)num1
+                                    && ((double)building.PlusFlatProductionAmount > 0.0
+                                    || (double)building.PlusFlatResearchAmount > 0.0
+                                    || ((double)building.PlusFlatFoodAmount > 0.0 || building.Name == "Space Port")
+                                    || ((double)building.PlusProdPerColonist > 0.0 || building.Name == "Outpost" || ((double)building.CreditsPerColonist > 0.0 || building.CombatStrength > 0))
+                                    || ((building.PlusTaxPercentage > 0 && !building.AllowShipBuilding) || building.StorageAdded > 0))
+                                    && (building.CombatStrength <= 0 && (!(building.Name == "Space Port" || building.AllowShipBuilding) || this.BuildingList.Count >= 2)))
                                 {
                                     num1 = building.Cost;
                                     b = building;
                                 }
                             }
-                            if (b != null && (double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0)
+                            if (b != null && (this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || (b.PlusTaxPercentage > 0 && !b.AllowShipBuilding)))) // ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType))  //
                             {
                                 bool flag1 = true;
                                 if (b.BuildOnlyOnce)
@@ -4132,66 +4914,301 @@ namespace Ship_Game
                                     this.AddBuildingToCQ(b);
                             }
                         }
-                        if ((double)this.MAX_STORAGE - (double)this.ProductionHere <= 15.0)
-                        {
-                            this.ApplyStoredProduction(0);
-                            break;
-                        }
-                        else
-                            break;
-                }
-            }
-            //Added by McShooterz: Colony build troops
-            if (this.CanBuildInfantry() && this.ConstructionQueue.Count == 0 && this.ProductionHere > this.MAX_STORAGE*.75f && this.Owner == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
-            {
-                bool addTroop = false;
-                foreach (PlanetGridSquare planetGridSquare in this.TilesList)
-                {
-                    if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops)
-                    {
-                        addTroop = true;
                         break;
-                    }
-                }
-                if (addTroop)
-                {
-                    foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
-                    {
-                        if (this.Owner.WeCanBuildTroop(troop.Key))
+                        #endregion
+
+                    case Planet.ColonyType.TradeHub:
+                        #region MyRegion
                         {
-                            QueueItem qi = new QueueItem();
-                            qi.isTroop = true;
-                            qi.troop = troop.Value;
-                            qi.Cost = troop.Value.GetCost();
-                            qi.productionTowards = 0f;
-                            qi.NotifyOnEmpty = false;
-                            this.ConstructionQueue.Add(qi);                         
+
+                            //this.fs = Planet.GoodState.IMPORT;
+
+                            this.FarmerPercentage = 0.0f;
+                            this.WorkerPercentage = 1f;
+                            this.ResearcherPercentage = 0.0f;
+
+                            //? true : .75f;
+                            this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
+                            float IndySurplus2 = (this.NetFoodPerTurn) *//(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? .5f : .25f)) * 
+                                (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
+                            if (this.Owner.data.Traits.Cybernetic > 0)
+                            {
+                                IndySurplus = this.GrossProductionPerTurn - this.consumption;
+                                IndySurplus = IndySurplus * (1 - (this.FoodHere + 1) / (this.MAX_STORAGE + 1));
+                                //(1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
+                            }
+                            //if ((double)this.FoodHere <= (double)this.consumption)
+                            {
+
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(IndySurplus2);
+                                if (FarmerPercentage == 1 && StuffInQueueToBuild)
+                                    this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0);
+                                this.WorkerPercentage =
+                                    (1f - this.FarmerPercentage)   //(string.IsNullOrEmpty(this.Owner.ResearchTopic) ? 1f :
+                                    * (ForgetReseachAndBuild ? 1 :
+                                 (1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1)));
+                                if (this.ProductionHere / this.MAX_STORAGE > .75 && !StuffInQueueToBuild)
+                                    this.WorkerPercentage = 0;
+                                this.ResearcherPercentage = 1 - this.FarmerPercentage - this.WorkerPercentage;// 0.0f;
+                                if (this.Owner.data.Traits.Cybernetic > 0)
+                                {
+                                    this.WorkerPercentage += this.FarmerPercentage;
+                                    this.FarmerPercentage = 0;
+                                }
+                                this.SetExportState(this.colonyType);
+
+                            }
+                            break;
+                        }
+                        #endregion
+                }
+            }
+
+            if (this.ConstructionQueue.Count < 5 && !this.system.CombatInSystem) //  this.ProductionHere > this.MAX_STORAGE * .75f)
+            #region Troops and platforms
+            {
+                //Added by McShooterz: Colony build troops
+                #region MyRegion
+                if (this.Owner.isPlayer && this.colonyType == ColonyType.Military)
+                {
+                    bool addTroop = false;
+                    foreach (PlanetGridSquare planetGridSquare in this.TilesList)
+                    {
+                        if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops)
+                        {
+                            addTroop = true;
                             break;
                         }
                     }
+                    if (addTroop)
+                    {
+                        foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
+                        {
+                            if (this.Owner.WeCanBuildTroop(troop.Key))
+                            {
+
+                                QueueItem qi = new QueueItem();
+                                qi.isTroop = true;
+                                qi.troop = troop.Value;
+                                qi.Cost = troop.Value.GetCost();
+                                qi.productionTowards = 0f;
+                                qi.NotifyOnEmpty = false;
+                                this.ConstructionQueue.Add(qi);
+                                break;
+                            }
+                        }
+                    }
+
+
                 }
-            }
-            if ((double)this.Population > 3000.0 || (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) > 0.75)
-            {
-                List<Building> list = new List<Building>();
-                foreach (Building building in this.BuildingList)
+                #endregion
+                //Added by McShooterz: build defense platforms
+
+                if (this.HasShipyard && !this.system.CombatInSystem && (!this.Owner.isPlayer || this.colonyType == ColonyType.Military))
                 {
-                    if ((double)building.PlusFlatPopulation > 0.0 && (double)building.Maintenance > 0.0)
-                        list.Add(building);
+
+                    SystemCommander SCom;
+                    if (this.Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(this.system, out SCom))
+                    {
+                        float DefBudget;
+                        DefBudget = this.Owner.data.DefenseBudget * SCom.PercentageOfValue;
+
+                        float maxProd = this.GetMaxProductionPotential();
+                        //bool buildStation =false;
+                        float platformUpkeep = ResourceManager.ShipRoles["platform"].Upkeep;
+                        float stationUpkeep = ResourceManager.ShipRoles["station"].Upkeep;
+                        string station = this.Owner.GetGSAI().GetStarBase();
+                        //if (DefBudget >= 1 && !string.IsNullOrEmpty(station))
+                        //    buildStation = true;
+                        int PlatformCount = 0;
+                        int stationCount = 0;
+                        foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                        {
+                            if (!queueItem.isShip)
+                                continue;
+                            if (queueItem.sData.Role == "platform")
+                            {
+                                if (DefBudget - platformUpkeep < -platformUpkeep * .5) //|| (buildStation && DefBudget > stationUpkeep))
+                                {
+                                    this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                                    continue;
+                                }
+                                DefBudget -= platformUpkeep;
+                                PlatformCount++;
+                            }
+                            if (queueItem.sData.Role == "station")
+                            {
+                                if (DefBudget - stationUpkeep < -stationUpkeep)
+                                {
+                                    this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                                    continue;
+                                }
+                                DefBudget -= stationUpkeep;
+                                stationCount++;
+                            }
+                        }
+                        foreach (Ship platform in this.Shipyards.Values)
+                        {
+                            if (platform.BaseStrength <= 0)
+                                continue;
+                            if (platform.GetAI().State == AIState.Scrap)
+                                continue;
+                            if (platform.Role == "station")
+                            {
+                                stationUpkeep = platform.GetMaintCost();
+                                if (DefBudget - stationUpkeep < -stationUpkeep)
+                                {
+
+                                    platform.GetAI().OrderScrapShip();
+                                    continue;
+                                }
+                                DefBudget -= stationUpkeep;
+                                stationCount++;
+                            }
+                            if (platform.Role == "platform")//|| (buildStation && DefBudget < 5))
+                            {
+                                platformUpkeep = platform.GetMaintCost();
+                                if (DefBudget - platformUpkeep < -platformUpkeep)
+                                {
+                                    platform.GetAI().OrderScrapShip();
+
+                                    continue;
+                                }
+                                DefBudget -= platformUpkeep;
+                                PlatformCount++;
+                            }
+
+                        }
+                        //this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0 && ship.Value.Role=="platform").Count();
+
+
+                        if (DefBudget > stationUpkeep && maxProd > 10.0
+&& stationCount < (int)(SCom.RankImportance * .5f) //(int)(SCom.PercentageOfValue * this.developmentLevel)
+&& stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                        {
+                            // string platform = this.Owner.GetGSAI().GetStarBase();
+                            if (!string.IsNullOrEmpty(station))
+                            {
+                                Ship ship = ResourceManager.ShipsDict[station];
+                                this.ConstructionQueue.Add(new QueueItem()
+                                   {
+                                       isShip = true,
+                                       sData = ship.GetShipData(),
+                                       Cost = ship.GetCost(this.Owner)
+                                   });
+                            }
+                            DefBudget -= stationUpkeep;
+                        }
+                        if (DefBudget > platformUpkeep && maxProd > 1.0
+                            && PlatformCount < SCom.RankImportance //(int)(SCom.PercentageOfValue * this.developmentLevel)
+                            && PlatformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                        {
+                            string platform = this.Owner.GetGSAI().GetDefenceSatellite();
+                            if (!string.IsNullOrEmpty(platform))
+                            {
+                                Ship ship = ResourceManager.ShipsDict[platform];
+                                this.ConstructionQueue.Add(new QueueItem()
+                                {
+                                    isShip = true,
+                                    sData = ship.GetShipData(),
+                                    Cost = ship.GetCost(this.Owner)
+                                });
+                            }
+
+                        }
+
+                    }
                 }
-                foreach (Building b in list)
-                    this.ScrapBuilding(b);
+
             }
-            if ((double)this.Fertility < 1.0)
-                return;
-            List<Building> list1 = new List<Building>();
-            foreach (Building building in this.BuildingList)
+            #endregion
+            //if (this.Population > 3000.0 || this.Population / (this.MaxPopulation + this.MaxPopBonus) > 0.75)
+            #region Scrap
+            //if (this.colonyType!= ColonyType.TradeHub)
             {
-                if ((double)building.PlusTerraformPoints > 0.0 && (double)building.Maintenance > 0.0)
-                    list1.Add(building);
+                //List<Building> list = new List<Building>();
+                //foreach (Building building in this.BuildingList)
+                //{
+                //    if ((double)building.PlusFlatPopulation > 0.0 && (double)building.Maintenance > 0.0 && building.Name != "Biospheres")
+                //    //
+                //        list.Add(building);
+                //}
+                //foreach (Building b in list)
+                //    this.ScrapBuilding(b);
+
+                List<Building> list1 = new List<Building>();
+                if ((double)this.Fertility >= 1.0)
+                {
+
+                    foreach (Building building in this.BuildingList)
+                    {
+                        if (building.PlusTerraformPoints > 0.0 && (double)building.Maintenance > 0.0)
+                            list1.Add(building);
+                    }
+                }
+
+                //finances
+                //if (this.Owner.Money*.5f < this.Owner.GrossTaxes*(1-this.Owner.data.TaxRate) && this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn < 0)
+                {
+                    this.ConstructionQueue.thisLock.EnterReadLock();
+                    foreach (PlanetGridSquare PGS in this.TilesList)
+                    {
+                        bool qitemTest = PGS.QItem != null;
+                        if ((qitemTest && PGS.QItem.Building.Name == "Biospheres") || (PGS.building != null && PGS.building.Name == "Biospheres"))
+                            continue;
+                        if ((PGS.building != null && PGS.building.PlusFlatProductionAmount > 0) || (PGS.building != null && PGS.building.PlusFlatProductionAmount > 0))
+                            continue;
+                        if ((PGS.building != null && PGS.building.PlusFlatFoodAmount > 0) || (PGS.building != null && PGS.building.PlusFlatFoodAmount > 0))
+                            continue;
+                        if ((PGS.building != null && PGS.building.PlusFlatResearchAmount > 0) || (PGS.building != null && PGS.building.PlusFlatResearchAmount > 0))
+                            continue;
+                        if (PGS.building != null && !qitemTest && PGS.building.Scrappable && !WeCanAffordThis(PGS.building, this.colonyType)) // queueItem.isBuilding && !WeCanAffordThis(queueItem.Building, this.colonyType))
+                        {
+                            this.ScrapBuilding(PGS.building);
+
+                        }
+                        if (qitemTest && !WeCanAffordThis(PGS.QItem.Building, this.colonyType))
+                        {
+                            this.ProductionHere += PGS.QItem.productionTowards;
+                            this.ConstructionQueue.QueuePendingRemoval(PGS.QItem);
+                            PGS.QItem = null;
+
+                        }
+                    }
+                    //foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                    //{
+                    //    if(queueItem.Building == cheapestFlatfood || queueItem.Building == cheapestFlatprod || queueItem.Building == cheapestFlatResearch)
+                    //        continue;
+                    //    if (queueItem.isBuilding &&  !WeCanAffordThis(queueItem.Building, this.colonyType))
+                    //    {
+                    //        this.ProductionHere += queueItem.productionTowards;
+                    //        this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                    //    }
+                    //}
+                    this.ConstructionQueue.thisLock.ExitReadLock();
+                    this.ConstructionQueue.ApplyPendingRemovals();
+                    //foreach (Building building in this.BuildingList)
+                    //{
+                    //    if (building.Name != "Biospheres" && !WeCanAffordThis(building, this.colonyType))
+                    //        //
+                    //        list1.Add(building);
+                    //}
+
+                }
+
+                //foreach (Building b in list1.OrderBy(maintenance=> maintenance.Maintenance))
+                //{
+
+                //    if (b == cheapestFlatprod || b == cheapestFlatfood || b == cheapestFlatResearch)
+                //        continue;
+                //    this.ScrapBuilding(b);
+                //}
+            #endregion
             }
-            foreach (Building b in list1)
-                this.ScrapBuilding(b);
+        }
+        public bool GoodBuilding (Building b)
+        {
+            return true;
         }
 
         public void ScrapBuilding(Building b)
@@ -4211,68 +5228,146 @@ namespace Ship_Game
             }
         }
 
+
         public bool ApplyStoredProduction(int Index)
         {
-            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null || this.Owner.Money <=0))
+            
+            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null ))//|| this.Owner.Money <=0))
                 return false;
-
-            float amount = this.ProductionHere * .25f;
+            if (this.Owner != null && !this.Owner.isPlayer && this.Owner.data.Traits.Cybernetic > 0)
+                return false;
+            
+            QueueItem item = this.ConstructionQueue[Index];
+            float amountToRush = this.GetMaxProductionPotential();//(int)(this.ProductionHere * .25f); //item.Cost - item.productionTowards;
+            amountToRush = amountToRush < 5 ? 5 : amountToRush;
+            float amount = amountToRush < this.ProductionHere ? amountToRush : this.ProductionHere;
             if (amount < 1)
             {
                 return false;
             }
                 this.ProductionHere -= amount;
                 this.ApplyProductiontoQueue(amount, Index);
+                
                 return true;
        }
 
+        public void ApplyAllStoredProduction(int Index)
+        {
+            if (this.Crippled_Turns > 0 || this.RecentCombat || (this.ConstructionQueue.Count <= 0 || this.Owner == null )) //|| this.Owner.Money <= 0))
+                return;
+           
+            float amount = this.ProductionHere;
+            this.ProductionHere = 0f;
+            this.ApplyProductiontoQueue(amount, Index);
+            
+        }
+
         private void ApplyProductionTowardsConstruction()
         {
-            if (this.ps == Planet.GoodState.EXPORT)
+
+            /*
+             * timeToEmptyMax = maxs/maxp; = 2
+
+maxp =max production =50
+maxs = max storage =100
+cs = current stoage; = 50
+
+time2ec = cs/maxp = 1
+
+take10 = time2ec /10; = .1
+output = maxp * take10 = 5
+             * */
+
+            float maxp = this.GetMaxProductionPotential() *(1-this.FarmerPercentage); //this.NetProductionPerTurn; //
+            if (maxp < 5)
+                maxp = 5;
+            float StorageRatio = 0;
+                //float TimeToEmpty = cs / maxp;
+            float take10Turns = 0;//TimeToEmpty / (this.ps == GoodState.EXPORT ? 20 : 10);
+            //bool NoNeedToStore = this.Owner.GetPlanets().Count == 1;
+                StorageRatio= this.ProductionHere / this.MAX_STORAGE;
+            take10Turns = maxp * StorageRatio;
+
+               
+                if (!this.PSexport)
+                    take10Turns *= (StorageRatio < .75f ? this.ps == GoodState.EXPORT ? .5f : this.ps == GoodState.STORE ? .25f : 1 : 1);
+                    //take10Turns = maxp;
+            if (!this.GovernorOn || this.colonyType == ColonyType.Colony)
+                {
+                    take10Turns = this.NetProductionPerTurn; ;
+                }
+                float normalAmount =  take10Turns;// maxp* take10Turns;
+
+
+
+            normalAmount = normalAmount < 0 ? 0 : normalAmount;
+            normalAmount = normalAmount >
+                this.ProductionHere ? ProductionHere : normalAmount;
+            ProductionHere -= normalAmount;
+
+            this.ApplyProductiontoQueue(normalAmount,0);
+            this.ProductionHere += this.NetProductionPerTurn > 0.0f ? this.NetProductionPerTurn : 0.0f;
+           
+            return;
+            if (this.ProductionHere > this.MAX_STORAGE * 0.6f && this.GovernorOn)
             {
-                if ((double)this.ProductionHere + (double)this.NetProductionPerTurn > (double)this.MAX_STORAGE)
-                {
-                    this.ApplyProductiontoQueue(this.NetProductionPerTurn, 0);
-                }
-                else
-                {
-                    this.ApplyProductiontoQueue(0.75f * this.NetProductionPerTurn, 0);
-                    this.ProductionHere += 0.25f * this.NetProductionPerTurn;
-                }
+                float amount = this.ProductionHere - (this.MAX_STORAGE * 0.6f);
+                this.ProductionHere = this.MAX_STORAGE * 0.6f;
+                this.ApplyProductiontoQueue(normalAmount + amount, 0);
             }
             else
-                this.ApplyProductiontoQueue(this.NetProductionPerTurn, 0);
-            if ((double)this.ProductionHere <= (double)this.MAX_STORAGE)
-                return;
-            this.ProductionHere = this.MAX_STORAGE;
+            {
+                //Only store 25% if exporting
+                if (this.ps == GoodState.EXPORT)
+                {
+                    this.ApplyProductiontoQueue(normalAmount * 0.75f, 0);
+                    this.ProductionHere += 0.25f * normalAmount;
+                }
+                else
+                    this.ApplyProductiontoQueue(normalAmount, 0);
+            }
+            //Lost production converted into 50% money
+            //The Doctor: disabling until this can be more smoothly integrated into the economic predictions, UI and AI
+            /*
+            if (this.ProductionHere > this.MAX_STORAGE)
+            {
+                this.Owner.Money += (this.ProductionHere - this.MAX_STORAGE) * 0.5f;
+                this.ProductionHere = this.MAX_STORAGE;
+            } */
         }
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
         {
-            if (this.Crippled_Turns > 0 || this.RecentCombat)
+            if (this.Crippled_Turns > 0 || this.RecentCombat || howMuch <= 0.0)
                 return;
-            howMuch = (float)Math.Round((double)howMuch, 1, MidpointRounding.ToEven);
-            if ((double)howMuch < 0.0)
-                return;
+            this.planetLock.EnterWriteLock();
+            float cost = 0;
             if (this.ConstructionQueue.Count > 0 && this.ConstructionQueue.Count > whichItem)
-            {
-                if (this.ConstructionQueue[whichItem].isShip)
-                    howMuch += howMuch * this.ShipBuildingModifier;
-                if ((double)this.ConstructionQueue[whichItem].productionTowards + (double)howMuch < (double)this.ConstructionQueue[whichItem].Cost)
+            {                
+                QueueItem item = this.ConstructionQueue[whichItem];
+                cost = item.Cost;
+                if (item.isShip)
+                    //howMuch += howMuch * this.ShipBuildingModifier;
+                    cost *= this.ShipBuildingModifier;
+                cost -= item.productionTowards;
+                if (howMuch < cost)
                 {
-                    this.ConstructionQueue[whichItem].productionTowards += howMuch;
-                    if ((double)this.ConstructionQueue[whichItem].productionTowards >= (double)this.ConstructionQueue[whichItem].Cost)
-                        this.ProductionHere += this.ConstructionQueue[whichItem].productionTowards - this.ConstructionQueue[whichItem].Cost;
+                    item.productionTowards += howMuch;
+                    //if (item.productionTowards >= cost)
+                    //    this.ProductionHere += item.productionTowards - cost;
                 }
                 else
                 {
-                    howMuch -= this.ConstructionQueue[whichItem].Cost - this.ConstructionQueue[whichItem].productionTowards;
-                    this.ConstructionQueue[whichItem].productionTowards = this.ConstructionQueue[whichItem].Cost;
+                    
+                    howMuch -= cost;
+                    item.productionTowards = item.Cost;// *this.ShipBuildingModifier;
                     this.ProductionHere += howMuch;
                 }
+                this.ConstructionQueue[whichItem] = item;
             }
             else
                 this.ProductionHere += howMuch;
+            this.planetLock.ExitWriteLock();
             for (int index1 = 0; index1 < this.ConstructionQueue.Count; ++index1)
             {
                 QueueItem queueItem = this.ConstructionQueue[index1];
@@ -4355,17 +5450,17 @@ namespace Ship_Game
                     if ((double)this.ProductionHere > (double)this.MAX_STORAGE)
                         this.ProductionHere = this.MAX_STORAGE;
                 }
-                else if (queueItem.isShip && (double)queueItem.productionTowards >= (double)queueItem.Cost)
+                else if (queueItem.isShip && queueItem.productionTowards >= queueItem.Cost)
                 {
                     Ship shipAt;
-                    if (queueItem.isRefit && queueItem.RefitName != "")
-                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, queueItem.RefitName, queueItem.sData.Level);
+                    if (queueItem.isRefit)
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true, !string.IsNullOrEmpty(queueItem.RefitName) ? queueItem.RefitName : queueItem.sData.Name, queueItem.sData.Level);
                     else
-                       shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);     
+                        shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                     using (List<string>.Enumerator enumerator = Enumerable.ToList<string>((IEnumerable<string>)shipAt.GetMaxGoods().Keys).GetEnumerator())
                     {
-                    //label_35:
+                        //label_35:
                         while (enumerator.MoveNext())
                         {
                             string current = enumerator.Current;
@@ -4380,17 +5475,17 @@ namespace Ship_Game
                                 }
                                 else
                                     break;
-                                    //goto label_35;
+                                //goto label_35;
                             }
                         }
                     }
                     if (queueItem.sData.Role == "station" || queueItem.sData.Role == "platform")
                     {
-                        int num = this.Shipyards.Count / 4;
-                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
-                        shipAt.Center = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 90), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
+                        int num = this.Shipyards.Count / 9;
+                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 40), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
+                        shipAt.Center = shipAt.Position;
                         shipAt.TetherToPlanet(this);
-                        this.Shipyards.Add(shipAt.guid, shipAt);
+                        this.Shipyards.TryAdd(shipAt.guid, shipAt);
                     }
                     if (queueItem.Goal != null)
                     {
@@ -4435,8 +5530,8 @@ namespace Ship_Game
 
         public int EstimatedTurnsTillComplete(QueueItem qItem)
         {
-            int num = (int)Math.Ceiling((double)(int)((double)(qItem.Cost - qItem.productionTowards) / (double)this.NetProductionPerTurn));
-            if ((double)this.NetProductionPerTurn > 0.0)
+            int num = (int)Math.Ceiling((double)(int)((qItem.Cost - qItem.productionTowards) / this.NetProductionPerTurn));
+            if (this.NetProductionPerTurn > 0.0)
                 return num;
             else
                 return 999;
@@ -4445,18 +5540,20 @@ namespace Ship_Game
         public float GetMaxProductionPotential()
         {
             float num1 = 0.0f;
-            float num2 = (float)((double)this.MineralRichness * (double)this.Population / 1000.0);
+            float num2 =  this.MineralRichness *  this.Population / 1000;
             for (int index = 0; index < this.BuildingList.Count; ++index)
             {
                 Building building = this.BuildingList[index];
-                if ((double)building.PlusProdPerRichness > 0.0)
+                if (building.PlusProdPerRichness > 0.0)
                     num1 += building.PlusProdPerRichness * this.MineralRichness;
                 num1 += building.PlusFlatProductionAmount;
-                if ((double)building.PlusProdPerColonist > 0.0)
+                if (building.PlusProdPerColonist > 0.0)
                     num2 += building.PlusProdPerColonist;
             }
-            float num3 = num1 + (float)((double)num2 * (double)this.Population / 1000.0);
-            float num4 = num3 + this.ProductionPercentAdded * num3;
+            float num3 = num2 + num1 *this.Population / 1000;
+            float num4 = num3;
+            if (this.Owner.data.Traits.Cybernetic > 0)
+                return num4 + this.Owner.data.Traits.ProductionMod * num4 - this.consumption;
             return num4 + this.Owner.data.Traits.ProductionMod * num4;
         }
 
@@ -4476,308 +5573,191 @@ namespace Ship_Game
             }
         }
 
-        public float EstimateTaxes(float Rate)
-        {
-            this.TotalMaintenanceCostsPerTurn = 0.0f;
-            this.GrossFood = 0.0f;
-            this.PlusResearchPerColonist = 0.0f;
-            this.PlusFlatResearchPerTurn = 0.0f;
-            this.PlusFlatProductionPerTurn = 0.0f;
-            this.PlusProductionPerColonist = 0.0f;
-            this.FlatFoodAdded = 0.0f;
-            this.PlusFoodPerColonist = 0.0f;
-            this.PlusCreditsPerColonist = 0.0f;
-            this.MaxPopBonus = 0.0f;
-            this.PlusTaxPercentage = 0.0f;
-            this.GrossMoneyPT = 0.0f;
-            foreach (Building building in this.BuildingList)
-            {
-                this.PlusTaxPercentage += building.PlusTaxPercentage;
-                this.PlusCreditsPerColonist += building.CreditsPerColonist;
-                if ((double)building.PlusFoodPerColonist > 0.0)
-                    this.PlusFoodPerColonist += building.PlusFoodPerColonist;
-                if ((double)building.PlusResearchPerColonist > 0.0)
-                    this.PlusResearchPerColonist += building.PlusResearchPerColonist;
-                if ((double)building.PlusFlatResearchAmount > 0.0)
-                    this.PlusFlatResearchPerTurn += building.PlusFlatResearchAmount;
-                if ((double)building.PlusProdPerRichness > 0.0)
-                    this.PlusFlatProductionPerTurn += building.PlusProdPerRichness * this.MineralRichness;
-                this.PlusFlatProductionPerTurn += building.PlusFlatProductionAmount;
-                if ((double)building.PlusProdPerColonist > 0.0)
-                    this.PlusProductionPerColonist += building.PlusProdPerColonist;
-                if ((double)building.Maintenance > 0.0)
-                    this.TotalMaintenanceCostsPerTurn += building.Maintenance;
-                if ((double)building.MaxPopIncrease > 0.0)
-                    this.MaxPopBonus += building.MaxPopIncrease;
-            }
-            foreach (Troop troop in this.TroopsHere)
-            {
-                if (troop.Strength > 0 && troop.GetOwner() == this.Owner)
-                    this.TotalDefensiveStrength += (int)troop.Strength;
-            }
-            this.NetResearchPerTurn = (float)((double)this.ResearcherPercentage * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
-            this.NetResearchPerTurn = this.NetResearchPerTurn + this.ResearchPercentAdded * this.NetResearchPerTurn;
-            this.NetResearchPerTurn = this.NetResearchPerTurn + this.Owner.data.Traits.ResearchMod * this.NetResearchPerTurn;
-            this.GrossMoneyPT += Rate * this.NetResearchPerTurn;
-            this.NetResearchPerTurn = this.NetResearchPerTurn - Rate * this.NetResearchPerTurn;
-            this.NetFoodPerTurn = (float)((double)this.FarmerPercentage * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
-            this.NetFoodPerTurn = this.NetFoodPerTurn + this.FoodPercentAdded * this.NetFoodPerTurn;
-            this.GrossFood = this.NetFoodPerTurn;
-            this.NetProductionPerTurn = (float)((double)this.WorkerPercentage * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
-            this.NetProductionPerTurn = this.NetProductionPerTurn + this.ProductionPercentAdded * this.NetProductionPerTurn;
-            this.NetProductionPerTurn = this.NetProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.NetProductionPerTurn;
-            this.GrossMoneyPT += Rate * this.NetProductionPerTurn;
-            this.NetProductionPerTurn = this.NetProductionPerTurn - Rate * this.NetProductionPerTurn;
-            this.GrossMoneyPT = this.GrossMoneyPT + this.PlusTaxPercentage * this.GrossMoneyPT;
-            this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.Population / 1000f * this.PlusCreditsPerColonist;
-            this.GrossMoneyPT = this.GrossMoneyPT + this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
-            return this.GrossMoneyPT;
-        }
-
-        public float EstimateNetWithWorkerPct(float Rate, float workerpct, float respct)
-        {
-            this.TotalMaintenanceCostsPerTurn = 0.0f;
-            this.GrossFood = 0.0f;
-            this.PlusResearchPerColonist = 0.0f;
-            this.PlusFlatResearchPerTurn = 0.0f;
-            this.PlusFlatProductionPerTurn = 0.0f;
-            this.PlusProductionPerColonist = 0.0f;
-            this.FlatFoodAdded = 0.0f;
-            this.PlusFoodPerColonist = 0.0f;
-            this.PlusCreditsPerColonist = 0.0f;
-            this.MaxPopBonus = 0.0f;
-            this.PlusTaxPercentage = 0.0f;
-            this.GrossMoneyPT = 0.0f;
-            foreach (Building building in this.BuildingList)
-            {
-                this.PlusTaxPercentage += building.PlusTaxPercentage;
-                this.PlusCreditsPerColonist += building.CreditsPerColonist;
-                if ((double)building.PlusFoodPerColonist > 0.0)
-                    this.PlusFoodPerColonist += building.PlusFoodPerColonist;
-                if ((double)building.PlusResearchPerColonist > 0.0)
-                    this.PlusResearchPerColonist += building.PlusResearchPerColonist;
-                if ((double)building.PlusFlatResearchAmount > 0.0)
-                    this.PlusFlatResearchPerTurn += building.PlusFlatResearchAmount;
-                if ((double)building.PlusProdPerRichness > 0.0)
-                    this.PlusFlatProductionPerTurn += building.PlusProdPerRichness * this.MineralRichness;
-                this.PlusFlatProductionPerTurn += building.PlusFlatProductionAmount;
-                if ((double)building.PlusProdPerColonist > 0.0)
-                    this.PlusProductionPerColonist += building.PlusProdPerColonist;
-                if ((double)building.Maintenance > 0.0)
-                    this.TotalMaintenanceCostsPerTurn += building.Maintenance;
-                if ((double)building.MaxPopIncrease > 0.0)
-                    this.MaxPopBonus += building.MaxPopIncrease;
-            }
-            foreach (Troop troop in this.TroopsHere)
-            {
-                if (troop.Strength > 0 && troop.GetOwner() == this.Owner)
-                    this.TotalDefensiveStrength += (int)troop.Strength;
-            }
-            this.NetResearchPerTurn = (float)((double)respct * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
-            this.NetResearchPerTurn = this.NetResearchPerTurn + this.ResearchPercentAdded * this.NetResearchPerTurn;
-            this.NetResearchPerTurn = this.NetResearchPerTurn + this.Owner.data.Traits.ResearchMod * this.NetResearchPerTurn;
-            this.GrossMoneyPT += Rate * this.NetResearchPerTurn;
-            this.NetResearchPerTurn = this.NetResearchPerTurn - Rate * this.NetResearchPerTurn;
-            this.NetFoodPerTurn = (float)((double)this.FarmerPercentage * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
-            this.NetFoodPerTurn = this.NetFoodPerTurn + this.FoodPercentAdded * this.NetFoodPerTurn;
-            this.GrossFood = this.NetFoodPerTurn;
-            this.NetProductionPerTurn = (float)((double)workerpct * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
-            this.NetProductionPerTurn = this.NetProductionPerTurn + this.ProductionPercentAdded * this.NetProductionPerTurn;
-            this.NetProductionPerTurn = this.NetProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.NetProductionPerTurn;
-            this.GrossMoneyPT += Rate * this.NetProductionPerTurn;
-            this.NetProductionPerTurn = this.NetProductionPerTurn - Rate * this.NetProductionPerTurn;
-            this.GrossMoneyPT = this.GrossMoneyPT + this.PlusTaxPercentage * this.GrossMoneyPT;
-            this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.Population / 1000f * this.PlusCreditsPerColonist;
-            this.GrossMoneyPT = this.GrossMoneyPT + this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
-            return this.GrossMoneyPT;
-        }
-
         public bool CanBuildInfantry()
         {
-            try
+            for (int i = 0; i < this.BuildingList.Count; i++)
             {
-                foreach (Building building in this.BuildingList)
-                {
-                    if (building.AllowInfantry)
-                        return true;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-            return false;
-        }
-
-        public bool CanBuildShips()
-        {
-            try
-            {
-                foreach (Building building in this.BuildingList)
-                {
-                    //if (building.NameTranslationIndex == 458)
-                    if (building.AllowShipBuilding || building.Name =="Space Port")
-                        return true;
-                }
-            }
-            catch
-            {
-                return false;
+                if (this.BuildingList[i].AllowInfantry)
+                    return true;
             }
             return false;
         }
 
         public void UpdateIncomes()
         {
-            try
+            if (this.Owner == null)
+                return;
+            this.PlusFlatPopulationPerTurn = 0f;
+            this.ShieldStrengthMax = 0f;
+            this.TotalMaintenanceCostsPerTurn = 0f;
+            this.StorageAdded = 0;
+            this.AllowInfantry = false;
+            this.TotalDefensiveStrength = 0;
+            this.GrossFood = 0f;
+            this.PlusResearchPerColonist = 0f;
+            this.PlusFlatResearchPerTurn = 0f;
+            this.PlusFlatProductionPerTurn = 0f;
+            this.PlusProductionPerColonist = 0f;
+            this.FlatFoodAdded = 0f;
+            this.PlusFoodPerColonist = 0f;
+            
+            this.PlusFlatPopulationPerTurn = 0f;
+            this.ShipBuildingModifier = 0f;
+            this.CommoditiesPresent.Clear();
+            float shipbuildingmodifier = 1f;
+            List<Guid> list = new List<Guid>();
+            float shipyards =1;
+            foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
             {
-                if (this.Owner == null)
-                    return;
-                this.PlusFlatPopulationPerTurn = 0.0f;
-                this.ShieldStrengthMax = 0.0f;
-                this.TotalMaintenanceCostsPerTurn = 0.0f;
-                this.StorageAdded = 0;
-                this.AllowInfantry = false;
-                this.TotalDefensiveStrength = 0;
-                this.GrossFood = 0.0f;
-                this.PlusResearchPerColonist = 0.0f;
-                this.PlusFlatResearchPerTurn = 0.0f;
-                this.PlusFlatProductionPerTurn = 0.0f;
-                this.PlusProductionPerColonist = 0.0f;
-                this.FlatFoodAdded = 0.0f;
-                this.PlusFoodPerColonist = 0.0f;
-                this.HasShipyard = false;
-                this.PlusFlatPopulationPerTurn = 0.0f;
-                this.ShipBuildingModifier = 0.0f;
-                this.CommoditiesPresent.Clear();
-                List<Guid> list = new List<Guid>();
-                foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
+                if (keyValuePair.Value == null)
+                    list.Add(keyValuePair.Key);
+                    
+                else if (keyValuePair.Value.Active && keyValuePair.Value.GetShipData().IsShipyard)
                 {
-                    if (keyValuePair.Value == null)
-                        list.Add(keyValuePair.Key);
-                    else if (keyValuePair.Value.Active && keyValuePair.Value.GetShipData().IsShipyard)
+
+					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
                     {
-                        if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi.ShipyardBonus > 0)
-                        {
-                            this.ShipBuildingModifier += GlobalStats.ActiveMod.mi.ShipyardBonus;
-                        }
-                        else
-                        {
-                            this.ShipBuildingModifier += 0.25f;
-                        }
+                        shipbuildingmodifier *= (1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveModInfo.ShipyardBonus;
                     }
-                    else if (!keyValuePair.Value.Active)
-                        list.Add(keyValuePair.Key);
-                }
-                foreach (Guid key in list)
-                    this.Shipyards.Remove(key);
-                this.PlusCreditsPerColonist = 0.0f;
-                this.MaxPopBonus = 0.0f;
-                this.PlusTaxPercentage = 0.0f;
-                this.GrossMoneyPT = 0.0f;
-                this.TerraformToAdd = 0.0f;
-                for (int index = 0; index < this.BuildingList.Count; ++index)
-                {
-                    Building building = this.BuildingList[index];
-                    if (building.WinsGame)
-                        this.HasWinBuilding = true;
-                    //if (building.NameTranslationIndex == 458)
-                    if (building.Name == "Space Port")
-                        this.HasShipyard = true;
-                    if ((double)building.PlusFlatPopulation > 0.0)
-                        this.PlusFlatPopulationPerTurn += building.PlusFlatPopulation;
-                    if (building.AllowShipBuilding)
-                        this.HasShipyard = true;
-                    this.ShieldStrengthMax += building.PlanetaryShieldStrengthAdded;
-                    this.PlusCreditsPerColonist += building.CreditsPerColonist;
-                    if ((double)building.PlusTerraformPoints > 0.0)
-                        this.TerraformToAdd += building.PlusTerraformPoints;
-                    if (building.Strength > 0)
-                        this.TotalDefensiveStrength += building.CombatStrength;
-                    this.PlusTaxPercentage += building.PlusTaxPercentage;
-                    if (building.IsCommodity)
-                        this.CommoditiesPresent.Add(building.Name);
-                    if (building.AllowInfantry)
-                        this.AllowInfantry = true;
-                    if (building.StorageAdded > 0)
-                        this.StorageAdded += building.StorageAdded;
-                    if ((double)building.PlusFoodPerColonist > 0.0)
-                        this.PlusFoodPerColonist += building.PlusFoodPerColonist;
-                    if ((double)building.PlusResearchPerColonist > 0.0)
-                        this.PlusResearchPerColonist += building.PlusResearchPerColonist;
-                    if ((double)building.PlusFlatResearchAmount > 0.0)
-                        this.PlusFlatResearchPerTurn += building.PlusFlatResearchAmount;
-                    if ((double)building.PlusProdPerRichness > 0.0)
-                        this.PlusFlatProductionPerTurn += building.PlusProdPerRichness * this.MineralRichness;
-                    this.PlusFlatProductionPerTurn += building.PlusFlatProductionAmount;
-                    if ((double)building.PlusProdPerColonist > 0.0)
-                        this.PlusProductionPerColonist += building.PlusProdPerColonist;
-                    if ((double)building.MaxPopIncrease > 0.0)
-                        this.MaxPopBonus += building.MaxPopIncrease;
-                    if ((double)building.Maintenance > 0.0)
-                        this.TotalMaintenanceCostsPerTurn += building.Maintenance;
-                    this.FlatFoodAdded += building.PlusFlatFoodAmount;
-                }
-                for (int index = 0; index < this.TroopsHere.Count; ++index)
-                {
-                    Troop troop = this.TroopsHere[index];
-                }
-                this.NetResearchPerTurn = (float)((double)this.ResearcherPercentage * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
-                this.NetResearchPerTurn = this.NetResearchPerTurn + this.ResearchPercentAdded * this.NetResearchPerTurn;
-                this.NetResearchPerTurn = this.NetResearchPerTurn + this.Owner.data.Traits.ResearchMod * this.NetResearchPerTurn;
-                this.GrossMoneyPT += this.Owner.data.TaxRate * this.NetResearchPerTurn;
-                this.NetResearchPerTurn = this.NetResearchPerTurn - this.Owner.data.TaxRate * this.NetResearchPerTurn;
-                this.NetFoodPerTurn = (float)((double)this.FarmerPercentage * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
-                this.NetFoodPerTurn = this.NetFoodPerTurn + this.FoodPercentAdded * this.NetFoodPerTurn;
-                this.GrossFood = this.NetFoodPerTurn;
-                this.NetProductionPerTurn = (float)((double)this.WorkerPercentage * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
-                this.NetProductionPerTurn = this.NetProductionPerTurn + this.ProductionPercentAdded * this.NetProductionPerTurn;
-                this.NetProductionPerTurn = this.NetProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.NetProductionPerTurn;
-                this.GrossMoneyPT += this.Owner.data.TaxRate * this.NetProductionPerTurn;
-                this.NetProductionPerTurn = this.NetProductionPerTurn - this.Owner.data.TaxRate * this.NetProductionPerTurn;
-                double num1 = (double)this.TotalOreExtracted;
-                int num2 = 0;
-                foreach (PlanetGridSquare planetGridSquare in this.TilesList)
-                {
-                    if (planetGridSquare.Habitable)
-                        ++num2;
-                }
-                if (this.Station != null)
-                {
-                    if (!this.HasShipyard)
-                        this.Station.SetVisibility(false, Planet.universeScreen.ScreenManager, this);
                     else
-                        this.Station.SetVisibility(true, Planet.universeScreen.ScreenManager, this);
+                    {
+                        shipbuildingmodifier *= (1-(.25f/shipyards));
+                    }
+                    shipyards += .2f;
                 }
-                this.consumption = (float)((double)this.Population / 1000.0 + (double)this.Owner.data.Traits.ConsumptionModifier * (double)this.Population / 1000.0);
-                this.GrossMoneyPT = this.GrossMoneyPT + this.PlusTaxPercentage * this.GrossMoneyPT;
-                this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.Population / 1000f * this.PlusCreditsPerColonist;
-                this.MAX_STORAGE = (float)this.StorageAdded;
-                if ((double)this.MAX_STORAGE >= 10.0)
-                    return;
-                this.MAX_STORAGE = 10f;
+                else if (!keyValuePair.Value.Active)
+                    list.Add(keyValuePair.Key);
             }
-            catch
+            this.ShipBuildingModifier = shipbuildingmodifier;
+            Ship remove;
+            foreach (Guid key in list)
             {
+                
+                this.Shipyards.TryRemove(key, out remove);
             }
+            this.PlusCreditsPerColonist = 0f;
+            this.MaxPopBonus = 0f;
+            this.PlusTaxPercentage = 0f;
+            this.TerraformToAdd = 0f;
+            bool shipyard =false;
+            for (int index = 0; index < this.BuildingList.Count; ++index)
+            {
+                Building building = this.BuildingList[index];
+                if (building.WinsGame)
+                    this.HasWinBuilding = true;
+                //if (building.NameTranslationIndex == 458)
+                if (building.AllowShipBuilding || building.Name == "Space Port" )
+                    shipyard= true;
+                
+                if (building.PlusFlatPopulation > 0)
+                    this.PlusFlatPopulationPerTurn += building.PlusFlatPopulation;
+                this.ShieldStrengthMax += building.PlanetaryShieldStrengthAdded;
+                this.PlusCreditsPerColonist += building.CreditsPerColonist;
+                if (building.PlusTerraformPoints > 0)
+                    this.TerraformToAdd += building.PlusTerraformPoints;
+                if (building.Strength > 0)
+                    this.TotalDefensiveStrength += building.CombatStrength;
+                this.PlusTaxPercentage += building.PlusTaxPercentage;
+                if (building.IsCommodity)
+                    this.CommoditiesPresent.Add(building.Name);
+                if (building.AllowInfantry)
+                    this.AllowInfantry = true;
+                if (building.StorageAdded > 0)
+                    this.StorageAdded += building.StorageAdded;
+                if (building.PlusFoodPerColonist > 0)
+                    this.PlusFoodPerColonist += building.PlusFoodPerColonist;
+                if (building.PlusResearchPerColonist > 0)
+                    this.PlusResearchPerColonist += building.PlusResearchPerColonist;
+                if (building.PlusFlatResearchAmount > 0)
+                    this.PlusFlatResearchPerTurn += building.PlusFlatResearchAmount;
+                if (building.PlusProdPerRichness > 0)
+                    this.PlusFlatProductionPerTurn += building.PlusProdPerRichness * this.MineralRichness;
+                this.PlusFlatProductionPerTurn += building.PlusFlatProductionAmount;
+                if (building.PlusProdPerColonist > 0)
+                    this.PlusProductionPerColonist += building.PlusProdPerColonist;
+                if (building.MaxPopIncrease > 0)
+                    this.MaxPopBonus += building.MaxPopIncrease;
+                if (building.Maintenance > 0)
+                    this.TotalMaintenanceCostsPerTurn += building.Maintenance;
+                this.FlatFoodAdded += building.PlusFlatFoodAmount;
+                this.RepairPerTurn += building.ShipRepair;
+                //Repair if no combat
+                if(!this.RecentCombat)
+                {
+                    building.CombatStrength = Ship_Game.ResourceManager.BuildingsDict[building.Name].CombatStrength;
+                    building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
+                }
+            }
+            if (shipyard)
+                this.HasShipyard = true;
+            else
+                this.HasShipyard = false;
+            //Research
+            this.NetResearchPerTurn = (float)((double)this.ResearcherPercentage * (double)this.Population / 1000.0) * this.PlusResearchPerColonist + this.PlusFlatResearchPerTurn;
+            this.NetResearchPerTurn = this.NetResearchPerTurn + this.ResearchPercentAdded * this.NetResearchPerTurn;
+            this.NetResearchPerTurn = this.NetResearchPerTurn + this.Owner.data.Traits.ResearchMod * this.NetResearchPerTurn;
+            this.NetResearchPerTurn = this.NetResearchPerTurn - this.Owner.data.TaxRate * this.NetResearchPerTurn;
+            //Food
+            this.NetFoodPerTurn = (float)((double)this.FarmerPercentage * (double)this.Population / 1000.0 * ((double)this.Fertility + (double)this.PlusFoodPerColonist)) + this.FlatFoodAdded;
+            this.NetFoodPerTurn = this.NetFoodPerTurn + this.FoodPercentAdded * this.NetFoodPerTurn;
+            this.GrossFood = this.NetFoodPerTurn;
+            //Production
+            this.NetProductionPerTurn = (float)((double)this.WorkerPercentage * (double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
+            this.NetProductionPerTurn = this.NetProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.NetProductionPerTurn;
+            if (this.Owner.data.Traits.Cybernetic > 0)
+                this.NetProductionPerTurn = this.NetProductionPerTurn - this.Owner.data.TaxRate * (this.NetProductionPerTurn -this.consumption) ;
+            else
+                this.NetProductionPerTurn = this.NetProductionPerTurn - this.Owner.data.TaxRate * this.NetProductionPerTurn;
+            
+            this.GrossProductionPerTurn = (float)((double)this.Population / 1000.0 * ((double)this.MineralRichness + (double)this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
+            this.GrossProductionPerTurn = this.GrossProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.GrossProductionPerTurn;
+            
+
+            if (this.Station != null)
+            {
+                if (!this.HasShipyard)
+                    this.Station.SetVisibility(false, Planet.universeScreen.ScreenManager, this);
+                else
+                    this.Station.SetVisibility(true, Planet.universeScreen.ScreenManager, this);
+            }
+            
+            this.consumption = (float)((double)this.Population / 1000.0 + (double)this.Owner.data.Traits.ConsumptionModifier * (double)this.Population / 1000.0);
+            if(this.Owner.data.Traits.Cybernetic >0)
+            {
+                if(this.Population >0.1 && this.NetProductionPerTurn <=0)
+                {
+
+                }
+            }
+            //Money
+            this.GrossMoneyPT = this.Population / 1000f;
+            this.GrossMoneyPT += this.PlusTaxPercentage * this.GrossMoneyPT;
+            //this.GrossMoneyPT += this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
+            //this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.Population / 1000f * this.PlusCreditsPerColonist;
+            this.MAX_STORAGE = (float)this.StorageAdded;
+            if (this.MAX_STORAGE < 10)
+                this.MAX_STORAGE = 10f;
         }
 
         private void HarvestResources()
         {
             this.unfed = 0.0f;
-            if (this.Owner.data.Traits.Cybernetic > 0)
+            if (this.Owner.data.Traits.Cybernetic > 0 )
             {
                 this.FoodHere = 0.0f;
                 this.NetProductionPerTurn -= this.consumption;
-                if ((double)this.NetProductionPerTurn < 0.0)
-                    this.ProductionHere += this.NetProductionPerTurn;
-                if ((double)this.ProductionHere > (double)this.MAX_STORAGE)
+
+                 if(this.NetProductionPerTurn <0f)
+                   this.ProductionHere += this.NetProductionPerTurn;
+                
+              if ((double)this.ProductionHere > (double)this.MAX_STORAGE)
                 {
                     this.unfed = 0.0f;
                     this.ProductionHere = this.MAX_STORAGE;
                 }
                 else if ((double)this.ProductionHere < 0.0)
                 {
+                    
                     this.unfed = this.ProductionHere;
                     this.ProductionHere = 0.0f;
                 }
@@ -4836,9 +5816,6 @@ namespace Ship_Game
                     }
                 }
             }
-            if ((double)this.ProductionHere + (double)this.NetProductionPerTurn < (double)this.MAX_STORAGE || this.ConstructionQueue.Count > 0)
-                this.TotalOreExtracted += this.NetProductionPerTurn;
-            this.Owner.Research += this.NetResearchPerTurn;
         }
 
         public int GetGoodAmount(string good)
@@ -4850,6 +5827,7 @@ namespace Ship_Game
         {
             if (this.Owner == null)
                 return;
+            
             float num1 = this.Owner.data.BaseReproductiveRate * this.Population;
             if ((double)num1 > (double)this.Owner.data.Traits.PopGrowthMax * 1000.0 && (double)this.Owner.data.Traits.PopGrowthMax != 0.0)
                 num1 = this.Owner.data.Traits.PopGrowthMax * 1000f;
@@ -4859,6 +5837,7 @@ namespace Ship_Game
             float num3 = num2 + this.Owner.data.Traits.ReproductionMod * num2;
             if ((double)Math.Abs(this.unfed) <= 0.0)
             {
+
                 this.Population += num3;
                 if ((double)this.Population + (double)num3 > (double)this.MaxPopulation + (double)this.MaxPopBonus)
                     this.Population = this.MaxPopulation + this.MaxPopBonus;
@@ -4883,7 +5862,7 @@ namespace Ship_Game
                 float num3 = num2 + this.Owner.data.Traits.ReproductionMod * num2;
                 if (this.Owner.data.Traits.Cybernetic > 0)
                 {
-                    if ((double)this.ProductionHere + (double)this.NetProductionPerTurn - (double)this.consumption <= 0.0)
+                    if ((double)this.ProductionHere + (double)this.NetProductionPerTurn - (double)this.consumption <= 0.1)
                         return -(Math.Abs(this.ProductionHere + this.NetProductionPerTurn - this.consumption) / 10f);
                     if ((double)this.Population < (double)this.MaxPopulation + (double)this.MaxPopBonus && (double)this.Population + (double)num3 < (double)this.MaxPopulation + (double)this.MaxPopBonus)
                         return this.Owner.data.BaseReproductiveRate * this.Population;
@@ -4929,7 +5908,7 @@ namespace Ship_Game
                 this.ResourcesDict.Add(UID, (float)Amount);
         }
 
-        private void UpdatePosition(float elapsedTime)
+        private  void UpdatePosition(float elapsedTime)
         {
             this.Zrotate += this.ZrotateAmount * elapsedTime;
             if (!Planet.universeScreen.Paused)
@@ -4947,14 +5926,30 @@ namespace Ship_Game
             if (this.system.isVisible)
             {
                 BoundingSphere boundingSphere = new BoundingSphere(new Vector3(this.Position, 0.0f), 300000f);
-                this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ(-this.Zrotate) * Matrix.CreateRotationX(MathHelper.ToRadians(-45f)) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
-                this.cloudMatrix = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 1.5)) * Matrix.CreateRotationX(MathHelper.ToRadians(-45f)) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
-                this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(MathHelper.ToRadians(this.ringTilt)) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+                Parallel.Invoke(() =>
+                {
+                    this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ(-this.Zrotate) * Matrix.CreateRotationX(MathHelper.ToRadians(-45f)) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+                },
+                () =>
+                {
+                    this.cloudMatrix = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 1.5)) * Matrix.CreateRotationX(MathHelper.ToRadians(-45f)) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+                },
+                () =>
+                {
+                    this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(MathHelper.ToRadians(this.ringTilt)) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+                }
+                );
+                
+
+
+                
                 this.SO.Visibility = ObjectVisibility.Rendered;
             }
             else
                 this.SO.Visibility = ObjectVisibility.None;
         }
+
+
 
         private void UpdateDescription()
         {
@@ -5201,11 +6196,6 @@ namespace Ship_Game
             }
         }
 
-        public int TurnsUntilOutOfFood()
-        {
-            return 0;
-        }
-
         private void UpdateDevelopmentStatus()
         {
             this.Density = this.Population / 1000f;
@@ -5314,19 +6304,23 @@ namespace Ship_Game
             float num = 0;
             if (this.Owner == empire)
                 num += this.BuildingList.Sum(offense => offense.CombatStrength);
+            this.TroopsHere.thisLock.EnterReadLock();
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
+            this.TroopsHere.thisLock.ExitReadLock();
             return num;
 
 
         }
-        public int GetPotentialGroundTroops(Empire empire)
+        public int GetPotentialGroundTroops()
         {
-            //int num = 0;
-            //if (this.Owner == empire)
-            //    num += this.BuildingList.Sum(offense => offense.CombatStrength);
-            //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
-            //return num;
-            return  (int)(this.TilesList.Sum(spots => spots.number_allowed_troops));// * (.25f + this.developmentLevel*.2f));
+            int num = 0;
+            
+            foreach(PlanetGridSquare PGS in this.TilesList)
+            {
+                num += PGS.number_allowed_troops;
+                
+            }
+            return num; //(int)(this.TilesList.Sum(spots => spots.number_allowed_troops));// * (.25f + this.developmentLevel*.2f));
 
 
         }
@@ -5334,30 +6328,66 @@ namespace Ship_Game
         {
             float num = 0;
             if (this.Owner == null || this.Owner != empire)
-                num += this.BuildingList.Sum(offense => offense.CombatStrength);
+                num += this.BuildingList.Sum(offense => offense.CombatStrength>0 ? offense.CombatStrength :1);
+            this.TroopsHere.thisLock.EnterReadLock();
             num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner()==null ||empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
+            this.TroopsHere.thisLock.ExitReadLock();
             return num;
+
+
+        }
+        public bool TroopsHereAreEnemies(Empire empire)
+        {
+            bool enemies = false;
+            this.TroopsHere.thisLock.EnterReadLock();
+            foreach (Troop trooper in this.TroopsHere)
+            {
+                Relationship trouble;
+                if (!empire.GetRelations().TryGetValue(trooper.GetOwner(), out trouble) || trouble.AtWar)
+                {
+                    enemies=true;
+                    break;
+                }
+
+            }
+            this.TroopsHere.thisLock.ExitReadLock();
+            return enemies;
+        }
+        public bool EventsOnBuildings()
+        {
+            bool events = false;            
+            foreach (Building building in this.BuildingList)
+            {
+                if (building.EventTriggerUID !=null && !building.EventWasTriggered)
+                {
+                    events = true;
+                    break;
+                }
+
+            }            
+            return events;
+        }
+        public int GetGroundLandingSpots()
+        {
+            int spotCount =this.TilesList.Sum(spots => spots.number_allowed_troops);
+            int troops = this.TroopsHere.Count;
+            return spotCount -troops ;
 
 
         }
 
         //Added by McShooterz: heal builds and troops every turn
-        public void HealBuildingsAndTroops()
+        public void HealTroops()
         {
             if (this.RecentCombat)
                 return;
             //heal troops
+            this.TroopsHere.thisLock.EnterReadLock();
             foreach (Troop troop in this.TroopsHere)
             {
-                if(troop.StrengthMax>0)
-                    troop.Strength = troop.GetStrengthMax();
+                troop.Strength = troop.GetStrengthMax();
             }
-            //Repair buildings
-            foreach (Building building in this.BuildingList)
-            {
-                building.CombatStrength = Ship_Game.ResourceManager.BuildingsDict[building.Name].CombatStrength;
-                building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
-            }
+            this.TroopsHere.thisLock.ExitReadLock();
         }
 
         private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
@@ -5454,6 +6484,7 @@ namespace Ship_Game
             Research,
             Agricultural,
             Military,
+            TradeHub,
         }
 
         public enum Richness
@@ -5480,23 +6511,193 @@ namespace Ship_Game
             public PlanetGridSquare Target;
         }
 
-        public enum Resources
+        public void Dispose()
         {
-            Timber,
-            Crystal,
-            Whales,
-            Spaceweed,
-            Ale,
-            Curios,
-            Delicacies,
-            Pets,
-            Iridium,
-            Osmium,
-            Gold,
-            Platinum,
-            Furs,
-            Flora,
-            Chemicals,
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~Planet() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ActiveCombats != null)
+                        this.ActiveCombats.Dispose();
+                    if (this.OrbitalDropList != null)
+                        this.OrbitalDropList.Dispose();
+                    if (this.ConstructionQueue != null)
+                        this.ConstructionQueue.Dispose();
+                    if (this.BasedShips != null)
+                        this.BasedShips.Dispose();
+                    if (this.Projectiles != null)
+                        this.Projectiles.Dispose();
+
+                }
+                this.ActiveCombats = null;
+                this.OrbitalDropList = null;
+                this.ConstructionQueue = null;
+                this.BasedShips = null;
+                this.Projectiles = null;
+                this.disposed = true;
+            }
         }
     }
 }
+
+/* Old core governor sliders calcs
+ * this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.5f);
+                            if ((double)this.NetFoodPerTurn - (double)this.consumption < 0.0 && (double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
+                            {
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
+                                float num = 1f - this.FarmerPercentage;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                    {
+                                        this.WorkerPercentage = (float)(num * 2.0 / 5.0);
+                                        this.ResearcherPercentage = (float)(num * 3.0 / 5.0);
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 0f;
+                                        this.ResearcherPercentage = num;
+                                    }
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = num;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
+                            }
+                            else
+                                this.fs = (double)this.FoodHere >= (double)this.MAX_STORAGE * 0.25 ? Planet.GoodState.EXPORT : Planet.GoodState.STORE;
+                            if ((double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
+                                this.fs = Planet.GoodState.IMPORT;
+                            if (this.DetermineIfSelfSufficient() && (double)this.FoodHere > 1.0 && (double)this.Population / ((double)this.MaxPopulation + (double)this.MaxPopBonus) < 0.95)
+                            {
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(-0.5f);
+                                float num = 1f - this.FarmerPercentage;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                    {
+                                        this.WorkerPercentage = num / 2f;
+                                        this.ResearcherPercentage = num / 2f;
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 0f;
+                                        this.ResearcherPercentage = num;
+                                    }
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = num;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
+                                this.fs = Planet.GoodState.IMPORT;
+                            }
+                            else if ((double)this.ProductionHere / (double)this.MAX_STORAGE > 0.75)
+                            {
+                                if ((double)this.FoodHere / (double)this.MAX_STORAGE < 0.75)
+                                {
+                                    this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
+                                    float num = 1f - this.FarmerPercentage;
+                                    //Added by McShooterz: No research percentage if not researching
+                                    if (this.Owner.ResearchTopic != "")
+                                    {
+                                        if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                        {
+                                            this.WorkerPercentage = num / 2f;
+                                            this.ResearcherPercentage = num / 2f;
+                                        }
+                                        else
+                                        {
+                                            this.WorkerPercentage = 0f;
+                                            this.ResearcherPercentage = num;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = num;
+                                        this.ResearcherPercentage = 0.0f;
+                                    }
+                                }
+                                else
+                                {
+                                    this.FarmerPercentage = 0.0f;
+                                    //Added by McShooterz: No research percentage if not researching
+                                    if (this.Owner.ResearchTopic != "")
+                                    {
+                                        if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                        {
+                                            this.WorkerPercentage = 0.5f;
+                                            this.ResearcherPercentage = 0.5f;
+                                        }
+                                        else
+                                        {
+                                            this.WorkerPercentage = 0f;
+                                            this.ResearcherPercentage = 1f;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 1f;
+                                        this.ResearcherPercentage = 0f;
+                                    }
+                                }
+                            }
+                            else if ((double)this.FoodHere / (double)this.MAX_STORAGE > 0.75)
+                            {
+                                this.FarmerPercentage = 0.0f;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                    {
+                                        this.WorkerPercentage = 0.7f;
+                                        this.ResearcherPercentage = 0.3f;
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 0f;
+                                        this.ResearcherPercentage = 1f;
+                                    }
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = 1f;
+                                    this.ResearcherPercentage = 0f;
+                                }
+                            }
+                            else
+                            {
+                                this.FarmerPercentage = this.CalculateFarmerPercentForSurplus(0.01f);
+                                float num = 1f - this.FarmerPercentage;
+                                //Added by McShooterz: No research percentage if not researching
+                                if (this.Owner.ResearchTopic != "")
+                                {
+                                    if (this.ConstructionQueue.Count() != 0 || this.ProductionHere < this.MAX_STORAGE)
+                                    {
+                                        this.WorkerPercentage = (float)((double)num / 4.0 * 3.0);
+                                        this.ResearcherPercentage = num / 4f;
+                                    }
+                                    else
+                                    {
+                                        this.WorkerPercentage = 0f;
+                                        this.ResearcherPercentage = num;
+                                    }
+                                }
+                                else
+                                {
+                                    this.WorkerPercentage = num;
+                                    this.ResearcherPercentage = 0.0f;
+                                }
+                            }
+ */

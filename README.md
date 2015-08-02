@@ -122,6 +122,7 @@ This is a blackbox download that includes these mods reformatted to work with bl
 * even better!!!
 * Ill try to describe as best I can how to compile and contribute to this project.
 * friend me on steam and request access to the steam SDCodemod forum.
+* add your self to hipchat https://www.hipchat.com/invite/307681/f7fea0f83bdcd1c326e925dc9e3863a2
 
 ### This is for modifying the StarDrive game 15B for fun and learning###
 

@@ -17,7 +17,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class CreatingNewGameScreen : GameScreen
+    public sealed class CreatingNewGameScreen : GameScreen, IDisposable
     {
         private Matrix worldMatrix = Matrix.Identity;
         private float scale = 1f;
@@ -95,10 +95,13 @@ namespace Ship_Game
                 empire.data.CurrentAutoColony = empire.data.DefaultColonyShip;
                 empire.data.CurrentAutoFreighter = empire.data.DefaultSmallTransport;
                 empire.data.CurrentAutoScout = empire.data.StartingScout;
+                empire.data.CurrentConstructor = empire.data.DefaultConstructor;
                 this.data = new UniverseData()
                 {
                     FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
-                    GravityWells = GlobalStats.PlanetaryGravityWells
+                    EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,                    
+                    GravityWells = GlobalStats.PlanetaryGravityWells,
+                    FTLinNeutralSystem = GlobalStats.WarpInSystem
                 };
                 string str = size;
                 string str1 = str;
@@ -106,63 +109,67 @@ namespace Ship_Game
                 {
                     if (str1 == "Tiny")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(16f * StarNumModifier);
                         this.data.Size = new Vector2(3500000f, 3500000f);
                     }
                     else if (str1 == "Small")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(30f * StarNumModifier);
                         this.data.Size = new Vector2(7300000f, 7300000f);
                     }
                     else if (str1 == "Medium")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
                             this.numSystems = (int)(50f * StarNumModifier);
                         this.data.Size = new Vector2(9350000f, 9350000f);
+                        Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Large")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
-                            this.numSystems = (int)(75f * StarNumModifier);
-                        this.data.Size = new Vector2(1.335E+07f, 1.335E+07f);
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
+                            this.numSystems = (int)(50f * StarNumModifier);
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Huge")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
-                            this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f, 1.8E+07f);
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
+                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.data.Size = new Vector2(18000000f, 18000000f);
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Epic")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
-                            this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f * 2, 1.8E+07f * 2);
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
+                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.data.Size = new Vector2(54000000, 54000000);
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
+                            //this.data.Size = new Vector2(36000000, 36000000);
                         //this.scale = 2;
 
                         //this.numSystems = (int)(125f * StarNumModifier);
@@ -171,17 +178,17 @@ namespace Ship_Game
                     }
                     else if (str1 == "TrulyEpic")
                     {
-                        if (mode == RaceDesignScreen.GameMode.Warlords)
-                        {
-                            this.numSystems = (int)(12 * StarNumModifier);
-                        }
-                        else
-                            this.numSystems = (int)(150f * StarNumModifier);
+                        //if (mode == RaceDesignScreen.GameMode.Warlords)
+                        //{
+                        //    this.numSystems = (int)(12 * StarNumModifier);
+                        //}
+                        //else
+                            this.numSystems = (int)(50f * StarNumModifier);
                         //this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(1.8E+07f * 3f, 1.8E+07f * 3f);
+                            this.data.Size = new Vector2(54000000, 54000000);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
-
+                            Empire.ProjectorRadius = (this.data.Size.X / 70);
 
                     }
                     //if (this.numSystems <= this.numOpponents+2)
@@ -195,6 +202,7 @@ namespace Ship_Game
                 EmpireManager.EmpireList.Add(empire);
                 this.GalacticCenter = new Vector2(this.data.Size.X / 2f, this.data.Size.Y / 2f);
                 StatTracker.SnapshotsDict.Clear();
+                
             }
         }
 
@@ -248,17 +256,19 @@ namespace Ship_Game
                     BatchRemovalCollection<EmpireData> removalCollection = new BatchRemovalCollection<EmpireData>();
                     foreach (EmpireData empireData in ResourceManager.Empires)
                     {
-                        if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0)
+                        if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0 && !empireData.MinorRace)
                             removalCollection.Add(empireData);
                     }
                     int num = removalCollection.Count - this.numOpponents;
-                    for (int index1 = 0; index1 < num; ++index1)
+                    for (int opponents = 0; opponents < num; ++opponents)
                     {
                         int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count + 1));
                         if (index2 > removalCollection.Count - 1)
                             index2 = removalCollection.Count - 1;
                         removalCollection.RemoveAt(index2);
                     }
+
+
                     foreach (EmpireData data in (List<EmpireData>)removalCollection)
                     {
                         Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
@@ -272,18 +282,19 @@ namespace Ship_Game
                                 empireFromEmpireData.data.Traits.ModHpModifier -= 0.25f;
                                 break;
                             case UniverseData.GameDifficulty.Hard:
+                                empireFromEmpireData.data.FlatMoneyBonus += 10;
                                 empireFromEmpireData.data.Traits.ProductionMod += 0.5f;
-                                empireFromEmpireData.data.Traits.ResearchMod += 0.5f;
+                                empireFromEmpireData.data.Traits.ResearchMod += 0.75f;
                                 empireFromEmpireData.data.Traits.TaxMod += 0.5f;
-                                empireFromEmpireData.data.Traits.ModHpModifier += 0.5f;
+                                //empireFromEmpireData.data.Traits.ModHpModifier += 0.5f;
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.2f;
                                 break;
                             case UniverseData.GameDifficulty.Brutal:
-                                empireFromEmpireData.data.FlatMoneyBonus += 5000;
+                                empireFromEmpireData.data.FlatMoneyBonus += 50;
                                 ++empireFromEmpireData.data.Traits.ProductionMod;
-                                ++empireFromEmpireData.data.Traits.ResearchMod;
+                                empireFromEmpireData.data.Traits.ResearchMod = 2.0f;
                                 ++empireFromEmpireData.data.Traits.TaxMod;
-                                ++empireFromEmpireData.data.Traits.ModHpModifier;
+                                //++empireFromEmpireData.data.Traits.ModHpModifier;
                                 empireFromEmpireData.data.Traits.ShipCostMod -= 0.5f;
                                 break;
                         }
@@ -291,7 +302,7 @@ namespace Ship_Game
                     }
                     foreach (EmpireData data in ResourceManager.Empires)
                     {
-                        if (data.Faction != 0)
+                        if (data.Faction != 0 || data.MinorRace)
                         {
                             Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
                             this.data.EmpireList.Add(empireFromEmpireData);
@@ -308,18 +319,18 @@ namespace Ship_Game
                     }
                     foreach (Empire Owner in this.data.EmpireList)
                     {
-                        if (!Owner.isFaction)
+                        if (!Owner.isFaction && !Owner.MinorRace)
                         {
                             SolarSystem solarSystem = new SolarSystem();
                             //Added by McShooterz: support for SolarSystems folder for mods
                             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")))
                             {
-                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
+                                solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SolarSystems/", Owner.data.Traits.HomeSystemName, ".xml")).OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
                             }
                             else if (File.Exists("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml"))
                             {
-                                solarSystem = SolarSystem.GenerateSystemFromDataNormalSize((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
+                                solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo("Content/SolarSystems/" + Owner.data.Traits.HomeSystemName + ".xml").OpenRead()), Owner);
                                 solarSystem.isStartingSystem = true;
                             }
                             else
@@ -333,12 +344,25 @@ namespace Ship_Game
 
                         }
                     }
+                    int SystemCount = 0;
+                    if (Directory.Exists(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
+                    {
+                        foreach (string system in Directory.GetFiles(Ship_Game.ResourceManager.WhichModPath + "/SolarSystems/Random"))
+                        {
+                            if (SystemCount > this.numSystems)
+                                break;
+                            SolarSystem solarSystem = new SolarSystem();
+                            solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(system).OpenRead()), null);
+                            this.data.SolarSystemsList.Add(solarSystem);
+                            SystemCount++;
+                        }
+                    }
                     MarkovNameGenerator markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
                     SolarSystem solarSystem1 = new SolarSystem();
                     solarSystem1.GenerateCorsairSystem(markovNameGenerator.NextName);
                     solarSystem1.DontStartNearPlayer = true;
                     this.data.SolarSystemsList.Add(solarSystem1);
-                    for (int index = 0; index < this.numSystems; ++index)
+                    for (; SystemCount < this.numSystems; ++SystemCount)
                     {
                         SolarSystem solarSystem2 = new SolarSystem();
                         solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, this.data, this.scale);
@@ -346,7 +370,6 @@ namespace Ship_Game
                         ++this.counter;
                         this.percentloaded = (float)(this.counter / (this.numSystems * 2));
                     }
-                    new SolarSystem().GeneratePrisonAnomaly(markovNameGenerator.NextName);
                     this.ThrusterEffect = this.ScreenManager.Content.Load<Effect>("Effects/Thrust");
                     foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
                     {
@@ -379,10 +402,16 @@ namespace Ship_Game
                     asteroid.Position3D.X += this.data.SolarSystemsList[this.systemToMake].Position.X;
                     asteroid.Position3D.Y += this.data.SolarSystemsList[this.systemToMake].Position.Y;
                     asteroid.Initialize();
+                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)asteroid.GetSO());
+                }
+                foreach (Moon moon in (List<Moon>)this.data.SolarSystemsList[this.systemToMake].MoonList)
+                {
+                    moon.Initialize();
+                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)moon.GetSO());
                 }
                 foreach (Ship ship in (List<Ship>)this.data.SolarSystemsList[this.systemToMake].ShipList)
                 {
-                    ship.Position = ship.GetHome().Position + new Vector2(6000f, 2000f);
+                    ship.Position = ship.loyalty.GetPlanets()[0].Position + new Vector2(6000f, 2000f);
                     ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0.0f));
                     ship.Initialize();
                     this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)ship.GetSO());
@@ -437,7 +466,7 @@ namespace Ship_Game
                     }
                     foreach (Empire index in this.data.EmpireList)
                     {
-                        if (!index.isFaction)
+                        if (!index.isFaction && !index.MinorRace)
                         {
                             foreach (Planet planet1 in index.GetPlanets())
                             {
@@ -470,7 +499,6 @@ namespace Ship_Game
                                 //Added by McShooterz: Starting ship support for automatic naming
                                 if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship1.loyalty.data.Traits.ShipType, ship1.Role))
                                     ship1.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship1.loyalty.data.Traits.ShipType, ship1.Role);
-                                ship1.SetHome(planet1);
                                 ship1.DoOrbit(planet1);
                                 ship1.GetSO().World = Matrix.CreateTranslation(new Vector3(ship1.Position, 0.0f));
                                 ship1.isInDeepSpace = false;
@@ -495,7 +523,6 @@ namespace Ship_Game
                                 //Added by McShooterz: Starting ship support for automatic naming
                                 if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship2.loyalty.data.Traits.ShipType, ship2.Role))
                                     ship2.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship2.loyalty.data.Traits.ShipType, ship2.Role);
-                                ship2.SetHome(planet1);
                                 ship2.DoOrbit(planet1);
                                 ship2.GetSO().World = Matrix.CreateTranslation(new Vector3(ship2.Position, 0.0f));
                                 ship2.isInDeepSpace = false;
@@ -520,10 +547,9 @@ namespace Ship_Game
                                     this.playerShip.loyalty.AddShip(this.playerShip);
                                     this.playerShip.Initialize();
                                     //this.playerShip.GetAI().State = AIState.ManualControl;
-                                    this.playerShip.SetHome(planet1);
                                     this.playerShip.DoOrbit(planet1);
                                     //Added by McShooterz: Starting ship support for automatic naming
-                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
+									if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
                                         this.playerShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role);
                                     else
                                         this.playerShip.VanityName = "Perseverance";
@@ -555,9 +581,8 @@ namespace Ship_Game
                                     ship3.loyalty = index;
                                     ship3.Initialize();
                                     //Added by McShooterz: Starting ship support for automatic naming
-                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
+									if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
                                         ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.Role);
-                                    ship3.SetHome(planet1);
                                     ship3.DoOrbit(planet1);
                                     ship3.GetSO().World = Matrix.CreateTranslation(new Vector3(ship3.Position, 0.0f));
                                     this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)ship3.GetSO());
@@ -679,6 +704,8 @@ namespace Ship_Game
             empireData.DefaultColonyShip = data.DefaultColonyShip;
             empireData.DefaultSmallTransport = data.DefaultSmallTransport;
             empireData.DefaultTroopShip = data.DefaultTroopShip;
+            empireData.DefaultConstructor = data.DefaultConstructor;
+            empireData.DefaultShipyard = data.DefaultShipyard;
             empireData.DiplomacyDialogPath = data.DiplomacyDialogPath;
             empireData.DiplomaticPersonality = data.DiplomaticPersonality;
             empireData.EconomicPersonality = data.EconomicPersonality;
@@ -693,6 +720,8 @@ namespace Ship_Game
             empireData.FuelCellModifier = data.FuelCellModifier;
             empireData.Inhibitors = data.Inhibitors;
             empireData.MassModifier = data.MassModifier;
+            //Doctor: Armour Mass Mod
+            empireData.ArmourMassModifier = data.ArmourMassModifier;
             empireData.MissileDodgeChance = data.MissileDodgeChance;
             empireData.MissileHPModifier = data.MissileHPModifier;
             empireData.OrdnanceEffectivenessBonus = data.OrdnanceEffectivenessBonus;
@@ -708,6 +737,9 @@ namespace Ship_Game
             empireData.TroopNameIndex = data.TroopNameIndex;
             empireData.PowerFlowMod = data.PowerFlowMod;
             empireData.ShieldPowerMod = data.ShieldPowerMod;
+            //Doctor: Civilian Maint Mod
+            empireData.CivMaintMod = data.CivMaintMod;
+
             empireData.Traits = new RacialTrait();
             empireData.Traits.Aquatic = data.Traits.Aquatic;
             empireData.Traits.Assimilators = data.Traits.Assimilators;
@@ -776,6 +808,8 @@ namespace Ship_Game
             Empire empire = new Empire();
             if (data.Faction == 1)
                 empire.isFaction = true;
+            if (data.MinorRace)
+                empire.MinorRace = true;
             int index1 = (int)RandomMath.RandomBetween(0.0f, (float)this.dtraits.DiplomaticTraitsList.Count);
             data.DiplomaticPersonality = this.dtraits.DiplomaticTraitsList[index1];
             while (!this.CheckPersonality(data))
@@ -847,7 +881,8 @@ namespace Ship_Game
             this.us.UpdateAllSystems(0.01f);
             this.mmscreen.OnPlaybackStopped((object)null, (EventArgs)null);
             this.ScreenManager.RemoveScreen((GameScreen)this.mmscreen);
-            this.Dispose();
+ 
+            //this.Dispose();
             this.ExitScreen();
         }
 
@@ -887,11 +922,23 @@ namespace Ship_Game
             GC.SuppressFinalize((object)this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposing)
                 return;
-            lock (this) { }
+            lock (this) {
+                if (this.WorkerBeginEvent != null)
+                    this.WorkerBeginEvent.Dispose();
+                if (this.WorkerCompletedEvent != null)
+                    this.WorkerCompletedEvent.Dispose();
+                if (this.us != null)
+                    this.us.Dispose();
+
+                this.WorkerBeginEvent = null;
+                this.WorkerCompletedEvent = null;
+                this.us = null;
+            }
+
                 
         }
 

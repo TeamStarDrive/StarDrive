@@ -1028,11 +1028,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>253</Index>
-      <Text>Opens the ship list for your empire</Text>
+      <Text>Opens the ships list, which allows you to browse, filter and control all the vessels under your command</Text>
     </Token>
     <Token>
       <Index>254</Index>
-      <Text>Opens a list of all known planets</Text>
+      <Text>Opens Planet Reconnaissance Panel</Text>
     </Token>
     <Token>
       <Index>255</Index>
@@ -1072,7 +1072,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>264</Index>
-      <Text>Taxes are collected from your planets as a portion of their Production and Research outputs. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets. Your empire will gain the lost production and research as credits.</Text>
+      <Text>Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets.</Text>
     </Token>
     <Token>
       <Index>265</Index>
@@ -1457,7 +1457,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>392</Index>
       <Text>Construction</Text>
     </Token>
-    
+    <Token>
+      <Index>393</Index>
+      <Text>TradeHub</Text>
+    </Token>
+    <Token>
+      <Index>394</Index>
+      <Text>Governor will control production levels as a core system but not specialize any construction</Text>
+    </Token>
     
     
     <!-- 400 - 499 reserved for buildings -->
@@ -7198,6 +7205,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>5086</Index>
       <Text>WARNING: CPU INTENSE! This option will force a full combat simulation for 100% accuracy even when battles are occuring out of sight and between non-player factions. If this option is unchecked, an approximation will be used to speed up the game instead.</Text>
     </Token>
+    <Token>
+      <Index>5087</Index>
+      <Text>TradeHub</Text>
+    </Token>
 	
 
 
@@ -7751,6 +7762,212 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6136</Index>
       <Text>Auto Research</Text>
     </Token>
+	<Token>
+      <Index>6137</Index>
+      <Text>Ship Repair</Text>
+    </Token>
+	<Token>
+      <Index>6138</Index>
+      <Text>Auto Taxes</Text>
+    </Token>
+	<Token>
+      <Index>6139</Index>
+      <Text>In-System Enemy FTL Speed Modifier</Text>
+    </Token>
+	<Token>
+      <Index>6140</Index>
+      <Text>Food Consumption Modifier</Text>
+    </Token>
+	<Token>
+      <Index>6141</Index>
+      <Text>Shield Strength Modifier</Text>
+    </Token>
+	<Token>
+      <Index>6142</Index>
+      <Text>Kinetic Res</Text>
+    </Token>
+	<Token>
+      <Index>6143</Index>
+      <Text>Energy Res</Text>
+    </Token>
+	<Token>
+      <Index>6144</Index>
+      <Text>Guided Res</Text>
+    </Token>
+	<Token>
+      <Index>6145</Index>
+      <Text>Missile Res</Text>
+    </Token>
+	<Token>
+      <Index>6146</Index>
+      <Text>Hybrid Res</Text>
+    </Token>
+	<Token>
+      <Index>6147</Index>
+      <Text>Beam Res</Text>
+    </Token>
+	<Token>
+      <Index>6148</Index>
+      <Text>Expl Res</Text>
+    </Token>
+	<Token>
+      <Index>6149</Index>
+      <Text>Intcpt Res</Text>
+    </Token>
+	<Token>
+      <Index>6150</Index>
+      <Text>Rail Res</Text>
+    </Token>
+	<Token>
+      <Index>6151</Index>
+      <Text>SpB Res</Text>
+    </Token>
+	<Token>
+      <Index>6152</Index>
+      <Text>Bomb Res</Text>
+    </Token>
+	<Token>
+      <Index>6153</Index>
+      <Text>Bio Res</Text>
+    </Token>
+	<Token>
+      <Index>6154</Index>
+      <Text>Drone Res</Text>
+    </Token>
+	<Token>
+      <Index>6155</Index>
+      <Text>Warp Res</Text>
+    </Token>
+	<Token>
+      <Index>6156</Index>
+      <Text>Torp Res</Text>
+    </Token>
+	<Token>
+      <Index>6157</Index>
+      <Text>Cannon Res</Text>
+    </Token>
+	<Token>
+      <Index>6158</Index>
+      <Text>Sub Res</Text>
+    </Token>
+	<Token>
+      <Index>6159</Index>
+      <Text>PD Res</Text>
+    </Token>
+	<Token>
+      <Index>6160</Index>
+      <Text>Flak Res</Text>
+    </Token>
+	<Token>
+      <Index>6161</Index>
+      <Text>AP Res</Text>
+    </Token>
+	<Token>
+      <Index>6172</Index>
+      <Text>Power Armour</Text>
+    </Token>
+	<Token>
+      <Index>6173</Index>
+      <Text>Bulkhead</Text>
+    </Token>
+	
+	<!-- Shield Resists UI -->
+	
+	<Token>
+      <Index>6162</Index>
+      <Text>Kinetic SR</Text>
+    </Token>
+	<Token>
+      <Index>6163</Index>
+      <Text>Energy SR</Text>
+    </Token>
+	<Token>
+      <Index>6164</Index>
+      <Text>Expl SR</Text>
+    </Token>
+	<Token>
+      <Index>6165</Index>
+      <Text>Missile SR</Text>
+    </Token>
+	<Token>
+      <Index>6166</Index>
+      <Text>Flak SR</Text>
+    </Token>
+	<Token>
+      <Index>6167</Index>
+      <Text>Hybrid SR</Text>
+    </Token>
+	<Token>
+      <Index>6168</Index>
+      <Text>Rail SR</Text>
+    </Token>
+	<Token>
+      <Index>6169</Index>
+      <Text>Sub SR</Text>
+    </Token>
+	<Token>
+      <Index>6170</Index>
+      <Text>Warp SR</Text>
+    </Token>	
+	<Token>
+      <Index>6171</Index>
+      <Text>Beam SR</Text>
+    </Token>
+	<Token>
+      <Index>6172</Index>
+      <Text>Power Armour</Text>
+    </Token>
+	<Token>
+      <Index>6173</Index>
+      <Text>Bulkhead</Text>
+    </Token>
+	<Token>
+      <Index>6174</Index>
+      <Text>EMP Prot</Text>
+    </Token>
+	<Token>
+      <Index>6175</Index>
+      <Text>Dam Thr</Text>
+    </Token>
+	<Token>
+      <Index>6176</Index>
+      <Text>SDam Thr</Text>
+    </Token>
+	<Token>
+      <Index>6177</Index>
+      <Text>EMP Protection</Text>
+    </Token>
+	
+	<!-- The Doctor: I'm adding various bits of UI text into proper localisation, starting with the rule options and FTL inhibition UI -->
+	
+	<Token>
+      <Index>6178</Index>
+      <Text>Treat Neutral Systems as Unfriendly</Text>
+    </Token>
+	<Token>
+      <Index>6179</Index>
+      <Text>FTL Speed reduced in this system by </Text>
+    </Token>
+	<Token>
+      <Index>6180</Index>
+      <Text>FTL Speed increased in this system by </Text>
+    </Token>
+	<Token>
+      <Index>6181</Index>
+      <Text>Constructor Design:</Text>
+    </Token>	
+	<Token>
+	<Index>6182</Index>
+	<Text>FTL Overlay: visualises subspace projection and FTL inhibiting gravity wells and fields.</Text>
+	</Token>		
+	<Token>
+		<Index>6183</Index>
+		<Text>Weapons Range Overlay: visualises ships' maximum weapon range.</Text>
+	</Token>
+	<Token>
+		<Index>6184</Index>
+		<Text>Keyboard Fire Arc Locking</Text>
+	</Token>
 	
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -7866,7 +8083,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7028</Index>
       <Text>The effective power drain of this module when the ship is at FTL</Text>
     </Token>
-		<Token>
+	<Token>
       <Index>7029</Index>
       <Text>The number of troops this module can house</Text>
     </Token>
@@ -7910,5 +8127,180 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7039</Index>
       <Text>Your Empire will automatically select technologies to research.</Text>
     </Token>
+	<Token>
+      <Index>7040</Index>
+      <Text>Your Empire will automatically manage taxes and treasury.</Text>
+  </Token>
+	<Token>
+      <Index>7041</Index>
+      <Text>Using this slider, you can lower the FTL speeds of enemy ships that are within the gravity wells of Solar Systems. A value of 100% provides no penalty, whereas a value of 0% will completely inhibit warp of enemy ships in system.</Text>
+  </Token>
+    <Token>
+      <Index>7042</Index>
+      <Text>The duration a beam will last from a beam type weapon.</Text>
+    </Token>
+	<Token>
+      <Index>7043</Index>
+      <Text>Opens the Espionage Management Screen</Text>
+    </Token>
+	<Token>
+      <Index>7044</Index>
+      <Text>Opens the Ship Roster</Text>
+    </Token>
+	<Token>
+      <Index>7045</Index>
+      <Text>Opens the Fleet Manager</Text>
+    </Token>
+	<Token>
+      <Index>7046</Index>
+      <Text>Indicates resistance to kinetic-type damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token> 
+	<Token>
+      <Index>7047</Index>
+      <Text>Indicates resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7048</Index>
+      <Text>Indicates resistance to guided weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7049</Index>
+      <Text>Indicates resistance to missile weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7050</Index>
+      <Text>Indicates resistance to hybrid weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7051</Index>
+      <Text>Indicates resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7052</Index>
+      <Text>Indicates resistance to explosive damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7053</Index>
+      <Text>Indicates resistance to interceptable weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7054</Index>
+      <Text>Indicates resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7055</Index>
+      <Text>Indicates resistance to spatial bomb weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7056</Index>
+      <Text>Indicates resistance to bombardment weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7057</Index>
+      <Text>Indicates resistance to biological weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7058</Index>
+      <Text>Indicates resistance to drone weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7059</Index>
+      <Text>Indicates resistance to warp weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7060</Index>
+      <Text>Indicates resistance to torpedo weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7061</Index>
+      <Text>Indicates resistance to cannon weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7062</Index>
+      <Text>Indicates resistance to subspace weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7063</Index>
+      <Text>Indicates resistance to PD weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7064</Index>
+      <Text>Indicates resistance to flak weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
+    </Token>
+	
+	<Token>
+      <Index>7065</Index>
+      <Text>Indicates resistance to Armour Piercing effects - each point of AP resistance negates 1 point of Armour Piercing on enemy projectiles.</Text>
+    </Token>
+	
+	
+	<!-- Shield Resistance Tooltips -->
+	
+	<Token>
+      <Index>7066</Index>
+      <Text>Indicates shield bubble's resistance to kinetic weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7067</Index>
+      <Text>Indicates shield bubble's resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7068</Index>
+      <Text>Indicates shield bubble's resistance to explosive damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7069</Index>
+      <Text>Indicates shield bubble's resistance to missile weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7070</Index>
+      <Text>Indicates shield bubble's resistance to flak weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7071</Index>
+      <Text>Indicates shield bubble's resistance to hybrid weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7072</Index>
+      <Text>Indicates shield bubble's resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7073</Index>
+      <Text>Indicates shield bubble's resistance to subspace weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7074</Index>
+      <Text>Indicates shield bubble's resistance to warp weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>	
+	<Token>
+      <Index>7075</Index>
+      <Text>Indicates shield bubble's resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
+    </Token>
+	<Token>
+      <Index>7076</Index>
+      <Text>Indicates the amount of EMP protection that this module adds to the vessel.</Text>
+    </Token>
+	<Token>
+      <Index>7077</Index>
+      <Text>The total EMP protection of this design.</Text>
+    </Token>
+	<Token>
+      <Index>7078</Index>
+      <Text>Weapons that damage less than this threshold do no damage whatsoever to this module.</Text>
+    </Token>
+	<Token>
+      <Index>7079</Index>
+      <Text>Weapons that damage less than this threshold do no damage whatsoever to this shield.</Text>
+    </Token>
+	
+	<Token>
+      <Index>7080</Index>
+      <Text>Assigns vessel to system defence duties</Text>
+    </Token>
+	<Token>
+      <Index>7081</Index>
+      <Text>When active, arcs in the shipyard can only be moved by ALT-clicking them, preventing accidental rotation while providing immediate control of arcs when using ALT.\n\nWhen inactive, arcs in the shipyard can be moved by left-clicking and holding for a time delay to grab the arc.</Text>
+    </Token>
+	
   </TokenList>
 </LocalizationFile>

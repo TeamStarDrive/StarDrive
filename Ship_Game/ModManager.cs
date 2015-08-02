@@ -6,10 +6,11 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
+using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-	public class ModManager : GameScreen, IDisposable
+	public sealed class ModManager : GameScreen, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -46,7 +47,12 @@ namespace Ship_Game
 		private ModEntry ActiveEntry;
 
 		private Selector selector;
+        private UIButton CurrentButton;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+        private Task modLoad;
 
+        private bool flip = false;
 		//private float transitionElapsedTime;
 
 		public ModManager(MainMenuScreen mmscreen)
@@ -57,21 +63,28 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~ModManager() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.ModsSL != null)
+                        this.ModsSL.Dispose();
+                    
+                }
+                this.ModsSL = null;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -104,33 +117,24 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~ModManager() {
-            //should implicitly do the same thing as the original bad finalize
-        }
 
 		public override void HandleInput(InputState input)
 		{
-			this.selector = null;
-			if (input.Escaped || input.RightMouseClick)
+            
+
+            this.selector = null;
+			if (this.CurrentButton==null &&( input.Escaped || input.RightMouseClick))
 			{
 				this.ExitScreen();
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, input.CursorPosition))
+                if (CurrentButton != null && b.Launches != "Visit")
+                    continue;
+                if (!HelperFunctions.CheckIntersection(b.Rect, input.CursorPosition) )
 				{
-					b.State = UIButton.PressState.Normal;
+					
+                    b.State = UIButton.PressState.Normal;
 				}
 				else
 				{
@@ -156,33 +160,34 @@ namespace Ship_Game
 							continue;
 						}
 
-                        ResourceManager.Reset();
-                        ResourceManager.Initialize(base.ScreenManager.Content);
-                        ResourceManager.LoadEmpires();
-                        GlobalStats.ActiveMod = this.ActiveEntry;
+                        this.CurrentButton = b;
+                        b.Text = "Loading";
+                        if (GlobalStats.ActiveMod != null)
+                        {
+                            ResourceManager.Reset();
+                            ResourceManager.Initialize(base.ScreenManager.Content);
+                        }    
                         
-                        ResourceManager.WhichModPath = this.ActiveEntry.ModPath;
-                        
-						ResourceManager.LoadMods(string.Concat("Mods/", this.ActiveEntry.ModPath));
-
-						Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-						config.AppSettings.Settings["ActiveMod"].Value = this.ActiveEntry.ModPath;
-						config.Save();
-						this.ExitScreen();
-						this.mmscreen.ResetMusic();
+                        this.modLoad = Task.Factory.StartNew(loadModTask);
+                       
 					}
 					else if (str == "Visit")
 					{
-						Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+                        if (string.IsNullOrEmpty(this.ActiveEntry.mi.URL))
+                            Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+                        else
+                            Process.Start(this.ActiveEntry.mi.URL);
 					}
-					else if (str == "shiptool")
+                    else if (str == "shiptool" && this.CurrentButton == null)
 					{
 						base.ScreenManager.AddScreen(new ShipToolScreen());
 					}
-					else if (str == "Disable")
+					else if (str == "Disable" && this.CurrentButton==null)
 					{
-						GlobalStats.ActiveMod = null;
+						GlobalStats.ActiveMod = null;						
 						ResourceManager.WhichModPath = "Content";
+                        GlobalStats.ActiveMod = null;
+                        GlobalStats.ActiveModInfo = null;
 						ResourceManager.Reset();
 						ResourceManager.Initialize(base.ScreenManager.Content);
 						ResourceManager.LoadEmpires();
@@ -194,6 +199,27 @@ namespace Ship_Game
 					}
 				}
 			}
+            if (this.CurrentButton != null)
+            {
+                if (this.flip)
+                {
+
+                    if (CurrentButton.PressColor.A > 253)
+                        this.flip = false;
+                    else
+                        CurrentButton.PressColor.A++;
+                }
+                else
+                {
+                    if (CurrentButton.PressColor.A < 1)
+                        this.flip = true;
+                    else
+                        CurrentButton.PressColor.A--;
+                }
+                if (CurrentButton.State != UIButton.PressState.Pressed)
+                    CurrentButton.State = UIButton.PressState.Pressed;
+                return;
+            }
 			this.ModsSL.HandleInput(input);
 			foreach (ScrollList.Entry e in this.ModsSL.Entries)
 			{
@@ -216,11 +242,48 @@ namespace Ship_Game
 					AudioManager.PlayCue("sd_ui_accept_alt3");
 					this.EnterNameArea.Text = (e.item as ModEntry).mi.ModName;
 					this.ActiveEntry = e.item as ModEntry;
+                    foreach(UIButton button in this.Buttons)
+                    {
+                        if (button.Launches =="Visit")
+                        {
+                            string Text;
+                            if (this.ActiveEntry == null || string.IsNullOrEmpty(this.ActiveEntry.mi.URL))
+                                Text = Localizer.Token(4015);
+                            else
+                                Text = "Goto Mod URL";
+                            button.Text = Text;
+                            break;
+                        }
+                    }
 				}
 			}
 			base.HandleInput(input);
 		}
+        private void clearModTask()
+        {
+            if (GlobalStats.ActiveMod != null)
+            {
+                ResourceManager.Reset();
+                ResourceManager.Initialize(base.ScreenManager.Content);
+            }     
+        }
+        private void loadModTask()
+        {
+            
+            ResourceManager.LoadEmpires();
+            GlobalStats.ActiveMod = this.ActiveEntry;
+            GlobalStats.ActiveModInfo = this.ActiveEntry.mi;
 
+            ResourceManager.WhichModPath = this.ActiveEntry.ModPath;
+
+            ResourceManager.LoadMods(string.Concat("Mods/", this.ActiveEntry.ModPath));
+
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            config.AppSettings.Settings["ActiveMod"].Value = this.ActiveEntry.ModPath;
+            config.Save();
+            this.ExitScreen();
+            this.mmscreen.ResetMusic();
+        }
 		public override void LoadContent()
 		{
 			this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 425, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 850, 600);
@@ -239,8 +302,21 @@ namespace Ship_Game
 			{
 				FileInfo FI = filesFromDirectoryNoSub[i];
 				Stream file = FI.OpenRead();
-				ModInformation data = (ModInformation)ResourceManager.ModSerializer.Deserialize(file);
-				file.Close();
+                ModInformation data;
+                if(FI.Name.Contains(".txt"))
+                    continue;
+                try
+                {
+                     
+                    data = (ModInformation)ResourceManager.ModSerializer.Deserialize(file);
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add("Load Error in file", FI.Name);
+                    
+                    throw;
+                }
+				//file.Close();
 				file.Dispose();
 				ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
 				this.ModsSL.AddItem(me);
@@ -262,7 +338,8 @@ namespace Ship_Game
 			};
 			this.Buttons.Add(this.Save);
 			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height + 15);
-			this.Visit = new UIButton()
+
+            this.Visit = new UIButton()
 			{
 				Rect = new Rectangle(this.Window.X + 3, this.Window.Y + this.Window.Height + 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
 				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
@@ -272,13 +349,16 @@ namespace Ship_Game
 				Launches = "Visit"
 			};
 			this.Buttons.Add(this.Visit);
-			this.shiptool = new UIButton()
+
+            this.shiptool = new UIButton()
 			{
 				Rect = new Rectangle(this.Window.X + 200, this.Window.Y + this.Window.Height + 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
 				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
 				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
 				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				Text = Localizer.Token(4044),
+				
+                Text = Localizer.Token(4044),
+
 				Launches = "shiptool"
 			};
 			this.Buttons.Add(this.shiptool);

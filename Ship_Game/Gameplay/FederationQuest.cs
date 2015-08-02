@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game.Gameplay
 {
-	public class FederationQuest
+	public sealed class FederationQuest
 	{
 		public QuestType type;
 

@@ -9,7 +9,7 @@
   <Protected>true</Protected>
   <RaceList>
     <Race>
-	  <ShipType>Human</ShipType>
+	  <ShipType>Terran</ShipType>
 	    <Localization>146</Localization>
         <Upkeep>0.0</Upkeep>
         <KillExp>0.5</KillExp>

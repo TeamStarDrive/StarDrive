@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class NotificationManager
+	public sealed class NotificationManager: IDisposable
 	{
 		private Ship_Game.ScreenManager ScreenManager;
 
@@ -19,12 +19,15 @@ namespace Ship_Game
 
 		public BatchRemovalCollection<Notification> NotificationList = new BatchRemovalCollection<Notification>();
         private float Timer;
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
 
 		public NotificationManager(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
-			this.NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 250);
+			this.NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 275);
 			this.numentriesToDisplay = this.NotificationArea.Height / 70;
 		}
 
@@ -148,11 +151,48 @@ namespace Ship_Game
 			}
 		}
 
+        public void AddForeignTroopsRemovedNotification(Planet where)
+        {
+            Notification cNote = new Notification()
+            {
+                Message = string.Concat("Foreign troops evacuated from ", where.Name),
+                ReferencedItem1 = where,
+                IconPath = string.Concat("Planets/", where.planetType),
+                Action = "SnapToPlanet",
+                ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
+                DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
+            };
+            AudioManager.PlayCue("sd_notify_alert");
+            lock (GlobalStats.NotificationLocker)
+            {
+                this.NotificationList.Add(cNote);
+            }
+        }
+
+        public void AddTroopsRemovedNotification(Planet where)
+        {
+            Notification cNote = new Notification()
+            {
+                Message = string.Concat("Your troops stationed on ", where.Name, " had to evacuate when ", where.Owner.data.Traits.Name, " colonized the planet"),
+                ReferencedItem1 = where,
+                IconPath = string.Concat("Planets/", where.planetType),
+                Action = "SnapToPlanet",
+                ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
+                DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
+            };
+            AudioManager.PlayCue("sd_notify_alert");
+            lock (GlobalStats.NotificationLocker)
+            {
+                this.NotificationList.Add(cNote);
+            }
+        }
+
 		public void AddEventNotification(ExplorationEvent expEvent)
 		{
 			Notification cNote = new Notification()
 			{
-				Message = Localizer.Token(2295),
+                Pause = false,
+                Message = Localizer.Token(2295),
 				ReferencedItem1 = expEvent,
 				IconPath = "ResearchMenu/icon_event_science",
 				Action = "LoadEvent",
@@ -170,6 +210,7 @@ namespace Ship_Game
         {
             Notification cNote = new Notification()
             {
+                Pause = false,
                 Message = cMessage,
                 ReferencedItem1 = expEvent,
                 IconPath = "ResearchMenu/icon_event_science",
@@ -188,10 +229,12 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat(Localizer.Token(1505), p.Name, Localizer.Token(1506)),
+                Pause = false,
+                Message = string.Concat(Localizer.Token(1505), p.Name, Localizer.Token(1506)),
 				ReferencedItem1 = p.system,
+                ReferencedItem2=p,
 				IconPath = string.Concat("Planets/", p.planetType),
-				Action = "SnapToSystem",
+                Action = "SnapToExpandSystem",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
 			};
@@ -206,7 +249,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				RelevantEmpire = Us,
+                Pause = false,
+                RelevantEmpire = Us,
 				Message = string.Concat(Localizer.Token(1510), wasConquered.Name),
 				ReferencedItem1 = wasConquered,
 				IconPath = string.Concat("Planets/", wasConquered.planetType),
@@ -225,7 +269,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				RelevantEmpire = Us,
+                Pause = false,
+                RelevantEmpire = Us,
 				Message = string.Concat("Removed ", them.data.Traits.Singular, " agent from ", wasConquered.Name),
 				ReferencedItem1 = wasConquered,
 				IconPath = string.Concat("Planets/", wasConquered.planetType),
@@ -244,7 +289,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = Localizer.Token(2296),
+                Pause = false,
+                Message = Localizer.Token(2296),
 				IconPath = "UI/icon_warning_money",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
@@ -261,7 +307,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				RelevantEmpire = Us,
+                Pause = false,
+                RelevantEmpire = Us,
 				Message = string.Concat(Localizer.Token(1508), them.data.Traits.Singular, Localizer.Token(1509)),
 				IconPath = "NewUI/icon_planet_terran_01_mid",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
@@ -292,7 +339,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\n are now at peace"),
+                Pause = false,
+                Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\n are now at peace"),
 				IconPath = "UI/icon_peace",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 78, 58),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
@@ -308,7 +356,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat("Peace Treaty expired with \n", otherEmpire.data.Traits.Name),
+                Pause = false,
+                Message = string.Concat("Peace Treaty expired with \n", otherEmpire.data.Traits.Name),
 				IconPath = "UI/icon_peace_cancel",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
@@ -538,13 +587,21 @@ namespace Ship_Game
 								}
 								else if (str == "LoadEvent")
 								{
-									this.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), n.ReferencedItem1 as ExplorationEvent, (n.ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]));
-									(n.ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), (n.ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]);
+                                    ExplorationEvent e = n.ReferencedItem1 as ExplorationEvent;
+                                    Outcome triggeredOutcome = GetRandomOutcome(e);
+									this.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), n.ReferencedItem1 as ExplorationEvent, triggeredOutcome));
+									(n.ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), triggeredOutcome);
 								}
 								else if (str == "ResearchScreen")
 								{
 									this.ScreenManager.AddScreen(new ResearchPopup(this.screen, new Rectangle(0, 0, 600, 600), n.ReferencedItem1 as string));
 								}
+                                else if (str == "SnapToExpandSystem")
+                                {
+                                   // this.ScreenManager.AddScreen(new ResearchPopup(this.screen, new Rectangle(0, 0, 600, 600), n.ReferencedItem1 as string));
+                                    
+                                    this.SnapToExpandedSystem(n.ReferencedItem2 as Planet,n.ReferencedItem1 as SolarSystem);
+                                }
 							}
 							retValue = true;
 						}
@@ -555,7 +612,7 @@ namespace Ship_Game
 							Recalculate = true;
 							retValue = true;
                             // ADDED BY SHAHMATT (to unpause game on right clicking notification icon)
-                            if (GlobalStats.PauseOnNotification )
+                            if (GlobalStats.PauseOnNotification && n.Pause)
                                 this.screen.Paused = false;
 						}
 						n.ShowMessage = true;
@@ -618,12 +675,60 @@ namespace Ship_Game
 			}
 			this.screen.SnapViewPlanet(p);
 		}
+        public void SnapToExpandedSystem(Planet p, SolarSystem system)
+        {
+            AudioManager.PlayCue("sub_bass_whoosh");
+            p= p!= null ? this.screen.SelectedPlanet = p:null;
+            this.screen.SelectedSystem = system;
+           // this.screen.mouseWorldPos = p == null ? system.Position : p.Position;
+            this.screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView); 
+        }
 
 		public void SnapToSystem(SolarSystem system)
 		{
 			AudioManager.PlayCue("sub_bass_whoosh");
-			this.screen.SnapViewSystem(system);
+            this.screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
 		}
+
+        public Outcome GetRandomOutcome(ExplorationEvent e)
+        {
+            int ranMax = 0;
+            foreach (Outcome outcome in e.PotentialOutcomes)
+            {
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered)
+                {
+                    continue;
+                }
+                else
+                {
+                    ranMax += outcome.Chance;
+                }
+            }
+
+            int Random = (int)RandomMath.RandomBetween(0, ranMax);
+            Outcome triggeredOutcome = new Outcome();
+            int cursor = 0;
+            foreach (Outcome outcome in e.PotentialOutcomes)
+            {
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered)
+                {
+                    continue;
+                }
+                else
+                {
+                    cursor = cursor + outcome.Chance;
+                    if (Random > cursor)
+                    {
+                        continue;
+                    }
+                    triggeredOutcome = outcome;
+                    outcome.alreadyTriggered = true;
+                    break;
+                }
+            }
+            return triggeredOutcome;
+        }
+
 
 		public void Update(float elapsedTime)
 		{
@@ -633,8 +738,9 @@ namespace Ship_Game
             {
                 Timer = date;
                 ExplorationEvent ReferencedItem1 = ResourceManager.EventsDict[date.ToString()];
-                this.screen.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), ReferencedItem1 as ExplorationEvent, (ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]));
-                (ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), (ReferencedItem1 as ExplorationEvent).PotentialOutcomes[0]);
+                Outcome triggeredOutcome = GetRandomOutcome(ReferencedItem1);
+                this.screen.ScreenManager.AddScreen(new EventPopup(this.screen, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), ReferencedItem1 as ExplorationEvent, triggeredOutcome));
+                (ReferencedItem1 as ExplorationEvent).TriggerOutcome(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), triggeredOutcome);
             }
             
 
@@ -649,11 +755,36 @@ namespace Ship_Game
 					float amount = (float)Math.Pow((double)(n.transitionElapsedTime / n.transDuration), 2);
 					n.ClickRect.Y = (int)MathHelper.SmoothStep((float)n.ClickRect.Y, (float)n.DestinationRect.Y, amount);
                     // ADDED BY SHAHMATT (pause game when there are any notifications)
-                    if (GlobalStats.PauseOnNotification && this.screen.viewState > UniverseScreen.UnivScreenState.SystemView && n.ClickRect.Y >= n.DestinationRect.Y)
+                    //if (GlobalStats.PauseOnNotification && this.screen.viewState > UniverseScreen.UnivScreenState.SystemView && n.ClickRect.Y >= n.DestinationRect.Y)
+                    //fbedard : Add filter to pause
+                    if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
                         this.screen.Paused = true;                   
                     // END OF ADDED BY SHAHMATT
 				}
 			}
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~NotificationManager() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.NotificationList != null)
+                        this.NotificationList.Dispose();
+
+                }
+                this.NotificationList = null;
+                this.disposed = true;
+            }
+        }
 	}
 }

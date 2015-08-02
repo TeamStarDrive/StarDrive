@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
+using System.Globalization;
 
 namespace Ship_Game
 {
-	public class SavedGame
+	public sealed class SavedGame
 	{
 		public SavedGame.UniverseSaveData data = new SavedGame.UniverseSaveData();
 
@@ -30,6 +31,7 @@ namespace Ship_Game
 			this.data.StarDate = screenToSave.StarDate;
 			this.data.SolarSystemDataList = new List<SavedGame.SolarSystemSaveData>();
 			this.data.FTLModifier = screenToSave.FTLModifier;
+            this.data.EnemyFTLModifier = screenToSave.EnemyFTLModifier;
 			this.data.GravityWells = screenToSave.GravityWells;
 			this.data.PlayerLoyalty = screenToSave.PlayerLoyalty;
 			this.data.RandomEvent = RandomEventManager.ActiveEvent;
@@ -38,11 +40,12 @@ namespace Ship_Game
             this.data.MemoryLimiter = GlobalStats.MemoryLimiter;
             this.data.MinimumWarpRange = GlobalStats.MinimumWarpRange;
             this.data.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
-
+            this.data.TurnTimer = GlobalStats.TurnTimer;
             this.data.IconSize=GlobalStats.IconSize;
             this.data.preventFederations=GlobalStats.preventFederations;
             this.data.GravityWellRange=GlobalStats.GravityWellRange;
             this.data.EliminationMode = GlobalStats.EliminationMode;
+            
 
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{
@@ -51,12 +54,15 @@ namespace Ship_Game
 					Name = system.Name,
 					Position = system.Position,
 					SunPath = system.SunPath,
-					AsteroidsList = new List<Asteroid>()
+					AsteroidsList = new List<Asteroid>(),
+                    Moons = new List<Moon>(),
 				};
 				foreach (Asteroid roid in system.AsteroidsList)
 				{
 					sdata.AsteroidsList.Add(roid);
 				}
+                foreach (Moon moon in system.MoonList)
+                    sdata.Moons.Add(moon);
 				sdata.guid = system.guid;
 				sdata.RingList = new List<SavedGame.RingSave>();
 				foreach (SolarSystem.Ring ring in system.RingList)
@@ -82,6 +88,7 @@ namespace Ship_Game
 							ProdLock = ring.planet.ProdLocked,
 							ResLock = ring.planet.ResLocked,
 							Name = ring.planet.Name,
+                            Scale = ring.planet.scale,
 							ShieldStrength = ring.planet.ShieldStrengthCurrent,
 							Population = ring.planet.Population,
 							PopulationMax = ring.planet.MaxPopulation,
@@ -105,7 +112,8 @@ namespace Ship_Game
 						};
 						foreach (KeyValuePair<Guid, Ship> station in ring.planet.Shipyards)
 						{
-							pdata.StationsList.Add(station.Key);
+							if(station.Value.Active)
+                            pdata.StationsList.Add(station.Key);
 						}
 						pdata.QISaveList = new List<SavedGame.QueueItemSave>();
 						if (ring.planet.Owner != null)
@@ -203,6 +211,7 @@ namespace Ship_Game
 				SavedGame.EmpireSaveData empireToSave = new SavedGame.EmpireSaveData()
 				{
 					IsFaction = e.isFaction,
+                    isMinorRace = e.MinorRace,
 					Relations = new List<Relationship>()
 				};
 				foreach (KeyValuePair<Empire, Relationship> relation in e.GetRelations())
@@ -218,6 +227,7 @@ namespace Ship_Game
                 empireToSave.CurrentAutoScout = e.data.CurrentAutoScout;
                 empireToSave.CurrentAutoFreighter = e.data.CurrentAutoFreighter;
                 empireToSave.CurrentAutoColony = e.data.CurrentAutoColony;
+                empireToSave.CurrentConstructor = e.data.CurrentConstructor;
 				empireToSave.OwnedShips = new List<SavedGame.ShipSaveData>();
 				empireToSave.TechTree = new List<TechEntry>();
 				foreach (AO area in e.GetGSAI().AreasOfOperations)
@@ -353,14 +363,16 @@ namespace Ship_Game
 						Position = ship.Position,
 						experience = ship.experience,
 						kills = ship.kills,
-						Velocity = ship.Velocity
+						Velocity = ship.Velocity,
+                        
 					};
 					if (ship.GetTether() != null)
 					{
 						sdata.TetheredTo = ship.GetTether().guid;
 						sdata.TetherOffset = ship.TetherOffset;
 					}
-					sdata.Name = ship.VanityName;
+					sdata.Name = ship.Name;
+                    sdata.VanityName = ship.VanityName;
 					if (ship.PlayerShip)
 					{
 						sdata.IsPlayerShip = true;
@@ -384,6 +396,9 @@ namespace Ship_Game
 						sdata.PopCount = ship.GetCargo()["Colonists_1000"];
 					}
 					sdata.TroopList = ship.TroopList;
+
+                    sdata.AreaOfOperation = ship.AreaOfOperation;
+               
 					sdata.AISave = new SavedGame.ShipAISave()
 					{
 						FoodOrProd = ship.GetAI().FoodOrProd,
@@ -451,10 +466,6 @@ namespace Ship_Game
 					{
 						sdata.AISave.EscortTarget = ship.GetAI().EscortTarget.guid;
 					}
-					if (ship.GetHome() != null)
-					{
-						sdata.HomePlanet = ship.GetHome().Name;
-					}
 					sdata.Projectiles = new List<SavedGame.ProjectileSaveData>();
 					for (int i = 0; i < ship.Projectiles.Count; i++)
 					{
@@ -494,7 +505,7 @@ namespace Ship_Game
 			XmlSerializer Serializer = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
 			TextWriter WriteFileStream = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/", data.SaveAs, ".xml"));
 			Serializer.Serialize(WriteFileStream, data);
-			WriteFileStream.Close();
+			//WriteFileStream.Close();
 			WriteFileStream.Dispose();
 			FileInfo fi = new FileInfo(string.Concat(data.path, "/StarDrive/Saved Games/", data.SaveAs, ".xml"));
 			HelperFunctions.Compress(fi);
@@ -513,7 +524,9 @@ namespace Ship_Game
 			};
 			string str = DateTime.Now.ToString("M/d/yyyy");
 			DateTime now = DateTime.Now;
-			header.RealDate = string.Concat(str, " ", now.ToShortTimeString());
+            //gremlin force time to us standard to prevent game load failure on different clock formats.
+            header.RealDate = string.Concat(str, " ", now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat)); 
+			//header.RealDate = string.Concat(str, " ", now.ToShortTimeString());
 			header.SaveName = data.SaveAs;
 			if (GlobalStats.ActiveMod != null)
 			{
@@ -522,9 +535,9 @@ namespace Ship_Game
 			XmlSerializer Serializer1 = new XmlSerializer(typeof(HeaderData));
 			TextWriter wf = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/Headers/", data.SaveAs, ".xml"));
 			Serializer1.Serialize(wf, header);
-			wf.Close();
+			//wf.Close();
 			wf.Dispose();
-			GC.Collect();
+			//GC.Collect(1, GCCollectionMode.Optimized);
 		}
 
 		public struct EmpireSaveData
@@ -536,6 +549,8 @@ namespace Ship_Game
 			public List<SavedGame.SpaceRoadSave> SpaceRoadData;
 
 			public bool IsFaction;
+
+            public bool isMinorRace;
 
 			public RacialTrait Traits;
 
@@ -562,6 +577,8 @@ namespace Ship_Game
             public string CurrentAutoColony;
 
             public string CurrentAutoScout;
+
+            public string CurrentConstructor;
 		}
 
 		public struct FleetSave
@@ -619,7 +636,7 @@ namespace Ship_Game
 
 		public class GSAISAVE
 		{
-			public List<int> UsedFleets;
+            public List<int> UsedFleets;
 
 			public List<SavedGame.GoalSave> Goals;
 
@@ -657,6 +674,8 @@ namespace Ship_Game
 			public Guid guid;
 
 			public string Name;
+
+            public float Scale;
 
 			public string Owner;
 
@@ -845,6 +864,8 @@ namespace Ship_Game
 
 			public string Name;
 
+            public string VanityName;
+
 			public bool IsPlayerShip;
 
 			public float yRotation;
@@ -853,8 +874,6 @@ namespace Ship_Game
 
 			public float Ordnance;
 
-			public string HomePlanet;
-
 			public float InCombatTimer;
 
 			public float experience;
@@ -862,6 +881,8 @@ namespace Ship_Game
 			public int kills;
 
 			public List<Troop> TroopList;
+
+            public List<Rectangle> AreaOfOperation;
 
 			public float FoodCount;
 
@@ -889,6 +910,8 @@ namespace Ship_Game
 			public List<SavedGame.RingSave> RingList;
 
 			public List<Asteroid> AsteroidsList;
+
+            public List<Moon> Moons;
 
 			public List<string> EmpiresThatKnowThisSystem;
 		}
@@ -945,6 +968,7 @@ namespace Ship_Game
 			public bool RemnantArmageddon;
 
 			public float FTLModifier = 1.0f;
+            public float EnemyFTLModifier = 1.0f;
 
 			public bool GravityWells;
 
@@ -957,6 +981,8 @@ namespace Ship_Game
             public float MemoryLimiter=GlobalStats.MemoryLimiter;
             
             public int IconSize;
+
+            public byte TurnTimer;
 
             public bool preventFederations;
             public float GravityWellRange=GlobalStats.GravityWellRange;

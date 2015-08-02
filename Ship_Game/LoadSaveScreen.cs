@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public class LoadSaveScreen : GameScreen, IDisposable
+	public sealed class LoadSaveScreen : GameScreen, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -52,6 +52,10 @@ namespace Ship_Game
 
 		//private float transitionElapsedTime;
 
+        //adding for thread safe Dispose because class uses unmanaged resources 
+        private bool disposed;
+
+
 		public LoadSaveScreen(UniverseScreen screen)
 		{
 			this.screen = screen;
@@ -69,21 +73,27 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				lock (this)
-				{
-				}
-			}
-		}
+        ~LoadSaveScreen() { Dispose(false); }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (this.SavesSL != null)
+                        this.SavesSL.Dispose();
+                }
+                this.SavesSL = null;                    ;
+                this.disposed = true;
+            }
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -104,7 +114,14 @@ namespace Ship_Game
 				tCursor.Y = tCursor.Y + (float)Fonts.Arial20Bold.LineSpacing;
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(data.PlayerName, " StarDate ", data.StarDate), tCursor, Color.White);
 				tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.RealDate, tCursor, Color.White);
+                try
+                {
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.RealDate, tCursor, Color.White);
+                }
+                catch
+                {
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "badDate", tCursor, Color.White);
+                }
 			}
 			this.SavesSL.Draw(base.ScreenManager.SpriteBatch);
 			this.EnterNameArea.Draw(Fonts.Arial12Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, gameTime, (this.EnterNameArea.Hover ? Color.White : Color.Orange));
@@ -125,20 +142,7 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~LoadSaveScreen() {
-            //should implicitly do the same thing as the original bad finalize
-        }
+
 
 		public override void HandleInput(InputState input)
 		{
@@ -247,24 +251,24 @@ namespace Ship_Game
 					{
 						if (data.ModName != GlobalStats.ActiveMod.ModPath)
 						{
-							file.Close();
+							//file.Close();
 							file.Dispose();
 							continue;
 						}
 					}
-					else if (data.ModName != "")
+					else if (!string.IsNullOrEmpty(data.ModName))
 					{
-						file.Close();
+						//file.Close();
 						file.Dispose();
 						continue;
 					}
 					saves.Add(data);
-					file.Close();
+					//file.Close();
 					file.Dispose();
 				}
 				catch
 				{
-					file.Close();
+					//file.Close();
 					file.Dispose();
 				}
             //Label0:
