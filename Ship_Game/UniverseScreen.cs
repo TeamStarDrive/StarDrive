@@ -232,7 +232,7 @@ namespace Ship_Game
         public InputState input;
         private float Memory;
         public bool Paused;
-        private bool SkipRightOnce;
+        public bool SkipRightOnce;
         private bool UseRealLights = true;
         private bool showdebugwindow;
         private bool NeedARelease;
@@ -2722,7 +2722,8 @@ namespace Ship_Game
                     this.UseRealLights = true;
                     this.SetLighting(this.UseRealLights);
                 }
-            } if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.active)
+            } 
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.active)
             {
                 bool switchedmode = false;
 #if RELEASE //only switch screens in release
@@ -2750,6 +2751,42 @@ namespace Ship_Game
                     if (paused)
                     {
                         
+                        this.Paused = false;
+                    }
+                }
+                if (switchedmode)
+                {
+                    switchedmode = false;
+                    Game1.Instance.graphics.ToggleFullScreen();
+                }
+            }
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.F7) && input.LastKeyboardState.IsKeyUp(Keys.F7) && !ExceptionTracker.active)
+            {
+                bool switchedmode = false;
+#if RELEASE //only switch screens in release
+                
+                if (Game1.Instance.graphics.IsFullScreen)
+                {
+                    switchedmode = true;
+                    Game1.Instance.graphics.ToggleFullScreen();
+                }
+#endif
+                Exception ex = new Exception("Kudos");
+                
+                ExceptionTracker.TrackException(ex);
+                ExceptionTracker.Kudos = true;
+                // if(ExceptionViewer.ActiveForm == null)
+                {
+                    bool paused = false;
+                    if (!this.Paused)
+                    {
+                        paused = true;
+                        this.Paused = true;
+                    }
+                    ExceptionTracker.DisplayException(ex);
+                    if (paused)
+                    {
+
                         this.Paused = false;
                     }
                 }
@@ -2878,34 +2915,24 @@ namespace Ship_Game
                                     {
                                         if (nbrplanet == lastplanetcombat)
                                             PlanetToView = p;
-                                        else
-                                            nbrplanet++;
+                                        nbrplanet++;
                                     }
                                     else
                                     {
                                         flagPlanet = false;
-                                        foreach (PlanetGridSquare planetGridSquare in p.TilesList)
+                                        foreach (Troop troop in p.TroopsHere)
                                         {
-                                            if (!flagPlanet) 
+                                            if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
                                             {
-                                                planetGridSquare.TroopsHere.thisLock.EnterReadLock();
-                                                foreach (Troop troop in planetGridSquare.TroopsHere)
-                                                {
-                                                    if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
-                                                    {
-                                                        flagPlanet = true;
-                                                        break;
-                                                    }
-                                                }
-                                                planetGridSquare.TroopsHere.thisLock.ExitReadLock();
+                                                flagPlanet = true;
+                                                break;
                                             }
                                         }
                                         if (flagPlanet) 
                                         {
                                             if (nbrplanet == lastplanetcombat)
                                                 PlanetToView = p;
-                                            else
-                                                nbrplanet++;
+                                            nbrplanet++;
                                         }
                                     }
                                 }
@@ -4420,7 +4447,7 @@ namespace Ship_Game
             //fbedard: add a scroll on selected object
             if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
             {
-                if (this.SelectedShip != null)
+                if (this.SelectedShip != null && this.SelectedShip.Active)
                 {
                     this.transitionDestination = new Vector3(this.SelectedShip.Position.X, this.SelectedShip.Position.Y, num2);
                 }
@@ -4430,12 +4457,17 @@ namespace Ship_Game
                         this.transitionDestination = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, num2);
                     }  
                     else
-                        if (this.SelectedFleet != null)
-                        {                            
-                            this.transitionDestination = new Vector3(this.SelectedFleet.findAveragePositioncg().X, this.SelectedFleet.findAveragePositioncg().Y, num2);
+                        if (this.SelectedFleet != null && this.SelectedFleet.Ships.Count > 0)
+                        {
+                            this.transitionDestination = new Vector3(this.SelectedFleet.findAveragePosition().X, this.SelectedFleet.findAveragePosition().Y, num2);
                         }
                         else
-                            this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
+                            if (this.SelectedShipList.Count > 0 && this.SelectedShipList[0] != null && this.SelectedShipList[0].Active)
+                            {
+                                this.transitionDestination = new Vector3(this.SelectedShipList[0].Position.X, this.SelectedShipList[0].Position.Y, num2);
+                            }
+                            else
+                                this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
             }
             else
                 this.transitionDestination = new Vector3(this.CalculateCameraPositionOnMouseZoom(new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y), num2), num2);
@@ -4580,7 +4612,7 @@ namespace Ship_Game
                                         this.SelectedShipList.Clear();
                                     this.pickedSomethingThisFrame = true;
                                     AudioManager.GetCue("techy_affirm1").Play();
-                                    this.SelectedShip = clickableShip.shipToClick;
+                                    //this.SelectedShip = clickableShip.shipToClick;  removed by fbedard
                                     this.SelectedSomethingTimer = 3f;
                                     if (!this.SelectedShipList.Contains(clickableShip.shipToClick))
                                     {
@@ -4751,7 +4783,8 @@ namespace Ship_Game
                         this.SelectedShipList.ApplyPendingRemovals();
                     }
                     this.SelectedShip = (Ship)null;
-                    this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);
+                    //this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);
+                    this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, false);  //fbedard: this is not a fleet!
                 }
                 else if (this.SelectedShipList.Count == 1)
                 {

@@ -2424,6 +2424,15 @@ namespace Ship_Game.Gameplay
                     //Target is dead or dying, will need a new one.
                     if (this.Target != null && (!this.Target.Active || TargetShip != null && TargetShip.dying))
                     {
+                        foreach (Weapon purge in this.Owner.Weapons)
+                        {
+                            if (purge.PrimaryTarget)
+                            {
+                                purge.PrimaryTarget = false;
+                                purge.fireTarget = null;
+                                purge.SalvoTarget = null;
+                            }
+                        }
                         this.Target = null;
                         TargetShip = null;
                     }
@@ -2481,6 +2490,12 @@ namespace Ship_Game.Gameplay
                                                for (int T = range.Item1; T < range.Item2; T++)
                                                {
                                                    Weapon weapon = this.Owner.Weapons[T];
+                                                   //Reasons for this weapon not to fire 
+                                                   if ( !weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
+                                                   {
+                                                       //continue;
+                                                       return;
+                                                   }
                                                    ShipModule moduletarget = weapon.fireTarget as ShipModule;
                                                    //if firing at the primary target mark weapon as firing on primary.
                                                    if (!(weapon.fireTarget is Projectile) &&( weapon.fireTarget == this.Target || (moduletarget !=null && (moduletarget.GetParent() as GameplayObject) ==this.Target)))
@@ -2495,10 +2510,19 @@ namespace Ship_Game.Gameplay
                                                            || (this.Target !=null &&(!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target) ))                                                         
                                                            )
                                                        {
-                                                           
+                                                           weapon.TargetChangeTimer = .5f;
                                                            weapon.fireTarget = null;
-                                                          
-                                                           weapon.TargetChangeTimer = .15f;
+                                                           if (weapon.isBeam || weapon.isMainGun)
+                                                               weapon.TargetChangeTimer = .90f;
+                                                           if (weapon.isTurret)
+                                                               weapon.TargetChangeTimer *= .5f;
+                                                           if(weapon.Tag_PD)
+                                                           {
+                                                               weapon.TargetChangeTimer *= .5f;
+                                                           }
+
+                             
+                                                           
                                                        }
                                                        
                                                    }
@@ -2510,7 +2534,7 @@ namespace Ship_Game.Gameplay
                                                            weapon.PrimaryTarget = false;
                                                    }
                                                    //Reasons for this weapon not to fire                    
-                                                   if (  (weapon.fireTarget == null && weapon.TargetChangeTimer >0 ) ||!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
+                                                   if (weapon.fireTarget == null && weapon.TargetChangeTimer >0 ) // ||!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                                                    {
                                                        //continue;
                                                        return;
@@ -2524,7 +2548,7 @@ namespace Ship_Game.Gameplay
                                                            //if there are projectile to hit and weapons that can shoot at them. do so. 
                                                            if(this.TrackProjectiles.Count >0 && weapon.Tag_PD)
                                                            {
-                                                               for (int i = 0; i < this.TrackProjectiles.Count; i++)
+                                                               for (int i = 0; i < this.TrackProjectiles.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++)
                                                                {
                                                                    Projectile proj;
                                                                    {
@@ -2553,7 +2577,7 @@ namespace Ship_Game.Gameplay
                                                            if (weapon.fireTarget == null)
                                                            {
                                                                //limit to one target per level.
-                                                               for (int i = 0; i < this.PotentialTargets.Count; i++) //&& i < this.Owner.Level
+                                                               for (int i = 0; i < this.PotentialTargets.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++) //
                                                                {
                                                                    Ship PotentialTarget = this.PotentialTargets[i];
                                                                    if (PotentialTarget == this.TargetShip
@@ -2588,7 +2612,7 @@ namespace Ship_Game.Gameplay
                                                            if (weapon.fireTarget == null)
                                                            {
 
-                                                               for (int i = 0; i < this.TrackProjectiles.Count; i++)
+                                                               for (int i = 0; i < this.TrackProjectiles.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++)
                                                                {
                                                                    Projectile proj;
                                                                    {
@@ -2631,7 +2655,7 @@ namespace Ship_Game.Gameplay
                                     weapon.FireTargetedBeam(target);
                                 else if (weapon.Tag_Guided)
                                 {
-                                    if (index > 10 && lag > .03 && !GlobalStats.ForceFullSim && (!weapon.Tag_Intercept) && (weapon.fireTarget is ShipModule))
+                                    if (index > 10 && lag > .05 && !GlobalStats.ForceFullSim && (!weapon.Tag_Intercept) && (weapon.fireTarget is ShipModule))
                                         this.FireOnTargetNonVisible(weapon, (weapon.fireTarget as ShipModule).GetParent());
                                     else
                                         weapon.Fire(new Vector2((float)Math.Sin((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing))), target);
@@ -2639,7 +2663,7 @@ namespace Ship_Game.Gameplay
                                 }
                                 else
                                 {
-                                    if (index > 10 && lag > .03 && !GlobalStats.ForceFullSim && (weapon.fireTarget is ShipModule))
+                                    if (index > 10 && lag > .05 && !GlobalStats.ForceFullSim && (weapon.fireTarget is ShipModule))
                                         this.FireOnTargetNonVisible(weapon, (weapon.fireTarget as ShipModule).GetParent());
                                     else
                                         CalculateAndFire(weapon, target, false);
@@ -5987,12 +6011,28 @@ namespace Ship_Game.Gameplay
                        // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
-                        shipWeight.weight = shipWeight.weight + 2.5f;
+                        shipWeight.weight = shipWeight.weight + 1f;
                     }
-                    else if (rangeToTarget > this.CombatAI.PreferredEngagementDistance)
+                    else if (rangeToTarget > this.CombatAI.PreferredEngagementDistance + this.Owner.speed)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
-                        shipWeight1.weight = shipWeight1.weight - 2.5f *(rangeToTarget /(this.CombatAI.PreferredEngagementDistance+1));
+                        shipWeight1.weight = shipWeight1.weight - 2.5f *(rangeToTarget /(this.CombatAI.PreferredEngagementDistance + this.Owner.speed ));
+                    }
+                    if(this.Owner.Mothership !=null)
+                    {
+                        rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, this.Owner.Mothership.Center);
+                        if (rangeToTarget < this.CombatAI.PreferredEngagementDistance)
+                            nearbyShip.weight += 1;
+
+                    }
+                    if (this.EscortTarget != null)
+                    {
+                        rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, this.EscortTarget.Center);
+                        if (rangeToTarget < this.CombatAI.PreferredEngagementDistance)
+                            nearbyShip.weight += 1;
+                        else
+                            nearbyShip.weight -= 2;
+
                     }
                     if(nearbyShip.ship.Weapons.Count <1)
                     {
@@ -6998,6 +7038,8 @@ namespace Ship_Game.Gameplay
                                                 {
                                                     if (this.EscortTarget == null || !this.EscortTarget.Active)
                                                     {
+                                                        this.OrderQueue.Clear();
+                                                        this.ClearOrdersNext = false;
                                                         this.State = AIState.AwaitingOrders;   //fbedard
                                                         break;
                                                     }
@@ -7055,10 +7097,12 @@ namespace Ship_Game.Gameplay
                                     }
                                 case AIState.Resupply:
                                     {
-                                        if (this.Owner.Ordinance != this.Owner.OrdinanceMax)
+                                        if (this.Owner.Ordinance != this.Owner.OrdinanceMax || this.Owner.Health != this.Owner.HealthMax)
                                         {
                                             break;
                                         }
+                                        this.OrderQueue.Clear();
+                                        this.ClearOrdersNext = false;
                                         this.State = AIState.AwaitingOrders;
                                         break;
                                     }
@@ -7635,6 +7679,15 @@ namespace Ship_Game.Gameplay
             }
             else
             {
+                foreach (Weapon purge in this.Owner.Weapons)
+                {
+                    if (purge.fireTarget != null)
+                    {
+                        purge.PrimaryTarget = false;
+                        purge.fireTarget = null;
+                        purge.SalvoTarget = null;
+                    }
+                }
                 if (this.Owner.GetHangars().Count > 0 && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
                 {
                     foreach (ShipModule hangar in this.Owner.GetHangars())
