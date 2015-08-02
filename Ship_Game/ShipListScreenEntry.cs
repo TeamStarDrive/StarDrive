@@ -465,14 +465,15 @@ namespace Ship_Game
 				}
 				case AIState.Resupply:
 				{
-					if (ship.GetAI().resupplyTarget == null)
+                    Planet resupplyTarget = ship.GetAI().resupplyTarget;
+                    if (resupplyTarget == null)
 					{
 						text = Localizer.Token(173);
 						break;
 					}
 					else
 					{
-						text = string.Concat(Localizer.Token(172), " ", ship.GetAI().resupplyTarget.Name);
+						text = string.Concat(Localizer.Token(172), " ", resupplyTarget.Name);
 						break;
 					}
 				}
