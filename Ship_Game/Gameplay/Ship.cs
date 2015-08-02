@@ -2605,7 +2605,7 @@ namespace Ship_Game.Gameplay
                         this.dieCue.Play();
                     }
                 }
-                if ((double)this.dietimer <= 0.0)
+                if (this.dietimer <= 0.0)
                 {
                     this.reallyDie = true;
                     this.Die(this.LastDamagedBy, true);
@@ -4170,14 +4170,18 @@ namespace Ship_Game.Gameplay
                     this.dieCue.Play();
                 }
             }
+
+
             this.ModuleSlotList.Clear();
             this.ExternalSlots.Clear();
             this.ModulesDictionary.Clear();
             this.ThrusterList.Clear();
+            this.GetAI().PotentialTargets.Clear();
             this.AttackerTargetting.Clear();
             this.Velocity = Vector2.Zero;
             this.velocityMaximum = 0.0f;
             this.AfterBurnerAmount = 0.0f;
+            
             Vector3 Position = new Vector3(this.Center.X, this.Center.Y, -100f);
             if (this.Active)
             {
@@ -4310,7 +4314,11 @@ namespace Ship_Game.Gameplay
                         shipModule.SetHangarShip((Ship)null);
                 }
             }
-
+            foreach (ShipModule hanger in this.Hangars)
+            {
+                if (hanger.GetHangarShip() != null)
+                    hanger.GetHangarShip().Mothership = (Ship)null;
+            }
             for (int index = 0; index < this.projectiles.Count; ++index)
                 this.projectiles[index].Die((GameplayObject)this, false);
             this.projectiles.Clear();
