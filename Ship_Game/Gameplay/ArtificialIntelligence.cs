@@ -6836,7 +6836,7 @@ namespace Ship_Game.Gameplay
             if (this.State == AIState.Resupply)
             {
                 this.HasPriorityOrder = true;
-                if (this.Owner.Ordinance >= this.Owner.OrdinanceMax)
+				if (this.Owner.Ordinance >= this.Owner.OrdinanceMax && this.Owner.Health >= this.Owner.HealthMax)  //fbedard: consider health also
                 {
                     this.HasPriorityOrder = false;
                 }
@@ -7153,7 +7153,8 @@ namespace Ship_Game.Gameplay
                             {
                                 this.RotateToFacing(elapsedTime, angleDiff, facing);
                             }
-                            this.State = AIState.AwaitingOrders;
+                            if (DistanceToFleetOffset <= 75f || !this.HasPriorityOrder)  //fbedard: dont override high priority order
+								this.State = AIState.AwaitingOrders;
                         }
                         else
                         {
@@ -7162,6 +7163,8 @@ namespace Ship_Game.Gameplay
                             {
                                 this.ActiveWayPoints.Clear();
                                 this.ActiveWayPoints.Enqueue(this.Owner.fleet.Position + this.Owner.FleetOffset);
+                                if (this.State != AIState.AwaitingOrders)  //fbedard: set new order for returning to fleet
+                                    this.State = AIState.AwaitingOrders;
                                 if (this.Owner.fleet.GetStack().Count > 0)
                                 {
                                     this.ActiveWayPoints.Enqueue(this.Owner.fleet.GetStack().Peek().MovePosition + this.Owner.FleetOffset);

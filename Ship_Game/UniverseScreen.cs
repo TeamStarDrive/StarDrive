@@ -4444,8 +4444,9 @@ namespace Ship_Game
             if ((double)this.camHeight <= 450.0)
                this.camHeight = 450f;
             float num2 = this.transitionDestination.Z;
+            
             //fbedard: add a scroll on selected object
-            if (!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+            if ((!input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && GlobalStats.ZoomTracking) || (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && !GlobalStats.ZoomTracking))
             {
                 if (this.SelectedShip != null && this.SelectedShip.Active)
                 {
