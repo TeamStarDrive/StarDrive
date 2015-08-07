@@ -356,12 +356,12 @@ namespace Ship_Game.Gameplay
                 removalCollection.Add(ship);
             foreach (Ship ship in (List<Ship>)removalCollection)
             {
-                if (ship.Role == "scout")
+                if (ship.Role == "scout" || ship.shipData.ShipCategory == ShipData.Category.Recon)
                 {
                     this.ScreenShips.Add(ship);
                     removalCollection.QueuePendingRemoval(ship);
                 }
-                if (ship.Role == "freighter")
+                if (ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                 {
                     this.RearShips.Add(ship);
                     removalCollection.QueuePendingRemoval(ship);

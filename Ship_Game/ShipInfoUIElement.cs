@@ -698,7 +698,7 @@ namespace Ship_Game
 					this.Orders.Add(ob);
 				}
 			}
-            if (this.ship.Role != "station" && ship.Mothership == null && this.ship.Role != "platform" && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "freighter")
+            if (this.ship.Role != "station" && ship.Mothership == null && this.ship.Role != "platform" && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "freighter" && ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
 			    OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
 			    {

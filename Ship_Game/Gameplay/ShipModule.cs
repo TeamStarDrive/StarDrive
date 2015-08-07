@@ -2343,7 +2343,7 @@ namespace Ship_Game.Gameplay
             }
             if (this.IsSupplyBay)
             {
-                if (this.Parent.Role == "freighter")
+                if (this.Parent.Role == "freighter" || this.Parent.shipData.ShipCategory == ShipData.Category.Civilian)
                     this.Parent.Role = "supply";
                 this.Parent.IsSupplyShip = true;
             }

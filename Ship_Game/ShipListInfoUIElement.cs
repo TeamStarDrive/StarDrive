@@ -690,7 +690,7 @@ namespace Ship_Game
 				{
 					AllFreighters = false;
 				}
-                if (ship.Role == "construction" || ship.Role == "platform" || ship.Role == "freighter" || ship.Role == "troop" || ship.GetAI().State == AIState.Colonize || ship.Role == "station" || ship.Mothership != null)
+                if (ship.Role == "construction" || ship.Role == "platform" || ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == "troop" || ship.GetAI().State == AIState.Colonize || ship.Role == "station" || ship.Mothership != null)
                 {
                     AllCombat = false;
                 }
