@@ -4617,7 +4617,7 @@ namespace Ship_Game.Gameplay
             float capFrigates = 0f;
             float capCruisers = 0f;
             float capCapitals = 0f;
-            float capBombers = 0f;
+            //float capBombers = 0f;
             float capCarriers = 0f;
             float nonMilitaryCap = 0;
             float numScrapping = 0;

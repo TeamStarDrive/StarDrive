@@ -28,6 +28,12 @@ namespace Ship_Game
 			this.ListRect = qRect;
 			string role = data.Role;
 			string str = role;
+            if (data.ShipCategory == ShipData.Category.Civilian)
+            {
+                this.IconPath = "TacticalIcons/symbol_freighter";
+                return;
+            }
+
 			if (role != null)
 			{
 				switch (str)

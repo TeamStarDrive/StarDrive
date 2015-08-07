@@ -4046,7 +4046,7 @@ namespace Ship_Game
 
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
 		{
-			float amount = 105f;
+			float amount = 120f;  //fbedard: was 105f
 			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
 			{
 				amount = amount + 20f;
@@ -5048,6 +5048,42 @@ namespace Ship_Game
         {
 
             this.CategoryList.HandleInput(input);
+            if (HelperFunctions.CheckIntersection(dropdownRect, input.CursorPosition))  //fbedard: add tooltip for CategoryList
+            {                
+                switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
+                {
+                    case 1:
+                        {
+                            ToolTip.CreateTooltip("Repair when damaged at 80%", this.ScreenManager);
+                            break;
+                        }
+                    case 2:
+                        {
+                            ToolTip.CreateTooltip("Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 40%", this.ScreenManager);
+                            break;
+                        }
+                    case 3:
+                        {
+                            ToolTip.CreateTooltip("Repair when damaged at 40%", this.ScreenManager);
+                            break;
+                        }
+                    case 4:
+                        {
+                            ToolTip.CreateTooltip("Repair when damaged at 60%", this.ScreenManager);
+                            break;
+                        }
+                    case 5:
+                        {
+                            ToolTip.CreateTooltip("Never Repair!", this.ScreenManager);
+                            break;
+                        }
+                    default:
+                        {
+                            ToolTip.CreateTooltip("Repair when damaged at 80%", this.ScreenManager);
+                            break;
+                        }
+                }
+            }
             this.CarrierOnlyBox.HandleInput(input);
 
             if (this.ActiveModule != null && (this.ActiveModule.InstalledWeapon != null && this.ActiveModule.ModuleType != ShipModuleType.Turret || this.ActiveModule.XSIZE != this.ActiveModule.YSIZE))
@@ -6216,8 +6252,8 @@ namespace Ship_Game
             this.CategoryList.AddOption("Unclassified", 1);
             this.CategoryList.AddOption("Civilian", 2);
             this.CategoryList.AddOption("Recon", 3);
-            this.CategoryList.AddOption("Fighter", 4);
-            this.CategoryList.AddOption("Bomber", 5);
+            this.CategoryList.AddOption("Combat", 4);
+            this.CategoryList.AddOption("Kamikaze", 5);
 
             this.CarrierOnly = this.ActiveHull.CarrierShip;
             Ref<bool> CORef = new Ref<bool>(() => this.CarrierOnly, (bool x) => {
@@ -6440,12 +6476,12 @@ namespace Ship_Game
                     }
                 case 4:
                     {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Fighter;
+                        this.ActiveHull.ShipCategory = ShipData.Category.Combat;
                         break;
                     }
                 case 5:
                     {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Bomber;
+                        this.ActiveHull.ShipCategory = ShipData.Category.Kamikaze;
                         break;
                     }
                 default:
