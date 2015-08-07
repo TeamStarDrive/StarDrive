@@ -3511,6 +3511,7 @@ namespace Ship_Game
                         ship.fleet = this.player.GetFleetsDict()[index];
                     }
                     this.RecomputeFleetButtons(true);
+                    this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);  //fbedard:display new fleet in UI
                 }
             }
             //added by gremlin add ships to exiting fleet
@@ -4825,7 +4826,7 @@ namespace Ship_Game
                     {
                         foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                         {
-                            if (ship.Role == "station" || ship.Role == "construction" || (ship.Role == "platform" || ship.Role == "supply") || (ship.Role == "freighter" || ship.Role == "colony"))
+                            if (ship.Role == "station" || ship.Role == "construction" || (ship.Role == "platform" || ship.Role == "supply") || (ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == "colony"))
                                 flag2 = true;
                             else
                                 flag3 = true;
@@ -4842,7 +4843,7 @@ namespace Ship_Game
                             {
                                 foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                                 {
-                                    if (ship.Role == "station" || ship.Role == "construction" || (ship.Role == "platform" || ship.Role == "supply") || (ship.Role == "freighter" || ship.Role == "colony"))
+                                    if (ship.Role == "station" || ship.Role == "construction" || (ship.Role == "platform" || ship.Role == "supply") || (ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == "colony"))
                                         this.SelectedShipList.QueuePendingRemoval(ship);
                                 }
                             }

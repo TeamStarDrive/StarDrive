@@ -631,7 +631,7 @@ namespace Ship_Game
                     for (int index = 0; index < this.empire.GetShips().Count; ++index)
                     {
                         Ship ship = this.empire.GetShips()[index];
-                        if (ship != null && !ship.isColonyShip && (ship.Role == "freighter" && !ship.isPlayerShip()) && (ship.GetAI() != null && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
+                        if (ship != null && !ship.isColonyShip && ((ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian) && !ship.isPlayerShip()) && (ship.GetAI() != null && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
                         {
                             this.freighter = ship;
                             flag1 = true;
@@ -647,7 +647,7 @@ namespace Ship_Game
                         List<Planet> list1 = new List<Planet>();
                         foreach (Planet planet in this.empire.GetPlanets())
                         {
-                            if (planet.HasShipyard)
+                            if (planet.HasShipyard && planet.CombatTimer <=0)  //fbedard: do not build freighter if combat
                                 list1.Add(planet);
                         }
                         Planet planet1 = (Planet)null;
@@ -691,7 +691,7 @@ namespace Ship_Game
                             List<Ship> list2 = new List<Ship>();
                             foreach (string index in this.empire.ShipsWeCanBuild)
                             {
-                                if (!ResourceManager.ShipsDict[index].isColonyShip && ResourceManager.ShipsDict[index].Role == "freighter")
+                                if (!ResourceManager.ShipsDict[index].isColonyShip && (ResourceManager.ShipsDict[index].Role == "freighter" || ResourceManager.ShipsDict[index].shipData.ShipCategory == ShipData.Category.Civilian))
                                     list2.Add(ResourceManager.ShipsDict[index]);
                             }
                             IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.CargoSpace_Max));
@@ -720,7 +720,7 @@ namespace Ship_Game
                     bool flag2 = false;
                     foreach (Ship ship in (List<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && ship.Role == "freighter" && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader && (!ship.GetAI().HasPriorityOrder && ship.GetAI().State != AIState.Refit)) && ship.GetAI().State != AIState.Scrap)
+                        if (!ship.isColonyShip && (ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader && (!ship.GetAI().HasPriorityOrder && ship.GetAI().State != AIState.Refit)) && ship.GetAI().State != AIState.Scrap)
                         {
                             this.freighter = ship;
                             flag2 = true;
@@ -822,7 +822,7 @@ namespace Ship_Game
                     bool flag1 = false;
                     foreach (Ship ship in (List<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && ship.Role == "freighter" && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
+                        if (!ship.isColonyShip && (ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
                         {
                             this.passTran = ship;
                             flag1 = true;
@@ -838,7 +838,7 @@ namespace Ship_Game
                         List<Planet> list1 = new List<Planet>();
                         foreach (Planet planet in this.empire.GetPlanets())
                         {
-                            if (planet.HasShipyard)
+                            if (planet.HasShipyard && planet.CombatTimer <= 0)  //fbedard: do not build freighter if combat
                                 list1.Add(planet);
                         }
                         Planet planet1 = (Planet)null;
@@ -875,7 +875,7 @@ namespace Ship_Game
                             List<Ship> list2 = new List<Ship>();
                             foreach (string index in this.empire.ShipsWeCanBuild)
                             {
-                                if (!ResourceManager.ShipsDict[index].isColonyShip && ResourceManager.ShipsDict[index].Role == "freighter")
+                                if (!ResourceManager.ShipsDict[index].isColonyShip && (ResourceManager.ShipsDict[index].Role == "freighter" || ResourceManager.ShipsDict[index].shipData.ShipCategory == ShipData.Category.Civilian))
                                     list2.Add(ResourceManager.ShipsDict[index]);
                             }
                             IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.CargoSpace_Max));
@@ -904,7 +904,7 @@ namespace Ship_Game
                     bool flag2 = false;
                     foreach (Ship ship in (List<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && ship.Role == "freighter" && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader && (!ship.GetAI().HasPriorityOrder && ship.GetAI().State != AIState.Refit)) && ship.GetAI().State != AIState.Scrap)
+                        if (!ship.isColonyShip && (ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader && (!ship.GetAI().HasPriorityOrder && ship.GetAI().State != AIState.Refit)) && ship.GetAI().State != AIState.Scrap)
                         {
                             this.passTran = ship;
                             flag2 = true;

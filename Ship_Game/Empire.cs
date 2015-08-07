@@ -1474,7 +1474,7 @@ namespace Ship_Game
                 {
                     if (ship.fleet == null && ship.InCombat && ship.Mothership == null && ship.Name != "Subspace Projector")  //fbedard: total ships in combat
                         this.empireShipCombat++;
-                    if (ship.Mothership != null || ship.Role == "troop" || ship.Name == "Subspace Projector" || ship.Role == "freighter")
+                    if (ship.Mothership != null || ship.Role == "troop" || ship.Name == "Subspace Projector" || ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                         continue;
                     this.empireShipTotal++;
                 }
@@ -2793,7 +2793,7 @@ namespace Ship_Game
 
         public void ForcePoolAdd(Ship s)
         {
-            if (s.Role == "station" || s.Role == "freighter" || (s.Role == "scout" || s.Role == "platform") || (s.fleet != null || s.Role == "construction" || s.Role == "supply"))
+            if (s.Role == "station" || s.Role == "freighter" || s.shipData.ShipCategory == ShipData.Category.Civilian || (s.Role == "scout" || s.Role == "platform") || (s.fleet != null || s.Role == "construction" || s.Role == "supply"))
                 return;
             this.GSAI.AssignShipToForce(s);
         }
@@ -2909,7 +2909,9 @@ namespace Ship_Game
                 }
                 if (ship == null)
                     continue;
-                if ((ship.shipData.ShipCategory != ShipData.Category.Unclassified &&  ship.shipData.ShipCategory == ShipData.Category.Civilian) || ship.Role != "freighter" || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                //fbedard: civilian can be freighter too!
+                //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == "freighter") || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.Role != "freighter") || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
                     continue;
                 if(ship.GetAI().State != AIState.Scrap )
                     this.freighterBudget += ship.GetMaintCost();

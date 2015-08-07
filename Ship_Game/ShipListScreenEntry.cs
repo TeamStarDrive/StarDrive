@@ -83,7 +83,7 @@ namespace Ship_Game
 				width = width + 1f;
 			}
 
-            if (this.ship.Role != "station" && ship.Mothership == null && this.ship.Role != "platform" && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "freighter")
+            if (this.ship.Role != "station" && ship.Mothership == null && this.ship.Role != "platform" && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "freighter" && ship.shipData.ShipCategory != ShipData.Category.Civilian)
                 isCombat = true;
 
 			Rectangle refit = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 2 - 5 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"].Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height);
@@ -201,6 +201,8 @@ namespace Ship_Game
 			string which;
 			string str;
 			string text = "";
+            if (ship.GetAI() == null)  //fbedard: prevent crash ?
+                return text;
 			switch (ship.GetAI().State)
 			{
 				case AIState.DoNothing:
@@ -300,8 +302,8 @@ namespace Ship_Game
 								if (which == "Prod")
 								{
 									which = "Production";
-								}
-								text = string.Concat(text, Localizer.Token(159), " ", ship.GetAI().end.Name);
+								}					
+                                text = string.Concat(text, Localizer.Token(159), " ", ship.GetAI().end.Name);
 								string delivering = Localizer.Token(163);
 								string str2 = text;
 								string[] strArrays1 = new string[] { str2, "\n", delivering, " ", null };

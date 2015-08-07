@@ -753,7 +753,7 @@ namespace Ship_Game
 						}
                         case 8:
                         {
-                            if ((ship.Role != "freighter") && (ship.Role != "construction"))
+                            if ((ship.Role != "freighter") && (ship.Role != "construction") && (ship.shipData.ShipCategory != ShipData.Category.Civilian))
                             {
                                 continue;
                             }
