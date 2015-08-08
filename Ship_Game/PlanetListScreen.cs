@@ -538,18 +538,12 @@ namespace Ship_Game
 					}
                     else 
                     {
-                        {
-                            this.ExitScreen();
-                            this.empUI.screen.SelectedPlanet = entry.planet;
-                            this.empUI.screen.ViewPlanet(null);
-                            this.empUI.screen.transitionStartPosition = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, 10000f);
-                            this.empUI.screen.returnToShip = false;
-                        }
-                        if (this.SelectedPlanet != entry.planet)
-                        {
-                            AudioManager.PlayCue("sd_ui_accept_alt3");
-                            this.SelectedPlanet = entry.planet;
-                        }
+                        this.ExitScreen();
+                        AudioManager.PlayCue("sd_ui_accept_alt3");
+                        this.empUI.screen.SelectedPlanet = entry.planet;
+                        this.empUI.screen.ViewingShip = false;
+                        this.empUI.screen.returnToShip = false;
+                        this.empUI.screen.transitionDestination = new Vector3(entry.planet.Position.X, entry.planet.Position.Y, 10000f);
                     }
 				}
 			}
