@@ -346,7 +346,7 @@ namespace Ship_Game
                     this.screen.empUI.empire.GetShips().thisLock.EnterReadLock();
                     List<Ship> troopShips = new List<Ship>(this.screen.empUI.empire.GetShips()
                         .Where(troop => troop.TroopList.Count > 0
-                            && troop.GetAI().State == AIState.AwaitingOrders
+                            && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
                             && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.planet.Position)));
                     this.screen.empUI.empire.GetShips().thisLock.ExitReadLock();
                     this.screen.empUI.empire.GetPlanets().thisLock.EnterReadLock();

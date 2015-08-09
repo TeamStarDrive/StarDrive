@@ -261,7 +261,8 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							nearby.CanAttack = true;
+                            if ((nearby.TroopsHere.Count > 0 && nearby.TroopsHere[0].GetOwner() != universeScreen.player) || (nearby.building != null && nearby.building.CombatStrength > 0 && p.Owner != universeScreen.player))  //fbedard: cannot attack allies !
+                                nearby.CanAttack = true;
 						}
 					}
 					else if (this.ActiveTroop.building != null && this.ActiveTroop.building.CombatStrength > 0 && this.ActiveTroop.building.AvailableAttackActions > 0)
@@ -278,7 +279,8 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							nearby.CanAttack = true;
+                            if ((nearby.TroopsHere.Count > 0 && nearby.TroopsHere[0].GetOwner() != universeScreen.player) || (nearby.building != null && nearby.building.CombatStrength > 0 && p.Owner != universeScreen.player))  //fbedard: cannot attack allies !
+							    nearby.CanAttack = true;
 						}
 					}
 					if (this.ActiveTroop.TroopsHere.Count <= 0 || this.ActiveTroop.TroopsHere[0].AvailableMoveActions <= 0)
@@ -890,7 +892,7 @@ namespace Ship_Game
 					}
 					else if (this.ActiveTroop.TroopsHere.Count <= 0)
 					{
-						if (this.ActiveTroop.building == null || this.ActiveTroop.building.CombatStrength <= 0 || this.ActiveTroop.building.AvailableAttackActions <= 0 || this.p.Owner == null || this.p.Owner != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+                        if (this.ActiveTroop.building == null || this.ActiveTroop.building.CombatStrength <= 0 || this.ActiveTroop.building.AvailableAttackActions <= 0 || this.p.Owner == null || this.p.Owner != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
 						{
 							continue;
 						}
@@ -905,7 +907,7 @@ namespace Ship_Game
 					}
 					else
 					{
-						if (this.ActiveTroop.TroopsHere[0].AvailableAttackActions <= 0 || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+                        if (this.ActiveTroop.TroopsHere[0].AvailableAttackActions <= 0 || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
 						{
 							continue;
 						}
