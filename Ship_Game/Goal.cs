@@ -647,7 +647,7 @@ namespace Ship_Game
                         List<Planet> list1 = new List<Planet>();
                         foreach (Planet planet in this.empire.GetPlanets())
                         {
-                            if (planet.HasShipyard && planet.CombatTimer <=0)  //fbedard: do not build freighter if combat
+                            if (planet.HasShipyard && planet.ParentSystem.combatTimer <=0)  //fbedard: do not build freighter if combat in system
                                 list1.Add(planet);
                         }
                         Planet planet1 = (Planet)null;
@@ -838,7 +838,7 @@ namespace Ship_Game
                         List<Planet> list1 = new List<Planet>();
                         foreach (Planet planet in this.empire.GetPlanets())
                         {
-                            if (planet.HasShipyard && planet.CombatTimer <= 0)  //fbedard: do not build freighter if combat
+                            if (planet.HasShipyard && planet.ParentSystem.combatTimer <= 0)  //fbedard: do not build freighter if combat in system
                                 list1.Add(planet);
                         }
                         Planet planet1 = (Planet)null;

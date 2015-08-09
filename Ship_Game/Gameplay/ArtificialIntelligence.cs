@@ -164,6 +164,8 @@ namespace Ship_Game.Gameplay
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         public List<Projectile> TrackProjectiles = new List<Projectile>();
+        
+        static float[] DmgLevel = {0.2f,0.8f,0.6f,0.4f,0.0f};  //fbedard: dmg level for repair
 
 		public ArtificialIntelligence()
 		{
@@ -695,14 +697,6 @@ namespace Ship_Game.Gameplay
                 return;               
             }
 
-            float DmgLevel = 0.2f;  //fbedard: Default Repair level
-            if (this.Owner.shipData.ShipCategory == ShipData.Category.Civilian || this.Owner.shipData.ShipCategory == ShipData.Category.Recon)
-                DmgLevel = 0.6f;
-            else if (this.Owner.shipData.ShipCategory == ShipData.Category.Combat)
-                DmgLevel = 0.4f;
-            else if (this.Owner.shipData.ShipCategory == ShipData.Category.Kamikaze)
-                DmgLevel = 0.0f;
-
             if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
             {
                 //if (!this.hasPriorityTarget
@@ -716,7 +710,7 @@ namespace Ship_Game.Gameplay
                 //    this.Owner.Mothership.InCombatTimer = 15f;
                 //}
                 if(this.Owner.Role != "troop"
-                    && (this.Owner.Health / this.Owner.HealthMax < DmgLevel || (this.Owner.shield_max > 0 && this.Owner.shield_percent <= 0.0))
+                    && (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] || (this.Owner.shield_max > 0 && this.Owner.shield_percent <= 0.0))
                     || (this.Owner.OrdinanceMax > 0 && this.Owner.Ordinance / this.Owner.OrdinanceMax <= .1f)
                     || (this.Owner.PowerCurrent <=1f && this.Owner.PowerDraw / this.Owner.PowerFlowMax <=.1f)
                     )
@@ -731,11 +725,12 @@ namespace Ship_Game.Gameplay
                 }
             }
             //if(this.Owner.Level >2 && this.Owner.Health / this.Owner.HealthMax <.5f&&  !(this.HasPriorityOrder||this.hasPriorityTarget))
-            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel && !(this.HasPriorityOrder || this.hasPriorityTarget))  //fbedard: repair level
-            {
+            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory])  //fbedard: repair level
+                if (this.Owner.fleet == null || (this.Owner.fleet != null && !this.Owner.fleet.HasRepair))
+                {
                     this.OrderResupplyNearest();
                     return;
-            }
+                }
             if (Vector2.Distance(this.Target.Center, this.Owner.Center) < 10000f)
             {
                 if (this.Owner.engineState != Ship.MoveState.Warp && this.Owner.GetHangars().Count > 0 && !this.Owner.ManualHangarOverride)
@@ -2823,6 +2818,10 @@ namespace Ship_Game.Gameplay
                 (fireTarget as Ship).Die(null, true);
                 return;
             }
+            if ((fireTarget as Ship).GetAI().CombatState == CombatState.Evade)   //fbedard: firing on evading ship can miss !
+                if (RandomMath.RandomBetween(0f, 100f) < (5f + (fireTarget as Ship).experience))
+                    return;
+
             float nearest = 0;
             ModuleSlot ClosestES = null;
             foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
@@ -7055,7 +7054,7 @@ namespace Ship_Game.Gameplay
                                                 else
                                                 {
                                                     if(this.Target == null && !(this.hasPriorityTarget || this.HasPriorityOrder))
-                                                    this.Target = this.Owner.Mothership.GetAI().Target;
+                                                        this.Target = this.Owner.Mothership.GetAI().Target;
                                                     this.DoCombat(elapsedTime);
                                                     break;
                                                 }
@@ -7730,23 +7729,16 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (this.Owner.shipData.ShipCategory == ShipData.Category.Civilian && this.BadGuysNear) //fbedard: civilian will flee
+            if (this.Owner.shipData.ShipCategory == ShipData.Category.Civilian && this.BadGuysNear) //fbedard: civilian will evade
             {
                 this.CombatState = Gameplay.CombatState.Evade;
             }
-            float DmgLevel = 0.2f;  //fbedard: Default Repair level
-            if (this.Owner.shipData.ShipCategory == ShipData.Category.Civilian || this.Owner.shipData.ShipCategory == ShipData.Category.Recon)
-                DmgLevel = 0.6f;
-            else if (this.Owner.shipData.ShipCategory == ShipData.Category.Combat)
-                DmgLevel = 0.4f;
-            else if (this.Owner.shipData.ShipCategory == ShipData.Category.Kamikaze)
-                DmgLevel = 0.0f;
-            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel && this.State != AIState.Resupply && (this.BadGuysNear || this.Owner.fleet==null)) //fbedard: ships will repair if enemy or not in fleet
-            {
-                this.OrderQueue.Clear();
-                this.ClearOrdersNext = false;
-                this.State = AIState.Resupply;
-            }
+
+            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] && this.State != AIState.Resupply) //fbedard: ships will go for repair
+                if (this.Owner.fleet == null || (this.Owner.fleet != null && !this.Owner.fleet.HasRepair))
+                {
+                    this.OrderResupplyNearest();
+                }
             if (this.State == AIState.Resupply && !this.HasPriorityOrder)
             {
                 this.HasPriorityOrder = true;

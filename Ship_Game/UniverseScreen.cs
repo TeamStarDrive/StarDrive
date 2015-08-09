@@ -2851,6 +2851,7 @@ namespace Ship_Game
             else
             {
                 this.ShipsInCombat.State = UIButton.PressState.Hover;
+                ToolTip.CreateTooltip("Cycle through ships not in fleet that are in combat", this.ScreenManager);
                 if (input.InGameSelect)
                 {
                     if (this.player.empireShipCombat > 0)
@@ -2894,6 +2895,7 @@ namespace Ship_Game
             else
             {
                 this.PlanetsInCombat.State = UIButton.PressState.Hover;
+                ToolTip.CreateTooltip("Cycle through planets that are in combat", this.ScreenManager);
                 if (input.InGameSelect)
                 {
                     if (this.player.empirePlanetCombat > 0)
@@ -3633,13 +3635,20 @@ namespace Ship_Game
                         this.SelectedShipList.Add(ship);
                         this.SelectedSomethingTimer = 3f;
                     }
-                    if (this.SelectedFleet != null)
+                    if (this.SelectedShipList.Count == 1)  //fbedard:display new fleet in UI
                     {
-                        List<Ship> shipList = new List<Ship>();
-                        foreach (Ship ship in (List<Ship>)this.SelectedFleet.Ships)
-                            shipList.Add(ship);
-                        this.shipListInfoUI.SetShipList(shipList, true);
+                        this.SelectedShip = this.SelectedShipList[0];
+                        this.ShipInfoUIElement.SetShip(this.SelectedShip);
                     }
+                    else if (this.SelectedShipList.Count > 1)
+                        this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);  
+                    //if (this.SelectedFleet != null)
+                    //{
+                    //    List<Ship> shipList = new List<Ship>();
+                    //    foreach (Ship ship in (List<Ship>)this.SelectedFleet.Ships)
+                    //        shipList.Add(ship);
+                    //    this.shipListInfoUI.SetShipList(shipList, true);
+                    //}
                     if (this.SelectedFleet != null && (double)this.ClickTimer < (double)this.TimerDelay)
                     {
                         this.ViewingShip = false;

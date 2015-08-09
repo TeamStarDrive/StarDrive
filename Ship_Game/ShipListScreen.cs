@@ -344,7 +344,7 @@ namespace Ship_Game
                         this.empUI.screen.SelectedShipList.Clear();
                         this.empUI.screen.SelectedShip = entry.ship;                        
 						this.empUI.screen.ViewToShip(null);
-						this.empUI.screen.returnToShip = false;
+						this.empUI.screen.returnToShip = true;
 					}
 					if (this.SelectedShip != entry.ship)
 					{
