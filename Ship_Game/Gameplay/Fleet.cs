@@ -58,7 +58,7 @@ namespace Ship_Game.Gameplay
         public float StoredFleetDistancetoMove;
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
-
+        public bool HasRepair;  //fbedard: ships in fleet with repair capability will not return for repair.
 
 
         public Fleet()
@@ -2957,10 +2957,14 @@ namespace Ship_Game.Gameplay
         public void Update(float elapsedTime)
         {
             List<Ship> list = new List<Ship>();
+            this.HasRepair = false;
             foreach (Ship ship in this.Ships as List<Ship>)
             {
                 if (!ship.Active)
                     list.Add(ship);
+                else
+                    if (ship.hasRepairBeam || ship.HasRepairModule)
+                        this.HasRepair = true;
             }
             foreach (Ship ship in list)
             {

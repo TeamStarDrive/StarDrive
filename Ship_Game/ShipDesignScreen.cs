@@ -5059,7 +5059,7 @@ namespace Ship_Game
                         }
                     case 2:
                         {
-                            ToolTip.CreateTooltip("Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 40%", this.ScreenManager);
+                            ToolTip.CreateTooltip("Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 20%", this.ScreenManager);
                             break;
                         }
                     case 3:
