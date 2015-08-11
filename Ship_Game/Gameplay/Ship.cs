@@ -1341,10 +1341,10 @@ namespace Ship_Game.Gameplay
                 {
                     maintModReduction *= .25f;
                     if (this.inborders) maintModReduction *= .75f;
-                    if (this.GetAI().inOrbit)
-                    {
-                        maintModReduction *= .25f;
-                    }
+                    //if (this.GetAI().inOrbit)
+                    //{
+                    //    maintModReduction *= .25f;
+                    //}
                 }
                 if (this.IsInNeutralSpace && !this.IsInFriendlySpace && !this.inborders)
                 {
