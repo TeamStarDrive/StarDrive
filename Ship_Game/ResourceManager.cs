@@ -947,7 +947,9 @@ namespace Ship_Game
 				t.InitializeForViewing();
 			}
 			newShip.TroopList.Add(Ship_Game.ResourceManager.CopyTroop(troop));
-			Owner.AddShip(newShip);
+            if (newShip.Role == "troop" && newShip.shipData.ShipCategory == ShipData.Category.Civilian)
+                newShip.shipData.ShipCategory = ShipData.Category.Unclassified;  //fbedard
+            Owner.AddShip(newShip);
 			return newShip;
 		}
 
