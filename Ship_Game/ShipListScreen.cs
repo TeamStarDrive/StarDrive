@@ -339,7 +339,7 @@ namespace Ship_Game
 					else
 					{
 						this.ExitScreen();
-                        if (this.empUI.screen.SelectedShip != null && entry.ship != this.empUI.screen.SelectedShip) //fbedard
+                        if (this.empUI.screen.SelectedShip != null && this.empUI.screen.previousSelection != this.empUI.screen.SelectedShip && this.empUI.screen.SelectedShip != entry.ship) //fbedard
                             this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
                         this.empUI.screen.SelectedShipList.Clear();
                         this.empUI.screen.SelectedShip = entry.ship;                        
@@ -598,6 +598,8 @@ namespace Ship_Game
 
                     if (this.empUI.screen.SelectedShipList.Count == 1)
                     {
+                        if (this.empUI.screen.SelectedShip != null && this.empUI.screen.previousSelection != this.empUI.screen.SelectedShip) //fbedard
+                            this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
                         this.empUI.screen.SelectedShip = this.SelectedShip;
                         this.empUI.screen.ShipInfoUIElement.SetShip(this.SelectedShip);
                         this.empUI.screen.SelectedShipList.Clear();
@@ -627,6 +629,8 @@ namespace Ship_Game
 
                     if (this.empUI.screen.SelectedShipList.Count == 1)
                     {
+                        if (this.empUI.screen.SelectedShip != null && this.empUI.screen.previousSelection != this.empUI.screen.SelectedShip) //fbedard
+                            this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
                         this.empUI.screen.SelectedShip = this.SelectedShip;
                         this.empUI.screen.ShipInfoUIElement.SetShip(this.SelectedShip);
                         this.empUI.screen.SelectedShipList.Clear();
