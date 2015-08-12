@@ -166,7 +166,7 @@ namespace Ship_Game.Gameplay
         public List<Projectile> TrackProjectiles = new List<Projectile>();
         
         static float[] DmgLevel = {0.2f,0.8f,0.6f,0.4f,0.0f};  //fbedard: dmg level for repair
-        private float orbitTimer;  //fbedard: time in orbit
+        //private float orbitTimer;  //fbedard: time in orbit
 
 		public ArtificialIntelligence()
 		{
@@ -470,7 +470,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < this.ColonizeTarget.TroopsHere.Count; i++)
             {
                 Troop troop = this.ColonizeTarget.TroopsHere[i];
-                if (troop != null && troop.GetOwner() != null && !troop.GetOwner().isFaction && troop.GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(troop.GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[troop.GetOwner()].AtWar)
+                if (troop != null && troop.GetOwner() != null && !troop.GetOwner().isFaction && troop.GetOwner().data.DefaultSmallTransport != null && troop.GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(troop.GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[troop.GetOwner()].AtWar)
                 {
                     troop.Launch();
                     TroopsRemoved = true;
@@ -1282,25 +1282,28 @@ namespace Ship_Game.Gameplay
         
 		private void DoLandTroop(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
-			this.DoOrbit(goal.TargetPlanet, elapsedTime); //added by gremlin.
+            float radius = OrbitTarget.ObjectRadius + this.Owner.Radius + 1500f;
 
-			if (this.Owner.Role == "troop" && this.Owner.TroopList.Count > 0)
+            if (this.Owner.Role != "troop" || this.Owner.TroopList.Count == 0)
+                this.DoOrbit(goal.TargetPlanet, elapsedTime); //added by gremlin.
+
+            if (this.Owner.Role == "troop" && this.Owner.TroopList.Count > 0)
 			{
-                //if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < radius && goal.TargetPlanet.AssignTroopToTile(this.Owner.TroopList[0]))
-                if (this.orbitTimer > 10f && goal.TargetPlanet.AssignTroopToTile(this.Owner.TroopList[0]))
-                {//Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f
-                    {
-                       // GlobalStats.UILocker.EnterWriteLock();
-                        this.Owner.QueueTotalRemoval();
-                        //if (Ship.universeScreen.SelectedShip == this.Owner)
-                        //    Ship.universeScreen.SelectedShip = null;
-                        //GlobalStats.UILocker.EnterWriteLock();
-                    }
-                    return;
+                if (Vector2.Distance(OrbitTarget.Position, this.Owner.Center) < radius + this.Owner.Radius + 1000f)
+                {
+                    if (this.Owner.engineState == Ship.MoveState.Warp)
+                        this.Owner.HyperspaceReturn();                    
+                    this.ThrustTowardsPosition(OrbitTarget.Position, elapsedTime, this.Owner.speed > 150 ? 150 : this.Owner.speed);
                 }
+                else
+                    this.ThrustTowardsPosition(OrbitTarget.Position, elapsedTime, this.Owner.speed);
+                 
+                if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < OrbitTarget.ObjectRadius && goal.TargetPlanet.AssignTroopToTile(this.Owner.TroopList[0]))
+                        this.Owner.QueueTotalRemoval();
+                return;
 			}
             else if (this.Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0 || this.Owner.TroopList.Count <= 0 || (this.Owner.Role != "troop" && (this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count() == 0 && !this.Owner.hasTransporter)))//|| goal.TargetPlanet.GetGroundStrength(this.Owner.loyalty)+3 > goal.TargetPlanet.GetGroundStrength(goal.TargetPlanet.Owner)*1.5)
-			{
+			{                
 				if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
 				{
 					this.HadPO = true;
@@ -1310,8 +1313,7 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.Clear();
                 System.Diagnostics.Debug.WriteLine("Do Land Troop: Troop Assault Canceled");
 			}
-            //else if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < radius)
-            else if (this.orbitTimer > 10f)
+            else if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < radius)
 			{
 				List<Troop> ToRemove = new List<Troop>();
                 //if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f)
@@ -1559,6 +1561,7 @@ namespace Ship_Game.Gameplay
         */
 
         //fbedard: Add an orbitTimer (10 sec) for the following plans: Bombard, Landtroop, BombTroops, Exterminate
+        //          Not used for now...
         private void DoOrbit(Planet OrbitTarget, float elapsedTime)
         {            
             if (this.Owner.velocityMaximum == 0)
@@ -1569,26 +1572,11 @@ namespace Ship_Game.Gameplay
             {
                 this.ThrustTowardsPosition(OrbitTarget.Position, elapsedTime, this.Owner.speed);
                 this.OrbitPos = OrbitTarget.Position;
+                //this.orbitTimer = 0f;
                 return;
             }
 
             float radius = OrbitTarget.ObjectRadius + this.Owner.Radius + 1000f;
-            /* try to approach center:
-            if (DistCenter < radius + this.Owner.Radius + 500f)
-                if (this.State == AIState.AssaultPlanet || this.State == AIState.Colonize || this.State == AIState.PassengerTransport || this.State == AIState.Rebase || this.State == AIState.SystemTrader)
-                {
-                    this.ThrustTowardsPosition(OrbitTarget.Position, elapsedTime, this.Owner.speed > 300 ? 300 : this.Owner.speed);
-                    if (DistCenter < OrbitTarget.ObjectRadius)
-                        this.inOrbit = true;
-                    else
-                        this.inOrbit = false;
-                    return;
-                }
-                else
-                    this.inOrbit = true;
-            else
-                this.inOrbit = false;
-            */
             float distanceToOrbitSpot = Vector2.Distance(this.OrbitPos, this.Owner.Center);          
             
             if ((double)this.findNewPosTimer <= 0.0)
@@ -1619,10 +1607,10 @@ namespace Ship_Game.Gameplay
                 {
                     this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
                 }
-            if (DistCenter < radius + this.Owner.Radius + 500f)
-                this.orbitTimer += elapsedTime;
-            else
-                this.orbitTimer = 0f;
+            //if (DistCenter < radius + this.Owner.Radius + 500f)
+            //    this.orbitTimer += elapsedTime;
+            //else
+            //    this.orbitTimer = 0f;
         }
         
        /*  
@@ -7302,14 +7290,13 @@ namespace Ship_Game.Gameplay
                                 this.HasPriorityOrder = false;
                             }
                             this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
-                            //float radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1000;
+                            float radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1000;
                             if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty)
                             {
                                 this.OrderQueue.Clear();
                                 return;
                             }                           
-                            //else if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
-                            else if (this.orbitTimer > 10f)  //fbedard
+                            else if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
                             {                                
                                 using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                 {
@@ -7348,15 +7335,14 @@ namespace Ship_Game.Gameplay
                                     this.HasPriorityOrder = false;
                                 }
                                 this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
-                                //radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1000;
+                                radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1000;
                                 if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty)
 
                                 {
                                     this.OrderQueue.Clear();
                                     return;
                                 }                                    
-                                // else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
-                                else if (this.orbitTimer > 10f)  //fbedard
+                                else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
                                 {
                                     using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                     {
@@ -7395,7 +7381,7 @@ namespace Ship_Game.Gameplay
                         case ArtificialIntelligence.Plan.Exterminate:
                             {
                                 this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
-                                //radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1000;
+                                radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1000;
                                 if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty || toEvaluate.TargetPlanet.Owner == null)
                                 {
                                     this.OrderQueue.Clear();
@@ -7404,8 +7390,7 @@ namespace Ship_Game.Gameplay
                                 }
                                 else
                                 {
-                                    //if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) >= radius)
-                                    if (this.orbitTimer <= 10f)  //fbedard
+                                    if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) >= radius)
                                         break;
                                     List<ShipModule>.Enumerator enumerator1 = this.Owner.BombBays.GetEnumerator();
                                     try
