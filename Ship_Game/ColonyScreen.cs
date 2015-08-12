@@ -156,7 +156,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         private bool rmouse = false;
-
+        private static bool popup = false;  //fbedard
 
         public ColonyScreen(Planet p, Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
         {
@@ -1345,6 +1345,10 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_storage_production"], this.profStorageIcon, Color.White);
                 }
             }
+
+            if (this.ScreenManager.screens.Count == 2)
+                popup = true;
+
             this.close.Draw(this.ScreenManager);
             /* Should no longer be needed.
       this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MoneyRect, Color.White);
@@ -2796,13 +2800,32 @@ namespace Ship_Game
             this.shipsCanBuildLast = this.p.Owner.ShipsWeCanBuild.Count;
             this.buildingsHereLast = this.p.BuildingList.Count;
             this.buildingsCanBuildLast = this.BuildingsCanBuild.Count;
+
+            if (popup)
+            {
+                if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+                    return;
+                popup = false;
+            }
+            else 
+                {
+                if (input.RightMouseClick && !this.ClickedTroop) rmouse = false;
+                if (!rmouse && (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released))
+                {
+                    this.eui.screen.ShipsInCombat.Active = true;
+                    this.eui.screen.PlanetsInCombat.Active = true;
+                }
+                this.previousMouse = this.currentMouse;
+                }
+            /*
             if (input.RightMouseClick && !this.ClickedTroop) rmouse = false;
             if (!rmouse && (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released))
             {
                 this.eui.screen.ShipsInCombat.Active = true;
                 this.eui.screen.PlanetsInCombat.Active = true;
             }
-            this.previousMouse = this.currentMouse;
+            this.previousMouse = this.currentMouse; 
+            */
         }
 
         private void HandleSlider()
