@@ -81,6 +81,7 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
+        private static bool popup = false;  //fbedard
 
 		public CombatScreen(Ship_Game.ScreenManager sm, Planet p)
 		{            
@@ -442,6 +443,9 @@ namespace Ship_Game
 			}
 			this.ScreenManager.SpriteBatch.End();
 			this.ScreenManager.SpriteBatch.Begin();
+
+            if (this.ScreenManager.screens.Count == 2)
+                popup = true;
 		}
 
 		private void DrawCombatInfo(PlanetGridSquare pgs)
@@ -459,6 +463,7 @@ namespace Ship_Game
 					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/GC_Attack_Confirm"], nearby.TroopClickRect, Color.White);
 				}
 			}
+
 		}
 
 		public void DrawOld(SpriteBatch spriteBatch, GameTime gameTime)
@@ -1016,12 +1021,18 @@ namespace Ship_Game
 			this.DetermineAttackAndMove();
 			this.hInfo.SetPGS(this.HoveredSquare);
 			this.previousMouse = this.currentMouse;
-
-            if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+            
+            if (popup)
             {
-                universeScreen.ShipsInCombat.Active = true;
-                universeScreen.PlanetsInCombat.Active = true;
+                if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+                        return;
+                    popup = false;
             }
+            else if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+                {
+                    universeScreen.ShipsInCombat.Active = true;
+                    universeScreen.PlanetsInCombat.Active = true;
+                }                    
 		}
         
 		private void ResetTroopList()
@@ -1198,6 +1209,7 @@ namespace Ship_Game
 			}
 			this.p.ActiveCombats.ApplyPendingRemovals();
 			base.Update(elapsedTime);
+
 		}
 
 		private struct PointSet
