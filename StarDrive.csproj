@@ -1766,6 +1766,7 @@
     </Content>
     <Content Include="Content\Hulls\CargoLong.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\Hulls\CargoMedium.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
