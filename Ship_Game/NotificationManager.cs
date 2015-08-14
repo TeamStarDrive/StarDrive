@@ -340,7 +340,7 @@ namespace Ship_Game
 			Notification cNote = new Notification()
 			{
                 Pause = false,
-                Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\n are now at peace"),
+                Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\nare now at peace"),
 				IconPath = "UI/icon_peace",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 78, 58),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
@@ -472,11 +472,13 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat(Declarant.data.Traits.Name, " and ", Other.data.Traits.Name, " are now at war"),
+                Message = string.Concat(Declarant.data.Traits.Name, " and ", Other.data.Traits.Name, "\nare now at war"),
 				IconPath = "ResearchMenu/icons_techroot_infantry_hover",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 78, 58),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
 			};
+            if (!Declarant.isPlayer && !Other.isPlayer)
+                cNote.Pause = false;
 			AudioManager.PlayCue("sd_troop_march_01");
 			AudioManager.PlayCue("sd_notify_alert");
 			lock (GlobalStats.NotificationLocker)
@@ -489,11 +491,13 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\n are now at War"),
+				Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\nare now at War"),
 				IconPath = "UI/icon_warning_money",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
 			};
+            if (!First.isPlayer && !Second.isPlayer)
+                cNote.Pause = false;
 			AudioManager.PlayCue("sd_ui_notification_startgame");
 			lock (GlobalStats.NotificationLocker)
 			{
@@ -505,6 +509,25 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.NotificationLocker)
 			{
+                if (this.NotificationList.Count > this.numentriesToDisplay)  //fbedard: remove excess notifications
+                {
+                    for (int i = 0; i < this.NotificationList.Count && i <= this.numentriesToDisplay; i++)
+                    {
+                        Notification n = this.NotificationList[i];
+                        if (n.Action != "LoadEvent" && !n.Pause)
+                            this.NotificationList.QueuePendingRemoval(n);
+                        break;
+                    }
+                    this.NotificationList.ApplyPendingRemovals();
+                    for (int i = 0; i < this.NotificationList.Count; i++)
+                    {
+                        Notification n = this.NotificationList[i];
+                        n.DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (i + 1) * 70, 64, 64);
+                        n.transitionElapsedTime = 0f;
+                        n.ClickRect = new Rectangle(this.NotificationArea.X, n.ClickRect.Y, n.ClickRect.Width, n.ClickRect.Height);
+                    }
+                }
+
 				for (int i = 0; i < this.NotificationList.Count && i <= this.numentriesToDisplay; i++)
 				{
 					Notification n = this.NotificationList[i];
@@ -541,11 +564,13 @@ namespace Ship_Game
 					{
 						Vector2 Cursor = new Vector2((float)n.ClickRect.X - Fonts.Arial12Bold.MeasureString(n.Message).X - 3f, (float)(n.ClickRect.Y + 32) - Fonts.Arial12Bold.MeasureString(n.Message).Y / 2f);
 						HelperFunctions.ClampVectorToInt(ref Cursor);
-						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, Cursor, Color.White);
+                        if (n.Pause)
+						    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, Cursor, Color.Red);
+                        else
+                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, Cursor, Color.White);
 					}
-                //Label0:
-                  //  continue;
 				}
+
 			}
 		}
 

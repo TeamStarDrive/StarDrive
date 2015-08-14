@@ -2987,8 +2987,7 @@ namespace Ship_Game
                 this.DoGoverning();
             this.UpdateIncomes();
             // ADDED BY SHAHMATT (notification about empty queue)
-            if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) 
-                && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
+            if (GlobalStats.ExtraNotiofications && this.Owner != null && this.Owner.isPlayer && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
             {
                 if (this.colonyType == Planet.ColonyType.Colony || this.colonyType == Planet.ColonyType.Core || this.colonyType == Planet.ColonyType.Industrial || !this.GovernorOn)
                 {
@@ -3013,7 +3012,7 @@ namespace Ship_Game
             }
             else if (GlobalStats.ExtraNotiofications && this.Owner !=null && this.Owner.isPlayer && this.ConstructionQueue.Count > 0)
             {
-                this.queueEmptySent = false;
+               this.queueEmptySent = false;
             }
             // END OF ADDED BY SHAHMATT
             //if ((double)this.ShieldStrengthCurrent < (double)this.ShieldStrengthMax)
@@ -5403,10 +5402,10 @@ output = maxp * take10 = 5
                         }
                     }
                 }
-                if ((double)queueItem.productionTowards >= (double)queueItem.Cost && queueItem.NotifyOnEmpty == false)
-                    this.queueEmptySent = true;
-                else if ((double)queueItem.productionTowards >= (double)queueItem.Cost)
-                    this.queueEmptySent = false;
+                //if ((double)queueItem.productionTowards >= (double)queueItem.Cost && queueItem.NotifyOnEmpty == false)
+                //    this.queueEmptySent = true;
+                //else if ((double)queueItem.productionTowards >= (double)queueItem.Cost)
+                //    this.queueEmptySent = false;
 
                 if (queueItem.isBuilding && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
