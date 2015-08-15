@@ -441,6 +441,7 @@ namespace Ship_Game
                
                 int troopsInvading = this.eui.empire.GetShips()
          .Where(troop => troop.TroopList.Count > 0)
+         .Where(ai => ai.GetAI().State != AIState.Resupply)
          .Where(troopAI => troopAI.GetAI().OrderQueue
              .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.p).Count() > 0).Count();
                 if (troopsInvading > 0)
@@ -569,12 +570,12 @@ namespace Ship_Game
 
                     foreach (string ship in this.p.Owner.ShipsWeCanBuild)
                     {
-                        if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected || ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].NoBuild)
+                        if (ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].shipData.Role].Protected || ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].shipData.Role].NoBuild)
                             continue;
-                        if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner)))
+                        if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && !list.Contains(Localizer.GetRole(ResourceManager.ShipsDict[ship].shipData.Role, this.p.Owner)))
                         {
-                            list.Add(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner));
-                            this.buildSL.AddItem((object)new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner)));
+                            list.Add(Localizer.GetRole(ResourceManager.ShipsDict[ship].shipData.Role, this.p.Owner));
+                            this.buildSL.AddItem((object)new ModuleHeader(Localizer.GetRole(ResourceManager.ShipsDict[ship].shipData.Role, this.p.Owner)));
                         }
                     }
                     this.buildSL.indexAtTop = 0;
@@ -592,14 +593,14 @@ namespace Ship_Game
                                     {
                                         entry.AddItem((object)ResourceManager.ShipsDict[ship], 1, 1);
                                     }
-                                    else if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && !ResourceManager.ShipsDict[ship].isColonyShip && Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
+                                    else if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && !ResourceManager.ShipsDict[ship].isColonyShip && Localizer.GetRole(ResourceManager.ShipsDict[ship].shipData.Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
                                     {
                                         entry.AddItem((object)ResourceManager.ShipsDict[ship], 1, 1);
                                     }
                                 }
                                 else
                                 {
-                                    if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[ship].Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
+                                    if ((GlobalStats.ShowAllDesigns || ResourceManager.ShipsDict[ship].IsPlayerDesign) && Localizer.GetRole(ResourceManager.ShipsDict[ship].shipData.Role, this.p.Owner) == (entry.item as ModuleHeader).Text)
                                     {
                                         entry.AddItem((object)ResourceManager.ShipsDict[ship], 1, 1);
                                     }
@@ -625,9 +626,9 @@ namespace Ship_Game
                                 {
                                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" || (entry.item as Ship).Role == "platform" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).shipData.Role, this.p.Owner), position, Color.Orange);
                                     position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 120);
                                     Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
@@ -657,9 +658,9 @@ namespace Ship_Game
                                     vector2_1.Y = (float)entry.clickRect.Y;
                                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).Role == "station" || (entry.item as Ship).Role == "platform" ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).Role, this.p.Owner), position, Color.Orange);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).shipData.Role, this.p.Owner), position, Color.Orange);
                                     position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 120);
                                     Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
@@ -2137,7 +2138,7 @@ namespace Ship_Game
 
                         play = true;
 
-                        ResourceManager.CreateTroopShipAtPoint((this.p.Owner.data.DefaultTroopShip != null) ? this.p.Owner.data.DefaultTroopShip : this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+                        ResourceManager.CreateTroopShipAtPoint(this.p.Owner.data.DefaultTroopShip, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
                         this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                         pgs.TroopsHere[0].SetPlanet(null);
                         pgs.TroopsHere.Clear();
@@ -2403,7 +2404,7 @@ namespace Ship_Game
                 if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
                 {
                     AudioManager.PlayCue("sd_troop_takeoff");
-                    ResourceManager.CreateTroopShipAtPoint((this.p.Owner.data.DefaultTroopShip != null) ? this.p.Owner.data.DefaultTroopShip : this.p.Owner.data.DefaultSmallTransport, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
+                    ResourceManager.CreateTroopShipAtPoint(this.p.Owner.data.DefaultTroopShip, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);
                     this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                     pgs.TroopsHere[0].SetPlanet(null);
                     pgs.TroopsHere.Clear();

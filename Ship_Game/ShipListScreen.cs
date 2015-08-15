@@ -153,7 +153,7 @@ namespace Ship_Game
             this.Maint = new SortButton(this.empUI.empire.data.SLSort, "maint");
             this.SB_FTL = new SortButton(this.empUI.empire.data.SLSort, "FTL");
             this.SB_STL = new SortButton(this.empUI.empire.data.SLSort, "STL");
-            this.SB_Troop = new SortButton(this.empUI.empire.data.SLSort, "Troop");
+            this.SB_Troop = new SortButton(this.empUI.empire.data.SLSort, "TROOP");
             this.SB_STR = new SortButton(this.empUI.empire.data.SLSort, "STR");
             //this.Maint.rect = this.MaintRect;
             this.ShowRoles.ActiveIndex = indexLast;  //fbedard: remember last filter
@@ -541,7 +541,7 @@ namespace Ship_Game
 				{
 					IOrderedEnumerable<ScrollList.Entry> sortedList = 
 						from theship in this.ShipSL.Entries
-						orderby (theship.item as ShipListScreenEntry).ship.Role descending
+                        orderby (theship.item as ShipListScreenEntry).ship.shipData.Role descending
 						select theship;
 					this.ResetListSorted(sortedList);
 				}
@@ -549,7 +549,7 @@ namespace Ship_Game
 				{
 					IOrderedEnumerable<ScrollList.Entry> sortedList = 
 						from theship in this.ShipSL.Entries
-						orderby (theship.item as ShipListScreenEntry).ship.Role
+                        orderby (theship.item as ShipListScreenEntry).ship.shipData.Role
 						select theship;
 					this.ResetListSorted(sortedList);
 				}
@@ -687,7 +687,7 @@ namespace Ship_Game
 					{
 						case 1:
 						{
-                            if (ship.Role == "platform" || ship.Role == "station")
+                            if (ship.shipData.Role <= ShipData.RoleName.station)
                             {
                                 continue;
                             }
@@ -697,7 +697,7 @@ namespace Ship_Game
 						}
 						case 2:
 						{
-							if ((ship.Role != "fighter") && (ship.Role != "scout"))
+                            if ((ship.shipData.Role != ShipData.RoleName.fighter) && (ship.shipData.Role != ShipData.RoleName.scout))
 							{
 								continue;
 							}
@@ -707,7 +707,7 @@ namespace Ship_Game
 						}
 						case 3:
 						{
-							if ((ship.Role != "frigate") && (ship.Role != "destroyer"))
+                            if ((ship.shipData.Role != ShipData.RoleName.frigate) && (ship.shipData.Role != ShipData.RoleName.destroyer))
 							{
 								continue;
 							}
@@ -717,7 +717,7 @@ namespace Ship_Game
 						}
 						case 4:
 						{
-							if (ship.Role != "cruiser")
+                            if (ship.shipData.Role != ShipData.RoleName.cruiser)
 							{
 								continue;
 							}
@@ -727,7 +727,7 @@ namespace Ship_Game
 						}
 						case 5:
 						{
-							if (!(ship.Role == "capital") && !(ship.Role == "carrier"))
+                            if (!(ship.shipData.Role == ShipData.RoleName.capital) && !(ship.shipData.Role == ShipData.RoleName.carrier))
 							{
 								continue;
 							}
@@ -757,7 +757,7 @@ namespace Ship_Game
 						}
                         case 8:
                         {
-                            if ((ship.Role != "freighter") && (ship.Role != "construction") && (ship.shipData.ShipCategory != ShipData.Category.Civilian))
+                            if ((ship.shipData.Role != ShipData.RoleName.freighter) && (ship.shipData.Role != ShipData.RoleName.construction) && (ship.shipData.ShipCategory != ShipData.Category.Civilian))
                             {
                                 continue;
                             }
@@ -767,7 +767,7 @@ namespace Ship_Game
                         }
                         case 9:
                         {
-                            if ((ship.Role != "platform") && (ship.Role != "station") && (ship.Role != "construction"))
+                            if ((ship.shipData.Role > ShipData.RoleName.construction))
                             {
                                 continue;
                             }
@@ -777,7 +777,7 @@ namespace Ship_Game
                         }
                         case 10:
                         {
-                            if ((ship.Role != "corvette"))
+                            if ((ship.shipData.Role != ShipData.RoleName.corvette))
                             {
                                 continue;
                             }
@@ -787,7 +787,7 @@ namespace Ship_Game
                         }
                         case 11: 
                         {
-                            if (ship.fleet != null || ship.Role == "platform" || ship.Role == "station")
+                            if (ship.fleet != null || ship.shipData.Role <= ShipData.RoleName.station)
                             {
                                 continue;
                             }
