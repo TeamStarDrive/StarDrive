@@ -7,6 +7,7 @@
   <StartingScout>Vingscout</StartingScout>
   <PrototypeShip>Cordrazine Prototype</PrototypeShip>
   <DefaultSmallTransport>Owlwok Freighter S</DefaultSmallTransport>
+  <DefaultTroopShip>Cordrazine Troop</DefaultTroopShip>
   <DefaultColonyShip>Cordrazine Colonizer</DefaultColonyShip>
   <DefaultConstructor>Owlwok Freighter S</DefaultConstructor>
   

@@ -498,19 +498,19 @@ namespace Ship_Game
                 newChild1.Add(newChild5);
                 PieMenuNode newChild6 = new PieMenuNode(Localizer.Token(1417), ResourceManager.TextureDict["UI/FollowIcon"], (SimpleDelegate)null);
                 this.shipMenu.Add(newChild6);
-                if (this.SelectedShip != null && this.SelectedShip.Role != "station" && this.SelectedShip.Role != "platform")
+                if (this.SelectedShip != null && this.SelectedShip.shipData.Role != ShipData.RoleName.station && this.SelectedShip.shipData.Role != ShipData.RoleName.platform)
                 {
                     PieMenuNode newChild2 = new PieMenuNode(Localizer.Token(1418), ResourceManager.TextureDict["UI/FollowIcon"], new SimpleDelegate(this.RefitTo));
                     newChild6.Add(newChild2);
                 }
-                if (this.SelectedShip != null && (this.SelectedShip.Role == "station" || this.SelectedShip.Role == "platform"))
+                if (this.SelectedShip != null && (this.SelectedShip.shipData.Role == ShipData.RoleName.station || this.SelectedShip.shipData.Role == ShipData.RoleName.platform))
                 {
                     PieMenuNode newChild2 = new PieMenuNode("Scuttle", ResourceManager.TextureDict["UI/HoldPositionIcon"], new SimpleDelegate(this.OrderScuttle));
                     newChild6.Add(newChild2);
                 }
                 else
                 {
-                    if (this.SelectedShip == null || !(this.SelectedShip.Role != "station") || (!(this.SelectedShip.Role != "platform") || !(this.SelectedShip.Role != "construction")))
+                    if (this.SelectedShip == null || (this.SelectedShip.shipData.Role > ShipData.RoleName.construction))
                         return;
                     PieMenuNode newChild2 = new PieMenuNode(Localizer.Token(1419), ResourceManager.TextureDict["UI/HoldPositionIcon"], new SimpleDelegate(this.OrderScrap));
                     newChild6.Add(newChild2);
@@ -592,7 +592,7 @@ namespace Ship_Game
             }
             else
             {
-                if (this.SelectedShip.loyalty != this.player || this.SelectedShip.Role == "construction")
+                if (this.SelectedShip.loyalty != this.player || this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
                     return;
                 this.ShipToView = this.SelectedShip;
                 this.snappingToShip = true;
@@ -1964,7 +1964,7 @@ namespace Ship_Game
                 this.perStarDateTimer = this.StarDate + .1f;
                 this.perStarDateTimer = (float)Math.Round((double)this.perStarDateTimer, 1);
                 this.empireShipCountReserve = EmpireManager.EmpireList.Where(empire => empire != this.player && !empire.data.Defeated && !empire.isFaction).Sum(empire => empire.EmpireShipCountReserve);
-                this.globalshipCount = this.MasterShipList.Where(ship => (ship.loyalty != null && ship.loyalty != this.player) && ship.Role != "troop" && ship.Mothership == null).Count();
+                this.globalshipCount = this.MasterShipList.Where(ship => (ship.loyalty != null && ship.loyalty != this.player) && ship.shipData.Role != ShipData.RoleName.troop && ship.Mothership == null).Count();
             }
 
             #endregion
@@ -3008,7 +3008,7 @@ namespace Ship_Game
                 bool flag = false;
                 foreach (Ship ship in (List<Ship>)this.player.GetShips())
                 {
-                    if (ship.Role == "construction" && ship.GetAI().OrderQueue.Count > 0)
+                    if (ship.shipData.Role == ShipData.RoleName.construction && ship.GetAI().OrderQueue.Count > 0)
                     {
                         for (int index = 0; index < ship.GetAI().OrderQueue.Count; ++index)
                         {
@@ -3260,7 +3260,7 @@ namespace Ship_Game
                                     while (enumerator.MoveNext())
                                     {
                                         UniverseScreen.ClickableShip current = enumerator.Current;
-                                        if (clickableShip.shipToClick != current.shipToClick && current.shipToClick.loyalty == clickableShip.shipToClick.loyalty && current.shipToClick.Role == clickableShip.shipToClick.Role)
+                                        if (clickableShip.shipToClick != current.shipToClick && current.shipToClick.loyalty == clickableShip.shipToClick.loyalty && current.shipToClick.shipData.Role == clickableShip.shipToClick.shipData.Role)
                                             this.SelectedShipList.Add(current.shipToClick);
                                     }
                                     break;
@@ -3504,7 +3504,7 @@ namespace Ship_Game
                     this.player.GetFleetsDict()[index].Owner = this.player;
                     foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                     {
-                        if (ship.loyalty == this.player && ship.Role != "construction" && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
+                        if (ship.loyalty == this.player && ship.shipData.Role != ShipData.RoleName.construction && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
                     }
                     this.player.GetFleetsDict()[index].AutoArrange();
@@ -3583,7 +3583,7 @@ namespace Ship_Game
                     }
                     foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                     {
-                        if (ship.loyalty == this.player && ship.Role != "construction" && (ship.fleet ==null ||ship.fleet.Name != str + " Fleet") && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
+                        if (ship.loyalty == this.player && ship.shipData.Role != ShipData.RoleName.construction && (ship.fleet == null || ship.fleet.Name != str + " Fleet") && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
                     }
                     this.player.GetFleetsDict()[index].AutoArrange();
@@ -3789,7 +3789,7 @@ namespace Ship_Game
                                 this.SelectedFleet.AssignPositions(0.0f);
                                 foreach (Ship ship2 in (List<Ship>)this.SelectedFleet.Ships)
                                 {
-                                    if (ship2.Role == "troop")
+                                    if (ship2.shipData.Role == ShipData.RoleName.troop)
                                         ship2.GetAI().OrderTroopToBoardShip(ship1);
                                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                         ship2.GetAI().OrderQueueSpecificTarget(ship1);
@@ -3822,7 +3822,7 @@ namespace Ship_Game
                             if (ship != null && ship != this.SelectedShip)
                             #region Target Ship
                             {
-                                if (this.SelectedShip.Role == "construction")
+                                if (this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
                                 {
                                     AudioManager.PlayCue("UI_Misc20");
                                     return;
@@ -3832,7 +3832,7 @@ namespace Ship_Game
                                     AudioManager.PlayCue("echo_affirm1");
                                     if (ship.loyalty == this.player)
                                     {
-                                        if (this.SelectedShip.Role == "troop")
+                                        if (this.SelectedShip.shipData.Role == ShipData.RoleName.troop)
                                         {
                                             if (ship.TroopList.Count < ship.TroopCapacity)
                                                 this.SelectedShip.GetAI().OrderTroopToShip(ship);
@@ -3842,7 +3842,7 @@ namespace Ship_Game
                                         else
                                             this.SelectedShip.DoEscort(ship);
                                     }
-                                    else if (this.SelectedShip.Role == "troop")
+                                    else if (this.SelectedShip.shipData.Role == ShipData.RoleName.troop)
                                         this.SelectedShip.GetAI().OrderTroopToBoardShip(ship);
                                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                         this.SelectedShip.GetAI().OrderQueueSpecificTarget(ship);
@@ -3871,7 +3871,7 @@ namespace Ship_Game
                                 RightClickship(this.SelectedShip, planet,true);
                                
                             }
-                            else if (this.SelectedShip.Role == "construction")
+                            else if (this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
                             {
                                 AudioManager.PlayCue("UI_Misc20");
                                 return;
@@ -3904,7 +3904,7 @@ namespace Ship_Game
                             this.SelectedSomethingTimer = 3f;
                             foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                             {
-                                if (ship.loyalty != this.player || ship.Role == "construction")
+                                if (ship.loyalty != this.player || ship.shipData.Role == ShipData.RoleName.construction)
                                 {
                                     AudioManager.PlayCue("UI_Misc20");
                                     return;
@@ -3925,7 +3925,7 @@ namespace Ship_Game
                                     {
                                         if (ship1.loyalty == this.player)
                                         {
-                                            if (ship2.Role == "troop")
+                                            if (ship2.shipData.Role == ShipData.RoleName.troop)
                                             {
                                                 if (ship1.TroopList.Count < ship1.TroopCapacity)
                                                     ship2.GetAI().OrderTroopToShip(ship1);
@@ -3935,7 +3935,7 @@ namespace Ship_Game
                                             else
                                                 ship2.DoEscort(ship1);
                                         }
-                                        else if (ship2.Role == "troop")
+                                        else if (ship2.shipData.Role == ShipData.RoleName.troop)
                                             ship2.GetAI().OrderTroopToBoardShip(ship1);
                                         else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                             ship2.GetAI().OrderQueueSpecificTarget(ship1);
@@ -3955,7 +3955,7 @@ namespace Ship_Game
                                 this.SelectedSomethingTimer = 3f;
                                 foreach (Ship ship2 in (List<Ship>)this.SelectedShipList)
                                 {
-                                    if (ship2.Role == "construction")
+                                    if (ship2.shipData.Role == ShipData.RoleName.construction)
                                     {
                                         this.SelectedShipList.Clear();
                                         AudioManager.PlayCue("UI_Misc20");
@@ -4065,7 +4065,7 @@ namespace Ship_Game
                         {
                             this.player.GetGSAI().DefensiveCoordinator.remove(this.SelectedShip);
                             this.SelectedSomethingTimer = 3f;
-                            if (this.SelectedShip.Role == "construction")
+                            if (this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
                             {
                                 if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
                                     this.previousSelection = this.SelectedShip;
@@ -4096,7 +4096,7 @@ namespace Ship_Game
                             {
                                 if (ship.loyalty != this.player)
                                     return;
-                                if (ship.Role == "construction")
+                                if (ship.shipData.Role == ShipData.RoleName.construction)
                                 {
                                     this.SelectedShipList.Clear();
                                     AudioManager.PlayCue("UI_Misc20");
@@ -4194,7 +4194,7 @@ namespace Ship_Game
                     }
                     else if (this.SelectedShip != null && this.SelectedShip.loyalty == this.player)
                     {
-                        if (this.SelectedShip.Role == "construction")
+                        if (this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
                         {
                             if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
                                 this.previousSelection = this.SelectedShip;
@@ -4266,8 +4266,8 @@ namespace Ship_Game
         //added by gremlin replace redundant code with method
 
         private void RightClickship(Ship ship, Planet planet, bool audio)
-        {                 
-            if (ship.Role == "construction")
+        {
+            if (ship.shipData.Role == ShipData.RoleName.construction)
             {
                 if(audio)
                     AudioManager.PlayCue("UI_Misc20");
@@ -4284,7 +4284,7 @@ namespace Ship_Game
                     else
                         ship.GetAI().OrderToOrbit(planet, true);
                 }
-                else if (ship.Role == "troop" || (ship.TroopList.Count > 0 && (ship.HasTroopBay || ship.hasTransporter)))
+                else if (ship.shipData.Role == ShipData.RoleName.troop || (ship.TroopList.Count > 0 && (ship.HasTroopBay || ship.hasTransporter)))
                 {
                     if (planet.Owner != null && planet.Owner == this.player && (!ship.HasTroopBay && !ship.hasTransporter))
                     {
@@ -4783,7 +4783,7 @@ namespace Ship_Game
                     bool flag3 = false;
                     foreach (Ship ship in list)
                     {
-                        if (ship.Role == "station" || ship.Role == "construction" || (ship.Role == "platform" || ship.Role == "supply"))
+                        if (ship.shipData.Role <= ShipData.RoleName.supply)
                             flag2 = true;
                         else
                             flag3 = true;
@@ -4792,7 +4792,7 @@ namespace Ship_Game
                     {
                         foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                         {
-                            if (ship.Role == "station" || ship.Role == "construction" || (ship.Role == "platform" || ship.Role == "supply"))
+                            if (ship.shipData.Role <= ShipData.RoleName.supply)
                                 this.SelectedShipList.QueuePendingRemoval(ship);
                         }
                     }
@@ -4864,7 +4864,7 @@ namespace Ship_Game
                     {
                         foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                         {
-                            if (ship.Role == "station" || ship.Role == "construction" || (ship.Role == "platform" || ship.Role == "supply") || (ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == "colony"))
+                            if (ship.shipData.Role <= ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.GetAI().State ==  AIState.Colonize)
                                 flag2 = true;
                             else
                                 flag3 = true;
@@ -4881,7 +4881,7 @@ namespace Ship_Game
                             {
                                 foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                                 {
-                                    if (ship.Role == "station" || ship.Role == "construction" || (ship.Role == "platform" || ship.Role == "supply") || (ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == "colony"))
+                                    if (ship.shipData.Role <= ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.GetAI().State == AIState.Colonize)
                                         this.SelectedShipList.QueuePendingRemoval(ship);
                                 }
                             }
@@ -6303,7 +6303,7 @@ namespace Ship_Game
                                 local_7.X = (float)(item_0.ClickRect.X + 50);
                                 local_7.Y += 15f;
                             }
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + local_9.Role], local_10, item_0.Fleet.Owner.EmpireColor);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + local_9.shipData.GetRole()], local_10, item_0.Fleet.Owner.EmpireColor);
                         }
                         catch
                         {
@@ -6437,8 +6437,8 @@ namespace Ship_Game
                     if ((double)scale > 1.0)
                         scale = 1f;
                     if ((double)scale < 0.100000001490116)
-                        scale = !(ship.Role == "platform") || this.viewState < UniverseScreen.UnivScreenState.SectorView ? 0.15f : 0.08f;
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.Role], position, new Rectangle?(), new Color((byte)0, byte.MaxValue, (byte)0, (byte)100), this.projectedGroup.ProjectedFacing, origin, scale, SpriteEffects.None, 1f);
+                        scale = !(ship.shipData.Role == ShipData.RoleName.platform) || this.viewState < UniverseScreen.UnivScreenState.SectorView ? 0.15f : 0.08f;
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()], position, new Rectangle?(), new Color((byte)0, byte.MaxValue, (byte)0, (byte)100), this.projectedGroup.ProjectedFacing, origin, scale, SpriteEffects.None, 1f);
                 }
             }
         }
@@ -6687,7 +6687,7 @@ namespace Ship_Game
                 }
                 if (!ship.Active || !flag)
                     return;
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.Role], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
             }
             else if ((this.ShowTacticalCloseup || this.viewState > UniverseScreen.UnivScreenState.ShipView) && !this.LookingAtPlanet)
             {
@@ -6714,8 +6714,8 @@ namespace Ship_Game
                 if (ship.isColonyShip)
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], position + new Vector2(-7f, -17f), ship.loyalty.EmpireColor);
                 //Added by McShooterz: Make Fighter tactical symbol default if not found
-                if(ResourceManager.TextureDict.ContainsKey("TacticalIcons/symbol_" + ship.Role))
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.Role], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
+                if(ResourceManager.TextureDict.ContainsKey("TacticalIcons/symbol_" + ship.shipData.GetRole()))
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
                 else
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
             }
@@ -6764,7 +6764,7 @@ namespace Ship_Game
                     num2 = 5f;
                 float scale = num2 / (float)(45 - GlobalStats.IconSize); //45
                 float check = this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView);
-                if (ship.Role != "fighter" && ship.Role != "scout")
+                if (ship.shipData.Role != ShipData.RoleName.fighter && ship.shipData.Role != ShipData.RoleName.scout)
                 {
                     
                     scale2 *= (this.camHeight / (check + (check*2 -camHeight*2)));
@@ -6789,13 +6789,13 @@ namespace Ship_Game
                 position = new Vector2(vector3_1.X, vector3_1.Y);
                 //Added by McShooterz: Make Fighter tactical symbol default if not found
                 position = new Vector2(vector3_1.X, vector3_1.Y);
-                if (ResourceManager.TextureDict.ContainsKey("TacticalIcons/symbol_" + ship.Role))
+                if (ResourceManager.TextureDict.ContainsKey("TacticalIcons/symbol_" + ship.shipData.GetRole()))
                 {
 
-                    float width = (float)(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.Role].Width / 2);
+                    float width = (float)(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()].Width / 2);
                     //width = width * scale2 < 20? width / scale2 : width;
                     Vector2 origin = new Vector2(width, width);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.Role], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale2, SpriteEffects.None, 1f);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale2, SpriteEffects.None, 1f);
                 }
                 else
                 {

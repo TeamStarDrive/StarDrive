@@ -42,7 +42,7 @@ namespace Ship_Game
 
         }
 
-        public static string GetRole(string role, Empire Owner)
+        public static string GetRole(ShipData.RoleName role, Empire Owner)
         {
             if (ResourceManager.ShipRoles.ContainsKey(role))
             {
@@ -57,7 +57,7 @@ namespace Ship_Game
             }
             else
             {
-                return role;
+                return "unknown";
             }
         }
 

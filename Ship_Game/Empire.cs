@@ -621,7 +621,7 @@ namespace Ship_Game
                 {
                     if (this.TechnologyDict[techID].GetTech().HullsUnlocked.Where(hulls => hulls.Name == hull.Key).Count() ==0)
                         continue;
-                    if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role =="corvette").Count()>0)
+                    if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role ==ShipData.RoleName.corvette).Count()>0)
                     {
                         this.canBuildCorvettes = true;
                         break;
@@ -754,7 +754,7 @@ namespace Ship_Game
                         this.data.BonusFighterLevels += (int)unlockedBonus.Bonus;
                         foreach (Ship ship in (List<Ship>)this.OwnedShips)
                         {
-                            if (ship.Role == "fighter")
+                            if (ship.shipData.Role == ShipData.RoleName.fighter)
                             {
                                 ship.Level += (int)unlockedBonus.Bonus;
                                 if (ship.Level > 5)
@@ -1474,7 +1474,7 @@ namespace Ship_Game
                 {
                     if (ship.fleet == null && ship.InCombat && ship.Mothership == null && ship.Name != "Subspace Projector")  //fbedard: total ships in combat
                         this.empireShipCombat++;
-                    if (ship.Mothership != null || ship.Role == "troop" || ship.Name == "Subspace Projector" || ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                    if (ship.Mothership != null || ship.shipData.Role == ShipData.RoleName.troop || ship.Name == "Subspace Projector" || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                         continue;
                     this.empireShipTotal++;
                 }
@@ -1582,9 +1582,9 @@ namespace Ship_Game
                         {
                             this.data.SSPBudget -=ship.GetMaintCost();
                             continue;
-                        }//platform != "Subspace Projector" && orbitalDefense.Role == "platform" && orbitalDefense.BaseStrength >0
-                        if (this.data.DefenseBudget > 0 && ((ship.Role == "platform" && ship.Name != "Subspace Projector" && ship.BaseStrength > 0) 
-                            || (ship.Role == "station" && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
+                        }//platform != "Subspace Projector" && orbitalDefense.Role == ShipData.RoleName.platform && orbitalDefense.BaseStrength >0
+                        if (this.data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.Name != "Subspace Projector" && ship.BaseStrength > 0)
+                            || (ship.shipData.Role == ShipData.RoleName.station && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                         {
                             this.data.DefenseBudget -= ship.GetMaintCost();
                             continue;
@@ -1656,16 +1656,16 @@ namespace Ship_Game
 
                     try
                     {
-                        if (!this.structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.Role == "platform" || keyValuePair.Value.Role == "station" && !keyValuePair.Value.shipData.IsShipyard)
+                        if (!this.structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.shipData.Role <= ShipData.RoleName.station && !keyValuePair.Value.shipData.IsShipyard)
                             this.structuresWeCanBuild.Add(keyValuePair.Key);
-                        if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.Role].Protected && keyValuePair.Value.Name != "Subspace Projector")
+                        if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.shipData.Role].Protected && keyValuePair.Value.Name != "Subspace Projector")
                             this.ShipsWeCanBuild.Add(keyValuePair.Key);
                     }
                     catch (Exception ex)
                     {
 
                         ex.Data["Ship Key"] = keyValuePair.Key;
-                        ex.Data["Role Name"] = keyValuePair.Value.Role;
+                        ex.Data["Role Name"] = keyValuePair.Value.shipData.Role;
                         ex.Data["Ship Name"] = keyValuePair.Value.Name;
                         throw;
                     }
@@ -2793,7 +2793,7 @@ namespace Ship_Game
 
         public void ForcePoolAdd(Ship s)
         {
-            if (s.Role == "station" || s.Role == "freighter" || s.shipData.ShipCategory == ShipData.Category.Civilian || (s.Role == "scout" || s.Role == "platform") || (s.fleet != null || s.Role == "construction" || s.Role == "supply"))
+            if (s.shipData.Role <= ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian || s.fleet != null )
                 return;
             this.GSAI.AssignShipToForce(s);
         }
@@ -2910,8 +2910,8 @@ namespace Ship_Game
                 if (ship == null)
                     continue;
                 //fbedard: civilian can be freighter too!
-                //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == "freighter") || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.Role != "freighter") || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
                     continue;
                 if(ship.GetAI().State != AIState.Scrap )
                     this.freighterBudget += ship.GetMaintCost();
@@ -3067,7 +3067,7 @@ namespace Ship_Game
                 {
                     if (num < 2)
                     {
-                        if (ship.Role == "scout" && !ship.isPlayerShip())
+                        if (ship.shipData.Role == ShipData.RoleName.scout && !ship.isPlayerShip())
                         {
                             ship.DoExplore();
                             ++num;

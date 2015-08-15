@@ -216,7 +216,7 @@ namespace Ship_Game
                 Current = this.screen.player.data.DefaultSmallTransport;
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
-				if (ResourceManager.ShipsDict[ship].isColonyShip || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f || ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].Role].Protected)
+                if (ResourceManager.ShipsDict[ship].isColonyShip || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f || ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].shipData.Role].Protected)
 				{
 					continue;
 				}
@@ -285,7 +285,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if ((ResourceManager.ShipsDict[ship].Role != "freighter" && ResourceManager.ShipsDict[ship].Role != "construction") || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f || ResourceManager.ShipsDict[ship].isColonyShip)
+                    if ((ResourceManager.ShipsDict[ship].shipData.Role != ShipData.RoleName.freighter && ResourceManager.ShipsDict[ship].shipData.Role != ShipData.RoleName.construction) || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f || ResourceManager.ShipsDict[ship].isColonyShip)
                     {
                         continue;
                     }
@@ -327,7 +327,7 @@ namespace Ship_Game
             {
                 foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
                 {
-                    if (!(ResourceManager.ShipsDict[ship].Role == "scout") && (ResourceManager.ShipsDict[ship].shipData == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+                    if (!(ResourceManager.ShipsDict[ship].shipData.Role == ShipData.RoleName.scout) && (ResourceManager.ShipsDict[ship].shipData == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
                     {
                         continue;
                     }
@@ -338,7 +338,7 @@ namespace Ship_Game
             {
                 foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
                 {
-                    if (!(ResourceManager.ShipsDict[ship].Role == "scout") && !(ResourceManager.ShipsDict[ship].Role == "fighter") && (ResourceManager.ShipsDict[ship].shipData == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+                    if (!(ResourceManager.ShipsDict[ship].shipData.Role == ShipData.RoleName.scout) && !(ResourceManager.ShipsDict[ship].shipData.Role == ShipData.RoleName.fighter) && (ResourceManager.ShipsDict[ship].shipData == null || ResourceManager.ShipsDict[ship].shipData.ShipCategory != ShipData.Category.Recon) || ResourceManager.ShipsDict[ship].Thrust <= 0f)
                     {
                         continue;
                     }

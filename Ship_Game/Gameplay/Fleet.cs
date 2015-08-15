@@ -124,7 +124,7 @@ namespace Ship_Game.Gameplay
 
         public void AddShip(Ship shiptoadd)
         {
-            if (shiptoadd.Role == "station" || shiptoadd.IsPlatform)
+            if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
             {
                 return;
             }
@@ -305,7 +305,7 @@ namespace Ship_Game.Gameplay
         {
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
-                if (ship.Role != "troop")
+                if (ship.shipData.Role != ShipData.RoleName.troop)
                     ship.GetAI().OrderToOrbit(planet, true);
                 else if (planet.Owner != null && planet.Owner == ship.loyalty)
                     ship.GetAI().GoRebase(planet);
@@ -320,7 +320,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach (Ship ship in (List<Ship>)squad.Ships)
                 {
-                    if (ship.Role != "troop")
+                    if (ship.shipData.Role != ShipData.RoleName.troop)
                         ship.GetAI().OrderToOrbit(planet, true);
                     else if (planet.Owner != null && planet.Owner == ship.loyalty)
                         ship.GetAI().GoRebase(planet);
@@ -356,17 +356,17 @@ namespace Ship_Game.Gameplay
                 removalCollection.Add(ship);
             foreach (Ship ship in (List<Ship>)removalCollection)
             {
-                if (ship.Role == "scout" || ship.shipData.ShipCategory == ShipData.Category.Recon)
+                if (ship.shipData.Role == ShipData.RoleName.scout || ship.shipData.ShipCategory == ShipData.Category.Recon)
                 {
                     this.ScreenShips.Add(ship);
                     removalCollection.QueuePendingRemoval(ship);
                 }
-                if (ship.Role == "freighter" || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                if (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                 {
                     this.RearShips.Add(ship);
                     removalCollection.QueuePendingRemoval(ship);
                 }
-                if (ship.Role == "capital" || ship.Role == "carrier" || ship.Role == "cruiser")
+                if (ship.shipData.Role > ShipData.RoleName.cruiser)
                 {
                     this.CenterShips.Add(ship);
                     removalCollection.QueuePendingRemoval(ship);
@@ -1161,7 +1161,7 @@ namespace Ship_Game.Gameplay
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
                             ship.GetAI().State = AIState.HoldPosition;
-                            if (ship.Role == "troop")
+                            if (ship.shipData.Role == ShipData.RoleName.troop)
                                 ship.GetAI().HoldPosition();
                         }
                         this.InterceptorDict.Clear();
@@ -1420,7 +1420,7 @@ namespace Ship_Game.Gameplay
                                 ship.GetAI().State = AIState.HoldPosition;
                                 if (ship.BombBays.Count > 0)
                                     ship.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
-                                else if (ship.Role == "troop")
+                                else if (ship.shipData.Role == ShipData.RoleName.troop)
                                     ship.GetAI().HoldPosition();
                             }
                                 this.Ships.thisLock.ExitReadLock();
@@ -1494,7 +1494,7 @@ namespace Ship_Game.Gameplay
                                     List<Ship> list3 = new List<Ship>();
                                     foreach (Ship ship in (List<Ship>)this.Ships)
                                     {
-                                        if (ship.Role != "troop")
+                                        if (ship.shipData.Role != ShipData.RoleName.troop)
                                             list3.Add(ship);
                                     }
                                     List<Ship> list4 = new List<Ship>();
@@ -2944,7 +2944,7 @@ namespace Ship_Game.Gameplay
                     s.fleet = (Fleet)null;
                     s.HyperspaceReturn();
                     s.isSpooling = false;
-                    if (s.Role == "troop")
+                    if (s.shipData.Role == ShipData.RoleName.troop)
                         s.GetAI().OrderRebaseToNearest();
                     else
                         this.Owner.ForcePoolAdd(s);

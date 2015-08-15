@@ -341,12 +341,12 @@ namespace Ship_Game.Gameplay
 			if (source is Projectile)
 			{
 				this.Parent.LastDamagedBy = source;
-				if (this.Parent.Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
+                if (this.Parent.shipData.Role == ShipData.RoleName.fighter && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
 				{
 					damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 				}
 			}
-			if (source is Ship && (source as Ship).Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
+            if (source is Ship && (source as Ship).shipData.Role == ShipData.RoleName.fighter && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
 			{
 				damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
@@ -743,14 +743,14 @@ namespace Ship_Game.Gameplay
             if (source is Projectile)
             {
                 this.Parent.LastDamagedBy = source;
-                if (this.Parent.Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
+                if (this.Parent.shipData.Role == ShipData.RoleName.fighter && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
                 {
                     damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
                 }
             }
 
-            
-            if (source is Ship && (source as Ship).Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
+
+            if (source is Ship && (source as Ship).shipData.Role == ShipData.RoleName.fighter && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
             {
                 damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
             }
@@ -1261,12 +1261,12 @@ namespace Ship_Game.Gameplay
 			if (source is Projectile)
 			{
 				this.Parent.LastDamagedBy = source;
-				if (this.Parent.Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
+                if (this.Parent.shipData.Role == ShipData.RoleName.fighter && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
 				{
 					damageAmount = damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 				}
 			}
-			if (source is Ship && (source as Ship).Role == "fighter" && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
+            if (source is Ship && (source as Ship).shipData.Role == ShipData.RoleName.fighter && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
 			{
 				damageAmount = damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
@@ -2243,7 +2243,7 @@ namespace Ship_Game.Gameplay
                         foreach (string shipsWeCanBuild in this.Parent.loyalty.ShipsWeCanBuild)
                         {
 
-                            if (!this.PermittedHangarRoles.Contains(ResourceManager.ShipsDict[shipsWeCanBuild].Role) || ResourceManager.ShipsDict[shipsWeCanBuild].Size > this.MaximumHangarShipSize)
+                            if (!this.PermittedHangarRoles.Contains(ResourceManager.ShipsDict[shipsWeCanBuild].shipData.GetRole()) || ResourceManager.ShipsDict[shipsWeCanBuild].Size > this.MaximumHangarShipSize)
                             {
                                 continue;
                             }
@@ -2343,8 +2343,8 @@ namespace Ship_Game.Gameplay
             }
             if (this.IsSupplyBay)
             {
-                if (this.Parent.Role == "freighter" || this.Parent.shipData.ShipCategory == ShipData.Category.Civilian)
-                    this.Parent.Role = "supply";
+                if (this.Parent.shipData.Role == ShipData.RoleName.freighter || this.Parent.shipData.ShipCategory == ShipData.Category.Civilian)
+                    this.Parent.shipData.Role = ShipData.RoleName.supply;
                 this.Parent.IsSupplyShip = true;
             }
             this.Health = this.HealthMax;

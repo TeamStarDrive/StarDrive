@@ -703,7 +703,7 @@ namespace Ship_Game
 			{
 				Name = this.HullName,
 				ModelPath = Path.GetFileNameWithoutExtension(this.ModelPath),
-				Role = "carrier",
+				Role = ShipData.RoleName.carrier,
 				Hull = this.HullName,
 				IconPath = "ShipIcons/hunter"
 			};

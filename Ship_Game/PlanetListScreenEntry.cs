@@ -288,6 +288,7 @@ namespace Ship_Game
             {
                 int troopsInvading = this.screen.empUI.empire.GetShips()
          .Where(troop => troop.TroopList.Count > 0)
+         .Where(ai => ai.GetAI().State != AIState.Resupply)
          .Where(troopAI => troopAI.GetAI().OrderQueue
              .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet).Count() > 0).Count();
                 if (troopsInvading > 0)
@@ -311,6 +312,7 @@ namespace Ship_Game
             {
                 int troopsInvading = this.screen.empUI.empire.GetShips()
          .Where(troop => troop.TroopList.Count > 0)
+         .Where(ai => ai.GetAI().State != AIState.Resupply)
          .Where(troopAI => troopAI.GetAI().OrderQueue
              .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet).Count() > 0).Count();
                 if (troopsInvading > 0)

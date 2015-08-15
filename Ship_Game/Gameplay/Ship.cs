@@ -41,7 +41,6 @@ namespace Ship_Game.Gameplay
         private Dictionary<string, float> ResourceDrawDict = new Dictionary<string, float>();
         public Vector2 projectedPosition = new Vector2();
         protected List<Thruster> ThrusterList = new List<Thruster>();
-        public string Role = "fighter";
         public bool TradingFood = true;
         public bool TradingProd = true;
         public bool ShieldsUp = true;
@@ -587,7 +586,7 @@ namespace Ship_Game.Gameplay
         {
             return new Ship()
             {
-                Role = this.Role,
+                //Role = this.shipData.Role,
                 FleetOffset = this.FleetOffset,
                 RelativeFleetOffset = this.RelativeFleetOffset,
                 guid = this.guid,
@@ -844,7 +843,7 @@ namespace Ship_Game.Gameplay
                     || targetship.dying
                     || !targetship.Active
                     || targetship.ExternalSlots.Count <= 0
-                    || !w.TargetValid(targetship.Role)
+                    || !w.TargetValid(targetship.shipData.Role)
 
                     )
                     return false;
@@ -1099,35 +1098,35 @@ namespace Ship_Game.Gameplay
         {
             float maint = 0f;
             float maintModReduction = 1;
-            string role = this.Role;
+            ShipData.RoleName role = this.shipData.Role;
             
             //Free upkeep ships
-            if (role == null || this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
-                || (this.Mothership != null && (this.Role == "fighter" || this.Role == "corvette" || this.Role == "scout" || this.Role == "frigate")))
+            if (this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
+                || (this.Mothership != null && (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.corvette || this.shipData.Role == ShipData.RoleName.scout || this.shipData.Role == ShipData.RoleName.frigate)))
             {
                 return 0f;
             }
             
             // Calculate maintenance by proportion of ship cost, Duh.
-            if (this.Role == "fighter" || this.Role == "scout")
+            if (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.scout)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFighter;
-            else if (this.Role == "corvette")
+            else if (this.shipData.Role == ShipData.RoleName.corvette)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCorvette;
-            else if (this.Role == "frigate" || this.Role == "destroyer")
+            else if (this.shipData.Role == ShipData.RoleName.frigate || this.shipData.Role == ShipData.RoleName.destroyer)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFrigate;
-            else if (this.Role == "cruiser")
+            else if (this.shipData.Role == ShipData.RoleName.cruiser)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCruiser;
-            else if (this.Role == "carrier")
+            else if (this.shipData.Role == ShipData.RoleName.carrier)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCarrier;
-            else if (this.Role == "capital")
+            else if (this.shipData.Role == ShipData.RoleName.capital)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCapital;
-            else if (this.Role == "freighter")
+            else if (this.shipData.Role == ShipData.RoleName.freighter)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFreighter;
-            else if (this.Role == "platform")
+            else if (this.shipData.Role == ShipData.RoleName.platform)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepPlatform;
-            else if (this.Role == "station")
+            else if (this.shipData.Role == ShipData.RoleName.station)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepStation;
-            else if (this.Role == "drone" && GlobalStats.ActiveModInfo.useDrones)
+            else if (this.shipData.Role == ShipData.RoleName.drone && GlobalStats.ActiveModInfo.useDrones)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepDrone;
             else
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepBaseline;
@@ -1148,12 +1147,12 @@ namespace Ship_Game.Gameplay
 
 
             //Doctor: Configurable civilian maintenance modifier.
-            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1)
+            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1)
             {
                 maint *= this.loyalty.data.CivMaintMod;
             }
 
-            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
+            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
             {
                 maint *= 0.5f;
             }
@@ -1171,28 +1170,28 @@ namespace Ship_Game.Gameplay
         {
             float maint = 0f;
             float maintModReduction = 1;
-            string role = this.Role;
+            //string role = this.shipData.Role;
 
             // Calculate maintenance by proportion of ship cost, Duh.
-                if (this.Role == "fighter" || this.Role == "scout")
+            if (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.scout)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFighter;
-                else if (this.Role == "corvette")
+                else if (this.shipData.Role == ShipData.RoleName.corvette)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCorvette;
-                else if (this.Role == "frigate" || this.Role == "destroyer")
+                else if (this.shipData.Role == ShipData.RoleName.frigate || this.shipData.Role == ShipData.RoleName.destroyer)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFrigate;
-                else if (this.Role == "cruiser")
+                else if (this.shipData.Role == ShipData.RoleName.cruiser)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCruiser;
-                else if (this.Role == "carrier")
+                else if (this.shipData.Role == ShipData.RoleName.carrier)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCarrier;
-                else if (this.Role == "capital")
+                else if (this.shipData.Role == ShipData.RoleName.capital)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCapital;
-                else if (this.Role == "freighter")
+                else if (this.shipData.Role == ShipData.RoleName.freighter)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFreighter;
-                else if (this.Role == "platform")
+                else if (this.shipData.Role == ShipData.RoleName.platform)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepPlatform;
-                else if (this.Role == "station")
+                else if (this.shipData.Role == ShipData.RoleName.station)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepStation;
-                else if (this.Role == "drone" && GlobalStats.ActiveModInfo.useDrones)
+                else if (this.shipData.Role == ShipData.RoleName.drone && GlobalStats.ActiveModInfo.useDrones)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepDrone;
                 else
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepBaseline;
@@ -1212,12 +1211,12 @@ namespace Ship_Game.Gameplay
 
             // Modifiers below here   
 
-            if ((this.Role == "freighter" || this.Role == "platform") && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1)
+            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1)
             {
                 maint *= empire.data.CivMaintMod;
             }
 
-            if ((this.Role == "freighter" || this.Role == "platform") && empire != null && !empire.isFaction && empire.data.Privatization)
+            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.Privatization)
             {
                 maint *= 0.5f;
             }
@@ -1240,40 +1239,40 @@ namespace Ship_Game.Gameplay
                 return this.GetMaintCostRealism();
             }
             float maint = 0f;
-            string role = this.Role;
-            string str = role;
+            //string role = this.shipData.Role;
+            //string str = role;
             //bool nonCombat = false;
             //added by gremlin: Maintenance changes
             float maintModReduction = 1;
 
             //Ships without upkeep
-            if (role == null || this.shipData.ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null
-                || (this.Mothership != null && (this.Role == "fighter" || this.Role == "corvette" || this.Role == "scout" || this.Role == "frigate")))
+            if (this.shipData.ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null
+                || (this.Mothership != null && (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.corvette || this.shipData.Role == ShipData.RoleName.scout || this.shipData.Role == ShipData.RoleName.frigate)))
             {
                 return 0f;
             }
 
             //Get Maintanence of ship role
             bool foundMaint = false;
-            if (ResourceManager.ShipRoles.ContainsKey(this.Role))
+            if (ResourceManager.ShipRoles.ContainsKey(this.shipData.Role))
             {
-                for (int i = 0; i < ResourceManager.ShipRoles[this.Role].RaceList.Count(); i++)
+                for (int i = 0; i < ResourceManager.ShipRoles[this.shipData.Role].RaceList.Count(); i++)
                 {
-                    if (ResourceManager.ShipRoles[this.Role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
+                    if (ResourceManager.ShipRoles[this.shipData.Role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
                     {
-                        maint = ResourceManager.ShipRoles[this.Role].RaceList[i].Upkeep;
+                        maint = ResourceManager.ShipRoles[this.shipData.Role].RaceList[i].Upkeep;
                         foundMaint = true;
                         break;
                     }
                 }
                 if (!foundMaint)
-                    maint = ResourceManager.ShipRoles[this.Role].Upkeep;
+                    maint = ResourceManager.ShipRoles[this.shipData.Role].Upkeep;
             }
             else
                 return 0f;
 
             //Modify Maintanence by freighter size
-            if(this.Role == "freighter")
+            if(this.shipData.Role == ShipData.RoleName.freighter)
             {
                 switch ((int)this.Size / 50)
                 {
@@ -1304,13 +1303,13 @@ namespace Ship_Game.Gameplay
             }
 
 
-            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1.0)
+            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1.0)
             {
                 maint *= this.loyalty.data.CivMaintMod;
             }
 
             //Apply Privatization
-            if ((this.Role == "freighter" || this.Role == "platform") && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
+            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
             {
                 maint *= 0.5f;
             }
@@ -1324,7 +1323,7 @@ namespace Ship_Game.Gameplay
             //added by gremlin shipyard exploit fix
             if (this.IsTethered())
             {
-                if (this.Role == "platform")
+                if (this.shipData.Role == ShipData.RoleName.platform)
                     return maint *= 0.5f;
                 if (this.shipData.IsShipyard && this.GetTether().Shipyards.Where(shipyard => shipyard.Value.shipData.IsShipyard).Count() > 3)
                     maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.shipData.IsShipyard).Count() - 3;
@@ -1379,33 +1378,33 @@ namespace Ship_Game.Gameplay
                 return this.GetMaintCostRealism(empire);
             }
             float maint = 0f;
-            string role = this.Role;
-            string str = role;
+            //shipData.Role role = this.shipData.Role;
+            //string str = role;
             //bool nonCombat = false;
             //added by gremlin: Maintenance changes
             float maintModReduction = 1;
 
             //Get Maintanence of ship role
             bool foundMaint = false;
-            if (ResourceManager.ShipRoles.ContainsKey(this.Role))
+            if (ResourceManager.ShipRoles.ContainsKey(this.shipData.Role))
             {
-                for (int i = 0; i < ResourceManager.ShipRoles[this.Role].RaceList.Count(); i++)
+                for (int i = 0; i < ResourceManager.ShipRoles[this.shipData.Role].RaceList.Count(); i++)
                 {
-                    if (ResourceManager.ShipRoles[this.Role].RaceList[i].ShipType == empire.data.Traits.ShipType)
+                    if (ResourceManager.ShipRoles[this.shipData.Role].RaceList[i].ShipType == empire.data.Traits.ShipType)
                     {
-                        maint = ResourceManager.ShipRoles[this.Role].RaceList[i].Upkeep;
+                        maint = ResourceManager.ShipRoles[this.shipData.Role].RaceList[i].Upkeep;
                         foundMaint = true;
                         break;
                     }
                 }
                 if (!foundMaint)
-                    maint = ResourceManager.ShipRoles[this.Role].Upkeep;
+                    maint = ResourceManager.ShipRoles[this.shipData.Role].Upkeep;
             }
             else
                 return 0f;
 
             //Modify Maintanence by freighter size
-            if (this.Role == "freighter")
+            if (this.shipData.Role == ShipData.RoleName.freighter)
             {
                 switch ((int)this.Size / 50)
                 {
@@ -1435,13 +1434,13 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            if ((this.Role == "freighter" || this.Role == "platform") && empire.data.CivMaintMod != 1.0)
+            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && empire.data.CivMaintMod != 1.0)
             {
                 maint *= empire.data.CivMaintMod;
             }
 
             //Apply Privatization
-            if ((this.Role == "freighter" || this.Role == "platform") && empire.data.Privatization)
+            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && empire.data.Privatization)
             {
                 maint *= 0.5f;
             }
@@ -1616,7 +1615,7 @@ namespace Ship_Game.Gameplay
 
         public void InitializeFromSave()
         {
-            if (this.Role == "platform")
+            if (this.shipData.Role == ShipData.RoleName.platform)
                 this.IsPlatform = true;
             this.Weapons.Clear();
             this.Center = new Vector2(this.Position.X + this.Dimensions.X / 2f, this.Position.Y + this.Dimensions.Y / 2f);
@@ -1678,7 +1677,7 @@ namespace Ship_Game.Gameplay
 
         public override void Initialize()
         {
-            if (this.Role == "platform")
+            if (this.shipData.Role == ShipData.RoleName.platform)
                 this.IsPlatform = true;
             this.SetShipData(this.GetShipData());
             this.VanityName = this.Name;
@@ -2022,7 +2021,7 @@ namespace Ship_Game.Gameplay
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Construction)
                 {
                     this.isConstructor = true;
-                    this.Role = "construction";
+                    this.shipData.Role = ShipData.RoleName.construction;
                 }
                 
                 if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
@@ -2377,7 +2376,7 @@ namespace Ship_Game.Gameplay
             parent.Position = new Vector2(200f, 200f);
             parent.Name = data.Name;
             parent.Level = (int)data.Level;
-            parent.Role = data.Role;
+            parent.shipData = data;
             parent.ModelPath = data.ModelPath;
             parent.ModuleSlotList = Ship.LoadSlotDataListToSlotList(data.ModuleSlotList, parent);
             foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
@@ -2418,7 +2417,7 @@ namespace Ship_Game.Gameplay
             parent.Name = data.Name;
             parent.Level = (int)data.Level;
             parent.experience = (int)data.experience;
-            parent.Role = data.Role;
+            parent.shipData = data;
             parent.ModelPath = data.ModelPath;
             parent.ModuleSlotList = Ship.SlotDataListToSlotList(data.ModuleSlotList, parent);
             
@@ -3044,7 +3043,7 @@ namespace Ship_Game.Gameplay
             shipData.Name = this.Name;
             shipData.Level = (byte)this.Level;
             shipData.experience = (byte)this.experience;
-            shipData.Role = this.Role;
+            shipData.Role = this.shipData.Role;
             shipData.IsShipyard = this.GetShipData().IsShipyard;
             shipData.IsOrbitalDefense = this.GetShipData().IsOrbitalDefense;
             shipData.Animated = this.GetShipData().Animated;
@@ -3308,7 +3307,7 @@ namespace Ship_Game.Gameplay
                             if (weapon.Tag_BioWeapon)
                                 weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["BioWeapon"].Rate;
                             if (weapon.Tag_Drone)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Drone"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Drone"].Rate;
                             if (weapon.Tag_Warp)
                                 weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Warp"].Rate;
                             if (weapon.Tag_Array)
@@ -3960,7 +3959,7 @@ namespace Ship_Game.Gameplay
             if (num1 == 0.0)
                 return 0.0f;
             float num2 = (num1 + this.shield_power / 20f + this.Health) / (float)this.Size;
-            if (this.Role == "platform" || this.Role == "station")
+            if (this.shipData.Role == ShipData.RoleName.platform || this.shipData.Role == ShipData.RoleName.station)
                 num2 /= 5f;
             return num2;
         }
@@ -4063,42 +4062,42 @@ namespace Ship_Game.Gameplay
             float ExpLevel = 1;
             bool ExpFound = false;
             float ReqExp = 1;
-            if (ResourceManager.ShipRoles.ContainsKey(killed.Role))
+            if (ResourceManager.ShipRoles.ContainsKey(killed.shipData.Role))
             {
-                for (int i = 0; i < ResourceManager.ShipRoles[killed.Role].RaceList.Count(); i++)
+                for (int i = 0; i < ResourceManager.ShipRoles[killed.shipData.Role].RaceList.Count(); i++)
                 {
-                    if (ResourceManager.ShipRoles[killed.Role].RaceList[i].ShipType == killed.loyalty.data.Traits.ShipType)
+                    if (ResourceManager.ShipRoles[killed.shipData.Role].RaceList[i].ShipType == killed.loyalty.data.Traits.ShipType)
                     {
-                        Exp = ResourceManager.ShipRoles[killed.Role].RaceList[i].KillExp;
-                        ExpLevel = ResourceManager.ShipRoles[killed.Role].RaceList[i].KillExpPerLevel;
+                        Exp = ResourceManager.ShipRoles[killed.shipData.Role].RaceList[i].KillExp;
+                        ExpLevel = ResourceManager.ShipRoles[killed.shipData.Role].RaceList[i].KillExpPerLevel;
                         ExpFound = true;
                         break;
                     }
                 }
                 if(!ExpFound)
                 {
-                    Exp = ResourceManager.ShipRoles[killed.Role].KillExp;
-                    ExpLevel = ResourceManager.ShipRoles[killed.Role].KillExpPerLevel;
+                    Exp = ResourceManager.ShipRoles[killed.shipData.Role].KillExp;
+                    ExpLevel = ResourceManager.ShipRoles[killed.shipData.Role].KillExpPerLevel;
                 }
             }
             Exp = (Exp + (ExpLevel * killed.Level));
             Exp += Exp * this.loyalty.data.ExperienceMod;
             this.experience += Exp;
             ExpFound = false;
-            if (ResourceManager.ShipRoles.ContainsKey(this.Role))
+            if (ResourceManager.ShipRoles.ContainsKey(this.shipData.Role))
             {
-                for (int i = 0; i < ResourceManager.ShipRoles[this.Role].RaceList.Count(); i++)
+                for (int i = 0; i < ResourceManager.ShipRoles[this.shipData.Role].RaceList.Count(); i++)
                 {
-                    if (ResourceManager.ShipRoles[this.Role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
+                    if (ResourceManager.ShipRoles[this.shipData.Role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
                     {
-                        ReqExp = ResourceManager.ShipRoles[this.Role].RaceList[i].ExpPerLevel;
+                        ReqExp = ResourceManager.ShipRoles[this.shipData.Role].RaceList[i].ExpPerLevel;
                         ExpFound = true;
                         break;
                     }
                 }
                 if (!ExpFound)
                 {
-                    ReqExp = ResourceManager.ShipRoles[this.Role].ExpPerLevel;
+                    ReqExp = ResourceManager.ShipRoles[this.shipData.Role].ExpPerLevel;
                 }
             }
             while (this.experience > ReqExp * (1 + this.Level))
@@ -4145,8 +4144,8 @@ namespace Ship_Game.Gameplay
             if (Psource != null && Psource.owner != null)
             {
                 float Amount = 1f;
-                if(ResourceManager.ShipRoles.ContainsKey(this.Role))
-                    Amount = ResourceManager.ShipRoles[this.Role].DamageRelations;
+                if(ResourceManager.ShipRoles.ContainsKey(this.shipData.Role))
+                    Amount = ResourceManager.ShipRoles[this.shipData.Role].DamageRelations;
                 this.loyalty.DamageRelationship((source as Projectile).owner.loyalty, "Destroyed Ship", Amount, (Planet)null);
             }
             if (!cleanupOnly && this.InFrustum)
@@ -4187,29 +4186,29 @@ namespace Ship_Game.Gameplay
             {
                 if (!cleanupOnly)
                 {
-                    switch (this.Role)
+                    switch (this.shipData.Role)
                     {
-                        case "freighter":
+                        case ShipData.RoleName.freighter:
                             ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
                             break;
-                        case "platform":
+                        case ShipData.RoleName.platform:
                             ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
                             break;
-                        case "fighter":
+                        case ShipData.RoleName.fighter:
                             ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
                             break;
-                        case "frigate":
+                        case ShipData.RoleName.frigate:
                             ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
                             break;
-                        case "capital":
-                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
-                            ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
-                            break;
-                        case "carrier":
+                        case ShipData.RoleName.capital:
                             ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
                             break;
-                        case "cruiser":
+                        case ShipData.RoleName.carrier:
+                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
+                            break;
+                        case ShipData.RoleName.cruiser:
                             ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
                             break;
@@ -4222,29 +4221,29 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    switch (this.Role)
+                    switch (this.shipData.Role)
                     {
-                        case "freighter":
+                        case ShipData.RoleName.freighter:
                             ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
-                        case "platform":
+                        case ShipData.RoleName.platform:
                             ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
-                        case "fighter":
+                        case ShipData.RoleName.fighter:
                             ExplosionManager.AddExplosion(Position, 600f, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
-                        case "frigate":
+                        case ShipData.RoleName.frigate:
                             ExplosionManager.AddExplosion(Position, 1000f, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 2000f, 12f, 0.2f);
                             break;
-                        case "capital":
+                        case ShipData.RoleName.capital:
                             ExplosionManager.AddExplosion(Position, 1200f, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 2400f, 12f, 0.2f);
                             break;
-                        case "cruiser":
+                        case ShipData.RoleName.cruiser:
                             ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
                             break;
@@ -4761,7 +4760,7 @@ namespace Ship_Game.Gameplay
         {
             return new Ship()
             {
-                Role = ship.Role,
+                shipData = ship.shipData,
                 ThrusterList = ship.ThrusterList,
                 ModelPath = ship.ModelPath,
                 ModuleSlotList = ship.ModuleSlotList
@@ -4779,5 +4778,6 @@ namespace Ship_Game.Gameplay
             Sublight,
             Warp,
         }
+
     }
 }
