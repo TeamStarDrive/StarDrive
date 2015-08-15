@@ -134,6 +134,10 @@ namespace Ship_Game
                     e.data.CurrentConstructor = data.CurrentConstructor;
                 else
                     e.data.CurrentConstructor = e.data.DefaultConstructor;
+                if(string.IsNullOrEmpty(data.empireData.DefaultTroopShip))
+                {
+                    e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
+                }
 
 			}
 			e.Initialize();
