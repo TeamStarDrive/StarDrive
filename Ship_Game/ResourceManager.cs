@@ -887,32 +887,38 @@ namespace Ship_Game
 
 		public static Ship CreateTroopShipAtPoint(string key, Empire Owner, Vector2 point, Troop troop)
 		{
-			Ship newShip = new Ship()
+			Ship Ship =null;
+            if(!Ship_Game.ResourceManager.ShipsDict.TryGetValue(key, out Ship) ) //|| Ship.Size > Ship_Game.ResourceManager.ShipsDict[Owner.data.DefaultSmallTransport].Size)
+            {
+                Ship_Game.ResourceManager.ShipsDict.TryGetValue("Default Troop", out Ship);
+                //key = "Default Troop";
+            }
+            Ship newShip = new Ship()
 			{
-                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
-				Name = key,
+                shipData = Ship.shipData,
+                Name = Ship.Name,
 				VanityName = troop.Name
 			};
             newShip.shipData.Role = ShipData.RoleName.troop;
             newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+            if (!Ship.GetShipData().Animated)
 			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+                newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship.ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
 			}
 			else
 			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+                SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship.ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
 			newSO.ObjectType = ObjectType.Dynamic;
 			newShip.SetSO(newSO);
 			newShip.Position = point;
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+            foreach (Thruster t in Ship.GetTList())
 			{
 				Thruster thr = new Thruster()
 				{
@@ -922,7 +928,7 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+			foreach (ModuleSlot slot in Ship.ModuleSlotList)
 			{
 				ModuleSlot newSlot = new ModuleSlot();
 				newSlot.SetParent(newShip);

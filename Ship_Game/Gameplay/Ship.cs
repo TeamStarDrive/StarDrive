@@ -1680,7 +1680,10 @@ namespace Ship_Game.Gameplay
             if (this.shipData.Role == ShipData.RoleName.platform)
                 this.IsPlatform = true;
             this.SetShipData(this.GetShipData());
-            this.VanityName = this.Name;
+            if(string.IsNullOrEmpty(this.VanityName))
+            {
+                this.VanityName = this.Name;
+            }
             this.Weapons.Clear();
             this.Center = new Vector2(this.Position.X + this.Dimensions.X / 2f, this.Position.Y + this.Dimensions.Y / 2f);
             lock (GlobalStats.AddShipLocker)
