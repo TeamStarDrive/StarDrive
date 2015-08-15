@@ -18,7 +18,7 @@ namespace Ship_Game
 
         public struct RoleNames
         {
-            public string Role;
+            public ShipData.RoleName Role;
             public List<string> Names;
         };
 
@@ -28,7 +28,7 @@ namespace Ship_Game
         }
 
         //Check to see if there are names to use
-        public bool CheckForName(string Empire, string Role)
+        public bool CheckForName(string Empire, ShipData.RoleName Role)
         {
             for (int i = 0; i < EmpireEntries.Count; i++)
             {
@@ -47,7 +47,7 @@ namespace Ship_Game
         }
 
         //Grab random name from list to use
-        public string GetName(string Empire, string Role)
+        public string GetName(string Empire, ShipData.RoleName Role)
         {
             for (int i = 0; i < EmpireEntries.Count; i++)
             {

@@ -83,7 +83,7 @@ namespace Ship_Game
 				width = width + 1f;
 			}
 
-            if (this.ship.Role != "station" && ship.Mothership == null && this.ship.Role != "platform" && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "freighter" && ship.shipData.ShipCategory != ShipData.Category.Civilian)
+            if (this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null && this.ship.shipData.Role != ShipData.RoleName.platform && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.GetAI().State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.freighter && ship.shipData.ShipCategory != ShipData.Category.Civilian)
                 isCombat = true;
 
 			Rectangle refit = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 2 - 5 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"].Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Width, ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"].Height);
@@ -96,7 +96,7 @@ namespace Ship_Game
             this.RefitButton = new TexturedButton(refit, "NewUI/icon_queue_rushconstruction", "NewUI/icon_queue_rushconstruction_hover1", "NewUI/icon_queue_rushconstruction_hover2");			
             this.ScrapButton = new TexturedButton(refit, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
 
-			if (this.ship.Role == "station" || this.ship.Role == "platform" || this.ship.Thrust <= 0f)
+			if (this.ship.shipData.Role == ShipData.RoleName.station || this.ship.shipData.Role == ShipData.RoleName.platform || this.ship.Thrust <= 0f)
 			{
 				this.isScuttle = true;
 			}
@@ -124,9 +124,9 @@ namespace Ship_Game
 				Y = (float)this.ShipNameEntry.ClickableArea.Y
 			};
 			this.ShipNameEntry.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, rpos, gameTime, TextColor);
-			Vector2 rolePos = new Vector2((float)(this.RoleRect.X + this.RoleRect.Width / 2) - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(this.ship.Role, this.ship.loyalty)).X / 2f, (float)(this.RoleRect.Y + this.RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+			Vector2 rolePos = new Vector2((float)(this.RoleRect.X + this.RoleRect.Width / 2) - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty)).X / 2f, (float)(this.RoleRect.Y + this.RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			HelperFunctions.ClampVectorToInt(ref rolePos);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(this.ship.Role, this.ship.loyalty), rolePos, TextColor);
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty), rolePos, TextColor);
 			Vector2 StatusPos = new Vector2((float)(this.OrdersRect.X + this.OrdersRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Status_Text).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2) - Fonts.Arial12Bold.MeasureString(this.Status_Text).Y / 2f);
 			HelperFunctions.ClampVectorToInt(ref StatusPos);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.Status_Text, StatusPos, TextColor);

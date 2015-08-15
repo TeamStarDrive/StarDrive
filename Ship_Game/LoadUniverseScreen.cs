@@ -640,7 +640,7 @@ namespace Ship_Game
                         ship.VanityName = shipData.VanityName;
                     else
                     {
-                        if (ship.Role == "troop")
+                        if (ship.shipData.Role == ShipData.RoleName.troop)
                         {
                             if (shipData.TroopList.Count > 0)
                             {

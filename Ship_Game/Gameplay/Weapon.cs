@@ -543,7 +543,7 @@ namespace Ship_Game.Gameplay
 		protected virtual void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
 		{
 
-            if (target != null && (target is ShipModule) && (target as ShipModule).GetParent().Role == "fighter" && this.AltFireMode && this.AltFireTriggerFighter && this.SecondaryFire != null)
+            if (target != null && (target is ShipModule) && (target as ShipModule).GetParent().shipData.Role == ShipData.RoleName.fighter && this.AltFireMode && this.AltFireTriggerFighter && this.SecondaryFire != null)
             {
                 Weapon AltFire = ResourceManager.GetWeapon(this.SecondaryFire);
                 Projectile projectile;
@@ -1643,15 +1643,15 @@ namespace Ship_Game.Gameplay
             return modifiedRange;            
         }
 
-        public bool TargetValid(string Role)
+        public bool TargetValid(ShipData.RoleName Role)
         {
-            if (this.Excludes_Fighters && (Role == "fighter" || Role == "scout" || Role == "drone"))
+            if (this.Excludes_Fighters && (Role == ShipData.RoleName.fighter || Role == ShipData.RoleName.scout || Role == ShipData.RoleName.drone))
                 return false;
-            if (this.Excludes_Corvettes && (Role == "corvette"))
+            if (this.Excludes_Corvettes && (Role == ShipData.RoleName.corvette))
                 return false;
-            if (this.Excludes_Capitals && (Role == "frigate" || Role == "destroyer" || Role == "cruiser" || Role == "carrier" || Role == "capital"))
+            if (this.Excludes_Capitals && (Role == ShipData.RoleName.frigate || Role == ShipData.RoleName.destroyer || Role == ShipData.RoleName.cruiser || Role == ShipData.RoleName.carrier || Role == ShipData.RoleName.capital))
                 return false;
-            if (this.Excludes_Stations && (Role == "platform" || Role == "station"))
+            if (this.Excludes_Stations && (Role == ShipData.RoleName.platform || Role == ShipData.RoleName.station))
                 return false;
             return true;
         }
