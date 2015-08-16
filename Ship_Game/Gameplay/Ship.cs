@@ -586,7 +586,7 @@ namespace Ship_Game.Gameplay
         {
             return new Ship()
             {
-                //Role = this.shipData.Role,
+                shipData = this.shipData,
                 FleetOffset = this.FleetOffset,
                 RelativeFleetOffset = this.RelativeFleetOffset,
                 guid = this.guid,
@@ -1102,7 +1102,7 @@ namespace Ship_Game.Gameplay
             
             //Free upkeep ships
             if (this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
-                || (this.Mothership != null && (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.corvette || this.shipData.Role == ShipData.RoleName.scout || this.shipData.Role == ShipData.RoleName.frigate)))
+                || (this.Mothership != null && (this.shipData.Role >= ShipData.RoleName.fighter && this.shipData.Role <= ShipData.RoleName.frigate)))
             {
                 return 0f;
             }
@@ -1110,7 +1110,7 @@ namespace Ship_Game.Gameplay
             // Calculate maintenance by proportion of ship cost, Duh.
             if (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.scout)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFighter;
-            else if (this.shipData.Role == ShipData.RoleName.corvette)
+            else if (this.shipData.Role == ShipData.RoleName.corvette || this.shipData.Role == ShipData.RoleName.gunboat)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCorvette;
             else if (this.shipData.Role == ShipData.RoleName.frigate || this.shipData.Role == ShipData.RoleName.destroyer)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFrigate;
@@ -1175,7 +1175,7 @@ namespace Ship_Game.Gameplay
             // Calculate maintenance by proportion of ship cost, Duh.
             if (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.scout)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFighter;
-                else if (this.shipData.Role == ShipData.RoleName.corvette)
+            else if (this.shipData.Role == ShipData.RoleName.corvette || this.shipData.Role == ShipData.RoleName.gunboat)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCorvette;
                 else if (this.shipData.Role == ShipData.RoleName.frigate || this.shipData.Role == ShipData.RoleName.destroyer)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFrigate;
@@ -1247,7 +1247,7 @@ namespace Ship_Game.Gameplay
 
             //Ships without upkeep
             if (this.shipData.ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null
-                || (this.Mothership != null && (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.corvette || this.shipData.Role == ShipData.RoleName.scout || this.shipData.Role == ShipData.RoleName.frigate)))
+                || (this.Mothership != null && (this.shipData.Role >= ShipData.RoleName.fighter && this.shipData.Role <= ShipData.RoleName.frigate)))
             {
                 return 0f;
             }

@@ -2695,7 +2695,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            if (this.ActiveHull.Role == ShipData.RoleName.corvette && tmp.CorvetteModule == false)
+                            if ((this.ActiveHull.Role == ShipData.RoleName.corvette || this.ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
                             {
                                 continue;
                             }
@@ -2733,7 +2733,7 @@ namespace Ship_Game
                             }
                         }
                             // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
-                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != ShipData.RoleName.fighter && this.ActiveHull.Role != ShipData.RoleName.scout && this.ActiveHull.Role != ShipData.RoleName.corvette)
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != ShipData.RoleName.fighter && this.ActiveHull.Role != ShipData.RoleName.scout && this.ActiveHull.Role != ShipData.RoleName.corvette && this.ActiveHull.Role != ShipData.RoleName.gunboat)
                             continue;
 						if (tmp.isWeapon)
 						{
@@ -2820,7 +2820,7 @@ namespace Ship_Game
                                 {
                                     continue;
                                 }
-                                if (this.ActiveHull.Role == ShipData.RoleName.corvette && tmp.CorvetteModule == false)
+                                if ((this.ActiveHull.Role == ShipData.RoleName.corvette || this.ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
                                 {
                                     continue;
                                 }
@@ -2858,7 +2858,7 @@ namespace Ship_Game
                                 }
                             }
                             // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
-                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != ShipData.RoleName.fighter && this.ActiveHull.Role != ShipData.RoleName.scout && this.ActiveHull.Role != ShipData.RoleName.corvette)
+                            else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != ShipData.RoleName.fighter && this.ActiveHull.Role != ShipData.RoleName.scout && this.ActiveHull.Role != ShipData.RoleName.corvette && this.ActiveHull.Role != ShipData.RoleName.gunboat)
                                 continue;
 							if (tmp.isWeapon)
 							{
@@ -2932,7 +2932,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            if (this.ActiveHull.Role == ShipData.RoleName.corvette && tmp.CorvetteModule == false)
+                            if ((this.ActiveHull.Role == ShipData.RoleName.corvette || this.ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
                             {
                                 continue;
                             }
@@ -2970,7 +2970,7 @@ namespace Ship_Game
                             }
                         }
                         // if not using new tags, ensure original <FightersOnly> still functions as in vanilla.
-                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != ShipData.RoleName.fighter && this.ActiveHull.Role != ShipData.RoleName.scout && this.ActiveHull.Role != ShipData.RoleName.corvette)
+                        else if (!restricted && tmp.FightersOnly && this.ActiveHull.Role != ShipData.RoleName.fighter && this.ActiveHull.Role != ShipData.RoleName.scout && this.ActiveHull.Role != ShipData.RoleName.corvette && this.ActiveHull.Role != ShipData.RoleName.gunboat)
                             continue;
 						if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield || tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead && !tmp.isPowerArmour && !ModuleCategories.Contains(tmp.ModuleType.ToString()))
 						{
@@ -3022,7 +3022,7 @@ namespace Ship_Game
                                 {
                                     continue;
                                 }
-                                if (this.ActiveHull.Role == ShipData.RoleName.corvette && tmp.CorvetteModule == false)
+                                if ((this.ActiveHull.Role == ShipData.RoleName.corvette || this.ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
                                 {
                                     continue;
                                 }
@@ -3109,7 +3109,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            if (this.ActiveHull.Role == ShipData.RoleName.corvette && tmp.CorvetteModule == false)
+                            if ((this.ActiveHull.Role == ShipData.RoleName.corvette || this.ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
                             {
                                 continue;
                             }
@@ -3180,7 +3180,7 @@ namespace Ship_Game
                                 {
                                     continue;
                                 }
-                                if (this.ActiveHull.Role == ShipData.RoleName.corvette && tmp.CorvetteModule == false)
+                                if ((this.ActiveHull.Role == ShipData.RoleName.corvette || this.ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
                                 {
                                     continue;
                                 }
@@ -3259,7 +3259,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            if (this.ActiveHull.Role == ShipData.RoleName.corvette && tmp.CorvetteModule == false)
+                            if ((this.ActiveHull.Role == ShipData.RoleName.corvette || this.ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
                             {
                                 continue;
                             }
@@ -3330,7 +3330,7 @@ namespace Ship_Game
                                 {
                                     continue;
                                 }
-                                if (this.ActiveHull.Role == ShipData.RoleName.corvette && tmp.CorvetteModule == false)
+                                if ((this.ActiveHull.Role == ShipData.RoleName.corvette || this.ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
                                 {
                                     continue;
                                 }
@@ -3956,7 +3956,7 @@ namespace Ship_Game
             // Calculate maintenance by proportion of ship cost, Duh.
             if (ship.Role == ShipData.RoleName.fighter || ship.Role == ShipData.RoleName.scout)
                 maint = fCost * GlobalStats.ActiveModInfo.UpkeepFighter;
-            else if (ship.Role == ShipData.RoleName.corvette)
+            else if (ship.Role == ShipData.RoleName.corvette || ship.Role == ShipData.RoleName.gunboat)
                 maint = fCost * GlobalStats.ActiveModInfo.UpkeepCorvette;
             else if (ship.Role == ShipData.RoleName.frigate || ship.Role == ShipData.RoleName.destroyer)
                 maint = fCost * GlobalStats.ActiveModInfo.UpkeepFrigate;
