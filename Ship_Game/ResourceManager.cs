@@ -109,7 +109,15 @@ namespace Ship_Game
         public static Dictionary<ShipData.RoleName, ShipRole> ShipRoles;
         public static Dictionary<string, HullBonus> HullBonuses;
         public static Dictionary<string, PlanetEdict> PlanetaryEdicts;
-
+        //public static Dictionary<string, string> DefaultStrings;
+        
+        //private static void AddDefaultString(string addme)
+        //{
+        //    if(!DefaultStrings.ContainsKey(addme))
+        //    {
+        //        DefaultStrings.Add()
+        //    }
+        //}
 		static ResourceManager()
 		{
 			Ship_Game.ResourceManager.TextureDict = new Dictionary<string, Texture2D>();
@@ -161,6 +169,7 @@ namespace Ship_Game
             Ship_Game.ResourceManager.HullBonuses = new Dictionary<string, HullBonus>();
             Ship_Game.ResourceManager.PlanetaryEdicts = new Dictionary<string, PlanetEdict>();
             Ship_Game.ResourceManager.OffSet = 0;
+            
 		}
 
 		public ResourceManager()
@@ -1681,13 +1690,14 @@ namespace Ship_Game
 				{
                     art.DescriptionIndex += OffSet;
                     art.NameIndex += OffSet;
-                    if (Ship_Game.ResourceManager.ArtifactsDict.ContainsKey(art.Name))
+                    string name = String.Intern(art.Name);
+                    if (Ship_Game.ResourceManager.ArtifactsDict.ContainsKey(name))
 					{
 						Ship_Game.ResourceManager.ArtifactsDict[art.Name] = art;
 					}
 					else
 					{
-						Ship_Game.ResourceManager.ArtifactsDict.Add(art.Name, art);
+                        Ship_Game.ResourceManager.ArtifactsDict.Add(name, art);
 					}
 				}
 			}
@@ -1735,11 +1745,11 @@ namespace Ship_Game
                     
                     if (Ship_Game.ResourceManager.BuildingsDict.ContainsKey(newB.Name))
                     {
-                        Ship_Game.ResourceManager.BuildingsDict[newB.Name] = newB;
+                        Ship_Game.ResourceManager.BuildingsDict[String.Intern(newB.Name)] = newB;
                     }
                     else
                     {
-                        Ship_Game.ResourceManager.BuildingsDict.Add(newB.Name, newB);
+                        Ship_Game.ResourceManager.BuildingsDict.Add(String.Intern(newB.Name), newB);
                     }
                 }
                 catch(NullReferenceException ex)
@@ -1776,11 +1786,11 @@ namespace Ship_Game
 
                 if (Ship_Game.ResourceManager.DDDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
-					Ship_Game.ResourceManager.DDDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+					Ship_Game.ResourceManager.DDDict[string.Intern(Path.GetFileNameWithoutExtension(FI.Name))] = data;
 				}
 				else
 				{
-					Ship_Game.ResourceManager.DDDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+                    Ship_Game.ResourceManager.DDDict.Add(string.Intern(Path.GetFileNameWithoutExtension(FI.Name)), data);
 				}
 			}
 		}
@@ -1901,7 +1911,7 @@ namespace Ship_Game
                 {
                     ReportLoadingError(fileInfoArray[i], "LoadGoods", e);
                 }
-				data.UID = Path.GetFileNameWithoutExtension(FI.Name);
+				data.UID = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
 				//stream.Close();
 				stream.Dispose();
                 //noLocalization
@@ -1966,8 +1976,8 @@ namespace Ship_Game
 				
                 //stream.Close();
 				stream.Dispose();
-				newShipData.Hull = string.Concat(FI.Directory.Name, "/", newShipData.Hull);
-				newShipData.ShipStyle = FI.Directory.Name;
+				newShipData.Hull = String.Intern(string.Concat(FI.Directory.Name, "/", newShipData.Hull));
+				newShipData.ShipStyle = String.Intern(FI.Directory.Name);
 				if (Ship_Game.ResourceManager.HullsDict.ContainsKey(newShipData.Hull))
 				{
 					Ship_Game.ResourceManager.HullsDict[newShipData.Hull] = newShipData;
@@ -2452,7 +2462,7 @@ namespace Ship_Game
                     data.NameIndex += (ushort)OffSet;
                     Localizer.used[data.NameIndex] = true;
                 }
-                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
+                data.UID = String.Intern( Path.GetFileNameWithoutExtension(FI.Name));
                 
                 if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
@@ -2532,7 +2542,7 @@ namespace Ship_Game
                     if (newShip.InitForLoad())
                     {
                         newShip.InitializeStatus();
-                        Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                        Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
                     }
                 }
 			}
@@ -2570,7 +2580,7 @@ namespace Ship_Game
                         if (newShip.InitForLoad())
                         {
                             newShip.InitializeStatus();
-                            Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                            Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
                         }
                     }
 				}
@@ -2601,7 +2611,7 @@ namespace Ship_Game
                             if (newShip.InitForLoad())
                             {
                                 newShip.InitializeStatus();
-                                Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                                Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
                             }
                         }
 					}
@@ -2915,6 +2925,11 @@ namespace Ship_Game
                     }                   
                 }
                 data.UID = Path.GetFileNameWithoutExtension(FI.Name);
+                data.UID = string.IsInterned(data.UID);
+                if(data.UID == null)
+                {
+                    data.UID = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
+                }
                
                 
                 if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
@@ -3011,18 +3026,27 @@ namespace Ship_Game
 					if (FI.Directory.Name != "Textures")
 					{
 						string name = Path.GetFileNameWithoutExtension(FI.Name);
+                        if(string.IsInterned(name) == null)
+                        {
+                            string.Intern(name);
+                        }
+                        if (string.IsInterned(name) == null)
+                        {
+                            string.Intern(name);
+                        }
+
 						if (name != "Thumbs")
 						{
 							ContentManager content = GetContentManager();
 							string[] whichModPath = new string[] { "../", Ship_Game.ResourceManager.WhichModPath, "/Textures/", FI.Directory.Name, "/", name };
 							Texture2D tex = content.Load<Texture2D>(string.Concat(whichModPath));
-							Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", name)] = tex;
+							Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", name))] = tex;
 						}
 					}
 					else if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
 					{
 						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
-						Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name))] = tex;
+						Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name)))] = tex;
 					}
 				}
 				return;
@@ -3033,25 +3057,25 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray1[j];
 				if (FI.Directory.Name == "Textures")
 				{
-					string name = Path.GetFileNameWithoutExtension(FI.Name);
+					string name = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
 					if (name != "Thumbs")
 					{
 						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
 						if (!Ship_Game.ResourceManager.TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
 						{
-							Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name))] = tex;
+							Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name)))] = tex;
 						}
 					}
 				}
 				else
 				{
-					string name = Path.GetFileNameWithoutExtension(FI.Name);
+					string name = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
 					if (name != "Thumbs")
 					{
 						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Textures/", FI.Directory.Name, "/", name));
 						if (!Ship_Game.ResourceManager.TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
 						{
-							Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", name)] = tex;
+							Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", name))] = tex;
 						}
 					}
 				}
@@ -3114,7 +3138,7 @@ namespace Ship_Game
 				//stream.Close();
 				stream.Dispose();
 				//no localization
-                data.Name = Path.GetFileNameWithoutExtension(FI.Name);
+                data.Name = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
                 if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -3123,12 +3147,34 @@ namespace Ship_Game
 				{
 					Ship_Game.ResourceManager.TroopsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
-
+                
                 Troop troop = Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)];
                 if(troop.StrengthMax <= 0)
                 {
                     troop.StrengthMax = troop.Strength;
                 }
+                if (troop.attack_path !=null)
+                string.Intern(troop.attack_path);
+                if (!string.IsNullOrEmpty(troop.Class))
+                string.Intern(troop.Class);
+                if (!string.IsNullOrEmpty(troop.Description))
+                string.Intern(troop.Description);
+                if (!string.IsNullOrEmpty(troop.Icon))
+                string.Intern(troop.Icon);
+                if (!string.IsNullOrEmpty(troop.idle_path))
+                string.Intern(troop.idle_path);
+                if (!string.IsNullOrEmpty(troop.MovementCue))
+                string.Intern(troop.MovementCue);
+                if (troop.OwnerString !=null)
+                string.Intern(troop.OwnerString);
+                if (!string.IsNullOrEmpty(troop.RaceType))
+                string.Intern(troop.RaceType);
+                if (!string.IsNullOrEmpty(troop.sound_attack))
+                string.Intern(troop.sound_attack);
+                if (string.IsNullOrEmpty(troop.TexturePath))
+                string.Intern(troop.TexturePath);
+                if (string.IsNullOrEmpty(troop.TargetType))
+                string.Intern(troop.TargetType);                
 			}
 		}
 
@@ -3153,7 +3199,15 @@ namespace Ship_Game
 				//stream.Close();
 				stream.Dispose();
                 //no localization
-                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
+                data.UID = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
+                if (data.AnimationPath != null)
+                String.Intern(data.AnimationPath);
+                if (data.BeamTexture !=null)
+                String.Intern(data.BeamTexture);
+                if (data.dieCue !=null)
+                String.Intern(data.dieCue);
+                if (data.SecondaryFire != null)
+                String.Intern(data.SecondaryFire);
 				if (Ship_Game.ResourceManager.WeaponsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.WeaponsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -3162,6 +3216,8 @@ namespace Ship_Game
 				{
 					Ship_Game.ResourceManager.WeaponsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
+                
+                
 			}
 			textList = null;
 		}
@@ -3331,6 +3387,7 @@ namespace Ship_Game
                     }
                     //stream.Close();
                     stream.Dispose();
+                    String.Intern(data.Hull);
                     if (Ship_Game.ResourceManager.HullBonuses.ContainsKey(data.Hull))
                     {
                         Ship_Game.ResourceManager.HullBonuses[data.Hull] = data;
@@ -3339,6 +3396,7 @@ namespace Ship_Game
                     {
                         Ship_Game.ResourceManager.HullBonuses.Add(data.Hull, data);
                     }
+                    
                 }
                 textList = null;
             }
@@ -3406,6 +3464,8 @@ namespace Ship_Game
             {
                 return;
             }
+            
+
         }
 
         //Added by McShooterz: Load AgentMissionData.xml
@@ -3414,12 +3474,14 @@ namespace Ship_Game
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")))
             {
                 Ship_Game.ResourceManager.AgentMissionData = (AgentMissionData)new XmlSerializer(typeof(AgentMissionData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")).OpenRead());
+
             
             }
             else
             {
                 return;
             }
+            
         }
 
         //Added by McShooterz: Load AgentMissionData.xml
@@ -3433,6 +3495,10 @@ namespace Ship_Game
             {
                 return;
             }
+            foreach(string name in Ship_Game.ResourceManager.MainMenuShipList .ModelPaths )
+            {
+                String.Intern(name);
+            }
         }
 
         //Added by McShooterz: load sound effects
@@ -3443,6 +3509,7 @@ namespace Ship_Game
             {
                 FileInfo FI = fileInfoArray1[j];
                 string name = Path.GetFileNameWithoutExtension(FI.Name);
+                String.Intern(name);
                 if (name != "Thumbs")
                 {
                     SoundEffect se = GetContentManager().Load<SoundEffect>(string.Concat("..\\", Ship_Game.ResourceManager.WhichModPath, "\\SoundEffects\\", name));
