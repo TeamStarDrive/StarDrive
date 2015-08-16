@@ -1940,6 +1940,7 @@ namespace Ship_Game
 				Technology data = (Technology)serializer1.Deserialize(stream);
 				//stream.Close();
 				stream.Dispose();
+                string.Intern(data.UID);
 				if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -2463,14 +2464,17 @@ namespace Ship_Game
                     Localizer.used[data.NameIndex] = true;
                 }
                 data.UID = String.Intern( Path.GetFileNameWithoutExtension(FI.Name));
-                
-                if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
+                if (data.IconTexturePath != null && String.IsInterned(data.IconTexturePath) != null)
+                    string.Intern(data.IconTexturePath);
+                if (!string.IsNullOrEmpty(data.WeaponType) && string.IsNullOrEmpty(String.IsInterned(data.WeaponType)))
+                    string.Intern(data.WeaponType);
+                if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(data.UID))
 				{
-					Ship_Game.ResourceManager.ShipModulesDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+                    Ship_Game.ResourceManager.ShipModulesDict[data.UID] = data;
 				}
 				else
 				{
-					Ship_Game.ResourceManager.ShipModulesDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+                    Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data);
 				}
 			}
 			foreach (KeyValuePair<string, ShipModule> entry in Ship_Game.ResourceManager.ShipModulesDict)
@@ -2544,6 +2548,12 @@ namespace Ship_Game
                         newShip.InitializeStatus();
                         Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
                     }
+                    if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                        string.Intern(newShipData.EventOnDeath);
+                    if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                        string.Intern(newShipData.ModelPath);
+                    if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                        string.Intern(newShipData.ShipStyle);                                            
                 }
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -2582,7 +2592,14 @@ namespace Ship_Game
                             newShip.InitializeStatus();
                             Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
                         }
+                        if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                            string.Intern(newShipData.EventOnDeath);
+                        if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                            string.Intern(newShipData.ModelPath);
+                        if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                            string.Intern(newShipData.ShipStyle);  
                     }
+                    
 				}
 #if !DEBUG
 				catch
@@ -2613,6 +2630,12 @@ namespace Ship_Game
                                 newShip.InitializeStatus();
                                 Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
                             }
+                            if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                                string.Intern(newShipData.EventOnDeath);
+                            if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                                string.Intern(newShipData.ModelPath);
+                            if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                                string.Intern(newShipData.ShipStyle);  
                         }
 					}
 					catch

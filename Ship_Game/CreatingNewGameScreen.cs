@@ -146,6 +146,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
+                            this.data.Size = new Vector2(18000000f, 18000000f);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Huge")
@@ -156,7 +157,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                            this.data.Size = new Vector2(18000000f, 18000000f);
+                            this.data.Size = new Vector2(27000000f,  000000f);  //27,000,000
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Epic")

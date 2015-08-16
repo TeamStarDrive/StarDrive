@@ -675,8 +675,9 @@ namespace Ship_Game.Gameplay
                 this.Target = null;
                 //if (!this.BadGuysNear)
                 {
-                    this.State = this.DefaultAIState;                 
-                    this.OrderQueue.Clear();                    
+                    this.State = this.DefaultAIState;
+                    this.OrderQueue.Clear(); 
+                    this.ScanForThreatTimer = 0;                   
                 }
                 this.Intercepting = false;
                 
@@ -7089,12 +7090,18 @@ namespace Ship_Game.Gameplay
                                             }
                                         case AIState.Escort:
                                             {
-                                                if (this.EscortTarget != this.Owner.Mothership || this.Owner.Mothership == null || !this.Owner.Mothership.InCombat)
+                                                if (
+                                                    this.Owner.Mothership == null || !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership)
                                                 {
                                                     if (this.EscortTarget == null || !this.EscortTarget.Active)
-                                                    {
+                                                    {                    
                                                         this.OrderQueue.Clear();
                                                         this.ClearOrdersNext = false;
+                                                        if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
+                                                        {
+                                                            this.OrderReturnToHangar();
+                                                            break;
+                                                        }
                                                         this.State = AIState.AwaitingOrders;   //fbedard
                                                         break;
                                                     }
@@ -7103,11 +7110,12 @@ namespace Ship_Game.Gameplay
                                                 }
                                                 else
                                                 {
-                                                    if(this.Target == null && !(this.hasPriorityTarget || this.HasPriorityOrder))
+                                                    if(this.Target == null && !(this.hasPriorityTarget || this.HasPriorityOrder) )
                                                         this.Target = this.Owner.Mothership.GetAI().Target;
                                                     this.DoCombat(elapsedTime);
                                                     break;
                                                 }
+                                                break;
                                             }
                                         case AIState.SystemTrader:
                                             {
