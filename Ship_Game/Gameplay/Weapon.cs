@@ -1647,7 +1647,7 @@ namespace Ship_Game.Gameplay
         {
             if (this.Excludes_Fighters && (Role == ShipData.RoleName.fighter || Role == ShipData.RoleName.scout || Role == ShipData.RoleName.drone))
                 return false;
-            if (this.Excludes_Corvettes && (Role == ShipData.RoleName.corvette))
+            if (this.Excludes_Corvettes && (Role == ShipData.RoleName.corvette || Role == ShipData.RoleName.gunboat))
                 return false;
             if (this.Excludes_Capitals && (Role == ShipData.RoleName.frigate || Role == ShipData.RoleName.destroyer || Role == ShipData.RoleName.cruiser || Role == ShipData.RoleName.carrier || Role == ShipData.RoleName.capital))
                 return false;
