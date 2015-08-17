@@ -2643,6 +2643,23 @@ namespace Ship_Game
 					}
 				}
 			}
+
+            //fbedard: Create a copy of Unarmed Scout for Assault Ship
+            Ship scout = null;
+            Ship_Game.ResourceManager.ShipsDict.TryGetValue("Unarmed Scout", out scout);
+            ShipData newScoutData = scout.shipData.GetClone();
+            newScoutData.Name = "Assault_Ship";
+            newScoutData.Role = ShipData.RoleName.troop;
+            newScoutData.ShipCategory = ShipData.Category.Unclassified;
+            Ship newscout = Ship.CreateShipFromShipData(newScoutData);
+            newscout.IsPlayerDesign = false;
+            newscout.SetShipData(newScoutData);
+            newscout.Name = "Assault_Ship";
+            newscout.VanityName = "Assault Ship";
+            newscout.InitForLoad();
+            newscout.InitializeStatus();
+            Ship_Game.ResourceManager.ShipsDict[String.Intern("Assault_Ship")] = newscout;
+
             #region old strength calculator
             //foreach (KeyValuePair<string, Ship> entry in Ship_Game.ResourceManager.ShipsDict)
             //{
@@ -3275,11 +3292,6 @@ namespace Ship_Game
                 }
                 switch (data.Name)  //fbedard: translate string into enum
                 {
-                    case "disabled":
-                        {
-                            key = ShipData.RoleName.disabled;
-                            break;
-                        }
                     case "platform":
 				    {
 					    key = ShipData.RoleName.platform;
@@ -3363,6 +3375,11 @@ namespace Ship_Game
                     case "prototype":
                     {
                         key = ShipData.RoleName.prototype;
+                        break;
+                    }
+                    default:
+                    {
+                        key = ShipData.RoleName.disabled;
                         break;
                     }
                 }

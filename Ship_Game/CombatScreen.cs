@@ -132,7 +132,7 @@ namespace Ship_Game
                 
                 if (ship == null)
                     continue;
-                if (Vector2.Distance(p.Position, ship.Center) >= 4000f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
+                if (Vector2.Distance(p.Position, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
                 {
                     continue;
                 }

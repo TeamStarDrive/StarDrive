@@ -2108,7 +2108,7 @@ namespace Ship_Game.Gameplay
 				}
 				if (this.hangarTimer <= 0f && this.hangarShip == null)
 				{
-					this.hangarShip = Ship_Game.ResourceManager.CreateTroopShipAtPoint(this.Parent.loyalty.data.StartingScout, this.Parent.loyalty, this.Center, troop);
+                    this.hangarShip = Ship_Game.ResourceManager.CreateTroopShipAtPoint("Assault_Ship", this.Parent.loyalty, this.Center, troop);
 					this.hangarShip.VanityName = "Assault Ship";
 					this.hangarShip.Mothership = this.Parent;
 					this.hangarShip.DoEscort(this.Parent);
@@ -2130,13 +2130,14 @@ namespace Ship_Game.Gameplay
                 if (this.hangarShip != null)
                 {
                     //this.hangarShip.GetAI().State == AIState.AssaultPlanet || this.hangarShip.GetAI().State == AIState.Boarding ||
-                    if (this.hangarShip.GetAI().State == AIState.ReturnToHangar || this.hangarShip.GetAI().EscortTarget != null || this.hangarShip.GetAI().OrbitTarget != null) return;
+                    if (this.hangarShip.GetAI().State == AIState.ReturnToHangar || this.hangarShip.GetAI().EscortTarget != null || this.hangarShip.GetAI().OrbitTarget != null)
+                        return;
                     this.hangarShip.DoEscort(this.Parent);
                     return;
                 }
                 if (this.hangarTimer <= 0f && this.hangarShip == null)
                 {
-                    this.hangarShip = ResourceManager.CreateTroopShipAtPoint(this.Parent.loyalty.data.StartingScout, this.Parent.loyalty, this.Center, troop);
+                    this.hangarShip = ResourceManager.CreateTroopShipAtPoint("Assault_Ship", this.Parent.loyalty, this.Center, troop);
                     this.hangarShip.VanityName = "Assault Ship";
                     this.hangarShip.Mothership = this.Parent;
                     this.hangarShip.DoEscort(this.Parent);
