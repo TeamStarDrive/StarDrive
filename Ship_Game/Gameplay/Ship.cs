@@ -81,7 +81,7 @@ namespace Ship_Game.Gameplay
         public Guid TetherGuid;
         public float EMPDamage;
         public Fleet fleet;
-        public string DesignUID;
+        //public string DesignUID;
         public float yRotation;
         public float RotationalVelocity;
         public float MechanicalBoardingDefense;
