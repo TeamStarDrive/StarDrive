@@ -6665,6 +6665,10 @@ namespace Ship_Game
             {
                 return;
             }
+            if(string.IsNullOrEmpty(ship.StrategicIconPath))
+            {
+                ship.StrategicIconPath = string.Intern("TacticalIcons/symbol_" + ship.shipData.GetRole());
+            }
             if (this.viewState == UniverseScreen.UnivScreenState.GalaxyView)
             {
                 float num1 = ship.GetSO().WorldBoundingSphere.Radius;
@@ -6687,7 +6691,7 @@ namespace Ship_Game
                 }
                 if (!ship.Active || !flag)
                     return;
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ship.StrategicIconPath], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
             }
             else if ((this.ShowTacticalCloseup || this.viewState > UniverseScreen.UnivScreenState.ShipView) && !this.LookingAtPlanet)
             {
@@ -6714,8 +6718,8 @@ namespace Ship_Game
                 if (ship.isColonyShip)
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], position + new Vector2(-7f, -17f), ship.loyalty.EmpireColor);
                 //Added by McShooterz: Make Fighter tactical symbol default if not found
-                if(ResourceManager.TextureDict.ContainsKey("TacticalIcons/symbol_" + ship.shipData.GetRole()))
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
+                if (ResourceManager.TextureDict.ContainsKey(ship.StrategicIconPath))
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ship.StrategicIconPath], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
                 else
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
             }
@@ -6789,13 +6793,13 @@ namespace Ship_Game
                 position = new Vector2(vector3_1.X, vector3_1.Y);
                 //Added by McShooterz: Make Fighter tactical symbol default if not found
                 position = new Vector2(vector3_1.X, vector3_1.Y);
-                if (ResourceManager.TextureDict.ContainsKey("TacticalIcons/symbol_" + ship.shipData.GetRole()))
+                if (ResourceManager.TextureDict.ContainsKey(ship.StrategicIconPath))
                 {
 
-                    float width = (float)(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()].Width / 2);
+                    float width = (float)(ResourceManager.TextureDict[ship.StrategicIconPath].Width / 2);
                     //width = width * scale2 < 20? width / scale2 : width;
                     Vector2 origin = new Vector2(width, width);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale2, SpriteEffects.None, 1f);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ship.StrategicIconPath], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale2, SpriteEffects.None, 1f);
                 }
                 else
                 {
