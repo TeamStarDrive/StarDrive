@@ -672,29 +672,35 @@ namespace Ship_Game.Gameplay
 
             if (this.Target != null && !this.Target.Active)
             {
+                this.Intercepting = false;
                 this.Target = null;
-                //if (!this.BadGuysNear)
+                this.Target = this.PotentialTargets.FirstOrDefault();
+                if (Target ==null)
                 {
                     this.State = this.DefaultAIState;
-                    this.OrderQueue.Clear(); 
-                    this.ScanForThreatTimer = 0;                   
+                    this.OrderQueue.Clear();
+                    return;                
                 }
-                this.Intercepting = false;
-                
-                return;
                 
             }
             if (this.Target == null )
             {
-                this.Target = null;
-                //if (!this.BadGuysNear)
+                this.Target = this.PotentialTargets.FirstOrDefault();
+                this.Intercepting = false;
+                if (this.Target == null)
                 {
                     this.OrderQueue.Clear();
                     this.State = this.DefaultAIState;
+                    return;
                 }
-                this.Intercepting = false;
-                this.ScanForThreatTimer = 0;
-                return;               
+                if(!this.Target.Active)
+                {
+                    return; 
+                }
+                
+                
+                //this.ScanForThreatTimer = 0;
+                //return;               
             }
 
             if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
@@ -7090,12 +7096,10 @@ namespace Ship_Game.Gameplay
                                             }
                                         case AIState.Escort:
                                             {
-                                                if (
-                                                    this.Owner.Mothership == null || !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership)
-                                                {
-                                                    if (this.EscortTarget == null || !this.EscortTarget.Active)
-                                                    {                    
-                                                        this.OrderQueue.Clear();
+                                                if (this.EscortTarget == null || !this.EscortTarget.Active)
+                                                    {
+                                                        this.EscortTarget = null;    
+                                                    this.OrderQueue.Clear();
                                                         this.ClearOrdersNext = false;
                                                         if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
                                                         {
@@ -7104,13 +7108,18 @@ namespace Ship_Game.Gameplay
                                                         }
                                                         this.State = AIState.AwaitingOrders;   //fbedard
                                                         break;
-                                                    }
+                                                }
+                                                if 
+                                                    (this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
+                                                {
+                                                    
+                                                    
                                                     this.OrbitShip(this.EscortTarget, elapsedTime);
                                                     break;
                                                 }
                                                 else
                                                 {
-                                                    if(this.Target == null && !(this.hasPriorityTarget || this.HasPriorityOrder) )
+                                                    if (this.Owner.Mothership !=null && this.Target == null && !(this.hasPriorityTarget || this.HasPriorityOrder))
                                                         this.Target = this.Owner.Mothership.GetAI().Target;
                                                     this.DoCombat(elapsedTime);
                                                     break;
