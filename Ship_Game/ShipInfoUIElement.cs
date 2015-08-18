@@ -688,7 +688,7 @@ namespace Ship_Game
 				}
 				if (hasTroops)
 				{
-					OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.TroopToggle, 19)
+					OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.TroopToggle, 225)
 					{
 						ValueToModify = new Ref<bool>(() => this.ship.TroopsOut, (bool x) => {
 							this.ship.TroopsOut = x;
