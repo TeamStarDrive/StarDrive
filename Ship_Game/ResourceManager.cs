@@ -2643,7 +2643,7 @@ namespace Ship_Game
 					}
 				}
 			}
-
+            /*
             //fbedard: Create a copy of Unarmed Scout for Assault Ship
             Ship scout = null;
             Ship_Game.ResourceManager.ShipsDict.TryGetValue("Unarmed Scout", out scout);
@@ -2659,7 +2659,7 @@ namespace Ship_Game
             newscout.InitForLoad();
             newscout.InitializeStatus();
             Ship_Game.ResourceManager.ShipsDict[String.Intern("Assault_Ship")] = newscout;
-
+            */
             #region old strength calculator
             //foreach (KeyValuePair<string, Ship> entry in Ship_Game.ResourceManager.ShipsDict)
             //{
