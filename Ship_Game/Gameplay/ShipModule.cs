@@ -2108,8 +2108,8 @@ namespace Ship_Game.Gameplay
 				}
 				if (this.hangarTimer <= 0f && this.hangarShip == null)
 				{
-                    this.hangarShip = Ship_Game.ResourceManager.CreateTroopShipAtPoint("Assault_Ship", this.Parent.loyalty, this.Center, troop);
-					this.hangarShip.VanityName = "Assault Ship";
+                    this.hangarShip = Ship_Game.ResourceManager.CreateTroopShipAtPoint("Assault_Shuttle", this.Parent.loyalty, this.Center, troop);
+					this.hangarShip.VanityName = "Assault Shuttle";
 					this.hangarShip.Mothership = this.Parent;
 					this.hangarShip.DoEscort(this.Parent);
 					this.hangarShip.Velocity = (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
@@ -2137,8 +2137,8 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.hangarTimer <= 0f && this.hangarShip == null)
                 {
-                    this.hangarShip = ResourceManager.CreateTroopShipAtPoint("Assault_Ship", this.Parent.loyalty, this.Center, troop);
-                    this.hangarShip.VanityName = "Assault Ship";
+                    this.hangarShip = ResourceManager.CreateTroopShipAtPoint("Assault_Shuttle", this.Parent.loyalty, this.Center, troop);
+                    this.hangarShip.VanityName = "Assault Shuttle";
                     this.hangarShip.Mothership = this.Parent;
                     this.hangarShip.DoEscort(this.Parent);
                     this.hangarShip.Velocity = (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
