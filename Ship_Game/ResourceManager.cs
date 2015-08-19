@@ -1215,9 +1215,11 @@ namespace Ship_Game
 			Model item;
 			try
 			{
-				if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
+                lock (Ship_Game.ResourceManager.ModelDict)
+                if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
 				{
-					item= GetContentManager().Load<Model>(path);
+                    GC.Collect();
+                    item= GetContentManager().Load<Model>(path);
 					Ship_Game.ResourceManager.ModelDict.Add(path, item);
 					//item = model;
 				}
@@ -1231,13 +1233,13 @@ namespace Ship_Game
                 //    item = Ship_Game.ResourceManager.ModelDict[path];
                 //}
 			}
-			catch
-			{
+            catch
+            {
                 
-				item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
+                item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
                 Ship_Game.ResourceManager.ModelDict.Add(path, item);
-				//item = model;
-			}
+                //item = model;
+            }
 			return item;
 		}
 
