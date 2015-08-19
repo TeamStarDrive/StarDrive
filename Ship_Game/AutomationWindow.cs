@@ -285,7 +285,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if ((ResourceManager.ShipsDict[ship].shipData.Role != ShipData.RoleName.freighter && ResourceManager.ShipsDict[ship].shipData.Role != ShipData.RoleName.construction) || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f || ResourceManager.ShipsDict[ship].isColonyShip)
+                    if ((ResourceManager.ShipsDict[ship].shipData.Role != ShipData.RoleName.freighter && !ResourceManager.ShipsDict[ship].isConstructor) || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f || ResourceManager.ShipsDict[ship].isColonyShip)
                     {
                         continue;
                     }

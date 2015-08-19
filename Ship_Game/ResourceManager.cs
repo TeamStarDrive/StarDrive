@@ -441,7 +441,8 @@ namespace Ship_Game
             return newShip;
         }
 
-		public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, ShipData.RoleName role, List<Troop> Troops)
+		//fbedard: do not use, cannot change role of shipdata !
+        public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, ShipData.RoleName role, List<Troop> Troops)
 		{
 			Ship newShip = new Ship()
 			{
@@ -449,7 +450,7 @@ namespace Ship_Game
                 BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
 			};
-            newShip.shipData.Role = role;
+            //newShip.shipData.Role = role;
 			if (role == ShipData.RoleName.troop)
 			{
 				if (Troops.Count <= 0)
@@ -908,7 +909,6 @@ namespace Ship_Game
                 Name = Ship.Name,
 				VanityName = troop.Name
 			};
-            newShip.shipData.Role = ShipData.RoleName.troop;
             newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
             if (!Ship.GetShipData().Animated)
@@ -1406,7 +1406,7 @@ namespace Ship_Game
 				PlayerShip = true
 				//Role = Ship_Game.ResourceManager.ShipsDict[key].Role
 			};
-            newShip.shipData.Role = Ship_Game.ResourceManager.ShipsDict[key].shipData.Role;
+            newShip.shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData;
 			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)

@@ -592,7 +592,7 @@ namespace Ship_Game
             }
             else
             {
-                if (this.SelectedShip.loyalty != this.player || this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
+                if (this.SelectedShip.loyalty != this.player || this.SelectedShip.isConstructor)
                     return;
                 this.ShipToView = this.SelectedShip;
                 this.snappingToShip = true;
@@ -3008,7 +3008,7 @@ namespace Ship_Game
                 bool flag = false;
                 foreach (Ship ship in (List<Ship>)this.player.GetShips())
                 {
-                    if (ship.shipData.Role == ShipData.RoleName.construction && ship.GetAI().OrderQueue.Count > 0)
+                    if (ship.isConstructor && ship.GetAI().OrderQueue.Count > 0)
                     {
                         for (int index = 0; index < ship.GetAI().OrderQueue.Count; ++index)
                         {
@@ -3504,7 +3504,7 @@ namespace Ship_Game
                     this.player.GetFleetsDict()[index].Owner = this.player;
                     foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                     {
-                        if (ship.loyalty == this.player && ship.shipData.Role != ShipData.RoleName.construction && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
+                        if (ship.loyalty == this.player && !ship.isConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
                     }
                     this.player.GetFleetsDict()[index].AutoArrange();
@@ -3583,7 +3583,7 @@ namespace Ship_Game
                     }
                     foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                     {
-                        if (ship.loyalty == this.player && ship.shipData.Role != ShipData.RoleName.construction && (ship.fleet == null || ship.fleet.Name != str + " Fleet") && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
+                        if (ship.loyalty == this.player && !ship.isConstructor && (ship.fleet == null || ship.fleet.Name != str + " Fleet") && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
                     }
                     this.player.GetFleetsDict()[index].AutoArrange();
@@ -3822,7 +3822,7 @@ namespace Ship_Game
                             if (ship != null && ship != this.SelectedShip)
                             #region Target Ship
                             {
-                                if (this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
+                                if (this.SelectedShip.isConstructor)
                                 {
                                     AudioManager.PlayCue("UI_Misc20");
                                     return;
@@ -3871,7 +3871,7 @@ namespace Ship_Game
                                 RightClickship(this.SelectedShip, planet,true);
                                
                             }
-                            else if (this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
+                            else if (this.SelectedShip.isConstructor)
                             {
                                 AudioManager.PlayCue("UI_Misc20");
                                 return;
@@ -3904,7 +3904,7 @@ namespace Ship_Game
                             this.SelectedSomethingTimer = 3f;
                             foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                             {
-                                if (ship.loyalty != this.player || ship.shipData.Role == ShipData.RoleName.construction)
+                                if (ship.loyalty != this.player || ship.isConstructor)
                                 {
                                     AudioManager.PlayCue("UI_Misc20");
                                     return;
@@ -3955,7 +3955,7 @@ namespace Ship_Game
                                 this.SelectedSomethingTimer = 3f;
                                 foreach (Ship ship2 in (List<Ship>)this.SelectedShipList)
                                 {
-                                    if (ship2.shipData.Role == ShipData.RoleName.construction)
+                                    if (ship2.isConstructor)
                                     {
                                         this.SelectedShipList.Clear();
                                         AudioManager.PlayCue("UI_Misc20");
@@ -4065,7 +4065,7 @@ namespace Ship_Game
                         {
                             this.player.GetGSAI().DefensiveCoordinator.remove(this.SelectedShip);
                             this.SelectedSomethingTimer = 3f;
-                            if (this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
+                            if (this.SelectedShip.isConstructor)
                             {
                                 if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
                                     this.previousSelection = this.SelectedShip;
@@ -4096,7 +4096,7 @@ namespace Ship_Game
                             {
                                 if (ship.loyalty != this.player)
                                     return;
-                                if (ship.shipData.Role == ShipData.RoleName.construction)
+                                if (ship.isConstructor)
                                 {
                                     this.SelectedShipList.Clear();
                                     AudioManager.PlayCue("UI_Misc20");
@@ -4194,7 +4194,7 @@ namespace Ship_Game
                     }
                     else if (this.SelectedShip != null && this.SelectedShip.loyalty == this.player)
                     {
-                        if (this.SelectedShip.shipData.Role == ShipData.RoleName.construction)
+                        if (this.SelectedShip.isConstructor)
                         {
                             if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
                                 this.previousSelection = this.SelectedShip;
@@ -4267,7 +4267,7 @@ namespace Ship_Game
 
         private void RightClickship(Ship ship, Planet planet, bool audio)
         {
-            if (ship.shipData.Role == ShipData.RoleName.construction)
+            if (ship.isConstructor)
             {
                 if(audio)
                     AudioManager.PlayCue("UI_Misc20");

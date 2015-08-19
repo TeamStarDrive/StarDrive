@@ -757,7 +757,7 @@ namespace Ship_Game
 						}
                         case 8:
                         {
-                            if ((ship.shipData.Role != ShipData.RoleName.freighter) && (ship.shipData.Role != ShipData.RoleName.construction) && (ship.shipData.ShipCategory != ShipData.Category.Civilian))
+                            if ((ship.shipData.Role != ShipData.RoleName.freighter) && (!ship.isConstructor) && (ship.shipData.ShipCategory != ShipData.Category.Civilian))
                             {
                                 continue;
                             }
@@ -777,7 +777,7 @@ namespace Ship_Game
                         }
                         case 10:
                         {
-                            if ((ship.shipData.Role != ShipData.RoleName.corvette))
+                            if ((ship.shipData.Role != ShipData.RoleName.corvette && ship.shipData.Role != ShipData.RoleName.gunboat))
                             {
                                 continue;
                             }
