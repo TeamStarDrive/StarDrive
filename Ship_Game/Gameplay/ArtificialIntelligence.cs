@@ -6031,7 +6031,7 @@ namespace Ship_Game.Gameplay
     
             } 
             #endregion
-            if (this.Owner.VanityName == "Resupply Shuttle" && this.Owner.Mothership == null)
+            if (this.Owner.VanityName =="Supply Shuttle" && this.Owner.Mothership == null)
             {
                 {
                     this.Owner.QueueTotalRemoval();
