@@ -6002,9 +6002,9 @@ namespace Ship_Game.Gameplay
                                 continue;
                             }
                             inboundOrdinance = inboundOrdinance + 50f;
-                            Ship shuttle = ResourceManager.CreateShipFromHangar(this.Owner.loyalty.data.StartingScout, this.Owner.loyalty, this.Owner.Center, this.Owner);
-                            shuttle.VanityName = "Resupply Shuttle";
-                            shuttle.shipData.Role = ShipData.RoleName.supply;
+                            Ship shuttle = ResourceManager.CreateShipFromHangar("Supply_Shuttle", this.Owner.loyalty, this.Owner.Center, this.Owner);
+                            shuttle.VanityName = "Supply Shuttle";
+                            //shuttle.shipData.Role = ShipData.RoleName.supply;
                             shuttle.GetAI().IgnoreCombat = true;
                             shuttle.GetAI().DefaultAIState = AIState.Flee;
                             Ship ship1 = shuttle;
@@ -6220,7 +6220,7 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-            if ((((this.Owner.shipData.Role == ShipData.RoleName.freighter || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.CargoSpace_Max > 0) || this.Owner.shipData.Role == ShipData.RoleName.scout || this.Owner.shipData.Role == ShipData.RoleName.construction || this.Owner.shipData.Role == ShipData.RoleName.troop || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar || this.State == AIState.Colonize) || this.Owner.VanityName == "Resupply Shuttle")
+            if ((((this.Owner.shipData.Role == ShipData.RoleName.freighter || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.CargoSpace_Max > 0) || this.Owner.shipData.Role == ShipData.RoleName.scout || this.Owner.isConstructor || this.Owner.shipData.Role == ShipData.RoleName.troop || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar || this.State == AIState.Colonize) || this.Owner.VanityName == "Resupply Shuttle")
             {
                 return;
             }
@@ -6323,7 +6323,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-            if ((this.Owner.shipData.Role == ShipData.RoleName.freighter || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian || this.Owner.shipData.Role == ShipData.RoleName.scout || this.Owner.shipData.Role == ShipData.RoleName.construction || this.Owner.shipData.Role == ShipData.RoleName.troop || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar) && !this.Owner.IsSupplyShip)
+            if ((this.Owner.shipData.Role == ShipData.RoleName.freighter || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian || this.Owner.shipData.Role == ShipData.RoleName.scout || this.Owner.isConstructor || this.Owner.shipData.Role == ShipData.RoleName.troop || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar) && !this.Owner.IsSupplyShip)
 			{
 				return;
 			}
