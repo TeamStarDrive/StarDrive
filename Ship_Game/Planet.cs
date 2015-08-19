@@ -2848,6 +2848,7 @@ namespace Ship_Game
                             }
                         }
                     }
+                    //auto load troop:
                     if ((this.ParentSystem.combatTimer <= 0 || !ship.InCombat) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
                     {
                         foreach (var pgs in this.TilesList)
@@ -5491,7 +5492,8 @@ output = maxp * take10 = 5
                         if (queueItem.Goal.GoalName == "BuildConstructionShip")
                         {
                             shipAt.GetAI().OrderDeepSpaceBuild(queueItem.Goal);
-                            shipAt.shipData.Role = ShipData.RoleName.construction;
+                            //shipAt.shipData.Role = ShipData.RoleName.construction;
+                            shipAt.isConstructor = true;
                             shipAt.VanityName = "Construction Ship";
                         }
                         else if (queueItem.Goal.GoalName != "BuildDefensiveShips" && queueItem.Goal.GoalName != "BuildOffensiveShips" && queueItem.Goal.GoalName != "FleetRequisition")
