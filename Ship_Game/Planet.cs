@@ -4980,7 +4980,7 @@ namespace Ship_Game
                             break;
                         }
                     }
-                    if (addTroop)
+                    if (addTroop && this.AllowInfantry)
                     {
                         foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
                         {

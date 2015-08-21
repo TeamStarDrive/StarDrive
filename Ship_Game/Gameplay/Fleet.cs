@@ -2963,7 +2963,7 @@ namespace Ship_Game.Gameplay
                 if (!ship.Active)
                     list.Add(ship);
                 else
-                    if (ship.hasRepairBeam || ship.HasRepairModule)
+                    if (ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0))
                         this.HasRepair = true;
             }
             foreach (Ship ship in list)

@@ -4634,7 +4634,7 @@ namespace Ship_Game.Gameplay
                                         for (int j = 0; j < this.Owner.loyalty.GetShips().Count; j++)
                                         {
                                             Ship ship = this.Owner.loyalty.GetShips()[j];
-                                            if (ship != null && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && ship != this.Owner)
+                                            if (ship != null && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && ship != this.Owner && !ship.isConstructor)
                                             {
                                                 if (ship.GetAI().State == AIState.SystemTrader && ship.GetAI().end == item && ship.GetAI().FoodOrProd == "Food")
                                                 {
@@ -4668,7 +4668,7 @@ namespace Ship_Game.Gameplay
                                     for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                                     {
                                         Ship item1 = this.Owner.loyalty.GetShips()[k];
-                                        if (item1 != null && (item1.shipData.Role == ShipData.RoleName.freighter || item1.shipData.ShipCategory == ShipData.Category.Civilian) && item1 != this.Owner)
+                                        if (item1 != null && (item1.shipData.Role == ShipData.RoleName.freighter || item1.shipData.ShipCategory == ShipData.Category.Civilian) && item1 != this.Owner && !item1.isConstructor)
                                         {
                                             if (item1.GetAI().State == AIState.SystemTrader && item1.GetAI().end == item && item1.GetAI().FoodOrProd == "Food")
                                             {
@@ -4739,7 +4739,7 @@ namespace Ship_Game.Gameplay
                                         for (int m = 0; m < this.Owner.loyalty.GetShips().Count; m++)
                                         {
                                             Ship ship1 = this.Owner.loyalty.GetShips()[m];
-                                            if (ship1 != null)
+                                            if (ship1 != null && !ship1.isConstructor)
                                             {
                                                 if (ship1.shipData.Role == ShipData.RoleName.freighter || ship1.shipData.ShipCategory == ShipData.Category.Civilian)
                                                 {
@@ -4776,7 +4776,7 @@ namespace Ship_Game.Gameplay
                                     for (int n = 0; n < this.Owner.loyalty.GetShips().Count; n++)
                                     {
                                         Ship item2 = this.Owner.loyalty.GetShips()[n];
-                                        if (item2 != null)
+                                        if (item2 != null && !item2.isConstructor)
                                         {
                                             if (item2.shipData.Role == ShipData.RoleName.freighter || item2.shipData.ShipCategory == ShipData.Category.Civilian)
                                             {
@@ -4854,7 +4854,7 @@ namespace Ship_Game.Gameplay
                                     for (int p = 0; p < this.Owner.loyalty.GetShips().Count; p++)
                                     {
                                         Ship ship2 = this.Owner.loyalty.GetShips()[p];
-                                        if (ship2 != null && (ship2.shipData.Role == ShipData.RoleName.freighter || ship2.shipData.ShipCategory == ShipData.Category.Civilian) && ship2 != this.Owner)
+                                        if (ship2 != null && (ship2.shipData.Role == ShipData.RoleName.freighter || ship2.shipData.ShipCategory == ShipData.Category.Civilian) && ship2 != this.Owner && !ship2.isConstructor)
                                         {
                                             if (ship2.GetAI().State == AIState.SystemTrader && ship2.GetAI().end == planet1 && ship2.CargoSpace_Max + planet1.FoodHere > 0.75f * planet1.MAX_STORAGE && ship2.GetAI().FoodOrProd == "Food")
                                             {
@@ -4885,7 +4885,7 @@ namespace Ship_Game.Gameplay
                                 for (int q = 0; q < this.Owner.loyalty.GetShips().Count; q++)
                                 {
                                     Ship item3 = this.Owner.loyalty.GetShips()[q];
-                                    if (item3 != null && (item3.shipData.Role == ShipData.RoleName.freighter || item3.shipData.ShipCategory == ShipData.Category.Civilian) && item3 != this.Owner)
+                                    if (item3 != null && (item3.shipData.Role == ShipData.RoleName.freighter || item3.shipData.ShipCategory == ShipData.Category.Civilian) && item3 != this.Owner && !item3.isConstructor)
                                     {
                                         if (item3.GetAI().State == AIState.SystemTrader && item3.GetAI().end == planet1 && item3.GetAI().FoodOrProd == "Food")
                                         {
@@ -5000,7 +5000,7 @@ namespace Ship_Game.Gameplay
                                     for (int t = 0; t < this.Owner.loyalty.GetShips().Count; t++)
                                     {
                                         Ship ship3 = this.Owner.loyalty.GetShips()[t];
-                                        if (ship3 != null)
+                                        if (ship3 != null && !ship3.isConstructor)
                                         {
                                             if (ship3.shipData.Role == ShipData.RoleName.freighter || ship3.shipData.ShipCategory == ShipData.Category.Civilian)
                                             {
@@ -5036,7 +5036,7 @@ namespace Ship_Game.Gameplay
                                 for (int u = 0; u < this.Owner.loyalty.GetShips().Count; u++)
                                 {
                                     Ship item4 = this.Owner.loyalty.GetShips()[u];
-                                    if (item4 != null)
+                                    if (item4 != null && !item4.isConstructor)
                                     {
                                         if (item4.shipData.Role == ShipData.RoleName.freighter || item4.shipData.ShipCategory == ShipData.Category.Civilian)
                                         {
@@ -5938,26 +5938,22 @@ namespace Ship_Game.Gameplay
                 }
                 return this.Target;
             }
-            if (this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay).Count() > 0 && this.Owner.engineState != Ship.MoveState.Warp && !this.Owner.isSpooling)
+
             #region supply ship logic
+            if (this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay).Count() > 0 && this.Owner.engineState != Ship.MoveState.Warp && !this.Owner.isSpooling)
             {
                 IOrderedEnumerable<Ship> sortedList = null;
-                //if (this.Owner.Role == ShipData.RoleName.station || this.Owner.Role == ShipData.RoleName.platform)
-                //{
-                //    sortedList = this.Owner.loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) < 10 * this.Owner.SensorRange && ship != this.Owner && ship.engineState != Ship.MoveState.Warp && ship.Mothership == null && ship.OrdinanceMax > 0 && ship.Ordinance / ship.OrdinanceMax < .5 && !ship.IsTethered()).OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 9999)) / 10000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
-                //}
-                //else
                 {
                     sortedList = FriendliesNearby.Where(ship => ship != this.Owner 
                         && ship.engineState != Ship.MoveState.Warp 
                         && ship.Mothership == null 
                         && ship.OrdinanceMax > 0 
-                        && ship.Ordinance / ship.OrdinanceMax < .5 
+                        && ship.Ordinance / ship.OrdinanceMax < 0.5f
                         && !ship.IsTethered())
-                        .OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
+                        .OrderBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
+//                      .OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
                 }
 
-               
                     if (sortedList.Count() > 0)
                     {
                         int skip = 0;
@@ -5971,7 +5967,7 @@ namespace Ship_Game.Gameplay
                                     if (sortedList.Skip(skip).Count() > 0)
                                     {
                                         ArtificialIntelligence.ShipGoal g1 = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.SupplyShip, Vector2.Zero, 0f);
-                                        hangar.GetHangarShip().GetAI().EscortTarget = sortedList.Skip(skip).First();//.Where(ship => !ship.IsTethered()).FirstOrDefault();//sortedList.ElementAt<Ship>(y);
+                                        hangar.GetHangarShip().GetAI().EscortTarget = sortedList.Skip(skip).First();
 
                                         hangar.GetHangarShip().GetAI().IgnoreCombat = true;
                                         hangar.GetHangarShip().GetAI().OrderQueue.Clear();
@@ -6005,8 +6001,7 @@ namespace Ship_Game.Gameplay
                             Ship shuttle = ResourceManager.CreateShipFromHangar("Supply_Shuttle", this.Owner.loyalty, this.Owner.Center, this.Owner);
                             shuttle.VanityName = "Supply Shuttle";
                             //shuttle.shipData.Role = ShipData.RoleName.supply;
-                            shuttle.GetAI().IgnoreCombat = true;
-                            shuttle.GetAI().DefaultAIState = AIState.Flee;
+                            //shuttle.GetAI().DefaultAIState = AIState.Flee;
                             Ship ship1 = shuttle;
                             randomThreadMath = (this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG);
                             ship1.Velocity = (randomThreadMath.RandomDirection() * shuttle.speed) + this.Owner.Velocity;
@@ -6030,13 +6025,14 @@ namespace Ship_Game.Gameplay
                     }
     
             } 
-            #endregion
-            if (this.Owner.VanityName =="Supply Shuttle" && this.Owner.Mothership == null)
+            if (this.Owner.shipData.Role == ShipData.RoleName.supply && this.Owner.Mothership == null)
             {
                 {
-                    this.Owner.QueueTotalRemoval();
+                    this.Owner.QueueTotalRemoval();  //Destroy shuttle without mothership
                 }
-            }   
+            }
+            #endregion
+
             //}           
             foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips )
             //Parallel.ForEach(this.NearbyShips, nearbyShip =>
@@ -6220,7 +6216,7 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-            if ((((this.Owner.shipData.Role == ShipData.RoleName.freighter || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.CargoSpace_Max > 0) || this.Owner.shipData.Role == ShipData.RoleName.scout || this.Owner.isConstructor || this.Owner.shipData.Role == ShipData.RoleName.troop || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar || this.State == AIState.Colonize) || this.Owner.VanityName == "Supply Shuttle")
+            if ((((this.Owner.shipData.Role == ShipData.RoleName.freighter || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.CargoSpace_Max > 0) || this.Owner.shipData.Role == ShipData.RoleName.scout || this.Owner.isConstructor || this.Owner.shipData.Role == ShipData.RoleName.troop || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar || this.State == AIState.Colonize) || this.Owner.shipData.Role == ShipData.RoleName.supply)
             {
                 return;
             }
@@ -6936,7 +6932,7 @@ namespace Ship_Game.Gameplay
             if (this.UtilityModuleCheckTimer <= 0f)
             {
                 this.UtilityModuleCheckTimer = 1f;
-                //Added by McShooterz: logic for transporter moduels
+                //Added by McShooterz: logic for transporter modules
                 if (this.Owner.hasTransporter)
                 {
                     foreach (ShipModule module in this.Owner.Transporters)
