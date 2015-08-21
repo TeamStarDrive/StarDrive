@@ -6153,7 +6153,7 @@ namespace Ship_Game.Gameplay
             this.PotentialTargets = this.PotentialTargets.Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance).ToList();
             if (sortedList2.Count<ArtificialIntelligence.ShipWeight>() > 0)
             {
-                if (this.Owner.shipData.Role == ShipData.RoleName.supply && this.Owner.VanityName != "Resupply Shuttle")
+                if (this.Owner.shipData.Role == ShipData.RoleName.supply && this.Owner.VanityName != "Supply Shuttle")
                 {
                     this.Target = sortedList2.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
                 }
@@ -6220,7 +6220,7 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
-            if ((((this.Owner.shipData.Role == ShipData.RoleName.freighter || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.CargoSpace_Max > 0) || this.Owner.shipData.Role == ShipData.RoleName.scout || this.Owner.isConstructor || this.Owner.shipData.Role == ShipData.RoleName.troop || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar || this.State == AIState.Colonize) || this.Owner.VanityName == "Resupply Shuttle")
+            if ((((this.Owner.shipData.Role == ShipData.RoleName.freighter || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) && this.Owner.CargoSpace_Max > 0) || this.Owner.shipData.Role == ShipData.RoleName.scout || this.Owner.isConstructor || this.Owner.shipData.Role == ShipData.RoleName.troop || this.IgnoreCombat || this.State == AIState.Resupply || this.State == AIState.ReturnToHangar || this.State == AIState.Colonize) || this.Owner.VanityName == "Supply Shuttle")
             {
                 return;
             }
