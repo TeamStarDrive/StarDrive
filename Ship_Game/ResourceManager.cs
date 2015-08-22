@@ -2559,7 +2559,7 @@ namespace Ship_Game
                 }
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			FileInfo[] filesFromDirectory1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Designs"));
+            FileInfo[] filesFromDirectory1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Content/SavedDesigns"));
 			for (int k = 0; k < (int)filesFromDirectory1.Length; k++)
 			{
 				FileInfo FI = filesFromDirectory1[k];
