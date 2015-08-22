@@ -417,6 +417,10 @@ namespace Ship_Game
                 fleet.Name = str + " fleet";
                 this.FleetsDict.TryAdd(key, fleet);
             }
+            if (string.IsNullOrEmpty(this.data.DefaultTroopShip))
+            {
+                this.data.DefaultTroopShip = this.data.PortraitName + " " + "Troop";
+            }
             foreach (KeyValuePair<string, Technology> keyValuePair in ResourceManager.TechTree)
             {
                 TechEntry techEntry = new TechEntry();
