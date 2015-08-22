@@ -2522,6 +2522,20 @@ namespace Ship_Game
                     if (newShip.InitForLoad())
                     {
                         newShip.InitializeStatus();
+                        if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                            string.Intern(newShipData.EventOnDeath);
+                        if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                            string.Intern(newShipData.ModelPath);
+                        if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                            string.Intern(newShipData.ShipStyle);
+                        if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                            string.Intern(newShipData.Name);
+                        if (!string.IsNullOrEmpty(newShipData.IconPath) )
+                            string.Intern(newShipData.IconPath);
+                        if (!string.IsNullOrEmpty(newShipData.Hull))
+                            string.Intern(newShipData.Hull);
+                        if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                            string.Intern(newShipData.SelectionGraphic);
                         Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
                     }
                 }
@@ -2555,7 +2569,16 @@ namespace Ship_Game
                     if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
                         string.Intern(newShipData.ModelPath);
                     if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
-                        string.Intern(newShipData.ShipStyle);                                            
+                        string.Intern(newShipData.ShipStyle);
+                    if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                        string.Intern(newShipData.Name);   
+                                            if (!string.IsNullOrEmpty(newShipData.IconPath) )
+                            string.Intern(newShipData.IconPath);
+                        if (!string.IsNullOrEmpty(newShipData.Hull))
+                            string.Intern(newShipData.Hull);
+                        if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                            string.Intern(newShipData.SelectionGraphic);
+
                 }
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -2599,7 +2622,16 @@ namespace Ship_Game
                         if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
                             string.Intern(newShipData.ModelPath);
                         if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
-                            string.Intern(newShipData.ShipStyle);  
+                            string.Intern(newShipData.ShipStyle);
+                        if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                            string.Intern(newShipData.Name); 
+                                                if (!string.IsNullOrEmpty(newShipData.IconPath) )
+                            string.Intern(newShipData.IconPath);
+                        if (!string.IsNullOrEmpty(newShipData.Hull))
+                            string.Intern(newShipData.Hull);
+                        if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                            string.Intern(newShipData.SelectionGraphic);
+
                     }
                     
 				}
@@ -2638,6 +2670,15 @@ namespace Ship_Game
                                 string.Intern(newShipData.ModelPath);
                             if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
                                 string.Intern(newShipData.ShipStyle);  
+                            if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                            string.Intern(newShipData.Name); 
+                                                    if (!string.IsNullOrEmpty(newShipData.IconPath) )
+                            string.Intern(newShipData.IconPath);
+                        if (!string.IsNullOrEmpty(newShipData.Hull))
+                            string.Intern(newShipData.Hull);
+                        if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                            string.Intern(newShipData.SelectionGraphic);
+
                         }
 					}
 					catch
