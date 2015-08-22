@@ -705,6 +705,10 @@ namespace Ship_Game
             empireData.DefaultColonyShip = data.DefaultColonyShip;
             empireData.DefaultSmallTransport = data.DefaultSmallTransport;
             empireData.DefaultTroopShip = data.DefaultTroopShip;
+            if (string.IsNullOrEmpty(empireData.DefaultTroopShip))
+            {
+                empireData.DefaultTroopShip = empireData.PortraitName + " " + "Troop";
+            }
             empireData.DefaultConstructor = data.DefaultConstructor;
             empireData.DefaultShipyard = data.DefaultShipyard;
             empireData.DiplomacyDialogPath = data.DiplomacyDialogPath;
