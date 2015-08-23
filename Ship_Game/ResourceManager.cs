@@ -1980,6 +1980,20 @@ namespace Ship_Game
                 //stream.Close();
 				stream.Dispose();
 				newShipData.Hull = String.Intern(string.Concat(FI.Directory.Name, "/", newShipData.Hull));
+                if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                    string.Intern(newShipData.EventOnDeath);
+                if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                    string.Intern(newShipData.ModelPath);
+                if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                    string.Intern(newShipData.ShipStyle);
+                if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                    string.Intern(newShipData.Name);
+                if (!string.IsNullOrEmpty(newShipData.IconPath))
+                    string.Intern(newShipData.IconPath);
+                if (!string.IsNullOrEmpty(newShipData.Hull))
+                    string.Intern(newShipData.Hull);
+                if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                    string.Intern(newShipData.SelectionGraphic);
 				newShipData.ShipStyle = String.Intern(FI.Directory.Name);
 				if (Ship_Game.ResourceManager.HullsDict.ContainsKey(newShipData.Hull))
 				{
@@ -2648,7 +2662,9 @@ namespace Ship_Game
 				for (int l = 0; l < (int)fileInfoArray1.Length; l++)
 				{
 					FileInfo FI = fileInfoArray1[l];
-					try
+					
+                //try
+
 					{
 						FileStream stream = FI.OpenRead();
 						ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
@@ -2681,9 +2697,12 @@ namespace Ship_Game
 
                         }
 					}
-					catch
-					{
-					}
+      
+			
+                //catch
+                //    {
+                //    }  
+	
 				}
 			}
             /*
@@ -2740,8 +2759,8 @@ namespace Ship_Game
             //added by gremlin : Base strength Calculator
             foreach (KeyValuePair<string, Ship> entry in ResourceManager.ShipsDict)
             {
-                if (entry.Value.BaseStrength != 0)
-                    continue;
+                //if (entry.Value.BaseStrength != 0)
+                //    continue;
 
                 float Str = 0f;
                 float def = 0f;
@@ -2822,7 +2841,8 @@ namespace Ship_Game
                 }
                 if (!fighters && !weapons) Str = 0;
                 if (def > Str) def = Str;
-                entry.Value.BaseStrength = Str + def;
+                entry.Value.shipData.BaseStrength = Str + def;
+                entry.Value.BaseStrength = entry.Value.shipData.BaseStrength;
             }
 		}
 

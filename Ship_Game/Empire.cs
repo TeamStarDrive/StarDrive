@@ -1941,12 +1941,15 @@ namespace Ship_Game
                         shipData.allModulesUnlocakable = false;
                         shipData.hullUnlockable = false;
                         shipData.techsNeeded.Clear();
-                        //purge.Add(ship.Key);
+                        purge.Add(ship.Key);
                         break;
                     }
 
                 }
-
+                if(shipData.BaseStrength ==0)
+                {
+                    ResourceManager.CalculateBaseStrength(ship.Value);
+                }
                 foreach (string techname in shipData.techsNeeded)
                 {
                     shipData.TechScore += (ushort)ResourceManager.TechTree[techname].Cost;
