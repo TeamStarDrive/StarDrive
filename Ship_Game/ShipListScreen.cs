@@ -678,7 +678,7 @@ namespace Ship_Game
 			{
 				foreach (Ship ship in EmpireManager.GetEmpireByName(this.empUI.screen.PlayerLoyalty).GetShips())
 				{
-					if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null)  //fbedard: never list ships created from hangar
+                    if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null || ship.isConstructor)  //fbedard: never list ships created from hangar or constructor
 					{
 						continue;
 					}

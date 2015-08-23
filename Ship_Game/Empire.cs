@@ -506,6 +506,11 @@ namespace Ship_Game
             //unlock ships from empire data
             foreach (string ship in this.data.unlockShips)
                 this.ShipsWeCanBuild.Add(ship);
+            
+            //fbedard: Add missing troop ship
+            if (this.data.DefaultTroopShip == null)
+                this.data.DefaultTroopShip = this.data.PortraitName + " " + "Troop";
+
             //clear these lists as they serve no more purpose
             this.data.unlockBuilding.Clear();
             this.data.unlockShips.Clear();
@@ -625,7 +630,7 @@ namespace Ship_Game
                 {
                     if (this.TechnologyDict[techID].GetTech().HullsUnlocked.Where(hulls => hulls.Name == hull.Key).Count() ==0)
                         continue;
-                    if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role ==ShipData.RoleName.corvette).Count()>0)
+                    if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role == ShipData.RoleName.corvette).Count()>0)
                     {
                         this.canBuildCorvettes = true;
                         break;
@@ -2915,7 +2920,7 @@ namespace Ship_Game
                     continue;
                 //fbedard: civilian can be freighter too!
                 //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null || ship.isConstructor)
                     continue;
                 if(ship.GetAI().State != AIState.Scrap )
                     this.freighterBudget += ship.GetMaintCost();

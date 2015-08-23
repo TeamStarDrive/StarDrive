@@ -3822,7 +3822,7 @@ namespace Ship_Game
                             if (ship != null && ship != this.SelectedShip)
                             #region Target Ship
                             {
-                                if (this.SelectedShip.isConstructor)
+                                if (this.SelectedShip.isConstructor || this.SelectedShip.shipData.Role == ShipData.RoleName.supply)
                                 {
                                     AudioManager.PlayCue("UI_Misc20");
                                     return;
@@ -3851,7 +3851,8 @@ namespace Ship_Game
                                 }
                             } 
                             #endregion
-                            else if (ship != null && ship == this.SelectedShip)
+                            // else if (ship != null && ship == this.SelectedShip)
+                            else if (ship != null && ship == this.SelectedShip && this.SelectedShip.Mothership == null && !this.SelectedShip.isConstructor)  //fbedard: prevent hangar ship and constructor
                             {
                                 if (ship.loyalty == this.player)
                                     this.LoadShipMenuNodes(1);
@@ -3871,7 +3872,7 @@ namespace Ship_Game
                                 RightClickship(this.SelectedShip, planet,true);
                                
                             }
-                            else if (this.SelectedShip.isConstructor)
+                            else if (this.SelectedShip.isConstructor || this.SelectedShip.shipData.Role == ShipData.RoleName.supply)
                             {
                                 AudioManager.PlayCue("UI_Misc20");
                                 return;
@@ -3904,7 +3905,7 @@ namespace Ship_Game
                             this.SelectedSomethingTimer = 3f;
                             foreach (Ship ship in (List<Ship>)this.SelectedShipList)
                             {
-                                if (ship.loyalty != this.player || ship.isConstructor)
+                                if (ship.loyalty != this.player || ship.isConstructor || ship.shipData.Role == ShipData.RoleName.supply)
                                 {
                                     AudioManager.PlayCue("UI_Misc20");
                                     return;
@@ -3955,7 +3956,7 @@ namespace Ship_Game
                                 this.SelectedSomethingTimer = 3f;
                                 foreach (Ship ship2 in (List<Ship>)this.SelectedShipList)
                                 {
-                                    if (ship2.isConstructor)
+                                    if (ship2.isConstructor || ship2.shipData.Role == ShipData.RoleName.supply)
                                     {
                                         this.SelectedShipList.Clear();
                                         AudioManager.PlayCue("UI_Misc20");
@@ -4028,7 +4029,8 @@ namespace Ship_Game
                         if (this.SelectedFlank == null && this.SelectedFleet == null && (this.SelectedItem == null && this.SelectedShip == null) && (this.SelectedPlanet == null && this.SelectedShipList.Count == 0))
                         {
                             Ship ship = this.CheckShipClick(input.CursorPosition);
-                            if (ship != null)
+                            //if (ship != null)
+                            if (ship != null && ship.Mothership == null && !ship.isConstructor)  //fbedard: prevent hangar ship and constructor
                             {
                                 if (this.SelectedShip != null && this.previousSelection != this.SelectedShip && this.SelectedShip != ship) //fbedard
                                     this.previousSelection = this.SelectedShip;
@@ -4065,7 +4067,7 @@ namespace Ship_Game
                         {
                             this.player.GetGSAI().DefensiveCoordinator.remove(this.SelectedShip);
                             this.SelectedSomethingTimer = 3f;
-                            if (this.SelectedShip.isConstructor)
+                            if (this.SelectedShip.isConstructor || this.SelectedShip.shipData.Role == ShipData.RoleName.supply)
                             {
                                 if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
                                     this.previousSelection = this.SelectedShip;
@@ -4096,7 +4098,7 @@ namespace Ship_Game
                             {
                                 if (ship.loyalty != this.player)
                                     return;
-                                if (ship.isConstructor)
+                                if (ship.isConstructor || ship.shipData.Role == ShipData.RoleName.supply)
                                 {
                                     this.SelectedShipList.Clear();
                                     AudioManager.PlayCue("UI_Misc20");
@@ -4194,7 +4196,7 @@ namespace Ship_Game
                     }
                     else if (this.SelectedShip != null && this.SelectedShip.loyalty == this.player)
                     {
-                        if (this.SelectedShip.isConstructor)
+                        if (this.SelectedShip.isConstructor || this.SelectedShip.shipData.Role == ShipData.RoleName.supply)
                         {
                             if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
                                 this.previousSelection = this.SelectedShip;
@@ -4554,7 +4556,7 @@ namespace Ship_Game
         {
             if (this.LookingAtPlanet)
                 return;
-            if (this.SelectedShip != null)
+            if (this.SelectedShip != null && this.SelectedShip.Mothership == null && !this.SelectedShip.isConstructor)  //fbedard: prevent hangar ship and constructor
             {
                 //if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R))  //fbedard: what is that !!!!
                 //    this.SelectedShip.FightersOut = !this.SelectedShip.FightersOut;

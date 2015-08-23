@@ -2135,6 +2135,8 @@ namespace Ship_Game.Gameplay
                     this.hangarShip.DoEscort(this.Parent);
                     return;
                 }
+                if (Ship_Game.ResourceManager.ShipsDict["Assault_Shuttle"].Mass / 5f > this.Parent.Ordinance)  //fbedard: New spawning cost
+                    return;
                 if (this.hangarTimer <= 0f && this.hangarShip == null)
                 {
                     this.hangarShip = ResourceManager.CreateTroopShipAtPoint("Assault_Shuttle", this.Parent.loyalty, this.Center, troop);
@@ -2148,6 +2150,7 @@ namespace Ship_Game.Gameplay
                     }
                     this.installedSlot.HangarshipGuid = this.hangarShip.guid;
                     this.hangarTimer = this.hangarTimerConstant;
+                    this.Parent.Ordinance -= this.hangarShip.Mass / 5f;
                     //if (this.Parent.GetAI().Target != null && this.Parent.GetAI().Target is Ship && (this.Parent.GetAI().Target as Ship).loyalty != this.Parent.loyalty)
                     //{
                     //    this.hangarShip.GetAI().OrderTroopToBoardShip(this.Parent.GetAI().Target as Ship);
@@ -2259,7 +2262,10 @@ namespace Ship_Game.Gameplay
                         hangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).Select(fighter => fighter.Name).FirstOrDefault();
                     }
 
-
+                    if (this.hangarShip == null)
+                        return;
+                    if (Ship_Game.ResourceManager.ShipsDict[hangarship].Mass / 5f > this.Parent.Ordinance)  //fbedard: New spawning cost
+                        return;
                     this.SetHangarShip(ResourceManager.CreateShipFromHangar(hangarship, this.Parent.loyalty, this.Center, this.Parent));
 
                     if (this.hangarShip != null)
@@ -2275,6 +2281,7 @@ namespace Ship_Game.Gameplay
                         this.installedSlot.HangarshipGuid = this.GetHangarShip().guid;
 
                         this.hangarTimer = this.hangarTimerConstant;
+                        this.Parent.Ordinance -= this.hangarShip.Mass / 5f;
                     }
                 }
             }
@@ -2407,6 +2414,8 @@ namespace Ship_Game.Gameplay
 		public void SetHangarShip(Ship ship)
 		{
 			this.hangarShip = ship;
+            if(ship != null)
+                this.installedSlot.HangarshipGuid = ship.guid;  //fbedard: save mothership
 		}
 
 		public void SetInitialPosition()
