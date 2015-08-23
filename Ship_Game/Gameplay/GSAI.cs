@@ -4658,7 +4658,7 @@ namespace Ship_Game.Gameplay
 
      
                         }
-                        else if (str == ShipData.RoleName.corvette)
+                        else if (str == ShipData.RoleName.corvette || str == ShipData.RoleName.gunboat)
                         {
                             if (item.GetAI().State == AIState.Scrap)
                             {
@@ -4893,7 +4893,7 @@ namespace Ship_Game.Gameplay
                             if (ship.GetAI().State != AIState.Scrap)
                                 ship.GetAI().OrderScrapShip();
                         }
-                        if (corvetteOverspend > (DesiredCorvetteSpending * 0.05f) && ship.shipData.Role == ShipData.RoleName.corvette)
+                        if (corvetteOverspend > (DesiredCorvetteSpending * 0.05f) && (ship.shipData.Role == ShipData.RoleName.corvette || ship.shipData.Role == ShipData.RoleName.gunboat))
                         {
                             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                             {
@@ -5053,6 +5053,12 @@ namespace Ship_Game.Gameplay
                 buildThis = this.PickFromCandidates(ShipData.RoleName.corvette, Capacity, PotentialShips);
                 if (!string.IsNullOrEmpty(buildThis))
                     return buildThis;
+                else
+                {
+                    buildThis = this.PickFromCandidates(ShipData.RoleName.gunboat, Capacity, PotentialShips);
+                    if (!string.IsNullOrEmpty(buildThis))
+                        return buildThis;
+                }
 
             }
             if (capFighters < DesiredFighterSpending)
