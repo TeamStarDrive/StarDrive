@@ -5042,8 +5042,12 @@ namespace Ship_Game.Gameplay
                 && frigateOverspend / ratio_Frigates < corvetteOverspend / ratio_Corvettes
                 && frigateOverspend / ratio_Frigates < fighterOverspend / ratio_Fighters)
             {
+                buildThis = this.PickFromCandidates(ShipData.RoleName.destroyer, Capacity, PotentialShips);
+                if (string.IsNullOrEmpty(buildThis))
                 buildThis = this.PickFromCandidates(ShipData.RoleName.frigate, Capacity, PotentialShips);
                 if (!string.IsNullOrEmpty(buildThis))
+                    
+
                     return buildThis;
                 
             }
@@ -5051,14 +5055,11 @@ namespace Ship_Game.Gameplay
                 && corvetteOverspend / ratio_Corvettes < fighterOverspend / ratio_Fighters)
             {
                 buildThis = this.PickFromCandidates(ShipData.RoleName.corvette, Capacity, PotentialShips);
+                if (string.IsNullOrEmpty(buildThis))
+                    buildThis = this.PickFromCandidates(ShipData.RoleName.gunboat, Capacity, PotentialShips);
                 if (!string.IsNullOrEmpty(buildThis))
                     return buildThis;
-                else
-                {
-                    buildThis = this.PickFromCandidates(ShipData.RoleName.gunboat, Capacity, PotentialShips);
-                    if (!string.IsNullOrEmpty(buildThis))
-                        return buildThis;
-                }
+
 
             }
             if (capFighters < DesiredFighterSpending)
@@ -8059,7 +8060,7 @@ namespace Ship_Game.Gameplay
                     //    continue;
                     {
                         moneyNeeded = ship.GetMaintCost(this.empire) * 5;
-                        
+                        bool GeneralTechBlock = false;
                         foreach (string shipTech in ship.shipData.techsNeeded)
                         {
 
@@ -8095,7 +8096,14 @@ namespace Ship_Game.Gameplay
                                     }
                                     else if (generalTech.GetTech().TechnologyType == TechnologyType.ShipGeneral)
                                     {
-                                        techCost--;
+                                        if (!GeneralTechBlock)
+                                        {
+                                            techCost--;
+                                            GeneralTechBlock = true;
+                                        }
+                                        else
+                                            GeneralTechBlock = false;
+                                            
                                         continue;
                                     }
                                     //if (hull.TechnologyType == TechnologyType.ShipHull)
