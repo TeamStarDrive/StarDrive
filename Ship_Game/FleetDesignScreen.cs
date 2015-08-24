@@ -533,7 +533,7 @@ namespace Ship_Game
 						Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
 						tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).Role, tCursor, Color.Orange);
+                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
 						if (e.Plus != 0)
 						{
 							if (e.PlusHover != 0)
@@ -568,7 +568,7 @@ namespace Ship_Game
 						tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						if (this.sub_ships.Tabs[0].Selected)
 						{
-							base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Role, tCursor, Color.Orange);
+                            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
 						}
 						else if ((e.item as Ship).GetSystem() == null)
 						{
@@ -630,11 +630,11 @@ namespace Ship_Game
 					Guid goalGUID = node.GoalGUID;
 					if (node.GoalGUID == Guid.Empty)
 					{
-						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Red));
+                        base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Red));
 					}
 					else
 					{
-						base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Yellow));
+                        base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Yellow));
 						string buildingat = "";
 						foreach (Goal g in this.fleet.Owner.GetGSAI().Goals)
 						{
@@ -664,7 +664,7 @@ namespace Ship_Game
 						Radius = 10f;
 					}
 					Rectangle r = new Rectangle((int)pPos.X - (int)Radius, (int)pPos.Y - (int)Radius, (int)Radius * 2, (int)Radius * 2);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Green));
+                    base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)], r, (this.HoveredNodeList.Contains(node) || this.SelectedNodeList.Contains(node) ? Color.White : Color.Green));
 				}
 			}
 			if (this.ActiveShipDesign != null)
@@ -685,7 +685,7 @@ namespace Ship_Game
 					scale = 0.15f;
 				}
 				SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
-				Texture2D item = Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.Role)];
+                Texture2D item = Ship_Game.ResourceManager.TextureDict[string.Concat("TacticalIcons/symbol_", ship.shipData.Role)];
 				float single = (float)Mouse.GetState().X;
 				state = Mouse.GetState();
 				nullable = null;
@@ -765,7 +765,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(this.SelectedNodeList[0].GetShip().VanityName) ? this.SelectedNodeList[0].GetShip().VanityName : string.Concat(this.SelectedNodeList[0].GetShip().Name, " (", this.SelectedNodeList[0].GetShip().Role, ")")), Cursor, new Color(255, 239, 208));
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(this.SelectedNodeList[0].GetShip().VanityName) ? this.SelectedNodeList[0].GetShip().VanityName : string.Concat(this.SelectedNodeList[0].GetShip().Name, " (", this.SelectedNodeList[0].GetShip().shipData.Role, ")")), Cursor, new Color(255, 239, 208));
 				}
 				Cursor.Y = (float)(this.OperationsRect.Y + 10);
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Movement Orders", Cursor, new Color(255, 239, 208));
@@ -1947,12 +1947,12 @@ namespace Ship_Game
 				List<string> Roles = new List<string>();
 				foreach (string shipname in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).ShipsWeCanBuild)
 				{
-					if (Roles.Contains(Ship_Game.ResourceManager.ShipsDict[shipname].Role))
+                    if (Roles.Contains(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole()))
 					{
 						continue;
 					}
-					Roles.Add(Ship_Game.ResourceManager.ShipsDict[shipname].Role);
-					ModuleHeader mh = new ModuleHeader(Ship_Game.ResourceManager.ShipsDict[shipname].Role, 295f);
+                    Roles.Add(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole());
+                    ModuleHeader mh = new ModuleHeader(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole(), 295f);
 					this.ShipSL.AddItem(mh);
 				}
 				foreach (ScrollList.Entry e in this.ShipSL.Entries)
@@ -1960,7 +1960,7 @@ namespace Ship_Game
 					foreach (string shipname in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).ShipsWeCanBuild)
 					{
 						Ship ship = Ship_Game.ResourceManager.ShipsDict[shipname];
-						if (ship.Role != (e.item as ModuleHeader).Text)
+                        if (ship.shipData.GetRole() != (e.item as ModuleHeader).Text)
 						{
 							continue;
 						}
@@ -1973,19 +1973,19 @@ namespace Ship_Game
 				List<string> Roles = new List<string>();
 				foreach (Ship ship in this.AvailableShips)
 				{
-					if (Roles.Contains(ship.Role) || ship.Role == "Troop")
+                    if (Roles.Contains(ship.shipData.GetRole()) || ship.shipData.Role == ShipData.RoleName.troop)
 					{
 						continue;
 					}
-					Roles.Add(ship.Role);
-					ModuleHeader mh = new ModuleHeader(ship.Role, 295f);
+                    Roles.Add(ship.shipData.GetRole());
+                    ModuleHeader mh = new ModuleHeader(ship.shipData.GetRole(), 295f);
 					this.ShipSL.AddItem(mh);
 				}
 				foreach (ScrollList.Entry e in this.ShipSL.Entries)
 				{
 					foreach (Ship ship in this.AvailableShips)
 					{
-						if (ship.Role == "troop" || !(ship.Role == (e.item as ModuleHeader).Text))
+                        if (ship.shipData.Role == ShipData.RoleName.troop || !(ship.shipData.GetRole() == (e.item as ModuleHeader).Text))
 						{
 							continue;
 						}
