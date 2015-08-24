@@ -20,7 +20,7 @@
   <ThrusterList />
   <ModelPath>Model/Ships/Ralyeh/Ship17a</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
-  <ShipCategory>Bomber</ShipCategory>
+  <ShipCategory>Unclassified</ShipCategory>
   <CarrierShip>true</CarrierShip>
   <BaseStrength>0</BaseStrength>
   <BaseCanWarp>false</BaseCanWarp>

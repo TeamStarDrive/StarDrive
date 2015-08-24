@@ -1129,7 +1129,11 @@
       <TIP_ID>224</TIP_ID>
       <Title>Weapons Range overlay</Title>
       <Data>6183</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>225</TIP_ID>
+      <Title>Launch Shuttles</Title>
+      <Data>266</Data>
     </ToolTip>	
-	
   </ToolTipsList>
 </Tooltips>

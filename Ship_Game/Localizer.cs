@@ -28,7 +28,7 @@ namespace Ship_Game
                 t.Index += ResourceManager.OffSet;
                 if (Localizer.LocalizerDict.ContainsKey(t.Index))
                 {
-                    Localizer.LocalizerDict[t.Index] = t.Text;
+                    Localizer.LocalizerDict[t.Index] = string.Intern(t.Text);
                     if (ResourceManager.OffSet > 0)
                         Localizer.used[t.Index] = false;
                 }
@@ -42,7 +42,7 @@ namespace Ship_Game
 
         }
 
-        public static string GetRole(string role, Empire Owner)
+        public static string GetRole(ShipData.RoleName role, Empire Owner)
         {
             if (ResourceManager.ShipRoles.ContainsKey(role))
             {
@@ -57,7 +57,7 @@ namespace Ship_Game
             }
             else
             {
-                return role;
+                return "unknown";
             }
         }
 

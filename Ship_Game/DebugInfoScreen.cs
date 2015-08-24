@@ -75,7 +75,7 @@ namespace Ship_Game
                             foreach (AO ao in empire.GetGSAI().AreasOfOperations)
                             {
                                 if (ao.GetOffensiveForcePool().Contains(ship))
-                                    if (ship.Role != "troop" && ship.BaseStrength > 0)
+                                    if (ship.shipData.Role != ShipData.RoleName.troop && ship.BaseStrength > 0)
 
                                         flag = true;
                             }
@@ -84,12 +84,12 @@ namespace Ship_Game
 
                                 if (!empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
                                 {
-                                    if (ship.Role != "troop" && ship.BaseStrength > 0)
+                                    if (ship.shipData.Role != ShipData.RoleName.troop && ship.BaseStrength > 0)
                                         ++this.shipsnotinDefforcepool;
                                 }
                                 else
                                 {
-                                    if (ship.Role != "troop" && ship.BaseStrength > 0)
+                                    if (ship.shipData.Role != ShipData.RoleName.troop && ship.BaseStrength > 0)
                                         ++this.shipsnotinforcepool;
                                 }
 

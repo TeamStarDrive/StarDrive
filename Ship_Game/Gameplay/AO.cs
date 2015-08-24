@@ -169,7 +169,7 @@ namespace Ship_Game.Gameplay
 			
             foreach (Ship ship in this.OffensiveForcePool)
 			{
-                if (ship.Active && ship.fleet == null && ship.Role != "troop")
+                if (ship.Active && ship.fleet == null && ship.shipData.Role != ShipData.RoleName.troop)
 				{
 					continue;
 				}

@@ -124,7 +124,7 @@ namespace Ship_Game
                     SpriteFont nameFont = Fonts.Arial10;
 					this.ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).Role, tCursor, Color.Orange);
+					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
                     
@@ -191,7 +191,7 @@ namespace Ship_Game
                     SpriteFont nameFont = Fonts.Arial10;
                     this.ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).Role, tCursor, Color.Orange);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
 
