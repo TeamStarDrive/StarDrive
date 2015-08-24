@@ -30,7 +30,7 @@ namespace Ship_Game
         public static float UniverseWidth;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+        private bool disposed;        
 
 		public UniverseData()
 		{

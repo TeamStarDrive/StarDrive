@@ -220,7 +220,7 @@ namespace Ship_Game
 			}
 			this.ShipNameArea.Draw(TitleFont, this.ScreenManager.SpriteBatch, NamePos, gameTime, this.tColor);
             //Added by McShooterz:
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.Role, this.ship.loyalty)), ShipSuperName, Color.Orange);
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty)), ShipSuperName, Color.Orange);
 
 			string text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
 			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
@@ -601,7 +601,7 @@ namespace Ship_Game
 					return;
 				}
 			}
-            if (this.ship.Role != "station" && this.ship.Role != "platform")
+            if (this.ship.shipData.Role > ShipData.RoleName.station)
             {
                 OrdersButton resupply = new OrdersButton(this.ship, Vector2.Zero, OrderType.OrderResupply, 149)
                 {
@@ -609,7 +609,7 @@ namespace Ship_Game
                 };
                 this.Orders.Add(resupply);
             }
-            if (this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "station" && ship.Mothership == null)
+            if (this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.GetAI().State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
 			{
 				OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
 				{
@@ -620,7 +620,7 @@ namespace Ship_Game
 				};
                 this.Orders.Add(ao);
             }
-            if (this.ship.CargoSpace_Max > 0f && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "station" && ship.Mothership == null)
+            if (this.ship.CargoSpace_Max > 0f && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.GetAI().State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
 			{
 				OrdersButton tf = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeFood, 16)
 				{
@@ -677,7 +677,7 @@ namespace Ship_Game
 						})
 					};
 					this.Orders.Add(ob);
-                    if (this.ship.Role != "station")
+                    if (this.ship.shipData.Role != ShipData.RoleName.station)
                     {
 					    OrdersButton ob2 = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterRecall, 146)
 					    {
@@ -688,7 +688,7 @@ namespace Ship_Game
 				}
 				if (hasTroops)
 				{
-					OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.TroopToggle, 19)
+					OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.TroopToggle, 225)
 					{
 						ValueToModify = new Ref<bool>(() => this.ship.TroopsOut, (bool x) => {
 							this.ship.TroopsOut = x;
@@ -698,7 +698,7 @@ namespace Ship_Game
 					this.Orders.Add(ob);
 				}
 			}
-            if (this.ship.Role != "station" && ship.Mothership == null && this.ship.Role != "platform" && this.ship.Role != "troop" && this.ship.GetAI().State != AIState.Colonize && this.ship.Role != "freighter")
+            if (this.ship.shipData.Role >= ShipData.RoleName.fighter && ship.Mothership == null && this.ship.GetAI().State != AIState.Colonize && ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
 			    OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
 			    {

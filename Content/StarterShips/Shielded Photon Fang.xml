@@ -26,7 +26,7 @@
   </ThrusterList>
   <ModelPath>Model/Ships/Kulrathi/ship11a</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
-  <ShipCategory>Bomber</ShipCategory>
+  <ShipCategory>Unclassified</ShipCategory>
   <CarrierShip>true</CarrierShip>
   <BaseStrength>0</BaseStrength>
   <BaseCanWarp>false</BaseCanWarp>

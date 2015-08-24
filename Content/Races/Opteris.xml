@@ -7,6 +7,7 @@
   <StartingScout>Drone Scout</StartingScout>
   <PrototypeShip>Opteris Prototype</PrototypeShip>
   <DefaultSmallTransport>Creeper Transport</DefaultSmallTransport>
+  <DefaultTroopShip>Opteris Troop</DefaultTroopShip>
   <DefaultColonyShip>Opteris Hivepod</DefaultColonyShip>
   <DefaultConstructor>Creeper Transport</DefaultConstructor>
   
