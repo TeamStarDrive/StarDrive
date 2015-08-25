@@ -660,7 +660,7 @@ namespace Ship_Game
 			for (int i = 0; i < shipList.Count; i++)
 			{
 				Ship ship = shipList[i];
-                SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), string.Concat("TacticalIcons/symbol_", ship.shipData.Role))
+                SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), string.Concat("TacticalIcons/symbol_", (ship.isConstructor ? "construction" : ship.shipData.GetRole())))
 				{
 					IsToggle = false,
 					ReferenceObject = ship,
