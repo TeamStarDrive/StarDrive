@@ -5959,8 +5959,6 @@ namespace Ship_Game.Gameplay
             }
 
             #region supply ship logic   //fbedard: for launch only
-            if (this.Owner.Name == "Supply Freighter")
-                this.Owner.VanityName = "Test Freighter";
             if (this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay).Count() > 0 && this.Owner.engineState != Ship.MoveState.Warp)  // && !this.Owner.isSpooling
             {
                 IOrderedEnumerable<Ship> sortedList = null;

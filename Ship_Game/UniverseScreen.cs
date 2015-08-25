@@ -6305,7 +6305,7 @@ namespace Ship_Game
                                 local_7.X = (float)(item_0.ClickRect.X + 50);
                                 local_7.Y += 15f;
                             }
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + local_9.shipData.GetRole()], local_10, item_0.Fleet.Owner.EmpireColor);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + (local_9.isConstructor ? "construction" : local_9.shipData.GetRole())], local_10, item_0.Fleet.Owner.EmpireColor);
                         }
                         catch
                         {
@@ -6440,7 +6440,7 @@ namespace Ship_Game
                         scale = 1f;
                     if ((double)scale < 0.100000001490116)
                         scale = !(ship.shipData.Role == ShipData.RoleName.platform) || this.viewState < UniverseScreen.UnivScreenState.SectorView ? 0.15f : 0.08f;
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + ship.shipData.GetRole()], position, new Rectangle?(), new Color((byte)0, byte.MaxValue, (byte)0, (byte)100), this.projectedGroup.ProjectedFacing, origin, scale, SpriteEffects.None, 1f);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_" + (ship.isConstructor ? "construction" : ship.shipData.GetRole())], position, new Rectangle?(), new Color((byte)0, byte.MaxValue, (byte)0, (byte)100), this.projectedGroup.ProjectedFacing, origin, scale, SpriteEffects.None, 1f);
                 }
             }
         }
@@ -6669,7 +6669,7 @@ namespace Ship_Game
             }
             if(string.IsNullOrEmpty(ship.StrategicIconPath))
             {
-                ship.StrategicIconPath = string.Intern("TacticalIcons/symbol_" + ship.shipData.GetRole());
+                ship.StrategicIconPath = string.Intern("TacticalIcons/symbol_" + (ship.isConstructor ? "construction" : ship.shipData.GetRole()));
             }
             if (this.viewState == UniverseScreen.UnivScreenState.GalaxyView)
             {
