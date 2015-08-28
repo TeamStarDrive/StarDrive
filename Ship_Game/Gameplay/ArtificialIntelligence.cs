@@ -3028,14 +3028,12 @@ namespace Ship_Game.Gameplay
 
 		public void HoldPosition()
 		{
-
                 if (this.Owner.isSpooling || this.Owner.engineState == Ship.MoveState.Warp)
                 {
                     this.Owner.HyperspaceReturn();
                 }
                 this.State = AIState.HoldPosition;
                 this.Owner.isThrusting = false;
- 
 		}
 
 		private void MakeFinalApproach(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
@@ -3500,8 +3498,8 @@ namespace Ship_Game.Gameplay
 				this.ActiveWayPoints.Clear();
 			}
 			this.State = AIState.HoldPosition;
-			this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.RotateInlineWithVelocity, Vector2.Zero, 0f));
-			ArtificialIntelligence.ShipGoal stop = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Stop, Vector2.Zero, 0f);
+            this.HasPriorityOrder = false;
+			ArtificialIntelligence.ShipGoal stop = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Stop, Vector2.Zero, 0f);            
 			this.OrderQueue.AddLast(stop);
 		}
 
@@ -5959,8 +5957,6 @@ namespace Ship_Game.Gameplay
             }
 
             #region supply ship logic   //fbedard: for launch only
-            if (this.Owner.Name == "Supply Freighter")
-                this.Owner.VanityName = "Test Freighter";
             if (this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay).Count() > 0 && this.Owner.engineState != Ship.MoveState.Warp)  // && !this.Owner.isSpooling
             {
                 IOrderedEnumerable<Ship> sortedList = null;
@@ -7252,7 +7248,7 @@ namespace Ship_Game.Gameplay
                                 this.HasPriorityOrder = false;
                             }
                         }
-                        else
+                        else if (this.State != AIState.HoldPosition)
                         {
                             this.ThrustTowardsPosition(this.Owner.fleet.Position + this.Owner.FleetOffset, elapsedTime, this.Owner.fleet.speed);
                             lock (this.wayPointLocker)
@@ -7289,13 +7285,7 @@ namespace Ship_Game.Gameplay
                     {
                         case ArtificialIntelligence.Plan.HoldPosition:
                             {
-                                //
- 
-                                //
                                 this.HoldPosition();
-
-
-                                
                                 break;
                             }
                         case ArtificialIntelligence.Plan.Stop:
