@@ -548,6 +548,7 @@ namespace Ship_Game
 					}
 					return true;
 				}
+                
 				if (base.State == UIElement.ElementState.Open)
 				{
 					bool orderhover = false;
@@ -561,6 +562,15 @@ namespace Ship_Game
 					}
 					if (orderhover)
 					{
+                        if (this.screen.SelectedFleet != null && this.screen.SelectedFleet.Ships[0] != null)
+                        {
+                            bool flag = true;
+                            foreach (Ship ship2 in (List<Ship>)this.screen.SelectedFleet.Ships)
+                                if (ship2.GetAI().State != AIState.Resupply)
+                                    flag = false;
+                            if (flag)
+                                this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].GetAI().OrbitTarget.Position;  //fbedard: center fleet on resupply planet
+                        }
 						return true;
 					}
 				}
@@ -660,7 +670,7 @@ namespace Ship_Game
 			for (int i = 0; i < shipList.Count; i++)
 			{
 				Ship ship = shipList[i];
-                SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), string.Concat("TacticalIcons/symbol_", ship.shipData.Role))
+                SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), string.Concat("TacticalIcons/symbol_", (ship.isConstructor ? "construction" : ship.shipData.GetRole())))
 				{
 					IsToggle = false,
 					ReferenceObject = ship,

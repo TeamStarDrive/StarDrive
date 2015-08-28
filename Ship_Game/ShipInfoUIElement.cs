@@ -412,7 +412,7 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             if (this.screen.SelectedShip == null) return false;  //fbedard
-
+            
             if (this.sliding_element.HandleInput(input))
             {
                 if (this.sliding_element.Open)
@@ -466,7 +466,7 @@ namespace Ship_Game
                     }
                     else if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
                         this.DoubleClickTimer = 0.25f;    
-                    if (this.ship.loyalty == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+                    if (this.ship.loyalty == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) && !this.ship.isConstructor)
                     {
                         foreach (ToggleButton toggleButton in this.CombatStatusButtons)
                         {
@@ -506,6 +506,8 @@ namespace Ship_Game
                                             this.ship.GetAI().CombatState = CombatState.Evade;
                                             break;
                                     }
+                                    if (toggleButton.Action != "hold" && this.ship.GetAI().State == AIState.HoldPosition)
+                                        this.ship.GetAI().State = AIState.AwaitingOrders;
                                 }
                             }
                             else
