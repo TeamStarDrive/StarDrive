@@ -1949,7 +1949,8 @@ namespace Ship_Game
 				}
 				else
 				{
-					Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+					//Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+                    Ship_Game.ResourceManager.TechTree.Add(data.UID, data);
 				}
 			}
 			textList = null;
@@ -3044,7 +3045,8 @@ namespace Ship_Game
 				else
 				{
 					
-                    Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+                    //Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+                    Ship_Game.ResourceManager.TechTree.Add(data.UID, data);
 				}
                 //catagorize uncatagoried techs
                 {

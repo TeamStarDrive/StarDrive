@@ -197,6 +197,7 @@ namespace Ship_Game
 		{
             if (this.screen.SelectedShip == null) return;  //fbedard
 
+            string longName;
 			float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
 			int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
 			this.sliding_element.Draw(this.ScreenManager, (int)((float)(columns * 55) * (1f - base.TransitionPosition)) + (this.sliding_element.Open ? 20 - columns : 0));
@@ -208,10 +209,10 @@ namespace Ship_Game
 			}
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
 			this.gridbutton.Draw(this.ScreenManager);
-			Vector2 NamePos = new Vector2((float)(this.Housing.X + 38), (float)(this.Housing.Y + 63));
+			Vector2 NamePos = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 63));
 			string name = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
 			SpriteFont TitleFont = Fonts.Arial14Bold;
-            Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 39), (float)(this.Housing.Y + 79));
+            Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 79));
 			if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
 			{
 				TitleFont = Fonts.Arial12Bold;
@@ -220,7 +221,11 @@ namespace Ship_Game
 			}
 			this.ShipNameArea.Draw(TitleFont, this.ScreenManager.SpriteBatch, NamePos, gameTime, this.tColor);
             //Added by McShooterz:
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty)), ShipSuperName, Color.Orange);
+            //longName = string.Concat(this.ship.Name, " - ", Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty));
+            longName = string.Concat(this.ship.Name, " - ", this.ship.shipData.GetRole());
+            if (this.ship.shipData.ShipCategory != ShipData.Category.Unclassified)
+                longName += string.Concat(" - ", this.ship.shipData.GetCategory());
+            this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 
 			string text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
 			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);

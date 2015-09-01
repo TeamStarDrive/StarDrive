@@ -296,15 +296,18 @@ namespace Ship_Game
                     int num1 = 9999999;
                     foreach (Planet planet2 in list)
                     {
-                        int num2 = 0;
-                        foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
-                            num2 += (int)(((double)queueItem.Cost - (double)queueItem.productionTowards) / (double)planet2.NetProductionPerTurn);
-                        if (planet2.ConstructionQueue.Count == 0)
-                            num2 = (int)(((double)this.beingBuilt.GetCost(this.empire) - (double)planet2.ProductionHere) / (double)planet2.NetProductionPerTurn);
-                        if (num2 < num1)
+                        if (planet2.CombatTimer > 0f)  //fbedard
                         {
-                            num1 = num2;
-                            planet1 = planet2;
+                            int num2 = 0;
+                            foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
+                                num2 += (int)(((double)queueItem.Cost - (double)queueItem.productionTowards) / (double)planet2.NetProductionPerTurn);
+                            if (planet2.ConstructionQueue.Count == 0)
+                                num2 = (int)(((double)this.beingBuilt.GetCost(this.empire) - (double)planet2.ProductionHere) / (double)planet2.NetProductionPerTurn);
+                            if (num2 < num1)
+                            {
+                                num1 = num2;
+                                planet1 = planet2;
+                            }
                         }
                     }
                     if (planet1 == null)

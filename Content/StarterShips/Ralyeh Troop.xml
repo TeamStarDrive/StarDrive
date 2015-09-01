@@ -25,7 +25,7 @@
   </ThrusterList>
   <ModelPath>Model/Ships/Ralyeh/ship17g</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
-  <ShipCategory>Civilian</ShipCategory>
+  <ShipCategory>Unclassified</ShipCategory>
   <ModuleSlotList>
     <ModuleSlotData>
       <Position>
