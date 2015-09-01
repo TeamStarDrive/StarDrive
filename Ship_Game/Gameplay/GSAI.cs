@@ -5494,6 +5494,12 @@ namespace Ship_Game.Gameplay
             #endregion
 
             //Find ship to build
+            float ranA = 0f;
+            float ranB = 0f;
+            if (RandomMath.RandomBetween(0f, 1f) < 0.5f)
+                ranA = 0.1f;
+            else
+                ranB = 0.1f;
             List<Ship> PotentialShips = new List<Ship>();
             Dictionary<ShipData.RoleName, float> PickRoles = new Dictionary<ShipData.RoleName, float>();
             this.empire.UpdateShipsWeCanBuild();
@@ -5501,24 +5507,24 @@ namespace Ship_Game.Gameplay
             if (numTroops > DesiredTroops)
                 PickRoles.Add(ShipData.RoleName.troop, numTroops / DesiredTroops);
             if (numFighters < DesiredFighters) {
-                PickRoles.Add(ShipData.RoleName.fighter, numFighters / DesiredFighters);
-                PickRoles.Add(ShipData.RoleName.scout, numFighters / DesiredFighters);
+                PickRoles.Add(ShipData.RoleName.fighter, numFighters / (DesiredFighters + ranA));
+                PickRoles.Add(ShipData.RoleName.scout, numFighters / (DesiredFighters + ranB));
                 }
             if (numCorvettes < DesiredCorvettes) {
-                PickRoles.Add(ShipData.RoleName.gunboat, numCorvettes / DesiredCorvettes);
-                PickRoles.Add(ShipData.RoleName.corvette, numCorvettes / DesiredCorvettes);
+                PickRoles.Add(ShipData.RoleName.gunboat, numCorvettes / (DesiredCorvettes + ranA));
+                PickRoles.Add(ShipData.RoleName.corvette, numCorvettes / (DesiredCorvettes + ranB));
                 }
             if (numBombers < DesiredBombers)
                 PickRoles.Add(ShipData.RoleName.drone, numBombers / DesiredBombers);
             if (numFrigates < DesiredFrigates) {
-                PickRoles.Add(ShipData.RoleName.frigate, numFrigates / DesiredFrigates);
-                PickRoles.Add(ShipData.RoleName.destroyer, numFrigates / DesiredFrigates);
+                PickRoles.Add(ShipData.RoleName.frigate, numFrigates / (DesiredFrigates + ranA));
+                PickRoles.Add(ShipData.RoleName.destroyer, numFrigates / (DesiredFrigates + ranB));
                 }
             if (numCruisers < DesiredCruisers)
                 PickRoles.Add(ShipData.RoleName.cruiser, numCruisers / DesiredCruisers);
             if (numCapitals < DesiredCapitals) {
-                PickRoles.Add(ShipData.RoleName.carrier, numCapitals / DesiredCapitals);
-                PickRoles.Add(ShipData.RoleName.capital, numCapitals / DesiredCapitals);
+                PickRoles.Add(ShipData.RoleName.carrier, numCapitals / (DesiredCapitals + ranA));
+                PickRoles.Add(ShipData.RoleName.capital, numCapitals / (DesiredCapitals + ranB));
                 }
             if (numCarriers < DesiredCarriers)
                 PickRoles.Add(ShipData.RoleName.prototype, numCarriers / DesiredCarriers);
