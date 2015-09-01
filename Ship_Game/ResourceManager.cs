@@ -2574,6 +2574,7 @@ namespace Ship_Game
                 if (newShipData.Role != ShipData.RoleName.disabled)
                 {
                     newShip.SetShipData(newShipData);
+                    newShip.reserved = true;
                     if (newShip.InitForLoad())
                     {
                         newShip.InitializeStatus();
@@ -2676,6 +2677,7 @@ namespace Ship_Game
                         {
                             newShip.IsPlayerDesign = true;
                             newShip.SetShipData(newShipData);
+                            newShip.reserved = true;
                             if (newShip.InitForLoad())
                             {
                                 newShip.InitializeStatus();
