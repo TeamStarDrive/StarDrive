@@ -317,8 +317,7 @@ namespace Ship_Game
 				}
 				case AIState.AttackRunner:
 				case AIState.PatrolSystem:
-				case AIState.Flee:
-                
+				case AIState.Flee:                
                 {
                     if (ship.GetAI().OrbitTarget == null)
                     {

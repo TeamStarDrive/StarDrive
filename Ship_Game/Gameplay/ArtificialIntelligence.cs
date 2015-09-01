@@ -731,7 +731,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             //if(this.Owner.Level >2 && this.Owner.Health / this.Owner.HealthMax <.5f&&  !(this.HasPriorityOrder||this.hasPriorityTarget))
-            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory])  //fbedard: repair level
+            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] && this.Owner.shipData.Role >= ShipData.RoleName.supply)  //fbedard: repair level
                 if (this.Owner.fleet == null || (this.Owner.fleet != null && !this.Owner.fleet.HasRepair))
                 {
                     this.OrderResupplyNearest();
@@ -4135,7 +4135,7 @@ namespace Ship_Game.Gameplay
            
             IOrderedEnumerable<SolarSystem> systemList =
                 from solarsystem in this.Owner.loyalty.GetOwnedSystems()
-                where solarsystem.combatTimer <=0 && Vector2.Distance(solarsystem.Position,this.Owner.Position) >300000
+                where solarsystem.combatTimer <=0 && Vector2.Distance(solarsystem.Position,this.Owner.Position) >200000
                 orderby Vector2.Distance(this.Owner.Center, solarsystem.Position)
                 select solarsystem;
             if (systemList.Count<SolarSystem>() > 0)
@@ -4361,7 +4361,8 @@ namespace Ship_Game.Gameplay
 			this.HasPriorityOrder = true;
 		}
 
-		public void OrderResupplyNearest()
+		//fbedard: Added dont retreat to a near planet in combat, and flee if nowhere to go
+        public void OrderResupplyNearest()
 		{
             if (this.Owner.Mothership != null && this.Owner.Mothership.Active && (this.Owner.shipData.Role != ShipData.RoleName.supply || this.Owner.Ordinance > 0 || this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory]))
 			{
@@ -4371,7 +4372,7 @@ namespace Ship_Game.Gameplay
 			List<Planet> shipyards = new List<Planet>();
 			foreach (Planet planet in this.Owner.loyalty.GetPlanets())
 			{
-				if (!planet.HasShipyard)
+                if (!planet.HasShipyard || (this.Owner.InCombat && Vector2.Distance(this.Owner.Center, planet.Position) < 15000f))
 				{
 					continue;
 				}
@@ -4381,10 +4382,11 @@ namespace Ship_Game.Gameplay
 				from p in shipyards
 				orderby Vector2.Distance(this.Owner.Center, p.Position)
 				select p;
-			if (sortedList.Count<Planet>() > 0)
-			{
-				this.OrderResupply(sortedList.First<Planet>(), true);
-			}
+            if (sortedList.Count<Planet>() > 0)
+                this.OrderResupply(sortedList.First<Planet>(), true);
+            else
+                this.OrderFlee(true);
+
 		}
 
 		public void OrderReturnToHangar()
@@ -4520,9 +4522,7 @@ namespace Ship_Game.Gameplay
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DefendSystem, Vector2.Zero, 0f));
 			}
             this.orderqueue.ExitWriteLock();
-            this.State = AIState.SystemDefender;
-         
-            
+            this.State = AIState.SystemDefender;                   
 		}
 
 		public void OrderThrustTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool ClearOrders)
@@ -4590,7 +4590,6 @@ namespace Ship_Game.Gameplay
             }
             try
             {
-
                 //if starting or ending system in combat... clear order...
                 if (this.Owner.CargoSpace_Used > 0 && (
                     (this.start != null && this.start.ParentSystem.combatTimer > 0)
@@ -4603,10 +4602,8 @@ namespace Ship_Game.Gameplay
 
                 }
                 //if system all systems in combat... OMG no trade.
-
                 if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer <= 0).Count() == 0)
                     return;
-
 
                 //int allincombat = 0;
                 //for (int p = 0; p < this.Owner.loyalty.GetPlanets().Count; p++)
@@ -5151,6 +5148,9 @@ namespace Ship_Game.Gameplay
                 #endregion
                 if (this.start != null && this.end != null && !String.IsNullOrEmpty(this.FoodOrProd))
                 {
+                    if (this.Owner.CargoSpace_Used == 00 && this.start.Population > 2000f && this.end.Population < 2000f && Vector2.Distance(this.Owner.Position, this.start.Position) < 150f)  //fbedard: dont make empty run !
+                        this.PickupAnyPassengers();
+
                     this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.start);
                     this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
                 }
@@ -5218,6 +5218,11 @@ namespace Ship_Game.Gameplay
         {
             float closestD;
             float Distance;
+
+            if (this.Owner.CargoSpace_Max == 0 || this.State == AIState.Flee || this.Owner.isConstructor)
+            {
+                return;
+            }
 
             List<SolarSystem> OwnedSystems = new List<SolarSystem>(this.Owner.loyalty.GetOwnedSystems());
             if (OwnedSystems.Where(combat => combat.combatTimer < 1).Count() == 0)
@@ -5379,6 +5384,8 @@ namespace Ship_Game.Gameplay
 
             if (this.start != null && this.end != null)
             {
+                if (this.Owner.CargoSpace_Used == 00 && Vector2.Distance(this.Owner.Position, this.start.Position) < 150f)  //fbedard: dont make empty run !
+                    this.PickupAnyGoods();
                 this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.start);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
             }
@@ -5648,6 +5655,25 @@ namespace Ship_Game.Gameplay
 			this.State = AIState.SystemTrader;
 		}
 
+        private void PickupAnyGoods()  //fbedard
+        {
+            if (this.start.FoodHere > this.Owner.CargoSpace_Max && this.start.fs == Planet.GoodState.EXPORT && (this.end.MAX_STORAGE - this.end.FoodHere) > this.Owner.CargoSpace_Max && this.end.fs == Planet.GoodState.IMPORT)
+                while (this.start.FoodHere > 0f && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
+                {
+                this.Owner.AddGood("Food", 1);
+                Planet foodHere = this.start;
+                foodHere.FoodHere = foodHere.FoodHere - 1f;
+                }
+
+            if (this.start.ProductionHere > this.Owner.CargoSpace_Max && this.start.ps == Planet.GoodState.EXPORT && (this.end.MAX_STORAGE - this.end.ProductionHere) > this.Owner.CargoSpace_Max && this.start.ps == Planet.GoodState.IMPORT)
+                while (this.start.ProductionHere > 0f && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
+                {
+                 this.Owner.AddGood("Production", 1);
+                 Planet productionHere1 = this.start;
+                 productionHere1.ProductionHere = productionHere1.ProductionHere - 1f;
+                }
+        }
+
 		private void PickupPassengers()
 		{
 			if (this.Owner.GetCargo()["Production"] > 0f)
@@ -5673,6 +5699,16 @@ namespace Ship_Game.Gameplay
 			this.State = AIState.PassengerTransport;
 			this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
 		}
+
+        private void PickupAnyPassengers()  //fbedard
+        {
+            while (this.Owner.CargoSpace_Used < this.Owner.CargoSpace_Max)
+            {
+                this.Owner.AddGood("Colonists_1000", 1);
+                Planet population = this.start;
+                population.Population = population.Population - (float)this.Owner.loyalty.data.Traits.PassengerModifier;
+            }
+        }
 
 		private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
 		{
@@ -6920,15 +6956,16 @@ namespace Ship_Game.Gameplay
                     this.HasPriorityOrder = false;
                 }
             }
-            //if (this.State == AIState.Flee && !this.BadGuysNear)// Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000)
-            //{
-            //    if(this.OrderQueue.Count > 0)
-            //        this.OrderQueue.Remove(this.OrderQueue.Last);
-            //    if (this.Owner.CargoSpace_Used > 0)
-            //        this.State = AIState.SystemTrader;
-            //    else
-            //        this.State = this.DefaultAIState;
-            //}
+            //fbedard: Put back flee! (resupply order with nowhere to go)
+            if (this.State == AIState.Flee && !this.BadGuysNear && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000)
+            {
+                if(this.OrderQueue.Count > 0)
+                    this.OrderQueue.Remove(this.OrderQueue.Last);
+                if (this.Owner.CargoSpace_Used > 0)
+                    this.State = AIState.SystemTrader;
+                else
+                    this.State = this.DefaultAIState;
+            }
             this.ScanForThreatTimer -=  elapsedTime;
             if (this.ScanForThreatTimer < 0f)
             {
@@ -7625,42 +7662,17 @@ namespace Ship_Game.Gameplay
             #endif
         Label0:
             AIState aIState = this.State;
-            if (aIState == AIState.SystemTrader)
+        if (aIState == AIState.SystemTrader)  //fbedard: dont trade with planet in system in combat (AI or AutoFreighters only)
             {
                 foreach (ArtificialIntelligence.ShipGoal goal in this.OrderQueue)
                 {
-                    
-
-                    
-                    if (goal.Plan == ArtificialIntelligence.Plan.TransportPassengers && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
+                    if (goal.Plan == ArtificialIntelligence.Plan.DropOffGoods && goal.TargetPlanet != null && goal.TargetPlanet.ParentSystem.combatTimer > 0f && (!this.Owner.loyalty.isPlayer || this.Owner.loyalty.AutoFreighters))
                     {
                         this.OrderQueue.Clear();
                         this.State = AIState.AwaitingOrders;
                         break;
                     }
-                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupPassengers && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
-                    {
-                        this.OrderQueue.Clear();
-                        this.State = AIState.AwaitingOrders;
-                        break;
-                    }
-                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupGoods && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
-                    {
-                        this.OrderQueue.Clear();
-                        this.State = AIState.AwaitingOrders;
-                        break;
-                    }
-                    else if (goal.Plan != ArtificialIntelligence.Plan.DropoffPassengers || goal.TargetPlanet == null || goal.TargetPlanet.Owner == this.Owner.loyalty)
-                    {
-                        if (goal.Plan != ArtificialIntelligence.Plan.DropOffGoods || goal.TargetPlanet == null || goal.TargetPlanet.Owner == this.Owner.loyalty)
-                        {
-                            continue;
-                        }
-                        this.OrderQueue.Clear();
-                        this.State = AIState.AwaitingOrders;
-                        break;
-                    }
-                    else
+                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupGoods && goal.TargetPlanet != null && goal.TargetPlanet.ParentSystem.combatTimer > 0f && (!this.Owner.loyalty.isPlayer || this.Owner.loyalty.AutoFreighters))
                     {
                         this.OrderQueue.Clear();
                         this.State = AIState.AwaitingOrders;
@@ -7668,39 +7680,17 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            else if (aIState == AIState.PassengerTransport)
+        else if (aIState == AIState.PassengerTransport)   //fbedard: dont trade with planet in system in combat (AI or AutoFreighters only)
             {
                 foreach (ArtificialIntelligence.ShipGoal goal in this.OrderQueue)
                 {
-                    if (goal.Plan == ArtificialIntelligence.Plan.TransportPassengers && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
+                    if (goal.Plan == ArtificialIntelligence.Plan.DropoffPassengers && goal.TargetPlanet != null && goal.TargetPlanet.ParentSystem.combatTimer > 0f && (!this.Owner.loyalty.isPlayer || this.Owner.loyalty.AutoFreighters))
                     {
                         this.OrderQueue.Clear();
                         this.State = AIState.AwaitingOrders;
                         break;
                     }
-                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupPassengers && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
-                    {
-                        this.OrderQueue.Clear();
-                        this.State = AIState.AwaitingOrders;
-                        break;
-                    }
-                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupGoods && goal.TargetPlanet != null && goal.TargetPlanet.Owner != this.Owner.loyalty)
-                    {
-                        this.OrderQueue.Clear();
-                        this.State = AIState.AwaitingOrders;
-                        break;
-                    }
-                    else if (goal.Plan != ArtificialIntelligence.Plan.DropoffPassengers || goal.TargetPlanet == null || goal.TargetPlanet.Owner == this.Owner.loyalty)
-                    {
-                        if (goal.Plan != ArtificialIntelligence.Plan.DropOffGoods || goal.TargetPlanet == null || goal.TargetPlanet.Owner == this.Owner.loyalty)
-                        {
-                            continue;
-                        }
-                        this.OrderQueue.Clear();
-                        this.State = AIState.AwaitingOrders;
-                        break;
-                    }
-                    else
+                    else if (goal.Plan == ArtificialIntelligence.Plan.PickupPassengers && goal.TargetPlanet != null && goal.TargetPlanet.ParentSystem.combatTimer > 0f && (!this.Owner.loyalty.isPlayer || this.Owner.loyalty.AutoFreighters))
                     {
                         this.OrderQueue.Clear();
                         this.State = AIState.AwaitingOrders;
@@ -7815,7 +7805,7 @@ namespace Ship_Game.Gameplay
                 this.CombatState = Gameplay.CombatState.Evade;
             }
 
-            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] && this.State != AIState.Resupply) //fbedard: ships will go for repair
+            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] && this.State != AIState.Resupply && this.Owner.shipData.Role >= ShipData.RoleName.supply) //fbedard: ships will go for repair
                 if (this.Owner.fleet == null || (this.Owner.fleet != null && !this.Owner.fleet.HasRepair))
                 {
                     this.OrderResupplyNearest();
@@ -7871,7 +7861,7 @@ namespace Ship_Game.Gameplay
 			MoveTowards,
 			Trade,
 			DefendSystem,
-			TransportPassengers,
+            TransportPassengers,
 			PickupPassengers,
 			DropoffPassengers,
 			DeployStructure,

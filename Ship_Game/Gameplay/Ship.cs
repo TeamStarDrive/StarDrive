@@ -2711,7 +2711,7 @@ namespace Ship_Game.Gameplay
                     if (this.InCombat && this.GetAI().Target != null && this.GetAI().Target.GetSystem() != null && this.GetAI().Target.GetSystem() == this.GetSystem())
                     {
                         this.system.CombatInSystem = true;
-                        this.system.combatTimer = 60f;  //was 15f
+                        this.system.combatTimer = 15f;
                     }
                 }
                 if (this.disabled)

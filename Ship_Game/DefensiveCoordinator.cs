@@ -300,7 +300,7 @@ namespace Ship_Game
             //        select system;                    
             int StrToAssign = (int)this.GetForcePoolStrength();
             float StartingStr = StrToAssign;
-            float minimumStrength = 0;
+            //float minimumStrength = 0;
             Parallel.ForEach(SComs, dd=>
                 {
                     SolarSystem solarSystem  = dd.Key;
@@ -352,6 +352,7 @@ namespace Ship_Game
             
             Dictionary<Guid, Ship> AssignedShips = new Dictionary<Guid, Ship>();
             List<Ship> ShipsAvailableForAssignment = new List<Ship>();
+            //Remove excess force:
             foreach (KeyValuePair<SolarSystem, SystemCommander> defenseDict in this.DefenseDict)
             {
 
@@ -382,6 +383,7 @@ namespace Ship_Game
                     while (defenseDict.Value.GetOurStrength() >= defenseDict.Value.IdealShipStrength );
                 }
             }
+            //Add available force to pool:
             foreach (Ship defensiveForcePool in this.DefensiveForcePool)
             {
                 if (!(defensiveForcePool.GetAI().HasPriorityOrder || defensiveForcePool.GetAI().State == AIState.Resupply )
@@ -400,6 +402,7 @@ namespace Ship_Game
                     this.DefensiveForcePool.QueuePendingRemoval(defensiveForcePool);
                 }
             }
+            //Assign available force:
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
                 if (entry.Key == null)
