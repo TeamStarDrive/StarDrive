@@ -196,6 +196,8 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
+            string longName;
+
             if (this.screen.SelectedShipList == null) return;  //fbedard
 
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
@@ -264,10 +266,10 @@ namespace Ship_Game
 				this.HoverOff = 0f;
 				this.HoveredShip.RenderOverlay(this.ScreenManager.SpriteBatch, this.ShipInfoRect, this.ShowModules);
 				text = this.HoveredShip.VanityName;
-				Vector2 tpos = new Vector2((float)(this.Housing.X + 38), (float)(this.Housing.Y + 63));
+				Vector2 tpos = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 63));
 				string name = (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name);
 				SpriteFont TitleFont = Fonts.Arial14Bold;
-                Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 39), (float)(this.Housing.Y + 79));
+                Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 79));
 				if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
 				{
 					TitleFont = Fonts.Arial12Bold;
@@ -276,8 +278,11 @@ namespace Ship_Game
 				}
 				this.ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
-
+                //this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
+                longName = string.Concat(this.HoveredShip.Name, " - ", this.HoveredShip.shipData.GetRole());
+                if (this.HoveredShip.shipData.ShipCategory != ShipData.Category.Unclassified)
+                    longName += string.Concat(" - ", this.HoveredShip.shipData.GetCategory());
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
 				Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
 				SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
