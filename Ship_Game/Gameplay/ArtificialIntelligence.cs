@@ -4486,7 +4486,7 @@ namespace Ship_Game.Gameplay
             ArtificialIntelligence.ShipGoal goal = this.OrderQueue.LastOrDefault();
 
             this.orderqueue.EnterWriteLock(); //this.Owner.engineState != Ship.MoveState.Warp &&
-            if (this.SystemToDefend ==null ||(this.SystemToDefend != system || (this.Owner.GetSystem() != system && goal != null && this.OrderQueue.LastOrDefault().Plan != Plan.DefendSystem)))
+            if (this.SystemToDefend == null || (this.SystemToDefend != system || this.OrbitTarget.Owner == null || this.OrbitTarget.Owner != this.Owner.loyalty || (this.Owner.GetSystem() != system && goal != null && this.OrderQueue.LastOrDefault().Plan != Plan.DefendSystem)))
 			{
 
 #if SHOWSCRUB
@@ -4497,6 +4497,7 @@ namespace Ship_Game.Gameplay
                 this.HasPriorityOrder = false;
 				this.SystemToDefend = system;
 				this.OrderQueue.Clear();
+                this.OrbitTarget = (Planet)null;
 				if (this.SystemToDefend.PlanetList.Count > 0)
 				{
 					List<Planet> Potentials = new List<Planet>();
@@ -4508,6 +4509,11 @@ namespace Ship_Game.Gameplay
 						}
 						Potentials.Add(p);
 					}
+                    if (Potentials.Count == 0)
+                        foreach (Planet p in this.SystemToDefend.PlanetList)
+                            if (p.Owner == null)
+                                Potentials.Add(p);
+
 					if (Potentials.Count > 0)
 					{
 						int Ran = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)Potentials.Count + 0.85f);
@@ -4516,6 +4522,7 @@ namespace Ship_Game.Gameplay
 							Ran = Potentials.Count - 1;
 						}
                        // this.awaitClosest = Potentials[Ran];
+                        this.OrbitTarget = Potentials[Ran];  //fbedard: add target planet
 						this.OrderMoveTowardsPosition(Potentials[Ran].Position, 0f, Vector2.One, true,null);
 					}
 				}
