@@ -327,7 +327,10 @@ namespace Ship_Game
 				{
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[qi.sData.Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.sData.Name, tCursor, Color.White);
+                    if (qi.DisplayName != null)
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.DisplayName, tCursor, Color.White);
+                    else
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.sData.Name, tCursor, Color.White);  //display construction ship
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					Rectangle pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
 					ProgressBar pb = new ProgressBar(pbRect)

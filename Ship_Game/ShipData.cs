@@ -40,7 +40,7 @@ namespace Ship_Game
 
 		public string Hull;
 
-		public string Role;
+        public RoleName Role = RoleName.fighter;
 
 		public List<ShipToolScreen.ThrusterZone> ThrusterList;
 
@@ -50,7 +50,7 @@ namespace Ship_Game
 
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
-
+        
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip = false;
         public float BaseStrength;
@@ -63,6 +63,7 @@ namespace Ship_Game
         public HashSet<string> techsNeeded = new HashSet<string>();
         public ushort TechScore = 0;
         //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
+        private static string[] RoleArray = {"disabled","platform","station","construction","supply","freighter","troop","fighter","scout","gunboat","drone","corvette","frigate","destroyer","cruiser","carrier","capital","prototype"};
 
 		public ShipData()
 		{
@@ -73,13 +74,40 @@ namespace Ship_Game
 			return (ShipData)this.MemberwiseClone();
 		}
 
+        public string GetRole()
+		{
+            return RoleArray[(int)Role];
+		}
+
         public enum Category
         {
             Unclassified,
             Civilian,
             Recon,
-            Fighter,
-            Bomber,
+            Combat,
+            Kamikaze
+        }
+
+        public enum RoleName
+        {
+            disabled,
+            platform,
+            station,
+            construction,
+            supply,
+            freighter,
+            troop,
+            fighter,
+            scout,
+            gunboat,
+            drone,
+            corvette,
+            frigate,
+            destroyer,
+            cruiser,
+            carrier,
+            capital,
+            prototype
         }
 	}
 }
