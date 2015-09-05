@@ -276,7 +276,7 @@ namespace Ship_Game
 				}
 				this.ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
 
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
 				Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
@@ -597,7 +597,7 @@ namespace Ship_Game
                                 foreach(Ship filter in this.screen.SelectedShipList)
 
                                 {
-                                    if(filter.Role != this.HoveredShip.Role)
+                                    if (filter.shipData.Role != this.HoveredShip.shipData.Role)
                                     {
                                         this.screen.SelectedShipList.QueuePendingRemoval(filter);
                                         
@@ -617,8 +617,6 @@ namespace Ship_Game
                                 this.screen.SelectedFleet = null;
                                 this.screen.SelectedShipList.Clear();
                                 this.screen.SelectedShip = this.HoveredShip;  //fbedard: multi-select
-                                if (this.screen.SelectedShip != null && this.screen.SelectedShip != this.screen.previousSelection)
-                                    this.screen.previousSelection = this.screen.SelectedShip;
                                 this.screen.ShipInfoUIElement.SetShip(this.HoveredShip);
                             }
 							return true;
@@ -662,7 +660,7 @@ namespace Ship_Game
 			for (int i = 0; i < shipList.Count; i++)
 			{
 				Ship ship = shipList[i];
-				SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), string.Concat("TacticalIcons/symbol_", ship.Role))
+                SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), string.Concat("TacticalIcons/symbol_", (ship.isConstructor ? "construction" : ship.shipData.GetRole())))
 				{
 					IsToggle = false,
 					ReferenceObject = ship,
@@ -686,11 +684,11 @@ namespace Ship_Game
 					this.AllShipsMine = false;
 				}
 				//if (ship.CargoSpace_Max == 0f)
-                if (ship.CargoSpace_Max == 0f || ship.Role == "troop" || ship.GetAI().State == AIState.Colonize || ship.Role == "station" || ship.Mothership != null)
+                if (ship.CargoSpace_Max == 0f || ship.shipData.Role == ShipData.RoleName.troop || ship.GetAI().State == AIState.Colonize || ship.shipData.Role == ShipData.RoleName.station || ship.Mothership != null)
 				{
 					AllFreighters = false;
 				}
-                if (ship.Role == "construction" || ship.Role == "platform" || ship.Role == "freighter" || ship.Role == "troop" || ship.GetAI().State == AIState.Colonize || ship.Role == "station" || ship.Mothership != null)
+                if (ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.GetAI().State == AIState.Colonize || ship.Mothership != null)
                 {
                     AllCombat = false;
                 }

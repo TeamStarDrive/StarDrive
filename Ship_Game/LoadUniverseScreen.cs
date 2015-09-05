@@ -134,6 +134,10 @@ namespace Ship_Game
                     e.data.CurrentConstructor = data.CurrentConstructor;
                 else
                     e.data.CurrentConstructor = e.data.DefaultConstructor;
+                if(string.IsNullOrEmpty(data.empireData.DefaultTroopShip))
+                {
+                    e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
+                }
 
 			}
 			e.Initialize();
@@ -640,7 +644,7 @@ namespace Ship_Game
                         ship.VanityName = shipData.VanityName;
                     else
                     {
-                        if (ship.Role == "troop")
+                        if (ship.shipData.Role == ShipData.RoleName.troop)
                         {
                             if (shipData.TroopList.Count > 0)
                             {

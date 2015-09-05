@@ -36,7 +36,7 @@ namespace Ship_Game.Gameplay
 					if (GPO[i] is Ship)
 					{
 						Ship target = GPO[i] as Ship;
-                        if (target != null && target.loyalty != this.Owner.loyalty && this.Owner.weapon.TargetValid(target.Role))
+                        if (target != null && target.loyalty != this.Owner.loyalty && this.Owner.weapon.TargetValid(target.shipData.Role))
                             this.TargetList.Add(target);
 					}
 				}

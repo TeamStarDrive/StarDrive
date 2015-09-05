@@ -2848,6 +2848,7 @@ namespace Ship_Game
                             }
                         }
                     }
+                    //auto load troop:
                     if ((this.ParentSystem.combatTimer <= 0 || !ship.InCombat) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
                     {
                         foreach (var pgs in this.TilesList)
@@ -2987,8 +2988,7 @@ namespace Ship_Game
                 this.DoGoverning();
             this.UpdateIncomes();
             // ADDED BY SHAHMATT (notification about empty queue)
-            if (GlobalStats.ExtraNotiofications && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) 
-                && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
+            if (GlobalStats.ExtraNotiofications && this.Owner != null && this.Owner.isPlayer && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
             {
                 if (this.colonyType == Planet.ColonyType.Colony || this.colonyType == Planet.ColonyType.Core || this.colonyType == Planet.ColonyType.Industrial || !this.GovernorOn)
                 {
@@ -3013,7 +3013,7 @@ namespace Ship_Game
             }
             else if (GlobalStats.ExtraNotiofications && this.Owner !=null && this.Owner.isPlayer && this.ConstructionQueue.Count > 0)
             {
-                this.queueEmptySent = false;
+               this.queueEmptySent = false;
             }
             // END OF ADDED BY SHAHMATT
             //if ((double)this.ShieldStrengthCurrent < (double)this.ShieldStrengthMax)
@@ -4980,7 +4980,7 @@ namespace Ship_Game
                             break;
                         }
                     }
-                    if (addTroop)
+                    if (addTroop && this.AllowInfantry)
                     {
                         foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
                         {
@@ -5015,8 +5015,8 @@ namespace Ship_Game
 
                         float maxProd = this.GetMaxProductionPotential();
                         //bool buildStation =false;
-                        float platformUpkeep = ResourceManager.ShipRoles["platform"].Upkeep;
-                        float stationUpkeep = ResourceManager.ShipRoles["station"].Upkeep;
+                        float platformUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.platform].Upkeep;
+                        float stationUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.station].Upkeep;
                         string station = this.Owner.GetGSAI().GetStarBase();
                         //if (DefBudget >= 1 && !string.IsNullOrEmpty(station))
                         //    buildStation = true;
@@ -5026,7 +5026,7 @@ namespace Ship_Game
                         {
                             if (!queueItem.isShip)
                                 continue;
-                            if (queueItem.sData.Role == "platform")
+                            if (queueItem.sData.Role == ShipData.RoleName.platform)
                             {
                                 if (DefBudget - platformUpkeep < -platformUpkeep * .5) //|| (buildStation && DefBudget > stationUpkeep))
                                 {
@@ -5036,7 +5036,7 @@ namespace Ship_Game
                                 DefBudget -= platformUpkeep;
                                 PlatformCount++;
                             }
-                            if (queueItem.sData.Role == "station")
+                            if (queueItem.sData.Role == ShipData.RoleName.station)
                             {
                                 if (DefBudget - stationUpkeep < -stationUpkeep)
                                 {
@@ -5053,7 +5053,7 @@ namespace Ship_Game
                                 continue;
                             if (platform.GetAI().State == AIState.Scrap)
                                 continue;
-                            if (platform.Role == "station")
+                            if (platform.shipData.Role == ShipData.RoleName.station)
                             {
                                 stationUpkeep = platform.GetMaintCost();
                                 if (DefBudget - stationUpkeep < -stationUpkeep)
@@ -5065,7 +5065,7 @@ namespace Ship_Game
                                 DefBudget -= stationUpkeep;
                                 stationCount++;
                             }
-                            if (platform.Role == "platform")//|| (buildStation && DefBudget < 5))
+                            if (platform.shipData.Role == ShipData.RoleName.platform)//|| (buildStation && DefBudget < 5))
                             {
                                 platformUpkeep = platform.GetMaintCost();
                                 if (DefBudget - platformUpkeep < -platformUpkeep)
@@ -5079,7 +5079,7 @@ namespace Ship_Game
                             }
 
                         }
-                        //this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0 && ship.Value.Role=="platform").Count();
+                        //this.Shipyards.Where(ship => ship.Value.Weapons.Count() > 0 && ship.Value.Role==ShipData.RoleName.platform).Count();
 
 
                         if (DefBudget > stationUpkeep && maxProd > 10.0
@@ -5403,10 +5403,10 @@ output = maxp * take10 = 5
                         }
                     }
                 }
-                if ((double)queueItem.productionTowards >= (double)queueItem.Cost && queueItem.NotifyOnEmpty == false)
-                    this.queueEmptySent = true;
-                else if ((double)queueItem.productionTowards >= (double)queueItem.Cost)
-                    this.queueEmptySent = false;
+                //if ((double)queueItem.productionTowards >= (double)queueItem.Cost && queueItem.NotifyOnEmpty == false)
+                //    this.queueEmptySent = true;
+                //else if ((double)queueItem.productionTowards >= (double)queueItem.Cost)
+                //    this.queueEmptySent = false;
 
                 if (queueItem.isBuilding && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
@@ -5479,7 +5479,7 @@ output = maxp * take10 = 5
                             }
                         }
                     }
-                    if (queueItem.sData.Role == "station" || queueItem.sData.Role == "platform")
+                    if (queueItem.sData.Role == ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform)
                     {
                         int num = this.Shipyards.Count / 9;
                         shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 40), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
@@ -5492,7 +5492,8 @@ output = maxp * take10 = 5
                         if (queueItem.Goal.GoalName == "BuildConstructionShip")
                         {
                             shipAt.GetAI().OrderDeepSpaceBuild(queueItem.Goal);
-                            shipAt.Role = "construction";
+                            //shipAt.shipData.Role = ShipData.RoleName.construction;
+                            shipAt.isConstructor = true;
                             shipAt.VanityName = "Construction Ship";
                         }
                         else if (queueItem.Goal.GoalName != "BuildDefensiveShips" && queueItem.Goal.GoalName != "BuildOffensiveShips" && queueItem.Goal.GoalName != "FleetRequisition")
@@ -5506,7 +5507,7 @@ output = maxp * take10 = 5
                             queueItem.Goal.ReportShipComplete(shipAt);
                         }
                     }
-                    else if ((queueItem.sData.Role != "station" || queueItem.sData.Role == "platform") && this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
+                    else if ((queueItem.sData.Role != ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform) && this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                         this.Owner.ForcePoolAdd(shipAt);
                 }
                 else if (queueItem.isTroop && (double)queueItem.productionTowards >= (double)queueItem.Cost)
