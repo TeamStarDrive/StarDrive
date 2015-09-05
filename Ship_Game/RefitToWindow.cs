@@ -103,7 +103,7 @@ namespace Ship_Game
 				tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				if (this.sub_ships.Tabs[0].Selected)
 				{
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Role, tCursor, Color.Orange);
+					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
 				}
 				Rectangle MoneyRect = new Rectangle(e.clickRect.X + 165, e.clickRect.Y, 21, 20);
 				Vector2 moneyText = new Vector2((float)(MoneyRect.X + 25), (float)(MoneyRect.Y - 2));
@@ -202,7 +202,7 @@ namespace Ship_Game
 			this.sub_ships.AddTab("Refit to...");
 			foreach (string shipname in this.shiptorefit.loyalty.ShipsWeCanBuild)
 			{
-				if (!(ResourceManager.ShipsDict[shipname].GetShipData().Hull == this.shiptorefit.GetShipData().Hull) || !(shipname != this.shiptorefit.Name) || ResourceManager.ShipRoles[ResourceManager.ShipsDict[shipname].Role].Protected)
+                if (!(ResourceManager.ShipsDict[shipname].GetShipData().Hull == this.shiptorefit.GetShipData().Hull) || !(shipname != this.shiptorefit.Name) || ResourceManager.ShipRoles[ResourceManager.ShipsDict[shipname].shipData.Role].Protected)
 				{
 					continue;
 				}

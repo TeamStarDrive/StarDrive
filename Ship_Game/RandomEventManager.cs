@@ -44,7 +44,7 @@ namespace Ship_Game
 						Planet toImprove = potentials[HelperFunctions.GetRandomIndex(potentials.Count)];
 						if (toImprove.ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
 						{
-							toImprove.TerraformExternal(1f);
+							toImprove.TerraformExternal(0.5f);
 							string txt = string.Concat(toImprove.Name, Localizer.Token(4011));
 							Ship.universeScreen.NotificationManager.AddRandomEventNotification(txt, string.Concat("Planets/", toImprove.planetType), "SnapToPlanet", toImprove);
 						}
@@ -66,8 +66,8 @@ namespace Ship_Game
 						Planet toImprove = potentials[HelperFunctions.GetRandomIndex(potentials.Count)];
 						if (toImprove.ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
 						{
-							toImprove.TerraformExternal(-1f);
-							toImprove.MaxPopulation = toImprove.MaxPopulation * 0.45f;
+							toImprove.TerraformExternal(-0.5f);
+							toImprove.MaxPopulation = toImprove.MaxPopulation * 0.65f;
 							if (toImprove.Population > toImprove.MaxPopulation)
 							{
 								toImprove.Population = toImprove.MaxPopulation;

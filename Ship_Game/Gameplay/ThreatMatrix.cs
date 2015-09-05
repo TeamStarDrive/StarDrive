@@ -170,7 +170,7 @@ namespace Ship_Game.Gameplay
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
                 if (pin.Value.InBorders)
-                    if (pin.Value.ship != null && pin.Value.ship.Active && pin.Value.ship.Role == "Subspace Projector" )
+                    if (pin.Value.ship != null && pin.Value.ship.Active && pin.Value.ship.Name == "Subspace Projector" )
                         continue;
                     pin.Value.InBorders = false;
             }

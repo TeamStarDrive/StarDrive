@@ -7,6 +7,7 @@
   <StartingScout>Unarmed Fang Scout</StartingScout>
   <PrototypeShip>Kulrathi Prototype</PrototypeShip>
   <DefaultSmallTransport>Small Transport</DefaultSmallTransport>
+  <DefaultTroopShip>Kulrathi Troop</DefaultTroopShip>
   <DefaultColonyShip>Colony Ship</DefaultColonyShip>
   <DefaultConstructor>Small Transport</DefaultConstructor>
 

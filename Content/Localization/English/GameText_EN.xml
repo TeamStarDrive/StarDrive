@@ -1078,7 +1078,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>265</Index>
       <Text>Launch this troop into orbit</Text>
     </Token>
-
+    <Token>
+      <Index>266</Index>
+      <Text>Toggles whether this ship's shuttles should be launched or recovered to hangars</Text>
+    </Token>
 
     <!-- Gameplay Main Menu -->
     <Token>
@@ -2989,7 +2992,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1011</Index>
-      <Text>An ordnance supply bay allows a ship to launch resupply shuttles filled with ammunition to resupply friendly ships. Only one shuttle may be active per bay at a time. Supply shuttles can ferry 50 ordnance at a time.
+      <Text>An ordnance supply bay allows a ship to launch supply shuttles filled with ammunition to resupply friendly ships. Only one shuttle may be active per bay at a time. Supply shuttles can ferry 100 ordnance at a time.
       </Text>
     </Token>
     <Token>
@@ -6477,11 +6480,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4009</Index>
-      <Text>The Hyperspace Flux has abated \nShips may once again warp freely</Text>
+      <Text>The Hyperspace Flux has abated\nShips may once again warp freely</Text>
     </Token>
     <Token>
       <Index>4010</Index>
-      <Text>A massive hyperspace flux is inhibiting warp travel throughout the galaxy</Text>
+      <Text>A massive hyperspace flux\nis inhibiting warp travel throughout the galaxy</Text>
     </Token>
     <Token>
       <Index>4011</Index>
@@ -6670,7 +6673,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4055</Index>
-      <Text>You are not currently editing a fleet. Click a hotkey on th eleft side of the screen to begin creating or editing the corresponding fleet.\n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.</Text>
+      <Text>You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet.\n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.</Text>
     </Token>
     <Token>
       <Index>4056</Index>
