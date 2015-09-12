@@ -2374,8 +2374,8 @@ namespace Ship_Game.Gameplay
         public static Ship LoadSavedShip(ShipData data)
         {
             Ship parent = new Ship();
-            if (data.Name == "Left Right Test")
-                parent.Position = new Vector2(200f, 200f);
+            //if (data.Name == "Left Right Test")
+            //    parent.Position = new Vector2(200f, 200f);
             parent.Position = new Vector2(200f, 200f);
             parent.Name = data.Name;
             parent.Level = (int)data.Level;
