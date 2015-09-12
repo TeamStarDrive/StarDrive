@@ -246,7 +246,7 @@ namespace Ship_Game
                             planet1 = planet2;
                         }
                     }
-                    if (planet1 == null)
+                    if (planet1 == null || this.beingBuilt.GetShipData() == null)
                         break;
                     this.PlanetBuildingAt = planet1;
                         planet1.ConstructionQueue.Add(new QueueItem()
@@ -310,7 +310,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if (planet1 == null)
+                    if (planet1 == null || this.beingBuilt.GetShipData() == null)
                         break;
                     planet1.ConstructionQueue.Add(new QueueItem()
                     {

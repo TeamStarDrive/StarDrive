@@ -4482,7 +4482,7 @@ namespace Ship_Game.Gameplay
             ArtificialIntelligence.ShipGoal goal = this.OrderQueue.LastOrDefault();
 
             this.orderqueue.EnterWriteLock(); //this.Owner.engineState != Ship.MoveState.Warp &&
-            if (this.SystemToDefend == null || (this.SystemToDefend != system || this.awaitClosest.Owner == null || this.awaitClosest.Owner != this.Owner.loyalty || (this.Owner.GetSystem() != system && goal != null && this.OrderQueue.LastOrDefault().Plan != Plan.DefendSystem)))
+            if (this.SystemToDefend == null || (this.SystemToDefend != system || this.awaitClosest == null || this.awaitClosest.Owner == null || this.awaitClosest.Owner != this.Owner.loyalty || (this.Owner.GetSystem() != system && goal != null && this.OrderQueue.LastOrDefault().Plan != Plan.DefendSystem)))
 			{
 
 #if SHOWSCRUB
