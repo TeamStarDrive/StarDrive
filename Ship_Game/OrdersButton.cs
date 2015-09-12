@@ -315,7 +315,7 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
-								this.ShipList[i].GetAI().OrderResupplyNearest();
+								this.ShipList[i].GetAI().OrderResupplyNearest(true);
 							}
 							return true;
 						}

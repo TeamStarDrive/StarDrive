@@ -14,8 +14,7 @@
     </Tech>
     <Tech>
       <id>TECH:RANDOM</id>
-    </Tech>
-    
+    </Tech>  
     <Tech>
       <id>Xeno Intelligence</id>
     </Tech>
@@ -23,16 +22,10 @@
       <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
       <id>XenoMining</id>
     </Tech>
+    <Tech>
+      <id>FrigateConstruction</id>
+    </Tech>		
   </TechPath>
 </EconomicResearchStrategy>

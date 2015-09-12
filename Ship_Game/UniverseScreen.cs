@@ -6692,7 +6692,7 @@ namespace Ship_Game
                         break;
                     }
                 }
-                if (!ship.Active || !flag)
+                if (!ship.Active || !flag || !ResourceManager.TextureDict.ContainsKey(ship.StrategicIconPath))
                     return;
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ship.StrategicIconPath], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
             }

@@ -7,21 +7,37 @@
   <IndustryPriority>3</IndustryPriority>
   <TechPath>
     <Tech>
-      <id></id>
-    </Tech>
-
-    <Tech>
       <id>IS Government</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
       <id>IndustrialFoundations</id>
     </Tech>
-    
+    <Tech>
+      <id>HeavyFighterHull</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>	
+    <Tech>
+      <id>FrigateConstruction</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>	
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>	
+	<Tech>
+      <id>Cruisers</id>
+    </Tech>
   </TechPath>
 </EconomicResearchStrategy>
