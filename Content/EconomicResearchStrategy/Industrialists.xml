@@ -9,7 +9,6 @@
     <Tech>
       <id>IndustrialFoundations</id>
     </Tech>
-
     <Tech>
       <id>IS Government</id>
     </Tech>
@@ -17,7 +16,7 @@
       <id>TECH:RANDOM</id>
     </Tech>
     <Tech>
-      <id>TECH:RANDOM</id>
+      <id>HeavyFighterHull</id>
     </Tech>
     <Tech>
       <id>TECH:RANDOM</id>
@@ -28,6 +27,8 @@
     <Tech>
       <id>XenoMining</id>
     </Tech>
-
+    <Tech>
+      <id>FrigateConstruction</id>
+    </Tech>	
   </TechPath>
 </EconomicResearchStrategy>

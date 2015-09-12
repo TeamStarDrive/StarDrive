@@ -7,7 +7,20 @@
   <IndustryPriority>2</IndustryPriority>
   <TechPath>
 
- 
-
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+     <Tech>
+      <id>HeavyFighterHull</id>
+    </Tech>
+    <Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+	<Tech>
+      <id>TECH:RANDOM</id>
+    </Tech>
+    <Tech>
+      <id>FrigateConstruction</id>
+    </Tech>		
   </TechPath>
 </EconomicResearchStrategy>

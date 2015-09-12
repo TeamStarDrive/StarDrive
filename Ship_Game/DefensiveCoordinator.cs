@@ -193,7 +193,8 @@ namespace Ship_Game
                         //value.ValueToUs += p.CombatTimer >0 ? p.CombatTimer :0;
                         cummulator += p.developmentLevel;
                         cummulator += p.GovBuildings ? 1 : 0;
-                        cummulator += entry.Value.system.DangerTimer > 0 ? 5 : 0;
+                        //cummulator += entry.Value.system.DangerTimer > 0 ? 5 : 0;
+                        cummulator += entry.Value.system.combatTimer > 0 ? 5 : 0;  //fbedard: DangerTimer is in relation to the player only !
 
                         if (this.us.data.Traits.Cybernetic > 0)
                         {

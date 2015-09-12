@@ -760,6 +760,7 @@ namespace Ship_Game
 					{
 						ship.GetAI().OrderTransportPassengersFromSave();
 					}
+
 					e.AddShip(ship);
 					foreach (SavedGame.ProjectileSaveData pdata in shipData.Projectiles)
 					{
@@ -1059,6 +1060,8 @@ namespace Ship_Game
 								g.goal = goal;
 							}
 							ship.GetAI().OrderQueue.AddLast(g);
+                            if (g.Plan == ArtificialIntelligence.Plan.DeployStructure)
+                                ship.isConstructor = true;
 						}
 					}
 				}

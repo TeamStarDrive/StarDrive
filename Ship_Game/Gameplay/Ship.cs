@@ -290,7 +290,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                this.AI.OrderResupplyNearest();
+                this.AI.OrderResupplyNearest(true);
             }
         }
 
@@ -407,7 +407,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                this.GetAI().OrderResupplyNearest();
+                this.GetAI().OrderResupplyNearest(true);
             }
         }
 
