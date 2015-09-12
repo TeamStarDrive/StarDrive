@@ -750,6 +750,7 @@ namespace Ship_Game
 					if (shipData.PopCount > 0f)
 					{
 						ship.AddGood("Colonists_1000", (int)shipData.PopCount);
+                        ship.GetAI().FoodOrProd = "Pass";
 					}
 					AIState state = ship.GetAI().State;
 					if (state == AIState.SystemTrader)
@@ -834,6 +835,7 @@ namespace Ship_Game
                     fleet.Setavgtodestination();
                     
 				}
+                /* fbedard: not needed
 				foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
 				{
 					foreach (Ship ship in e.GetShips())
@@ -843,7 +845,8 @@ namespace Ship_Game
 							continue;
 						}
 					}
-				}
+				}   
+                */
 			}
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
 			{
