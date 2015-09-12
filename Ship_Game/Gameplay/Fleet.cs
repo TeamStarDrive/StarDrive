@@ -1342,7 +1342,8 @@ namespace Ship_Game.Gameplay
                         case 0:
                             List<Planet> list1 = new List<Planet>();
                             this.Owner.GetPlanets().thisLock.EnterReadLock();
-                            foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat=> combat.ParentSystem.DangerTimer))
+                            //foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat => combat.ParentSystem.DangerTimer))
+                            foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat => combat.ParentSystem.combatTimer)) //fbedard: DangerTimer is in relation to the player only !
                             {
                                 if (planet.HasShipyard )
                                     list1.Add(planet);
@@ -2527,7 +2528,7 @@ namespace Ship_Game.Gameplay
                     }
                 case 5:
                     foreach (Ship ship in (List<Ship>)this.Ships)
-                        ship.GetAI().OrderResupplyNearest();
+                        ship.GetAI().OrderResupplyNearest(true);
                     this.TaskStep = 6;
                     break;
                 case 6:

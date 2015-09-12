@@ -647,7 +647,7 @@ namespace Ship_Game.Gameplay
                         if (ship.shipData.Role != ShipData.RoleName.troop)
 						{
 							ClosestAO.GetOffensiveForcePool().Add(ship);
-							ship.GetAI().OrderResupplyNearest();
+							ship.GetAI().OrderResupplyNearest(false);
 						}
 						else
 						{
@@ -977,7 +977,7 @@ namespace Ship_Game.Gameplay
 						ship.isSpooling = false;
                         if (ship.shipData.Role != ShipData.RoleName.troop)
 						{
-							ship.GetAI().OrderResupplyNearest();
+							ship.GetAI().OrderResupplyNearest(false);
 						}
 						else
 						{
