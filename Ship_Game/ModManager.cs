@@ -171,9 +171,9 @@ namespace Ship_Game
                         this.modLoad = Task.Factory.StartNew(loadModTask);
                        
 					}
-					else if (str == "Visit")
+					else if (str == "Visit" )
 					{
-                        if (string.IsNullOrEmpty(this.ActiveEntry.mi.URL))
+                        if (this.ActiveEntry == null || string.IsNullOrEmpty(this.ActiveEntry.mi.URL))
                             Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
                         else
                             Process.Start(this.ActiveEntry.mi.URL);
