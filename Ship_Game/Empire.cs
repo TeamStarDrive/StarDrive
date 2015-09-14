@@ -2927,19 +2927,17 @@ namespace Ship_Game
                     this.freighterBudget += ship.GetMaintCost();
                 if (ship.GetAI().State == AIState.SystemTrader)
                 {
-                    if (tradeShips < TradeLimit)
-                        tradeShips++;
-                    else
-                        if (ship.CargoSpace_Used == 0 && tradeShips > TradeLimit + 3)  //fbedard: dont scrap loaded ship
+                    if (ship.CargoSpace_Used == 0 && tradeShips > TradeLimit + 3)  //fbedard: dont scrap loaded ship
                             ship.GetAI().OrderScrapShip();
+                    else
+                        tradeShips++;
                 }
                 else if (ship.GetAI().State == AIState.PassengerTransport)
                 {
-                    if (passengerShips < PassLimit)
-                        passengerShips++;
-                    else
-                        if (ship.CargoSpace_Used == 0 && passengerShips > PassLimit + 3)  //fbedard: dont scrap loaded ship
+                    if (ship.CargoSpace_Used == 0 && passengerShips > PassLimit + 3)  //fbedard: dont scrap loaded ship
                             ship.GetAI().OrderScrapShip();
+                    else
+                        passengerShips++;
                 }
                 else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
                     unusedFreighters.Add(ship);
