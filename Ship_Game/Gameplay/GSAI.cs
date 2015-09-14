@@ -5340,6 +5340,7 @@ namespace Ship_Game.Gameplay
                     */
                 }
             }
+
             /*
             this.FreighterUpkeep = capFreighters - (nonMilitaryCap * .25f);
             this.PlatformUpkeep = capPlatforms - (nonMilitaryCap * .25f);
@@ -5396,7 +5397,7 @@ namespace Ship_Game.Gameplay
                     TotalMilShipCount -= 10f;
                 else
                     TotalMilShipCount -= 5f;
-
+            TotalMilShipCount = TotalMilShipCount < 50f ? 50f : TotalMilShipCount;
             float totalRatio = ratio_Fighters + ratio_Corvettes + ratio_Frigates + ratio_Cruisers + ratio_Capitals;          
             float adjustedRatio = TotalMilShipCount / totalRatio;
 
@@ -7413,11 +7414,9 @@ namespace Ship_Game.Gameplay
             //    allowable_deficit = -(this.empire.Money*.5f );//- this.empire.GrossTaxes );// 0f;
             //}
 
-            this.buildCapacity = Capacity - allowable_deficit;// +this.empire.GetTotalShipMaintenance(); ;
-                //this.empire.GetTotalShipMaintenance();
-            
-            //this.GetAShip(0);
-            if (Capacity <= allowable_deficit )//|| (this.empire.data.TaxRate >=.5f && this.empire.GetAverageNetIncome()<0)) //(Capacity <= 0f)
+            this.buildCapacity = Capacity - allowable_deficit; // +this.empire.GetTotalShipMaintenance(); ;
+           
+            if (this.buildCapacity <= 0f)//|| (this.empire.data.TaxRate >=.5f && this.empire.GetAverageNetIncome()<0)) //(Capacity <= 0f)
             {
                 float HowMuchWeAreScrapping = 0f;
                 
@@ -7451,12 +7450,12 @@ namespace Ship_Game.Gameplay
                             foreach (QueueItem shipToRemove in g.GetPlanetWhereBuilding().ConstructionQueue)
                             {
 
-                                if (shipToRemove.Goal != g)
+                                if (shipToRemove.Goal != g || shipToRemove.productionTowards > 0f)
                                 {
                                     continue;
 
                                 }
-                                g.GetPlanetWhereBuilding().ProductionHere += shipToRemove.productionTowards;
+                                //g.GetPlanetWhereBuilding().ProductionHere += shipToRemove.productionTowards;
                                 g.GetPlanetWhereBuilding().ConstructionQueue.QueuePendingRemoval(shipToRemove);
                                 this.Goals.QueuePendingRemoval(g);
                                 Added += ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
@@ -7466,6 +7465,8 @@ namespace Ship_Game.Gameplay
                             }
                             if (flag)
                                 g.GetPlanetWhereBuilding().ConstructionQueue.ApplyPendingRemovals();
+                            if (HowMuchWeAreScrapping + Added >= Math.Abs(Capacity))
+                                break;
 
                         }
                     }
@@ -7479,12 +7480,12 @@ namespace Ship_Game.Gameplay
                             foreach (QueueItem shipToRemove in g.GetPlanetWhereBuilding().ConstructionQueue)
                             {
 
-                                if (shipToRemove.Goal != g)
+                                if (shipToRemove.Goal != g || shipToRemove.productionTowards > 0f)
                                 {
                                     continue;
 
                                 }
-                                g.GetPlanetWhereBuilding().ProductionHere += shipToRemove.productionTowards;
+                                //g.GetPlanetWhereBuilding().ProductionHere += shipToRemove.productionTowards;
                                 g.GetPlanetWhereBuilding().ConstructionQueue.QueuePendingRemoval(shipToRemove);
                                 this.Goals.QueuePendingRemoval(g);
                                 Added += ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(this.empire);
@@ -7494,12 +7495,13 @@ namespace Ship_Game.Gameplay
                             }
                             if (flag)
                                 g.GetPlanetWhereBuilding().ConstructionQueue.ApplyPendingRemovals();
-
+                            if (HowMuchWeAreScrapping + Added >= Math.Abs(Capacity))
+                                break;
                         }
                     }
                   
                     this.Goals.ApplyPendingRemovals();
-                    
+                    Capacity = Capacity + HowMuchWeAreScrapping + Added;                    
                 }
 
             }
@@ -7510,8 +7512,9 @@ namespace Ship_Game.Gameplay
             //    allowable_deficit = Math.Abs(allowable_deficit);
             //}
 
-            if (Capacity < 0) //clean up
-                this.GetAShip(Capacity);
+            this.buildCapacity = Capacity - allowable_deficit;
+            if (this.buildCapacity < 0) //Scrap active ships
+                this.GetAShip(this.buildCapacity);
 
             //fbedard: Build Defensive ships
             bool Def = false;
@@ -7521,7 +7524,7 @@ namespace Ship_Game.Gameplay
 
             if (Def)
             while (Capacity > 0
-                && numgoals < this.numberOfShipGoals
+                && numgoals < this.numberOfShipGoals / 2
                 && (Empire.universeScreen.globalshipCount < ShipCountLimit + recyclepool
                 || this.empire.empireShipTotal < this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
