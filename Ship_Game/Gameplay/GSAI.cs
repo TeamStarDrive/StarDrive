@@ -7530,7 +7530,7 @@ namespace Ship_Game.Gameplay
             {
 
                 string s = this.GetAShip(this.buildCapacity);//Capacity - allowable_deficit);
-                if (s == null)
+                if (s == null || !this.empire.ShipsWeCanBuild.Contains(s))
                 {
                     break;
                 }
