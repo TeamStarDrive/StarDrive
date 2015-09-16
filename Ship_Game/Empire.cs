@@ -2686,6 +2686,11 @@ namespace Ship_Game
             this.TotalScore = (int)((double)this.MilitaryScore / 100.0 + (double)this.IndustrialScore + (double)this.TechScore + (double)this.ExpansionScore);
             this.MilitaryScore = this.data.MilitaryScoreTotal / (float)this.data.ScoreAverage;
             ++this.data.ScoreAverage;
+            if (this.data.ScoreAverage >= 120)  //fbedard: reset every 60 turns
+            {
+                this.data.MilitaryScoreTotal = this.MilitaryScore * 60f;
+                this.data.ScoreAverage = 60;
+            }
         }
 
         public void AbsorbEmpire(Empire target)

@@ -214,6 +214,7 @@ namespace Ship_Game.Gameplay
         
         public ushort purgeCount =0;
         public Ship lastAttacker = null;
+        private bool LowHealth = false; //fbedard: recalculate strength after repair
 
         //public class diplomacticSpace
         //{
@@ -3968,13 +3969,15 @@ namespace Ship_Game.Gameplay
         }
         //added by Gremlin : active ship strength calculator
         public float GetStrength()
-        {
-            
-            if (this.Health >= this.HealthMax * .75 && this.BaseStrength !=0)
+        {            
+            if (this.Health >= this.HealthMax * .75 && !this.LowHealth && this.BaseStrength !=0)
                 return this.BaseStrength;
             float Str = 0f;
             float def = 0f;
-
+            if (this.Health >= this.HealthMax * .75)
+                this.LowHealth = false;
+            else
+                this.LowHealth = true;
             int slotCount = this.ModuleSlotList.Count;
 
             bool fighters = false;
@@ -4038,7 +4041,7 @@ namespace Ship_Game.Gameplay
             }//);
             if (!fighters && !weapons) Str = 0;
             if (def > Str) def = Str;
-            if(this.BaseStrength==0 && (def+Str)>0) this.BaseStrength = Str + def;
+            this.BaseStrength = Str + def;
             return Str + def;
         }
 
