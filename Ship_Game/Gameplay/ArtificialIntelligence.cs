@@ -371,6 +371,7 @@ namespace Ship_Game.Gameplay
 			{
 				ArtificialIntelligence.universeScreen.NotificationManager.AddColonizedNotification(this.ColonizeTarget, EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty));
 				this.ColonizeTarget.colonyType = Planet.ColonyType.Colony;
+                this.ColonizeTarget.GovernorOn = false;
 			}
 			//lock (GlobalStats.OwnedPlanetsLock)
 			{
@@ -5154,7 +5155,7 @@ namespace Ship_Game.Gameplay
                 #endregion
                 if (this.start != null && this.end != null)
                 {
-                    if (this.Owner.CargoSpace_Used == 00 && this.start.Population < 2000f && this.end.Population > 2000f && Vector2.Distance(this.Owner.Center, this.end.Position) < 500f)  //fbedard: dont make empty run !
+                    if (this.Owner.CargoSpace_Used == 00 && this.start.Population / this.start.MaxPopulation < 0.2 && this.end.Population > 2000f && Vector2.Distance(this.Owner.Center, this.end.Position) < 500f)  //fbedard: dont make empty run !
                         this.PickupAnyPassengers();
                     if (this.Owner.CargoSpace_Used == 00 && Vector2.Distance(this.Owner.Center, this.end.Position) < 500f)  //fbedard: dont make empty run !
                         this.PickupAnyGoods();
@@ -5667,7 +5668,7 @@ namespace Ship_Game.Gameplay
 
         private void PickupAnyGoods()  //fbedard
         {
-            if (this.end.FoodHere > this.Owner.CargoSpace_Max && this.end.fs == Planet.GoodState.EXPORT && (this.start.MAX_STORAGE - this.start.FoodHere) > this.Owner.CargoSpace_Max && this.start.fs == Planet.GoodState.IMPORT)
+            if (this.end.FoodHere > this.Owner.CargoSpace_Max && this.end.fs == Planet.GoodState.EXPORT && (this.start.MAX_STORAGE - this.start.FoodHere) > this.Owner.CargoSpace_Max * 3f && this.start.fs == Planet.GoodState.IMPORT)
                 while (this.end.FoodHere > 0f && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
                 {
                 this.Owner.AddGood("Food", 1);
@@ -5675,7 +5676,7 @@ namespace Ship_Game.Gameplay
                 foodHere.FoodHere = foodHere.FoodHere - 1f;
                 }
 
-            if (this.end.ProductionHere > this.Owner.CargoSpace_Max && this.end.ps == Planet.GoodState.EXPORT && (this.start.MAX_STORAGE - this.start.ProductionHere) > this.Owner.CargoSpace_Max && this.start.ps == Planet.GoodState.IMPORT)
+            if (this.end.ProductionHere > this.Owner.CargoSpace_Max && this.end.ps == Planet.GoodState.EXPORT && (this.start.MAX_STORAGE - this.start.ProductionHere) > this.Owner.CargoSpace_Max * 3f && this.start.ps == Planet.GoodState.IMPORT)
                 while (this.end.ProductionHere > 0f && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
                 {
                  this.Owner.AddGood("Production", 1);

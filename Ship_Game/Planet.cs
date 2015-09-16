@@ -5307,7 +5307,15 @@ output = maxp * take10 = 5
 
             this.ApplyProductiontoQueue(normalAmount,0);
             this.ProductionHere += this.NetProductionPerTurn > 0.0f ? this.NetProductionPerTurn : 0.0f;
-           
+
+            //fbedard: apply all remaining production on Planet with no governor
+            if (this.ps != GoodState.EXPORT && this.colonyType == Planet.ColonyType.Colony)
+            {
+                normalAmount = this.ProductionHere;
+                this.ProductionHere = 0f;
+                this.ApplyProductiontoQueue(normalAmount, 0);                
+            }
+
             return;
             if (this.ProductionHere > this.MAX_STORAGE * 0.6f && this.GovernorOn)
             {
