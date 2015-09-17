@@ -3970,7 +3970,7 @@ namespace Ship_Game.Gameplay
         //added by Gremlin : active ship strength calculator
         public float GetStrength()
         {            
-            if (this.Health >= this.HealthMax * .75 && !this.LowHealth && this.BaseStrength !=0)
+            if (this.Health >= this.HealthMax * .75 && !this.LowHealth)// && this.BaseStrength !=0)
                 return this.BaseStrength;
             float Str = 0f;
             float def = 0f;
@@ -3986,6 +3986,12 @@ namespace Ship_Game.Gameplay
             //Parallel.ForEach(this.ModuleSlotList, slot =>  //
             foreach (ModuleSlot slot in this.ModuleSlotList)
             {
+#if DEBUG
+
+                if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
+                    System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
+
+#endif
                 if (!slot.module.isDummy && slot.module.Powered && slot.module.Active)
                 {
                     ShipModule module = slot.module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
@@ -4041,7 +4047,8 @@ namespace Ship_Game.Gameplay
             }//);
             if (!fighters && !weapons) Str = 0;
             if (def > Str) def = Str;
-            this.BaseStrength = Str + def;
+            //the base strength should be the ships strength at full health. 
+            //this.BaseStrength = Str + def;
             return Str + def;
         }
 
