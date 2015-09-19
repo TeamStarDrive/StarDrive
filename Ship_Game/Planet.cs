@@ -3356,7 +3356,7 @@ namespace Ship_Game
                 return true;
             if (building .Name == "Outpost" || building.WinsGame  )
                 return true;
-            if (building.PlusFoodPerColonist > 0)// && this.Fertility == 0)
+            if (this.Owner.data.Traits.Cybernetic <= 0 && building.PlusFoodPerColonist > 0)// && this.Fertility == 0)
             {
                 
                 if (this.Fertility == 0|| (this.NetFoodPerTurn >0 && this.FarmerPercentage <.3) &&!this.BuildingList.Contains(building))
@@ -3364,7 +3364,7 @@ namespace Ship_Game
                 return false;
                
             }
-            if (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn > 0 && this.FarmerPercentage < .3 && !this.BuildingList.Contains(building))
+            if (this.Owner.data.Traits.Cybernetic <= 0 && building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn > 0 && this.FarmerPercentage < .3 && !this.BuildingList.Contains(building))
                 return false;
 
             bool iftrue = false;
@@ -3560,8 +3560,8 @@ namespace Ship_Game
                         if ( MedPri && this.developmentLevel > 3 && makingMoney)
                         {
                             if (((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && this.Population > this.MaxPopulation * .5f)
-                            || (building.PlusTerraformPoints > 0 && this.Fertility < 1 && this.Population > this.MaxPopulation * .5f && this.MaxPopulation >2000)
-                                || (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn < 0)
+                            || this.Owner.data.Traits.Cybernetic <=0 &&( (building.PlusTerraformPoints > 0 && this.Fertility < 1 && this.Population > this.MaxPopulation * .5f && this.MaxPopulation > 2000)
+                                || (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn < 0))
                                 )
                                 return true;
                         }
@@ -3737,7 +3737,7 @@ namespace Ship_Game
                 this.BuildingsCanBuild.Where(flatfood => flatfood.PlusFlatFoodAmount > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
             if(this.Owner.data.Traits.Cybernetic>0)
             {
-                cheapestFlatfood = this.BuildingsCanBuild.Where(flat => flat.PlusProdPerColonist > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+                cheapestFlatfood = null;// this.BuildingsCanBuild.Where(flat => flat.PlusProdPerColonist > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
             }
             Building cheapestFlatprod = this.BuildingsCanBuild.Where(flat => flat.PlusFlatProductionAmount > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
             Building cheapestFlatResearch = this.BuildingsCanBuild.Where(flat => flat.PlusFlatResearchAmount > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
@@ -3750,7 +3750,7 @@ namespace Ship_Game
             bool StuffInQueueToBuild = this.ConstructionQueue.Where(building => building.isBuilding || (building.Cost - building.productionTowards > this.ProductionHere)).Count() > 0;
             bool ForgetReseachAndBuild =
      string.IsNullOrEmpty(this.Owner.ResearchTopic) || StuffInQueueToBuild || (this.developmentLevel < 3 && (this.ProductionHere + 1) / (this.MAX_STORAGE + 1) < .9f);
-            if (this.Owner.data.Traits.Cybernetic < 0)
+            if ( !true && this.Owner.data.Traits.Cybernetic < 0) //no longer needed
             #region cybernetic
             {
 
@@ -4110,15 +4110,15 @@ namespace Ship_Game
                                     if (!WeCanAffordThis(building, this.colonyType))
                                         continue;
 
-                                    if (cheapestFlatfood == null && cheapestFlatprod == null &&
+                                    if (//cheapestFlatfood == null && cheapestFlatprod == null &&
                                         (building.PlusFlatPopulation <= 0.0 || this.Population <= 1000.0)
                                         && (this.Owner.data.Traits.Cybernetic <=0 && building.MinusFertilityOnBuild <= 0.0 && !(building.Name == "Biospheres"))
                                         //&& (!(building.Name == "Terraformer") || !flag5 && this.Fertility < 1.0)
-                                        && (building.PlusTerraformPoints < 0 || !flag5 && this.Fertility < 1.0)
-                                        //&& (building.Name != "Deep Core Mine")
+                                        && (this.Owner.data.Traits.Cybernetic > 0 ||( building.PlusTerraformPoints < 0 || !flag5 && this.Fertility < 1.0 ))
+
                                         && (building.PlusFlatPopulation <= 0.0
                                         || this.Population / this.MaxPopulation <= 0.25)
-                                        ||(this.Owner.data.Traits.Cybernetic >=0 && building.PlusProdPerRichness >0)
+                                        //||(this.Owner.data.Traits.Cybernetic >0 && building.PlusProdPerRichness >0)
                                         )
                                     {
 
@@ -4133,7 +4133,7 @@ namespace Ship_Game
                                     }
                                 }
 
-                                if (b != null && cheapestFlatfood == null && cheapestFlatprod == null &&
+                                if (b != null &&// cheapestFlatfood == null && cheapestFlatprod == null &&
                                    (b.CreditsPerColonist > 0 || b.PlusTaxPercentage > 0
                                    || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0 || b.PlusProdPerColonist > 0
                                    || b.PlusFoodPerColonist > 0 || b.PlusFlatFoodAmount > 0
@@ -4176,7 +4176,7 @@ namespace Ship_Game
                                     if (flag1)
                                         this.AddBuildingToCQ(b);
                                 }
-                                else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0 && (double)this.Fertility >= 1.0)
+                                else if (this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= 1.0 && (this.Owner.data.Traits.Cybernetic >0  || (double)this.Fertility >= 1.0))
                                 {
                                     if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
                                     {
@@ -4467,7 +4467,7 @@ namespace Ship_Game
                                 || building.Building.PlusFlatProductionAmount > 0
                                 || building.Building.PlusFlatResearchAmount > 0
                                 || building.Building.PlusResearchPerColonist > 0
-                                || building.Building.Name == "Biospheres"
+                                //|| building.Building.Name == "Biospheres"
                                 )).Count() > 0;  //(building.Cost > this.NetProductionPerTurn * 10)).Count() > 0;
                         ForgetReseachAndBuild =
                             string.IsNullOrEmpty(this.Owner.ResearchTopic) || StuffInQueueToBuild; //? 1 : .5f;
