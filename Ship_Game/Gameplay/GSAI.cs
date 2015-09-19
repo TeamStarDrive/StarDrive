@@ -7408,7 +7408,7 @@ namespace Ship_Game.Gameplay
             float Capacity = this.empire.Money * AtWarBonus - UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
             float allowable_deficit = this.empire.Money * -.1f; //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
-
+            this.empire.data.ShipBudget = this.empire.Money * AtWarBonus;
             
             //if ((allowable_deficit >= 0f || noIncome >.5f) && atWar)
             //{
@@ -7849,7 +7849,14 @@ namespace Ship_Game.Gameplay
 
         
         private int ScriptIndex=0;
-        
+        private int randomizer(int priority, int bonus)
+        {
+            int index=0;
+            index=HelperFunctions.GetRandomIndex(priority + bonus);
+            index = HelperFunctions.GetRandomIndex(priority + bonus);
+            index = HelperFunctions.GetRandomIndex(priority + bonus);
+            return index;
+        }
         private void RunResearchPlanner()
 		{
 			if (string.IsNullOrEmpty(this.empire.ResearchTopic))
@@ -7884,7 +7891,7 @@ namespace Ship_Game.Gameplay
                 int needsFood =0;
                 foreach(Planet hunger in this.empire.GetPlanets())
                 {
-                    if ( (cybernetic ?  hunger.ProductionHere :hunger.FoodHere) /hunger.MAX_STORAGE  <.50f) //: hunger.MAX_STORAGE / (hunger.FoodHere+1) > 25)
+                    if ( (cybernetic ?  hunger.ProductionHere :hunger.FoodHere) /hunger.MAX_STORAGE  <.20f) //: hunger.MAX_STORAGE / (hunger.FoodHere+1) > 25)
                         needsFood++;
 
                 }
@@ -7908,15 +7915,22 @@ namespace Ship_Game.Gameplay
                         if (true)
                         {
                             Dictionary<string, int> priority = new Dictionary<string, int>();
+                            int shipBuildBonus = this.empire.TechnologyDict.Where(unlocked => unlocked.Value.GetTech().RootNode!=1 && unlocked.Value.Unlocked).Count();
+                            if ( shipBuildBonus < (cybernetic ? 6: 4))
+                                shipBuildBonus -= 4;
+                            else
+                            if (!this.empire.canBuildCruisers)
+                                shipBuildBonus = 2;
+                            
+                                
+                            priority.Add("SHIPTECH", this.randomizer(this.empire.getResStrat().MilitaryPriority, 4+ (atWar ? 6 : shipBuildBonus)));
 
-                            priority.Add("SHIPTECH", HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority + 4+ (atWar ? 4 : 0)));
-                           
-                            priority.Add("Research", HelperFunctions.GetRandomIndex(this.empire.getResStrat().ResearchPriority +4+ (researchDebt)));
-                            priority.Add("Colonization", HelperFunctions.GetRandomIndex(this.empire.getResStrat().ExpansionPriority + 4 +(!cybernetic?needsFood:0)));
-                            priority.Add("Economic", HelperFunctions.GetRandomIndex(this.empire.getResStrat().ExpansionPriority +4+ (economics) ));
-                            priority.Add("Industry", HelperFunctions.GetRandomIndex(this.empire.getResStrat().IndustryPriority + 4 + (cybernetic ? 4+needsFood : 0)));
-                            priority.Add("General", HelperFunctions.GetRandomIndex(5));
-                            priority.Add("GroundCombat", HelperFunctions.GetRandomIndex(this.empire.getResStrat().MilitaryPriority +4+ (atWar ? 2 : 0)));
+                            priority.Add("Research", this.randomizer(this.empire.getResStrat().ResearchPriority , 4 + (researchDebt)));
+                            priority.Add("Colonization", this.randomizer(this.empire.getResStrat().ExpansionPriority , 4 + (!cybernetic ? needsFood : 0)));
+                            priority.Add("Economic", this.randomizer(this.empire.getResStrat().ExpansionPriority , 4 + (economics)));
+                            priority.Add("Industry", this.randomizer(this.empire.getResStrat().IndustryPriority , 4 + (cybernetic ? 4 + needsFood : 0)));
+                            priority.Add("General", this.randomizer(2,4));
+                            priority.Add("GroundCombat", this.randomizer(this.empire.getResStrat().MilitaryPriority , 4 + (atWar ? 2 : 0)));
 
                             string sendToScript = "";
                             int max = 0;
@@ -8556,7 +8570,7 @@ namespace Ship_Game.Gameplay
                                         //    moneyNeeded = 10;
                                         //this.empire.data.ShipBudget
                                         //if (money / moneyNeeded < 1 ) 
-                                        if(this.buildCapacity<=0 || this.buildCapacity / ship.GetMaintCost() <=1)
+                                        if(this.empire.Money *.01f < ship.GetMaintCost() )
                                         {
                                             test = false;
                                             break;
