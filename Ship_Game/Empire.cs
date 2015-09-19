@@ -97,6 +97,9 @@ namespace Ship_Game
         public bool canBuildCruisers;
         public bool canBuildFrigates;
         public bool canBuildCorvettes;
+        public bool canBuildCarriers;
+        public bool canBuildBombers;
+        public bool canBuildTroopShips;
         public float currentMilitaryStrength;
         public float freighterBudget = 0;
         [XmlIgnore]
@@ -637,6 +640,7 @@ namespace Ship_Game
                     }
                 }
             }
+   
             //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {
@@ -656,7 +660,20 @@ namespace Ship_Game
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
             {
                 if (unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == this.TechnologyDict[techID].AcquiredFrom)
+                {
                     this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+                    ShipModule checkmod =null;
+                    if(ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID,out checkmod))
+                    {
+                        if (checkmod.IsTroopBay)
+                            this.canBuildTroopShips = true;
+                        if (checkmod.MaximumHangarShipSize > 0)
+                            this.canBuildCarriers = true;
+                        if (!string.IsNullOrEmpty(checkmod.WeaponType) && ResourceManager.WeaponsDict[checkmod.WeaponType].Tag_Bomb)
+                            this.canBuildBombers=true;
+                    }
+                }
+
             }
             foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
             {
