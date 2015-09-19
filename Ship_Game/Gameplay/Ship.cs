@@ -1237,7 +1237,10 @@ namespace Ship_Game.Gameplay
         {
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
+                if(this.loyalty == null)
                 return this.GetMaintCostRealism();
+                else
+                    return this.GetMaintCostRealism(this.loyalty);
             }
             float maint = 0f;
             //string role = this.shipData.Role;
