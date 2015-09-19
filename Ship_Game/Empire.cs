@@ -619,27 +619,28 @@ namespace Ship_Game
                 this.TechnologyDict[techID].Unlocked = true;
             }
             //Set GSAI to build ship roles
-            if (this.TechnologyDict[techID].GetTech().unlockBattleships || techID == "Battleships")
-                this.canBuildCapitals = true;
-            if (this.TechnologyDict[techID].GetTech().unlockCruisers || techID == "Cruisers")
-                this.canBuildCruisers = true;
-            if (this.TechnologyDict[techID].GetTech().unlockFrigates || techID == "FrigateConstruction")
-                this.canBuildFrigates = true;
-            if (this.TechnologyDict[techID].GetTech().unlockCorvettes || techID == "HeavyFighterHull" )
-                this.canBuildCorvettes = true;
-            if (!this.canBuildCorvettes  && this.TechnologyDict[techID].GetTech().TechnologyType == TechnologyType.ShipHull)
-            {
-                foreach(KeyValuePair<string,bool> hull in this.GetHDict())
-                {
-                    if (this.TechnologyDict[techID].GetTech().HullsUnlocked.Where(hulls => hulls.Name == hull.Key).Count() ==0)
-                        continue;
-                    if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role == ShipData.RoleName.corvette).Count()>0)
-                    {
-                        this.canBuildCorvettes = true;
-                        break;
-                    }
-                }
-            }
+
+            //if (this.TechnologyDict[techID].GetTech().unlockBattleships || techID == "Battleships")
+            //    this.canBuildCapitals = true;
+            //if (this.TechnologyDict[techID].GetTech().unlockCruisers || techID == "Cruisers")
+            //    this.canBuildCruisers = true;
+            //if (this.TechnologyDict[techID].GetTech().unlockFrigates || techID == "FrigateConstruction")
+            //    this.canBuildFrigates = true;
+            //if (this.TechnologyDict[techID].GetTech().unlockCorvettes || techID == "HeavyFighterHull" )
+            //    this.canBuildCorvettes = true;
+            //if (!this.canBuildCorvettes  && this.TechnologyDict[techID].GetTech().TechnologyType == TechnologyType.ShipHull)
+            //{
+            //    foreach(KeyValuePair<string,bool> hull in this.GetHDict())
+            //    {
+            //        if (this.TechnologyDict[techID].GetTech().HullsUnlocked.Where(hulls => hulls.Name == hull.Key).Count() ==0)
+            //            continue;
+            //        if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role == ShipData.RoleName.corvette).Count()>0)
+            //        {
+            //            this.canBuildCorvettes = true;
+            //            break;
+            //        }
+            //    }
+            //}
    
             //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
@@ -683,7 +684,64 @@ namespace Ship_Game
             foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
             {
                 if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
+                {
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
+                    ShipData hull = ResourceManager.HullsDict[unlockedHull.Name];
+                    switch (hull.Role)
+                    {
+                        case ShipData.RoleName.disabled:
+                            break;
+                        case ShipData.RoleName.platform:
+                            break;
+                        case ShipData.RoleName.station:
+                            break;
+                        case ShipData.RoleName.construction:
+                            break;
+                        case ShipData.RoleName.supply:
+                            break;
+                        case ShipData.RoleName.freighter:
+                            break;
+                        case ShipData.RoleName.troop:
+                            break;
+                        case ShipData.RoleName.fighter:                            
+                            break;
+                        case ShipData.RoleName.scout:
+                            break;
+                        case ShipData.RoleName.gunboat:
+                            this.canBuildCorvettes = true;
+                            break;
+                        case ShipData.RoleName.drone:
+                            break;
+                        case ShipData.RoleName.corvette:
+                            this.canBuildCorvettes = true;
+                            break;
+                        case ShipData.RoleName.frigate:
+                            this.canBuildFrigates = true;
+                            break;
+                        case ShipData.RoleName.destroyer:
+                            this.canBuildFrigates = true;
+                            break;
+                        case ShipData.RoleName.cruiser:
+                            this.canBuildCruisers = true;
+                            break;
+                        case ShipData.RoleName.carrier:
+                            this.canBuildCapitals = true;
+                            break;
+                        case ShipData.RoleName.capital:
+                            this.canBuildCapitals = true;
+                            break;
+                        case ShipData.RoleName.prototype:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            foreach(KeyValuePair<string,bool> hull in this.UnlockedHullsDict)
+            {
+                if (!hull.Value)
+                    continue;
+                
             }
 
             // Added by The Doctor - trigger events with unlocking of techs, via Technology XML
