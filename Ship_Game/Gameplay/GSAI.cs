@@ -5347,14 +5347,14 @@ namespace Ship_Game.Gameplay
             this.PlatformUpkeep = capPlatforms - (nonMilitaryCap * .25f);
             this.StationUpkeep = capStations - (nonMilitaryCap * .5f);
             */
-            if (!this.empire.canBuildCapitals && Ship_Game.ResourceManager.TechTree.ContainsKey("Battleships"))
-                this.empire.canBuildCapitals = this.empire.GetTDict()["Battleships"].Unlocked;
-            if (!this.empire.canBuildCruisers && Ship_Game.ResourceManager.TechTree.ContainsKey("Cruisers"))
-                this.empire.canBuildCruisers = this.empire.GetTDict()["Cruisers"].Unlocked;
-            if (!this.empire.canBuildFrigates && Ship_Game.ResourceManager.TechTree.ContainsKey("FrigateConstruction"))
-                this.empire.canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
-            if (!this.empire.canBuildCorvettes && Ship_Game.ResourceManager.TechTree.ContainsKey("HeavyFighterHull"))
-                this.empire.canBuildCorvettes = this.empire.GetTDict()["HeavyFighterHull"].Unlocked;
+            //if (!this.empire.canBuildCapitals && Ship_Game.ResourceManager.TechTree.ContainsKey("Battleships"))
+            //    this.empire.canBuildCapitals = this.empire.GetTDict()["Battleships"].Unlocked;
+            //if (!this.empire.canBuildCruisers && Ship_Game.ResourceManager.TechTree.ContainsKey("Cruisers"))
+            //    this.empire.canBuildCruisers = this.empire.GetTDict()["Cruisers"].Unlocked;
+            //if (!this.empire.canBuildFrigates && Ship_Game.ResourceManager.TechTree.ContainsKey("FrigateConstruction"))
+            //    this.empire.canBuildFrigates = this.empire.GetTDict()["FrigateConstruction"].Unlocked;
+            //if (!this.empire.canBuildCorvettes && Ship_Game.ResourceManager.TechTree.ContainsKey("HeavyFighterHull"))
+            //    this.empire.canBuildCorvettes = this.empire.GetTDict()["HeavyFighterHull"].Unlocked;
 
             //Set ratio by class
             if (this.empire.canBuildCapitals)
