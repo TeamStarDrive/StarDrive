@@ -36,7 +36,7 @@ namespace Ship_Game
 
 		public PlanetGridSquare pgs;
 
-		private List<TroopInfoUIElement.TippedItem> ToolTipItems = new List<TroopInfoUIElement.TippedItem>();
+        private List<TroopInfoUIElement.TippedItem> ToolTipItems = new List<TroopInfoUIElement.TippedItem>();
 
 		new private Color tColor = new Color(255, 239, 208);
 
@@ -189,7 +189,14 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
-			this.DescriptionSL.HandleInput(input);
+            try
+            {
+                this.DescriptionSL.HandleInput(input);
+            }
+            catch
+            {
+                return false;
+            }
 			foreach (TroopInfoUIElement.TippedItem ti in this.ToolTipItems)
 			{
 				if (!HelperFunctions.CheckIntersection(ti.r, input.CursorPosition))
@@ -205,7 +212,7 @@ namespace Ship_Game
 				{
 					if ((this.screen.workersPanel as CombatScreen).ActiveTroop.TroopsHere[0].AvailableMoveActions < 1)
 					{
-						AudioManager.PlayCue("UI_Misc20");
+						AudioManager.PlayCue("UI_Misc20");                        
 						return true;
 					}
 					AudioManager.PlayCue("sd_troop_takeoff");
@@ -215,7 +222,7 @@ namespace Ship_Game
 					}
 					(this.screen.workersPanel as CombatScreen).ActiveTroop = null;
 				}
-			}
+			}            
 			return false;
 		}
 
