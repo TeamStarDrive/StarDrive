@@ -3364,7 +3364,7 @@ namespace Ship_Game
                 return false;
             //if (building.Maintenance <= 0.0f)
             //    return true;
-            if (building.PlusTaxPercentage * this.GrossMoneyPT >= building.Maintenance * 1.25f
+            if (building.PlusTaxPercentage * this.GrossMoneyPT >= building.Maintenance 
                 || building.CreditsPerColonist * (this.Population / 1000f) >= building.Maintenance 
 
                 
@@ -3372,10 +3372,11 @@ namespace Ship_Game
                 return true;
             if (building .Name == "Outpost" || building.WinsGame  )
                 return true;
-            if (this.Owner.data.Traits.Cybernetic <= 0 && building.PlusFoodPerColonist > 0)// && this.Fertility == 0)
+            //dont build +food if you dont need to
+            if (this.Owner.data.Traits.Cybernetic <= 0 && building.PlusFlatFoodAmount > 0)// && this.Fertility == 0)
             {
                 
-                if (this.Fertility == 0|| (this.NetFoodPerTurn >0 && this.FarmerPercentage <.3) &&!this.BuildingList.Contains(building))
+                if (this.Fertility == 0|| (this.NetFoodPerTurn >0 && this.FarmerPercentage <.3) ||this.BuildingList.Contains(building))
                 
                 return false;
                
@@ -3383,7 +3384,15 @@ namespace Ship_Game
             if (this.Owner.data.Traits.Cybernetic <= 0 
                 &&( building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn > 0 && this.FarmerPercentage < .3 && !this.BuildingList.Contains(building)))
                 return false;
+            if(income > building.Maintenance && this.Population >=1000 )
+            {
+                if (building.PlusFoodPerColonist > 0 && this.FarmerPercentage > .5f && this.Fertility >= 1)
+                {
+                    return true;
+                }
 
+            }
+            
             bool iftrue = false;
             switch  (governor)
             {
@@ -3567,6 +3576,7 @@ namespace Ship_Game
                         if (HighPri)
                         {
                             if (building.PlusFlatResearchAmount > 0
+                                || (this.Fertility < 1f && building.PlusFlatFoodAmount > 0)
                                 || (this.Fertility < 1f && building.PlusFlatFoodAmount > 0)
                                 || building.PlusFlatProductionAmount >0
                                 || building.PlusResearchPerColonist > 0
@@ -4572,7 +4582,7 @@ namespace Ship_Game
                             buildthis = pro;
                             buildthis = pro ?? food ?? res;
 
-                            if (buildthis != null)
+                            if (buildthis != null && WeCanAffordThis(buildthis, this.colonyType))
                             {
                                 num8++;
                                 this.AddBuildingToCQ(buildthis);

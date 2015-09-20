@@ -6145,8 +6145,13 @@ namespace Ship_Game.Gameplay
             float treasuryGoal = this.empire.GrossTaxes + this.empire.OtherIncome + this.empire.TradeMoneyAddedThisTurn + this.empire.data.FlatMoneyBonus;  //mmore savings than GDP 
             treasuryGoal *=10;
             treasuryGoal = treasuryGoal <= 1 ? 1: treasuryGoal;
-            // float returnAmount = 0f;
-            this.empire.data.TaxRate = this.FindTaxRateToReturnAmount( treasuryGoal *(1-(money/treasuryGoal))    );
+            float tempTax =this.FindTaxRateToReturnAmount( treasuryGoal *(1-(money/treasuryGoal))    );
+            if (tempTax - this.empire.data.TaxRate > .05f)
+                this.empire.data.TaxRate += .05f;
+            else if (tempTax - this.empire.data.TaxRate < -.05f)
+                this.empire.data.TaxRate -= .05f;
+            else
+                this.empire.data.TaxRate = tempTax;
             //if (!this.empire.isPlayer)  // The AI will NOT build defense platforms ?
             //    return;
             float DefBudget = this.empire.Money * this.empire.GetPlanets().Count * .001f * (1 - this.empire.data.TaxRate);
@@ -8567,8 +8572,30 @@ namespace Ship_Game.Gameplay
                     if (currentHull != null && ship.shipData.Hull == currentHull.Hull)
                     //if (ship.shipData.Hull== currentHull.Hull)
                     {
-                        techCost -=5;
+                        techCost -=3;
                     }
+                    if(!this.empire.canBuildTroopShips || ! this.empire.canBuildCarriers)
+                    {
+                        foreach(ShipModule hangar in ship.GetHangars())
+                        {
+                            if (hangar.IsTroopBay)
+                                techCost -= 5;
+                            if (hangar.MaximumHangarShipSize > 0)
+                                techCost -= 5;
+                        }
+                    }
+                    if(!this.empire.canBuildBombers)
+                    {
+                        if (ship.BombBays.Count > 0)
+                            techCost -= (5+ this.empire.getResStrat().MilitaryPriority);
+                    }
+                    //else
+                    //{
+                    //    if (ship.BombBays.Count > 0)
+
+                    //        techCost -= this.empire.getResStrat().MilitaryPriority;
+                    //}
+                    
                     //if (AvailableTechs.Where(tech => tech.TechnologyType == TechnologyType.ShipHull && ship.shipData.techsNeeded.Contains(tech.UID)).Count() < 1)
                     //    continue;
                     {
