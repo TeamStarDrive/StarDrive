@@ -5358,7 +5358,7 @@ output = maxp * take10 = 5
             this.ProductionHere += this.NetProductionPerTurn > 0.0f ? this.NetProductionPerTurn : 0.0f;
 
             //fbedard: apply all remaining production on Planet with no governor
-            if (this.ps != GoodState.EXPORT && this.colonyType == Planet.ColonyType.Colony)
+            if (this.ps != GoodState.EXPORT && this.colonyType == Planet.ColonyType.Colony && this.Owner.isPlayer)
             {
                 normalAmount = this.ProductionHere;
                 this.ProductionHere = 0f;

@@ -750,7 +750,7 @@ namespace Ship_Game
                     }
                     if (!flag2)
                         break;
-                    this.freighter.GetAI().OrderTrade();
+                    this.freighter.GetAI().OrderTrade(0.1f);
                     this.empire.ReportGoalComplete(this);
                     break;
             }
@@ -934,7 +934,7 @@ namespace Ship_Game
                     }
                     if (flag2)
                     {
-                        this.passTran.GetAI().OrderTransportPassengers();
+                        this.passTran.GetAI().OrderTransportPassengers(0.1f);
                         this.empire.ReportGoalComplete(this);
                         break;
                     }
