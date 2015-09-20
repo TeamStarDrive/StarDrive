@@ -215,6 +215,7 @@ namespace Ship_Game.Gameplay
         public ushort purgeCount =0;
         public Ship lastAttacker = null;
         private bool LowHealth = false; //fbedard: recalculate strength after repair
+        public float TradeTimer;
 
         //public class diplomacticSpace
         //{
@@ -348,7 +349,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                this.GetAI().OrderTrade();
+                this.GetAI().OrderTrade(5f);
             }
         }
 
@@ -360,7 +361,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                this.GetAI().OrderTransportPassengers();
+                this.GetAI().OrderTransportPassengers(5f);
             }
         }
 
