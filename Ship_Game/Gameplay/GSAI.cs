@@ -6830,8 +6830,8 @@ namespace Ship_Game.Gameplay
                 return;
             Planet targetBuild = this.empire.GetPlanets()
                 .Where(planet => planet.AllowInfantry && planet.colonyType != Planet.ColonyType.Research
-                    && planet.GetMaxProductionPotential() > 2
-                    && (planet.ProductionHere) -(planet.ConstructionQueue.Where(goal => goal.Goal != null
+                    && planet.GetMaxProductionPotential() > 5 
+                    && (planet.ProductionHere) -2*(planet.ConstructionQueue.Where(goal => goal.Goal != null
                         && goal.Goal.type == GoalType.BuildTroop).Sum(cost => cost.Cost)) > 0//10 turns to build curremt troops in queue
                         
                         )
@@ -7327,8 +7327,10 @@ namespace Ship_Game.Gameplay
                     continue;
                 }
 
-                this.numberOfShipGoals = this.numberOfShipGoals + (int)((p.ProductionHere)/50); //(int)(p.ProductionHere /(1+ p.ConstructionQueue.Sum(q => q.Cost)));
+                this.numberOfShipGoals = this.numberOfShipGoals + p.developmentLevel; //(int)(p.ProductionHere /(1+ p.ConstructionQueue.Sum(q => q.Cost)));
             }
+            this.numberOfShipGoals /= this.empire.GetPlanets().Count;
+            this.numberOfShipGoals = (int)((float)this.numberOfShipGoals* (1 - this.empire.data.TaxRate));
             float numgoals = 0f;
             float offenseUnderConstruction = 0f;
             float UnderConstruction = 0f;
@@ -7401,9 +7403,9 @@ namespace Ship_Game.Gameplay
             //else
             //    if (tax < .05f)
             //        tax = .05f;
-
+            this.numberOfShipGoals += (int)offenseNeeded;
             //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
-            float AtWarBonus = 0.1f;
+            float AtWarBonus = 0.05f;
             if (this.empire.Money > 500f)
                 AtWarBonus += offenseNeeded * 0.01f;
             float Capacity = this.empire.Money * AtWarBonus - UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
