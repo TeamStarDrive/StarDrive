@@ -570,8 +570,8 @@ namespace Ship_Game.Gameplay
         public override void MoveTo(Vector2 MovePosition, float facing, Vector2 fVec)
         {
             this.Position = this.findAveragePosition();
-            if (this.InCombat)
-                this.HasPriorityOrder = true;
+            if (this.Owner.isPlayer && this.InCombat)
+                this.HasPriorityOrder = true;            
             this.GoalStack.Clear();
             this.MoveToNow(MovePosition, facing, fVec);
         }
@@ -639,7 +639,7 @@ namespace Ship_Game.Gameplay
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
                 ship.GetAI().SetPriorityOrder();
-                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true,null);
+                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true, null);
             }
         }
 
@@ -662,8 +662,12 @@ namespace Ship_Game.Gameplay
             this.AssembleFleet(facing, fVec);
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
-                ship.GetAI().SetPriorityOrder();
-                ship.GetAI().OrderMoveDirectlyTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true);
+                //Prevent fleets with no tasks from and are near their distination from being dumb.
+                if (this.Owner.isPlayer || this.Task != null || !ship.GetAI().BadGuysNear || ship.GetStrength() <= 0 || Vector2.Distance(ship.Center,MovePosition) >150000f)
+                {
+                    ship.GetAI().SetPriorityOrder();
+                    ship.GetAI().OrderMoveDirectlyTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true);
+                }
             }
         }
 
@@ -2415,6 +2419,7 @@ namespace Ship_Game.Gameplay
                         break;
                     }
                 case 2:
+                   
                     if ((double)this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.targetPosition, 20000f, this.Owner) == 0.0)
                     {
                         this.TaskStep = 1;
@@ -2927,6 +2932,7 @@ namespace Ship_Game.Gameplay
                 if (ship.Active)
                     num += ship.GetStrength();
             }
+
             return num;
         }
 
@@ -2941,7 +2947,7 @@ namespace Ship_Game.Gameplay
                 if (EmpireManager.GetEmpireByName(Fleet.screen.PlayerLoyalty) == this.Owner || this.IsCoreFleet || this.Ships.Count <= 0)
                     return;
                 foreach (Ship s in (List<Ship>)this.Owner.GetFleetsDict()[which].Ships)
-                {
+                {                    
                     s.GetAI().OrderQueue.Clear();
                     s.GetAI().State = AIState.AwaitingOrders;
                     s.fleet = (Fleet)null;
