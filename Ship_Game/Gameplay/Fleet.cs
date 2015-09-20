@@ -1298,7 +1298,7 @@ namespace Ship_Game.Gameplay
                     militaryTask.type = MilitaryTask.TaskType.DefendPostInvasion;
                     this.Owner.GetGSAI().TaskList.QueuePendingRemoval(Task);
                     this.Task = militaryTask;
-                    lock (GlobalStats.TaskLocker)
+                    
                         this.Owner.GetGSAI().TaskList.Add(Task);
                 }
                 else
@@ -1356,7 +1356,9 @@ namespace Ship_Game.Gameplay
                                 Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
                                 this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
                                 foreach (Ship ship in (List<Ship>)this.Ships)
+                                {
                                     ship.GetAI().HasPriorityOrder = true;
+                                }
                                 this.TaskStep = 1;
                                 break;
                             }
