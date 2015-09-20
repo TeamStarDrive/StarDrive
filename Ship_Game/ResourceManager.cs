@@ -1018,7 +1018,17 @@ namespace Ship_Game
 			{
 				FileInfo FI = filesFromDirectory1[num2];
 				FileStream stream = FI.OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
+                ShipData newShipData  =null;
+                try
+                {
+                    newShipData = (ShipData)serializer0.Deserialize(stream);
+                }
+                catch
+                {
+                    num2++;
+                    continue;
+                    
+                }
 				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
