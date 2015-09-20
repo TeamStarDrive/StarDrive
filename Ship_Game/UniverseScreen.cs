@@ -557,7 +557,7 @@ namespace Ship_Game
         {
             if (this.SelectedShip == null)
                 return;
-            this.SelectedShip.GetAI().OrderTransportPassengers();
+            this.SelectedShip.GetAI().OrderTransportPassengers(0.1f);
         }
 
         public void DoDefense(object sender)
@@ -577,7 +577,7 @@ namespace Ship_Game
             if (this.SelectedShip == null)
                 return;
             this.SelectedShip.GetAI().State = AIState.SystemTrader;
-            this.SelectedShip.GetAI().OrderTrade();
+            this.SelectedShip.GetAI().OrderTrade(0.1f);
         }
 
         public void ViewShip(object sender)
