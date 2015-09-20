@@ -1574,7 +1574,7 @@ namespace Ship_Game
         {
             this.updateContactsTimer -= elapsedTime;
             this.FleetUpdateTimer -= elapsedTime;
-            try
+            //try
             {
                 foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
                 {
@@ -1587,9 +1587,9 @@ namespace Ship_Game
                     }
                 }
             }
-            catch
-            {
-            }
+            //catch
+            //{
+            //}
             if ((double)this.FleetUpdateTimer < 0.0)
                 this.FleetUpdateTimer = 5f;
             this.OwnedShips.ApplyPendingRemovals();
