@@ -1018,6 +1018,11 @@ namespace Ship_Game
 			{
 				FileInfo FI = filesFromDirectory1[num2];
 				FileStream stream = FI.OpenRead();
+                if (FI.Extension != "XML")
+                {
+                    num2++;
+                    continue;
+                }
                 ShipData newShipData  =null;
                 try
                 {
