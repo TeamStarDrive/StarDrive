@@ -5271,21 +5271,21 @@ namespace Ship_Game.Gameplay
                     }
 
                     //carrier
-                    if (item.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0 == true)
+                    if (item.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0 == true && str >= ShipData.RoleName.freighter)
                     {
                         numCarriers++;
                         TotalMilShipCount++;
                         capCarriers += upkeep;
                     }
                     //troops ship
-                    else if (item.HasTroopBay || item.hasTransporter)
+                    else if ((item.HasTroopBay || item.hasTransporter) && str >= ShipData.RoleName.freighter)
                     {
                         numTroops++;
                         TotalMilShipCount++;
                         capTroops += upkeep;
                     }
                     //bomber
-                    else if (item.BombBays.Count > 0)
+                    else if (item.BombBays.Count > 0 && str >= ShipData.RoleName.freighter)
                     {
                         numBombers++;
                         TotalMilShipCount++;
@@ -5612,8 +5612,10 @@ namespace Ship_Game.Gameplay
                     continue;
 
                     upkeep = ship.GetMaintCost(this.empire); //this automatically calls realistic maintenance cost if needed. 
-                              
-                 if (role == ShipData.RoleName.troop && !(ship.HasTroopBay || ship.hasTransporter))
+                
+                if (Capacity < upkeep || !shipIsGoodForGoals(ship) || ship.shipData.Role < ShipData.RoleName.freighter)
+                    continue;                               
+                if (role == ShipData.RoleName.troop && !(ship.HasTroopBay || ship.hasTransporter))
                     continue;
                 else if (role == ShipData.RoleName.drone && ship. BombBays.Count == 0)
                     continue;
@@ -5621,8 +5623,6 @@ namespace Ship_Game.Gameplay
                     continue;
                 else if (role != ship.shipData.Role)
                     continue;
-                 if (Capacity < upkeep || !shipIsGoodForGoals(ship))
-                    continue; 
                 if (ship.shipData.techsNeeded.Count > maxtech)
                     maxtech = ship.shipData.techsNeeded.Count;
                 PotentialShips.Add(ship);
@@ -7527,12 +7527,13 @@ namespace Ship_Game.Gameplay
 
             //fbedard: Build Defensive ships
             bool Def = false;
+            float HalfCapacity = Capacity / 2f;
             foreach (Planet planet2 in this.empire.GetPlanets())
                 if (planet2.HasShipyard && planet2.ParentSystem.combatTimer > 0f)
                     Def = true;
 
             if (Def)
-            while (Capacity > 0
+            while (Capacity - HalfCapacity > 0f
                 && numgoals < this.numberOfShipGoals / 2
                 && (Empire.universeScreen.globalshipCount < ShipCountLimit + recyclepool
                 || this.empire.empireShipTotal < this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
