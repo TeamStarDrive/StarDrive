@@ -7325,16 +7325,18 @@ namespace Ship_Game.Gameplay
             foreach (Planet p in this.empire.GetPlanets())
             {
                // if (!p.HasShipyard || (p.GetMaxProductionPotential() <2f
-                if ((p.GetMaxProductionPotential() < 2f //||( this.empire.data.Traits.Cybernetic !=0 && p.GetMaxProductionPotential()-p.consumption <2f)
-                    || p.ps == Planet.GoodState.IMPORT
-                    ))   //p.GetNetProductionPerTurn() < .5f))
+                if (//(p.GetMaxProductionPotential() < 2f //||( this.empire.data.Traits.Cybernetic !=0 && p.GetMaxProductionPotential()-p.consumption <2f)
+                    //|| p.ps == Planet.GoodState.IMPORT
+                    (p.ProductionHere * p.WorkerPercentage) > .75 || p.GetMaxProductionPotential() < 2f
+                    
+                    )//)   //p.GetNetProductionPerTurn() < .5f))
                 {
                     continue;
                 }
 
                 this.numberOfShipGoals = this.numberOfShipGoals + p.developmentLevel; //(int)(p.ProductionHere /(1+ p.ConstructionQueue.Sum(q => q.Cost)));
             }
-            this.numberOfShipGoals /= this.empire.GetPlanets().Count;
+            this.numberOfShipGoals = this.numberOfShipGoals / this.empire.GetPlanets().Count;
             this.numberOfShipGoals = (int)((float)this.numberOfShipGoals* (1 - this.empire.data.TaxRate));
             float numgoals = 0f;
             float offenseUnderConstruction = 0f;
@@ -7408,13 +7410,15 @@ namespace Ship_Game.Gameplay
             //else
             //    if (tax < .05f)
             //        tax = .05f;
+            if (offenseNeeded > 10)
+                offenseNeeded = 10;
             this.numberOfShipGoals += (int)offenseNeeded;
             //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
-            float AtWarBonus = 0.05f;
+            float AtWarBonus = 0.025f;
             if (this.empire.Money > 500f)
                 AtWarBonus += offenseNeeded * 0.01f;
             float Capacity = this.empire.Money * AtWarBonus - UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
-            float allowable_deficit = this.empire.Money * -.1f; //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
+            float allowable_deficit = this.empire.Money * -AtWarBonus; //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
             this.empire.data.ShipBudget = this.empire.Money * AtWarBonus;
             
