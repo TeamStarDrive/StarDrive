@@ -3055,7 +3055,7 @@ namespace Ship_Game
                         break;
                     if (ship.GetAI().State != AIState.Flee)
                     {
-                        ship.GetAI().OrderTrade();
+                        ship.GetAI().OrderTrade(0.1f);
                     }
                     assignedShips.Add(ship);
                     ++tradeShips;
@@ -3080,7 +3080,7 @@ namespace Ship_Game
                 {
                     if (passengerShips > PassLimit)
                         break;
-                    ship.GetAI().OrderTransportPassengers();
+                    ship.GetAI().OrderTransportPassengers(0.1f);
                     assignedShips.Add(ship);
                     ++passengerShips;
                 }
@@ -3096,7 +3096,7 @@ namespace Ship_Game
                     });
             }
             foreach (Ship ship in unusedFreighters)
-                ship.GetAI().OrderTransportPassengers();  //fbedard: default to passenger
+                ship.GetAI().OrderTransportPassengers(0.1f);  //fbedard: default to passenger
         }
 
         public void ReportGoalComplete(Goal g)

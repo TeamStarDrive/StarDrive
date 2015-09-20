@@ -279,7 +279,7 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
-								this.ShipList[i].GetAI().OrderTrade();
+								this.ShipList[i].GetAI().OrderTrade(5f);
 							}
 							return true;
 						}
@@ -287,7 +287,7 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
-								this.ShipList[i].GetAI().OrderTrade();
+								this.ShipList[i].GetAI().OrderTrade(5f);
 							}
 							return true;
 						}
@@ -295,7 +295,7 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
-								this.ShipList[i].GetAI().OrderTransportPassengers();
+								this.ShipList[i].GetAI().OrderTransportPassengers(5f);
 							}
 							return true;
 						}
