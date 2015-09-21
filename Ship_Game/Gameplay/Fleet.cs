@@ -663,7 +663,7 @@ namespace Ship_Game.Gameplay
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
-                if (this.Owner.isPlayer || this.Task != null || !ship.GetAI().BadGuysNear || ship.GetStrength() <= 0 || Vector2.Distance(ship.Center,MovePosition) >150000f)
+                if (this.Owner.isPlayer || ship.GetSystem() ==null|| this.Task != null || !ship.GetAI().BadGuysNear || ship.GetStrength() <= 0 || Vector2.Distance(ship.Center,MovePosition) >150000f)
                 {
                     ship.GetAI().SetPriorityOrder();
                     ship.GetAI().OrderMoveDirectlyTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true);
