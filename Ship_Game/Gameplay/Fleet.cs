@@ -1302,7 +1302,7 @@ namespace Ship_Game.Gameplay
                     militaryTask.type = MilitaryTask.TaskType.DefendPostInvasion;
                     this.Owner.GetGSAI().TaskList.QueuePendingRemoval(Task);
                     this.Task = militaryTask;
-                    
+                    lock(GlobalStats.TaskLocker)
                         this.Owner.GetGSAI().TaskList.Add(Task);
                 }
                 else
