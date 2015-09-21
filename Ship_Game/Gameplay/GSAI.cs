@@ -7321,7 +7321,7 @@ namespace Ship_Game.Gameplay
             List<AO>.Enumerator enumerator;
             if(!this.empire.MinorRace)
                 this.RunGroundPlanner();
-            this.numberOfShipGoals = 0;
+            this.numberOfShipGoals = 1;
             foreach (Planet p in this.empire.GetPlanets())
             {
                // if (!p.HasShipyard || (p.GetMaxProductionPotential() <2f
@@ -7423,9 +7423,9 @@ namespace Ship_Game.Gameplay
             //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
             float AtWarBonus = 0.025f;
             if (this.empire.Money > 500f)
-                AtWarBonus += (offenseNeeded * 0.01f);
+                AtWarBonus += (offenseNeeded * 0.1f);
             float Capacity = this.empire.Money * AtWarBonus - UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
-            float allowable_deficit = this.empire.Money * -AtWarBonus; //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
+            float allowable_deficit = this.empire.Money * (-AtWarBonus*.1f); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
             this.empire.data.ShipBudget = this.empire.Money * AtWarBonus;
             
@@ -8626,15 +8626,8 @@ namespace Ship_Game.Gameplay
                         if (ship.BombBays.Count > 0)
                             techCost -= (5+ this.empire.getResStrat().MilitaryPriority);
                     }
-                    //else
-                    //{
-                    //    if (ship.BombBays.Count > 0)
-
-                    //        techCost -= this.empire.getResStrat().MilitaryPriority;
-                    //}
-                    
-                    //if (AvailableTechs.Where(tech => tech.TechnologyType == TechnologyType.ShipHull && ship.shipData.techsNeeded.Contains(tech.UID)).Count() < 1)
-                    //    continue;
+                    if (ship.Name == BestCombatShip)
+                        techCost -= 20;
                     {
                         moneyNeeded = ship.GetMaintCost(this.empire);// *5;
                         bool GeneralTechBlock = false;
