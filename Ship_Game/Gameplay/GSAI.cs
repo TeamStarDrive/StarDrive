@@ -7927,14 +7927,6 @@ namespace Ship_Game.Gameplay
                 needsFood = needsFood>0 ? needsFood /this.empire.GetPlanets().Count :0;
                 needsFood *= 10;
 
-                //float moneyNeeded = this.empire.canBuildFrigates ? 25 : 0;
-                //moneyNeeded = this.empire.canBuildCruisers ? 50 : moneyNeeded;
-                //moneyNeeded = this.empire.canBuildCapitals ? 100 : moneyNeeded;
-                //float money = this.empire.EstimateIncomeAtTaxRate(.5f) + this.empire.GetTotalShipMaintenance();
-                //if (money < moneyNeeded)
-                //{
-                //    lowincome = true;
-                //}
                 switch (this.res_strat)
 				{
 					case GSAI.ResearchStrategy.Random:
@@ -7945,14 +7937,7 @@ namespace Ship_Game.Gameplay
                         {
                             Dictionary<string, int> priority = new Dictionary<string, int>();
                             int shipBuildBonus = 0;
-                            //shipBuildBonus=this.empire.TechnologyDict.Where(unlocked => unlocked.Value.GetTech().RootNode!=1 && unlocked.Value.Unlocked).Count();
-                            //if ( shipBuildBonus < (cybernetic ? 6: 4))
-                            //    shipBuildBonus -= 4;
-                            //else
-                            //if (!this.empire.canBuildFrigates)
-                            //    shipBuildBonus = 2;
-
-
+ 
                             priority.Add("SHIPTECH", this.randomizer(this.empire.getResStrat().ResearchPriority + this.empire.getResStrat().MilitaryPriority, 4 + ((int)wars+ shipBuildBonus)));
 
                             priority.Add("Research", this.randomizer(this.empire.getResStrat().ResearchPriority , 4 + (researchDebt)));
@@ -8499,8 +8484,8 @@ namespace Ship_Game.Gameplay
                 int BestShipTechCost = 0;
                 //smallest unresearched hull
                 ShipData currentHull = null;
-
-            //if(string.IsNullOrEmpty(this.BestCombatShip) )
+#region hullpreference
+                //if(string.IsNullOrEmpty(this.BestCombatShip) )
                 //foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 foreach (Technology hulls in unlockededTech)
                     foreach (Technology.UnlockedHull unlockedhull in hulls.HullsUnlocked)
@@ -8564,11 +8549,17 @@ namespace Ship_Game.Gameplay
                     
                    
                 }
+            //if(currentHull == null) //Choose a random hull to improve.
+            //{
+            //    int randomhull = (int)RandomMath.RandomBetween(0f, this.empire.GetHDict().Count);
+            //    if(randomhull )
+            //}
             
+#endregion
 
-                
-            //if (string.IsNullOrEmpty(this.BestCombatShip))         
-                foreach (KeyValuePair<string, Ship> wecanbuildit in ResourceManager.ShipsDict.OrderBy(techcost => techcost.Value.shipData != null ? techcost.Value.shipData.TechScore : 0)) // techcost.Value.BaseStrength)) //techcost.Value.shipData != null ? techcost.Value.shipData.techsNeeded.Count : 0))// // shipData !=null? techcost.Value.shipData.TechScore:0))   //Value.shipData.techsNeeded.Count:0))
+
+#region shippicker
+            foreach (KeyValuePair<string, Ship> wecanbuildit in ResourceManager.ShipsDict.OrderBy(techcost => techcost.Value.shipData != null ? techcost.Value.shipData.TechScore : 0)) // techcost.Value.BaseStrength)) //techcost.Value.shipData != null ? techcost.Value.shipData.techsNeeded.Count : 0))// // shipData !=null? techcost.Value.shipData.TechScore:0))   //Value.shipData.techsNeeded.Count:0))
                 {
                     //if (currentHull != null &&  wecanbuildit.Value.shipData.Hull != currentHull.Hull)
                     //    continue;
@@ -8616,15 +8607,15 @@ namespace Ship_Game.Gameplay
                         foreach(ShipModule hangar in ship.GetHangars())
                         {
                             if (hangar.IsTroopBay)
-                                techCost -= 5;
+                                techCost -= 10;
                             if (hangar.MaximumHangarShipSize > 0)
-                                techCost -= 5;
+                                techCost -= 20;
                         }
                     }
                     if(!this.empire.canBuildBombers)
                     {
                         if (ship.BombBays.Count > 0)
-                            techCost -= (5+ this.empire.getResStrat().MilitaryPriority);
+                            techCost -= (20+ this.empire.getResStrat().MilitaryPriority);
                     }
                     if (ship.Name == BestCombatShip)
                         techCost -= 20;
@@ -8744,7 +8735,7 @@ namespace Ship_Game.Gameplay
                 //        }
                 //    }
                 //}
-                
+            #endregion
                 System.Diagnostics.Debug.WriteLine("This is Best Ship Tech: " + this.empire.data.Traits.ShipType + " -Ship: " + this.BestCombatShip);//+ " -TechCount: " + ship.shipData.techsNeeded.Count);
                 if (modifier == "TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull")
                 {
