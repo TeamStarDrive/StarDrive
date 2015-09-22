@@ -461,9 +461,25 @@ namespace Ship_Game.Gameplay
 				Planet population = this.ColonizeTarget;
 				population.Population = population.Population + slot.module.numberOfColonists;
 			}
-            //Added by McShooterz: Remove troops from planet
+            //Added by McShooterz: Remove troops from colonized planet
             bool TroopsRemoved = false;
             bool PlayerTroopsRemoved = false;
+
+			List<Troop> toLaunch = new List<Troop>();
+            foreach (Troop t in TargetPlanet.TroopsHere)
+			{
+                if (t != null && t.GetOwner() != null && !t.GetOwner().isFaction && t.GetOwner().data.DefaultTroopShip != null && t.GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(t.GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[t.GetOwner()].AtWar)
+				    toLaunch.Add(t);
+			}
+			foreach (Troop t in toLaunch)
+			{
+                t.Launch();
+                TroopsRemoved = true;
+                if (t.GetOwner().isPlayer)
+                    PlayerTroopsRemoved = true;
+			}
+			toLaunch.Clear();
+            /*            
             for (int i = 0; i < this.ColonizeTarget.TroopsHere.Count; i++)
             {
                 Troop troop = this.ColonizeTarget.TroopsHere[i];
@@ -475,6 +491,7 @@ namespace Ship_Game.Gameplay
                         PlayerTroopsRemoved = true;
                 }
             }
+            */
             if (TroopsRemoved)
             {
                 if (PlayerTroopsRemoved)
