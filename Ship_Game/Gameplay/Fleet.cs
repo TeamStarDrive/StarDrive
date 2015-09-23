@@ -361,7 +361,7 @@ namespace Ship_Game.Gameplay
                     this.ScreenShips.Add(ship);
                     removalCollection.QueuePendingRemoval(ship);
                 }
-                if (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                if (ship.shipData.Role == ShipData.RoleName.troop || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                 {
                     this.RearShips.Add(ship);
                     removalCollection.QueuePendingRemoval(ship);
