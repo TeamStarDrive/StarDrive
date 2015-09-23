@@ -735,14 +735,11 @@ namespace Ship_Game
                         default:
                             break;
                     }
+                    this.UpdateShipsWeCanBuild();
                 }
+
             }
-            foreach(KeyValuePair<string,bool> hull in this.UnlockedHullsDict)
-            {
-                if (!hull.Value)
-                    continue;
-                
-            }
+
 
             // Added by The Doctor - trigger events with unlocking of techs, via Technology XML
             foreach (Technology.TriggeredEvent triggeredEvent in ResourceManager.TechTree[techID].EventsTriggered)
@@ -1772,9 +1769,11 @@ namespace Ship_Game
 
         public bool WeCanBuildThis(string ship)
         {
-            if (!ResourceManager.ShipsDict.ContainsKey(ship))
+            
+            Ship ship1 = null;
+            if (!ResourceManager.ShipsDict.TryGetValue(ship,out ship1)) // ContainsKey(ship))
                 return false;
-            ShipData shipData = ResourceManager.ShipsDict[ship].GetShipData();
+            ShipData shipData = ship1.shipData;
             if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
                 return false;
             //If the ship role is not defined don't try to use it
