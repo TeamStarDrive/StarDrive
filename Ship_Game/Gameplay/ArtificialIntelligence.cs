@@ -6059,10 +6059,7 @@ namespace Ship_Game.Gameplay
                 this.Target = sortedList2.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
             }
             if (this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0)
-            {
-                this.BadGuysNear = true;
                 return this.Target;          
-            }
             return null;
         }
 
@@ -7114,15 +7111,15 @@ namespace Ship_Game.Gameplay
                     else
                     {
                         float DistanceToFleetOffset = Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset);
-                        Vector2 toAdd = (this.Owner.Velocity != Vector2.Zero ? Vector2.Normalize(this.Owner.Velocity) : Vector2.Zero) * 100f;
-                        Vector2.Distance(this.Owner.Center, (this.Owner.fleet.Position + this.Owner.FleetOffset) + toAdd);
-                        Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Owner.fleet.Position + this.Owner.FleetOffset, this.Owner.fleet.facing, 1f);
-                        Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
+                        //Vector2 toAdd = (this.Owner.Velocity != Vector2.Zero ? Vector2.Normalize(this.Owner.Velocity) : Vector2.Zero) * 100f;
+                        //Vector2.Distance(this.Owner.Center, (this.Owner.fleet.Position + this.Owner.FleetOffset) + toAdd);
+                        //Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Owner.fleet.Position + this.Owner.FleetOffset, this.Owner.fleet.facing, 1f);
+                        //Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
                         if (DistanceToFleetOffset <= 75f || this.HasPriorityOrder)
                         {
                             this.Owner.Velocity = Vector2.Zero;
-                            vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, this.Owner.fleet.facing, 1f);
-                            fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
+                            Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, this.Owner.fleet.facing, 1f);
+                            Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
                             Vector2 wantedForward = Vector2.Normalize(fvec);
                             Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
                             Vector2 right = new Vector2(-forward.Y, forward.X);
