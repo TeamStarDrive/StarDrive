@@ -22,7 +22,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         public float EmpireTroopRatio;
-
+        public float UniverseWants;
 		public DefensiveCoordinator(Empire e)
 		{
 			this.us = e;
@@ -124,7 +124,7 @@ namespace Ship_Game
            {
                if (p.Owner != us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(this.us))
                {
-                   
+                   p.TroopsHere.ApplyPendingRemovals();
                    foreach (Troop troop in p.TroopsHere.Where(loyalty => loyalty.GetOwner() == this.us).ToList())
                    {
                        p.TroopsHere.QueuePendingRemoval(troop);
@@ -588,7 +588,7 @@ namespace Ship_Game
                 }
                 TroopShips.ApplyPendingRemovals();
             }
-            float UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
+            this.UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
             Planet tempPlanet = null;
             int TroopsSent = 0;
             foreach (Ship ship4 in TroopShips)
@@ -619,9 +619,17 @@ namespace Ship_Game
 
 
                     //send troops to the first planet in the system with the lowest troop count.
-                    Planet target = solarSystem2.PlanetList.Where(planet => planet.Owner == ship4.loyalty)
-                    .OrderBy(planet => planet.GetDefendingTroopCount() < defenseSystem.IdealTroopStr / solarSystem2.PlanetList.Count * (planet.developmentLevel / defenseSystem.SystemDevelopmentlevel))
-                    .FirstOrDefault();
+                    //Planet target = solarSystem2.PlanetList.Where(planet => planet.Owner == ship4.loyalty)
+                    //.OrderBy(planet => planet.GetDefendingTroopCount() < defenseSystem.IdealTroopStr / solarSystem2.PlanetList.Count * (planet.developmentLevel / defenseSystem.SystemDevelopmentlevel))
+                    //.FirstOrDefault();
+                    Planet target = null;
+                    foreach(Planet lowTroops in solarSystem2.PlanetList )
+                    {
+                        if (lowTroops.Owner != ship4.loyalty)
+                            continue;
+                        if (target==null || lowTroops.TroopsHere.Count < target.TroopsHere.Count)
+                            target = lowTroops;
+                    }
                     if (target == null)
                         continue;
                     //if (target != tempPlanet)

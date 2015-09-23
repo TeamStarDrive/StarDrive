@@ -1275,7 +1275,7 @@ namespace Ship_Game.Gameplay
 
 
             //if (ourAvailableStrength > EnemyTroopStrength * 1.65f && tfstrength >= this.MinimumTaskForceStrength)
-            if (this.TargetPlanet.GetGroundLandingSpots() >5 && tfstrength >= this.MinimumTaskForceStrength)
+            if (this.TargetPlanet.GetGroundLandingSpots() >10 && tfstrength >= this.MinimumTaskForceStrength)
             {
                 if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.GetRelations().ContainsKey(this.TargetPlanet.Owner))
                 {
@@ -1336,8 +1336,11 @@ namespace Ship_Game.Gameplay
                                     break;
                                 }
                                 Troop t = enumerator2.Current;
-                                if (t.GetPlanet() != null && t.GetPlanet().ParentSystem.combatTimer <= 0 && !t.GetPlanet().RecentCombat && t.GetPlanet().TroopsHere.Count > t.GetPlanet().developmentLevel)
+                                if (t.GetPlanet() != null && t.GetPlanet().ParentSystem.combatTimer <= 0 && !t.GetPlanet().RecentCombat )
                                 {
+                                    SystemCommander scom = this.empire.GetGSAI().DefensiveCoordinator.DefenseDict[t.GetPlanet().ParentSystem];
+                                    if (t.GetPlanet().TroopsHere.Count < scom.RankImportance)
+                                        continue;
                                     (new List<Troop>()).Add(t);
                                     if (t.GetOwner() != null)
                                     {
