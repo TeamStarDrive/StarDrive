@@ -670,7 +670,7 @@ namespace Ship_Game
                             this.canBuildTroopShips = true;
                         if (checkmod.MaximumHangarShipSize > 0)
                             this.canBuildCarriers = true;
-                        if (!string.IsNullOrEmpty(checkmod.WeaponType) && ResourceManager.WeaponsDict[checkmod.WeaponType].Tag_Bomb)
+                        if (checkmod.ModuleType == ShipModuleType.Bomb)
                             this.canBuildBombers=true;
                     }
                 }

@@ -4,7 +4,7 @@
   <MilitaryPriority>0</MilitaryPriority>
   <ExpansionPriority>1</ExpansionPriority>
   <ResearchPriority>2</ResearchPriority>
-  <IndustryPriority>1</IndustryPriority>
+  <IndustryPriority>0</IndustryPriority>
   <TechPath>
 	
   </TechPath>
