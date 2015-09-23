@@ -5505,8 +5505,9 @@ namespace Ship_Game.Gameplay
             List<Ship> PotentialShips = new List<Ship>();
             Dictionary<ShipData.RoleName, float> PickRoles = new Dictionary<ShipData.RoleName, float>();
             this.empire.UpdateShipsWeCanBuild();
-            string buildThis; 
+            string buildThis;
             
+
             if (numTroops > DesiredTroops)
                 PickRoles.Add(ShipData.RoleName.troop, numTroops / DesiredTroops);
             if (numFighters < DesiredFighters) {
@@ -5610,18 +5611,30 @@ namespace Ship_Game.Gameplay
             {
                 if (!ResourceManager.ShipsDict.TryGetValue(shipsWeCanBuild, out ship))
                     continue;
+                bool bombs = false;
+            bool hangars = false;
+                bool troops =false;
+            foreach(ModuleSlot slot in ship.ModuleSlotList)
+            {
+                if (slot.module.ModuleType == ShipModuleType.Bomb)
+                    bombs = true;
+                if (slot.module.MaximumHangarShipSize > 0)
+                    hangars = true;
+                if (slot.module.IsTroopBay || slot.module.TransporterRange >0)
+                    troops = true;
 
+            }
                     upkeep = ship.GetMaintCost(this.empire); //this automatically calls realistic maintenance cost if needed. 
                 
                 if (Capacity < upkeep || !shipIsGoodForGoals(ship) || ship.shipData.Role < ShipData.RoleName.freighter)
                     continue;                               
-                if (role == ShipData.RoleName.troop && !(ship.HasTroopBay || ship.hasTransporter))
+                if (role == ShipData.RoleName.troop && !troops)
                     continue;
-                else if (role == ShipData.RoleName.drone && ship. BombBays.Count == 0)
+                else if (role == ShipData.RoleName.drone && !bombs)
                     continue;
-                else if (role == ShipData.RoleName.prototype && !(ship.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0 == true))
+                else if (role == ShipData.RoleName.prototype && !hangars)
                     continue;
-                else if (role != ship.shipData.Role)
+                else if (role != ship.shipData.Role && role != ShipData.RoleName.prototype && role != ShipData.RoleName.drone && role != ShipData.RoleName.troop)
                     continue;
                 if (ship.shipData.techsNeeded.Count > maxtech)
                     maxtech = ship.shipData.techsNeeded.Count;
@@ -6794,6 +6807,8 @@ namespace Ship_Game.Gameplay
 
         private void RunGroundPlanner()
         {
+            if (this.DefensiveCoordinator.UniverseWants > .8)
+                return;
             float totalideal = 0;
             float totalwanted = 0;
             Troop troop;
@@ -6991,7 +7006,7 @@ namespace Ship_Game.Gameplay
 		private void RunInfrastructurePlanner()
 		{
             //if (this.empire.SpaceRoadsList.Sum(node=> node.NumberOfProjectors) < ShipCountLimit * GlobalStats.spaceroadlimit)
-            float sspBudget = this.empire.Money * (.01f *(1-this.empire.data.TaxRate));
+            float sspBudget = this.empire.Money * (.01f *(1.025f-this.empire.data.TaxRate));
             if (sspBudget < 0 || this.empire.data.SSPBudget > this.empire.Money * .1)
             {
                 sspBudget = 0;
@@ -7421,22 +7436,17 @@ namespace Ship_Game.Gameplay
                 offenseNeeded = 20;
             this.numberOfShipGoals += (int)offenseNeeded;
             //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
-            float AtWarBonus = 0.025f;
+            float AtWarBonus = 0.05f;
             if (this.empire.Money > 500f)
-                AtWarBonus += (offenseNeeded * 0.1f);
-            float Capacity = this.empire.Money * AtWarBonus - UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
-            float allowable_deficit = this.empire.Money * (-AtWarBonus*.1f); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
+                AtWarBonus += (offenseNeeded * 0.002f);
+            float Capacity = (this.empire.Money*(1-this.empire.data.TaxRate)) * AtWarBonus - UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
+            float allowable_deficit = -(this.empire.Money * (AtWarBonus *(1.5f-this.empire.data.TaxRate))); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
             this.empire.data.ShipBudget = this.empire.Money * AtWarBonus;
             
-            //if ((allowable_deficit >= 0f || noIncome >.5f) && atWar)
-            //{
-            //    allowable_deficit = -(this.empire.Money*.5f );//- this.empire.GrossTaxes );// 0f;
-            //}
-
-            this.buildCapacity = Capacity - allowable_deficit; // +this.empire.GetTotalShipMaintenance(); ;
-           
-            if (this.buildCapacity <= 0f)//|| (this.empire.data.TaxRate >=.5f && this.empire.GetAverageNetIncome()<0)) //(Capacity <= 0f)
+                this.buildCapacity = Capacity; 
+            
+            if (this.buildCapacity - allowable_deficit <= 0f)
             {
                 float HowMuchWeAreScrapping = 0f;
                 
@@ -7938,11 +7948,11 @@ namespace Ship_Game.Gameplay
                             Dictionary<string, int> priority = new Dictionary<string, int>();
                             int shipBuildBonus = 0;
  
-                            priority.Add("SHIPTECH", this.randomizer(this.empire.getResStrat().ResearchPriority + this.empire.getResStrat().MilitaryPriority, 4 + ((int)wars+ shipBuildBonus)));
+                            priority.Add("SHIPTECH", this.randomizer( this.empire.getResStrat().MilitaryPriority, 4 + ((int)wars+ shipBuildBonus)));
 
                             priority.Add("Research", this.randomizer(this.empire.getResStrat().ResearchPriority , 4 + (researchDebt)));
                             priority.Add("Colonization", this.randomizer(this.empire.getResStrat().ExpansionPriority , 4 + (!cybernetic ? needsFood : 0)));
-                            priority.Add("Economic", this.randomizer(this.empire.getResStrat().ResearchPriority + this.empire.getResStrat().ExpansionPriority, 4 + (economics)));
+                            priority.Add("Economic", this.randomizer(this.empire.getResStrat().ExpansionPriority, 4 + (economics)));
                             priority.Add("Industry", this.randomizer(this.empire.getResStrat().IndustryPriority , 4 + (cybernetic ? 4 + needsFood : 0)));
                             priority.Add("General", this.randomizer(this.empire.getResStrat().ResearchPriority + 2, 4));
                             priority.Add("GroundCombat", this.randomizer(this.empire.getResStrat().MilitaryPriority, 4 + ((int)(wars *.5))));
@@ -8600,25 +8610,38 @@ namespace Ship_Game.Gameplay
                     if (currentHull != null && ship.shipData.Hull == currentHull.Hull)
                     //if (ship.shipData.Hull== currentHull.Hull)
                     {
-                        techCost -=3;
+                        techCost -=1;
                     }
-                    if(!this.empire.canBuildTroopShips || ! this.empire.canBuildCarriers)
+                    //if(!this.empire.canBuildTroopShips || ! this.empire.canBuildCarriers)
+
                     {
-                        foreach(ShipModule hangar in ship.GetHangars())
+                        //if (ship.GetHangars().Count > 0)
+                        //    techCost -= 1;
+                        bool hangarflag = false;
+                        bool bombFlag = false;
+                        foreach(ModuleSlot hangar in ship.ModuleSlotList)
                         {
-                            if (hangar.IsTroopBay)
-                                techCost -= 10;
-                            if (hangar.MaximumHangarShipSize > 0)
-                                techCost -= 20;
+                            
+                            if(hangar.module.ModuleType == ShipModuleType.Hangar)
+                            {
+                                hangarflag = true;
+                                
+                            }
+                            if (hangar.module.ModuleType == ShipModuleType.Bomb)
+                                bombFlag = true;
+                            if (bombFlag && hangarflag)
+                                break;
                         }
+                        techCost += bombFlag ? 1 : 0;
+                        techCost += hangarflag ? 1 : 0;
                     }
-                    if(!this.empire.canBuildBombers)
-                    {
-                        if (ship.BombBays.Count > 0)
-                            techCost -= (20+ this.empire.getResStrat().MilitaryPriority);
-                    }
-                    if (ship.Name == BestCombatShip)
-                        techCost -= 20;
+                    //if(!this.empire.canBuildBombers)
+                    //{
+                    //    if (ship.BombBays.Count > 0)
+                    //        techCost -= 1;
+                    //}
+                    if (ship.Name == this.BestCombatShip)
+                        techCost -= 1;
                     {
                         moneyNeeded = ship.GetMaintCost(this.empire);// *5;
                         bool GeneralTechBlock = false;

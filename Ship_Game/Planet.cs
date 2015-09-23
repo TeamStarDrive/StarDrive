@@ -3375,16 +3375,15 @@ namespace Ship_Game
             //dont build +food if you dont need to
             if (this.Owner.data.Traits.Cybernetic <= 0 && building.PlusFlatFoodAmount > 0)// && this.Fertility == 0)
             {
-                
-                if (this.Fertility == 0|| (this.NetFoodPerTurn >0 && this.FarmerPercentage <.3) ||this.BuildingList.Contains(building))
-                
-                return false;
+
+                if (this.NetFoodPerTurn > 0 && this.FarmerPercentage < .3 || this.BuildingList.Contains(building))
+
+                    return false;
+                else
+                    return true;
                
             }
-            if (this.Owner.data.Traits.Cybernetic <= 0 
-                &&( building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn > 0 && this.FarmerPercentage < .3 && !this.BuildingList.Contains(building)))
-                return false;
-            if(income > building.Maintenance && this.Population >=1000 )
+            if(income > building.Maintenance && this.Population >=1000 ) 
             {
                 if (building.PlusFoodPerColonist > 0 && this.FarmerPercentage > .5f && this.Fertility >= 1)
                 {
@@ -3431,6 +3430,8 @@ namespace Ship_Game
                                 || building.MaxPopIncrease > 0 
                                 || building.PlusFlatPopulation > 0
                                 || this.developmentLevel > 3
+                                  || building.PlusFlatResearchAmount > 0
+                                || (building.PlusResearchPerColonist > 0 && this.MaxPopulation > 999)
                                 )
                                 return true;
                         }
@@ -3458,7 +3459,7 @@ namespace Ship_Game
                                 || building.PlusProdPerRichness >0
                                 || building.PlusProdPerColonist >0
                                 || building.PlusFlatResearchAmount>0
-                                || building.PlusResearchPerColonist * this.Population / 1000 > building.Maintenance
+                                || (building.PlusResearchPerColonist>0 && this.Population / 1000 > 1)
                                 //|| building.Name == "Biospheres"                                
                                 
                                 || needDefense &&(defensiveBuildings <1 && building.PlanetaryShieldStrengthAdded>0)
@@ -3508,6 +3509,8 @@ namespace Ship_Game
                             || ((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && this.Population == this.MaxPopulation && income > building.Maintenance)
                             || (this.Owner.data.Traits.Cybernetic <= 0 && building.PlusTerraformPoints > 0 && this.Fertility < 1 && this.Population == this.MaxPopulation && this.MaxPopulation > 2000 && income>building.Maintenance)
                                || (building.PlusFlatFoodAmount > 0 && this.NetFoodPerTurn <0)
+                                ||building.PlusFlatResearchAmount >0
+                                || (building.PlusResearchPerColonist >0 && this.MaxPopulation >999)
                                 )
                                
                             {
@@ -3773,7 +3776,14 @@ namespace Ship_Game
             Building pro = cheapestFlatprod;
             Building food = cheapestFlatfood;
             Building res = cheapestFlatResearch;
-
+            bool noMoreBiospheres = true;
+            foreach(PlanetGridSquare pgs in this.TilesList)
+            {
+                if(pgs.Habitable)
+                    continue;
+                noMoreBiospheres = false;
+                break;
+            }
             int buildingsinQueue = this.ConstructionQueue.Where(isbuilding => isbuilding.isBuilding).Count();
             bool needsBiospheres = this.ConstructionQueue.Where(isbuilding => isbuilding.isBuilding && isbuilding.Building.Name == "Biospheres").Count() != buildingsinQueue;
             bool StuffInQueueToBuild = this.ConstructionQueue.Where(building => building.isBuilding || (building.Cost - building.productionTowards > this.ProductionHere)).Count() > 0;
@@ -4149,7 +4159,7 @@ namespace Ship_Game
                                         && ( building.PlusTerraformPoints < 0 || !flag5 && (this.Fertility < 1.0 && this.Owner.data.Traits.Cybernetic <= 0 ))
 
                                         && (building.PlusFlatPopulation <= 0.0
-                                        || (this.Population / this.MaxPopulation <= 0.25 && this.developmentLevel >2))
+                                        || (this.Population / this.MaxPopulation <= 0.25 && this.developmentLevel >2 && !noMoreBiospheres))
                                         //||(this.Owner.data.Traits.Cybernetic >0 && building.PlusProdPerRichness >0)
                                         )
                                     {
@@ -4603,7 +4613,7 @@ namespace Ship_Game
                                     b = building;
                                     break;
                                 }
-                                else if (num8 <2 && building.Cost < num1 && (building.Name != "Biospheres" || (num8 ==0 && developmentLevel >2) ))
+                                else if (num8 <2 && building.Cost < num1 && (building.Name != "Biospheres" || (num8 ==0 && developmentLevel >2 && !noMoreBiospheres) ))
                                 //&& 
                                 //( (double)building.PlusResearchPerColonist > 0.0 
                                 //|| (double)building.PlusFlatResearchAmount > 0.0
@@ -4783,7 +4793,7 @@ namespace Ship_Game
                                     b = building;
                                     break;
                                 }
-                                else if ((double)building.Cost < (double)num1 && cheapestFlatfood == null && cheapestFlatprod == null && cheapestFlatResearch == null)
+                                else if ((double)building.Cost < (double)num1 && cheapestFlatfood == null && cheapestFlatprod == null && cheapestFlatResearch == null &&(building.Name == "Biospheres"  && !noMoreBiospheres))
                                     //&& (
             
                                     //))
@@ -4800,7 +4810,9 @@ namespace Ship_Game
                                      (double)building.PlusFoodPerColonist > 0.0
                                     || (double)building.PlusFlatFoodAmount > 0.0
                                     || (building.PlusTerraformPoints > 0f && this.Fertility < 1)
-                                    || building.StorageAdded > 0f)
+                                    || building.StorageAdded > 0f
+                                    
+                                    )
                                     )
                                 {
 

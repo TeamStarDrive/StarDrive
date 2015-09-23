@@ -1723,6 +1723,11 @@ namespace Ship_Game.Gameplay
 				this.Owner.QueueTotalRemoval();
 				return;
 			}
+            else
+            {
+                this.OrderQueue.Clear();
+                this.State = AIState.AwaitingOrders;
+            }
 		}
 
 		private void DoRefitORIG(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
