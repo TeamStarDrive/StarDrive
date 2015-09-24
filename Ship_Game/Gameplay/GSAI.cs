@@ -5392,10 +5392,10 @@ namespace Ship_Game.Gameplay
             
             //Set desired number by class
             if (Capacity > 0f)
-                TotalMilShipCount += 10f;
+                TotalMilShipCount += 2f;
             if (Capacity + capScrapping <= 0f)
                 if (this.empire.Money <= 0f)
-                    TotalMilShipCount -= 10f;
+                    TotalMilShipCount -= 2f;
                 else
                     TotalMilShipCount -= 5f;
             TotalMilShipCount = TotalMilShipCount < 50f ? 50f : TotalMilShipCount;
@@ -5411,10 +5411,15 @@ namespace Ship_Game.Gameplay
             float DesiredCarriers = this.empire.canBuildCarriers ? (DesiredCapitals + DesiredCruisers) / 4f :0;
             float DesiredBombers = 0;
             float DesiredTroops = 0;
-            if (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0)
+            bool atwar = (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0);
+            if(this.empire.canBuildBombers)
             {
-                DesiredBombers = this.empire.canBuildBombers ? TotalMilShipCount / 15f :0;
-                DesiredTroops = this.empire.canBuildTroopShips ? TotalMilShipCount / 15f :0;
+                DesiredBombers = TotalMilShipCount / 15f;
+                
+            }
+            if(this.empire.canBuildTroopShips)
+            {
+                DesiredTroops = atwar ? TotalMilShipCount / 10f : TotalMilShipCount / 30f;
             }
 
             //Scrap ships when overspending by class
@@ -6159,10 +6164,10 @@ namespace Ship_Game.Gameplay
             treasuryGoal *=10;
             treasuryGoal = treasuryGoal <= 1 ? 1: treasuryGoal;
             float tempTax =this.FindTaxRateToReturnAmount( treasuryGoal *(1-(money/treasuryGoal))    );
-            if (tempTax - this.empire.data.TaxRate > .05f)
-                this.empire.data.TaxRate += .05f;
-            else if (tempTax - this.empire.data.TaxRate < -.05f)
-                this.empire.data.TaxRate -= .05f;
+            if (tempTax - this.empire.data.TaxRate > .02f)
+                this.empire.data.TaxRate += .02f;
+            else if (tempTax - this.empire.data.TaxRate < -.02f)
+                this.empire.data.TaxRate -= .02f;
             else
                 this.empire.data.TaxRate = tempTax;
             //if (!this.empire.isPlayer)  // The AI will NOT build defense platforms ?
