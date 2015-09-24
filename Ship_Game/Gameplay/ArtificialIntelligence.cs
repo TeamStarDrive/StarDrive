@@ -2178,6 +2178,7 @@ namespace Ship_Game.Gameplay
             }
             this.start = null;
             this.end = null;
+            this.OrderQueue.RemoveFirst();
             this.OrderTrade(5f);
 		}
 
@@ -4712,10 +4713,10 @@ namespace Ship_Game.Gameplay
                         }
                         if (this.end != null)
                         {
-                            this.FoodOrProd = "Food";                        
-                            this.State = AIState.SystemTrader;
+                            this.FoodOrProd = "Food";                                                    
                             if (this.Owner.GetCargo()["Food"] > 0f)
                             {
+                                this.State = AIState.SystemTrader;
                                 this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true, this.end);
                                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
                                 return;
@@ -4780,10 +4781,10 @@ namespace Ship_Game.Gameplay
                         }
                         if (this.end != null)
                         {
-                            this.FoodOrProd = "Prod";                        
-                            this.State = AIState.SystemTrader;
+                            this.FoodOrProd = "Prod";                                                    
                             if (this.Owner.GetCargo()["Production"] > 0f)
                             {
+                                this.State = AIState.SystemTrader;
                                 this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true, this.end);
                                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
                                 return;
@@ -4850,10 +4851,10 @@ namespace Ship_Game.Gameplay
                         }
                         if (this.end != null)
                         {
-                            this.FoodOrProd = "Food";                        
-                            this.State = AIState.SystemTrader;
+                            this.FoodOrProd = "Food";                                                    
                             if (this.Owner.GetCargo()["Food"] > 0f)
                             {
+                                this.State = AIState.SystemTrader;
                                 this.OrderMoveTowardsPosition(this.end.Position, 0f, new Vector2(0f, -1f), true, this.end);
                                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
                                 return;
@@ -4901,7 +4902,7 @@ namespace Ship_Game.Gameplay
                                 Ship s = this.Owner.loyalty.GetShips()[k];
                                 if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != this.Owner && !s.isConstructor)
                                 {
-                                    if (s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && s.TradingFood && s.GetCargo()["Food"] == 0f)
+                                    if (s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && s.GetAI().OrderQueue.Last<ArtificialIntelligence.ShipGoal>().Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Food")
                                         cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
                                     if (cargoSpaceMax < this.Owner.CargoSpace_Max)
                                     {
@@ -4959,7 +4960,7 @@ namespace Ship_Game.Gameplay
                                 Ship s = this.Owner.loyalty.GetShips()[k];
                                 if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != this.Owner && !s.isConstructor)
                                 {
-                                    if (s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && s.TradingProd && s.GetCargo()["Production"] == 0f)
+                                    if (s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && s.GetAI().OrderQueue.Last<ArtificialIntelligence.ShipGoal>().Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
                                         cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
                                     if (cargoSpaceMax < this.Owner.CargoSpace_Max)
                                     {
@@ -4988,8 +4989,18 @@ namespace Ship_Game.Gameplay
                     this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true, this.start);
                     this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
                 }
+                else
+                {
+                    this.start = null;
+                    this.end = null;
+                }
                 this.State = AIState.SystemTrader;
                 this.Owner.TradeTimer = 5f;
+                if (string.IsNullOrEmpty(this.FoodOrProd))
+                    if (this.Owner.TradingFood)
+                        this.FoodOrProd = "Food";
+                    else
+                        this.FoodOrProd = "Prod";
             }
             //catch { }
         }
@@ -5002,6 +5013,7 @@ namespace Ship_Game.Gameplay
             }
             if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
+            /*
             if ((this.end != null && this.end.ParentSystem.CombatInSystem)
                 || (this.start != null && this.start.ParentSystem.CombatInSystem))
             {
@@ -5010,7 +5022,7 @@ namespace Ship_Game.Gameplay
                 this.OrderQueue.Clear();
                 this.State = AIState.AwaitingOrders;
             }
-            
+            */
             if (this.start == null && this.end == null)
 			{
 				foreach (Planet p in this.Owner.loyalty.GetPlanets())
@@ -5159,7 +5171,6 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
-                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
                         if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 2000f)
                         {
                             continue;
@@ -5191,7 +5202,6 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
-                    //if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
                     if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                     {
                         continue;
@@ -5202,7 +5212,6 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
-                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
                         if (!HelperFunctions.CheckIntersection(AO, p.Position) || ((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                         {
                             continue;
@@ -5224,8 +5233,6 @@ namespace Ship_Game.Gameplay
                 this.end = p;
             }
 
-            this.State = AIState.PassengerTransport;
-            this.FoodOrProd = "Pass";
             if (this.start != null && this.end != null)
             {
                 if (this.Owner.CargoSpace_Used == 00 && Vector2.Distance(this.Owner.Center, this.end.Position) < 500f)  //fbedard: dont make empty run !
@@ -5233,7 +5240,14 @@ namespace Ship_Game.Gameplay
                 this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.start);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
             }
+            else
+            {
+                this.start = null;
+                this.end = null;
+            }
             this.Owner.TradeTimer = 5f;
+            this.State = AIState.PassengerTransport;
+            this.FoodOrProd = "Pass";
         }
 
 		public void OrderTransportPassengersFromSave()
@@ -5332,7 +5346,6 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
-                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 1500f)
                         if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 2000f)
                         {
                             continue;
@@ -5364,7 +5377,6 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
-                    //if ((double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f)
                     if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
 
                     {
@@ -5376,7 +5388,6 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
-                        //if (!HelperFunctions.CheckIntersection(AO, p.Position) || (double)(p.MaxPopulation - p.Population) <= 0.5 * (double)p.MaxPopulation || p.Population >= 1000f || p == this.start)
                         if (!HelperFunctions.CheckIntersection(AO, p.Position) || ((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
                         {
                             continue;
@@ -5402,6 +5413,11 @@ namespace Ship_Game.Gameplay
             {
                 this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.start);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
+            }
+            else
+            {
+                this.start = null;
+                this.end = null;
             }
             this.State = AIState.PassengerTransport;
             this.FoodOrProd = "Pass";
@@ -5456,9 +5472,10 @@ namespace Ship_Game.Gameplay
 						Planet foodHere = this.start;
 						foodHere.FoodHere = foodHere.FoodHere - 1f;
 					}
+                    this.OrderQueue.RemoveFirst();
 					this.OrderMoveTowardsPosition(this.end.Position + (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.end);
 					this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
-					this.State = AIState.SystemTrader;
+					//this.State = AIState.SystemTrader;
 				}
 			}
 			else if (this.FoodOrProd != "Prod")
@@ -5491,9 +5508,10 @@ namespace Ship_Game.Gameplay
 						Planet productionHere1 = this.start;
 						productionHere1.ProductionHere = productionHere1.ProductionHere - 1f;
 					}
+                    this.OrderQueue.RemoveFirst();
 					this.OrderMoveTowardsPosition(this.end.Position + (((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.end);
 					this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
-					this.State = AIState.SystemTrader;
+					//this.State = AIState.SystemTrader;
 				}
 			}
 			this.State = AIState.SystemTrader;
@@ -6965,16 +6983,10 @@ namespace Ship_Game.Gameplay
                                                     this.AwaitOrdersPlayer(elapsedTime);
                                                 }
                                                 //fbedard: Return to trading
-                                                if (this.Owner.TradeTimer > 0f)
-                                                    this.Owner.TradeTimer -= elapsedTime;
-                                                else
-                                                    {
-                                                    if (this.FoodOrProd == "Pass")
-                                                        this.State = AIState.PassengerTransport;
-                                                    else if (this.FoodOrProd == "Food" || this.FoodOrProd == "Prod")
-                                                        this.State = AIState.SystemTrader;
-                                                    }                                                    
-
+                                                if (this.FoodOrProd == "Pass")
+                                                    this.State = AIState.PassengerTransport;
+                                                else if (this.FoodOrProd == "Food" || this.FoodOrProd == "Prod")
+                                                    this.State = AIState.SystemTrader;
                                                 if (this.Owner.OrdinanceMax == 0 || this.Owner.OrdinanceMax > 0 && this.Owner.Ordinance / this.Owner.OrdinanceMax >= 0.2f)
                                                 {
                                                     break;
@@ -7035,11 +7047,7 @@ namespace Ship_Game.Gameplay
                                             {
                                                 this.OrderTrade(elapsedTime);
                                                 if (this.start == null || this.end == null)
-                                                {
-                                                    this.start = null;
-                                                    this.end = null;
                                                     this.AwaitOrders(elapsedTime);
-                                                }
                                                 break;
                                             }
                                     }
@@ -7049,11 +7057,7 @@ namespace Ship_Game.Gameplay
                             {
                                 this.OrderTransportPassengers(elapsedTime);
                                 if (this.start == null || this.end == null)
-                                {
-                                    this.start = null;
-                                    this.end = null;
                                     this.AwaitOrders(elapsedTime);
-                                }
                             }
                         }
                         else if (state <= AIState.ReturnToHangar)
