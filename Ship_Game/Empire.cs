@@ -97,6 +97,9 @@ namespace Ship_Game
         public bool canBuildCruisers;
         public bool canBuildFrigates;
         public bool canBuildCorvettes;
+        public bool canBuildCarriers;
+        public bool canBuildBombers;
+        public bool canBuildTroopShips;
         public float currentMilitaryStrength;
         public float freighterBudget = 0;
         [XmlIgnore]
@@ -616,27 +619,29 @@ namespace Ship_Game
                 this.TechnologyDict[techID].Unlocked = true;
             }
             //Set GSAI to build ship roles
-            if (this.TechnologyDict[techID].GetTech().unlockBattleships || techID == "Battleships")
-                this.canBuildCapitals = true;
-            if (this.TechnologyDict[techID].GetTech().unlockCruisers || techID == "Cruisers")
-                this.canBuildCruisers = true;
-            if (this.TechnologyDict[techID].GetTech().unlockFrigates || techID == "FrigateConstruction")
-                this.canBuildFrigates = true;
-            if (this.TechnologyDict[techID].GetTech().unlockCorvettes || techID == "HeavyFighterHull" )
-                this.canBuildCorvettes = true;
-            if (!this.canBuildCorvettes  && this.TechnologyDict[techID].GetTech().TechnologyType == TechnologyType.ShipHull)
-            {
-                foreach(KeyValuePair<string,bool> hull in this.GetHDict())
-                {
-                    if (this.TechnologyDict[techID].GetTech().HullsUnlocked.Where(hulls => hulls.Name == hull.Key).Count() ==0)
-                        continue;
-                    if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role == ShipData.RoleName.corvette).Count()>0)
-                    {
-                        this.canBuildCorvettes = true;
-                        break;
-                    }
-                }
-            }
+
+            //if (this.TechnologyDict[techID].GetTech().unlockBattleships || techID == "Battleships")
+            //    this.canBuildCapitals = true;
+            //if (this.TechnologyDict[techID].GetTech().unlockCruisers || techID == "Cruisers")
+            //    this.canBuildCruisers = true;
+            //if (this.TechnologyDict[techID].GetTech().unlockFrigates || techID == "FrigateConstruction")
+            //    this.canBuildFrigates = true;
+            //if (this.TechnologyDict[techID].GetTech().unlockCorvettes || techID == "HeavyFighterHull" )
+            //    this.canBuildCorvettes = true;
+            //if (!this.canBuildCorvettes  && this.TechnologyDict[techID].GetTech().TechnologyType == TechnologyType.ShipHull)
+            //{
+            //    foreach(KeyValuePair<string,bool> hull in this.GetHDict())
+            //    {
+            //        if (this.TechnologyDict[techID].GetTech().HullsUnlocked.Where(hulls => hulls.Name == hull.Key).Count() ==0)
+            //            continue;
+            //        if(ResourceManager.ShipsDict.Where(hulltech=> hulltech.Value.shipData.Hull == hull.Key && hulltech.Value.shipData.Role == ShipData.RoleName.corvette).Count()>0)
+            //        {
+            //            this.canBuildCorvettes = true;
+            //            break;
+            //        }
+            //    }
+            //}
+   
             //Added by McShooterz: Race Specific buildings
             foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
             {
@@ -656,7 +661,20 @@ namespace Ship_Game
             foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
             {
                 if (unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == this.TechnologyDict[techID].AcquiredFrom)
+                {
                     this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+                    ShipModule checkmod =null;
+                    if(ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID,out checkmod))
+                    {
+                        if (checkmod.IsTroopBay)
+                            this.canBuildTroopShips = true;
+                        if (checkmod.MaximumHangarShipSize > 0)
+                            this.canBuildCarriers = true;
+                        if (checkmod.ModuleType == ShipModuleType.Bomb)
+                            this.canBuildBombers=true;
+                    }
+                }
+
             }
             foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
             {
@@ -666,8 +684,62 @@ namespace Ship_Game
             foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
             {
                 if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
+                {
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
+                    ShipData hull = ResourceManager.HullsDict[unlockedHull.Name];
+                    switch (hull.Role)
+                    {
+                        case ShipData.RoleName.disabled:
+                            break;
+                        case ShipData.RoleName.platform:
+                            break;
+                        case ShipData.RoleName.station:
+                            break;
+                        case ShipData.RoleName.construction:
+                            break;
+                        case ShipData.RoleName.supply:
+                            break;
+                        case ShipData.RoleName.freighter:
+                            break;
+                        case ShipData.RoleName.troop:
+                            break;
+                        case ShipData.RoleName.fighter:                            
+                            break;
+                        case ShipData.RoleName.scout:
+                            break;
+                        case ShipData.RoleName.gunboat:
+                            this.canBuildCorvettes = true;
+                            break;
+                        case ShipData.RoleName.drone:
+                            break;
+                        case ShipData.RoleName.corvette:
+                            this.canBuildCorvettes = true;
+                            break;
+                        case ShipData.RoleName.frigate:
+                            this.canBuildFrigates = true;
+                            break;
+                        case ShipData.RoleName.destroyer:
+                            this.canBuildFrigates = true;
+                            break;
+                        case ShipData.RoleName.cruiser:
+                            this.canBuildCruisers = true;
+                            break;
+                        case ShipData.RoleName.carrier:
+                            this.canBuildCapitals = true;
+                            break;
+                        case ShipData.RoleName.capital:
+                            this.canBuildCapitals = true;
+                            break;
+                        case ShipData.RoleName.prototype:
+                            break;
+                        default:
+                            break;
+                    }
+                    this.UpdateShipsWeCanBuild();
+                }
+
             }
+
 
             // Added by The Doctor - trigger events with unlocking of techs, via Technology XML
             foreach (Technology.TriggeredEvent triggeredEvent in ResourceManager.TechTree[techID].EventsTriggered)
@@ -1482,7 +1554,7 @@ namespace Ship_Game
                 foreach (Ship ship in this.OwnedShips)
                 {
                     if (ship.fleet == null && ship.InCombat && ship.Mothership == null && ship.Name != "Subspace Projector")  //fbedard: total ships in combat
-                        this.empireShipCombat++;
+                        this.empireShipCombat++;                    
                     if (ship.Mothership != null || ship.shipData.Role == ShipData.RoleName.troop || ship.Name == "Subspace Projector" || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                         continue;
                     this.empireShipTotal++;
@@ -1499,7 +1571,7 @@ namespace Ship_Game
         {
             this.updateContactsTimer -= elapsedTime;
             this.FleetUpdateTimer -= elapsedTime;
-            try
+            //try
             {
                 foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
                 {
@@ -1512,9 +1584,9 @@ namespace Ship_Game
                     }
                 }
             }
-            catch
-            {
-            }
+            //catch
+            //{
+            //}
             if ((double)this.FleetUpdateTimer < 0.0)
                 this.FleetUpdateTimer = 5f;
             this.OwnedShips.ApplyPendingRemovals();
@@ -1697,9 +1769,11 @@ namespace Ship_Game
 
         public bool WeCanBuildThis(string ship)
         {
-            if (!ResourceManager.ShipsDict.ContainsKey(ship))
+            
+            Ship ship1 = null;
+            if (!ResourceManager.ShipsDict.TryGetValue(ship,out ship1)) // ContainsKey(ship))
                 return false;
-            ShipData shipData = ResourceManager.ShipsDict[ship].GetShipData();
+            ShipData shipData = ship1.shipData;
             if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
                 return false;
             //If the ship role is not defined don't try to use it
@@ -2686,6 +2760,11 @@ namespace Ship_Game
             this.TotalScore = (int)((double)this.MilitaryScore / 100.0 + (double)this.IndustrialScore + (double)this.TechScore + (double)this.ExpansionScore);
             this.MilitaryScore = this.data.MilitaryScoreTotal / (float)this.data.ScoreAverage;
             ++this.data.ScoreAverage;
+            if (this.data.ScoreAverage >= 120)  //fbedard: reset every 60 turns
+            {
+                this.data.MilitaryScoreTotal = this.MilitaryScore * 60f;
+                this.data.ScoreAverage = 60;
+            }
         }
 
         public void AbsorbEmpire(Empire target)
@@ -2865,7 +2944,7 @@ namespace Ship_Game
         {
             int tradeShips = 0;
             int passengerShips = 0;
-            int naturalLimit = 0; 
+            Double naturalLimit = 0; 
             //this.OwnedPlanets.Where(export => export.fs == Planet.GoodState.EXPORT || 
             //    export.ps == Planet.GoodState.EXPORT ||
             //    (export.Population >3000 && export.MaxPopulation > 3000)).Count();
@@ -2873,18 +2952,16 @@ namespace Ship_Game
             //    export.ps == Planet.GoodState.IMPORT ||
             //    (export.Population > 3000 && export.MaxPopulation > 3000)).Count();
             
-            int inneed = 0;
+            Double inneed = 0;
             float inneedofciv = 0f;  //fbedard: New formulas for passenger needed
             bool exportPop = false;
             foreach(Planet planet in this.OwnedPlanets)
             {
-                if (planet.fs == Planet.GoodState.EXPORT)
-                    naturalLimit++;
-                if (planet.ps == Planet.GoodState.EXPORT)
+                if (planet.fs == Planet.GoodState.EXPORT || planet.ps == Planet.GoodState.EXPORT)
                     naturalLimit++;
                 if (planet.Population / planet.MaxPopulation > .5 && planet.MaxPopulation > 3000)
                     naturalLimit++;
-                if (planet.Population / planet.MaxPopulation < .5 && planet.MaxPopulation > 3000)
+                if (planet.Population / planet.MaxPopulation < .5 && planet.MaxPopulation > 2000)
                     inneed++;
                 if (planet.Population < 2000 && planet.Population / planet.MaxPopulation < 0.8)
                     inneedofciv++;
@@ -2895,11 +2972,11 @@ namespace Ship_Game
                 if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere / planet.MAX_STORAGE <.25f)
                     inneed++;
             }
-            naturalLimit *= inneed;
+            naturalLimit *= Math.Sqrt(inneed) * 1.5f;  //fbedard
             float moneyForFreighters = (this.Money * .1f) * .1f -this.freighterBudget;
             this.freighterBudget = 0;
 
-            int freighterLimit = (naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : naturalLimit );
+            int freighterLimit = ((int)naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : (int)naturalLimit );
             float CivLimit = (inneedofciv / this.OwnedPlanets.Count);
             if (CivLimit > 0.3) CivLimit = .3f;
             if (!exportPop) CivLimit = 0f;
@@ -2929,19 +3006,17 @@ namespace Ship_Game
                     this.freighterBudget += ship.GetMaintCost();
                 if (ship.GetAI().State == AIState.SystemTrader)
                 {
-                    if (tradeShips < TradeLimit)
-                        tradeShips++;
-                    else
-                        if (ship.CargoSpace_Used == 0)  //fbedard: dont scrap loaded ship
+                    if (ship.CargoSpace_Used == 0 && tradeShips > TradeLimit + 3)  //fbedard: dont scrap loaded ship
                             ship.GetAI().OrderScrapShip();
+                    else
+                        tradeShips++;
                 }
                 else if (ship.GetAI().State == AIState.PassengerTransport)
                 {
-                    if (passengerShips < PassLimit)
-                        passengerShips++;
-                    else
-                        if (ship.CargoSpace_Used == 0)  //fbedard: dont scrap loaded ship
+                    if (ship.CargoSpace_Used == 0 && passengerShips > PassLimit + 3)  //fbedard: dont scrap loaded ship
                             ship.GetAI().OrderScrapShip();
+                    else
+                        passengerShips++;
                 }
                 else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
                     unusedFreighters.Add(ship);
@@ -2956,8 +3031,7 @@ namespace Ship_Game
             }
             if (unusedFreighters.Count > 1)
                 naturalLimit = 0;
-            //int doesntHelp = 0;
-            int extraFrieghters =0;
+            //int extraFrieghters =0;
             //foreach (Planet needs in this.GetPlanets())
             //{
             //    if (needs.fs == Planet.GoodState.IMPORT && needs.FoodHere > needs.MAX_STORAGE * .7f
@@ -2965,8 +3039,6 @@ namespace Ship_Game
             //        moreFrieghters++;
             //    else
             //        doesntHelp++;
-                    
-            
 
             //}
             //if (doesntHelp < moreFrieghters)
@@ -2982,7 +3054,7 @@ namespace Ship_Game
                         break;
                     if (ship.GetAI().State != AIState.Flee)
                     {
-                        ship.GetAI().OrderTrade();
+                        ship.GetAI().OrderTrade(0.1f);
                     }
                     assignedShips.Add(ship);
                     ++tradeShips;
@@ -2990,9 +3062,8 @@ namespace Ship_Game
                 foreach (Ship ship in assignedShips)
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
-
-                extraFrieghters = unusedFreighters.Count;
-                if(unusedFreighters.Count ==0 && moneyForFreighters >0 && naturalLimit >0)
+                //extraFrieghters = unusedFreighters.Count;
+                if(unusedFreighters.Count == 0 && moneyForFreighters > 0 && naturalLimit > 0)
                 //for (; tradeShips < TradeLimit; ++tradeShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
@@ -3008,7 +3079,7 @@ namespace Ship_Game
                 {
                     if (passengerShips > PassLimit)
                         break;
-                    ship.GetAI().OrderTransportPassengers();
+                    ship.GetAI().OrderTransportPassengers(0.1f);
                     assignedShips.Add(ship);
                     ++passengerShips;
                 }
@@ -3024,7 +3095,7 @@ namespace Ship_Game
                     });
             }
             foreach (Ship ship in unusedFreighters)
-                ship.GetAI().OrderTransportPassengers();  //fbedard: default to passenger
+                ship.GetAI().OrderTransportPassengers(0.1f);  //fbedard: default to passenger
         }
 
         public void ReportGoalComplete(Goal g)
