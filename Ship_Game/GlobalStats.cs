@@ -190,7 +190,7 @@ namespace Ship_Game
 	            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
 	            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
                 GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
-	
+                GlobalStats.ZoomTracking = bool.Parse(ConfigurationManager.AppSettings["ZoomTracking"]);
 	            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
 	            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
 	            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
