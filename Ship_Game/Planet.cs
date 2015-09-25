@@ -3344,9 +3344,9 @@ namespace Ship_Game
             bool LowPri = buildingMaintenance / grossTaxes < .25f;
             bool MedPri = buildingMaintenance / grossTaxes < .60f;
             bool HighPri = buildingMaintenance / grossTaxes < .80f;
-            float income = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
+            float income = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);           
             float maintCost = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT -building.Maintenance- (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
-            bool makingMoney = maintCost > 0 && this.Owner.GetAverageNetIncome() < this.GrossMoneyPT * (1 - this.Owner.data.TaxRate);// this.TotalMaintenanceCostsPerTurn  < this.GrossMoneyPT;
+            bool makingMoney = maintCost > 0 && this.Owner.Money * .01f > this.GrossMoneyPT;// *(1 - this.Owner.data.TaxRate);// this.TotalMaintenanceCostsPerTurn  < this.GrossMoneyPT;
             int defensiveBuildings = this.BuildingList.Where(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded >0 ).Count();
            int offensiveBuildings = this.BuildingList.Where(combat => combat.theWeapon !=null).Count();
             SystemCommander SC;
@@ -3359,7 +3359,7 @@ namespace Ship_Game
                     needDefense = SC.RankImportance - defensiveBuildings - offensiveBuildings >8; ;// / (defensiveBuildings + offensiveBuildings+1)) >defensiveNeeds;
                 
             }
-
+            
             if (!string.IsNullOrEmpty(building.ExcludesPlanetType) && building.ExcludesPlanetType == this.Type)
                 return false;
             //if (building.Maintenance <= 0.0f)
@@ -3391,7 +3391,24 @@ namespace Ship_Game
                 }
 
             }
-            
+            if(this.Owner.data.Traits.Cybernetic >0)
+            {
+                if(this.NetProductionPerTurn-consumption <0)
+                {
+                    if(building.PlusFlatProductionAmount >0 && (this.WorkerPercentage >.5 || income >building.Maintenance*2))
+                    {
+                        return true;
+                    }
+                    if (building.PlusProdPerColonist > 0 && building.PlusProdPerColonist * (this.Population / 1000) > building.Maintenance *(2-this.WorkerPercentage))
+                    {
+                        if (income > this.ShipBuildingModifier * 2)
+                            return true;
+
+                    }
+                    if (building.PlusProdPerRichness * this.MineralRichness > building.Maintenance )
+                        return true;
+                }
+            }
             bool iftrue = false;
             switch  (governor)
             {
@@ -4158,8 +4175,8 @@ namespace Ship_Game
                                         //&& (!(building.Name == "Terraformer") || !flag5 && this.Fertility < 1.0)
                                         && ( building.PlusTerraformPoints < 0 || !flag5 && (this.Fertility < 1.0 && this.Owner.data.Traits.Cybernetic <= 0 ))
 
-                                        && (building.PlusFlatPopulation <= 0.0
-                                        || (this.Population / this.MaxPopulation <= 0.25 && this.developmentLevel >2 && !noMoreBiospheres))
+                                        //&& (building.PlusFlatPopulation <= 0.0
+                                        //|| (this.Population / this.MaxPopulation <= 0.25 && this.developmentLevel >2 && !noMoreBiospheres))
                                         //||(this.Owner.data.Traits.Cybernetic >0 && building.PlusProdPerRichness >0)
                                         )
                                     {
@@ -4168,7 +4185,7 @@ namespace Ship_Game
                                         coreCost = b.Cost;
                                         break;
                                     }
-                                    else if (building.Cost < coreCost)
+                                    else if (building.Cost < coreCost && (building.Name != "Biospheres" || this.Population / this.MaxPopulation <= 0.25 && this.developmentLevel > 2 && !noMoreBiospheres))
                                     {
                                         b = building;
                                         coreCost = b.Cost;
@@ -4180,6 +4197,8 @@ namespace Ship_Game
                                    //||
                                     b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0 || b.PlusProdPerColonist > 0
                                    || b.PlusFoodPerColonist > 0 || b.PlusFlatFoodAmount > 0
+                                   || b.CreditsPerColonist >0 || b.PlusTaxPercentage >0
+                                   || cheapestFlatfood == b || cheapestFlatprod ==b || cheapestFlatResearch ==b
                                    //|| b.PlusFlatResearchAmount > 0 || b.PlusResearchPerColonist > 0
                                    //|| b.StorageAdded > 0
                                    ))//&& !b.AllowShipBuilding)))//  ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b,this.colonyType)) //

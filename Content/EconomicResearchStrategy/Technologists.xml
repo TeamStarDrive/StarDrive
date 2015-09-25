@@ -3,8 +3,8 @@
   <Name>Technologists</Name>
   <MilitaryPriority>0</MilitaryPriority>
   <ExpansionPriority>1</ExpansionPriority>
-  <ResearchPriority>2</ResearchPriority>
-  <IndustryPriority>0</IndustryPriority>
+  <ResearchPriority>3</ResearchPriority>
+  <IndustryPriority>1</IndustryPriority>
   <TechPath>
 	
   </TechPath>

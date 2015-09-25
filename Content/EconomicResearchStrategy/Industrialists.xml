@@ -1,9 +1,9 @@
 ﻿<EconomicResearchStrategy>
   <!--the opening technology path for races with the Named economic personality. Goes random when finished-->
   <Name>Industrialists</Name>
-  <MilitaryPriority>1</MilitaryPriority>
-  <ExpansionPriority>0</ExpansionPriority>
-  <ResearchPriority>2</ResearchPriority>
+  <MilitaryPriority>0</MilitaryPriority>
+  <ExpansionPriority>2</ExpansionPriority>
+  <ResearchPriority>1</ResearchPriority>
   <IndustryPriority>2</IndustryPriority>
   <TechPath>
 
