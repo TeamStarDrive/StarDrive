@@ -1,56 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Animated>false</Animated>
-  <ShipStyle>Pollops</ShipStyle>
+  <ShipStyle>Cordrazine</ShipStyle>
   <experience>0</experience>
   <Level>0</Level>
-  <SelectionGraphic />
-  <Name>Pollops Troop</Name>
+  <Name>Cordrazine Troop</Name>
   <HasFixedCost>false</HasFixedCost>
   <FixedCost>0</FixedCost>
   <IsShipyard>false</IsShipyard>
   <IsOrbitalDefense>false</IsOrbitalDefense>
-  <IconPath>ShipIcons/Seeder</IconPath>
+  <IconPath>ShipIcons/Owl1</IconPath>
   <CombatState>AttackRuns</CombatState>
   <MechanicalBoardingDefense>0</MechanicalBoardingDefense>
-  <Hull>Pollops/Seeder</Hull>
+  <Hull>Cordrazine/Owl1</Hull>
   <Role>troop</Role>
-  <ThrusterList />
-  <ModelPath>Model/Ships/Pollops/ship15g</ModelPath>
+  <ThrusterList>
+    <ThrusterZone>
+      <Position>
+        <X>256</X>
+        <Y>296</Y>
+      </Position>
+      <scale>34</scale>
+    </ThrusterZone>
+  </ThrusterList>
+  <ModelPath>Model/Ships/Cordrazine/ship16g</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
   <ShipCategory>Unclassified</ShipCategory>
   <ModuleSlotList>
     <ModuleSlotData>
       <Position>
-        <X>216</X>
-        <Y>296</Y>
-      </Position>
-      <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <Restrictions>I</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>232</X>
-        <Y>216</Y>
-      </Position>
-      <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <Restrictions>I</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
         <X>232</X>
         <Y>232</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -62,19 +44,6 @@
         <Y>248</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <Restrictions>I</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>232</X>
-        <Y>264</Y>
-      </Position>
-      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -85,8 +54,7 @@
         <X>232</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
+      <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -98,7 +66,6 @@
         <Y>296</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -110,7 +77,6 @@
         <Y>216</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -122,7 +88,6 @@
         <Y>232</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -134,7 +99,6 @@
         <Y>248</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -145,8 +109,7 @@
         <X>248</X>
         <Y>264</Y>
       </Position>
-      <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
+      <InstalledModuleUID>NuclearReactorMed</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -157,12 +120,11 @@
         <X>248</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>WarpEngine_1x1</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
-      <Restrictions>E</Restrictions>
+      <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
@@ -170,7 +132,17 @@
         <Y>296</Y>
       </Position>
       <InstalledModuleUID>Engine</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
+      <Health>0</Health>
+      <Shield_Power>0</Shield_Power>
+      <facing>0</facing>
+      <Restrictions>E</Restrictions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>312</Y>
+      </Position>
+      <InstalledModuleUID>WarpEngine_1x1</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -182,7 +154,6 @@
         <Y>216</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -194,7 +165,6 @@
         <Y>232</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -204,21 +174,19 @@
       <Position>
         <X>264</X>
         <Y>248</Y>
-      </Position>
-      <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <Restrictions>I</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>264</X>
-        <Y>264</Y>
       </Position>
       <InstalledModuleUID>Cockpit</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
+      <Health>0</Health>
+      <Shield_Power>0</Shield_Power>
+      <facing>0</facing>
+      <Restrictions>I</Restrictions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>264</Y>
+      </Position>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -229,8 +197,18 @@
         <X>264</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>WarpEngine_1x1</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
+      <InstalledModuleUID>Dummy</InstalledModuleUID>
+      <Health>0</Health>
+      <Shield_Power>0</Shield_Power>
+      <facing>0</facing>
+      <Restrictions>I</Restrictions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>296</Y>
+      </Position>
+      <InstalledModuleUID>Engine</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -239,10 +217,9 @@
     <ModuleSlotData>
       <Position>
         <X>264</X>
-        <Y>296</Y>
+        <Y>312</Y>
       </Position>
-      <InstalledModuleUID>Engine</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
+      <InstalledModuleUID>WarpEngine_1x1</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -251,22 +228,9 @@
     <ModuleSlotData>
       <Position>
         <X>280</X>
-        <Y>216</Y>
-      </Position>
-      <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <Restrictions>I</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>280</X>
         <Y>232</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -278,19 +242,6 @@
         <Y>248</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <Restrictions>I</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>280</X>
-        <Y>264</Y>
-      </Position>
-      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -301,8 +252,7 @@
         <X>280</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
+      <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -314,19 +264,6 @@
         <Y>296</Y>
       </Position>
       <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <Restrictions>I</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>296</X>
-        <Y>296</Y>
-      </Position>
-      <InstalledModuleUID>BasicCargoHold</InstalledModuleUID>
-      <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>

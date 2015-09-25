@@ -64,6 +64,7 @@ namespace Ship_Game
         public ushort TechScore = 0;
         //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
         private static string[] RoleArray = {"disabled","platform","station","construction","supply","freighter","troop","fighter","scout","gunboat","drone","corvette","frigate","destroyer","cruiser","carrier","capital","prototype"};
+        private static string[] CategoryArray = {"Unclassified","Civilian","Recon","Combat","Kamikaze"};
 
 		public ShipData()
 		{
@@ -78,6 +79,11 @@ namespace Ship_Game
 		{
             return RoleArray[(int)Role];
 		}
+
+        public string GetCategory()
+        {
+            return CategoryArray[(int)ShipCategory];
+        }
 
         public enum Category
         {

@@ -1,33 +1,11 @@
 ﻿<EconomicResearchStrategy>
   <!--the opening technology path for races with the Named economic personality. Goes random when finished-->
   <Name>Industrialists</Name>
-  <MilitaryPriority>2</MilitaryPriority>
-  <ExpansionPriority>3</ExpansionPriority>
+  <MilitaryPriority>0</MilitaryPriority>
+  <ExpansionPriority>2</ExpansionPriority>
   <ResearchPriority>1</ResearchPriority>
-  <IndustryPriority>4</IndustryPriority>
+  <IndustryPriority>2</IndustryPriority>
   <TechPath>
-    <Tech>
-      <id>IndustrialFoundations</id>
-    </Tech>
-
-    <Tech>
-      <id>IS Government</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>XenoMining</id>
-    </Tech>
 
   </TechPath>
 </EconomicResearchStrategy>

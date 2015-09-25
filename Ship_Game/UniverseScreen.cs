@@ -557,7 +557,7 @@ namespace Ship_Game
         {
             if (this.SelectedShip == null)
                 return;
-            this.SelectedShip.GetAI().OrderTransportPassengers();
+            this.SelectedShip.GetAI().OrderTransportPassengers(0.1f);
         }
 
         public void DoDefense(object sender)
@@ -577,7 +577,7 @@ namespace Ship_Game
             if (this.SelectedShip == null)
                 return;
             this.SelectedShip.GetAI().State = AIState.SystemTrader;
-            this.SelectedShip.GetAI().OrderTrade();
+            this.SelectedShip.GetAI().OrderTrade(0.1f);
         }
 
         public void ViewShip(object sender)
@@ -3799,6 +3799,7 @@ namespace Ship_Game
                             }
                             else if (planet != null)
                             {
+                                this.SelectedFleet.Position = planet.Position;  //fbedard: center fleet on planet
                                 foreach (Ship ship2 in (List<Ship>)this.SelectedFleet.Ships)
                                 {
                                     RightClickship(ship2, planet,false);
@@ -6691,7 +6692,7 @@ namespace Ship_Game
                         break;
                     }
                 }
-                if (!ship.Active || !flag)
+                if (!ship.Active || !flag || !ResourceManager.TextureDict.ContainsKey(ship.StrategicIconPath))
                     return;
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ship.StrategicIconPath], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
             }
