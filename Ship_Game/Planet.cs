@@ -3409,6 +3409,12 @@ namespace Ship_Game
                         return true;
                 }
             }
+            if(building.PlusTerraformPoints >0)
+            {
+                if (!makingMoney || this.Owner.data.Traits.Cybernetic>0||this.BuildingList.Contains(building) || this.BuildingInQueue(building.Name))
+                    return false;
+                
+            }
             bool iftrue = false;
             switch  (governor)
             {
@@ -4185,7 +4191,7 @@ namespace Ship_Game
                                         coreCost = b.Cost;
                                         break;
                                     }
-                                    else if (building.Cost < coreCost && (building.Name != "Biospheres" || this.Population / this.MaxPopulation <= 0.25 && this.developmentLevel > 2 && !noMoreBiospheres))
+                                    else if (building.Cost < coreCost && ((building.Name != "Biospheres" && building.PlusTerraformPoints <=0 ) || this.Population / this.MaxPopulation <= 0.25 && this.developmentLevel > 2 && !noMoreBiospheres))
                                     {
                                         b = building;
                                         coreCost = b.Cost;
