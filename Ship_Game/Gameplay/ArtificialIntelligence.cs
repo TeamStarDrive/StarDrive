@@ -4902,8 +4902,11 @@ namespace Ship_Game.Gameplay
                                 Ship s = this.Owner.loyalty.GetShips()[k];
                                 if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != this.Owner && !s.isConstructor)
                                 {
-                                    if (s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && s.GetAI().OrderQueue.Last<ArtificialIntelligence.ShipGoal>().Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Food")
+                                    s.GetAI().orderqueue.EnterReadLock();
+                                    ArtificialIntelligence.ShipGoal plan = s.GetAI().OrderQueue.LastOrDefault<ArtificialIntelligence.ShipGoal>();
+                                    if (plan !=null && s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && plan.Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Food")
                                         cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
+                                    s.GetAI().orderqueue.ExitReadLock();
                                     if (cargoSpaceMax < this.Owner.CargoSpace_Max)
                                     {
                                         flag = true;
@@ -4960,8 +4963,11 @@ namespace Ship_Game.Gameplay
                                 Ship s = this.Owner.loyalty.GetShips()[k];
                                 if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != this.Owner && !s.isConstructor)
                                 {
-                                    if (s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && s.GetAI().OrderQueue.Last<ArtificialIntelligence.ShipGoal>().Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
+                                    s.GetAI().orderqueue.EnterReadLock();
+                                    ArtificialIntelligence.ShipGoal plan = s.GetAI().OrderQueue.LastOrDefault<ArtificialIntelligence.ShipGoal>();
+                                    if (plan!=null&& s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p &&  plan.Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
                                         cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
+                                    s.GetAI().orderqueue.ExitReadLock();
                                     if (cargoSpaceMax < this.Owner.CargoSpace_Max)
                                     {
                                         flag = true;

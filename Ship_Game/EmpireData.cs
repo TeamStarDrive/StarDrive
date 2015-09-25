@@ -173,6 +173,9 @@ namespace Ship_Game
         public SortButton ESSort = new SortButton();
         public SortButton SLSort = new SortButton();
 
+        //techTimers
+        public short TechDelayTime=4;
+
 
 
 		public EmpireData()

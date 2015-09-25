@@ -5242,7 +5242,7 @@ namespace Ship_Game.Gameplay
             float numCapitals = 0f;
             float numTroops = 0f;
             float capScrapping = 0;
-
+            float TotalUpkeep =0;
             /*
             float capFreighters = 0;
             float capPlatforms = 0;
@@ -5275,52 +5275,52 @@ namespace Ship_Game.Gameplay
                     {
                         numCarriers++;
                         TotalMilShipCount++;
-                        capCarriers += upkeep;
+                        TotalUpkeep += upkeep;
                     }
                     //troops ship
                     else if ((item.HasTroopBay || item.hasTransporter) && str >= ShipData.RoleName.freighter)
                     {
                         numTroops++;
                         TotalMilShipCount++;
-                        capTroops += upkeep;
+                        TotalUpkeep += upkeep;
                     }
                     //bomber
                     else if (item.BombBays.Count > 0 && str >= ShipData.RoleName.freighter)
                     {
                         numBombers++;
                         TotalMilShipCount++;
-                        capBombers += upkeep;
+                        TotalUpkeep += upkeep;
                     }
                     else if (str == ShipData.RoleName.fighter || str == ShipData.RoleName.scout)
                     {
                         numFighters++;
                         TotalMilShipCount++;
-                        capFighters += upkeep;
+                        TotalUpkeep += upkeep;
                     }
                     else if (str == ShipData.RoleName.corvette || str == ShipData.RoleName.gunboat)
                     {
                         numCorvettes++;
                         TotalMilShipCount++;
-                        capCorvettes += upkeep;
+                        TotalUpkeep += upkeep;
                     }
                     else if (str == ShipData.RoleName.frigate || str == ShipData.RoleName.destroyer)
                     {
                         numFrigates++;
                         TotalMilShipCount++;
-                        capFrigates += upkeep;
+                        TotalUpkeep += upkeep;
                     }
                     else if (str == ShipData.RoleName.cruiser)
                     {
                         numCruisers++;
                         TotalMilShipCount++;
-                        capCruisers += upkeep;
+                        TotalUpkeep += upkeep;
                     }
                     //capital and carrier without hangars
                     else if (str == ShipData.RoleName.capital || str == ShipData.RoleName.carrier)
                     {
                         numCapitals++;
                         TotalMilShipCount++;
-                        capCapitals += upkeep;
+                        TotalUpkeep += upkeep;
                     }
                     /*
                     else if (str == ShipData.RoleName.freighter)
@@ -5389,18 +5389,21 @@ namespace Ship_Game.Gameplay
                 ratio_Cruisers = 0f;
                 ratio_Capitals = 0f;
             }
-            
+            float totalRatio = ratio_Fighters + ratio_Corvettes + ratio_Frigates + ratio_Cruisers + ratio_Capitals;
+            bool atwar = (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0);
             //Set desired number by class
-            if (Capacity > 0f)
-                TotalMilShipCount += 2f;
-            if (Capacity + capScrapping <= 0f)
-                if (this.empire.Money <= 0f)
-                    TotalMilShipCount -= 2f;
-                else
-                    TotalMilShipCount -= 5f;
-            TotalMilShipCount = TotalMilShipCount < 50f ? 50f : TotalMilShipCount;
-            float totalRatio = ratio_Fighters + ratio_Corvettes + ratio_Frigates + ratio_Cruisers + ratio_Capitals;          
-            float adjustedRatio = TotalMilShipCount / totalRatio;
+            //if (Capacity > 0f )
+
+            //    TotalMilShipCount += 10f;
+            //if (Capacity + capScrapping <= 0f)
+            //    if (this.empire.Money <= 0f)
+                //TotalMilShipCount += Capacity;
+                //else
+                //    TotalMilShipCount -= 1f;
+            //TotalMilShipCount = TotalMilShipCount < 50f ? 50f : TotalMilShipCount;
+           // float totalRatio = ratio_Fighters + ratio_Corvettes + ratio_Frigates + ratio_Cruisers + ratio_Capitals;          
+
+            float adjustedRatio = (TotalUpkeep + Capacity) / totalRatio;                       //TotalMilShipCount / totalRatio;
 
             float DesiredFighters = adjustedRatio * ratio_Fighters;
             float DesiredCorvettes = adjustedRatio * ratio_Corvettes;
@@ -5411,7 +5414,7 @@ namespace Ship_Game.Gameplay
             float DesiredCarriers = this.empire.canBuildCarriers ? (DesiredCapitals + DesiredCruisers) / 4f :0;
             float DesiredBombers = 0;
             float DesiredTroops = 0;
-            bool atwar = (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0);
+            
             if(this.empire.canBuildBombers)
             {
                 DesiredBombers = TotalMilShipCount / 15f;
@@ -5423,7 +5426,7 @@ namespace Ship_Game.Gameplay
             }
 
             //Scrap ships when overspending by class
-            if ((Capacity + capScrapping) <= 0f)  //capScrapping prevent from scrapping too much
+           // if ((Capacity + capScrapping) <= 0f)  //capScrapping prevent from scrapping too much
             #region MyRegion
             {
                 if (numFighters > DesiredFighters    ||
@@ -5496,6 +5499,7 @@ namespace Ship_Game.Gameplay
                             }
                     }
                 }
+                if(Capacity <=0)
                 return null;  //no money to build !
             }
             #endregion
@@ -5513,11 +5517,11 @@ namespace Ship_Game.Gameplay
             string buildThis;
             
 
-            if (numTroops > DesiredTroops)
+            if (numTroops < DesiredTroops)
                 PickRoles.Add(ShipData.RoleName.troop, numTroops / DesiredTroops);
             if (numFighters < DesiredFighters) {
                 PickRoles.Add(ShipData.RoleName.fighter, numFighters / (DesiredFighters + ranA));
-                //PickRoles.Add(ShipData.RoleName.scout, numFighters / (DesiredFighters + ranB));
+                //PickRoles.Add(ShipData.RoleName.scout, numFighters / (DesiredFighters + ranB)); //scouts are handeled somewhere else and generally are not good at anything
                 }
             if (numCorvettes < DesiredCorvettes) {
                 PickRoles.Add(ShipData.RoleName.gunboat, numCorvettes / (DesiredCorvettes + ranA));
@@ -6161,13 +6165,14 @@ namespace Ship_Game.Gameplay
             //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
 
             float treasuryGoal = this.empire.GrossTaxes + this.empire.OtherIncome + this.empire.TradeMoneyAddedThisTurn + this.empire.data.FlatMoneyBonus;  //mmore savings than GDP 
-            treasuryGoal *=10;
+            treasuryGoal *=20;
             treasuryGoal = treasuryGoal <= 1 ? 1: treasuryGoal;
-            float tempTax =this.FindTaxRateToReturnAmount( treasuryGoal *(1-(money/treasuryGoal))    );
+            float zero = this.FindTaxRateToReturnAmount(1);
+            float tempTax =this.FindTaxRateToReturnAmount( treasuryGoal   *(1-(money/treasuryGoal))    );
             if (tempTax - this.empire.data.TaxRate > .02f)
                 this.empire.data.TaxRate += .02f;
-            else if (tempTax - this.empire.data.TaxRate < -.02f)
-                this.empire.data.TaxRate -= .02f;
+            //else if (tempTax - this.empire.data.TaxRate < -.02f)
+            //    this.empire.data.TaxRate -= .02f;
             else
                 this.empire.data.TaxRate = tempTax;
             //if (!this.empire.isPlayer)  // The AI will NOT build defense platforms ?
@@ -7443,7 +7448,7 @@ namespace Ship_Game.Gameplay
             //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
             float AtWarBonus = 0.05f;
             if (this.empire.Money > 500f)
-                AtWarBonus += (offenseNeeded * 0.002f);
+                AtWarBonus += (offenseNeeded * (0.002f + this.empire.getResStrat().MilitaryPriority * .001f));
             float Capacity = (this.empire.Money*(1-this.empire.data.TaxRate)) * AtWarBonus - UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
             float allowable_deficit = -(this.empire.Money * (AtWarBonus *(1.5f-this.empire.data.TaxRate))); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
@@ -7547,9 +7552,9 @@ namespace Ship_Game.Gameplay
             //    allowable_deficit = Math.Abs(allowable_deficit);
             //}
 
-            this.buildCapacity = Capacity - allowable_deficit;
+            this.buildCapacity = Capacity;
             if (this.buildCapacity < 0) //Scrap active ships
-                this.GetAShip(this.buildCapacity);
+                this.GetAShip(this.buildCapacity - allowable_deficit);
 
             //fbedard: Build Defensive ships
             bool Def = false;
@@ -7938,7 +7943,16 @@ namespace Ship_Game.Gameplay
                     }
 
                 }
-               
+                int shipBuildBonus = 0;
+                if (this.empire.data.TechDelayTime > 0)
+                    this.empire.data.TechDelayTime--;
+                if (this.empire.data.TechDelayTime > 0)
+                {
+                    shipBuildBonus = -5 - this.empire.data.TechDelayTime;
+                }
+                else
+                    shipBuildBonus = 0;
+
                 needsFood = needsFood>0 ? needsFood /this.empire.GetPlanets().Count :0;
                 needsFood *= 10;
 
@@ -7951,12 +7965,12 @@ namespace Ship_Game.Gameplay
                         if (true)
                         {
                             Dictionary<string, int> priority = new Dictionary<string, int>();
-                            int shipBuildBonus = 0;
+                            
  
                             priority.Add("SHIPTECH", this.randomizer( this.empire.getResStrat().MilitaryPriority, 4 + ((int)wars+ shipBuildBonus)));
 
                             priority.Add("Research", this.randomizer(this.empire.getResStrat().ResearchPriority , 4 + (researchDebt)));
-                            priority.Add("Colonization", this.randomizer(this.empire.getResStrat().ExpansionPriority , 4 + (!cybernetic ? needsFood : 0)));
+                            priority.Add("Colonization", this.randomizer(this.empire.getResStrat().ExpansionPriority, 4 + (!cybernetic ? needsFood : -20)));
                             priority.Add("Economic", this.randomizer(this.empire.getResStrat().ExpansionPriority, 4 + (economics)));
                             priority.Add("Industry", this.randomizer(this.empire.getResStrat().IndustryPriority , 4 + (cybernetic ? 4 + needsFood : 0)));
                             priority.Add("General", this.randomizer(this.empire.getResStrat().ResearchPriority + 2, 4));
