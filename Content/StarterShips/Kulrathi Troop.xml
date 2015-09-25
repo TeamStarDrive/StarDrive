@@ -33,7 +33,7 @@
   </ThrusterList>
   <ModelPath>Model/Ships/CargoShips/CargoHaulerShort</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
-  <ShipCategory>Civilian</ShipCategory>
+  <ShipCategory>Unclassified</ShipCategory>
   <ModuleSlotList>
     <ModuleSlotData>
       <Position>

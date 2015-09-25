@@ -2356,8 +2356,6 @@ namespace Ship_Game.Gameplay
             }
             if (this.IsSupplyBay)
             {
-                //if (this.Parent.shipData.Role == ShipData.RoleName.freighter || this.Parent.shipData.ShipCategory == ShipData.Category.Civilian)
-                //    this.Parent.shipData.Role = ShipData.RoleName.supply;
                 this.Parent.IsSupplyShip = true;
             }
             this.Health = this.HealthMax;

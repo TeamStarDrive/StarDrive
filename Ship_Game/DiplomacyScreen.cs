@@ -645,9 +645,9 @@ namespace Ship_Game
 					this.at.Draw(base.ScreenManager);
 					this.ar.Transition(this.Attitude_Respectful_Rect);
 					this.ar.Draw(base.ScreenManager);
-					drawCurs = new Vector2((float)(this.UsRect.X + 10), (float)(this.UsRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 9));
+					drawCurs = new Vector2((float)(this.UsRect.X + 10), (float)(this.UsRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, Localizer.Token(1221), drawCurs, Color.White);
-					drawCurs = new Vector2((float)(this.ThemRect.X + 10), (float)(this.ThemRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 9));
+					drawCurs = new Vector2((float)(this.ThemRect.X + 10), (float)(this.ThemRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, Localizer.Token(1222), drawCurs, Color.White);
 					goto case DiplomacyScreen.DialogState.Choosing;
 				}
@@ -812,7 +812,8 @@ namespace Ship_Game
 					continue;
 				}
 				ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
-				e.AddItem(item1);
+                item1.words += ": " + (int)ResourceManager.TechTree[Technology.Key].Cost;
+                e.AddItem(item1);
 				item1.Response = "Tech";
                 item1.SpecialInquiry = Technology.Key;
 				newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
@@ -907,6 +908,7 @@ namespace Ship_Game
 					continue;
 				}
 				ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
+                item1.words += ": " + (int)ResourceManager.TechTree[Technology.Key].Cost;
 				e.AddItem(item1);
 				item1.Response = "Tech";
                 item1.SpecialInquiry = Technology.Key;
@@ -1520,7 +1522,8 @@ namespace Ship_Game
 			this.AccRejRect = new Rectangle(this.R.X + this.R.Width / 2 - 220, this.R.Y + this.R.Height - 48, 440, 48);
 			this.Accept = new GenericButton(new Rectangle(this.AccRejRect.X, this.AccRejRect.Y, 220, 48), Localizer.Token(1210), Fonts.Pirulen12);
 			this.Reject = new GenericButton(new Rectangle(this.AccRejRect.X + 220, this.AccRejRect.Y, 220, 48), Localizer.Token(1211), Fonts.Pirulen12);
-			this.Negotiate_Right = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 192, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, 192, 280);
+			//this.Negotiate_Right = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 192, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, 192, 280);
+            this.Negotiate_Right = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 242, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, 192, 280);
 			this.Negotiate_Left = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, 192, 280);
 			this.BigTradeRect = new Rectangle(this.DialogRect.X + 75, this.DialogRect.Y - 202, this.DialogRect.Width - 150, 200);
 			this.UsRect = new Rectangle(this.Negotiate_Right.X + 20, this.Negotiate_Right.Y + 35, this.BigTradeRect.Width / 2 - 9, 300);

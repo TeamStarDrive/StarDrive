@@ -5494,7 +5494,7 @@ namespace Ship_Game
                         else
                         {
                             //Delay method
-                            if ((double)num4 < (double)num1 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
+                            if (  (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
                             {
                                 this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
                             }                           

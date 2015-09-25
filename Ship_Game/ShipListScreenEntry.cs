@@ -127,9 +127,11 @@ namespace Ship_Game
 			Vector2 rolePos = new Vector2((float)(this.RoleRect.X + this.RoleRect.Width / 2) - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty)).X / 2f, (float)(this.RoleRect.Y + this.RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			HelperFunctions.ClampVectorToInt(ref rolePos);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty), rolePos, TextColor);
-			Vector2 StatusPos = new Vector2((float)(this.OrdersRect.X + this.OrdersRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Status_Text).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2) - Fonts.Arial12Bold.MeasureString(this.Status_Text).Y / 2f);
+			
+            Vector2 StatusPos = new Vector2((float)(this.OrdersRect.X + this.OrdersRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Status_Text).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2) - Fonts.Arial12Bold.MeasureString(this.Status_Text).Y / 2f);
 			HelperFunctions.ClampVectorToInt(ref StatusPos);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.Status_Text, StatusPos, TextColor);
+
 			Vector2 MainPos = new Vector2((float)(this.MaintRect.X + this.MaintRect.Width / 2), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
 			Empire e = EmpireManager.GetEmpireByName(this.screen.empUI.screen.PlayerLoyalty);
             float Maint = 1f;
@@ -317,8 +319,7 @@ namespace Ship_Game
 				}
 				case AIState.AttackRunner:
 				case AIState.PatrolSystem:
-				case AIState.Flee:
-                
+				case AIState.Flee:                
                 {
                     if (ship.GetAI().OrbitTarget == null)
                     {
