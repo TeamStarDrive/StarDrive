@@ -559,6 +559,7 @@ namespace Ship_Game
 		private void LoadEverything(object sender, RunWorkerCompletedEventArgs ev)
 		{
 			bool stop;
+            ResourceManager.LoadShips();
 			List<SolarSystem>.Enumerator enumerator;
 			base.ScreenManager.inter.ObjectManager.Clear();
 			this.data = new UniverseData();
