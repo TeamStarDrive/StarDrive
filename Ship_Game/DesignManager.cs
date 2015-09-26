@@ -111,7 +111,7 @@ namespace Ship_Game
 				Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
 				tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).Role, tCursor, Color.Orange);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
 				if (e.Plus != 0)
 				{
 					if (e.PlusHover != 0)

@@ -28,7 +28,7 @@
   </ThrusterList>
   <ModelPath>Model/Ships/Cordrazine/ship16a</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
-  <ShipCategory>Bomber</ShipCategory>
+  <ShipCategory>Unclassified</ShipCategory>
   <CarrierShip>true</CarrierShip>
   <BaseStrength>0</BaseStrength>
   <BaseCanWarp>false</BaseCanWarp>

@@ -41,6 +41,8 @@ namespace Ship_Game
 
 		private SortButton SortRole;
 
+        private SortButton SortOrder;
+
 		private Rectangle eRect;
 
 		private Checkbox cb_hide_proj;
@@ -149,11 +151,11 @@ namespace Ship_Game
 			this.SortSystem = new SortButton(this.empUI.empire.data.SLSort,Localizer.Token(192));
             this.SortName = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(193));
 			this.SortRole = new SortButton(this.empUI.empire.data.SLSort,Localizer.Token(194));
-            //Localizer.Token(193)
+            this.SortOrder = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(195));
             this.Maint = new SortButton(this.empUI.empire.data.SLSort, "maint");
             this.SB_FTL = new SortButton(this.empUI.empire.data.SLSort, "FTL");
             this.SB_STL = new SortButton(this.empUI.empire.data.SLSort, "STL");
-            this.SB_Troop = new SortButton(this.empUI.empire.data.SLSort, "Troop");
+            this.SB_Troop = new SortButton(this.empUI.empire.data.SLSort, "TROOP");
             this.SB_STR = new SortButton(this.empUI.empire.data.SLSort, "STR");
             //this.Maint.rect = this.MaintRect;
             this.ShowRoles.ActiveIndex = indexLast;  //fbedard: remember last filter
@@ -207,13 +209,17 @@ namespace Ship_Game
 					this.SortName.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X, Fonts.Arial20Bold.LineSpacing);
 					
 					this.SortName.Draw(base.ScreenManager, Fonts.Arial20Bold);
-					TextCursor = new Vector2((float)(entry.RoleRect.X + entry.RoleRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-					this.SortRole.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X, Fonts.Arial20Bold.LineSpacing);
 					
+                    TextCursor = new Vector2((float)(entry.RoleRect.X + entry.RoleRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+					this.SortRole.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X, Fonts.Arial20Bold.LineSpacing);					
 					this.SortRole.Draw(base.ScreenManager, Fonts.Arial20Bold);
-					TextCursor = new Vector2((float)(entry.OrdersRect.X + entry.OrdersRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 30));
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(195), TextCursor, new Color(255, 239, 208));
-					this.STRIconRect = new Rectangle(entry.STRRect.X + entry.STRRect.Width / 2 - 6, this.eRect.Y - 18 + 30, 18, 18);
+
+                    TextCursor = new Vector2((float)(entry.OrdersRect.X + entry.OrdersRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 30));
+                    this.SortOrder.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X, Fonts.Arial20Bold.LineSpacing);
+                    this.SortOrder.Draw(base.ScreenManager, Fonts.Arial20Bold);
+					//base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(195), TextCursor, new Color(255, 239, 208));
+
+                    this.STRIconRect = new Rectangle(entry.STRRect.X + entry.STRRect.Width / 2 - 6, this.eRect.Y - 18 + 30, 18, 18);
                     this.SB_STR.rect = this.STRIconRect;
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], this.STRIconRect, Color.White);                    
                     this.MaintRect = new Rectangle(entry.MaintRect.X + entry.MaintRect.Width / 2 - 7, this.eRect.Y - 20 + 30, 21, 20);
@@ -339,12 +345,12 @@ namespace Ship_Game
 					else
 					{
 						this.ExitScreen();
-                        if (this.empUI.screen.SelectedShip != null && entry.ship != this.empUI.screen.SelectedShip) //fbedard
+                        if (this.empUI.screen.SelectedShip != null && this.empUI.screen.previousSelection != this.empUI.screen.SelectedShip && this.empUI.screen.SelectedShip != entry.ship) //fbedard
                             this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
                         this.empUI.screen.SelectedShipList.Clear();
                         this.empUI.screen.SelectedShip = entry.ship;                        
 						this.empUI.screen.ViewToShip(null);
-						this.empUI.screen.returnToShip = false;
+						this.empUI.screen.returnToShip = true;
 					}
 					if (this.SelectedShip != entry.ship)
 					{
@@ -541,7 +547,7 @@ namespace Ship_Game
 				{
 					IOrderedEnumerable<ScrollList.Entry> sortedList = 
 						from theship in this.ShipSL.Entries
-						orderby (theship.item as ShipListScreenEntry).ship.Role descending
+                        orderby (theship.item as ShipListScreenEntry).ship.shipData.Role descending
 						select theship;
 					this.ResetListSorted(sortedList);
 				}
@@ -549,12 +555,34 @@ namespace Ship_Game
 				{
 					IOrderedEnumerable<ScrollList.Entry> sortedList = 
 						from theship in this.ShipSL.Entries
-						orderby (theship.item as ShipListScreenEntry).ship.Role
+                        orderby (theship.item as ShipListScreenEntry).ship.shipData.Role
 						select theship;
 					this.ResetListSorted(sortedList);
 				}
 				this.ResetPos();
 			}
+            if (this.SortOrder.HandleInput(input))  //fbedard
+            {
+                AudioManager.PlayCue("blip_click");
+                this.SortOrder.Ascending = !this.SortOrder.Ascending;
+                if (!this.SortOrder.Ascending)
+                {
+                    IOrderedEnumerable<ScrollList.Entry> sortedList =
+                        from theship in this.ShipSL.Entries
+                        orderby ShipListScreenEntry.GetStatusText((theship.item as ShipListScreenEntry).ship) descending
+                        select theship;
+                    this.ResetListSorted(sortedList);
+                }
+                else
+                {
+                    IOrderedEnumerable<ScrollList.Entry> sortedList =
+                        from theship in this.ShipSL.Entries
+                        orderby ShipListScreenEntry.GetStatusText((theship.item as ShipListScreenEntry).ship)
+                        select theship;
+                    this.ResetListSorted(sortedList);
+                }
+                this.ResetPos();
+            }
 			if (this.SortSystem.HandleInput(input))
 			{
 				AudioManager.PlayCue("blip_click");
@@ -598,6 +626,8 @@ namespace Ship_Game
 
                     if (this.empUI.screen.SelectedShipList.Count == 1)
                     {
+                        if (this.empUI.screen.SelectedShip != null && this.empUI.screen.previousSelection != this.empUI.screen.SelectedShip) //fbedard
+                            this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
                         this.empUI.screen.SelectedShip = this.SelectedShip;
                         this.empUI.screen.ShipInfoUIElement.SetShip(this.SelectedShip);
                         this.empUI.screen.SelectedShipList.Clear();
@@ -627,6 +657,8 @@ namespace Ship_Game
 
                     if (this.empUI.screen.SelectedShipList.Count == 1)
                     {
+                        if (this.empUI.screen.SelectedShip != null && this.empUI.screen.previousSelection != this.empUI.screen.SelectedShip) //fbedard
+                            this.empUI.screen.previousSelection = this.empUI.screen.SelectedShip;
                         this.empUI.screen.SelectedShip = this.SelectedShip;
                         this.empUI.screen.ShipInfoUIElement.SetShip(this.SelectedShip);
                         this.empUI.screen.SelectedShipList.Clear();
@@ -674,7 +706,7 @@ namespace Ship_Game
 			{
 				foreach (Ship ship in EmpireManager.GetEmpireByName(this.empUI.screen.PlayerLoyalty).GetShips())
 				{
-					if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null)  //fbedard: never list ships created from hangar
+                    if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null || ship.isConstructor)  //fbedard: never list ships created from hangar or constructor
 					{
 						continue;
 					}
@@ -683,7 +715,7 @@ namespace Ship_Game
 					{
 						case 1:
 						{
-                            if (ship.Role == "platform" || ship.Role == "station")
+                            if (ship.shipData.Role <= ShipData.RoleName.station)
                             {
                                 continue;
                             }
@@ -693,7 +725,7 @@ namespace Ship_Game
 						}
 						case 2:
 						{
-							if ((ship.Role != "fighter") && (ship.Role != "scout"))
+                            if ((ship.shipData.Role != ShipData.RoleName.fighter) && (ship.shipData.Role != ShipData.RoleName.scout))
 							{
 								continue;
 							}
@@ -703,7 +735,7 @@ namespace Ship_Game
 						}
 						case 3:
 						{
-							if ((ship.Role != "frigate") && (ship.Role != "destroyer"))
+                            if ((ship.shipData.Role != ShipData.RoleName.frigate) && (ship.shipData.Role != ShipData.RoleName.destroyer))
 							{
 								continue;
 							}
@@ -713,7 +745,7 @@ namespace Ship_Game
 						}
 						case 4:
 						{
-							if (ship.Role != "cruiser")
+                            if (ship.shipData.Role != ShipData.RoleName.cruiser)
 							{
 								continue;
 							}
@@ -723,7 +755,7 @@ namespace Ship_Game
 						}
 						case 5:
 						{
-							if (!(ship.Role == "capital") && !(ship.Role == "carrier"))
+                            if (!(ship.shipData.Role == ShipData.RoleName.capital) && !(ship.shipData.Role == ShipData.RoleName.carrier))
 							{
 								continue;
 							}
@@ -753,7 +785,7 @@ namespace Ship_Game
 						}
                         case 8:
                         {
-                            if ((ship.Role != "freighter") && (ship.Role != "construction"))
+                            if ((ship.shipData.Role != ShipData.RoleName.freighter) && (!ship.isConstructor) && (ship.shipData.ShipCategory != ShipData.Category.Civilian))
                             {
                                 continue;
                             }
@@ -763,7 +795,7 @@ namespace Ship_Game
                         }
                         case 9:
                         {
-                            if ((ship.Role != "platform") && (ship.Role != "station") && (ship.Role != "construction"))
+                            if ((ship.shipData.Role > ShipData.RoleName.construction))
                             {
                                 continue;
                             }
@@ -773,7 +805,7 @@ namespace Ship_Game
                         }
                         case 10:
                         {
-                            if ((ship.Role != "corvette"))
+                            if ((ship.shipData.Role != ShipData.RoleName.corvette && ship.shipData.Role != ShipData.RoleName.gunboat))
                             {
                                 continue;
                             }
@@ -783,7 +815,7 @@ namespace Ship_Game
                         }
                         case 11: 
                         {
-                            if (ship.fleet != null || ship.Role == "platform" || ship.Role == "station")
+                            if (ship.fleet != null || ship.shipData.Role <= ShipData.RoleName.station)
                             {
                                 continue;
                             }

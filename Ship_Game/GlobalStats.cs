@@ -125,6 +125,7 @@ namespace Ship_Game
 
         public static bool preventFederations;
         public static bool EliminationMode;
+        public static bool ZoomTracking;
 
         public static int ShipCountLimit;
         public static float spaceroadlimit = .025f;
@@ -135,6 +136,7 @@ namespace Ship_Game
         public static ReaderWriterLockSlim UILocker;
         public static int BeamOOM = 0;
         public static string bugTracker = "";
+
 		static GlobalStats()
 		{
             GlobalStats.UILocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
@@ -188,7 +190,7 @@ namespace Ship_Game
 	            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
 	            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
                 GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
-	
+                GlobalStats.ZoomTracking = bool.Parse(ConfigurationManager.AppSettings["ZoomTracking"]);
 	            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
 	            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
 	            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
@@ -220,6 +222,7 @@ namespace Ship_Game
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.EliminationMode = bool.Parse(ConfigurationManager.AppSettings["EliminationMode"]);
+            GlobalStats.ZoomTracking = bool.Parse(ConfigurationManager.AppSettings["ZoomTracking"]);
             GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
             GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
         }

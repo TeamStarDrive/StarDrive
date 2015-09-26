@@ -134,6 +134,10 @@ namespace Ship_Game
                     e.data.CurrentConstructor = data.CurrentConstructor;
                 else
                     e.data.CurrentConstructor = e.data.DefaultConstructor;
+                if(string.IsNullOrEmpty(data.empireData.DefaultTroopShip))
+                {
+                    e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
+                }
 
 			}
 			e.Initialize();
@@ -640,7 +644,7 @@ namespace Ship_Game
                         ship.VanityName = shipData.VanityName;
                     else
                     {
-                        if (ship.Role == "troop")
+                        if (ship.shipData.Role == ShipData.RoleName.troop)
                         {
                             if (shipData.TroopList.Count > 0)
                             {
@@ -746,6 +750,7 @@ namespace Ship_Game
 					if (shipData.PopCount > 0f)
 					{
 						ship.AddGood("Colonists_1000", (int)shipData.PopCount);
+                        ship.GetAI().FoodOrProd = "Pass";
 					}
 					AIState state = ship.GetAI().State;
 					if (state == AIState.SystemTrader)
@@ -756,6 +761,7 @@ namespace Ship_Game
 					{
 						ship.GetAI().OrderTransportPassengersFromSave();
 					}
+
 					e.AddShip(ship);
 					foreach (SavedGame.ProjectileSaveData pdata in shipData.Projectiles)
 					{
@@ -829,6 +835,7 @@ namespace Ship_Game
                     fleet.Setavgtodestination();
                     
 				}
+                /* fbedard: not needed
 				foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
 				{
 					foreach (Ship ship in e.GetShips())
@@ -838,7 +845,8 @@ namespace Ship_Game
 							continue;
 						}
 					}
-				}
+				}   
+                */
 			}
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
 			{
@@ -1055,6 +1063,8 @@ namespace Ship_Game
 								g.goal = goal;
 							}
 							ship.GetAI().OrderQueue.AddLast(g);
+                            if (g.Plan == ArtificialIntelligence.Plan.DeployStructure)
+                                ship.isConstructor = true;
 						}
 					}
 				}
