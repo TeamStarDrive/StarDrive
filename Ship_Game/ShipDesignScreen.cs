@@ -5054,22 +5054,22 @@ namespace Ship_Game
                 {
                     case 1:
                         {
-                            ToolTip.CreateTooltip("Repair when damaged at 80%", this.ScreenManager);
+                            ToolTip.CreateTooltip("Repair when damaged at 75%", this.ScreenManager);
                             break;
                         }
                     case 2:
                         {
-                            ToolTip.CreateTooltip("Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 20%", this.ScreenManager);
+                            ToolTip.CreateTooltip("Can be used as Freighter.\nEvade when enemy.\nRepair when damaged at 15%", this.ScreenManager);
                             break;
                         }
                     case 3:
                         {
-                            ToolTip.CreateTooltip("Repair when damaged at 40%", this.ScreenManager);
+                            ToolTip.CreateTooltip("Repair when damaged at 35%", this.ScreenManager);
                             break;
                         }
                     case 4:
                         {
-                            ToolTip.CreateTooltip("Repair when damaged at 60%", this.ScreenManager);
+                            ToolTip.CreateTooltip("Repair when damaged at 55%", this.ScreenManager);
                             break;
                         }
                     case 5:
@@ -5079,7 +5079,7 @@ namespace Ship_Game
                         }
                     default:
                         {
-                            ToolTip.CreateTooltip("Repair when damaged at 80%", this.ScreenManager);
+                            ToolTip.CreateTooltip("Repair when damaged at 75%", this.ScreenManager);
                             break;
                         }
                 }
@@ -5494,7 +5494,7 @@ namespace Ship_Game
                         else
                         {
                             //Delay method
-                            if ((double)num4 < (double)num1 && (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
+                            if (  (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Pressed && this.HoldTimer < 0))
                             {
                                 this.HighlightedModule.facing = Math.Abs(this.findAngleToTarget(spaceFromWorldSpace, vector2));
                             }                           
