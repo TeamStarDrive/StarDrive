@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
+using System.Runtime.InteropServices;
 
 namespace Ship_Game
 {
@@ -261,6 +262,8 @@ namespace Ship_Game
                             removalCollection.Add(empireData);
                     }
                     int num = removalCollection.Count - this.numOpponents;
+                                            int shipsPurged = 0;
+                                            float SpaceSaved = GC.GetTotalMemory(true);
                     for (int opponents = 0; opponents < num; ++opponents)
                     {
                         int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count + 1));
@@ -268,6 +271,7 @@ namespace Ship_Game
                             index2 = removalCollection.Count - 1;
                         
                         List<string> shipkill = new List<string>();
+
                         foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
                         {
                             if (ship.Value.shipData.ShipStyle == removalCollection[index2].Traits.ShipType)
@@ -291,7 +295,12 @@ namespace Ship_Game
                                         }
                                     }
                                 if (killSwitch)
+                                {
+                                    shipsPurged++;
+                                    
+                                    System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
                                     shipkill.Add(ship.Key);
+                                }
                             }
                         }
                         foreach (string shiptoclear in shipkill)
@@ -301,7 +310,8 @@ namespace Ship_Game
                         removalCollection.RemoveAt(index2);
                     }
 
-
+                    System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
+                    System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(true)).ToString());
                     foreach (EmpireData data in (List<EmpireData>)removalCollection)
                     {
                         Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
