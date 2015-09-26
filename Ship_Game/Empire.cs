@@ -446,7 +446,7 @@ namespace Ship_Game
                             break;
                         }
                     }
-                }
+                } //added race exclusions. in this case to prevent some techs from being exposed to the opteris and cybernetic races but also allow it to work in mods with extra races and what not.  
                 else if(keyValuePair.Value.RaceExclusions.Count != 0)
                 {
                     foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceExclusions)
