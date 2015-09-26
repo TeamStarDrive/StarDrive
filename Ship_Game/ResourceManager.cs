@@ -2518,7 +2518,7 @@ namespace Ship_Game
 
 		public static void LoadShips()
 		{
-			Ship_Game.ResourceManager.ShipsDict.Clear();
+            Ship_Game.ResourceManager.ShipsDict.Clear();// = new Dictionary<string, Ship>();
             //Added by McShooterz: Changed how StarterShips loads from mod if folder exists
             XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
             FileInfo[] textList; //"Mods/", 

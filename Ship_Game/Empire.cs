@@ -237,14 +237,38 @@ namespace Ship_Game
                 s.loyalty = rebelsFromEmpireData;
                 rebelsFromEmpireData.AddShip(s);
             }
-            //foreach (string ship in this.ShipsWeCanBuild)
-            //{
+            //clear out empires ships from ship dictionary
+            List<string> shipkill = new List<string>();
+            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+            {
+                if (ship.Value.shipData.ShipStyle == this.data.Traits.ShipType)
+                {
+                    bool killSwitch = true;
+                    foreach (Empire ebuild in EmpireManager.EmpireList)
+                    {
+                        if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+                            killSwitch = false;
+                        break;
+                    }
 
-            //    if (universeScreen.MasterShipList.Contains(ResourceManager.ShipsDict[ship]))
-            //        continue;
-            //    if(ResourceManager.ShipsDict[ship].shipData.ShipStyle == this.data.Traits.ShipType)
-            //    ResourceManager.ShipsDict[ship] = null;
-            //}
+
+                    if (killSwitch)
+                        foreach (Ship mship in universeScreen.MasterShipList)
+                        {
+                            if (ship.Key == mship.Name)
+                            {
+                                killSwitch = false;
+                                break;
+                            }
+                        }
+                    if (killSwitch)
+                        shipkill.Add(ship.Key);
+                }
+            }
+            foreach (string shiptoclear in shipkill)
+            {
+                ResourceManager.ShipsDict.Remove(shiptoclear);
+            }
             this.OwnedShips.Clear();
             this.data.AgentList.Clear();
         }

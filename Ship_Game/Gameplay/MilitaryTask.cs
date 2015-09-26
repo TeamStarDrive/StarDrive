@@ -1145,17 +1145,19 @@ namespace Ship_Game.Gameplay
             }
             List<Planet> shipyards = new List<Planet>();
             foreach (Planet planet1 in ClosestAO.GetPlanets())
-            {
-                if (!planet1.HasShipyard)
+            { //add a danger timer qualifier.
+                if (!planet1.HasShipyard )
                 {
                     continue;
                 }
                 shipyards.Add(planet1);
             }
-            IOrderedEnumerable<Planet> planets =
-                from p in shipyards
-                orderby Vector2.Distance(p.Position, this.TargetPlanet.Position)
-                select p;
+            IOrderedEnumerable<Planet> planets = shipyards.OrderBy(p => p.ParentSystem.DangerTimer <= 0).ThenBy(p => Vector2.Distance(p.Position, this.TargetPlanet.Position));
+                //from p in shipyards
+                //orderby Vector2.Distance(p.Position, this.TargetPlanet.Position)
+                
+                //select p;
+            
             if (planets.Count<Planet>() == 0)
             {
                 return;
@@ -1164,7 +1166,7 @@ namespace Ship_Game.Gameplay
                 //from planet in ClosestAO.GetPlanets()
                 from planet in empire.GetPlanets()
                 //where planet.system.CombatInSystem ==false
-                orderby empire.GetGSAI().DefensiveCoordinator.DefenseDict[planet.ParentSystem].ValueToUs *.1f
+                orderby empire.GetGSAI().DefensiveCoordinator.DefenseDict[planet.ParentSystem].RankImportance
                 orderby Vector2.Distance(planet.Position, planets.First<Planet>().Position)
                 select planet;
     //        IOrderedEnumerable<SolarSystem> sortedSystems =
