@@ -447,6 +447,18 @@ namespace Ship_Game
                         }
                     }
                 }
+                else if(keyValuePair.Value.RaceExclusions.Count != 0)
+                {
+                    foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceExclusions)
+                    {
+                        if (raceTech.ShipType == this.data.Traits.ShipType || (this.data.Traits.Cybernetic >0 && raceTech.ShipType == "Opteris"))
+                        {
+                            techEntry.Discovered = false;
+                            techEntry.GetTech().Secret = true;
+                         
+                        }
+                    }
+                }
                 else //not racial tech
                 {
                     techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
@@ -482,6 +494,7 @@ namespace Ship_Game
                 {
                     if (techEntry.UID == "Biospheres")
                         techEntry.Unlocked = true;
+
                 }
                 if (techEntry.Unlocked)
                     techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
