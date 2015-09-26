@@ -1167,6 +1167,44 @@ namespace Ship_Game
 					}
 				}
 			}
+            foreach(Empire empire in  EmpireManager.EmpireList)
+            {
+                if (empire.data.Defeated)
+                {
+                    List<string> shipkill = new List<string>();
+                    foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+                    {
+                        if (ship.Value.shipData.ShipStyle == empire.data.Traits.ShipType)
+                        {
+                            bool killSwitch = true;
+                            foreach (Empire ebuild in EmpireManager.EmpireList)
+                            {
+                                if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+                                    killSwitch = false;
+                                break;
+                            }
+
+
+                            if (killSwitch)
+                                foreach (Ship mship in this.data.MasterShipList)
+                                {
+                                    if (ship.Key == mship.Name)
+                                    {
+                                        killSwitch = false;
+                                        break;
+                                    }
+                                }
+                            if (killSwitch)
+                                shipkill.Add(ship.Key);
+                        }
+                    }
+                    foreach (string shiptoclear in shipkill)
+                    {
+                        ResourceManager.ShipsDict.Remove(shiptoclear);
+                    }
+
+                }                
+            }
 			this.Loaded = true;
 		}
 

@@ -218,13 +218,16 @@ namespace Ship_Game
             foreach (Empire key in EmpireManager.EmpireList)
             {
                 key.GetRelations().Add(rebelsFromEmpireData, new Relationship(rebelsFromEmpireData.data.Traits.Name));
-                rebelsFromEmpireData.GetRelations().Add(key, new Relationship(key.data.Traits.Name));
+                rebelsFromEmpireData.GetRelations().Add(key, new Relationship(key.data.Traits.Name));                
+                
             }
+
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 solarSystem.ExploredDict.Add(rebelsFromEmpireData, false);
                 foreach (Planet planet in solarSystem.PlanetList)
                     planet.ExploredDict.Add(rebelsFromEmpireData, false);
+
             }
             EmpireManager.EmpireList.Add(rebelsFromEmpireData);
             this.data.RebellionLaunched = true;
@@ -234,6 +237,14 @@ namespace Ship_Game
                 s.loyalty = rebelsFromEmpireData;
                 rebelsFromEmpireData.AddShip(s);
             }
+            //foreach (string ship in this.ShipsWeCanBuild)
+            //{
+
+            //    if (universeScreen.MasterShipList.Contains(ResourceManager.ShipsDict[ship]))
+            //        continue;
+            //    if(ResourceManager.ShipsDict[ship].shipData.ShipStyle == this.data.Traits.ShipType)
+            //    ResourceManager.ShipsDict[ship] = null;
+            //}
             this.OwnedShips.Clear();
             this.data.AgentList.Clear();
         }
