@@ -146,7 +146,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_RadicalElements_RC_|x86' ">
-    <OutputPath>..\stardrive mod\</OutputPath>
+    <OutputPath>Deploy\Upload\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -2993,6 +2993,95 @@
     <Content Include="Content\Weapons\PDLaser.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Deploy\7-Zip\7-zip.dll" />
+    <Content Include="Deploy\7-Zip\7z.dll" />
+    <Content Include="Deploy\7-Zip\7z.exe" />
+    <Content Include="Deploy\7-Zip\7zFM.exe" />
+    <Content Include="Deploy\7-Zip\7zG.exe" />
+    <Content Include="Deploy\7-Zip\History.txt" />
+    <Content Include="Deploy\7-Zip\Lang\af.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ar.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ast.txt" />
+    <Content Include="Deploy\7-Zip\Lang\az.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ba.txt" />
+    <Content Include="Deploy\7-Zip\Lang\be.txt" />
+    <Content Include="Deploy\7-Zip\Lang\bg.txt" />
+    <Content Include="Deploy\7-Zip\Lang\bn.txt" />
+    <Content Include="Deploy\7-Zip\Lang\br.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ca.txt" />
+    <Content Include="Deploy\7-Zip\Lang\cs.txt" />
+    <Content Include="Deploy\7-Zip\Lang\cy.txt" />
+    <Content Include="Deploy\7-Zip\Lang\da.txt" />
+    <Content Include="Deploy\7-Zip\Lang\de.txt" />
+    <Content Include="Deploy\7-Zip\Lang\el.txt" />
+    <Content Include="Deploy\7-Zip\Lang\eo.txt" />
+    <Content Include="Deploy\7-Zip\Lang\es.txt" />
+    <Content Include="Deploy\7-Zip\Lang\et.txt" />
+    <Content Include="Deploy\7-Zip\Lang\eu.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ext.txt" />
+    <Content Include="Deploy\7-Zip\Lang\fa.txt" />
+    <Content Include="Deploy\7-Zip\Lang\fi.txt" />
+    <Content Include="Deploy\7-Zip\Lang\fr.txt" />
+    <Content Include="Deploy\7-Zip\Lang\fur.txt" />
+    <Content Include="Deploy\7-Zip\Lang\fy.txt" />
+    <Content Include="Deploy\7-Zip\Lang\gl.txt" />
+    <Content Include="Deploy\7-Zip\Lang\gu.txt" />
+    <Content Include="Deploy\7-Zip\Lang\he.txt" />
+    <Content Include="Deploy\7-Zip\Lang\hi.txt" />
+    <Content Include="Deploy\7-Zip\Lang\hr.txt" />
+    <Content Include="Deploy\7-Zip\Lang\hu.txt" />
+    <Content Include="Deploy\7-Zip\Lang\hy.txt" />
+    <Content Include="Deploy\7-Zip\Lang\id.txt" />
+    <Content Include="Deploy\7-Zip\Lang\io.txt" />
+    <Content Include="Deploy\7-Zip\Lang\is.txt" />
+    <Content Include="Deploy\7-Zip\Lang\it.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ja.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ka.txt" />
+    <Content Include="Deploy\7-Zip\Lang\kk.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ko.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ku-ckb.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ku.txt" />
+    <Content Include="Deploy\7-Zip\Lang\lt.txt" />
+    <Content Include="Deploy\7-Zip\Lang\lv.txt" />
+    <Content Include="Deploy\7-Zip\Lang\mk.txt" />
+    <Content Include="Deploy\7-Zip\Lang\mn.txt" />
+    <Content Include="Deploy\7-Zip\Lang\mr.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ms.txt" />
+    <Content Include="Deploy\7-Zip\Lang\nb.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ne.txt" />
+    <Content Include="Deploy\7-Zip\Lang\nl.txt" />
+    <Content Include="Deploy\7-Zip\Lang\nn.txt" />
+    <Content Include="Deploy\7-Zip\Lang\pa-in.txt" />
+    <Content Include="Deploy\7-Zip\Lang\pl.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ps.txt" />
+    <Content Include="Deploy\7-Zip\Lang\pt-br.txt" />
+    <Content Include="Deploy\7-Zip\Lang\pt.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ro.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ru.txt" />
+    <Content Include="Deploy\7-Zip\Lang\sa.txt" />
+    <Content Include="Deploy\7-Zip\Lang\si.txt" />
+    <Content Include="Deploy\7-Zip\Lang\sk.txt" />
+    <Content Include="Deploy\7-Zip\Lang\sl.txt" />
+    <Content Include="Deploy\7-Zip\Lang\sq.txt" />
+    <Content Include="Deploy\7-Zip\Lang\sr-spc.txt" />
+    <Content Include="Deploy\7-Zip\Lang\sr-spl.txt" />
+    <Content Include="Deploy\7-Zip\Lang\sv.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ta.txt" />
+    <Content Include="Deploy\7-Zip\Lang\th.txt" />
+    <Content Include="Deploy\7-Zip\Lang\tr.txt" />
+    <Content Include="Deploy\7-Zip\Lang\tt.txt" />
+    <Content Include="Deploy\7-Zip\Lang\ug.txt" />
+    <Content Include="Deploy\7-Zip\Lang\uk.txt" />
+    <Content Include="Deploy\7-Zip\Lang\uz.txt" />
+    <Content Include="Deploy\7-Zip\Lang\va.txt" />
+    <Content Include="Deploy\7-Zip\Lang\vi.txt" />
+    <Content Include="Deploy\7-Zip\Lang\zh-cn.txt" />
+    <Content Include="Deploy\7-Zip\Lang\zh-tw.txt" />
+    <Content Include="Deploy\7-Zip\License.txt" />
+    <Content Include="Deploy\7-Zip\readme.txt" />
+    <Content Include="Deploy\Config\config.txt" />
+    <Content Include="Deploy\Config\include.txt" />
+    <Content Include="Deploy\Config\include_mods.txt" />
     <Content Include="Game.ico" />
     <Content Include="Icons\blackbox drop.ico" />
     <Content Include="Icons\blackbox.ico" />
@@ -3043,12 +3132,21 @@
     <None Include="Content\Textures\UI\node_shiprange.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Deploy\7-Zip\7-zip.chm" />
+    <None Include="Deploy\7-Zip\7z.sfx" />
+    <None Include="Deploy\7-Zip\7zCon.sfx" />
+    <None Include="Deploy\7-Zip\7zsd.sfx" />
+    <None Include="Deploy\7-Zip\descript.ion" />
+    <None Include="Deploy\7-Zip\Lang\en.ttt" />
+    <None Include="Deploy\7-Zip\sd.7z" />
     <None Include="packages.config" />
     <None Include="Resources\StarTrek-SA.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Deploy\upload\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist "$(DevEnvDir)..\tools\vsvars32.bat" call "$(DevEnvDir)..\tools\vsvars32.bat" &amp;&amp; editbin /largeaddressaware "$(TargetPath)"&amp;&amp;   if exist upload "C:\Program Files\7-Zip\7z" A sd.7z @include.txt &amp;&amp; copy /b 7ZSD.sfx + config.txt + "sd.7z" $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).exe</PostBuildEvent>
+    <PostBuildEvent>if exist "$(DevEnvDir)..\tools\vsvars32.bat" call "$(DevEnvDir)..\tools\vsvars32.bat" &amp;&amp; editbin /largeaddressaware "$(TargetPath)"&amp;&amp;   if exist ..\Config $(ProjectDir)\deploy\7-Zip\7z A sd.7z @$(ProjectDir)deploy\config\include.txt &amp;&amp; copy /b $(ProjectDir)deploy\7-Zip\7ZSD.sfx + $(ProjectDir)deploy\Config\config.txt + sd.7z $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).exe</PostBuildEvent>
   </PropertyGroup>
 </Project>
