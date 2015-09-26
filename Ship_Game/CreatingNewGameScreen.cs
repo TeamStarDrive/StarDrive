@@ -14,7 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
-using System.Runtime.InteropServices;
+
 
 namespace Ship_Game
 {
@@ -254,6 +254,7 @@ namespace Ship_Game
             {
                 if (this.firstRun)
                 {
+                    ResourceManager.LoadShips();
                     UniverseScreen.DeepSpaceManager = new SpatialManager();
                     BatchRemovalCollection<EmpireData> removalCollection = new BatchRemovalCollection<EmpireData>();
                     foreach (EmpireData empireData in ResourceManager.Empires)
@@ -298,7 +299,7 @@ namespace Ship_Game
                                 {
                                     shipsPurged++;
                                     
-                                    System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
+                                   // System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
                                     shipkill.Add(ship.Key);
                                 }
                             }
