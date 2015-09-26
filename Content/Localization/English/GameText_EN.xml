@@ -7971,7 +7971,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
 		<Index>6184</Index>
 		<Text>Keyboard Fire Arc Locking</Text>
 	</Token>
-	
+    <Token>
+      <Index>6185</Index>
+      <Text>Toggle Zoom Tracking</Text>
+    </Token>
+    
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
 	<Token>
@@ -8304,6 +8308,9 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7081</Index>
       <Text>When active, arcs in the shipyard can only be moved by ALT-clicking them, preventing accidental rotation while providing immediate control of arcs when using ALT.\n\nWhen inactive, arcs in the shipyard can be moved by left-clicking and holding for a time delay to grab the arc.</Text>
     </Token>
-	
+    <Token>
+      <Index>7082</Index>
+      <Text>Zoom will center on selected object.</Text>
+    </Token>	
   </TokenList>
 </LocalizationFile>

@@ -5223,7 +5223,7 @@ namespace Ship_Game.Gameplay
             float ratio_Frigates = 0f;
             float ratio_Cruisers = 0f;
             float ratio_Capitals = 0f;
-                        
+            /*            
             float capFighters = 0f;
             float capCorvettes = 0f;
             float capFrigates = 0f;
@@ -5232,7 +5232,7 @@ namespace Ship_Game.Gameplay
             float capBombers = 0f;
             float capTroops = 0f;
             float capCarriers = 0f;
-                        
+            */            
             float numFighters = 0;
             float numCorvettes = 0;
             float numFrigates = 0;

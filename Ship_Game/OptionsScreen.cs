@@ -74,6 +74,7 @@ namespace Ship_Game
         private FloatSlider FreighterLimiter;
 
         private Checkbox KeyboardArc;
+        private Checkbox LockZoom;
 
 		//private float transitionElapsedTime;
 
@@ -243,7 +244,7 @@ namespace Ship_Game
                 System.Configuration.ConfigurationManager.AppSettings.Set("PauseOnNotification", GlobalStats.PauseOnNotification.ToString());
                 System.Configuration.ConfigurationManager.AppSettings.Set("MemoryLimiter", GlobalStats.MemoryLimiter.ToString());
                 System.Configuration.ConfigurationManager.AppSettings.Set("shipcountlimit", GlobalStats.ShipCountLimit.ToString());
-                
+                System.Configuration.ConfigurationManager.AppSettings.Set("ZoomTracking", GlobalStats.ZoomTracking.ToString());
 			}
 			catch
 			{
@@ -391,6 +392,7 @@ namespace Ship_Game
 			this.ForceFullSim.Draw(base.ScreenManager);
             this.pauseOnNotification.Draw(base.ScreenManager);
             this.KeyboardArc.Draw(base.ScreenManager);
+            this.LockZoom.Draw(base.ScreenManager);
 			this.MusicVolumeSlider.DrawDecimal(base.ScreenManager);
 			this.EffectsVolumeSlider.DrawDecimal(base.ScreenManager);
             this.IconSize.Draw(base.ScreenManager);
@@ -418,6 +420,7 @@ namespace Ship_Game
 			this.ForceFullSim.HandleInput(input);
             this.pauseOnNotification.HandleInput(input);
             this.KeyboardArc.HandleInput(input);
+            this.LockZoom.HandleInput(input);
             this.IconSize.HandleInput(input);
             GlobalStats.IconSize = (int)this.IconSize.amountRange;
             this.memoryLimit.HandleInput(input);
@@ -521,7 +524,9 @@ namespace Ship_Game
 
             this.KeyboardArc = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y + 90)), Localizer.Token(6184), new Ref<bool>((Func<bool>)(() => GlobalStats.AltArcControl), (Action<bool>)(x => GlobalStats.AltArcControl = x)), Fonts.Arial12Bold);
             this.KeyboardArc.Tip_Token = 7081;
-
+            
+            this.LockZoom = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y + 120)), Localizer.Token(6185), new Ref<bool>((Func<bool>)(() => GlobalStats.ZoomTracking), (Action<bool>)(x => GlobalStats.ZoomTracking = x)), Fonts.Arial12Bold);
+            this.LockZoom.Tip_Token = 7082;
 
             this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width + 20, this.MainOptionsRect.Y, 210, 305);
             
@@ -738,6 +743,7 @@ namespace Ship_Game
 			config.AppSettings.Settings["RanOnce"].Value = "true";
 			config.AppSettings.Settings["ForceFullSim"].Value = (GlobalStats.ForceFullSim ? "true" : "false");
             config.AppSettings.Settings["PauseOnNotification"].Value = (GlobalStats.PauseOnNotification ? "true" : "false");
+            config.AppSettings.Settings["ZoomTracking"].Value = (GlobalStats.ZoomTracking ? "true" : "false");
             config.AppSettings.Settings["AltArcControl"].Value = (GlobalStats.AltArcControl ? "true" : "false");
             config.AppSettings.Settings["freighterlimit"].Value = GlobalStats.freighterlimit.ToString();
             config.AppSettings.Settings["shipcountlimit"].Value = GlobalStats.ShipCountLimit.ToString();
