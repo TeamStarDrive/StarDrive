@@ -164,7 +164,7 @@ namespace Ship_Game.Gameplay
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         public List<Projectile> TrackProjectiles = new List<Projectile>();
-        private static float[] DmgLevel = { 0.2f, 0.8f, 0.6f, 0.4f, 0.0f };  //fbedard: dmg level for repair
+        private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.0f };  //fbedard: dmg level for repair
                 
 		public ArtificialIntelligence()
 		{
@@ -2821,7 +2821,7 @@ namespace Ship_Game.Gameplay
             else if (moduleTarget !=null)
             {
                 if (moduleTarget.GetParent().Velocity.Length() > 0.0f)
-                projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
+                    projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
                 else
                     projectedPosition = target.Center ;
                 if (projectedPosition != target.Center && (target as ShipModule).GetParent().Velocity.Length() <= 0)
@@ -2839,7 +2839,7 @@ namespace Ship_Game.Gameplay
                 }
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
                 if (moduleTarget.GetParent().Velocity.Length() > 0.0f) 
-                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
+                    dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
                 else
                 {
                     dir = this.findVectorToTarget(weapon.Center, projectedPosition);
@@ -2853,9 +2853,7 @@ namespace Ship_Game.Gameplay
             dir = this.findVectorToTarget(weapon.Center, projectedPosition);
             dir.Y = dir.Y * -1f;
             if (moduleTarget ==null  || moduleTarget.GetParent().Velocity.Length() >0)
-            dir = Vector2.Normalize(dir);
-            
-
+                dir = Vector2.Normalize(dir);
 
             if (SalvoFire)
                 weapon.FireSalvo(dir, target);
@@ -4965,7 +4963,7 @@ namespace Ship_Game.Gameplay
                                 {
                                     s.GetAI().orderqueue.EnterReadLock();
                                     ArtificialIntelligence.ShipGoal plan = s.GetAI().OrderQueue.LastOrDefault<ArtificialIntelligence.ShipGoal>();
-                                    if (plan!=null&& s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p &&  plan.Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
+                                    if (plan!=null && s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p &&  plan.Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
                                         cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
                                     s.GetAI().orderqueue.ExitReadLock();
                                     if (cargoSpaceMax < this.Owner.CargoSpace_Max)
