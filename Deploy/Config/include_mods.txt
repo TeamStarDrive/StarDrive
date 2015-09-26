@@ -1,0 +1,5 @@
+"C:\Users\danny\Documents\stardrive mod\content"
+"C:\Users\danny\Documents\stardrive mod\Stardrive.exe"
+"C:\Users\danny\Documents\stardrive mod\Stardrive.exe.config"
+"C:\Users\danny\Documents\stardrive mod\StarDrive.pdb"
+"D:\Program Files\steam\steamapps\common\StarDrive\Mods"
