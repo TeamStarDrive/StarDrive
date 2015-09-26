@@ -243,9 +243,11 @@ namespace Ship_Game
 					continue;
 				}
 				pgs.TroopsHere.Clear();
-				this.p.TroopsHere.Remove(this);
+                this.p.TroopsHere.Remove(this);
+                //this.p.TroopsHere.QueuePendingRemoval(this);
+                //break;
 			}
-			Ship retShip = ResourceManager.CreateTroopShipAtPoint((this.Owner.data.DefaultTroopShip != null ? this.Owner.data.DefaultTroopShip : this.Owner.data.DefaultSmallTransport), this.Owner, this.p.Position, this);
+			Ship retShip = ResourceManager.CreateTroopShipAtPoint(this.Owner.data.DefaultTroopShip, this.Owner, this.p.Position, this);
 			
             this.p = null;
 			return retShip;

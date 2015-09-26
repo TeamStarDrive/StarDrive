@@ -44,6 +44,7 @@ namespace Ship_Game
 
         //added by McShooterz: Racial Tech variables
         public List<Technology.RequiredRace> RaceRestrictions = new List<Technology.RequiredRace>();
+        public List<Technology.RequiredRace> RaceExclusions = new List<Technology.RequiredRace>();
         public struct RequiredRace
         {
             public string ShipType;

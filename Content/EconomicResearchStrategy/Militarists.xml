@@ -1,27 +1,11 @@
 ﻿<EconomicResearchStrategy>
   <!--the opening technology path for races with the militarist economic personality. Goes random when finished-->
   <Name>Militarists</Name>
-  <MilitaryPriority>4</MilitaryPriority>
-  <ExpansionPriority>1</ExpansionPriority>
-  <ResearchPriority>2</ResearchPriority>
-  <IndustryPriority>3</IndustryPriority>
+  <MilitaryPriority>2</MilitaryPriority>
+  <ExpansionPriority>2</ExpansionPriority>
+  <ResearchPriority>0</ResearchPriority>
+  <IndustryPriority>1</IndustryPriority>
   <TechPath>
-    <Tech>
-      <id></id>
-    </Tech>
-
-    <Tech>
-      <id>IS Government</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>TECH:RANDOM</id>
-    </Tech>
-    <Tech>
-      <id>IndustrialFoundations</id>
-    </Tech>
-    
+   
   </TechPath>
 </EconomicResearchStrategy>
