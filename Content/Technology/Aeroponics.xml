@@ -13,6 +13,16 @@
       <UID>Biospheres</UID>
     </LeadsToTech>
   </LeadsTo>
+<RaceExclusions>
+
+
+<RequiredRace>
+
+<ShipType>Opteris</ShipType>
+
+</RequiredRace>
+
+</RaceExclusions>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>

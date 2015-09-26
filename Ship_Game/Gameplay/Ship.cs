@@ -214,6 +214,8 @@ namespace Ship_Game.Gameplay
         
         public ushort purgeCount =0;
         public Ship lastAttacker = null;
+        private bool LowHealth = false; //fbedard: recalculate strength after repair
+        public float TradeTimer;
 
         //public class diplomacticSpace
         //{
@@ -290,7 +292,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                this.AI.OrderResupplyNearest();
+                this.AI.OrderResupplyNearest(true);
             }
         }
 
@@ -347,7 +349,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                this.GetAI().OrderTrade();
+                this.GetAI().OrderTrade(5f);
             }
         }
 
@@ -359,7 +361,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                this.GetAI().OrderTransportPassengers();
+                this.GetAI().OrderTransportPassengers(5f);
             }
         }
 
@@ -407,7 +409,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                this.GetAI().OrderResupplyNearest();
+                this.GetAI().OrderResupplyNearest(true);
             }
         }
 
@@ -1236,7 +1238,10 @@ namespace Ship_Game.Gameplay
         {
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
+                if(this.loyalty == null)
                 return this.GetMaintCostRealism();
+                else
+                    return this.GetMaintCostRealism(this.loyalty);
             }
             float maint = 0f;
             //string role = this.shipData.Role;
@@ -2374,8 +2379,8 @@ namespace Ship_Game.Gameplay
         public static Ship LoadSavedShip(ShipData data)
         {
             Ship parent = new Ship();
-            if (data.Name == "Left Right Test")
-                parent.Position = new Vector2(200f, 200f);
+            //if (data.Name == "Left Right Test")
+            //    parent.Position = new Vector2(200f, 200f);
             parent.Position = new Vector2(200f, 200f);
             parent.Name = data.Name;
             parent.Level = (int)data.Level;
@@ -2711,7 +2716,7 @@ namespace Ship_Game.Gameplay
                     if (this.InCombat && this.GetAI().Target != null && this.GetAI().Target.GetSystem() != null && this.GetAI().Target.GetSystem() == this.GetSystem())
                     {
                         this.system.CombatInSystem = true;
-                        this.system.combatTimer = 60f;  //was 15f
+                        this.system.combatTimer = 15f;
                     }
                 }
                 if (this.disabled)
@@ -3968,13 +3973,15 @@ namespace Ship_Game.Gameplay
         }
         //added by Gremlin : active ship strength calculator
         public float GetStrength()
-        {
-            
-            if (this.Health >= this.HealthMax * .75 && this.BaseStrength !=0)
+        {            
+            if (this.Health >= this.HealthMax * .75 && !this.LowHealth)// && this.BaseStrength !=0)
                 return this.BaseStrength;
             float Str = 0f;
             float def = 0f;
-
+            if (this.Health >= this.HealthMax * .75)
+                this.LowHealth = false;
+            else
+                this.LowHealth = true;
             int slotCount = this.ModuleSlotList.Count;
 
             bool fighters = false;
@@ -3983,6 +3990,12 @@ namespace Ship_Game.Gameplay
             //Parallel.ForEach(this.ModuleSlotList, slot =>  //
             foreach (ModuleSlot slot in this.ModuleSlotList)
             {
+#if DEBUG
+
+                if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
+                    System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
+
+#endif
                 if (!slot.module.isDummy && slot.module.Powered && slot.module.Active)
                 {
                     ShipModule module = slot.module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
@@ -4038,7 +4051,8 @@ namespace Ship_Game.Gameplay
             }//);
             if (!fighters && !weapons) Str = 0;
             if (def > Str) def = Str;
-            if(this.BaseStrength==0 && (def+Str)>0) this.BaseStrength = Str + def;
+            //the base strength should be the ships strength at full health. 
+            //this.BaseStrength = Str + def;
             return Str + def;
         }
 
