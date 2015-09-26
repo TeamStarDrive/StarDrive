@@ -243,14 +243,14 @@ namespace Ship_Game.Gameplay
 					return;
 				}
 			}
-			IOrderedEnumerable<Ship> sortedList = 
-				from ship in this.Owner.loyalty.GetShips()
+			IOrderedEnumerable<Ship> sortedList =
+                from ship in this.Owner.loyalty.GetProjectors()
 				orderby this.Owner.CalculateRange() - Vector2.Distance(startPos, ship.Center)
 				select ship;
 			bool aCloserNodeExists = false;
 			foreach (Ship ship1 in sortedList)
 			{
-				if (this.Owner.CalculateRange() - Vector2.Distance(startPos, ship1.Center) < 0f || !(ship1.Name == "Subspace Projector"))
+				if (this.Owner.CalculateRange() - Vector2.Distance(startPos, ship1.Center) < 0f)
 				{
 					continue;
 				}
@@ -4431,6 +4431,7 @@ namespace Ship_Game.Gameplay
                 this.Owner.ScuttleTimer = 1;
                 this.State = AIState.Scuttle;
                 this.HasPriorityOrder = true;
+                this.Owner.QueueTotalRemoval();  //fbedard
                 return;
             }
             lock (this.wayPointLocker)
@@ -5588,9 +5589,9 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			List<Vector2> PotentialWayPoints = new List<Vector2>();
-			foreach (Ship ship in this.Owner.loyalty.GetShips())
+            foreach (Ship ship in this.Owner.loyalty.GetProjectors())
 			{
-				if (!(ship.Name == "Subspace Projector") || Vector2.Distance(ship.Center, endPos) >= Distance)
+				if (Vector2.Distance(ship.Center, endPos) >= Distance)
 				{
 					continue;
 				}
@@ -6787,11 +6788,6 @@ namespace Ship_Game.Gameplay
             ArtificialIntelligence.ShipGoal toEvaluate;
             if (this.State == AIState.AwaitingOrders && this.DefaultAIState == AIState.Exterminate)
                 this.State = AIState.Exterminate;
-            if (this.Owner.Name == "Subspace Projector")
-            {
-                this.BadGuysNear = true;
-                return;
-            }
             if (this.ClearOrdersNext)
             {
                 this.OrderQueue.Clear();
