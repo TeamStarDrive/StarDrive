@@ -117,14 +117,6 @@ namespace Ship_Game
 					ShipListScreenEntry entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
 					this.ShipSL.AddItem(entry);
 				}
-                //if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
-                //{
-                //    foreach (ScrollList.Entry sel in this.ShipSL.Entries)
-                //        (sel.item as ShipListScreenEntry).Selected = false;
-                    //this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-                    //(this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
-                //}
-                //else
                 this.SelectedShip = null;
 			}
 			Ref<bool> aeRef = new Ref<bool>(() => this.HidePlatforms, (bool x) => {
@@ -685,12 +677,6 @@ namespace Ship_Game
 					ShipListScreenEntry entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
 					this.ShipSL.AddItem(entry);
 				}
-                //if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
-                //{
-                //    this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-                //    (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
-                //    return;
-                //}
                 this.SelectedShip = null;
                 CurrentLine = 0;
 			}
@@ -829,12 +815,6 @@ namespace Ship_Game
 						}
 					}
 				}
-                //if (this.ShipSL.Entries.Count<ScrollList.Entry>() > 0)
-				//{
-					//this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-                    //(this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
-					//return;
-				//}
 				this.SelectedShip = null;
                 CurrentLine = 0;
 			}
