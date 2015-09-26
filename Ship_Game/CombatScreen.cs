@@ -686,8 +686,8 @@ namespace Ship_Game
 			this.currentMouse = Mouse.GetState();
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			bool SelectedSomethingThisFrame = false;
-			this.assetsUI.HandleInput(input);
-			if (this.ActiveTroop != null && this.tInfo.HandleInput(input))
+			this.assetsUI.HandleInput(input);  
+            if (this.ActiveTroop != null && this.tInfo.HandleInput(input))
 			{
 				SelectedSomethingThisFrame = true;
 			}

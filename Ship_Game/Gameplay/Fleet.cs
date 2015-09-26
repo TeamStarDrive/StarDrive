@@ -361,7 +361,7 @@ namespace Ship_Game.Gameplay
                     this.ScreenShips.Add(ship);
                     removalCollection.QueuePendingRemoval(ship);
                 }
-                if (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                if (ship.shipData.Role == ShipData.RoleName.troop || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                 {
                     this.RearShips.Add(ship);
                     removalCollection.QueuePendingRemoval(ship);
@@ -570,8 +570,8 @@ namespace Ship_Game.Gameplay
         public override void MoveTo(Vector2 MovePosition, float facing, Vector2 fVec)
         {
             this.Position = this.findAveragePosition();
-            if (this.InCombat)
-                this.HasPriorityOrder = true;
+            if (this.Owner.isPlayer && this.InCombat)
+                this.HasPriorityOrder = true;            
             this.GoalStack.Clear();
             this.MoveToNow(MovePosition, facing, fVec);
         }
@@ -602,7 +602,7 @@ namespace Ship_Game.Gameplay
             this.AssembleFleet(facing, fvec);
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
-                if (ship.fleet != null)
+                if (ship.fleet != null && (!ship.GetAI().BadGuysNear || ship.shipData.Role == ShipData.RoleName.troop))
                 {
                     ship.GetAI().SetPriorityOrder();
                     ship.GetAI().OrderFormationWarp(MovePosition + ship.FleetOffset, facing, fvec);
@@ -639,7 +639,7 @@ namespace Ship_Game.Gameplay
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
                 ship.GetAI().SetPriorityOrder();
-                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true,null);
+                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true, null);
             }
         }
 
@@ -662,8 +662,12 @@ namespace Ship_Game.Gameplay
             this.AssembleFleet(facing, fVec);
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
-                ship.GetAI().SetPriorityOrder();
-                ship.GetAI().OrderMoveDirectlyTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true);
+                //Prevent fleets with no tasks from and are near their distination from being dumb.
+                if (ship.isInDeepSpace || !ship.GetAI().BadGuysNear  || Vector2.Distance(ship.Center, MovePosition) > 150000f) //this.Owner.isPlayer || ship.GetSystem() ==null|| this.Task != null || 
+                {
+                    ship.GetAI().SetPriorityOrder();
+                    ship.GetAI().OrderMoveDirectlyTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true);
+                }
             }
         }
 
@@ -1298,7 +1302,7 @@ namespace Ship_Game.Gameplay
                     militaryTask.type = MilitaryTask.TaskType.DefendPostInvasion;
                     this.Owner.GetGSAI().TaskList.QueuePendingRemoval(Task);
                     this.Task = militaryTask;
-                    lock (GlobalStats.TaskLocker)
+                    lock(GlobalStats.TaskLocker)
                         this.Owner.GetGSAI().TaskList.Add(Task);
                 }
                 else
@@ -1342,7 +1346,8 @@ namespace Ship_Game.Gameplay
                         case 0:
                             List<Planet> list1 = new List<Planet>();
                             this.Owner.GetPlanets().thisLock.EnterReadLock();
-                            foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat=> combat.ParentSystem.DangerTimer))
+                            //foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat => combat.ParentSystem.DangerTimer))
+                            foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat => combat.ParentSystem.combatTimer)) //fbedard: DangerTimer is in relation to the player only !
                             {
                                 if (planet.HasShipyard )
                                     list1.Add(planet);
@@ -1355,7 +1360,9 @@ namespace Ship_Game.Gameplay
                                 Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
                                 this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
                                 foreach (Ship ship in (List<Ship>)this.Ships)
+                                {
                                     ship.GetAI().HasPriorityOrder = true;
+                                }
                                 this.TaskStep = 1;
                                 break;
                             }
@@ -2412,6 +2419,7 @@ namespace Ship_Game.Gameplay
                         break;
                     }
                 case 2:
+                   
                     if ((double)this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.targetPosition, 20000f, this.Owner) == 0.0)
                     {
                         this.TaskStep = 1;
@@ -2527,7 +2535,7 @@ namespace Ship_Game.Gameplay
                     }
                 case 5:
                     foreach (Ship ship in (List<Ship>)this.Ships)
-                        ship.GetAI().OrderResupplyNearest();
+                        ship.GetAI().OrderResupplyNearest(true);
                     this.TaskStep = 6;
                     break;
                 case 6:
@@ -2924,6 +2932,7 @@ namespace Ship_Game.Gameplay
                 if (ship.Active)
                     num += ship.GetStrength();
             }
+
             return num;
         }
 
@@ -2938,7 +2947,7 @@ namespace Ship_Game.Gameplay
                 if (EmpireManager.GetEmpireByName(Fleet.screen.PlayerLoyalty) == this.Owner || this.IsCoreFleet || this.Ships.Count <= 0)
                     return;
                 foreach (Ship s in (List<Ship>)this.Owner.GetFleetsDict()[which].Ships)
-                {
+                {                    
                     s.GetAI().OrderQueue.Clear();
                     s.GetAI().State = AIState.AwaitingOrders;
                     s.fleet = (Fleet)null;
