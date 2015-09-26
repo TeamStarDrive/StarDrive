@@ -218,13 +218,16 @@ namespace Ship_Game
             foreach (Empire key in EmpireManager.EmpireList)
             {
                 key.GetRelations().Add(rebelsFromEmpireData, new Relationship(rebelsFromEmpireData.data.Traits.Name));
-                rebelsFromEmpireData.GetRelations().Add(key, new Relationship(key.data.Traits.Name));
+                rebelsFromEmpireData.GetRelations().Add(key, new Relationship(key.data.Traits.Name));                
+                
             }
+
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 solarSystem.ExploredDict.Add(rebelsFromEmpireData, false);
                 foreach (Planet planet in solarSystem.PlanetList)
                     planet.ExploredDict.Add(rebelsFromEmpireData, false);
+
             }
             EmpireManager.EmpireList.Add(rebelsFromEmpireData);
             this.data.RebellionLaunched = true;
@@ -233,6 +236,38 @@ namespace Ship_Game
             {
                 s.loyalty = rebelsFromEmpireData;
                 rebelsFromEmpireData.AddShip(s);
+            }
+            //clear out empires ships from ship dictionary
+            List<string> shipkill = new List<string>();
+            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+            {
+                if (ship.Value.shipData.ShipStyle == this.data.Traits.ShipType)
+                {
+                    bool killSwitch = true;
+                    foreach (Empire ebuild in EmpireManager.EmpireList)
+                    {
+                        if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+                            killSwitch = false;
+                        break;
+                    }
+
+
+                    if (killSwitch)
+                        foreach (Ship mship in universeScreen.MasterShipList)
+                        {
+                            if (ship.Key == mship.Name)
+                            {
+                                killSwitch = false;
+                                break;
+                            }
+                        }
+                    if (killSwitch)
+                        shipkill.Add(ship.Key);
+                }
+            }
+            foreach (string shiptoclear in shipkill)
+            {
+                ResourceManager.ShipsDict.Remove(shiptoclear);
             }
             this.OwnedShips.Clear();
             this.data.AgentList.Clear();
