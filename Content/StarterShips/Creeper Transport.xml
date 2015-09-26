@@ -28,7 +28,7 @@
   </ThrusterList>
   <ModelPath>Model/Ships/Opteris/Ship19g</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
-  <ShipCategory>Unclassified</ShipCategory>
+  <ShipCategory>Civilian</ShipCategory>
   <CarrierShip>false</CarrierShip>
   <BaseStrength>0</BaseStrength>
   <BaseCanWarp>false</BaseCanWarp>

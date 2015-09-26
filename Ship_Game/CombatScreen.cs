@@ -81,6 +81,7 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
+        private static bool popup = false;  //fbedard
 
 		public CombatScreen(Ship_Game.ScreenManager sm, Planet p)
 		{            
@@ -131,11 +132,11 @@ namespace Ship_Game
                 
                 if (ship == null)
                     continue;
-                if (Vector2.Distance(p.Position, ship.Center) >= 4000f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
+                if (Vector2.Distance(p.Position, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
                 {
                     continue;
                 }
-                if (ship.Role != "troop")
+                if (ship.shipData.Role != ShipData.RoleName.troop)
                 {
                     if (ship.TroopList.Count <= 0 || (!ship.HasTroopBay && !ship.hasTransporter && !(p.HasShipyard && p.Owner == ship.loyalty)))  //fbedard
                         continue;
@@ -261,7 +262,8 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							nearby.CanAttack = true;
+                            if ((nearby.TroopsHere.Count > 0 && nearby.TroopsHere[0].GetOwner() != universeScreen.player) || (nearby.building != null && nearby.building.CombatStrength > 0 && p.Owner != universeScreen.player))  //fbedard: cannot attack allies !
+                                nearby.CanAttack = true;
 						}
 					}
 					else if (this.ActiveTroop.building != null && this.ActiveTroop.building.CombatStrength > 0 && this.ActiveTroop.building.AvailableAttackActions > 0)
@@ -278,7 +280,8 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							nearby.CanAttack = true;
+                            if ((nearby.TroopsHere.Count > 0 && nearby.TroopsHere[0].GetOwner() != universeScreen.player) || (nearby.building != null && nearby.building.CombatStrength > 0 && p.Owner != universeScreen.player))  //fbedard: cannot attack allies !
+							    nearby.CanAttack = true;
 						}
 					}
 					if (this.ActiveTroop.TroopsHere.Count <= 0 || this.ActiveTroop.TroopsHere[0].AvailableMoveActions <= 0)
@@ -440,6 +443,9 @@ namespace Ship_Game
 			}
 			this.ScreenManager.SpriteBatch.End();
 			this.ScreenManager.SpriteBatch.Begin();
+
+            if (this.ScreenManager.screens.Count == 2)
+                popup = true;
 		}
 
 		private void DrawCombatInfo(PlanetGridSquare pgs)
@@ -457,6 +463,7 @@ namespace Ship_Game
 					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/GC_Attack_Confirm"], nearby.TroopClickRect, Color.White);
 				}
 			}
+
 		}
 
 		public void DrawOld(SpriteBatch spriteBatch, GameTime gameTime)
@@ -679,8 +686,8 @@ namespace Ship_Game
 			this.currentMouse = Mouse.GetState();
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			bool SelectedSomethingThisFrame = false;
-			this.assetsUI.HandleInput(input);
-			if (this.ActiveTroop != null && this.tInfo.HandleInput(input))
+			this.assetsUI.HandleInput(input);  
+            if (this.ActiveTroop != null && this.tInfo.HandleInput(input))
 			{
 				SelectedSomethingThisFrame = true;
 			}
@@ -750,7 +757,7 @@ namespace Ship_Game
                                 pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
                                 pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
                                 play = true;
-                                ResourceManager.CreateTroopShipAtPoint((pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip != null) ? pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip : pgs.TroopsHere[0].GetOwner().data.DefaultSmallTransport, pgs.TroopsHere[0].GetOwner(), this.p.Position, pgs.TroopsHere[0]);
+                                ResourceManager.CreateTroopShipAtPoint(pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip, pgs.TroopsHere[0].GetOwner(), this.p.Position, pgs.TroopsHere[0]);
                                 this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
                                 pgs.TroopsHere[0].SetPlanet(null);
                                 pgs.TroopsHere.Clear();
@@ -890,7 +897,7 @@ namespace Ship_Game
 					}
 					else if (this.ActiveTroop.TroopsHere.Count <= 0)
 					{
-						if (this.ActiveTroop.building == null || this.ActiveTroop.building.CombatStrength <= 0 || this.ActiveTroop.building.AvailableAttackActions <= 0 || this.p.Owner == null || this.p.Owner != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+                        if (this.ActiveTroop.building == null || this.ActiveTroop.building.CombatStrength <= 0 || this.ActiveTroop.building.AvailableAttackActions <= 0 || this.p.Owner == null || this.p.Owner != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
 						{
 							continue;
 						}
@@ -905,7 +912,7 @@ namespace Ship_Game
 					}
 					else
 					{
-						if (this.ActiveTroop.TroopsHere[0].AvailableAttackActions <= 0 || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+                        if (this.ActiveTroop.TroopsHere[0].AvailableAttackActions <= 0 || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
 						{
 							continue;
 						}
@@ -1014,12 +1021,18 @@ namespace Ship_Game
 			this.DetermineAttackAndMove();
 			this.hInfo.SetPGS(this.HoveredSquare);
 			this.previousMouse = this.currentMouse;
-
-            if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+            
+            if (popup)
             {
-                universeScreen.ShipsInCombat.Active = true;
-                universeScreen.PlanetsInCombat.Active = true;
+                if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+                        return;
+                    popup = false;
             }
+            else if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
+                {
+                    universeScreen.ShipsInCombat.Active = true;
+                    universeScreen.PlanetsInCombat.Active = true;
+                }                    
 		}
         
 		private void ResetTroopList()
@@ -1032,7 +1045,7 @@ namespace Ship_Game
                 Ship ship = this.p.ParentSystem.ShipList[i];
 				if (Vector2.Distance(this.p.Position, ship.Center) < 15000f && ship.loyalty == EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
 				{
-					if (ship.Role == "troop" && !CombatScreen.universeScreen.MasterShipList.pendingRemovals.Contains(ship))
+                    if (ship.shipData.Role == ShipData.RoleName.troop && !CombatScreen.universeScreen.MasterShipList.pendingRemovals.Contains(ship))
 					{
 						this.OrbitSL.AddItem(ship);
 					}
@@ -1196,6 +1209,7 @@ namespace Ship_Game
 			}
 			this.p.ActiveCombats.ApplyPendingRemovals();
 			base.Update(elapsedTime);
+
 		}
 
 		private struct PointSet

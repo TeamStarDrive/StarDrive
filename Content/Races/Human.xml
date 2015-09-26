@@ -7,6 +7,7 @@
   <StartingScout>Unarmed Scout</StartingScout>
   <PrototypeShip>Prototype Frigate</PrototypeShip>
   <DefaultSmallTransport>Small Transport</DefaultSmallTransport>
+  <DefaultTroopShip>Human Troop</DefaultTroopShip>
   <DefaultColonyShip>Colony Ship</DefaultColonyShip>
   <DefaultConstructor>Small Transport</DefaultConstructor>
   

@@ -7,6 +7,7 @@
   <StartingScout>Inquisitor Scout</StartingScout>
   <PrototypeShip>Ralyeh Prototype L</PrototypeShip>
   <DefaultSmallTransport>Vessel S</DefaultSmallTransport>
+  <DefaultTroopShip>Ralyeh Troop</DefaultTroopShip>
   <DefaultColonyShip>Ralyeh Colonizer</DefaultColonyShip>
   <DefaultConstructor>Vessel S</DefaultConstructor>
   

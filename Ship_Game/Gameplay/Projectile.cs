@@ -560,7 +560,7 @@ namespace Ship_Game.Gameplay
 				this.missileAI = new MissileAI(this);
 				this.missileAI.SetTarget(Target);
 			}
-            if (this.ProjSO !=null &&(this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
+            if (this.ProjSO != null && (this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
 			{
 				this.wasAddedToSceneGraph = true;
 				lock (GlobalStats.ObjectManagerLocker)
@@ -611,7 +611,7 @@ namespace Ship_Game.Gameplay
 				this.missileAI = new MissileAI(this);
 				this.missileAI.SetTarget(Target);
 			}
-			if (this.ProjSO !=null &&(this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
+            if (this.ProjSO != null && (this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
 			{
 				this.wasAddedToSceneGraph = true;
 				lock (GlobalStats.ObjectManagerLocker)
@@ -668,7 +668,7 @@ namespace Ship_Game.Gameplay
 			{
 				this.missileAI = new MissileAI(this);
 			}
-			if ((this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace) && this.ProjSO != null)
+            if ((this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace) && this.ProjSO != null)
 			{
 				this.wasAddedToSceneGraph = true;
 				lock (GlobalStats.ObjectManagerLocker)
@@ -797,7 +797,7 @@ namespace Ship_Game.Gameplay
 						this.DieNextFrame = true;
 						return true;
 					}
-                    if (module.GetParent().Role == "fighter" && module.GetParent().loyalty.data.Traits.DodgeMod > 0f)
+                    if (module.GetParent().shipData.Role == ShipData.RoleName.fighter && module.GetParent().loyalty.data.Traits.DodgeMod > 0f)
                     {
                         if (((module.GetParent().GetSystem() != null ? module.GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < module.GetParent().loyalty.data.Traits.DodgeMod * 100f)
                         {
@@ -1008,7 +1008,7 @@ namespace Ship_Game.Gameplay
                     this.missileAI.Think(elapsedTime);
                 if (this.droneAI != null)
                     this.droneAI.Think(elapsedTime);
-                if (this.ProjSO !=null &&(this.WeaponType == "Rocket" || this.WeaponType == "Drone" || this.WeaponType == "Missile") && (this.system != null && this.system.isVisible && (!this.wasAddedToSceneGraph && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)))
+                if (this.ProjSO != null && (this.WeaponType == "Rocket" || this.WeaponType == "Drone" || this.WeaponType == "Missile") && (this.system != null && this.system.isVisible && (!this.wasAddedToSceneGraph && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)))
                 {
                     this.wasAddedToSceneGraph = true;
                     lock (GlobalStats.ObjectManagerLocker)

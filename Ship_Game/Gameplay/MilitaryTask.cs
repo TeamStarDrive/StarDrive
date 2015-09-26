@@ -333,7 +333,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach (Ship ship in this.empire.GetShips().OrderBy(str=> str.BaseStrength))
                 {
-                    if ((ship.Role == "station" || ship.Role == "platform") 
+                    if ((ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform) 
                         || ship.BaseStrength == 0f 
                         || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
                         || ship.InCombat
@@ -644,10 +644,10 @@ namespace Ship_Game.Gameplay
 						ship.fleet = null;
 						ship.HyperspaceReturn();
 						ship.isSpooling = false;
-						if (ship.Role != "troop")
+                        if (ship.shipData.Role != ShipData.RoleName.troop)
 						{
 							ClosestAO.GetOffensiveForcePool().Add(ship);
-							ship.GetAI().OrderResupplyNearest();
+							ship.GetAI().OrderResupplyNearest(false);
 						}
 						else
 						{
@@ -784,7 +784,7 @@ namespace Ship_Game.Gameplay
                     this.empire.GetFleetsDict()[1].Reset();
                     foreach (Ship shiptoadd in (List<Ship>)this.empire.GetShips())
                     {
-                        if (shiptoadd.Role != "platform")
+                        if (shiptoadd.shipData.Role != ShipData.RoleName.platform)
                             this.empire.GetFleetsDict()[1].AddShip(shiptoadd);
                     }
                     if (this.empire.GetFleetsDict()[1].Ships.Count <= 0)
@@ -975,9 +975,9 @@ namespace Ship_Game.Gameplay
 						ship.fleet = null;
 						ship.HyperspaceReturn();
 						ship.isSpooling = false;
-						if (ship.Role != "troop")
+                        if (ship.shipData.Role != ShipData.RoleName.troop)
 						{
-							ship.GetAI().OrderResupplyNearest();
+							ship.GetAI().OrderResupplyNearest(false);
 						}
 						else
 						{
@@ -1137,7 +1137,7 @@ namespace Ship_Game.Gameplay
             List<Ship> PotentialBombers = new List<Ship>();
             foreach (Ship ship in this.empire.GetShips().OrderBy(troops => Vector2.Distance(this.AO, troops.Position)))
             {
-                if ((ship.TroopList.Count <= 0 || ship.fleet != null) || (!ship.HasTroopBay && ship.Role != "troop" && !ship.hasTransporter))
+                if ((ship.TroopList.Count <= 0 || ship.fleet != null) || (!ship.HasTroopBay && ship.shipData.Role != ShipData.RoleName.troop && !ship.hasTransporter))
                 {
                     continue;
                 }
@@ -1239,7 +1239,7 @@ namespace Ship_Game.Gameplay
             {
                 if (ship.InCombat || ship.fleet != null || tfstrength >= MinimumEscortStrength 
                     || ship.GetAI().State == AIState.Explore
-                    || ship.GetStrength() <= 0f ||(ship.Role == "station" || ship.Role == "platform") )
+                    || ship.GetStrength() <= 0f || (ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform))
                 {
                     continue;
                 }
@@ -1275,7 +1275,7 @@ namespace Ship_Game.Gameplay
 
 
             //if (ourAvailableStrength > EnemyTroopStrength * 1.65f && tfstrength >= this.MinimumTaskForceStrength)
-            if (this.TargetPlanet.GetGroundLandingSpots() >5 && tfstrength >= this.MinimumTaskForceStrength)
+            if (this.TargetPlanet.GetGroundLandingSpots() >10 && tfstrength >= this.MinimumTaskForceStrength)
             {
                 if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.GetRelations().ContainsKey(this.TargetPlanet.Owner))
                 {
@@ -1336,8 +1336,11 @@ namespace Ship_Game.Gameplay
                                     break;
                                 }
                                 Troop t = enumerator2.Current;
-                                if (t.GetPlanet() != null && t.GetPlanet().ParentSystem.combatTimer <= 0 && !t.GetPlanet().RecentCombat && t.GetPlanet().TroopsHere.Count > t.GetPlanet().developmentLevel)
+                                if (t.GetPlanet() != null && t.GetPlanet().ParentSystem.combatTimer <= 0 && !t.GetPlanet().RecentCombat )
                                 {
+                                    SystemCommander scom = this.empire.GetGSAI().DefensiveCoordinator.DefenseDict[t.GetPlanet().ParentSystem];
+                                    if (t.GetPlanet().TroopsHere.Count < scom.RankImportance)
+                                        continue;
                                     (new List<Troop>()).Add(t);
                                     if (t.GetOwner() != null)
                                     {
@@ -1589,7 +1592,7 @@ namespace Ship_Game.Gameplay
             //added by gremlin trying to get AI to use ships with assault bays.
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
             {
-                if ((!ship.HasTroopBay || ship.TroopList.Count <= 0) && !(ship.Role == "troop") || ship.fleet != null)
+                if ((!ship.HasTroopBay || ship.TroopList.Count <= 0) && !(ship.shipData.Role == ShipData.RoleName.troop) || ship.fleet != null)
                 {
                     if (!ship.HasTroopBay && !ship.hasTransporter || ship.TroopList.Count == 0 || ship.fleet == null)
                     {
@@ -1668,7 +1671,7 @@ namespace Ship_Game.Gameplay
             float tfstrength = 0f;
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
             {
-                if (ship.InCombat || ship.fleet != null || (ship.Role == "station" || ship.Role == "platform") || tfstrength >= MinimumEscortStrength || ship.GetStrength() <= 0f)
+                if (ship.InCombat || ship.fleet != null || ship.shipData.Role <= ShipData.RoleName.station || tfstrength >= MinimumEscortStrength || ship.GetStrength() <= 0f)
                 {
                     continue;
                 }
@@ -1782,7 +1785,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
                 {
-                    if ((ship.Role == "station" || ship.Role == "platform") || ship.BombBays.Count <= 0)
+                    if ((ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform) || ship.BombBays.Count <= 0)
                     {
                         continue;
                     }
@@ -2185,7 +2188,7 @@ namespace Ship_Game.Gameplay
 			List<Troop> PotentialTroops = new List<Troop>();
 			foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
 			{
-				if (ship.fleet != null || (!ship.HasTroopBay && !ship.hasTransporter || ship.TroopList.Count <= 0) && !(ship.Role == "troop") || ship.fleet != null)
+                if (ship.fleet != null || (!ship.HasTroopBay && !ship.hasTransporter || ship.TroopList.Count <= 0) && !(ship.shipData.Role == ShipData.RoleName.troop) || ship.fleet != null)
 				{
 					continue;
 				}
@@ -2380,7 +2383,7 @@ namespace Ship_Game.Gameplay
             List<Troop> PotentialTroops = new List<Troop>();
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
             {
-                if (ship.fleet != null || (!ship.HasTroopBay && !ship.hasTransporter && ship.Role != "troop") ||  ship.TroopList.Count ==0)    
+                if (ship.fleet != null || (!ship.HasTroopBay && !ship.hasTransporter && ship.shipData.Role != ShipData.RoleName.troop) || ship.TroopList.Count == 0)    
                 {
                     continue;
                 }
