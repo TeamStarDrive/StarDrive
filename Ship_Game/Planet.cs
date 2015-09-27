@@ -3251,6 +3251,16 @@ namespace Ship_Game
                                 break;
                             }
                         }
+                        if(building1.Name == "Biosphers")
+                        {
+                            foreach(PlanetGridSquare tile in this.TilesList)
+                            {
+                                if (!tile.Habitable)
+                                    break;
+                                flag2 = false;
+
+                            }
+                        }
                     }
                     if (flag2)
                         this.BuildingsCanBuild.Add(building1);
@@ -3349,6 +3359,7 @@ namespace Ship_Game
             bool makingMoney = maintCost > 0 && this.Owner.Money * .01f > this.GrossMoneyPT;// *(1 - this.Owner.data.TaxRate);// this.TotalMaintenanceCostsPerTurn  < this.GrossMoneyPT;
             int defensiveBuildings = this.BuildingList.Where(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded >0 ).Count();
            int offensiveBuildings = this.BuildingList.Where(combat => combat.theWeapon !=null).Count();
+           int possibleoffensiveBuilding = GetBuildingsWeCanBuildHere();
             SystemCommander SC;
             //float defensiveNeeds =0;
             bool needDefense =false;
