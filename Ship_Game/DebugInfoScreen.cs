@@ -429,6 +429,8 @@ namespace Ship_Game
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((ship.GetAI().Target as Ship).Active ? "Active" : "Error - Active"), Cursor, Color.White);
 				}
                 ship.GetAI().orderqueue.ExitReadLock();
+                Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Strength: " + ship.BaseStrength.ToString(), Cursor, Color.White);
 				Cursor = new Vector2((float)(this.win.X + 250), 600f);
 				foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetGSAI().DefensiveCoordinator.DefenseDict)
 				{

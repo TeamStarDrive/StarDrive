@@ -2871,7 +2871,7 @@ namespace Ship_Game
                             lastshipcombat = 0;
                         foreach (Ship ship in EmpireManager.GetEmpireByName(this.PlayerLoyalty).GetShips())
                         {
-                            if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active || ship.Name == "Subspace Projector")
+                            if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active)
                                 continue;
                             else
                             {
