@@ -2923,7 +2923,7 @@ namespace Ship_Game.Gameplay
             ModuleSlot ClosestES = null;
             foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0 || ES.module.quadrant <=0)
                     continue;
                 float temp = Vector2.Distance(ES.module.Center, w.GetOwner().Center);
                 if (nearest == 0 || temp < nearest)
@@ -2935,7 +2935,8 @@ namespace Ship_Game.Gameplay
             if (ClosestES == null)
                 return;
             // List<ModuleSlot> 
-            IEnumerable<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.Where(close => close.module.Active && close.module.quadrant == ClosestES.module.quadrant && close.module.Health > 0);//.ToList();   //.OrderByDescending(shields=> shields.Shield_Power >0);//.ToList();
+            IEnumerable<ModuleSlot> ExternalSlots = (fireTarget as Ship).ExternalSlots.
+                Where(close => close.module.Active && close.module.ModuleType != ShipModuleType.Dummy && close.module.quadrant == ClosestES.module.quadrant && close.module.Health > 0);//.ToList();   //.OrderByDescending(shields=> shields.Shield_Power >0);//.ToList();
             if ((fireTarget as Ship).shield_power > 0f)
             {
                 for (int i = 0; i < (fireTarget as Ship).GetShields().Count; i++)
@@ -4593,7 +4594,9 @@ namespace Ship_Game.Gameplay
 		{
 			if (ClearOrders)
 			{
-				this.OrderQueue.Clear();
+                this.orderqueue.EnterWriteLock();
+                this.OrderQueue.Clear();
+                this.orderqueue.ExitWriteLock();
 			}
 			this.HasPriorityOrder = true;
 			lock (this.wayPointLocker)
@@ -4606,7 +4609,9 @@ namespace Ship_Game.Gameplay
 			{
 				TargetPlanet = toOrbit
 			};
+            this.orderqueue.EnterWriteLock();
 			this.OrderQueue.AddLast(orbit);
+            this.orderqueue.ExitWriteLock();
 		}
      
         //added by fbedard OrderTrade
@@ -4647,7 +4652,9 @@ namespace Ship_Game.Gameplay
                     }
                 lock (this.wayPointLocker)
                     this.ActiveWayPoints.Clear();
+                this.orderqueue.EnterWriteLock();
                 this.OrderQueue.Clear();
+                this.orderqueue.ExitWriteLock();
                 if (this.Owner.loyalty.data.Traits.Cybernetic == 1)
                     this.Owner.TradingFood = false;
 
@@ -4992,7 +4999,9 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.CargoSpace_Used == 00 && Vector2.Distance(this.Owner.Center, this.end.Position) < 500f)  //fbedard: dont make empty run !
                         this.PickupAnyGoods();
                     this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true, this.start);
+                    this.orderqueue.EnterWriteLock();
                     this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
+                    this.orderqueue.ExitWriteLock();
                 }
                 else
                 {
@@ -5046,7 +5055,9 @@ namespace Ship_Game.Gameplay
 			if (!hasCargo && this.start != null)
 			{
 				this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.start);
-				this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
+                this.orderqueue.EnterWriteLock();
+                this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupGoods, Vector2.Zero, 0f));
+                this.orderqueue.ExitWriteLock();
 				this.State = AIState.SystemTrader;
 			}
 			if (!hasCargo || this.end == null)
@@ -5058,7 +5069,9 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			this.OrderMoveTowardsPosition(this.end.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true,this.end);
-			this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
+            this.orderqueue.EnterWriteLock();
+            this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropOffGoods, Vector2.Zero, 0f));
+            this.orderqueue.ExitWriteLock();
 			this.State = AIState.SystemTrader;
 		}
 
@@ -5136,7 +5149,9 @@ namespace Ship_Game.Gameplay
 
                 closestD = 999999999f;
                 this.end = null;
+                this.orderqueue.EnterWriteLock();
                 this.OrderQueue.Clear();
+                this.orderqueue.ExitWriteLock();
                 foreach (Planet p in Possible)
                 {
                     Distance = Vector2.Distance(this.Owner.Center, p.Position);
@@ -5159,7 +5174,9 @@ namespace Ship_Game.Gameplay
 
             //fbedard: Where to load nearest Population
             this.start = null;
+            this.orderqueue.EnterWriteLock();
             this.OrderQueue.Clear();
+            this.orderqueue.ExitWriteLock();
             Possible = new List<Planet>();
             foreach (Planet p in SafePlanets)
             {
