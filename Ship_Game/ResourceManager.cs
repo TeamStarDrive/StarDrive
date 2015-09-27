@@ -2495,6 +2495,9 @@ namespace Ship_Game
                     data.NameIndex += (ushort)OffSet;
                     Localizer.used[data.NameIndex] = true;
                 }
+                
+                if ( data.hangerTimerConstant >0 )
+                    data.hangarTimerConstant = data.hangerTimerConstant;                                    
                 data.UID = String.Intern( Path.GetFileNameWithoutExtension(FI.Name));
                 if (data.IconTexturePath != null && String.IsInterned(data.IconTexturePath) != null)
                     string.Intern(data.IconTexturePath);
@@ -2508,6 +2511,7 @@ namespace Ship_Game
 				{
                     Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data);
 				}
+                
 			}
 			foreach (KeyValuePair<string, ShipModule> entry in Ship_Game.ResourceManager.ShipModulesDict)
 			{
