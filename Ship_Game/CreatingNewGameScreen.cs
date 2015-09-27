@@ -254,13 +254,13 @@ namespace Ship_Game
             {
                 if (this.firstRun)
                 {
-                    ResourceManager.LoadShips();
+                    
                     UniverseScreen.DeepSpaceManager = new SpatialManager();
                     BatchRemovalCollection<EmpireData> removalCollection = new BatchRemovalCollection<EmpireData>();
                     foreach (EmpireData empireData in ResourceManager.Empires)
                     {
                         if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0 && !empireData.MinorRace)
-                            removalCollection.Add(empireData);
+                            removalCollection.Add(empireData);                        
                     }
                     int num = removalCollection.Count - this.numOpponents;
                                             int shipsPurged = 0;
@@ -270,12 +270,12 @@ namespace Ship_Game
                         int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count + 1));
                         if (index2 > removalCollection.Count - 1)
                             index2 = removalCollection.Count - 1;
-                        
+
                         List<string> shipkill = new List<string>();
 
                         foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
                         {
-                            if (ship.Value.shipData.ShipStyle == removalCollection[index2].Traits.ShipType)
+                            if (ship.Value.shipData.ShipStyle == removalCollection[index2].Traits.ShipType )
                             {
                                 bool killSwitch = true;
                                 foreach (Empire ebuild in EmpireManager.EmpireList)
@@ -298,8 +298,8 @@ namespace Ship_Game
                                 if (killSwitch)
                                 {
                                     shipsPurged++;
-                                    
-                                   // System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
+
+                                    // System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
                                     shipkill.Add(ship.Key);
                                 }
                             }

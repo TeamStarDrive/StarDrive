@@ -32,6 +32,7 @@ namespace Ship_Game
         public float Money = 1000f;
         private BatchRemovalCollection<Planet> OwnedPlanets = new BatchRemovalCollection<Planet>();
         private BatchRemovalCollection<Ship> OwnedShips = new BatchRemovalCollection<Ship>();
+        private BatchRemovalCollection<Ship> OwnedProjectors = new BatchRemovalCollection<Ship>();  //fbedard
         public List<Ship> ShipsToAdd = new List<Ship>();
         public BatchRemovalCollection<Ship> KnownShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<Empire.InfluenceNode> BorderNodes = new BatchRemovalCollection<Empire.InfluenceNode>();
@@ -167,6 +168,18 @@ namespace Ship_Game
             foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
                 keyValuePair.Value.Ships.Clear();
             this.FleetsDict.Clear();
+            this.UnlockedBuildingsDict.Clear();
+            this.UnlockedHullsDict.Clear();
+            this.UnlockedModulesDict.Clear();
+            this.UnlockedTroopDict.Clear();
+            this.Inhibitors.Clear();
+            this.OwnedProjectors.Clear();
+            this.ShipsToAdd.Clear();
+            this.ShipsWeCanBuild.Clear();
+            this.structuresWeCanBuild.Clear();
+            this.data.MoleList.Clear();
+            this.data.OwnedArtifacts.Clear();
+            this.data.AgentList.Clear();
         }
 
         public void SetAsDefeated()
@@ -401,9 +414,17 @@ namespace Ship_Game
             return this.OwnedShips;
         }
 
+        public BatchRemovalCollection<Ship> GetProjectors()
+        {
+            return this.OwnedProjectors;
+        }
+
         public void AddShip(Ship s)
         {
-            this.OwnedShips.Add(s);
+            if (s.Name == "Subspace Projector")
+                this.OwnedProjectors.Add(s);
+            else
+                this.OwnedShips.Add(s);
         }
 
         public void AddShipNextFrame(Ship s)
@@ -455,6 +476,11 @@ namespace Ship_Game
                 fleet.Name = str + " fleet";
                 this.FleetsDict.TryAdd(key, fleet);
             }
+
+            List<string> shipkill = new List<string>();
+            int shipsPurged = 0;
+            float SpaceSaved = GC.GetTotalMemory(true);            
+
             if (string.IsNullOrEmpty(this.data.DefaultTroopShip))
             {
                 this.data.DefaultTroopShip = this.data.PortraitName + " " + "Troop";
@@ -1601,9 +1627,9 @@ namespace Ship_Game
                 this.empireShipCombat = 0;
                 foreach (Ship ship in this.OwnedShips)
                 {
-                    if (ship.fleet == null && ship.InCombat && ship.Mothership == null && ship.Name != "Subspace Projector")  //fbedard: total ships in combat
+                    if (ship.fleet == null && ship.InCombat && ship.Mothership == null)  //fbedard: total ships in combat
                         this.empireShipCombat++;                    
-                    if (ship.Mothership != null || ship.shipData.Role == ShipData.RoleName.troop || ship.Name == "Subspace Projector" || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                    if (ship.Mothership != null || ship.shipData.Role == ShipData.RoleName.troop || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                         continue;
                     this.empireShipTotal++;
                 }
@@ -1613,6 +1639,7 @@ namespace Ship_Game
             }
             this.UpdateFleets(elapsedTime);
             this.OwnedShips.ApplyPendingRemovals();
+            this.OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
 
         public void UpdateFleets(float elapsedTime)
@@ -1707,12 +1734,7 @@ namespace Ship_Game
                     //}
                     //else
                     {
-                        if (ship.Name == "Subspace Projector" && this.data.SSPBudget >0)
-                        {
-                            this.data.SSPBudget -=ship.GetMaintCost();
-                            continue;
-                        }//platform != "Subspace Projector" && orbitalDefense.Role == ShipData.RoleName.platform && orbitalDefense.BaseStrength >0
-                        if (this.data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.Name != "Subspace Projector" && ship.BaseStrength > 0)
+                        if (this.data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
                             || (ship.shipData.Role == ShipData.RoleName.station && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                         {
                             this.data.DefenseBudget -= ship.GetMaintCost();
@@ -1729,6 +1751,25 @@ namespace Ship_Game
 
                 }
                 this.OwnedShips.thisLock.ExitReadLock();
+
+                this.OwnedProjectors.thisLock.EnterReadLock();
+                foreach (Ship ship in (List<Ship>)this.OwnedProjectors)
+                {
+                    {
+                        if (this.data.SSPBudget > 0)
+                        {
+                            this.data.SSPBudget -= ship.GetMaintCost();
+                            continue;
+                        }
+                        this.totalShipMaintenance += ship.GetMaintCost();
+                    }
+                    //added by gremlin reset border stats.
+                    ship.IsInNeutralSpace = false;
+                    ship.IsIndangerousSpace = false;
+                    ship.IsInFriendlySpace = false;
+                }
+                this.OwnedProjectors.thisLock.ExitReadLock();
+
             }//,
            // () =>
             {
@@ -1787,7 +1828,7 @@ namespace Ship_Game
                     {
                         if (!this.structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.shipData.Role <= ShipData.RoleName.station && !keyValuePair.Value.shipData.IsShipyard)
                             this.structuresWeCanBuild.Add(keyValuePair.Key);
-                        if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.shipData.Role].Protected && keyValuePair.Value.Name != "Subspace Projector")
+                        if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.shipData.Role].Protected)
                             this.ShipsWeCanBuild.Add(keyValuePair.Key);
                     }
                     catch (Exception ex)
@@ -2313,28 +2354,30 @@ namespace Ship_Game
                             Ship ship = clonedList[index];
                             if (ship != null)
                             {
-                                if (ship.Name == "Subspace Projector")
-                                {
-                                    Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
-                                    influenceNode.Position = ship.Center;
-                                    influenceNode.Radius = Empire.ProjectorRadius;  //projectors currently use their projection radius as sensors
-                                    //lock (GlobalStats.SensorNodeLocker)
-                                    this.SensorNodeLocker.EnterWriteLock();
-                                        this.SensorNodes.Add(influenceNode);
-                                        this.SensorNodeLocker.ExitWriteLock();
-                                    influenceNode.KeyedObject = (object)ship; //*/
-                                    //disabled until we figure out something better for projectors
-                                }
-                                else
-                                {
-                                    Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
-                                    influenceNode.Position = ship.Center;
-                                    influenceNode.Radius = ship.SensorRange;
-                                    this.SensorNodeLocker.EnterWriteLock();
-                                        this.SensorNodes.Add(influenceNode);
-                                        this.SensorNodeLocker.ExitWriteLock();
-                                    influenceNode.KeyedObject = (object)ship;
-                                }
+                                Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
+                                influenceNode.Position = ship.Center;
+                                influenceNode.Radius = ship.SensorRange;
+                                this.SensorNodeLocker.EnterWriteLock();
+                                    this.SensorNodes.Add(influenceNode);
+                                    this.SensorNodeLocker.ExitWriteLock();
+                                influenceNode.KeyedObject = (object)ship;
+                            }
+                        }
+
+                        clonedList = empire.GetProjectors();
+                        for (int index = 0; index < clonedList.Count; ++index)
+                        {   //loop over all ALLIED projectors
+                            Ship ship = clonedList[index];
+                            if (ship != null)
+                            {
+                                Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
+                                influenceNode.Position = ship.Center;
+                                influenceNode.Radius = Empire.ProjectorRadius;  //projectors currently use their projection radius as sensors
+                                //lock (GlobalStats.SensorNodeLocker)
+                                this.SensorNodeLocker.EnterWriteLock();
+                                this.SensorNodes.Add(influenceNode);
+                                this.SensorNodeLocker.ExitWriteLock();
+                                influenceNode.KeyedObject = (object)ship;
                             }
                         }
               
@@ -2412,29 +2455,34 @@ namespace Ship_Game
                 {
                     if ((double)ship.InhibitionRadius > 0.0)
                         this.Inhibitors.Add(ship);
-                    if (ship.Name == "Subspace Projector")
-                    {
-                        Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
-                        influenceNode.Position = ship.Center;
-                        influenceNode.Radius = Empire.ProjectorRadius;  //projectors used as sensors again
-                        influenceNode.KeyedObject = (object)ship;
+                    Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
+                    influenceNode.Position = ship.Center;
+                    influenceNode.Radius = ship.SensorRange;
+                    influenceNode.KeyedObject = (object)ship;
+                    this.SensorNodeLocker.EnterWriteLock();
                         this.SensorNodes.Add(influenceNode);
-                        this.BorderNodeLocker.EnterWriteLock();
-                            this.BorderNodes.Add(influenceNode);
-                            this.BorderNodeLocker.ExitWriteLock();
-                    }
-                    else
-                    {
-                        Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
-                        influenceNode.Position = ship.Center;
-                        influenceNode.Radius = ship.SensorRange;
-                        influenceNode.KeyedObject = (object)ship;
-                        this.SensorNodeLocker.EnterWriteLock();
-                            this.SensorNodes.Add(influenceNode);
-                            this.SensorNodeLocker.ExitWriteLock();
-                    }
+                        this.SensorNodeLocker.ExitWriteLock();
                 }
             }
+
+            for (int index = 0; index < this.OwnedProjectors.Count; ++index)
+            {   //loop over your own projectors
+                Ship ship = this.OwnedProjectors[index];
+                if (ship != null)
+                {
+                    if ((double)ship.InhibitionRadius > 0.0)
+                        this.Inhibitors.Add(ship);
+                    Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
+                    influenceNode.Position = ship.Center;
+                    influenceNode.Radius = Empire.ProjectorRadius;  //projectors used as sensors again
+                    influenceNode.KeyedObject = (object)ship;
+                    this.SensorNodes.Add(influenceNode);
+                    this.BorderNodeLocker.EnterWriteLock();
+                    this.BorderNodes.Add(influenceNode);
+                    this.BorderNodeLocker.ExitWriteLock();
+                }
+            }
+
             this.BorderNodeLocker.EnterReadLock();
             {
                 foreach (Empire.InfluenceNode item_5 in (List<Empire.InfluenceNode>)this.BorderNodes)
@@ -2848,7 +2896,16 @@ namespace Ship_Game
                 ship.GetAI().State = AIState.AwaitingOrders;
                 ship.GetAI().OrderQueue.Clear();
             }
+            foreach (Ship ship in (List<Ship>)target.GetProjectors())
+            {
+                this.OwnedProjectors.Add(ship);
+                ship.loyalty = this;
+                ship.fleet = (Fleet)null;
+                ship.GetAI().State = AIState.AwaitingOrders;
+                ship.GetAI().OrderQueue.Clear();
+            }
             target.GetShips().Clear();
+            target.GetProjectors().Clear();
             foreach (KeyValuePair<string, TechEntry> keyValuePair in target.GetTDict())
             {
                 if (keyValuePair.Value.Unlocked && !this.TechnologyDict[keyValuePair.Key].Unlocked)
@@ -3371,8 +3428,16 @@ namespace Ship_Game
 
         public void RemoveShip(Ship ship)
         {
-            this.OwnedShips.QueuePendingRemoval(ship);
-            this.OwnedShips.ApplyPendingRemovals();
+            if (ship.Name == "Subspace Projector")
+            {
+                this.OwnedProjectors.QueuePendingRemoval(ship);
+                this.OwnedProjectors.ApplyPendingRemovals();
+            }
+            else
+            {
+                this.OwnedShips.QueuePendingRemoval(ship);
+                this.OwnedShips.ApplyPendingRemovals();
+            }
         }
 
         //private List<Ship> ShipsInOurBorders()
