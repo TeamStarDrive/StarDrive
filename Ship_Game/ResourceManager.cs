@@ -2946,9 +2946,10 @@ namespace Ship_Game
                 }
                 if (!fighters && !weapons) Str = 0;
                 if (def > Str) def = Str;
-                entry.Value.BaseStrength = Str + def;
-                ship.BaseStrength = entry.Value.BaseStrength;
-                return  entry.Value.BaseStrength;
+                entry.Value.shipData.BaseStrength = Str + def;
+                entry.Value.BaseStrength = entry.Value.shipData.BaseStrength;
+                ship.BaseStrength = entry.Value.shipData.BaseStrength;
+                return ship.BaseStrength;
                 
 
 

@@ -2261,6 +2261,7 @@ namespace Ship_Game
             {
                 GlobalStats.EliminationMode = true;
             }
+            ResourceManager.LoadShips();
 			this.Singular = this.SingEntry.Text;
 			this.Plural = this.PlurEntry.Text;
 			this.HomeSystemName = this.HomeSystemEntry.Text;
