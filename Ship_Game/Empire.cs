@@ -168,6 +168,18 @@ namespace Ship_Game
             foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
                 keyValuePair.Value.Ships.Clear();
             this.FleetsDict.Clear();
+            this.UnlockedBuildingsDict.Clear();
+            this.UnlockedHullsDict.Clear();
+            this.UnlockedModulesDict.Clear();
+            this.UnlockedTroopDict.Clear();
+            this.Inhibitors.Clear();
+            this.OwnedProjectors.Clear();
+            this.ShipsToAdd.Clear();
+            this.ShipsWeCanBuild.Clear();
+            this.structuresWeCanBuild.Clear();
+            this.data.MoleList.Clear();
+            this.data.OwnedArtifacts.Clear();
+            this.data.AgentList.Clear();
         }
 
         public void SetAsDefeated()
@@ -464,6 +476,11 @@ namespace Ship_Game
                 fleet.Name = str + " fleet";
                 this.FleetsDict.TryAdd(key, fleet);
             }
+
+            List<string> shipkill = new List<string>();
+            int shipsPurged = 0;
+            float SpaceSaved = GC.GetTotalMemory(true);            
+
             if (string.IsNullOrEmpty(this.data.DefaultTroopShip))
             {
                 this.data.DefaultTroopShip = this.data.PortraitName + " " + "Troop";
