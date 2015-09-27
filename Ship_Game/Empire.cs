@@ -2117,23 +2117,20 @@ namespace Ship_Game
                 {
                     shipData.TechScore += (ushort)ResourceManager.TechTree[techname].Cost;
                 }
+
+
+
             }
-            ////foreach (string purgeThis in purge)
-            ////{
-            ////    Ship ship;
-            ////    if (ResourceManager.ShipsDict.TryGetValue(purgeThis, out ship))
-            ////    {
-            ////        if (ship == null)
-            ////            continue;
-            ////        if (this.WeCanBuildThis(ship.shipData.Name))
-            ////            continue;
-            ////        if (ship.shipData.ShipStyle != this.data.Traits.ShipType)
-            ////            continue;
+            //HashSet<string> shipPack = new HashSet<string>();
+            //int loop = 10;
+            //while (loop >0)
+            //{
+            //    foreach(shipData hull in this.GetHDict() )
+            //    foreach(Ship check in ResourceManager.ShipsDict.Values)
+            //    {
 
-            ////        ResourceManager.ShipsDict.Remove(purgeThis);
-
-            ////    }
-            ////}
+            //    }
+            //}
 
         }
 
