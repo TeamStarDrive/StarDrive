@@ -177,7 +177,7 @@ namespace Ship_Game.Gameplay
 
 		private Ship hangarShip;
 
-		public float hangarTimerConstant ;
+		public float hangarTimerConstant =30f;
 
 		public float hangarTimer;
 
