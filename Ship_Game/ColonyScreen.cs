@@ -2547,6 +2547,7 @@ namespace Ship_Game
                             this.p.ConstructionQueue.Clear();
                             foreach (QueueItem qi in copied)
                             {
+                                qi.IsPlayerAdded = true;
                                 this.p.ConstructionQueue.Add(qi);
                             }
                             AudioManager.PlayCue("sd_ui_accept_alt3");
