@@ -3340,41 +3340,64 @@ namespace Ship_Game
             Empire empire = this.Owner;
             float buildingMaintenance = empire.GetTotalBuildingMaintenance();
             float grossTaxes = empire.GrossTaxes;
-
-            if (building.AllowInfantry && !this.BuildingList.Contains(building) &&( this.AllowInfantry || governor == ColonyType.Military))
-                return false;
-
-            //this.data.Traits.MaintMod * this.totalBuildingMaintenance
+            bool playeradded = building.IsPlayerAdded;
+          
+            bool itsHere = this.BuildingList.Contains(building);
+            
             foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
             {
                 if (queueItem.isBuilding)
-                    buildingMaintenance += this.Owner.data.Traits.MaintMod * queueItem.Building.Maintenance;                
+                {
+                    buildingMaintenance += this.Owner.data.Traits.MaintMod * queueItem.Building.Maintenance;
+                    bool added =queueItem.Building == building;
+                    if (added)
+                    {
+                        if(queueItem.IsPlayerAdded)
+                        {
+                            playeradded = true;
+                        }
+                        itsHere = true;
+                    }
+                    
+                }
+                
             }
             buildingMaintenance += building.Maintenance + building.Maintenance * this.Owner.data.Traits.MaintMod;
+            
             bool LowPri = buildingMaintenance / grossTaxes < .25f;
             bool MedPri = buildingMaintenance / grossTaxes < .60f;
             bool HighPri = buildingMaintenance / grossTaxes < .80f;
             float income = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);           
             float maintCost = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT -building.Maintenance- (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
-            bool makingMoney = maintCost > 0 && this.Owner.Money * .01f > this.GrossMoneyPT;// *(1 - this.Owner.data.TaxRate);// this.TotalMaintenanceCostsPerTurn  < this.GrossMoneyPT;
-            int defensiveBuildings = this.BuildingList.Where(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded >0 ).Count();
-           int offensiveBuildings = this.BuildingList.Where(combat => combat.theWeapon !=null).Count();
-           int possibleoffensiveBuilding = GetBuildingsWeCanBuildHere();
+            bool makingMoney = maintCost > 0;
+            int defensiveBuildings = this.BuildingList.Where(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded >0 ||combat.theWeapon !=null ).Count();           
+           int possibleoffensiveBuilding = this.BuildingsCanBuild.Where(b => b.PlanetaryShieldStrengthAdded > 0 || b.SoftAttack > 0 || b.theWeapon != null).Count();
+           bool isdefensive = building.SoftAttack > 0 || building.PlanetaryShieldStrengthAdded > 0 || building.isWeapon ;
+           float defenseratio =0;
+            if(defensiveBuildings+possibleoffensiveBuilding >0)
+                defenseratio = (float)(defensiveBuildings + 1) / (float)(defensiveBuildings + possibleoffensiveBuilding + 1);
             SystemCommander SC;
-            //float defensiveNeeds =0;
             bool needDefense =false;
+            if (playeradded)
+                return true;
+            //dont scrap buildings if we can use treasury to pay for it. 
+            if (!playeradded && building.AllowInfantry && !this.BuildingList.Contains(building) && (this.AllowInfantry || governor == ColonyType.Military))
+                return false;
+
+            //determine defensive needs.
             if (this.Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(this.system, out SC))
             {
-                //defensiveNeeds = SC.RankImportance * .1f;
                 if (makingMoney)
-                    needDefense = SC.RankImportance - defensiveBuildings - offensiveBuildings >8; ;// / (defensiveBuildings + offensiveBuildings+1)) >defensiveNeeds;
-                
+                    needDefense = SC.RankImportance >= defenseratio *10; ;// / (defensiveBuildings + offensiveBuildings+1)) >defensiveNeeds;
             }
             
             if (!string.IsNullOrEmpty(building.ExcludesPlanetType) && building.ExcludesPlanetType == this.Type)
                 return false;
-            //if (building.Maintenance <= 0.0f)
-            //    return true;
+            
+
+            if (itsHere && building.Unique && (makingMoney || building.Maintenance < this.Owner.Money * .001))
+                return true;
+
             if (building.PlusTaxPercentage * this.GrossMoneyPT >= building.Maintenance 
                 || building.CreditsPerColonist * (this.Population / 1000f) >= building.Maintenance 
 
@@ -3450,7 +3473,7 @@ namespace Ship_Game
                                 || building.PlusFlatProductionAmount > 0
                                 || (building.StorageAdded > 0 && this.FoodHere == MAX_STORAGE)
                                 || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount>0))
-
+                                || (needDefense && isdefensive && this.developmentLevel > 3)
                                 )
                                 return true;
                                 //iftrue = true;
@@ -3466,6 +3489,7 @@ namespace Ship_Game
                                 || this.developmentLevel > 3
                                   || building.PlusFlatResearchAmount > 0
                                 || (building.PlusResearchPerColonist > 0 && this.MaxPopulation > 999)
+                                || (needDefense && isdefensive )
                                 )
                                 return true;
                         }
@@ -3496,9 +3520,7 @@ namespace Ship_Game
                                 || (building.PlusResearchPerColonist>0 && this.Population / 1000 > 1)
                                 //|| building.Name == "Biospheres"                                
                                 
-                                || needDefense &&(defensiveBuildings <1 && building.PlanetaryShieldStrengthAdded>0)
-                                || needDefense && (offensiveBuildings <1 && building.Strength >0)
-                                || needDefense && (makingMoney && this.developmentLevel >4)
+                                || (needDefense && isdefensive && this.developmentLevel >3)                                
                                 || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0))
                                 )
                                 return true;
@@ -3533,7 +3555,7 @@ namespace Ship_Game
                                 || building.PlusFlatProductionAmount > 0
                                 || (this.Owner.data.Traits  .Cybernetic <=0 && this.Fertility < 1f && building.PlusFlatFoodAmount > 0)                             
                                 || building.StorageAdded > 0
-                                
+                                || (needDefense && isdefensive && this.developmentLevel > 3)
                                 )
                                 return true;
                         }
@@ -3554,7 +3576,7 @@ namespace Ship_Game
                         }
                         if (!iftrue && LowPri && this.developmentLevel > 3 && makingMoney && income >building.Maintenance)
                         {
-                            if (this.developmentLevel > 2 && needDefense && (building.theWeapon != null || building.Strength > 0))
+                            if (needDefense && isdefensive && this.developmentLevel >2)
                                 return true;
                             
                         }
@@ -3617,7 +3639,8 @@ namespace Ship_Game
                                 || (this.Fertility < 1f && building.PlusFlatFoodAmount > 0)
                                 || building.PlusFlatProductionAmount >0
                                 || building.PlusResearchPerColonist > 0
-                                || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusFlatProductionAmount > 0 || building.PlusProdPerColonist > 0 ))                                
+                                || (this.Owner.data.Traits.Cybernetic > 0 && (building.PlusFlatProductionAmount > 0 || building.PlusProdPerColonist > 0 ))
+                                || (needDefense && isdefensive && this.developmentLevel > 3)
                                 )
                                 return true;
 
@@ -3632,7 +3655,7 @@ namespace Ship_Game
                         }
                         if ( LowPri && this.developmentLevel > 4 && makingMoney)
                         {
-                            if ((building.theWeapon != null || building.Strength > 0) && needDefense)
+                            if (needDefense && isdefensive && this.developmentLevel >2)
                                 
                             return true;
                         }
@@ -5516,6 +5539,7 @@ output = maxp * take10 = 5
                 if (queueItem.isBuilding && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
                     Building building = ResourceManager.GetBuilding(queueItem.Building.Name);
+                    building.IsPlayerAdded = queueItem.IsPlayerAdded;
                     this.BuildingList.Add(building);
                     this.Fertility -= ResourceManager.GetBuilding(queueItem.Building.Name).MinusFertilityOnBuild;
                     if ((double)this.Fertility < 0.0)
