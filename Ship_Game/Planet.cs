@@ -3275,7 +3275,7 @@ namespace Ship_Game
             QueueItem qi = new QueueItem();
             qi.isBuilding = true;
             qi.Building = b;
-            qi.Cost = ResourceManager.GetBuilding(b.Name).Cost;
+            qi.Cost = b.Cost;// ResourceManager.BuildingsDict[b.Name].Cost;   //GetBuilding(b.Name).Cost;
             qi.productionTowards = 0.0f;
             qi.NotifyOnEmpty = false;
             Building terraformer=null;
@@ -3352,10 +3352,10 @@ namespace Ship_Game
                     bool added =queueItem.Building == building;
                     if (added)
                     {
-                        if(queueItem.IsPlayerAdded)
-                        {
-                            playeradded = true;
-                        }
+                        //if(queueItem.IsPlayerAdded)
+                        //{
+                        //    playeradded = true;
+                        //}
                         itsHere = true;
                     }
                     
@@ -3370,6 +3370,8 @@ namespace Ship_Game
             float income = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);           
             float maintCost = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT -building.Maintenance- (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
             bool makingMoney = maintCost > 0;
+            if (this.Owner.Money < 500)
+                makingMoney = false;
             int defensiveBuildings = this.BuildingList.Where(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded >0 ||combat.theWeapon !=null ).Count();           
            int possibleoffensiveBuilding = this.BuildingsCanBuild.Where(b => b.PlanetaryShieldStrengthAdded > 0 || b.SoftAttack > 0 || b.theWeapon != null).Count();
            bool isdefensive = building.SoftAttack > 0 || building.PlanetaryShieldStrengthAdded > 0 || building.isWeapon ;
@@ -5333,6 +5335,9 @@ namespace Ship_Game
 
         public void ScrapBuilding(Building b)
         {
+            if (b.IsPlayerAdded)
+                return;
+
             Building building1 = (Building)null;
             foreach (Building building2 in this.BuildingList)
             {

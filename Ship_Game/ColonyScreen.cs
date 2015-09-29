@@ -2631,7 +2631,8 @@ namespace Ship_Game
                         QueueItem qi = new QueueItem();
                         //{
                         qi.isBuilding = true;
-                        qi.Building = this.ActiveBuildingEntry.item as Building;
+                        qi.Building = ResourceManager.GetBuilding((this.ActiveBuildingEntry.item as Building).Name);
+                        qi.Building.IsPlayerAdded = true;
                         qi.Cost = ResourceManager.BuildingsDict[qi.Building.Name].Cost * UniverseScreen.GamePaceStatic;
                         qi.productionTowards = 0f;
                         qi.pgs = pgs;
@@ -2741,7 +2742,9 @@ namespace Ship_Game
                                 }
                                 else if (e.item is Building)
                                 {
-                                    this.p.AddBuildingToCQ(ResourceManager.GetBuilding((e.item as Building).Name));
+                                    Building waitaddstuff = ResourceManager.GetBuilding((e.item as Building).Name);
+                                    waitaddstuff.IsPlayerAdded=true;
+                                    this.p.AddBuildingToCQ(waitaddstuff);
                                     AudioManager.PlayCue("sd_ui_mouseover");
                                 }
                             }
@@ -2762,7 +2765,9 @@ namespace Ship_Game
                         QueueItem qi = new QueueItem();
                         if (e.item is Building)
                         {
-                            this.p.AddBuildingToCQ(ResourceManager.GetBuilding((e.item as Building).Name));
+                            Building b = ResourceManager.GetBuilding((e.item as Building).Name);
+                            b.IsPlayerAdded =true;
+                            this.p.AddBuildingToCQ(b);
                         }
                         else if (e.item is Ship)
                         {
