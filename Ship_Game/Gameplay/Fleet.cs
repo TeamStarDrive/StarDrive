@@ -664,7 +664,7 @@ namespace Ship_Game.Gameplay
             {
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
 
-                if (ship.isInDeepSpace || !ship.GetAI().BadGuysNear  || Vector2.Distance(ship.Center, MovePosition) > 150000f) //this.Owner.isPlayer || ship.GetSystem() ==null|| this.Task != null || 
+                if (this.Owner.isPlayer || this.TaskStep >2 || ship.isInDeepSpace || !ship.GetAI().BadGuysNear  || Vector2.Distance(ship.Center, MovePosition) > 150000f) //this.Owner.isPlayer || ship.GetSystem() ==null|| this.Task != null || 
 
                 {
                     ship.GetAI().SetPriorityOrder();
