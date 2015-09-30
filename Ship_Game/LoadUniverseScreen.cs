@@ -1100,6 +1100,7 @@ namespace Ship_Game
 							qi.Building = Ship_Game.ResourceManager.BuildingsDict[qisave.UID];
 							qi.Cost = qi.Building.Cost * this.savedData.GamePacing;
                             qi.NotifyOnEmpty = false;
+                            qi.IsPlayerAdded = qisave.isPlayerAdded;
 							foreach (PlanetGridSquare pgs in p.TilesList)
 							{
 								if ((float)pgs.x != qisave.pgsVector.X || (float)pgs.y != qisave.pgsVector.Y)
