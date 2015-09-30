@@ -3268,11 +3268,15 @@ namespace Ship_Game
             }
             return this.BuildingsCanBuild;
         }
-
         public void AddBuildingToCQ(Building b)
+        {
+            this.AddBuildingToCQ(b, false);
+        }
+        public void AddBuildingToCQ(Building b, bool PlayerAdded)
         {
             int count = this.ConstructionQueue.Count;
             QueueItem qi = new QueueItem();
+            qi.IsPlayerAdded = PlayerAdded;
             qi.isBuilding = true;
             qi.Building = b;
             qi.Cost = b.Cost;// ResourceManager.BuildingsDict[b.Name].Cost;   //GetBuilding(b.Name).Cost;
@@ -3311,7 +3315,7 @@ namespace Ship_Game
                 }
                 if (!flag)
                     return;
-                this.AddBuildingToCQ(ResourceManager.GetBuilding(terraformer.Name));
+                this.AddBuildingToCQ(ResourceManager.GetBuilding(terraformer.Name),false);
             }
             else
             {
@@ -3370,8 +3374,7 @@ namespace Ship_Game
             float income = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT - (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);           
             float maintCost = this.GrossMoneyPT + this.Owner.data.Traits.TaxMod * this.GrossMoneyPT -building.Maintenance- (this.TotalMaintenanceCostsPerTurn + this.TotalMaintenanceCostsPerTurn * this.Owner.data.Traits.MaintMod);
             bool makingMoney = maintCost > 0;
-            if (this.Owner.Money < 500)
-                makingMoney = false;
+      
             int defensiveBuildings = this.BuildingList.Where(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded >0 ||combat.theWeapon !=null ).Count();           
            int possibleoffensiveBuilding = this.BuildingsCanBuild.Where(b => b.PlanetaryShieldStrengthAdded > 0 || b.SoftAttack > 0 || b.theWeapon != null).Count();
            bool isdefensive = building.SoftAttack > 0 || building.PlanetaryShieldStrengthAdded > 0 || building.isWeapon ;
@@ -3382,6 +3385,8 @@ namespace Ship_Game
             bool needDefense =false;
             if (playeradded)
                 return true;
+            if (this.Owner.Money < 500)
+                makingMoney = false;
             //dont scrap buildings if we can use treasury to pay for it. 
             if (!playeradded && building.AllowInfantry && !this.BuildingList.Contains(building) && (this.AllowInfantry || governor == ColonyType.Military))
                 return false;
@@ -3892,7 +3897,7 @@ namespace Ship_Game
                         }
                     }
                     if (!flag2)
-                        this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
+                        this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"),false);
                 }
                 bool flag3 = false;
                 foreach (Building building1 in this.BuildingsCanBuild)
@@ -3996,7 +4001,7 @@ namespace Ship_Game
                             }
                         }
                         if (flag2)
-                            this.AddBuildingToCQ(b);
+                            this.AddBuildingToCQ(b,false);
                     }
                     else if ((double)buildingCount < 2.0 && this.Owner.GetBDict()["Biospheres"] && (double)this.MineralRichness >= .5f)
                     {
@@ -4168,7 +4173,7 @@ namespace Ship_Game
                                     }
                                 }
                                 if (!flag1)
-                                    this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
+                                    this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"),false);
                             }
                             if (num5 < 2)
                             {
@@ -4194,7 +4199,7 @@ namespace Ship_Game
                                 if (buildthis != null)
                                 {
                                     num5++;
-                                    this.AddBuildingToCQ(buildthis);
+                                    this.AddBuildingToCQ(buildthis,false);
                                 }
 
                             }
@@ -4258,7 +4263,7 @@ namespace Ship_Game
                                         }
                                     }
                                     if (flag1)
-                                        this.AddBuildingToCQ(b);
+                                        this.AddBuildingToCQ(b,false);
                                 }
                                     //if it must be built with high pri put it here. 
                                 else if (b != null
@@ -5335,8 +5340,8 @@ namespace Ship_Game
 
         public void ScrapBuilding(Building b)
         {
-            if (b.IsPlayerAdded)
-                return;
+            //if (b.IsPlayerAdded)
+            //    return;
 
             Building building1 = (Building)null;
             foreach (Building building2 in this.BuildingList)
@@ -5544,10 +5549,11 @@ output = maxp * take10 = 5
                 if (queueItem.isBuilding && (double)queueItem.productionTowards >= (double)queueItem.Cost)
                 {
                     Building building = ResourceManager.GetBuilding(queueItem.Building.Name);
+                    if(queueItem.IsPlayerAdded)
                     building.IsPlayerAdded = queueItem.IsPlayerAdded;
                     this.BuildingList.Add(building);
                     this.Fertility -= ResourceManager.GetBuilding(queueItem.Building.Name).MinusFertilityOnBuild;
-                    if ((double)this.Fertility < 0.0)
+                    if (this.Fertility < 0.0)
                         this.Fertility = 0.0f;
                     if (queueItem.pgs != null)
                     {
