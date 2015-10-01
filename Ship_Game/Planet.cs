@@ -3341,10 +3341,12 @@ namespace Ship_Game
                 return true;
             if (building == null)
                 return false;
+            if (building.IsPlayerAdded)
+                return true;
             Empire empire = this.Owner;
             float buildingMaintenance = empire.GetTotalBuildingMaintenance();
             float grossTaxes = empire.GrossTaxes;
-            bool playeradded = building.IsPlayerAdded;
+            //bool playeradded = ;
           
             bool itsHere = this.BuildingList.Contains(building);
             
@@ -3383,12 +3385,11 @@ namespace Ship_Game
                 defenseratio = (float)(defensiveBuildings + 1) / (float)(defensiveBuildings + possibleoffensiveBuilding + 1);
             SystemCommander SC;
             bool needDefense =false;
-            if (playeradded)
-                return true;
+            
             if (this.Owner.Money < 500)
                 makingMoney = false;
             //dont scrap buildings if we can use treasury to pay for it. 
-            if (!playeradded && building.AllowInfantry && !this.BuildingList.Contains(building) && (this.AllowInfantry || governor == ColonyType.Military))
+            if (building.AllowInfantry && !this.BuildingList.Contains(building) && (this.AllowInfantry || governor == ColonyType.Military))
                 return false;
 
             //determine defensive needs.
@@ -5281,6 +5282,10 @@ namespace Ship_Game
                     foreach (PlanetGridSquare PGS in this.TilesList)
                     {
                         bool qitemTest = PGS.QItem != null;
+                        if (qitemTest && PGS.QItem.IsPlayerAdded)
+                            continue;
+                        if (PGS.building != null && PGS.building.IsPlayerAdded)
+                            continue;
                         if ((qitemTest && PGS.QItem.Building.Name == "Biospheres") || (PGS.building != null && PGS.building.Name == "Biospheres"))
                             continue;
                         if ((PGS.building != null && PGS.building.PlusFlatProductionAmount > 0) || (PGS.building != null && PGS.building.PlusFlatProductionAmount > 0))

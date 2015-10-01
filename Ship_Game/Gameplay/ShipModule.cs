@@ -1955,10 +1955,12 @@ namespace Ship_Game.Gameplay
 			}
             if(this.ModuleType == ShipModuleType.Hangar && !this.IsSupplyBay)
             {
-                if(this.OrdinanceCapacity ==0)
-                {                    
-                    this.OrdinanceCapacity = 50;
-                }
+                if (this.OrdinanceCapacity == 0)
+                {
+                    this.OrdinanceCapacity = (short)(this.MaximumHangarShipSize / 2);
+                    if (this.OrdinanceCapacity < 50)
+                        this.OrdinanceCapacity = 50;
+                }     
 
             }
 			base.Initialize();
