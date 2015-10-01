@@ -6645,8 +6645,17 @@ namespace Ship_Game.Gameplay
                 double angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
                 double facing = (Vector2.Dot(wantedForward, right)> 0f ? 1f : -1f);
                 //facing = facing/(mag1*mag2);
+
                 #region warp
-                if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
+                if (this.ActiveWayPoints.Count > 1 && this.Owner.engineState == Ship.MoveState.Warp && Distance <= this.Owner.velocityMaximum * 1.5f)
+                {
+                    //this.Owner.HyperspaceReturn();
+                    lock (this.wayPointLocker)
+                        this.ActiveWayPoints.Dequeue();
+                    if (this.OrderQueue.Count > 0)
+                        this.OrderQueue.RemoveFirst();
+                }
+                else if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
                 {
                     //this.Owner.speed *= 0.999f;
                     if (this.ActiveWayPoints.Count > 1)
@@ -6715,6 +6724,7 @@ namespace Ship_Game.Gameplay
                         this.Owner.HyperspaceReturn();
                 }
                 #endregion
+
                 if (this.hasPriorityTarget && Distance < this.Owner.maxWeaponsRange)
                 {
                     if (this.Owner.engineState == Ship.MoveState.Warp)
