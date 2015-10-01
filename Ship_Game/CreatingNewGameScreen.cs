@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
 
+
 namespace Ship_Game
 {
     public sealed class CreatingNewGameScreen : GameScreen, IDisposable
@@ -253,23 +254,65 @@ namespace Ship_Game
             {
                 if (this.firstRun)
                 {
+                    
                     UniverseScreen.DeepSpaceManager = new SpatialManager();
                     BatchRemovalCollection<EmpireData> removalCollection = new BatchRemovalCollection<EmpireData>();
                     foreach (EmpireData empireData in ResourceManager.Empires)
                     {
                         if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0 && !empireData.MinorRace)
-                            removalCollection.Add(empireData);
+                            removalCollection.Add(empireData);                        
                     }
                     int num = removalCollection.Count - this.numOpponents;
+                                            int shipsPurged = 0;
+                                            float SpaceSaved = GC.GetTotalMemory(true);
                     for (int opponents = 0; opponents < num; ++opponents)
                     {
                         int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count + 1));
                         if (index2 > removalCollection.Count - 1)
                             index2 = removalCollection.Count - 1;
+
+                        List<string> shipkill = new List<string>();
+
+                        foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+                        {
+                            if (ship.Value.shipData.ShipStyle == removalCollection[index2].Traits.ShipType )
+                            {
+                                bool killSwitch = true;
+                                foreach (Empire ebuild in EmpireManager.EmpireList)
+                                {
+                                    if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+                                        killSwitch = false;
+                                    break;
+                                }
+
+
+                                if (killSwitch)
+                                    foreach (Ship mship in this.data.MasterShipList)
+                                    {
+                                        if (ship.Key == mship.Name)
+                                        {
+                                            killSwitch = false;
+                                            break;
+                                        }
+                                    }
+                                if (killSwitch)
+                                {
+                                    shipsPurged++;
+
+                                    // System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
+                                    shipkill.Add(ship.Key);
+                                }
+                            }
+                        }
+                        foreach (string shiptoclear in shipkill)
+                        {
+                            ResourceManager.ShipsDict.Remove(shiptoclear);
+                        }
                         removalCollection.RemoveAt(index2);
                     }
 
-
+                    System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
+                    System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(true)).ToString());
                     foreach (EmpireData data in (List<EmpireData>)removalCollection)
                     {
                         Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);

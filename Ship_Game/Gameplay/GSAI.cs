@@ -9036,6 +9036,19 @@ namespace Ship_Game.Gameplay
 
         }
 
+        public string TechCheater()
+        {
+            string sendToScript = "ShipWeapons:ShipDefense:ShipGeneral:ShipHull";
+
+            if (ScriptedResearch("CHEAPEST", "TECH", "TECH" + sendToScript))
+            {
+                sendToScript = this.empire.ResearchTopic;
+                this.empire.ResearchTopic = "";
+                return sendToScript;
+            }
+            else
+                return "";
+        }
 
         
 

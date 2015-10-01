@@ -153,6 +153,8 @@ namespace Ship_Game
 								{
 									qi.pgsVector = new Vector2((float)item.pgs.x, (float)item.pgs.y);
 								}
+                                if (item.IsPlayerAdded != null)
+                                    qi.isPlayerAdded = item.IsPlayerAdded;
 								pdata.QISaveList.Add(qi);
 							}
 						}
@@ -816,6 +818,7 @@ namespace Ship_Game
 			public float RefitCost;
 
 			public Vector2 pgsVector;
+            public bool isPlayerAdded;
 		}
 
 		public struct RingSave
