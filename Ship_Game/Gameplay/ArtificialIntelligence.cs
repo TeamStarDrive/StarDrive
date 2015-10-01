@@ -6639,7 +6639,7 @@ namespace Ship_Game.Gameplay
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (d < 50000f)
                         //fbedard: skip this waypoint
-                        if (d <= this.Owner.velocityMaximum * 2f)
+                        if (d <= this.Owner.velocityMaximum * 3.5f)
                         {
                             if (angleDiffToNext > 0.4f)// 0.649999976158142) //  )
                             {
