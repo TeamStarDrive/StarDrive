@@ -2495,6 +2495,9 @@ namespace Ship_Game
                     data.NameIndex += (ushort)OffSet;
                     Localizer.used[data.NameIndex] = true;
                 }
+                
+                if ( data.hangerTimerConstant >0 )
+                    data.hangarTimerConstant = data.hangerTimerConstant;                                    
                 data.UID = String.Intern( Path.GetFileNameWithoutExtension(FI.Name));
                 if (data.IconTexturePath != null && String.IsInterned(data.IconTexturePath) != null)
                     string.Intern(data.IconTexturePath);
@@ -2508,6 +2511,7 @@ namespace Ship_Game
 				{
                     Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data);
 				}
+                
 			}
 			foreach (KeyValuePair<string, ShipModule> entry in Ship_Game.ResourceManager.ShipModulesDict)
 			{
@@ -2518,7 +2522,7 @@ namespace Ship_Game
 
 		public static void LoadShips()
 		{
-			Ship_Game.ResourceManager.ShipsDict.Clear();
+            Ship_Game.ResourceManager.ShipsDict.Clear();// = new Dictionary<string, Ship>();
             //Added by McShooterz: Changed how StarterShips loads from mod if folder exists
             XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
             FileInfo[] textList; //"Mods/", 
@@ -2946,9 +2950,10 @@ namespace Ship_Game
                 }
                 if (!fighters && !weapons) Str = 0;
                 if (def > Str) def = Str;
-                entry.Value.BaseStrength = Str + def;
-                ship.BaseStrength = entry.Value.BaseStrength;
-                return  entry.Value.BaseStrength;
+                entry.Value.shipData.BaseStrength = Str + def;
+                entry.Value.BaseStrength = entry.Value.shipData.BaseStrength;
+                ship.BaseStrength = entry.Value.shipData.BaseStrength;
+                return ship.BaseStrength;
                 
 
 

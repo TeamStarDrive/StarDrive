@@ -559,6 +559,7 @@ namespace Ship_Game
 		private void LoadEverything(object sender, RunWorkerCompletedEventArgs ev)
 		{
 			bool stop;
+            ResourceManager.LoadShips();
 			List<SolarSystem>.Enumerator enumerator;
 			base.ScreenManager.inter.ObjectManager.Clear();
 			this.data = new UniverseData();
@@ -1099,6 +1100,7 @@ namespace Ship_Game
 							qi.Building = Ship_Game.ResourceManager.BuildingsDict[qisave.UID];
 							qi.Cost = qi.Building.Cost * this.savedData.GamePacing;
                             qi.NotifyOnEmpty = false;
+                            qi.IsPlayerAdded = qisave.isPlayerAdded;
 							foreach (PlanetGridSquare pgs in p.TilesList)
 							{
 								if ((float)pgs.x != qisave.pgsVector.X || (float)pgs.y != qisave.pgsVector.Y)
@@ -1167,14 +1169,16 @@ namespace Ship_Game
 					}
 				}
 			}
+            int shipsPurged = 0;
+            float SpaceSaved = GC.GetTotalMemory(true);
             foreach(Empire empire in  EmpireManager.EmpireList)
             {
-                if (empire.data.Defeated)
+                if (empire.data.Defeated && !empire.isFaction)
                 {
                     List<string> shipkill = new List<string>();
                     foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
                     {
-                        if (ship.Value.shipData.ShipStyle == empire.data.Traits.ShipType)
+                        if (ship.Value.shipData.ShipStyle == empire.data.Traits.ShipType )
                         {
                             bool killSwitch = true;
                             foreach (Empire ebuild in EmpireManager.EmpireList)
@@ -1195,7 +1199,10 @@ namespace Ship_Game
                                     }
                                 }
                             if (killSwitch)
+                            {
+                                shipsPurged++;
                                 shipkill.Add(ship.Key);
+                            }
                         }
                     }
                     foreach (string shiptoclear in shipkill)
@@ -1203,8 +1210,12 @@ namespace Ship_Game
                         ResourceManager.ShipsDict.Remove(shiptoclear);
                     }
 
-                }                
+                }
+
+                
             }
+            System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
+            System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(false)).ToString());
 			this.Loaded = true;
 		}
 

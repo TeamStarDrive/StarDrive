@@ -44,7 +44,7 @@
 
   <!-- for Hangar items -->
   <hangarShipUID>Supply_Shuttle</hangarShipUID>
-  <hangerTimerConstant>60</hangerTimerConstant>
+  <hangarTimerConstant>60</hangarTimerConstant>
   <IsSupplyBay>true</IsSupplyBay>
 
   <!-- for shield items -->
