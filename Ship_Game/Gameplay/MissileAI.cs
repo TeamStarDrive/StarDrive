@@ -49,8 +49,14 @@ namespace Ship_Game.Gameplay
             if (this.Owner.owner != null)
             {
                 GameplayObject sourceTarget = this.Owner.owner.GetAI().Target;
+                Relationship relTarget = null;
+   
                 Ship sourceTargetShip = sourceTarget as Ship;
-                if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && sourceTargetShip.loyalty != this.Owner.loyalty)
+                if (this.Owner.owner != null && sourceTargetShip!=null)
+                {
+                    this.Owner.loyalty.GetRelations().TryGetValue(sourceTargetShip.loyalty, out relTarget);
+                }
+                if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && sourceTargetShip.loyalty != this.Owner.loyalty &&(relTarget ==null || !relTarget.Treaty_NAPact))
                 {
                     this.SetTarget(sourceTargetShip.GetRandomInternalModule(this.Owner));
                     
