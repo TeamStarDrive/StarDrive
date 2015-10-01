@@ -202,7 +202,7 @@ namespace Ship_Game
 		{
 			string which;
 			string str;
-			string text = "";
+			string text = string.Empty;
             if (ship.GetAI() == null)  //fbedard: prevent crash ?
                 return text;
 			switch (ship.GetAI().State)
@@ -290,6 +290,7 @@ namespace Ship_Game
 								{
 									which = "Production";
 								}
+                                if(ship.GetAI().start !=null)
 								text = string.Concat(text, Localizer.Token(159), " ", ship.GetAI().start.Name);
 								string pickingup = Localizer.Token(160);
 								string str1 = text;
@@ -304,7 +305,8 @@ namespace Ship_Game
 								if (which == "Prod")
 								{
 									which = "Production";
-								}					
+								}
+					            if(ship.GetAI().end != null)
                                 text = string.Concat(text, Localizer.Token(159), " ", ship.GetAI().end.Name);
 								string delivering = Localizer.Token(163);
 								string str2 = text;
