@@ -1953,6 +1953,14 @@ namespace Ship_Game.Gameplay
 					module.Initialize(module.XMLPosition);
 				}
 			}
+            if(this.ModuleType == ShipModuleType.Hangar && !this.IsSupplyBay)
+            {
+                if(this.OrdinanceCapacity ==0)
+                {                    
+                    this.OrdinanceCapacity = 50;
+                }
+
+            }
 			base.Initialize();
 		}
         /// <summary>
@@ -2077,6 +2085,15 @@ namespace Ship_Game.Gameplay
                 }
             }
             base.Initialize();
+            if (this.ModuleType == ShipModuleType.Hangar && !this.IsSupplyBay)
+            {
+                if (this.OrdinanceCapacity == 0)
+                {
+                    this.OrdinanceCapacity = (short)(this.MaximumHangarShipSize / 2);                    
+                    if(this.OrdinanceCapacity <50)
+                    this.OrdinanceCapacity = 50;
+                }              
+            }
         }
 		public void InitializeLite(Vector2 pos)
 		{
@@ -2096,6 +2113,16 @@ namespace Ship_Game.Gameplay
 			this.SetInitialPosition();
 			this.SetAttributesByType();
 			base.Initialize();
+            if (this.ModuleType == ShipModuleType.Hangar && !this.IsSupplyBay)
+            {
+                if (this.OrdinanceCapacity == 0)
+                {
+                    this.OrdinanceCapacity = (short)(this.MaximumHangarShipSize / 2);                    
+                    if(this.OrdinanceCapacity <50)
+                    this.OrdinanceCapacity = 50;
+                }
+
+            }
 		}
 
 		public void LaunchBoardingPartyORIG(Troop troop)
@@ -2245,7 +2272,7 @@ namespace Ship_Game.Gameplay
                     string hangarship = this.hangarShipUID;
                     string startingscout = this.Parent.loyalty.data.StartingShip;
 
-
+                    Ship temphangarship=null;
                     if (!this.Parent.loyalty.isFaction && (this.hangarShipUID == startingscout || !this.Parent.loyalty.ShipsWeCanBuild.Contains(this.hangarShipUID)))
                     {
 
@@ -2260,14 +2287,14 @@ namespace Ship_Game.Gameplay
                             fighters.Add(ResourceManager.ShipsDict[shipsWeCanBuild]);
                         }
 
-                        hangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).Select(fighter => fighter.Name).FirstOrDefault();
+                        temphangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).FirstOrDefault();
                     }
 
-                    if (this.hangarShip == null)
+                    if (temphangarship == null)
                         return;
-                    if (Ship_Game.ResourceManager.ShipsDict[hangarship].Mass / 5f > this.Parent.Ordinance)  //fbedard: New spawning cost
+                    if (temphangarship.Mass / 5f > this.Parent.Ordinance)  //fbedard: New spawning cost
                         return;
-                    this.SetHangarShip(ResourceManager.CreateShipFromHangar(hangarship, this.Parent.loyalty, this.Center, this.Parent));
+                    this.SetHangarShip(ResourceManager.CreateShipFromHangar(temphangarship.Name, this.Parent.loyalty, this.Center, this.Parent));
 
                     if (this.hangarShip != null)
                     {
