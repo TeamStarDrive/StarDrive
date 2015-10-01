@@ -177,7 +177,7 @@ namespace Ship_Game.Gameplay
             
             this.wayPointLocker = new Object();
 		}
-
+        /*
 		private void aPlotCourseToNew(Vector2 endPos, Vector2 startPos)
 		{
 			float Distance = Vector2.Distance(startPos, endPos);
@@ -276,7 +276,7 @@ namespace Ship_Game.Gameplay
 				}
 			}
 		}
-
+        */
 		private void AwaitOrders(float elapsedTime)
 		{
             //if ((this.Owner.GetSystem() ==null && this.State == AIState.Intercept) 
@@ -5576,7 +5576,7 @@ namespace Ship_Game.Gameplay
                 population.Population = population.Population - (float)this.Owner.loyalty.data.Traits.PassengerModifier;
             }
         }
-
+        /*
 		private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
 		{
 			float Distance = Vector2.Distance(startPos, endPos);
@@ -5653,6 +5653,105 @@ namespace Ship_Game.Gameplay
 				}
 			}
 		}
+        */
+
+        //fbedard: new version not recursive        
+        private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
+        {
+            float Distance = Vector2.Distance(startPos, endPos);
+            if (Distance <= Empire.ProjectorRadius)
+            {
+                lock (this.wayPointLocker)
+                    this.ActiveWayPoints.Enqueue(endPos);
+                return;
+            }
+            List<Vector2> PickWayPoints = new List<Vector2>();
+            float d1, d2;
+            float DistToEnd1, DistToEnd2;
+
+            foreach (Ship proj in this.Owner.loyalty.GetProjectors())
+            {
+                d1 = Vector2.Distance(proj.Center, startPos);
+                d2 = Vector2.Distance(proj.Center, endPos);
+                if (d1 <= Distance && d2 <= Distance)
+                    lock (this.wayPointLocker)
+                        PickWayPoints.Add(proj.Center);
+            }
+            foreach (Planet p in this.Owner.loyalty.GetPlanets())
+            {
+                d1 = Vector2.Distance(p.Position, startPos);
+                d2 = Vector2.Distance(p.Position, endPos);
+                if (d1 <= Distance && d2 <= Distance)
+                    lock (this.wayPointLocker)
+                        PickWayPoints.Add(p.Position);
+            }
+            if (!this.ActiveWayPoints.Contains(endPos))
+                lock (this.wayPointLocker)
+                    PickWayPoints.Add(endPos);
+
+            int pt;
+            float distMult;
+            Vector2 wp1, wp2, current = this.Owner.Center;
+            IOrderedEnumerable<Vector2> sortedList = from point in PickWayPoints where current != point orderby Vector2.Distance(current, point) select point;
+
+            // Loop through points.
+            for (int i = 0; i < PickWayPoints.Count; i++)
+            {
+                pt = 0;
+                distMult = 1f + (PickWayPoints.Count - i) / PickWayPoints.Count * .25f;
+                wp1 = Vector2.Zero;
+                wp2 = Vector2.Zero;
+                DistToEnd1 = 99999999f;
+                DistToEnd2 = 99999999f;
+                using (IEnumerator<Vector2> enumerator = sortedList.GetEnumerator())
+                {
+                    do
+                    {// find the nearest among the next 3 valid points.
+                        if (!enumerator.MoveNext())
+                            break;
+                        d1 = Vector2.Distance(enumerator.Current, current);
+                        d2 = Vector2.Distance(enumerator.Current, endPos);
+                        if (!this.ActiveWayPoints.Contains(enumerator.Current) && (d2 <= Distance || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)))
+                        {
+                            if (d1 <= Empire.ProjectorRadius * 2.5f)
+                            {
+                                if (d1 + d2 < DistToEnd1)
+                                {
+                                    wp1 = enumerator.Current;
+                                    DistToEnd1 = d1 + d2;
+                                }
+                            }
+                            else
+                                if (d1 + d2 < DistToEnd2)
+                                {
+                                    wp2 = enumerator.Current;
+                                    DistToEnd2 = d1 + d2;
+                                }
+                            pt++;
+                        }
+                    }
+                    while (pt != 3);
+                }
+
+                if (wp1 != Vector2.Zero || wp2 != Vector2.Zero)
+                {
+                    if (wp1 != Vector2.Zero)
+                        current = wp1;
+                    else
+                        current = wp2;
+                    sortedList = from point in PickWayPoints where current != point orderby Vector2.Distance(current, point) select point;
+                    Distance = Vector2.Distance(current, endPos);
+                    lock (this.wayPointLocker)
+                        this.ActiveWayPoints.Enqueue(current);
+                    if (current == endPos)
+                        break;
+                }
+            }
+
+            if (this.ActiveWayPoints.Count == 0 || this.ActiveWayPoints.Last() != endPos)
+                lock (this.wayPointLocker)
+                    this.ActiveWayPoints.Enqueue(endPos);
+        }
 
 		private void RotateInLineWithVelocity(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
 		{
@@ -6539,21 +6638,27 @@ namespace Ship_Game.Gameplay
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                         //if (d < 50000f)
-                        if (d <= this.Owner.velocityMaximum)
+                        //fbedard: skip this waypoint
+                        if (d <= this.Owner.velocityMaximum * 2f)
                         {
                             if (angleDiffToNext > 0.4f)// 0.649999976158142) //  )
                             {
-                                this.Owner.HyperspaceReturn();
-
+                                //this.Owner.HyperspaceReturn();
+                                lock (this.wayPointLocker)
+                                    this.ActiveWayPoints.Dequeue();
+                                if (this.OrderQueue.Count > 0)
+                                    this.OrderQueue.RemoveFirst();
                             }
-
                         }
+                        //fbedard: skip this waypoint
                         else if (d > 50000f && angleDiffToNext > 1.64999997615814f)
                         //else if (d > this.Owner.GetFTLSpeed() && angleDiffToNext>1.65f)//*(d/this.Owner.speed ))
                         {
-                            this.Owner.HyperspaceReturn();
-                            
-
+                            //this.Owner.HyperspaceReturn();
+                            lock (this.wayPointLocker)
+                                this.ActiveWayPoints.Dequeue();
+                            if (this.OrderQueue.Count > 0)
+                                this.OrderQueue.RemoveFirst();
                         }
                     }
                     else if (this.Target != null)
