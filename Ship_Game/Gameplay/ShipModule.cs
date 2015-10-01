@@ -2092,9 +2092,7 @@ namespace Ship_Game.Gameplay
                     this.OrdinanceCapacity = (short)(this.MaximumHangarShipSize / 2);                    
                     if(this.OrdinanceCapacity <50)
                     this.OrdinanceCapacity = 50;
-                }
-                }
-
+                }              
             }
         }
 		public void InitializeLite(Vector2 pos)
