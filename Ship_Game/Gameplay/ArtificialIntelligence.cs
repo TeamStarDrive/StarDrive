@@ -7035,7 +7035,6 @@ namespace Ship_Game.Gameplay
             this.ReadyToWarp = true;
             this.Owner.isThrusting = false;
             this.Owner.isTurning = false;
-
             
             #region old flee code
             //if (!this.HasPriorityOrder 
@@ -7065,18 +7064,19 @@ namespace Ship_Game.Gameplay
             //    }
             //} 
             #endregion
+
             if (this.State == AIState.SystemTrader && this.start != null && this.end != null && (this.start.Owner != this.Owner.loyalty || this.end.Owner != this.Owner.loyalty))
             {
                 this.start = null;
                 this.end = null;
-                this.OrderTrade(elapsedTime);
+                this.OrderTrade(5f);
                 return;
             }
             if (this.State == AIState.PassengerTransport && this.start != null && this.end != null && (this.start.Owner != this.Owner.loyalty || this.end.Owner != this.Owner.loyalty))
             {
                 this.start = null;
                 this.end = null;
-                this.OrderTransportPassengers(elapsedTime);
+                this.OrderTransportPassengers(5f);
                 return;
             }
 #if !DEBUG
