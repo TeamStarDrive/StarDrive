@@ -7611,7 +7611,7 @@ namespace Ship_Game.Gameplay
 
 
 
-                        docombat = (!this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat));
+                        docombat = (!this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat && firstgoal.Plan != Plan.Bombard && firstgoal.Plan != Plan.BoardShip));
 
 
                         if (docombat)//|| this.OrderQueue.Count == 0))
