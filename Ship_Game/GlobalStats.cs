@@ -9,8 +9,8 @@ namespace Ship_Game
 {
 	public sealed class GlobalStats
 	{
-        public static string branch = "ProjectorRework";
-        public static string Version = "1001";
+        public static string branch = "RC";
+        public static string Version = "1002";
         public static int ComparisonCounter;
 
 		public static int Comparisons;
