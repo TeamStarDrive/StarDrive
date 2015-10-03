@@ -602,7 +602,7 @@ namespace Ship_Game.Gameplay
             this.AssembleFleet(facing, fvec);
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
-                if (ship.fleet != null && (!ship.GetAI().BadGuysNear || ship.shipData.Role == ShipData.RoleName.troop))
+                //if (ship.fleet != null && (!ship.GetAI().BadGuysNear || ship.shipData.Role == ShipData.RoleName.troop))
                 {
                     ship.GetAI().SetPriorityOrder();
                     ship.GetAI().OrderFormationWarp(MovePosition + ship.FleetOffset, facing, fvec);
