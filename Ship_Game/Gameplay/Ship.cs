@@ -306,30 +306,38 @@ namespace Ship_Game.Gameplay
                 for (int index = 0; index < this.Hangars.Count; ++index)
                 {
                     try
-                    {
+                    {                       
                         ShipModule shipModule = this.Hangars[index];
-                        if (shipModule.GetHangarShip() != null)
+                        if (shipModule.IsTroopBay || shipModule.IsSupplyBay)
+                            continue;
+                        if (shipModule.GetHangarShip() != null
+                             
+                            )
                         {
-                            if (shipModule.GetHangarShip() != null)
+                            //if ()
+                            //{
+                            if (!shipModule.GetHangarShip().Active && shipModule.hangarTimer > 0.0)
                             {
-                                if (!shipModule.GetHangarShip().Active)
-                                {
-                                    if (shipModule.hangarTimer >= 0.0)
-                                        continue;
-                                }
-                                else
-                                    continue;
-                            }
-                            else
+                                //if (shipModule.hangarTimer >= 0.0)
                                 continue;
+                            }
+                            flag = true;
+                                //return false;
+                            //}
+                            //else
+                            //    continue;
                         }
-                        return false;
+                        //else if (shipModule.hangarTimer <= 0.0 )
+                        //    flag =true;
+                        //else
+                        //return flag;
+                          
                     }
                     catch
                     {
                     }
                 }
-                return !flag;
+                return flag;// !flag;
             }
             set
             {

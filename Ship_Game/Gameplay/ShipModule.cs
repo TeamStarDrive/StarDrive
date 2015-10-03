@@ -2292,10 +2292,15 @@ namespace Ship_Game.Gameplay
                         }
 
                         temphangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).FirstOrDefault();
+                        this.hangarShipUID = temphangarship.Name;
+                        
                     }
 
-                    if (temphangarship == null)
+                    if (string.IsNullOrEmpty(hangarship))
                         return;
+                   
+                        temphangarship = ResourceManager.ShipsDict[hangarship];
+                    
                     if (temphangarship.Mass / 5f > this.Parent.Ordinance)  //fbedard: New spawning cost
                         return;
                     this.SetHangarShip(ResourceManager.CreateShipFromHangar(temphangarship.Name, this.Parent.loyalty, this.Center, this.Parent));

@@ -849,6 +849,7 @@ namespace Ship_Game
 			return s;
 		}
 
+
 		public static Troop CreateTroop(Troop t, Empire Owner)
 		{
 			Troop troop = new Troop()
