@@ -3771,7 +3771,7 @@ namespace Ship_Game
                     Vector2 vector2_2 = Vector2.Normalize(target - this.startDrag);
                     if ((double)input.RightMouseTimer > 0.0)
                     {
-                        if (this.SelectedFleet != null && this.SelectedFleet.Owner == this.player)
+                        if (this.SelectedFleet != null && this.SelectedFleet.Owner.isPlayer)
                         {
                             AudioManager.PlayCue("echo_affirm1");
                             this.SelectedSomethingTimer = 3f;
@@ -3812,7 +3812,7 @@ namespace Ship_Game
                             else
                                 this.SelectedFleet.FormationWarpTo(vector2_1, num3, vectorToTarget);
                         }
-                        else if (this.SelectedShip != null && this.SelectedShip.loyalty == this.player)
+                        else if (this.SelectedShip != null && this.SelectedShip.loyalty.isPlayer)
                         {
                             this.player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Remove(this.SelectedShip);
                             this.SelectedSomethingTimer = 3f;

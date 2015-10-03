@@ -678,9 +678,10 @@ namespace Ship_Game
 				{
 					OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterToggle, 19)
 					{
-						ValueToModify = new Ref<bool>(() => this.ship.FightersOut, (bool x) => {
+                        ValueToModify = new Ref<bool>(() => this.ship.ManualHangarOverride, (bool x) =>
+                        {
 							this.ship.FightersOut = x;
-							this.ship.ManualHangarOverride = true;
+                            this.ship.ManualHangarOverride = !this.ship.ManualHangarOverride;
 						})
 					};
 					this.Orders.Add(ob);
