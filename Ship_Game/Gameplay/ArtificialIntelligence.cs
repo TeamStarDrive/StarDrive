@@ -2039,8 +2039,12 @@ namespace Ship_Game.Gameplay
                     rearmTime += this.Owner.Ordinance;
                     rearmTime += this.Owner.PowerCurrent;
                     rearmTime += this.Owner.shield_power;
-                    rearmTime /= (this.Owner.HealthMax + this.Owner.OrdinanceMax + this.Owner.shield_max + this.Owner.PowerStoreMax);
-                    rearmTime = (hangar.hangarTimerConstant * .5f) + (1f - rearmTime) * hangar.hangarTimerConstant;  // fbedard: rearm time from 50% to 150%
+                    rearmTime /= (this.Owner.HealthMax + this.Owner.OrdinanceMax + this.Owner.shield_max + this.Owner.PowerStoreMax);                    
+                        rearmTime = (1.01f - rearmTime) * hangar.hangarTimerConstant;  // fbedard: rearm time from 50% to 150%
+                    //CG: if the fighter is fully functional reduce rearm time to very little. The default 5 minute hangar timer is way too high. It cripples fighter usage.
+                    //at 50% that is still 2.5 minutes if the fighter simply launches and returns. with lag that can easily be 10 or 20 minutes. 
+                    //at 1.01 that should be 3 seconds for the default hangar.
+                    
                     //rearmTime = rearmConstant * rearmTime;
                     //rearmTime = (rearmConstant - rearmConstant * rearmTime) + hangar.hangarTimer > 0 ? hangar.hangarTimer : 0;
                     hangar.SetHangarShip(null);
