@@ -1550,7 +1550,9 @@ namespace Ship_Game
 			Selector sel = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 210));
 			sel.Draw();
 			ShipModule mod = this.ActiveModule;
-			if (this.ActiveModule == null && this.HighlightedModule != null)
+            
+
+            if (this.ActiveModule == null && this.HighlightedModule != null)
 			{
 				mod = this.HighlightedModule;
 			}
@@ -1558,12 +1560,15 @@ namespace Ship_Game
 			{
 				mod = this.ActiveModule;
 			}
+            
 			if (mod != null)
 			{
 				mod.HealthMax = Ship_Game.ResourceManager.ShipModulesDict[mod.UID].HealthMax;
+                 
 			}
 			if (this.activeModSubMenu.Tabs[0].Selected && mod != null)
 			{
+                
                 //Added by McShooterz: Changed how modules names are displayed for allowing longer names
 				Vector2 modTitlePos = new Vector2((float)(this.activeModSubMenu.Menu.X + 10), (float)(this.activeModSubMenu.Menu.Y + 35));
                 if (Fonts.Arial20Bold.MeasureString(Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].NameIndex)).X + 16 < this.activeModSubMenu.Menu.Width)
@@ -1924,6 +1929,12 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
 				modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
 				float starty = modTitlePos.Y;
+                float strength = ResourceManager.CalculateModuleStrength(mod,"both",this.ActiveHull.ModuleSlotList.Count);                
+                if (strength > 0)
+                {
+                    this.DrawStat(ref modTitlePos, "Offense", (float)strength, 219);
+                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                }
 				if (!mod.isWeapon || mod.InstalledWeapon == null)
 				{
                     if (mod.Cost != 0)
@@ -2274,7 +2285,12 @@ namespace Ship_Game
                         this.DrawStat(ref modTitlePos, Localizer.Token(6174), (float)mod.EMP_Protection, 219);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
-
+                      if (mod.TargetTracking >0 || mod.IsCommandModule)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6186), (int)mod.TargetTracking, 219);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                
 
                     if (mod.PermittedHangarRoles.Count != 0)
                     {
@@ -3426,6 +3442,9 @@ namespace Ship_Game
             float FTLSpoolTimer = 0f;
             float EMPResist = 0f;
             bool bEnergyWeapons = false;
+            float Off = 0f;
+            float Def = 0;
+            float strength = 0;
 			foreach (SlotStruct slot in this.Slots)
 			{
 				Size = Size + 1f;
@@ -3508,8 +3527,11 @@ namespace Ship_Game
 				}
 				Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
 				CargoSpace = CargoSpace + slot.module.Cargo_Capacity;
+                Off += ResourceManager.CalculateModuleStrength(slot.module, "Off", this.ActiveHull.ModuleSlotList.Count);
+                Def += ResourceManager.CalculateModuleStrength(slot.module, "Def", this.ActiveHull.ModuleSlotList.Count);
 
             }
+            strength = (Def > Off ? Off * 2 : Def + Off);
 			Mass = Mass + (float)(this.ActiveHull.ModuleSlotList.Count / 2);
 			Mass = Mass * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier;
 			if (Mass < (float)(this.ActiveHull.ModuleSlotList.Count / 2))
@@ -3844,13 +3866,26 @@ namespace Ship_Game
 				{
 					EmptySlots = false;
 				}
+                if (slot.module != null && !slot.isDummy)
+                {
+                    Off += ResourceManager.CalculateModuleStrength(slot.module, "Off", this.ActiveHull.ModuleSlotList.Count);
+                    Def += ResourceManager.CalculateModuleStrength(slot.module, "Def", this.ActiveHull.ModuleSlotList.Count);
+                }
+
+            
+            
 				if (slot.ModuleUID == null || !Ship_Game.ResourceManager.ShipModulesDict[slot.ModuleUID].IsCommandModule)
 				{
 					continue;
 				}
 				hasBridge = true;
 			}
-
+            strength = (Def > Off ? Off * 2 : Def + Off);
+            if (strength > 0)
+            {
+                this.DrawStat(ref Cursor, string.Concat("Total Off", ":"), strength, 159);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
             Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X - 180), (float)(this.ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));
 			if (this.ActiveHull.Role != ShipData.RoleName.platform)
 			{
