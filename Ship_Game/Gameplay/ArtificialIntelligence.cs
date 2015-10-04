@@ -5015,7 +5015,15 @@ namespace Ship_Game.Gameplay
                                 if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != this.Owner && !s.isConstructor)
                                 {
                                     s.GetAI().orderqueue.EnterReadLock();
-                                    ArtificialIntelligence.ShipGoal plan = s.GetAI().OrderQueue.LastOrDefault<ArtificialIntelligence.ShipGoal>();
+                                    ArtificialIntelligence.ShipGoal plan = null;
+                                    try
+                                    {
+                                        plan = s.GetAI().OrderQueue.LastOrDefault<ArtificialIntelligence.ShipGoal>();
+                                    }
+                                    catch
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Order Trade Orderqueue fail");
+                                    }
                                     if (plan!=null && s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p &&  plan.Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
                                         cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
                                     s.GetAI().orderqueue.ExitReadLock();
