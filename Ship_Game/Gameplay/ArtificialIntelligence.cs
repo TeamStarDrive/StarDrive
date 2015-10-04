@@ -7051,14 +7051,14 @@ namespace Ship_Game.Gameplay
                                                         this.State = AIState.AwaitingOrders;   //fbedard
                                                         break;
                                                 }
-                                                if (this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
+                                                if (this.Owner.BaseStrength ==0 || this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
                                                 {
                                                     this.OrbitShip(this.EscortTarget, elapsedTime);
                                                     break;
                                                 }
                                                 else
                                                 {
-                                                    if (this.Owner.Mothership !=null && this.Target == null && !(this.hasPriorityTarget || this.HasPriorityOrder))
+                                                    if (this.Owner.Mothership !=null && this.Target == null )
                                                         this.Target = this.Owner.Mothership.GetAI().Target;
                                                     this.DoCombat(elapsedTime);
                                                     break;
