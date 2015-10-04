@@ -3462,8 +3462,8 @@ namespace Ship_Game.Gameplay
                             {
                                 if (!this.hasCommand && moduleSlot.module.IsCommandModule)
                                     this.hasCommand = true;
-                                if (this.TrackingPower < moduleSlot.module.TargetTracking)
-                                    this.TrackingPower = moduleSlot.module.TargetTracking;
+                                //if (this.TrackingPower < moduleSlot.module.TargetTracking)
+                                    this.TrackingPower += moduleSlot.module.TargetTracking;
                                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                                 this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                                 this.InhibitionRadius += moduleSlot.module.InhibitionRadius;
