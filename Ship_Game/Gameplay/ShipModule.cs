@@ -2376,9 +2376,9 @@ namespace Ship_Game.Gameplay
                     this.isWeapon = true;
                     this.Parent.Weapons.Add(this.InstalledWeapon);
                     break;
-                case ShipModuleType.Command:
-                    this.TargetTracking = Convert.ToSByte((this.XSIZE*this.YSIZE) / 3);
-                    break;
+                //case ShipModuleType.Command:
+                //    this.TargetTracking = Convert.ToSByte((this.XSIZE*this.YSIZE) / 3);
+                //    break;
             }
             if (this.shield_power_max > 0.0)
             {
