@@ -589,8 +589,8 @@ namespace Ship_Game
                 this.data.DefaultTroopShip = this.data.PortraitName + " " + "Troop";
 
             //clear these lists as they serve no more purpose
-            this.data.unlockBuilding.Clear();
-            this.data.unlockShips.Clear();
+            this.data.unlockBuilding = new List<string>();
+            this.data.unlockShips = new List<string>();
             this.UpdateShipsWeCanBuild();
             if (this.data.EconomicPersonality == null)
                 this.data.EconomicPersonality = new ETrait
