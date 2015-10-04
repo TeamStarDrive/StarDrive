@@ -2521,7 +2521,7 @@ namespace Ship_Game.Gameplay
                 {
                     return;
                 }
-
+                bool hasPD = false;
                 //Determine if there is something to shoot at
                 if (this.BadGuysNear || this.Owner.InCombat)
                 {
@@ -2530,6 +2530,8 @@ namespace Ship_Game.Gameplay
                     {
                         foreach (Weapon purge in this.Owner.Weapons)
                         {
+                            if (purge.Tag_PD || purge.TruePD)
+                                hasPD = true;
                             if (purge.PrimaryTarget)
                             {
                                 purge.PrimaryTarget = false;
@@ -2540,45 +2542,84 @@ namespace Ship_Game.Gameplay
                         this.Target = null;
                         TargetShip = null;
                     }
-                    this.TrackProjectiles.Clear();                                        
+                    foreach (Weapon purge in this.Owner.Weapons)
+                    {
+                        if (purge.Tag_PD || purge.TruePD)
+                            hasPD = true;
+                        else continue;
+                        break;
+                    }
+                    this.TrackProjectiles.Clear(); 
+                    if (this.Owner.Mothership != null)
+                    {
+                        this.TrackProjectiles.AddRange(this.Owner.Mothership.GetAI().TrackProjectiles);
+                    }
+                    if (this.Owner.TrackingPower > 0 && hasPD)                                      
                     //update projectile list
                     {
 
                         if (this.Owner.GetSystem() != null)
                         {
-                            //Find non friendly planets
-                            foreach (Planet p in this.Owner.GetSystem().PlanetList)
+                            foreach (GameplayObject missile in this.Owner.GetSystem().spatialManager.GetNearby(this.Owner))
                             {
-                                if (p.Owner == this.Owner.loyalty)
+                                Projectile targettrack = missile as Projectile;
+                                if (targettrack == null || targettrack.loyalty == this.Owner.loyalty || !targettrack.weapon.Tag_Intercept)
                                     continue;
-                                foreach (Projectile proj in p.Projectiles)
-                                {
-                                    this.TrackProjectiles.Add(proj);
-                                }
+                                this.TrackProjectiles.Add(targettrack);
+
                             }
                         }
+                        else
                         {
-                            foreach (Ship ship in PotentialTargets)
+                            foreach (GameplayObject missile in UniverseScreen.DeepSpaceManager.GetNearby(this.Owner))
                             {
-
-                                for (int i = 0; i < ship.Projectiles.Count; i++)
+                                Projectile targettrack = missile as Projectile;
+                                if (targettrack == null || targettrack.loyalty == this.Owner.loyalty || !targettrack.weapon.Tag_Intercept)
+                                    continue;
+                                this.TrackProjectiles.Add(targettrack);
+                            }
+                            
+                        }
+                            if(false)
+                        {
+                            
+                            if (this.Owner.GetSystem() != null)
+                            {
+                                //Find non friendly planets
+                                foreach (Planet p in this.Owner.GetSystem().PlanetList)
                                 {
-                                    Projectile proj;
+                                    if (p.Owner == this.Owner.loyalty)
+                                        continue;
+                                    foreach (Projectile proj in p.Projectiles)
                                     {
-                                        proj = ship.Projectiles[i];
+                                        this.TrackProjectiles.Add(proj);
+                                    }
+                                }
+                            }
+                            {
+                                foreach (Ship ship in PotentialTargets)
+                                {
+
+                                    for (int i = 0; i < ship.Projectiles.Count; i++)
+                                    {
+                                        Projectile proj;
+                                        {
+                                            proj = ship.Projectiles[i];
+                                        }
+
+                                        if (proj == null || !proj.Active || proj.Health <= 0 || !proj.weapon.Tag_Intercept)
+                                            continue;
+                                        this.TrackProjectiles.Add(proj);
                                     }
 
-                                    if (proj == null || !proj.Active || proj.Health <= 0 || !proj.weapon.Tag_Intercept)
-                                        continue;
-                                    this.TrackProjectiles.Add(proj);
                                 }
 
                             }
-
                         }
-                        this.TrackProjectiles = this.TrackProjectiles.OrderBy(prj => Vector2.Distance(this.Owner.Center, prj.Center)).ToList();
+                        this.TrackProjectiles = this.TrackProjectiles.OrderBy(prj =>  Vector2.Distance(this.Owner.Center, prj.Center)).ToList();
 
                     }
+       
                     float lag = Ship.universeScreen.Lag;
                     //Go through each weapon
                     float index = 0; //count up weapons.
@@ -2650,7 +2691,7 @@ namespace Ship_Game.Gameplay
                                                        if (this.BadGuysNear && !weapon.TruePD  )
                                                        {
                                                            //if there are projectile to hit and weapons that can shoot at them. do so. 
-                                                           if(this.TrackProjectiles.Count >0 && weapon.Tag_PD)
+                                                           if(this.TrackProjectiles.Count >0 && weapon.Tag_PD )
                                                            {
                                                                for (int i = 0; i < this.TrackProjectiles.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++)
                                                                {
@@ -2678,7 +2719,7 @@ namespace Ship_Game.Gameplay
 
                                                            //Find alternate target to fire on
                                                            //this seems to be very expensive code. 
-                                                           if (weapon.fireTarget == null)
+                                                           if (weapon.fireTarget == null && this.Owner.TrackingPower >0)
                                                            {
                                                                //limit to one target per level.
                                                                for (int i = 0; i < this.PotentialTargets.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++) //
@@ -7193,14 +7234,14 @@ namespace Ship_Game.Gameplay
                                                         this.State = AIState.AwaitingOrders;   //fbedard
                                                         break;
                                                 }
-                                                if (this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
+                                                if (this.Owner.BaseStrength ==0 || this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
                                                 {
                                                     this.OrbitShip(this.EscortTarget, elapsedTime);
                                                     break;
                                                 }
                                                 else
                                                 {
-                                                    if (this.Owner.Mothership !=null && this.Target == null && !(this.hasPriorityTarget || this.HasPriorityOrder))
+                                                    if (this.Owner.Mothership !=null && this.Target == null )
                                                         this.Target = this.Owner.Mothership.GetAI().Target;
                                                     this.DoCombat(elapsedTime);
                                                     break;
