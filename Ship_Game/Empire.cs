@@ -2542,7 +2542,7 @@ namespace Ship_Game
             this.data.AgentList.ApplyPendingRemovals();
             if (this.Money < 0.0)
             {
-                ++this.data.TurnsBelowZero;
+                this.data.TurnsBelowZero += (short)(1+-1*(this.Money) /500);
             }
             else
             {
@@ -2657,10 +2657,11 @@ namespace Ship_Game
                     StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].Population += planet.Population;
                 int num2 = planet.HasWinBuilding ? 1 : 0;
             }
-            if (this.data.TurnsBelowZero >= 25 && this.data.TurnsBelowZero % 25 == 0 && ((double)this.Money < 0.0 && !Empire.universeScreen.Debug) && this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+            if (this.data.TurnsBelowZero >= 0  && (this.Money < 0.0 && !Empire.universeScreen.Debug)) // && this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
             {
-                if (!this.data.RebellionLaunched)
+                if(!this.data.RebellionLaunched)
                 {
+                    
                     Empire rebelsFromEmpireData = CreatingNewGameScreen.CreateRebelsFromEmpireData(this.data, this);
                     rebelsFromEmpireData.data.IsRebelFaction = true;
                     rebelsFromEmpireData.data.Traits.Name = this.data.RebelName;
@@ -2675,26 +2676,71 @@ namespace Ship_Game
                     EmpireManager.EmpireList.Add(rebelsFromEmpireData);
                     this.data.RebellionLaunched = true;
                 }
-                Empire empireByName = EmpireManager.GetEmpireByName(this.data.RebelName);
-                IOrderedEnumerable<Planet> orderedEnumerable = Enumerable.OrderByDescending<Planet, float>((IEnumerable<Planet>)this.OwnedPlanets, (Func<Planet, float>)(planet => Vector2.Distance(this.GetWeightedCenter(), planet.Position)));
-                if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable) > 0)
+                if (this.data.TurnsBelowZero >= 25)
                 {
-                    Empire.universeScreen.NotificationManager.AddRebellionNotification(Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable), empireByName);
-                    for (int index = 0; index < 4; ++index)
+                    
+                    Empire empireByName = EmpireManager.GetEmpireByName(this.data.RebelName);
+                    if(empireByName == null)
                     {
-                        foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
+                        Empire rebelsFromEmpireData = CreatingNewGameScreen.CreateRebelsFromEmpireData(this.data, this);
+                        rebelsFromEmpireData.data.IsRebelFaction = true;
+                        rebelsFromEmpireData.data.Traits.Name = this.data.RebelName;
+                        rebelsFromEmpireData.data.Traits.Singular = this.data.RebelSing;
+                        rebelsFromEmpireData.data.Traits.Plural = this.data.RebelPlur;
+                        rebelsFromEmpireData.isFaction = true;
+                        foreach (Empire key in EmpireManager.EmpireList)
                         {
-                            if (this.WeCanBuildTroop(keyValuePair.Key))
+                            key.GetRelations().Add(rebelsFromEmpireData, new Relationship(rebelsFromEmpireData.data.Traits.Name));
+                            rebelsFromEmpireData.GetRelations().Add(key, new Relationship(key.data.Traits.Name));
+                        }
+                        EmpireManager.EmpireList.Add(rebelsFromEmpireData);
+                        this.data.RebellionLaunched = true;
+                        empireByName = rebelsFromEmpireData;
+                    }
+                    IOrderedEnumerable<Planet> orderedEnumerable = Enumerable.OrderByDescending<Planet, float>((IEnumerable<Planet>)this.OwnedPlanets, (Func<Planet, float>)(planet => Vector2.Distance(this.GetWeightedCenter(), planet.Position)));
+                    if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable) > 0)
+                    {
+                        Planet planet = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable);
+                        if(this.isPlayer)
+                        Empire.universeScreen.NotificationManager.AddRebellionNotification(planet, empireByName); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable
+                        for (int index = 0; index < planet.Population / 1000; ++index)
+                        {
+                            foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
                             {
-                                Troop troop = ResourceManager.CreateTroop(keyValuePair.Value, empireByName);
-                                troop.Name = Localizer.Token(empireByName.data.TroopNameIndex);
-                                troop.Description = Localizer.Token(empireByName.data.TroopDescriptionIndex);
-                                Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable).AssignTroopToTile(troop);
-                                break;
+                                if (this.WeCanBuildTroop(keyValuePair.Key))
+                                {
+                                    Troop troop = ResourceManager.CreateTroop(keyValuePair.Value, empireByName);
+                                    troop.Name = Localizer.Token(empireByName.data.TroopNameIndex);
+                                    troop.Description = Localizer.Token(empireByName.data.TroopDescriptionIndex);
+                                    planet.AssignTroopToTile(troop); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable)
+                                    break;
+                                }
                             }
                         }
                     }
+                    //if(this.data.TurnsBelowZero >10 && this.data.TurnsBelowZero < 20)
+                    {
+                        Ship pirate = null;
+                        this.GetShips().thisLock.EnterReadLock();
+                        foreach (Ship pirateChoice in this.GetShips())
+                        {
+                            if (pirateChoice == null || !pirateChoice.Active)
+                                continue;
+                            pirate = pirateChoice;
+                            break;
+                        }
+                        this.GetShips().thisLock.ExitReadLock();
+                        if (pirate != null)
+                        {
+                            pirate.loyalty = EmpireManager.GetEmpireByName(this.data.RebelName);
+                            this.RemoveShip(pirate);
+                            //Empire.universeScreen.NotificationManager.AddRebellionNotification(planet, empireByName);
+                        }
+
+                    }
+                    this.data.TurnsBelowZero = 0;
                 }
+               
             }
             this.CalculateScore();
             //Process technology research
@@ -3427,14 +3473,17 @@ namespace Ship_Game
         {
             if (ship.Name == "Subspace Projector")
             {
-                this.OwnedProjectors.QueuePendingRemoval(ship);
-                this.OwnedProjectors.ApplyPendingRemovals();
+                this.OwnedProjectors.Remove(ship);// QueuePendingRemoval(ship);
+                //this.OwnedProjectors.ApplyPendingRemovals();
             }
             else
             {
-                this.OwnedShips.QueuePendingRemoval(ship);
-                this.OwnedShips.ApplyPendingRemovals();
+                this.OwnedShips.Remove(ship);// QueuePendingRemoval(ship);
+                //this.OwnedShips.ApplyPendingRemovals();
             }
+            ship.fleet = null;
+            this.GetGSAI().DefensiveCoordinator.remove(ship);
+
         }
 
         //private List<Ship> ShipsInOurBorders()
