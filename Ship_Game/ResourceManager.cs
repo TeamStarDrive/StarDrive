@@ -3021,8 +3021,10 @@ namespace Ship_Game
 
                         if (hangarship != null)
                         {
-                            Str += 100;
+                            Str+= hangarship.BaseStrength;
+                            
                         }
+                        else Str += 100;
                     }
                     if (slotCount > 0)
                     {
@@ -3032,7 +3034,7 @@ namespace Ship_Game
                     }
 
                 }
-                if (!fighters && !weapons) Str = 0;
+                //if (!fighters && !weapons) Str = 0;
                 //if (def > Str) def = Str;
 
             if(OffDefBoth == "Off")
@@ -3042,9 +3044,7 @@ namespace Ship_Game
             return Str + def;
 
             }
-       
-          
-        
+
 		private static void LoadSmallStars()
 		{
 			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/SmallStars");

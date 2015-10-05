@@ -7977,7 +7977,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>6186</Index>
-      <Text>Target Tracking</Text>
+      <Text>Targets</Text>
     </Token>
     
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -8243,7 +8243,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7065</Index>
       <Text>Indicates resistance to Armour Piercing effects - each point of AP resistance negates 1 point of Armour Piercing on enemy projectiles.</Text>
     </Token>
-	
+
 	
 	<!-- Shield Resistance Tooltips -->
 	
@@ -8315,6 +8315,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>7082</Index>
       <Text>Zoom will center on selected object.</Text>
-    </Token>	
+    </Token>
+    <Token>
+      <Index>7083</Index>
+      <Text>Number of addition targets that can be tracked. A ship with any command can track 1 target. A command module with 0 additional targets can not track PD targets or fire at targets of opportunity unless it has a carrier and experience levels.</Text>
+    </Token>    
   </TokenList>
 </LocalizationFile>
