@@ -2657,9 +2657,9 @@ namespace Ship_Game
                     StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].Population += planet.Population;
                 int num2 = planet.HasWinBuilding ? 1 : 0;
             }
-            if (this.data.TurnsBelowZero >= 0  && (this.Money < 0.0 && !Empire.universeScreen.Debug)) // && this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+            if (this.data.TurnsBelowZero >= 0  && (this.Money < 0.0 && !Empire.universeScreen.Debug && this.isPlayer)) // && this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
             {
-                if(!this.data.RebellionLaunched)
+                if (this.data.TurnsBelowZero >= 25)
                 {
                     
                     Empire rebelsFromEmpireData = CreatingNewGameScreen.CreateRebelsFromEmpireData(this.data, this);
@@ -2675,28 +2675,12 @@ namespace Ship_Game
                     }
                     EmpireManager.EmpireList.Add(rebelsFromEmpireData);
                     this.data.RebellionLaunched = true;
-                }
-                if (this.data.TurnsBelowZero >= 25)
-                {
+                
+                
+                
                     
                     Empire empireByName = EmpireManager.GetEmpireByName(this.data.RebelName);
-                    if(empireByName == null)
-                    {
-                        Empire rebelsFromEmpireData = CreatingNewGameScreen.CreateRebelsFromEmpireData(this.data, this);
-                        rebelsFromEmpireData.data.IsRebelFaction = true;
-                        rebelsFromEmpireData.data.Traits.Name = this.data.RebelName;
-                        rebelsFromEmpireData.data.Traits.Singular = this.data.RebelSing;
-                        rebelsFromEmpireData.data.Traits.Plural = this.data.RebelPlur;
-                        rebelsFromEmpireData.isFaction = true;
-                        foreach (Empire key in EmpireManager.EmpireList)
-                        {
-                            key.GetRelations().Add(rebelsFromEmpireData, new Relationship(rebelsFromEmpireData.data.Traits.Name));
-                            rebelsFromEmpireData.GetRelations().Add(key, new Relationship(key.data.Traits.Name));
-                        }
-                        EmpireManager.EmpireList.Add(rebelsFromEmpireData);
-                        this.data.RebellionLaunched = true;
-                        empireByName = rebelsFromEmpireData;
-                    }
+                    // if(empireByName == null)                
                     IOrderedEnumerable<Planet> orderedEnumerable = Enumerable.OrderByDescending<Planet, float>((IEnumerable<Planet>)this.OwnedPlanets, (Func<Planet, float>)(planet => Vector2.Distance(this.GetWeightedCenter(), planet.Position)));
                     if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable) > 0)
                     {
