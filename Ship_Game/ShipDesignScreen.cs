@@ -1932,7 +1932,7 @@ namespace Ship_Game
                 float strength = ResourceManager.CalculateModuleStrength(mod,"both",this.ActiveHull.ModuleSlotList.Count);                
                 if (strength > 0)
                 {
-                    this.DrawStat(ref modTitlePos, "Offense", (float)strength, 219);
+                    this.DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
                     modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 }
 				if (!mod.isWeapon || mod.InstalledWeapon == null)
@@ -3889,7 +3889,7 @@ namespace Ship_Game
             strength = (Def > Off ? Off * 2 : Def + Off);
             if (strength > 0)
             {
-                this.DrawStat(ref Cursor, string.Concat("Total Off", ":"), strength, 159);
+                this.DrawStat(ref Cursor, string.Concat("Total Off", ":"), strength, 227);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
             Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X - 180), (float)(this.ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));

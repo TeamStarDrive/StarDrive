@@ -8319,6 +8319,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>7083</Index>
       <Text>Number of addition targets that can be tracked. A ship with any command can track 1 target. A command module with 0 additional targets can not track PD targets or fire at targets of opportunity unless it has a carrier and experience levels.</Text>
-    </Token>    
+    </Token>
+    <Token>
+      <Index>7084</Index>
+      <Text>Estimated offensive strength of the ship or module. This is based on the size of the ship and strength of defense and strength of weapons. The defensive score of the ship is not shown but it is calculated and restricted to be never more than the offensive value. Metal slugs with a few small weapons wont rate that high. </Text>
+    </Token>
   </TokenList>
 </LocalizationFile>
