@@ -2287,7 +2287,7 @@ namespace Ship_Game
                     }
                       if (mod.TargetTracking >0 || mod.IsCommandModule)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6186), (int)mod.TargetTracking, 219);
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6186), (float)mod.TargetTracking, 226);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
                 
@@ -3445,6 +3445,7 @@ namespace Ship_Game
             float Off = 0f;
             float Def = 0;
             float strength = 0;
+            float targets = 0;
 			foreach (SlotStruct slot in this.Slots)
 			{
 				Size = Size + 1f;
@@ -3527,11 +3528,11 @@ namespace Ship_Game
 				}
 				Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
 				CargoSpace = CargoSpace + slot.module.Cargo_Capacity;
-                Off += ResourceManager.CalculateModuleStrength(slot.module, "Off", this.ActiveHull.ModuleSlotList.Count);
-                Def += ResourceManager.CalculateModuleStrength(slot.module, "Def", this.ActiveHull.ModuleSlotList.Count);
+
+                targets += slot.module.TargetTracking;
 
             }
-            strength = (Def > Off ? Off * 2 : Def + Off);
+            
 			Mass = Mass + (float)(this.ActiveHull.ModuleSlotList.Count / 2);
 			Mass = Mass * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier;
 			if (Mass < (float)(this.ActiveHull.ModuleSlotList.Count / 2))
@@ -3857,6 +3858,11 @@ namespace Ship_Game
                 this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 159);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
+            if (targets > 0)
+            {
+                this.DrawStat(ref Cursor, string.Concat(" Add. Targets", ":"), (int)((targets)), 226);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);
 			bool hasBridge = false;
 			bool EmptySlots = true;
@@ -3868,8 +3874,8 @@ namespace Ship_Game
 				}
                 if (slot.module != null && !slot.isDummy)
                 {
-                    Off += ResourceManager.CalculateModuleStrength(slot.module, "Off", this.ActiveHull.ModuleSlotList.Count);
-                    Def += ResourceManager.CalculateModuleStrength(slot.module, "Def", this.ActiveHull.ModuleSlotList.Count);
+                    Off += ResourceManager.CalculateModuleStrength(slot.module, "Off", (int)Size);
+                    Def += ResourceManager.CalculateModuleStrength(slot.module, "Def", (int)Size);
                 }
 
             
