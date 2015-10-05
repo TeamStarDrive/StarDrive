@@ -177,7 +177,7 @@ namespace Ship_Game.Gameplay
             
             this.wayPointLocker = new Object();
 		}
-
+        /*
 		private void aPlotCourseToNew(Vector2 endPos, Vector2 startPos)
 		{
 			float Distance = Vector2.Distance(startPos, endPos);
@@ -276,7 +276,7 @@ namespace Ship_Game.Gameplay
 				}
 			}
 		}
-
+        */
 		private void AwaitOrders(float elapsedTime)
 		{
             //if ((this.Owner.GetSystem() ==null && this.State == AIState.Intercept) 
@@ -5015,7 +5015,15 @@ namespace Ship_Game.Gameplay
                                 if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != this.Owner && !s.isConstructor)
                                 {
                                     s.GetAI().orderqueue.EnterReadLock();
-                                    ArtificialIntelligence.ShipGoal plan = s.GetAI().OrderQueue.LastOrDefault<ArtificialIntelligence.ShipGoal>();
+                                    ArtificialIntelligence.ShipGoal plan = null;
+                                    try
+                                    {
+                                        plan = s.GetAI().OrderQueue.LastOrDefault<ArtificialIntelligence.ShipGoal>();
+                                    }
+                                    catch
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Order Trade Orderqueue fail");
+                                    }
                                     if (plan!=null && s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p &&  plan.Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
                                         cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
                                     s.GetAI().orderqueue.ExitReadLock();
@@ -5638,7 +5646,7 @@ namespace Ship_Game.Gameplay
                 population.Population = population.Population - (float)this.Owner.loyalty.data.Traits.PassengerModifier;
             }
         }
-
+        /*
 		private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
 		{
 			float Distance = Vector2.Distance(startPos, endPos);
@@ -5715,6 +5723,105 @@ namespace Ship_Game.Gameplay
 				}
 			}
 		}
+        */
+
+        //fbedard: new version not recursive        
+        private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
+        {
+            float Distance = Vector2.Distance(startPos, endPos);
+            if (Distance <= Empire.ProjectorRadius)
+            {
+                lock (this.wayPointLocker)
+                    this.ActiveWayPoints.Enqueue(endPos);
+                return;
+            }
+            List<Vector2> PickWayPoints = new List<Vector2>();
+            float d1, d2;
+            float DistToEnd1, DistToEnd2;
+
+            foreach (Ship proj in this.Owner.loyalty.GetProjectors())
+            {
+                d1 = Vector2.Distance(proj.Center, startPos);
+                d2 = Vector2.Distance(proj.Center, endPos);
+                if (d1 <= Distance && d2 <= Distance)
+                    lock (this.wayPointLocker)
+                        PickWayPoints.Add(proj.Center);
+            }
+            foreach (Planet p in this.Owner.loyalty.GetPlanets())
+            {
+                d1 = Vector2.Distance(p.Position, startPos);
+                d2 = Vector2.Distance(p.Position, endPos);
+                if (d1 <= Distance && d2 <= Distance)
+                    lock (this.wayPointLocker)
+                        PickWayPoints.Add(p.Position);
+            }
+            if (!this.ActiveWayPoints.Contains(endPos))
+                lock (this.wayPointLocker)
+                    PickWayPoints.Add(endPos);
+
+            int pt;
+            float distMult;
+            Vector2 wp1, wp2, current = this.Owner.Center;
+            IOrderedEnumerable<Vector2> sortedList = from point in PickWayPoints where current != point orderby Vector2.Distance(current, point) select point;
+
+            // Loop through points.
+            for (int i = 0; i < PickWayPoints.Count; i++)
+            {
+                pt = 0;
+                distMult = 1f + (PickWayPoints.Count - i) / PickWayPoints.Count * .25f;
+                wp1 = Vector2.Zero;
+                wp2 = Vector2.Zero;
+                DistToEnd1 = 99999999f;
+                DistToEnd2 = 99999999f;
+                using (IEnumerator<Vector2> enumerator = sortedList.GetEnumerator())
+                {
+                    do
+                    {// find the nearest among the next 3 valid points.
+                        if (!enumerator.MoveNext())
+                            break;
+                        d1 = Vector2.Distance(enumerator.Current, current);
+                        d2 = Vector2.Distance(enumerator.Current, endPos);
+                        if (!this.ActiveWayPoints.Contains(enumerator.Current) && (d2 <= Distance || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)))
+                        {
+                            if (d1 <= Empire.ProjectorRadius * 2.5f)
+                            {
+                                if (d1 + d2 < DistToEnd1)
+                                {
+                                    wp1 = enumerator.Current;
+                                    DistToEnd1 = d1 + d2;
+                                }
+                            }
+                            else
+                                if (d1 + d2 < DistToEnd2)
+                                {
+                                    wp2 = enumerator.Current;
+                                    DistToEnd2 = d1 + d2;
+                                }
+                            pt++;
+                        }
+                    }
+                    while (pt != 3);
+                }
+
+                if (wp1 != Vector2.Zero || wp2 != Vector2.Zero)
+                {
+                    if (wp1 != Vector2.Zero)
+                        current = wp1;
+                    else
+                        current = wp2;
+                    sortedList = from point in PickWayPoints where current != point orderby Vector2.Distance(current, point) select point;
+                    Distance = Vector2.Distance(current, endPos);
+                    lock (this.wayPointLocker)
+                        this.ActiveWayPoints.Enqueue(current);
+                    if (current == endPos)
+                        break;
+                }
+            }
+
+            if (this.ActiveWayPoints.Count == 0 || this.ActiveWayPoints.Last() != endPos)
+                lock (this.wayPointLocker)
+                    this.ActiveWayPoints.Enqueue(endPos);
+        }
 
 		private void RotateInLineWithVelocity(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
 		{
@@ -6591,34 +6698,76 @@ namespace Ship_Game.Gameplay
                 double angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
                 double facing = (Vector2.Dot(wantedForward, right)> 0f ? 1f : -1f);
                 //facing = facing/(mag1*mag2);
+
                 #region warp
-                if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
+                //Skip approaching node:
+                if (this.ActiveWayPoints.Count > 1 && this.Owner.engineState == Ship.MoveState.Warp && Distance <= this.Owner.velocityMaximum * 1.25f)
                 {
-                    //this.Owner.speed *= 0.999f;
+                    lock (this.wayPointLocker)
+                        this.ActiveWayPoints.Dequeue();
+                    if (this.OrderQueue.Count > 0)
+                        this.OrderQueue.RemoveFirst();
+                    Position = this.ActiveWayPoints.First();
+                    Distance = Vector2.Distance(Position, this.Owner.Center);
+                    wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
+                    forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                    angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                }
+
+                if (angleDiff > 1.64999997615814f && Distance > this.Owner.velocityMaximum * 1.25f && this.Owner.engineState == Ship.MoveState.Warp)
+                {
+                    //Skip missed node:
                     if (this.ActiveWayPoints.Count > 1)
                     {
+                        float d1 = Vector2.Distance(Position, this.ActiveWayPoints.Last());
+                        float d2 = Vector2.Distance(this.ActiveWayPoints.ElementAt<Vector2>(1), this.ActiveWayPoints.Last());
+                        if (d1 > d2)
+                        {
+                            lock (this.wayPointLocker)
+                                this.ActiveWayPoints.Dequeue();
+                            if (this.OrderQueue.Count > 0)
+                                this.OrderQueue.RemoveFirst();
+                            Position = this.ActiveWayPoints.First();
+                            Distance = Vector2.Distance(Position, this.Owner.Center);
+                            wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
+                            forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                            angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                        }
+
+                        /*
                         wantedForward= Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
                         float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                        //if (d < 50000f)
-                        if (d <= this.Owner.velocityMaximum)
+                        //if (d < 50000f)                        
+                        //if (d <= this.Owner.velocityMaximum)
+                        if (d <= 50000f && angleDiffToNext > 0.4f)  //fbedard: skip this waypoint
                         {
-                            if (angleDiffToNext > 0.4f)// 0.649999976158142) //  )
-                            {
-                                this.Owner.HyperspaceReturn();
-
-                            }
-
+                            //this.Owner.HyperspaceReturn();                            
+                            lock (this.wayPointLocker)
+                                this.ActiveWayPoints.Dequeue();
+                            if (this.OrderQueue.Count > 0)
+                                this.OrderQueue.RemoveFirst();
+                            Position = this.ActiveWayPoints.First();
+                            wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
+                            forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                            angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));                            
                         }
-                        else if (d > 50000f && angleDiffToNext > 1.64999997615814f)
+                        else if (d > 50000f && angleDiffToNext > 1.64999997615814f)  //fbedard: skip this waypoint
                         //else if (d > this.Owner.GetFTLSpeed() && angleDiffToNext>1.65f)//*(d/this.Owner.speed ))
                         {
-                            this.Owner.HyperspaceReturn();
-                            
-
+                            //this.Owner.HyperspaceReturn();
+                            lock (this.wayPointLocker)
+                                this.ActiveWayPoints.Dequeue();
+                            if (this.OrderQueue.Count > 0)
+                                this.OrderQueue.RemoveFirst();
+                            Position = this.ActiveWayPoints.First();
+                            wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
+                            forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                            angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         }
+                        */
                     }
-                    else if (this.Target != null)
+                    if (this.Target != null)
                     {
                         float d = Vector2.Distance(this.Target.Center, this.Owner.Center);
                         if (angleDiff > 0.400000005960464f)
@@ -6630,7 +6779,7 @@ namespace Ship_Game.Gameplay
                             this.Owner.HyperspaceReturn();
                         }
                     }
-                    else if ((this.State != AIState.Bombard && this.State!=AIState.AssaultPlanet && this.State != AIState.BombardTroops  && !this.IgnoreCombat) || this.OrderQueue.Count <= 0)
+                    else if ((this.State != AIState.Bombard && this.State!=AIState.AssaultPlanet && this.State != AIState.BombardTroops && !this.IgnoreCombat) || this.OrderQueue.Count <= 0)
                     {
                         this.Owner.HyperspaceReturn();
                     }
@@ -6651,10 +6800,11 @@ namespace Ship_Game.Gameplay
                             this.Owner.HyperspaceReturn();
                         }
                     }
-                    else if(angleDiff>.25)
+                    else if(angleDiff > 0.25f)
                         this.Owner.HyperspaceReturn();
                 }
                 #endregion
+
                 if (this.hasPriorityTarget && Distance < this.Owner.maxWeaponsRange)
                 {
                     if (this.Owner.engineState == Ship.MoveState.Warp)
@@ -6965,7 +7115,6 @@ namespace Ship_Game.Gameplay
             this.ReadyToWarp = true;
             this.Owner.isThrusting = false;
             this.Owner.isTurning = false;
-
             
             #region old flee code
             //if (!this.HasPriorityOrder 
@@ -6995,18 +7144,19 @@ namespace Ship_Game.Gameplay
             //    }
             //} 
             #endregion
+
             if (this.State == AIState.SystemTrader && this.start != null && this.end != null && (this.start.Owner != this.Owner.loyalty || this.end.Owner != this.Owner.loyalty))
             {
                 this.start = null;
                 this.end = null;
-                this.OrderTrade(elapsedTime);
+                this.OrderTrade(5f);
                 return;
             }
             if (this.State == AIState.PassengerTransport && this.start != null && this.end != null && (this.start.Owner != this.Owner.loyalty || this.end.Owner != this.Owner.loyalty))
             {
                 this.start = null;
                 this.end = null;
-                this.OrderTransportPassengers(elapsedTime);
+                this.OrderTransportPassengers(5f);
                 return;
             }
 #if !DEBUG

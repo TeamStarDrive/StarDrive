@@ -2540,7 +2540,7 @@ namespace Ship_Game
                 this.data.AgentList[index].ServiceYears += 0.1f;
             }
             this.data.AgentList.ApplyPendingRemovals();
-            if (this.Money < 0.0)
+            if (this.Money < 0.0 && !this.isFaction)
             {
                 this.data.TurnsBelowZero += (short)(1+-1*(this.Money) /500);
             }

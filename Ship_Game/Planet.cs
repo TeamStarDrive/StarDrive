@@ -5444,7 +5444,7 @@ output = maxp * take10 = 5
             this.ProductionHere += this.NetProductionPerTurn > 0.0f ? this.NetProductionPerTurn : 0.0f;
 
             //fbedard: apply all remaining production on Planet with no governor
-            if (this.ps != GoodState.EXPORT && this.colonyType == Planet.ColonyType.Colony && this.Owner.isPlayer)
+            if (this.ps != GoodState.EXPORT && this.colonyType == Planet.ColonyType.Colony && this.Owner.isPlayer )
             {
                 normalAmount = this.ProductionHere;
                 this.ProductionHere = 0f;
@@ -5482,7 +5482,11 @@ output = maxp * take10 = 5
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
         {
             if (this.Crippled_Turns > 0 || this.RecentCombat || howMuch <= 0.0)
+            {
+                if(howMuch >0)
+                ProductionHere += howMuch;
                 return;
+            }
             this.planetLock.EnterWriteLock();
             float cost = 0;
             if (this.ConstructionQueue.Count > 0 && this.ConstructionQueue.Count > whichItem)
