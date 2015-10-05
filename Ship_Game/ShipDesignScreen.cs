@@ -6153,9 +6153,10 @@ namespace Ship_Game
 				IsToggle = true
 			};
 			this.SelectedCatTextPos = new Vector2(20f, (float)(w.Y - 25 - Fonts.Arial20Bold.LineSpacing / 2));
-			this.SearchBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47, 210, 25);
-			Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 370), (float)(modSelR.Y + modSelR.Height + 408));
-			Vector2 OrdersBarPos = new Vector2(Cursor.X - 60f, (float)((int)Cursor.Y + 10));
+			this.SearchBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47, 210, 25);            
+            this.classifCursor = new Vector2(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height );
+            Cursor = new Vector2((float)(this.classifCursor.X), (float)(this.classifCursor.Y));
+            Vector2 OrdersBarPos = new Vector2(Cursor.X, (float)((int)Cursor.Y+20 ));
 			ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
 			this.CombatStatusButtons.Add(AttackRuns);
 			AttackRuns.Action = "attack";
@@ -6279,9 +6280,10 @@ namespace Ship_Game
 			}
 			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height - 20, 280, 320);
 
-            this.classifCursor = new Vector2(ShipStatsPanel.X - 100, ShipStatsPanel.Y + ShipStatsPanel.Height + 92);
-
-            dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 118, 100, 18);
+            
+            //base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth
+            dropdownRect = new Rectangle((int)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f), (int) OrdersBarPos.Y, 100, 18);            
+            //dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 118, 100, 18);
 
             this.CategoryList = new DropOptions(dropdownRect);
             this.CategoryList.AddOption("Unclassified", 1);
@@ -6289,7 +6291,7 @@ namespace Ship_Game
             this.CategoryList.AddOption("Recon", 3);
             this.CategoryList.AddOption("Combat", 4);
             this.CategoryList.AddOption("Kamikaze", 5);
-
+            
             this.CarrierOnly = this.ActiveHull.CarrierShip;
             Ref<bool> CORef = new Ref<bool>(() => this.CarrierOnly, (bool x) => {
 				this.CarrierOnly = x;              
