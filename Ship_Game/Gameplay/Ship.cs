@@ -3238,6 +3238,10 @@ namespace Ship_Game.Gameplay
                 if (!flag)
                     this.InhibitedTimer = 0.0f;
             }
+            if(this.velocityMaximum==0)
+            {
+                this.rotation += 0.003f;
+            }
             this.MoveModulesTimer -= elapsedTime;
             this.updateTimer -= elapsedTime;
             //Disable if enough EMP damage
@@ -3821,7 +3825,7 @@ namespace Ship_Game.Gameplay
                 {
                     //if (this.Velocity != Vector2.Zero)
                     //this.UpdatedModulesOnce = false;
-                    if (this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null)
+                    if (this.GetAI().BadGuysNear ||  this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null)
                     {
                         this.UpdatedModulesOnce = false;
                         float cos = (float)Math.Cos((double)this.Rotation);
