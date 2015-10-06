@@ -2865,7 +2865,9 @@ namespace Ship_Game.Gameplay
             }
             else if (moduleTarget !=null)
             {
-                if (moduleTarget.GetParent().Velocity.Length() > 0.0f)
+                if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed > 0)
+                    System.Diagnostics.Debug.WriteLine("Velocity error compensator in calculate and fire. Fix weird velocity");
+                if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed >0)
                     projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
                 else
                     projectedPosition = target.Center ;
