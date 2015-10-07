@@ -4448,7 +4448,7 @@ namespace Ship_Game.Gameplay
 
             foreach(ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <=0)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <=0 || ES.module.quadrant ==0)
                     continue;
                 temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest )
@@ -4535,7 +4535,7 @@ namespace Ship_Game.Gameplay
 
             foreach (ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active ||  ES.module.Health <=0)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active ||  ES.module.Health <=0 ||ES.module.quadrant ==0)
                     continue;
                 temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest)
