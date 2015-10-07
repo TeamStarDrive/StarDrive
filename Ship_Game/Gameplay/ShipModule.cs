@@ -2620,9 +2620,10 @@ namespace Ship_Game.Gameplay
 				this.SetNewExternals();
 				this.Parent.RecalculatePower();
 			}
-			else if (this.shield_power_max > 0f && !this.isExternal && this.Active)
-			{
-				this.isExternal = true;
+			else if (this.shield_power_max > 0f && !this.isExternal && this.Active )
+			{				
+                this.quadrant=0;
+                this.isExternal = true;                
 			}
             if (base.Health <= 0f && this.Active)
             {
@@ -2634,10 +2635,12 @@ namespace Ship_Game.Gameplay
                 this.onFire = false;
             }
             //Added by McShooterz: shields keep charge when manually turned off
-			if (this.shield_power <= 0f || shieldsOff)
-				this.radius = 8f;
-			else
-				this.radius = this.shield_radius;
+            if (this.shield_power <= 0f || shieldsOff)
+            {
+                this.radius = 8f;                
+            }
+            else
+                this.radius = this.shield_radius;
 			if ((this.hangarShip == null || !this.hangarShip.Active) && this.ModuleType == ShipModuleType.Hangar && this.Active)
                 this.hangarTimer -= elapsedTime;
             //Shield Recharge
