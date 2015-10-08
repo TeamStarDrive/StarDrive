@@ -5327,7 +5327,7 @@ namespace Ship_Game
             foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
             {
                 //Added by McShooterz: Changed it so when shields are turned off manually, do not draw bubble
-                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && (double)moduleSlot.module.shield_power > 0.0 && !moduleSlot.module.shieldsOff)
+                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && moduleSlot.module.shield_power > 0.0 && !moduleSlot.module.shieldsOff)
                 {
                     Vector2 origin1 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2));
                     Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);

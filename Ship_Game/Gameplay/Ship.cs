@@ -1747,12 +1747,8 @@ namespace Ship_Game.Gameplay
                 this.ModulesDictionary.Add(moduleSlot.Position, moduleSlot);
             foreach (KeyValuePair<Vector2, ModuleSlot> keyValuePair in this.ModulesDictionary)
             {
-                if (keyValuePair.Value.module.shield_power > 0.0)
-                {
-                    keyValuePair.Value.module.isExternal = true;
-                    this.ExternalSlots.Add(keyValuePair.Value);
-                }
-                else if (keyValuePair.Value.module.Active)
+
+                if (keyValuePair.Value.module.Active)
                 {
                     Vector2 key1 = new Vector2(keyValuePair.Key.X, keyValuePair.Key.Y - 16f);
                     if (this.ModulesDictionary.ContainsKey(key1))
@@ -1760,7 +1756,7 @@ namespace Ship_Game.Gameplay
                         if (!this.ModulesDictionary[key1].module.Active)
                         {
                             keyValuePair.Value.module.isExternal = true;
-                            
+                            keyValuePair.Value.module.quadrant = 1;
                             this.ExternalSlots.Add(keyValuePair.Value);
 
                         }
@@ -1772,7 +1768,7 @@ namespace Ship_Game.Gameplay
                                 if (!this.ModulesDictionary[key2].module.Active)
                                 {
                                     keyValuePair.Value.module.isExternal = true;
-                                    
+                                    keyValuePair.Value.module.quadrant = 2;
                                     this.ExternalSlots.Add(keyValuePair.Value);
                                 }
                                 else
@@ -1783,7 +1779,7 @@ namespace Ship_Game.Gameplay
                                         if (!this.ModulesDictionary[key3].module.Active)
                                         {
                                             keyValuePair.Value.module.isExternal = true;
-                                            
+                                            keyValuePair.Value.module.quadrant = 3;
                                             this.ExternalSlots.Add(keyValuePair.Value);
                                         }
                                         else
@@ -1794,7 +1790,7 @@ namespace Ship_Game.Gameplay
                                                 if (!this.ModulesDictionary[key4].module.Active)
                                                 {
                                                     keyValuePair.Value.module.isExternal = true;
-                                                    
+                                                    keyValuePair.Value.module.quadrant = 4;
                                                     this.ExternalSlots.Add(keyValuePair.Value);
                                                 }
                                             }
@@ -1829,6 +1825,12 @@ namespace Ship_Game.Gameplay
                         keyValuePair.Value.module.quadrant = 1;
                         this.ExternalSlots.Add(keyValuePair.Value);
                     }
+                }
+                if (keyValuePair.Value.module.shield_power > 0.0 && !keyValuePair.Value.module.isExternal)
+                {
+                    keyValuePair.Value.module.isExternal = true;
+                    this.ExternalSlots.Add(keyValuePair.Value);
+
                 }
             }
         }
@@ -3467,7 +3469,7 @@ namespace Ship_Game.Gameplay
                             {
                                 if (!this.hasCommand && moduleSlot.module.IsCommandModule)
                                     this.hasCommand = true;
-                                //if (this.TrackingPower < moduleSlot.module.TargetTracking)
+                                if (moduleSlot.module.TargetTracking > 0) 
                                     this.TrackingPower += moduleSlot.module.TargetTracking;
                                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                                 this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;

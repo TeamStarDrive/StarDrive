@@ -1384,7 +1384,8 @@ namespace Ship_Game
                 shield_beam_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_beam_resist,
                 IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower,
                 isPowerArmour = Ship_Game.ResourceManager.ShipModulesDict[uid].isPowerArmour,
-                isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead
+                isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead,
+                TargetTracking = Ship_Game.ResourceManager.ShipModulesDict[uid].TargetTracking
 
 			};
 
