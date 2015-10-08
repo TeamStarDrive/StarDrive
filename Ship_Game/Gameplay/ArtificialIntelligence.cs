@@ -2035,12 +2035,18 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     //added by gremlin: prevent fighters from relaunching immediatly after landing.
+                    float ammoReloadTime = this.Owner.OrdinanceMax * .1f;
+                    float shieldrechargeTime = this.Owner.shield_max * .1f;
+                    float powerRechargeTime = this.Owner.PowerStoreMax * .1f;
+
                     float rearmTime = this.Owner.Health;
-                    rearmTime += this.Owner.Ordinance;
-                    rearmTime += this.Owner.PowerCurrent;
-                    rearmTime += this.Owner.shield_power;
-                    rearmTime /= (this.Owner.HealthMax + this.Owner.OrdinanceMax + this.Owner.shield_max + this.Owner.PowerStoreMax);                    
-                        rearmTime = (1.01f - rearmTime) * hangar.hangarTimerConstant;  // fbedard: rearm time from 50% to 150%
+                    rearmTime += this.Owner.Ordinance*.1f;
+                    rearmTime += this.Owner.PowerCurrent * .1f;
+                    rearmTime += this.Owner.shield_power * .1f;
+                    rearmTime /= (this.Owner.HealthMax + ammoReloadTime + shieldrechargeTime + powerRechargeTime);                    
+                        rearmTime = (1.01f - rearmTime) * (hangar.hangarTimerConstant *(1.01f- (this.Owner.Level + hangar.GetParent().Level)/10 ));  // fbedard: rearm time from 50% to 150%
+                        if (rearmTime < 0)
+                            rearmTime = 1;
                     //CG: if the fighter is fully functional reduce rearm time to very little. The default 5 minute hangar timer is way too high. It cripples fighter usage.
                     //at 50% that is still 2.5 minutes if the fighter simply launches and returns. with lag that can easily be 10 or 20 minutes. 
                     //at 1.01 that should be 3 seconds for the default hangar.
@@ -2050,6 +2056,7 @@ namespace Ship_Game.Gameplay
                     hangar.SetHangarShip(null);
                     hangar.hangarTimer = rearmTime;
                     hangar.installedSlot.HangarshipGuid = Guid.Empty;
+                   
                 }
 			}
 		}
@@ -2580,42 +2587,7 @@ namespace Ship_Game.Gameplay
                             }
                             
                         }
-                            if(false)
-                        {
-                            
-                            if (this.Owner.GetSystem() != null)
-                            {
-                                //Find non friendly planets
-                                foreach (Planet p in this.Owner.GetSystem().PlanetList)
-                                {
-                                    if (p.Owner == this.Owner.loyalty)
-                                        continue;
-                                    foreach (Projectile proj in p.Projectiles)
-                                    {
-                                        this.TrackProjectiles.Add(proj);
-                                    }
-                                }
-                            }
-                            {
-                                foreach (Ship ship in PotentialTargets)
-                                {
-
-                                    for (int i = 0; i < ship.Projectiles.Count; i++)
-                                    {
-                                        Projectile proj;
-                                        {
-                                            proj = ship.Projectiles[i];
-                                        }
-
-                                        if (proj == null || !proj.Active || proj.Health <= 0 || !proj.weapon.Tag_Intercept)
-                                            continue;
-                                        this.TrackProjectiles.Add(proj);
-                                    }
-
-                                }
-
-                            }
-                        }
+                        
                         this.TrackProjectiles = this.TrackProjectiles.OrderBy(prj =>  Vector2.Distance(this.Owner.Center, prj.Center)).ToList();
 
                     }
@@ -2655,15 +2627,19 @@ namespace Ship_Game.Gameplay
                                                            || (this.Target !=null &&(!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target) ))                                                         
                                                            )
                                                        {
-                                                           weapon.TargetChangeTimer = .5f;
+                                                           weapon.TargetChangeTimer = .1f * weapon.moduleAttachedTo.XSIZE * weapon.moduleAttachedTo.YSIZE;
                                                            weapon.fireTarget = null;
-                                                           if (weapon.isBeam || weapon.isMainGun)
-                                                               weapon.TargetChangeTimer = .90f;
+                                                           //if (weapon.isBeam || weapon.isMainGun)
+                                                           //    weapon.TargetChangeTimer = .90f;
                                                            if (weapon.isTurret)
                                                                weapon.TargetChangeTimer *= .5f;
                                                            if(weapon.Tag_PD)
                                                            {
                                                                weapon.TargetChangeTimer *= .5f;
+                                                           }
+                                                           if (weapon.TruePD)
+                                                           {
+                                                               weapon.TargetChangeTimer *= .25f;
                                                            }
 
                              
@@ -2865,15 +2841,15 @@ namespace Ship_Game.Gameplay
             }
             else if (moduleTarget !=null)
             {
-                if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed > 0)
-                    System.Diagnostics.Debug.WriteLine("Velocity error compensator in calculate and fire. Fix weird velocity");
+                if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed <= 0)
+                    System.Diagnostics.Debug.WriteLine(this.Owner.GetSystemName() + " - Velocity error compensator in calculate and fire. Fix weird velocity");
                 if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed >0)
                     projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
                 else
                     projectedPosition = target.Center ;
                 if (projectedPosition != target.Center && (target as ShipModule).GetParent().Velocity.Length() <= 0)
                 {
-                    System.Diagnostics.Debug.WriteLine("missing and correcting");
+                    System.Diagnostics.Debug.WriteLine(this.Owner.GetSystem().Name + " - calculate and fire error");
                     //moved docs target correction here. 
                     Vector2 fireatstationary = Vector2.Zero;
                     fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center));
@@ -2970,7 +2946,7 @@ namespace Ship_Game.Gameplay
             ModuleSlot ClosestES = null;
             foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0 || ES.module.quadrant <=0)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0 )
                     continue;
                 float temp = Vector2.Distance(ES.module.Center, w.GetOwner().Center);
                 if (nearest == 0 || temp < nearest)

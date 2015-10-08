@@ -288,12 +288,12 @@ namespace Ship_Game.Gameplay
             beam.CollidedThisFrame = false;
             Vector2 vector2_1 = Vector2.Normalize(beam.Destination - beam.Source);
             float num1 = Vector2.Distance(beam.Destination, beam.Source);
-            if ((double)num1 > (double)beam.range + 10.0)
+            if (num1 > beam.range + 10.0)
                 return;
             List<Vector2> list1 = new List<Vector2>();
             beam.ActualHitDestination = beam.Destination;
-            for (int index = 0; (double)(index * 75) < (double)num1; ++index)
-                list1.Add(beam.Source + vector2_1 * (float)index * 75f);
+            for (int index = 0; (index * 75) < num1; ++index)
+                list1.Add(beam.Source + vector2_1 * index * 75f);
             Ship ship1 = (Ship)null;
             Vector2 vector2_2 = Vector2.Zero;
             GameplayObject gameplayObject1 = (GameplayObject)null;
@@ -306,7 +306,7 @@ namespace Ship_Game.Gameplay
                     ship2.MoveModulesTimer = 2f;
                     Vector2 vector2_3 = beam.GetTarget().Center;
                     beam.ActualHitDestination = beam.GetTarget().Center;
-                    if ((double)beam.damageAmount >= 0.0)
+                    if (beam.damageAmount >= 0.0)
                     {
                         //beam.owner.Beams.QueuePendingRemoval(beam);
                         return;
@@ -317,12 +317,12 @@ namespace Ship_Game.Gameplay
                         while (enumerator.MoveNext())
                         {
                             ModuleSlot current = enumerator.Current;
-                            if ((double)current.module.Health < (double)current.module.HealthMax)
+                            if (current.module.Health < current.module.HealthMax)
                             {
                                 ShipModule module = current.module;
-                                double num2 = (double)module.Health - (double)beam.damageAmount;
-                                module.Health = (float)num2;
-                                if ((double)current.module.Health < (double)current.module.HealthMax)
+                                float num2 = module.Health - beam.damageAmount;
+                                module.Health = num2;
+                                if (current.module.Health < current.module.HealthMax)
                                     break;
                                 current.module.Health = current.module.HealthMax;
                                 break;
@@ -359,7 +359,7 @@ namespace Ship_Game.Gameplay
                         else if (gameplayObject2 != beam.owner || beam.weapon.HitsFriendlies)
                         {
                             ++GlobalStats.BeamTests;
-                            if ((double)Vector2.Distance(gameplayObject2.Center, vector2_3) < (double)gameplayObject2.Radius)
+                            if (Vector2.Distance(gameplayObject2.Center, vector2_3) < gameplayObject2.Radius)
                             {
                                 ship1 = gameplayObject2 as Ship;
                                 ship1.MoveModulesTimer = 2f;
@@ -378,7 +378,7 @@ namespace Ship_Game.Gameplay
             if (ship1 != null)
             {
                 list1.Clear();
-                for (int index = 0; (double)(index * 8) < (double)ship1.Radius; ++index)
+                for (int index = 0; (index * 8) < ship1.Radius; ++index)
                     list1.Add(vector2_2 + vector2_1 * (float)index * 8f);
                 bool flag = false;
                 if (beam.hitLast != null && beam.hitLast.Active)
@@ -412,7 +412,7 @@ namespace Ship_Game.Gameplay
                             {
                                 ++GlobalStats.BeamTests;
                                 float num4 = Vector2.Distance(vector2_3, shipModule.Center);
-                                if ((double)num4 <= (beam.IgnoresShields ? 16.0 : (double)shipModule.Radius + 8.0))
+                                if (num4 <= (beam.IgnoresShields ? 16.0 : shipModule.Radius + 8.0))
                                 {
                                     ++GlobalStats.BeamTests;
                                     this.collisionResults.Add(new SpatialManager.CollisionResult()
@@ -426,7 +426,7 @@ namespace Ship_Game.Gameplay
                                     beam.hitLast = shipModule;
                                     break;
                                 }
-                                else if ((double)num4 <= (double)num3)
+                                else if (num4 <= num3)
                                     num3 = num4;
                                 else
                                     break;
@@ -450,11 +450,11 @@ namespace Ship_Game.Gameplay
                             {
                                 ++GlobalStats.BeamTests;
                                 ShipModule shipModule = ship1.GetShields()[index];
-                                if (shipModule != null && (shipModule.Active || (double)beam.damageAmount <= 0.0))
+                                if (shipModule != null && (shipModule.Active || beam.damageAmount <= 0.0))
                                 {
-                                    if ((double)shipModule.shield_power <= 0.0)
+                                    if (shipModule.shield_power <= 0.0)
                                         beam.hitLast = (ShipModule)null;
-                                    else if ((double)Vector2.Distance(vector2_3, shipModule.Center) <= (double)shipModule.Radius + 4.0)
+                                    else if (Vector2.Distance(vector2_3, shipModule.Center) <= shipModule.Radius + 4.0)
                                     {
                                         ++GlobalStats.BeamTests;
                                         this.collisionResults.Add(new SpatialManager.CollisionResult()
@@ -479,8 +479,8 @@ namespace Ship_Game.Gameplay
                                 ++GlobalStats.BeamTests;
                                 ModuleSlot moduleSlot = ship1.ExternalSlots.ElementAt(index);
                                 if (moduleSlot != null 
-                                    && (moduleSlot.module.Active || (double)beam.damageAmount <= 0.0) 
-                                    && (double)Vector2.Distance(vector2_3, moduleSlot.module.Center) <= (beam.IgnoresShields ? 12.0 : (double)moduleSlot.module.Radius + 4.0))
+                                    && (moduleSlot.module.Active || beam.damageAmount <= 0.0) 
+                                    && Vector2.Distance(vector2_3, moduleSlot.module.Center) <= (beam.IgnoresShields ? 12.0 : moduleSlot.module.Radius + 4.0))
                                 {
                                     ++GlobalStats.BeamTests;
                                     this.collisionResults.Add(new SpatialManager.CollisionResult()
@@ -549,7 +549,7 @@ namespace Ship_Game.Gameplay
                                                     while (num2 < num1 / 60.0)
                                                     {
                                                         ++GlobalStats.Comparisons;
-                                                        if ((double)Vector2.Distance(gameplayObject1.Center + vector2 * num2, shipModule.Center) <= 12.0 + (shipModule.shield_power > 0.0 ? shipModule.shield_radius : 0.0))
+                                                        if (Vector2.Distance(gameplayObject1.Center + vector2 * num2, shipModule.Center) <= 12.0 + (shipModule.shield_power > 0.0 ? shipModule.shield_radius : 0.0))
                                                         {
                                                             gameplayObject1.Center = gameplayObject1.Center + vector2 * num2;
                                                             gameplayObject1.Position = gameplayObject1.Center;
@@ -634,7 +634,7 @@ namespace Ship_Game.Gameplay
                     {
                         if (gameplayObject1 is Projectile)
                         {
-                            if ((double)Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + (gameplayObject1 as Projectile).weapon.ProjectileRadius)
+                            if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + (gameplayObject1 as Projectile).weapon.ProjectileRadius)
                             {
                                 this.collisionResults.Add(new SpatialManager.CollisionResult()
                                 {
@@ -661,7 +661,7 @@ namespace Ship_Game.Gameplay
                         else if (gameplayObject1 is Ship && (gameplayObject as Projectile).loyalty != (gameplayObject1 as Ship).loyalty && Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) < gameplayObject1.Radius + gameplayObject.Radius + (gameplayObject as Projectile).speed / 60.0)
                         {
                             (gameplayObject1 as Ship).MoveModulesTimer = 2f;
-                            if ((double)(gameplayObject as Projectile).speed / 60.0 > 16.0)
+                            if ((gameplayObject as Projectile).speed / 60.0 > 16.0)
                             {
                                 Vector2 vector2 = Vector2.Normalize(gameplayObject.Velocity);
                                 for (int index = 0; index < (gameplayObject1 as Ship).ExternalSlots.Count; ++index)
@@ -672,11 +672,11 @@ namespace Ship_Game.Gameplay
                                     {
                                         bool flag = false;
                                         int num1 = 8;
-                                        while ((double)num1 < (double)(gameplayObject as Projectile).speed * 2.0 / 60.0)
+                                        while (num1 < (gameplayObject as Projectile).speed * 2.0 / 60.0)
                                         {
                                             ++GlobalStats.Comparisons;
-                                            double num2 = (double)Vector2.Distance(gameplayObject.Center + vector2 * (float)num1, moduleSlot.module.Center);
-                                            if ((double)Vector2.Distance(gameplayObject.Center + vector2 * num1, moduleSlot.module.Center) <= 8.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
+                                            //double num2 = (double)Vector2.Distance(gameplayObject.Center + vector2 * (float)num1, moduleSlot.module.Center);
+                                            if (Vector2.Distance(gameplayObject.Center + vector2 * num1, moduleSlot.module.Center) <= 8.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
                                             {
                                                 gameplayObject.Center = gameplayObject.Center + vector2 * num1;
                                                 gameplayObject.Position = gameplayObject.Center;
@@ -720,8 +720,8 @@ namespace Ship_Game.Gameplay
                     }
                     else
                     {
-                        double num1 = (double)gameplayObject1.Radius;
-                        double num2 = (double)gameplayObject.Radius;
+                       // double num1 = (double)gameplayObject1.Radius;
+                       // double num2 = (double)gameplayObject.Radius;
                         Vector2 vector2 = gameplayObject1.Center - gameplayObject.Center;
                         float num3 = vector2.Length();
                         if (num3 > 0.0)
@@ -910,7 +910,7 @@ namespace Ship_Game.Gameplay
                                                 }
                                                 num3 += 8;
                                             }
-                                            if ((double)vector2_1.Length() > 200.0)
+                                            if (vector2_1.Length() > 200.0)
                                                 vector2_1 = Vector2.Normalize(vector2_1) * 200f;
                                             if (!float.IsNaN(vector2_1.X))
                                                 gameplayObject1.Velocity += vector2_1;
@@ -986,7 +986,7 @@ namespace Ship_Game.Gameplay
         //Modified by McShooterz: not used before, changed to be used for exploding modules
         public void ExplodeAtModule(GameplayObject source, ShipModule HitModule, float damageAmount, float damageRadius)
         {
-            if ((double)damageRadius <= 0.0 || HitModule.GetParent().dying || !HitModule.GetParent().Active)
+            if (damageRadius <= 0.0 || HitModule.GetParent().dying || !HitModule.GetParent().Active)
                 return;
             BatchRemovalCollection<ExplosionRay> removalCollection = new BatchRemovalCollection<ExplosionRay>();
             int num1 = 15;
@@ -1004,19 +1004,19 @@ namespace Ship_Game.Gameplay
                 list.Add(ModuleSlot.module);
             }
             int num3 = 0;
-            while ((double)num3 < (double)damageRadius)
+            while (num3 <damageRadius)
             {
                 foreach (ExplosionRay explosionRay in (List<ExplosionRay>)removalCollection)
                 {
-                    if ((double)explosionRay.Damage > 0.0)
+                    if (explosionRay.Damage > 0.0)
                     {
                         foreach (ShipModule shipModule in list)
                         {
-                            if (shipModule.Active && (double)shipModule.Health > 0.0)
+                            if (shipModule.Active && shipModule.Health > 0.0)
                             {
                                 Vector2 vector2_1 = HitModule.Center + explosionRay.Direction * (float)num3;
                                 Vector2 vector2_2 = shipModule.Center - vector2_1;
-                                if ((double)Vector2.Distance(vector2_1, shipModule.Center) <= 8.0 && (double)explosionRay.Damage > 0.0)
+                                if (Vector2.Distance(vector2_1, shipModule.Center) <= 8.0 && explosionRay.Damage > 0.0)
                                 {
                                     float health = shipModule.Health;
                                     shipModule.Damage(source, explosionRay.Damage);
@@ -1032,7 +1032,7 @@ namespace Ship_Game.Gameplay
 
         public void ShipExplode(GameplayObject source, float damageAmount, Vector2 position, float damageRadius)
         {
-            if ((double)damageRadius <= 0.0)
+            if (damageRadius <= 0.0)
                 return;
             float num1 = damageRadius * damageRadius;
             Vector2 ExplosionCenter = new Vector2();
@@ -1061,7 +1061,7 @@ namespace Ship_Game.Gameplay
                             {
                                 if (gameplayObject1 != source)
                                 {
-                                    if ((double)Vector2.Distance(gameplayObject1.Center, source.Center) <= (double)damageRadius + (double)gameplayObject1.Radius)
+                                    if (Vector2.Distance(gameplayObject1.Center, source.Center) <= damageRadius + gameplayObject1.Radius)
                                     {
                                         Projectile projectile1 = source as Projectile;
                                         if (gameplayObject1 is Ship && projectile1 != null)
@@ -1079,72 +1079,72 @@ namespace Ship_Game.Gameplay
                                         }
                                         if (gameplayObject1 is Ship && source != gameplayObject1)
                                         {
-                                            if (source is Projectile && (double)(gameplayObject1 as Ship).shield_max > 0.0)
+                                            if (source is Projectile && (gameplayObject1 as Ship).shield_max > 0.0)
                                             {
                                                 list = new List<ShipModule>();
                                                 foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ModuleSlotList)
                                                 {
-                                                    if ((double)moduleSlot.module.shield_power > 0.0 && moduleSlot.module.Active)
+                                                    if (moduleSlot.module.shield_power > 0.0 && moduleSlot.module.Active)
                                                         list.Add(moduleSlot.module);
                                                 }
                                                 float num2 = damageAmount;
                                                 foreach (ShipModule shipModule in list)
                                                 {
-                                                    if ((double)Vector2.Distance(ExplosionCenter, shipModule.Center) <= (double)damageRadius + (double)shipModule.shield_radius && (double)shipModule.shield_power > 0.0)
+                                                    if (Vector2.Distance(ExplosionCenter, shipModule.Center) <= damageRadius + shipModule.shield_radius && shipModule.shield_power > 0.0)
                                                     {
                                                         num2 = damageAmount - shipModule.shield_power;
                                                         shipModule.Damage(source, damageAmount / 2f);
                                                         break;
                                                     }
                                                 }
-                                                if ((double)num2 <= 0.0)
+                                                if (num2 <= 0.0)
                                                     break;
                                                 damageAmount = num2;
                                             }
                                             list1 = new List<ModuleSlot>();
                                             foreach (ModuleSlot moduleSlot in (gameplayObject1 as Ship).ExternalSlots)
                                             {
-                                                if (moduleSlot.module.Active && (double)Vector2.Distance(moduleSlot.module.Center, ExplosionCenter) <= (double)damageRadius + (double)moduleSlot.module.Radius)
+                                                if (moduleSlot.module.Active && Vector2.Distance(moduleSlot.module.Center, ExplosionCenter) <= damageRadius + moduleSlot.module.Radius)
                                                     list1.Add(moduleSlot);
                                             }
                                             if (list1.Count == 0)
                                                 break;
                                             IOrderedEnumerable<ModuleSlot> orderedEnumerable = Enumerable.OrderBy<ModuleSlot, float>((IEnumerable<ModuleSlot>)list1, (Func<ModuleSlot, float>)(moduleslot => Vector2.Distance(ExplosionCenter, moduleslot.module.Center)));
                                             int num3 = 0;
-                                            while ((double)num3 < (double)damageRadius)
+                                            while (num3 < damageRadius)
                                             {
                                                 foreach (ExplosionRay explosionRay in (List<ExplosionRay>)removalCollection)
                                                 {
-                                                    if ((double)explosionRay.Damage > 0.0)
+                                                    if (explosionRay.Damage > 0.0)
                                                     {
                                                         foreach (ModuleSlot moduleSlot in (IEnumerable<ModuleSlot>)orderedEnumerable)
                                                         {
-                                                            if (moduleSlot.module.Active && (double)moduleSlot.module.Health > 0.0)
+                                                            if (moduleSlot.module.Active && moduleSlot.module.Health > 0.0)
                                                             {
                                                                 GameplayObject gameplayObject2 = (GameplayObject)moduleSlot.module;
                                                                 Vector2 vector2_2 = ExplosionCenter + explosionRay.Direction * (float)num3;
                                                                 Vector2 vector2_3 = gameplayObject2.Center - vector2_2;
-                                                                if ((double)Vector2.Distance(vector2_2, gameplayObject2.Center) <= 8.0)
+                                                                if (Vector2.Distance(vector2_2, gameplayObject2.Center) <= 8.0)
                                                                 {
                                                                     Projectile projectile2 = gameplayObject1 as Projectile;
                                                                     if (gameplayObject2 != source && projectile2 == null)
                                                                     {
                                                                         if (source is Ship || source is ShipModule && (source as ShipModule).GetParent() != gameplayObject1)
                                                                             vector2_1 += 3f * explosionRay.Damage * explosionRay.Direction;
-                                                                        if ((double)(gameplayObject1 as Ship).yRotation > 0.0 && !(gameplayObject1 as Ship).dying)
+                                                                        if ((gameplayObject1 as Ship).yRotation > 0.0 && !(gameplayObject1 as Ship).dying)
                                                                         {
                                                                             (gameplayObject1 as Ship).yRotation += explosionRay.Damage / (float)Math.Pow((double)(gameplayObject1 as Ship).Mass, 1.3);
-                                                                            if ((double)(gameplayObject1 as Ship).yRotation > (double)(gameplayObject1 as Ship).maxBank)
+                                                                            if ((gameplayObject1 as Ship).yRotation > (gameplayObject1 as Ship).maxBank)
                                                                                 (gameplayObject1 as Ship).yRotation = (gameplayObject1 as Ship).maxBank;
                                                                         }
                                                                         else if (!(gameplayObject1 as Ship).dying)
                                                                         {
                                                                             (gameplayObject1 as Ship).yRotation -= explosionRay.Damage / (float)Math.Pow((double)(gameplayObject1 as Ship).Mass, 1.3);
-                                                                            if ((double)(gameplayObject1 as Ship).yRotation < -(double)(gameplayObject1 as Ship).maxBank)
+                                                                            if ((gameplayObject1 as Ship).yRotation < -(gameplayObject1 as Ship).maxBank)
                                                                                 (gameplayObject1 as Ship).yRotation = -(gameplayObject1 as Ship).maxBank;
                                                                         }
                                                                     }
-                                                                    if ((double)explosionRay.Damage > 0.0)
+                                                                    if (explosionRay.Damage > 0.0)
                                                                     {
                                                                         float health = (gameplayObject2 as ShipModule).Health;
                                                                         (gameplayObject2 as ShipModule).Damage(source, explosionRay.Damage);
@@ -1157,7 +1157,7 @@ namespace Ship_Game.Gameplay
                                                 }
                                                 num3 += 8;
                                             }
-                                            if ((double)vector2_1.Length() > 200.0)
+                                            if (vector2_1.Length() > 200.0)
                                                 vector2_1 = Vector2.Normalize(vector2_1) * 200f;
                                             if (!float.IsNaN(vector2_1.X))
                                                 gameplayObject1.Velocity += vector2_1;
@@ -1167,13 +1167,13 @@ namespace Ship_Game.Gameplay
                                             if (gameplayObject1 is Ship && source == gameplayObject1)
                                                 break;
                                             float num2 = (gameplayObject1.Center - position).LengthSquared();
-                                            if ((double)num2 > 0.0)
+                                            if (num2 > 0.0)
                                             {
-                                                if ((double)num2 <= (double)num1)
+                                                if (num2 <= num1)
                                                 {
                                                     float num3 = (float)Math.Sqrt((double)num2);
                                                     float damageAmount1 = damageAmount * (damageRadius - num3) / damageRadius;
-                                                    if ((double)damageAmount1 > 0.0)
+                                                    if (damageAmount1 > 0.0)
                                                         gameplayObject1.Damage(source, damageAmount1);
                                                 }
                                             }
@@ -1192,7 +1192,7 @@ namespace Ship_Game.Gameplay
 
         private void AdjustVelocities(GameplayObject actor1, GameplayObject actor2)
         {
-            if ((double)actor1.Mass <= 0.0 || (double)actor2.Mass <= 0.0)
+            if (actor1.Mass <= 0.0 || (double)actor2.Mass <= 0.0)
                 return;
             Vector2 vector2_1 = actor2.Center - actor1.Center;
             if ((double)vector2_1.LengthSquared() <= 0.0)

@@ -527,7 +527,7 @@ namespace Ship_Game.Gameplay
 					Ship parent = this.Parent;
 					parent.EMPDamage = parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
 				}
-				if (this.shield_power_max > 0f && !this.isExternal)
+				if (this.shield_power_max > 0f && (!this.isExternal || this.quadrant <=0))
 				{
 					return false;
 				}
@@ -993,7 +993,7 @@ namespace Ship_Game.Gameplay
                         this.Parent.Velocity += (vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass;
                     }
                 }
-                if (this.shield_power_max > 0f && !this.isExternal)
+                if (this.shield_power_max > 0f && (!this.isExternal || this.quadrant <=0))
                 {
                     return false;
                 }
@@ -2439,9 +2439,9 @@ namespace Ship_Game.Gameplay
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
                     break;
-                case ShipModuleType.Command:
-                    this.TargetTracking = Convert.ToSByte((this.XSIZE * this.YSIZE) / 3);
-                    break;
+                //case ShipModuleType.Command:
+                //    this.TargetTracking =  //   Convert.ToSByte((this.XSIZE * this.YSIZE) / 3);
+                //    break;
             }
             this.Health = this.HealthMax;
         }
@@ -2559,7 +2559,7 @@ namespace Ship_Game.Gameplay
 
 		public void SetNewExternals()
 		{
-
+            this.quadrant = -1;
             ModuleSlot module;
             Vector2 up = new Vector2(this.XMLPosition.X, this.XMLPosition.Y - 16f);
             if (this.Parent.GetMD().TryGetValue(up, out module) && module.module.Active && !module.module.isExternal)
@@ -2622,7 +2622,7 @@ namespace Ship_Game.Gameplay
 			}
 			else if (this.shield_power_max > 0f && !this.isExternal && this.Active )
 			{				
-                this.quadrant=0;
+                //this.quadrant=-1;
                 this.isExternal = true;                
 			}
             if (base.Health <= 0f && this.Active)
@@ -2641,7 +2641,7 @@ namespace Ship_Game.Gameplay
             }
             else
                 this.radius = this.shield_radius;
-			if ((this.hangarShip == null || !this.hangarShip.Active) && this.ModuleType == ShipModuleType.Hangar && this.Active)
+            if (this.ModuleType == ShipModuleType.Hangar && this.Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
                 this.hangarTimer -= elapsedTime;
             //Shield Recharge
             float shieldMax = this.GetShieldsMax();
