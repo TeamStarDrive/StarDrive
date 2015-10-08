@@ -2562,28 +2562,29 @@ namespace Ship_Game.Gameplay
             this.quadrant = -1;
             ModuleSlot module;
             Vector2 up = new Vector2(this.XMLPosition.X, this.XMLPosition.Y - 16f);
-            if (this.Parent.GetMD().TryGetValue(up, out module) && module.module.Active && !module.module.isExternal)
+            
+            if (this.Parent.GetMD().TryGetValue(up, out module) && module.module.Active && (!module.module.isExternal || module.module.shield_power_max>0 ))
 			{
                 module.module.isExternal = true;
                 module.module.quadrant = 1;
                 this.Parent.ExternalSlots.Add(module);
 			}
 			Vector2 right = new Vector2(this.XMLPosition.X + 16f, this.XMLPosition.Y);
-			if (this.Parent.GetMD().TryGetValue(right,out module) && module.module.Active && !module.module.isExternal)
+            if (this.Parent.GetMD().TryGetValue(right, out module) && module.module.Active && (!module.module.isExternal || module.module.shield_power_max > 0))
 			{
 				module.module.isExternal = true;
                 module.module.quadrant = 2;
                 this.Parent.ExternalSlots.Add(module);
 			}
 			Vector2 left = new Vector2(this.XMLPosition.X - 16f, this.XMLPosition.Y);
-            if (this.Parent.GetMD().TryGetValue(left, out module) && module.module.Active && !module.module.isExternal)
+            if (this.Parent.GetMD().TryGetValue(left, out module) && module.module.Active && (!module.module.isExternal || module.module.shield_power_max > 0))
 			{
                 module.module.isExternal = true;
                 module.module.quadrant = 4;
                 this.Parent.ExternalSlots.Add(module);
 			}
 			Vector2 down = new Vector2(this.XMLPosition.X, this.XMLPosition.Y + 16f);
-            if (this.Parent.GetMD().TryGetValue(down,out module) && module.module.Active && !module.module.isExternal)
+            if (this.Parent.GetMD().TryGetValue(down, out module) && module.module.Active && (!module.module.isExternal || module.module.shield_power_max > 0))
 			{
                 module.module.isExternal = true;
                 module.module.quadrant = 3;
@@ -2622,7 +2623,7 @@ namespace Ship_Game.Gameplay
 			}
 			else if (this.shield_power_max > 0f && !this.isExternal && this.Active )
 			{				
-                //this.quadrant=-1;
+                this.quadrant=-1;
                 this.isExternal = true;                
 			}
             if (base.Health <= 0f && this.Active)
