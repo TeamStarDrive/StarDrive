@@ -2288,15 +2288,20 @@ namespace Ship_Game.Gameplay
                             {
                                 continue;
                             }
-                            fighters.Add(ResourceManager.ShipsDict[shipsWeCanBuild]);
-                        }
+                            Ship tempship =ResourceManager.ShipsDict[shipsWeCanBuild];
+                            //fighters.Add(ResourceManager.ShipsDict[shipsWeCanBuild]);
 
-                        temphangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).FirstOrDefault();
+                            if (temphangarship == null)
+                                temphangarship = tempship;
+                            if(temphangarship.BaseStrength  < tempship.BaseStrength)
+                                temphangarship = tempship;
+                            }
+                                //temphangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).FirstOrDefault();
                         this.hangarShipUID = temphangarship.Name;
-                        
+                        hangarship = this.hangarShipUID;
                     }
 
-                    if (string.IsNullOrEmpty(hangarship))
+                    if (string.IsNullOrEmpty(hangarship) )
                         return;
                    
                         temphangarship = ResourceManager.ShipsDict[hangarship];
