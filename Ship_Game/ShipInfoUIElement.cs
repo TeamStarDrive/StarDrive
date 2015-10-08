@@ -678,21 +678,14 @@ namespace Ship_Game
 				{
 					OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterToggle, 19)
 					{
-                        ValueToModify = new Ref<bool>(() => this.ship.ManualHangarOverride, (bool x) =>
+                        ValueToModify = new Ref<bool>(() => this.ship.FightersOut, (bool x) =>
                         {
 							this.ship.FightersOut = x;
-                            this.ship.ManualHangarOverride = !this.ship.ManualHangarOverride;
+                            /// !this.ship.ManualHangarOverride;
 						})
 					};
 					this.Orders.Add(ob);
-                    if (this.ship.shipData.Role != ShipData.RoleName.station)
-                    {
-					    OrdersButton ob2 = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterRecall, 146)
-					    {
-						    ValueToModify = new Ref<bool>(() => this.ship.RecallFightersBeforeFTL, (bool x) => this.ship.RecallFightersBeforeFTL = x)
-					    };
-					    this.Orders.Add(ob2);
-                    }
+               
 				}
 				if (hasTroops)
 				{
@@ -700,11 +693,24 @@ namespace Ship_Game
 					{
 						ValueToModify = new Ref<bool>(() => this.ship.TroopsOut, (bool x) => {
 							this.ship.TroopsOut = x;
-							this.ship.ManualHangarOverride = true;
+							//this.ship.ManualHangarOverride = true;
 						})
 					};
 					this.Orders.Add(ob);
 				}
+                //if (this.ship.shipData.Role != ShipData.RoleName.station)
+                {
+                    OrdersButton ob2 = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterRecall, 146)
+                    {
+                        ValueToModify = new Ref<bool>(() => this.ship.RecallFightersBeforeFTL, (bool x) =>
+                        {
+                            this.ship.RecallFightersBeforeFTL = x;
+                            this.ship.ManualHangarOverride = !x;
+                        }
+                            )
+                    };
+                    this.Orders.Add(ob2);
+                }
 			}
             if (this.ship.shipData.Role >= ShipData.RoleName.fighter && ship.Mothership == null && this.ship.GetAI().State != AIState.Colonize && ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
