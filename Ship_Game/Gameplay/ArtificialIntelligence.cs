@@ -3386,6 +3386,10 @@ namespace Ship_Game.Gameplay
 		private void MoveToWithin1000(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
         {
 
+            float distWaypt = 15000f; //fbedard
+            if (this.ActiveWayPoints.Count > 1)  
+                distWaypt = Empire.ProjectorRadius / 2f;
+
             if (this.OrderQueue.Count > 1 && this.OrderQueue.Skip(1).First().Plan != Plan.MoveToWithin1000 && goal.TargetPlanet != null)
             {
                 lock (this.wayPointLocker)
@@ -3435,7 +3439,7 @@ namespace Ship_Game.Gameplay
             }
             else if (this.Owner.engineState == Ship.MoveState.Warp)
             {
-                if (single <= 15000f)
+                if (single <= distWaypt)
                 {
                     lock (this.wayPointLocker)
                     {
@@ -4651,7 +4655,7 @@ namespace Ship_Game.Gameplay
             this.OrderQueue.Clear();
             this.orderqueue.ExitWriteLock();
 
-            if (this.start != null && this.end != null)  //resume trading
+            if(this.start != null && this.end != null)  //resume trading
             {
                 this.Owner.TradeTimer = 5f;
                 if (this.Owner.GetCargo()["Food"] > 0f || this.Owner.GetCargo()["Production"] > 0f)
@@ -6706,31 +6710,53 @@ namespace Ship_Game.Gameplay
                 double angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
                 double facing = (Vector2.Dot(wantedForward, right)> 0f ? 1f : -1f);
                 //facing = facing/(mag1*mag2);
+
                 #region warp
                 if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
                 {
                     //this.Owner.speed *= 0.999f;
                     if (this.ActiveWayPoints.Count > 1)
                     {
-                        wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
-                        float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                        float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                        //if (d < 50000f)
-                        if (d <= this.Owner.velocityMaximum)
+                        //wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
+                        //float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                        //float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
+                        //if (d <= this.Owner.velocityMaximum)
+                        if (Distance <= Empire.ProjectorRadius / 2f)
                         {
-                            if (angleDiffToNext > 0.4f)// 0.649999976158142) //  )
+                            //if (angleDiffToNext > 0.4f)// 0.649999976158142) //  )
+                            if (angleDiff > 0.4f)// 0.649999976158142) //  )
                             {
                                 this.Owner.HyperspaceReturn();
-
                             }
-
+                            else  //fbedard: 2nd attempt to smooth movement around waypoints
+                            {
+                                lock (this.wayPointLocker)
+                                    this.ActiveWayPoints.Dequeue();
+                                if (this.OrderQueue.Count > 0)
+                                    this.OrderQueue.RemoveFirst();
+                                Position = this.ActiveWayPoints.First();
+                                Distance = Vector2.Distance(Position, this.Owner.Center);
+                                wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
+                                forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                                angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                            }
                         }
-                        else if (d > 50000f && angleDiffToNext > 1.64999997615814f)
-                        //else if (d > this.Owner.GetFTLSpeed() && angleDiffToNext>1.65f)//*(d/this.Owner.speed ))
+                        //else if (d > 50000f && angleDiffToNext > 1.64999997615814f)
+                        else if (Distance <= Empire.ProjectorRadius && angleDiff <= 1.2f) //fbedard: 2nd attempt to smooth movement around waypoints
+                        {
+                            lock (this.wayPointLocker)
+                                this.ActiveWayPoints.Dequeue();
+                            if (this.OrderQueue.Count > 0)
+                                this.OrderQueue.RemoveFirst();
+                            Position = this.ActiveWayPoints.First();
+                            Distance = Vector2.Distance(Position, this.Owner.Center);
+                            wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
+                            forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                            angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                        }
+                        else if (angleDiff > 1.2f)
                         {
                             this.Owner.HyperspaceReturn();
-
-
                         }
                     }
                     else if (this.Target != null)
@@ -6770,111 +6796,6 @@ namespace Ship_Game.Gameplay
                         this.Owner.HyperspaceReturn();
                 }
                 #endregion
-                #region warp francois real bad movent bug in here where ships will miss their target and have to turn around for ships that have no queued way point.
-                ////Skip approaching node:
-                //if (this.ActiveWayPoints.Count > 1 && this.Owner.engineState == Ship.MoveState.Warp && Distance <= this.Owner.velocityMaximum * 1.25f)
-                //{
-                //    lock (this.wayPointLocker)
-                //        this.ActiveWayPoints.Dequeue();
-                //    if (this.OrderQueue.Count > 0)
-                //        this.OrderQueue.RemoveFirst();
-                //    Position = this.ActiveWayPoints.First();
-                //    Distance = Vector2.Distance(Position, this.Owner.Center);
-                //    wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
-                //    forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-                //    angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                //}
-
-                //if (angleDiff > 1.64999997615814f && Distance > this.Owner.velocityMaximum * 1.25f && this.Owner.engineState == Ship.MoveState.Warp)
-                //{
-                //    //Skip missed node:
-                //    if (this.ActiveWayPoints.Count > 1)
-                //    {
-                //        float d1 = Vector2.Distance(Position, this.ActiveWayPoints.Last());
-                //        float d2 = Vector2.Distance(this.ActiveWayPoints.ElementAt<Vector2>(1), this.ActiveWayPoints.Last());
-                //        if (d1 > d2)
-                //        {
-                //            lock (this.wayPointLocker)
-                //                this.ActiveWayPoints.Dequeue();
-                //            if (this.OrderQueue.Count > 0)
-                //                this.OrderQueue.RemoveFirst();
-                //            Position = this.ActiveWayPoints.First();
-                //            Distance = Vector2.Distance(Position, this.Owner.Center);
-                //            wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
-                //            forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-                //            angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                //        }
-
-                //        /*
-                //        wantedForward= Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
-                //        float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                //        float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                //        //if (d < 50000f)                        
-                //        //if (d <= this.Owner.velocityMaximum)
-                //        if (d <= 50000f && angleDiffToNext > 0.4f)  //fbedard: skip this waypoint
-                //        {
-                //            //this.Owner.HyperspaceReturn();                            
-                //            lock (this.wayPointLocker)
-                //                this.ActiveWayPoints.Dequeue();
-                //            if (this.OrderQueue.Count > 0)
-                //                this.OrderQueue.RemoveFirst();
-                //            Position = this.ActiveWayPoints.First();
-                //            wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
-                //            forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-                //            angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));                            
-                //        }
-                //        else if (d > 50000f && angleDiffToNext > 1.64999997615814f)  //fbedard: skip this waypoint
-                //        //else if (d > this.Owner.GetFTLSpeed() && angleDiffToNext>1.65f)//*(d/this.Owner.speed ))
-                //        {
-                //            //this.Owner.HyperspaceReturn();
-                //            lock (this.wayPointLocker)
-                //                this.ActiveWayPoints.Dequeue();
-                //            if (this.OrderQueue.Count > 0)
-                //                this.OrderQueue.RemoveFirst();
-                //            Position = this.ActiveWayPoints.First();
-                //            wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
-                //            forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-                //            angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                //        }
-                //        */
-                //    }
-                //    if (this.Target != null)
-                //    {
-                //        float d = Vector2.Distance(this.Target.Center, this.Owner.Center);
-                //        if (angleDiff > 0.400000005960464f)
-                //        {
-                //            this.Owner.HyperspaceReturn();
-                //        }
-                //        else if (d > 25000f)
-                //        {
-                //            this.Owner.HyperspaceReturn();
-                //        }
-                //    }
-                //    else if ((this.State != AIState.Bombard && this.State!=AIState.AssaultPlanet && this.State != AIState.BombardTroops && !this.IgnoreCombat) || this.OrderQueue.Count <= 0)
-                //    {
-                //        this.Owner.HyperspaceReturn();
-                //    }
-                //    else if (this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet != null)
-                //    {
-                //        float d = Vector2.Distance(this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet.Position, this.Owner.Center);
-                //        wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet.Position));
-                //         angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                //        //float d = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                //        //if (angleDiff > 0.65f)
-
-                //        if (angleDiff > 0.400000005960464f)
-                //        {
-                //            this.Owner.HyperspaceReturn();
-                //        }
-                //        else if (d > 25000f)
-                //        {
-                //            this.Owner.HyperspaceReturn();
-                //        }
-                //    }
-                //    else if(angleDiff > 0.25f)
-                //        this.Owner.HyperspaceReturn();
-                //}
-                #endregion 
 
                 if (this.hasPriorityTarget && Distance < this.Owner.maxWeaponsRange)
                 {
@@ -7265,7 +7186,7 @@ namespace Ship_Game.Gameplay
                                                 {
                                                     this.AwaitOrdersPlayer(elapsedTime);
                                                 }
-                                                //fbedard: Return to trading
+                                                //fbedard: resume trading
                                                 if (this.FoodOrProd == "Pass")
                                                     this.State = AIState.PassengerTransport;
                                                 else if (this.FoodOrProd == "Food" || this.FoodOrProd == "Prod")
