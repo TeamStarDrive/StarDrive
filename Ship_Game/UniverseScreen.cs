@@ -1,4 +1,4 @@
-// Type: Ship_Game.UniverseScreen
+// Type:+836Ship_Game.UniverseScreen
 // Assembly: StarDrive, Version=1.0.9.0, Culture=neutral, PublicKeyToken=null
 // MVID: C34284EE-F947-460F-BF1D-3C6685B19387
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
