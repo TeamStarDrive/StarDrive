@@ -1176,6 +1176,7 @@ namespace Ship_Game
                 if (empire.data.Defeated && !empire.isFaction)
                 {
                     List<string> shipkill = new List<string>();
+                    HashSet<string> model =  new HashSet<string>();
                     foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
                     {
                         if (ship.Value.shipData.ShipStyle == empire.data.Traits.ShipType )
@@ -1183,9 +1184,14 @@ namespace Ship_Game
                             bool killSwitch = true;
                             foreach (Empire ebuild in EmpireManager.EmpireList)
                             {
+                                if (ebuild == empire)
+                                    continue;
                                 if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+                                {
                                     killSwitch = false;
-                                break;
+                                    model.Add(ship.Value.shipData.Hull);
+                                    break;
+                                }
                             }
 
 
@@ -1195,6 +1201,7 @@ namespace Ship_Game
                                     if (ship.Key == mship.Name)
                                     {
                                         killSwitch = false;
+                                        model.Add(ship.Value.shipData.Hull);
                                         break;
                                     }
                                 }
@@ -1208,6 +1215,14 @@ namespace Ship_Game
                     foreach (string shiptoclear in shipkill)
                     {
                         ResourceManager.ShipsDict.Remove(shiptoclear);
+                    }
+                    foreach (string hull in empire.GetHDict().Keys)
+                    {
+                        if (model.Contains(hull))
+                            continue;
+                        ResourceManager.ModelDict.Remove(ResourceManager.HullsDict[hull].ModelPath);
+
+
                     }
 
                 }
