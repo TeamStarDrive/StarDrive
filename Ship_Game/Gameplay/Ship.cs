@@ -2946,11 +2946,11 @@ namespace Ship_Game.Gameplay
                         }
                     }//);
                     //this.beams.thisLock.ExitReadLock();
-                    
-                    this.beams.ApplyPendingRemovals();
+
+                    this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear);
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear);
+                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
 
                     
                 }
