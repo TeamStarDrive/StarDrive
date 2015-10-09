@@ -252,6 +252,7 @@ namespace Ship_Game
             }
             //clear out empires ships from ship dictionary
             List<string> shipkill = new List<string>();
+            HashSet<string> model =  new HashSet<string>();
             foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
             {
                 if (ship.Value.shipData.ShipStyle == this.data.Traits.ShipType)
@@ -259,9 +260,15 @@ namespace Ship_Game
                     bool killSwitch = true;
                     foreach (Empire ebuild in EmpireManager.EmpireList)
                     {
+                        if (ebuild == this)
+                            continue;
                         if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+                        {    
                             killSwitch = false;
-                        break;
+                            model.Add(ship.Value.shipData.Hull);
+                            break;
+                        }
+
                     }
 
 
@@ -271,6 +278,7 @@ namespace Ship_Game
                             if (ship.Key == mship.Name)
                             {
                                 killSwitch = false;
+                                model.Add(ship.Value.shipData.Hull);
                                 break;
                             }
                         }
@@ -281,6 +289,15 @@ namespace Ship_Game
             foreach (string shiptoclear in shipkill)
             {
                 ResourceManager.ShipsDict.Remove(shiptoclear);
+            }
+            //clear out hull models too.
+            foreach(string hull in this.GetHDict().Keys)
+            {
+                if (model.Contains(hull))
+                    continue;
+                ResourceManager.ModelDict.Remove(ResourceManager.HullsDict[hull].ModelPath);
+                
+
             }
             this.OwnedShips.Clear();
             this.data.AgentList.Clear();
@@ -617,6 +634,8 @@ namespace Ship_Game
                 throw e;
             }
 
+            
+
             //Added by gremlin Figure out techs with modules that we have ships for.
             foreach (KeyValuePair<string,TechEntry> tech in this.TechnologyDict)
             {
@@ -637,7 +656,53 @@ namespace Ship_Game
                 }
             }
             this.MarkShipDesignsUnlockable();
-            
+            if (true) //purge designs that dont advance the ships
+            {
+                System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
+                if (!this.isFaction)
+                {
+                    HashSet<string> techs = new HashSet<string>();
+                    HashSet<string> purgelist = new HashSet<string>();
+                    int count = 2; //how many best ships to pick
+                    //pick the best ships and record their techs
+                    foreach (Ship ship in ResourceManager.ShipsDict.Values.OrderByDescending(str => str.BaseStrength))
+                    {
+                        foreach (string techsneeded in ship.shipData.techsNeeded)
+                            techs.Add(techsneeded);
+                        if (count < 0)
+                            break;
+                        count--;
+
+                    }
+                    // use the recorded techs and purge ships that do not have enough of those techs.
+                    foreach (Ship ship in ResourceManager.ShipsDict.Values)
+                    {
+                        if (ship.shipData.techsNeeded.Count == 0 || ship.shipData.BaseStrength == 0
+                            || 
+                            ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.Role == ShipData.RoleName.prototype
+                            || ship.shipData.ShipStyle != this.data.Traits.ShipType || ship.shipData.techsNeeded.Count == 0
+                            )
+                            continue;
+                        var difference = ship.shipData.techsNeeded.Except(techs);
+                        if (difference.Count() == 0)
+                            continue;
+                        if (difference.Count() / ship.shipData.techsNeeded.Count < .1)
+                        {
+                            purgelist.Add(ship.shipData.Name);
+                        }
+
+
+                    }
+                    System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " - Purging " + purgelist.Count.ToString());
+                    foreach (string purge in purgelist)
+                    {
+                        ResourceManager.ShipsDict.Remove(purge);
+                    }
+                }
+                GC.Collect();
+                System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
+
+            }
         }
 
         private bool WeCanUseThisLater(TechEntry tech)
