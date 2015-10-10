@@ -100,7 +100,9 @@ namespace Ship_Game.Gameplay
                 for (int index = 0; index < this.CollidableObjects.Count; ++index)
                 {
                     GameplayObject gameplayObject = this.CollidableObjects[index];
-                    if (!(gameplayObject.GetSystem() != null & system == null) && gameplayObject != null && (!(gameplayObject is Ship) || system != null || (gameplayObject as Ship).GetAI().BadGuysNear))
+                    Ship oShip = gameplayObject as Ship;
+                    //if (gameplayObject != null &&!(gameplayObject.GetSystem() != null & system == null) &&  (!(gameplayObject is Ship) || system != null || (gameplayObject as Ship).GetAI().BadGuysNear))
+                    if (gameplayObject != null && !(gameplayObject.GetSystem() != null & system == null) && (oShip == null || system != null || oShip.GetAI().BadGuysNear))
                         this.MoveAndCollide(gameplayObject);
                 }
             }
