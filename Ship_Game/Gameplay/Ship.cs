@@ -2947,10 +2947,10 @@ namespace Ship_Game.Gameplay
                     }//);
                     //this.beams.thisLock.ExitReadLock();
 
-                    this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear);
+                    this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
+                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
 
                     
                 }
@@ -3241,7 +3241,7 @@ namespace Ship_Game.Gameplay
                 if (!flag)
                     this.InhibitedTimer = 0.0f;
             }
-            if(this.velocityMaximum==0)
+            if(this.velocityMaximum==0 && this.shipData.Role <= ShipData.RoleName.station)
             {
                 this.rotation += 0.003f;
             }
