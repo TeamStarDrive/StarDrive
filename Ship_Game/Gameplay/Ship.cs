@@ -2548,7 +2548,8 @@ namespace Ship_Game.Gameplay
             //if (!GlobalStats.WarpInSystem && this.system != null)
             //    this.InhibitedTimer = 1f;
             //else 
-                if (this.FTLmodifier < 1.0 && this.system != null && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed()))
+                if (this.FTLmodifier < 1.0 && this.system != null 
+                    && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed()))
                 this.HyperspaceReturn();
             if (this.ScuttleTimer > -1.0 || this.ScuttleTimer <-1.0)
             {
@@ -2947,10 +2948,10 @@ namespace Ship_Game.Gameplay
                     }//);
                     //this.beams.thisLock.ExitReadLock();
 
-                    this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear);
+                    this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
+                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
 
                     
                 }
@@ -3241,7 +3242,7 @@ namespace Ship_Game.Gameplay
                 if (!flag)
                     this.InhibitedTimer = 0.0f;
             }
-            if(this.velocityMaximum==0)
+            if(this.velocityMaximum==0 && this.shipData.Role <= ShipData.RoleName.station)
             {
                 this.rotation += 0.003f;
             }

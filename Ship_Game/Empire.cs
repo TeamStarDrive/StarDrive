@@ -2722,7 +2722,7 @@ namespace Ship_Game
                     StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].Population += planet.Population;
                 int num2 = planet.HasWinBuilding ? 1 : 0;
             }
-            if (this.data.TurnsBelowZero > 0  && (this.Money < 0.0 && !Empire.universeScreen.Debug && this.isPlayer)) // && this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+            if (this.data.TurnsBelowZero > 0  && (this.Money < 0.0 && !Empire.universeScreen.Debug))// && this.isPlayer)) // && this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
             {
                 if (this.data.TurnsBelowZero >= 25)
                 {
@@ -2739,6 +2739,13 @@ namespace Ship_Game
                         {
                             key.GetRelations().Add(rebelsFromEmpireData, new Relationship(rebelsFromEmpireData.data.Traits.Name));
                             rebelsFromEmpireData.GetRelations().Add(key, new Relationship(key.data.Traits.Name));
+                        }
+                        foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+                        {
+                            solarSystem.ExploredDict.Add(rebelsFromEmpireData, false);
+                            foreach (Planet planet in solarSystem.PlanetList)
+                                planet.ExploredDict.Add(rebelsFromEmpireData, false);
+
                         }
                         EmpireManager.EmpireList.Add(rebelsFromEmpireData);
                         this.data.RebellionLaunched = true; 
@@ -3535,6 +3542,11 @@ namespace Ship_Game
             }
             ship.fleet = null;
             this.GetGSAI().DefensiveCoordinator.remove(ship);
+            ship.GetAI().orderqueue.EnterWriteLock();
+            ship.GetAI().OrderQueue.Clear();
+            ship.GetAI().orderqueue.ExitWriteLock();
+            ship.GetAI().State = AIState.AwaitingOrders;
+
 
         }
 
