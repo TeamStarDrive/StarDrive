@@ -1025,7 +1025,7 @@ namespace Ship_Game.Gameplay
                 this.emitter.Position = new Vector3(this.Center, 0.0f);
                 if (this.ProjSO !=null && (this.isInDeepSpace || this.system != null && this.system.isVisible) && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    if ((double)this.zStart < -25.0)
+                    if (this.zStart < -25.0)
                         this.zStart += this.velocityMaximum * elapsedTime;
                     else
                         this.zStart = -25f;
@@ -1033,17 +1033,17 @@ namespace Ship_Game.Gameplay
                     this.WorldMatrix = this.ProjSO.World;
                 }
                 Vector3 newPosition = new Vector3(this.Center.X, this.Center.Y, -this.zStart);
-                if (this.firetrailEmitter != null && this.WeaponEffectType == "Plasma" && ((double)this.duration > (double)this.initialDuration * 0.699999988079071 && (double)this.particleDelay <= 0.0))
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "Plasma" && (this.duration > this.initialDuration * 0.699999988079071 && this.particleDelay <= 0.0))
                     this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
 
-                if (this.firetrailEmitter != null && this.WeaponEffectType == "MuzzleSmoke" && ((double)this.duration > (double)this.initialDuration * 0.97 && (double)this.particleDelay <= 0.0))
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "MuzzleSmoke" && (this.duration > this.initialDuration * 0.97 && this.particleDelay <= 0.0))
                     this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
 
-                if (this.firetrailEmitter != null && this.WeaponEffectType == "MuzzleSmokeFire" && ((double)this.duration > (double)this.initialDuration * 0.97 && (double)this.particleDelay <= 0.0))
+                if (this.firetrailEmitter != null && this.WeaponEffectType == "MuzzleSmokeFire" && (this.duration > this.initialDuration * 0.97 && this.particleDelay <= 0.0))
                 {
                     this.firetrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, new Vector3(this.Velocity, 0.0f) + Vector3.Normalize(new Vector3(this.direction, 0.0f)) * this.speed * 1.75f);
                 }
-                if (this.trailEmitter != null && this.WeaponEffectType == "MuzzleSmokeFire" && ((double)this.duration > (double)this.initialDuration * 0.96 && (double)this.particleDelay <= 0.0))
+                if (this.trailEmitter != null && this.WeaponEffectType == "MuzzleSmokeFire" && (this.duration > this.initialDuration * 0.96 && this.particleDelay <= 0.0))
                 {
                     this.trailEmitter.Update(elapsedTime, newPosition);
                 }
@@ -1052,7 +1052,7 @@ namespace Ship_Game.Gameplay
                 {
                     this.trailEmitter.Update(elapsedTime, newPosition);
                 }
-                if (this.trailEmitter != null && this.WeaponEffectType == "FullSmokeMuzzleFire" && ((double)this.duration > (double)this.initialDuration * 0.96 && (double)this.particleDelay <= 0.0))
+                if (this.trailEmitter != null && this.WeaponEffectType == "FullSmokeMuzzleFire" && (this.duration > this.initialDuration * 0.96 && this.particleDelay <= 0.0))
                 {
                     this.firetrailEmitter.Update(elapsedTime, newPosition);
                 }
@@ -1118,7 +1118,7 @@ namespace Ship_Game.Gameplay
                         lock (GlobalStats.ExplosionLocker)
                             MuzzleFlashManager.FlashList.Add(this.flash);
                     }
-                    else if ((double)this.flashTimer > 0.0 && this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && this.muzzleFlashAdded)
+                    else if (this.flashTimer > 0.0 && this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && this.muzzleFlashAdded)
                     {
                         this.flashTimer -= elapsedTime;
                         this.MuzzleFlash.Position = new Vector3(this.moduleAttachedTo.Center.X, this.moduleAttachedTo.Center.Y, -45f);
@@ -1126,7 +1126,7 @@ namespace Ship_Game.Gameplay
                         this.MuzzleFlash.World = Matrix.Identity * Matrix.CreateTranslation(this.MuzzleFlash.Position);
                     }
                 }
-                if ((double)this.flashTimer <= 0.0 && this.muzzleFlashAdded)
+                if (this.flashTimer <= 0.0 && this.muzzleFlashAdded)
                 {
                     lock (GlobalStats.ObjectManagerLocker)
                         Projectile.universeScreen.ScreenManager.inter.LightManager.Remove((ILight)this.MuzzleFlash);

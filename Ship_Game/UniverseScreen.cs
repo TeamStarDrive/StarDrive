@@ -1653,7 +1653,7 @@ namespace Ship_Game
       
                 Parallel.Invoke(() =>
                     {
-                        if ((double)elapsedTime > 0.0 && (double)this.shiptimer <= 0.0)
+                        if (elapsedTime > 0.0 && this.shiptimer <= 0.0)
                         {
                             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                                 solarSystem.ShipList.Clear();
@@ -1671,7 +1671,7 @@ namespace Ship_Game
                                    ship.SetSystem((SolarSystem)null);
                                    foreach (SolarSystem s in UniverseScreen.SolarSystemList)
                                    {
-                                       if ((double)Vector2.Distance(ship.Position, s.Position) < 100000.0)
+                                       if (Vector2.Distance(ship.Position, s.Position) < 100000.0)
                                        {
                                            s.ExploredDict[ship.loyalty] = true;
                                            ship.SetSystem(s);
@@ -2301,7 +2301,7 @@ namespace Ship_Game
         }
         protected void SpatManUpdate2(float elapsedTime)
         {
-            lock (GlobalStats.DeepSpaceLock)
+           // lock (GlobalStats.DeepSpaceLock)
             {
                 foreach (Projectile item_0 in this.DSProjectilesToAdd)
                     UniverseScreen.DeepSpaceManager.CollidableObjects.Add((GameplayObject)item_0);
