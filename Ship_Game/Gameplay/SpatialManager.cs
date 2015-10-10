@@ -53,7 +53,7 @@ namespace Ship_Game.Gameplay
         {
             this.BeamList.ApplyPendingRemovals();
             this.bucketUpdateTimer -= elapsedTime;
-            if ((double)this.bucketUpdateTimer <= 0.0)
+            if (this.bucketUpdateTimer <= 0.0)
             {
                 this.ClearBuckets();
                 if (system != null)
