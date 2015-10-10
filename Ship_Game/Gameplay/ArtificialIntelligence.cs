@@ -5988,15 +5988,17 @@ namespace Ship_Game.Gameplay
                 for (int i = 0; i < nearby.Count; i++)
                 {
                     Ship item1 = nearby[i] as Ship;
-                    if (item1 != null && item1.Active && !item1.dying &&(Vector2.Distance(this.Owner.Center, item1.Center) <= Radius))
+                    float distance = Vector2.Distance(this.Owner.Center, item1.Center);
+                    if (item1 != null && item1.Active && !item1.dying && (distance <= Radius + (Radius == 0 ? 10000 : 0)))
                     {
+                        
                         Empire empire = item1.loyalty;
                         Ship shipTarget = item1.GetAI().Target as Ship;
                         if (empire == Owner.loyalty)
                         {
                             this.FriendliesNearby.Add(item1);
                         }
-                        else if (empire != this.Owner.loyalty
+                        else if (empire != this.Owner.loyalty && Radius > 0
                             && shipTarget != null
                             && shipTarget == this.EscortTarget && item1.engineState != Ship.MoveState.Warp)
                         {
@@ -6009,7 +6011,7 @@ namespace Ship_Game.Gameplay
                             this.BadGuysNear = true;
                             //this.PotentialTargets.Add(item1);
                         }
-                        else if ((item1.loyalty != this.Owner.loyalty
+                        else if (Radius > 0 && (item1.loyalty != this.Owner.loyalty 
                             && this.Owner.loyalty.GetRelations()[item1.loyalty].AtWar
                             || this.Owner.loyalty.isFaction || item1.loyalty.isFaction))//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
                         {
@@ -6020,6 +6022,12 @@ namespace Ship_Game.Gameplay
                             //this.PotentialTargets.Add(item1);
                             this.BadGuysNear = Vector2.Distance(Position, item1.Position) <= Radius;
                         }
+                        else if (Radius == 0 &&
+                            (item1.loyalty != this.Owner.loyalty
+                            && this.Owner.loyalty.GetRelations()[item1.loyalty].AtWar
+                            || this.Owner.loyalty.isFaction || item1.loyalty.isFaction)
+                            )
+                            this.BadGuysNear = true;
 
 
                     }
