@@ -10,7 +10,7 @@ namespace Ship_Game
 	public sealed class GlobalStats
 	{
         public static string branch = "RC";
-        public static string Version = "1008";
+        public static string Version = "1012";
         public static int ComparisonCounter;
 
 		public static int Comparisons;
