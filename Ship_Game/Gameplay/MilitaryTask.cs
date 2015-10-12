@@ -331,11 +331,10 @@ namespace Ship_Game.Gameplay
             List<Troop> Troops = new List<Troop>();
             foreach (AO area in sorted)
             {
-                foreach (Ship ship in this.empire.GetShips().OrderBy(str=> str.BaseStrength))
+                foreach (Ship ship in this.empire.GetShips().OrderBy(str=> str.BaseStrength).ThenBy(ship=> Vector2.Distance(ship.Center, area.Position) >= area.Radius ))
                 {
                     if ((ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform) 
-                        || ship.BaseStrength == 0f 
-                        || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
+                        || ship.BaseStrength == 0f                         
                         || ship.InCombat
                         || ship.fleet != null
                         || this.empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))//&& ship.fleet.Task == null) //&& ship.fleet != null && ship.fleet.Task == null)
@@ -407,7 +406,7 @@ namespace Ship_Game.Gameplay
             {
                 do
                 {
-                    if (numOfTroops >15||!enumerator1.MoveNext() )
+                    if (!enumerator1.MoveNext() )
                     {
                         break;
                     }
@@ -416,7 +415,7 @@ namespace Ship_Game.Gameplay
                     PotentialTroops.Add(t);
                     troopStr = troopStr + (float)t.Strength;
                 }
-                while (troopStr <= EnemyTroopStr * 1.25f );
+                while (troopStr <= EnemyTroopStr * 1.25f && numOfTroops < 16);
             }
             finally
             {
@@ -1036,29 +1035,7 @@ namespace Ship_Game.Gameplay
 		private float GetEnemyTroopStr()
 		{
             return this.TargetPlanet.GetGroundStrengthOther(this.empire);
-            /*
-            float EnemyTroopStrength = 0f;
-			foreach (PlanetGridSquare pgs in this.TargetPlanet.TilesList)
-			{
-				if (pgs.TroopsHere.Count <= 0)
-				{
-					if (pgs.building == null || pgs.building.CombatStrength <= 0)
-					{
-						continue;
-					}
-					EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + 5);
-				}
-				else
-				{
-					EnemyTroopStrength = EnemyTroopStrength + (float)pgs.TroopsHere[0].Strength;
-				}
-			}
-			if (EnemyTroopStrength < 20f)
-			{
-				EnemyTroopStrength = 50f;
-			}
-			return EnemyTroopStrength;
-             */ 
+
 		}
 
 		public Planet GetTargetPlanet()
@@ -1104,8 +1081,8 @@ namespace Ship_Game.Gameplay
             int troopCount = 0;
             foreach (PlanetGridSquare pgs in this.TargetPlanet.TilesList)
             {
-                if (troopCount > 25)
-                    break;
+                //if (troopCount > 25)
+                //    break;
                 if (pgs.TroopsHere.Count <= 0)
                 {
                     if (pgs.building == null || pgs.building.CombatStrength <= 0)
@@ -1113,11 +1090,11 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.Strength + (float)(pgs.building.CombatStrength));
-                    troopCount++;
+                   
                 }
                 else
                 {
-                    troopCount++;
+                    
                     EnemyTroopStrength = EnemyTroopStrength + (float)pgs.TroopsHere[0].Strength;
                     if (pgs.building == null || pgs.building.CombatStrength <= 0)
                     {
@@ -1135,9 +1112,9 @@ namespace Ship_Game.Gameplay
             List<Ship> PotentialAssaultShips = new List<Ship>();
             List<Troop> PotentialTroops = new List<Troop>();
             List<Ship> PotentialBombers = new List<Ship>();
-            foreach (Ship ship in this.empire.GetShips().OrderBy(troops => Vector2.Distance(this.AO, troops.Position)))
+            foreach (Ship ship in this.empire.GetShips().OrderBy(str=> str.GetStrength()).OrderBy(troops => Vector2.Distance(this.AO, troops.Position)))
             {
-                if ((ship.TroopList.Count <= 0 || ship.fleet != null) || (!ship.HasTroopBay && ship.shipData.Role != ShipData.RoleName.troop && !ship.hasTransporter))
+                if (ship.TroopList.Count <= 0 || ship.fleet != null || (!ship.HasTroopBay && ship.shipData.Role != ShipData.RoleName.troop && !ship.hasTransporter))
                 {
                     continue;
                 }
@@ -1241,7 +1218,9 @@ namespace Ship_Game.Gameplay
             {
                 if (ship.InCombat || ship.fleet != null || tfstrength >= MinimumEscortStrength 
                     || ship.GetAI().State == AIState.Explore
-                    || ship.GetStrength() <= 0f || (ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform))
+                    || ship.GetStrength() <= 0f || ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
+                    || ship.shipData.Role == ShipData.RoleName.troop || ship.hasAssaultTransporter || ship.HasTroopBay
+                    )
                 {
                     continue;
                 }
@@ -1249,7 +1228,7 @@ namespace Ship_Game.Gameplay
                 elTaskForce.Add(ship);
             }
             if (!this.empire.isFaction
-                && this.empire.data.DiplomaticPersonality.Name == "Aggressive"
+                && this.empire.data.DiplomaticPersonality.Territorialism <50 && tfstrength<MinimumEscortStrength
                 //|| empire.data.DiplomaticPersonality.Name == "Xenophobic"
                 //|| empire.GetRelations().Where(war => war.Value.ActiveWar !=null).Count() <2
                 )
@@ -1264,7 +1243,9 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Ship ship in entry.Value.GetShipList())
                     {
-                        if (ship.InCombat || ship.fleet != null || tfstrength >= MinimumEscortStrength || ship.GetStrength() <= 0f)
+                        if (ship.GetAI().BadGuysNear|| ship.fleet != null || tfstrength >= MinimumEscortStrength || ship.GetStrength() <= 0f
+                            || ship.shipData.Role == ShipData.RoleName.troop || ship.hasAssaultTransporter || ship.HasTroopBay
+                            )
                         {
                             continue;
                         }
@@ -1274,10 +1255,10 @@ namespace Ship_Game.Gameplay
 
                 }
             }
-
-
+            troopCount -= this.TargetPlanet.GetGroundLandingSpots();
+          
             //if (ourAvailableStrength > EnemyTroopStrength * 1.65f && tfstrength >= this.MinimumTaskForceStrength)
-            if (this.TargetPlanet.GetGroundLandingSpots() >10 && tfstrength >= this.MinimumTaskForceStrength)
+            if (ourAvailableStrength >= EnemyTroopStrength && this.TargetPlanet.GetGroundLandingSpots() > 10 && tfstrength >= this.MinimumTaskForceStrength)
             {
                 if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.GetRelations().ContainsKey(this.TargetPlanet.Owner))
                 {
@@ -1295,6 +1276,7 @@ namespace Ship_Game.Gameplay
                     Name = "Invasion Fleet"
                 };
                 int i = 1;
+                
                 while (i < 10)
                 {
                     if (this.empire.GetGSAI().UsedFleets.Contains(i))
@@ -1309,7 +1291,7 @@ namespace Ship_Game.Gameplay
                         {
                             do
                             {
-                                if (!enumerator1.MoveNext())
+                                if (!enumerator1.MoveNext() )
                                 {
                                     break;
                                 }
@@ -1320,8 +1302,9 @@ namespace Ship_Game.Gameplay
                                     ForceStrength = ForceStrength + (float)t.Strength;
                                 }
                                 this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                                troopCount++;
                             }
-                            while (ForceStrength <= EnemyTroopStrength);//* 2f);
+                            while (ForceStrength <= EnemyTroopStrength && troopCount <1);//* 2f);
                         }
                         finally
                         {
@@ -1333,7 +1316,7 @@ namespace Ship_Game.Gameplay
                             do
                             {
                             Label1:
-                                if (!enumerator2.MoveNext())
+                                if (!enumerator2.MoveNext() )
                                 {
                                     break;
                                 }
@@ -1348,6 +1331,7 @@ namespace Ship_Game.Gameplay
                                     {
                                         newFleet.AddShip(t.Launch());
                                         ForceStrength = ForceStrength + (float)t.Strength;
+                                        troopCount++;
                                         
                                     }
                                     else
@@ -1360,7 +1344,7 @@ namespace Ship_Game.Gameplay
                                     goto Label1;
                                 }
                             }
-                            while (ForceStrength <= EnemyTroopStrength || ForceStrength <50);//+ EnemyTroopStrength * 0.3f);
+                            while (ForceStrength <= EnemyTroopStrength  && troopCount <1);//+ EnemyTroopStrength * 0.3f);
                         }
                         finally
                         {
@@ -1372,7 +1356,7 @@ namespace Ship_Game.Gameplay
                         newFleet.Task = this;
                         foreach (Ship ship in elTaskForce)
                         {
-                            newFleet.AddShip(ship);
+                            newFleet.AddShip(ship);                            
                             ship.GetAI().OrderQueue.Clear();
                             ship.GetAI().State = AIState.AwaitingOrders;
                             ClosestAO.GetOffensiveForcePool().Remove(ship);
@@ -1385,9 +1369,9 @@ namespace Ship_Game.Gameplay
                 }
                 this.Step = 1;
             }
-            else if (ourAvailableStrength >= EnemyTroopStrength && tfstrength >= this.MinimumTaskForceStrength)
+            else if (this.TargetPlanet.GetGroundLandingSpots() < 10  && ourAvailableStrength >= EnemyTroopStrength && tfstrength >= this.MinimumTaskForceStrength)
             {
-                foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
+                foreach (Ship ship in this.empire.GetShips())
                 {
                     if (ship.BombBays.Count <= 0)
                     {
@@ -1399,6 +1383,8 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     elTaskForce.Add(ship);
+                    if (PotentialBombers.Count > this.TargetPlanet.GetGroundLandingSpots())
+                        break;
                 }
                 if (PotentialBombers.Count > 0)
                 {
@@ -1432,7 +1418,7 @@ namespace Ship_Game.Gameplay
                             {
                                 do
                                 {
-                                    if (!enumerator3.MoveNext())
+                                    if (!enumerator3.MoveNext() )
                                     {
                                         break;
                                     }
@@ -1442,8 +1428,9 @@ namespace Ship_Game.Gameplay
                                     {
                                         ForceStrength = ForceStrength + (float)t.Strength;
                                     }
+                                    troopCount++;
                                 }
-                                while (ForceStrength <= EnemyTroopStrength * 2f);
+                                while (ForceStrength <= EnemyTroopStrength && troopCount < 1);
                             }
                             finally
                             {
@@ -1455,7 +1442,7 @@ namespace Ship_Game.Gameplay
                                 do
                                 {
                                 Label0:
-                                    if (!enumerator.MoveNext())
+                                    if (!enumerator.MoveNext() )
                                     {
                                         break;
                                     }
@@ -1466,13 +1453,14 @@ namespace Ship_Game.Gameplay
                                         Ship launched = t.Launch();
                                         ForceStrength = ForceStrength + (float)t.Strength;
                                         newFleet.AddShip(launched);
+                                        troopCount++;
                                     }
                                     else
                                     {
                                         goto Label0;
                                     }
                                 }
-                                while (ForceStrength <= EnemyTroopStrength + EnemyTroopStrength * 0.3f);
+                                while (ForceStrength <= EnemyTroopStrength && troopCount < 1);
                             }
                             finally
                             {
@@ -1498,7 +1486,7 @@ namespace Ship_Game.Gameplay
                     this.Step = 1;
                 }
             }
-            else if (ourAvailableStrength > EnemyTroopStrength )
+            else if (ourAvailableStrength > EnemyTroopStrength && this.TargetPlanet.GetGroundLandingSpots() > 10)
             {
                 if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.GetRelations().ContainsKey(this.TargetPlanet.Owner))
                 {
