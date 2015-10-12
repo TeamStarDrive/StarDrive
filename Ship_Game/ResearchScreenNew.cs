@@ -118,7 +118,7 @@ namespace Ship_Game
             foreach (KeyValuePair<string, Node> keyValuePair in this.TechTree)
             {
                 if (keyValuePair.Value is RootNode && (keyValuePair.Value as RootNode).nodeState == NodeState.Press)
-                {
+                {                    
                     Vector2 vector2_1 = new Vector2((float)((keyValuePair.Value as RootNode).RootRect.X + (keyValuePair.Value as RootNode).RootRect.Width - 10), (float)((keyValuePair.Value as RootNode).RootRect.Y + (keyValuePair.Value as RootNode).RootRect.Height / 2));
                     Vector2 vector2_2 = this.MainMenuOffset + new Vector2((float)this.ColumnOffset, 0.0f);
                     vector2_2.Y = vector2_1.Y;

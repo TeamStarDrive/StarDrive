@@ -8414,10 +8414,23 @@ namespace Ship_Game.Gameplay
             foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
             {
 
-
+                
                 TechEntry tech = null;// new TechEntry();
                 bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);
                 if (!techexists || tech == null)
+                    continue;
+                bool flag = false;
+                if (Technology.Value.RaceExclusions.Count != 0)
+                {
+                    foreach (Technology.RequiredRace raceTech in Technology.Value.RaceExclusions)
+                    {
+                        if (raceTech.ShipType == this.empire.data.Traits.ShipType || (this.empire.data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
+                        {
+                            flag = true;
+                        }
+                    }
+                }
+                if (flag)
                     continue;
                 Technology technology = tech.GetTech();
                 if (tech.Unlocked
@@ -8432,7 +8445,7 @@ namespace Ship_Game.Gameplay
 
                     continue;
                 }
-
+                
 
                 AvailableTechsbag.Add(Technology.Value);
             }
