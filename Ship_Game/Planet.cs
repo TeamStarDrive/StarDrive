@@ -6476,13 +6476,38 @@ output = maxp * take10 = 5
         }
         public float GetGroundStrengthOther(Empire empire)
         {
-            float num = 0;
-            if (this.Owner == null || this.Owner != empire)
-                num += this.BuildingList.Sum(offense => offense.CombatStrength>0 ? offense.CombatStrength :1);
-            this.TroopsHere.thisLock.EnterReadLock();
-            num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner()==null ||empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
-            this.TroopsHere.thisLock.ExitReadLock();
-            return num;
+            //float num = 0;
+            //if (this.Owner == null || this.Owner != empire)
+            //    num += this.BuildingList.Sum(offense => offense.CombatStrength > 0 ? offense.CombatStrength : 1);
+            //this.TroopsHere.thisLock.EnterReadLock();
+            //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == null || empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
+            //this.TroopsHere.thisLock.ExitReadLock();
+            //return num;
+
+
+            float EnemyTroopStrength = 0f;
+            foreach (PlanetGridSquare pgs in this.TilesList)
+            {
+                if (pgs.TroopsHere.Count <= 0 && this.Owner != empire)
+                {
+                    if (pgs.building == null || pgs.building.CombatStrength <= 0)
+                    {
+                        continue;
+                    }
+                    EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength));
+                }
+                else if (pgs.TroopsHere[0] != null && pgs.TroopsHere[0].GetOwner() != empire)
+                {
+                    EnemyTroopStrength = EnemyTroopStrength + (float)pgs.TroopsHere[0].Strength;
+                }
+                if (this.Owner == empire || pgs.building == null || pgs.building.CombatStrength <= 0)
+                {
+                    continue;
+                }
+                EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength));
+            }
+
+            return EnemyTroopStrength;
 
 
         }

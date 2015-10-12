@@ -8651,8 +8651,8 @@ namespace Ship_Game.Gameplay
                             if (bombFlag && hangarflag)
                                 break;
                         }
-                        techCost += bombFlag ? 1 : 0;
-                        techCost += hangarflag ? 1 : 0;
+                        techCost -= bombFlag ? 1 : 0;
+                        techCost -= hangarflag ? 1 : 0;
                     }
                     //if(!this.empire.canBuildBombers)
                     //{
