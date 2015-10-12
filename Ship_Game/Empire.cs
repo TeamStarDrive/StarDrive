@@ -493,7 +493,7 @@ namespace Ship_Game
                 fleet.Name = str + " fleet";
                 this.FleetsDict.TryAdd(key, fleet);
             }
-
+            bool excluded =false;
             List<string> shipkill = new List<string>();
             int shipsPurged = 0;
             float SpaceSaved = GC.GetTotalMemory(true);            
@@ -524,16 +524,17 @@ namespace Ship_Game
                             break;
                         }
                     }
-                } //added race exclusions. in this case to prevent some techs from being exposed to the opteris and cybernetic races but also allow it to work in mods with extra races and what not.  
-                else if(keyValuePair.Value.RaceExclusions.Count != 0)
+                } // BROKEN added race exclusions. in this case to prevent some techs from being exposed to the opteris and cybernetic races but also allow it to work in mods with extra races and what not.  
+                else if (keyValuePair.Value.RaceExclusions.Count != 0)
                 {
                     foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceExclusions)
                     {
-                        if (raceTech.ShipType == this.data.Traits.ShipType || (this.data.Traits.Cybernetic >0 && raceTech.ShipType == "Opteris"))
+                        if (raceTech.ShipType == this.data.Traits.ShipType || (this.data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
                         {
                             techEntry.Discovered = false;
-                            techEntry.GetTech().Secret = true;
-                         
+                            techEntry.Unlocked = false;                            
+                            //techEntry.GetTech().Secret = true;                            
+
                         }
                     }
                 }
