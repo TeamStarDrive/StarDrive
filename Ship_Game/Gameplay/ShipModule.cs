@@ -2282,14 +2282,16 @@ namespace Ship_Game.Gameplay
                     string startingscout = this.Parent.loyalty.data.StartingShip;
 
                     Ship temphangarship=null;
-                    if (!this.Parent.loyalty.isFaction && (this.hangarShipUID == startingscout || !this.Parent.loyalty.ShipsWeCanBuild.Contains(this.hangarShipUID)))
+                    if (!this.Parent.loyalty.isFaction && (this.hangarShipUID == startingscout 
+                        || !this.Parent.loyalty.ShipsWeCanBuild.Contains(this.hangarShipUID)))
                     {
 
                         List<Ship> fighters = new List<Ship>();
                         foreach (string shipsWeCanBuild in this.Parent.loyalty.ShipsWeCanBuild)
                         {
 
-                            if (!this.PermittedHangarRoles.Contains(ResourceManager.ShipsDict[shipsWeCanBuild].shipData.GetRole()) || ResourceManager.ShipsDict[shipsWeCanBuild].Size > this.MaximumHangarShipSize)
+                            if (!this.PermittedHangarRoles.Contains(ResourceManager.ShipsDict[shipsWeCanBuild].shipData.GetRole()) 
+                                || ResourceManager.ShipsDict[shipsWeCanBuild].Size > this.MaximumHangarShipSize)
                             {
                                 continue;
                             }
@@ -2298,7 +2300,7 @@ namespace Ship_Game.Gameplay
 
                             if (temphangarship == null)
                                 temphangarship = tempship;
-                            if(temphangarship.BaseStrength  < tempship.BaseStrength)
+                            if(temphangarship.BaseStrength  < tempship.BaseStrength || temphangarship.Size < tempship .BaseStrength)
                                 temphangarship = tempship;
                             }
                                 //temphangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).FirstOrDefault();
