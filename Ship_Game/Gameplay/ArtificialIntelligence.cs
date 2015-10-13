@@ -1401,16 +1401,26 @@ namespace Ship_Game.Gameplay
             float DistanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
             float minRangeMod = this.Owner.maxWeaponsRange < 2000 ? .5f : .75f;
             float maxRangeMod = this.Owner.maxWeaponsRange < 2000 ? .75f : .9f;
-            if (DistanceToTarget > this.Owner.maxWeaponsRange * maxRangeMod + this.Target.Radius)
+            float rangemod = this.Owner.Radius + this.Target.Radius;
+            rangemod = this.Owner.maxWeaponsRange /(rangemod + this.Owner.maxWeaponsRange);
+
+            if (DistanceToTarget > this.Owner.maxWeaponsRange * rangemod) // + this.Target.Radius 
             {
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
 
-            if (DistanceToTarget < this.Owner.maxWeaponsRange * minRangeMod && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget)
+            else if(this.Owner.Level<2)//if (Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget + this.Target.Radius) //DistanceToTarget < this.Owner.maxWeaponsRange * minRangeMod && 
             {
-                Ship owner = this.Owner;
-                owner.Velocity = owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+                this.Owner.Velocity = Owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+            }
+            else
+            {
+                rangemod = ((DistanceToTarget + this.Owner.maxWeaponsRange) *.5f)/ (this.Owner.maxWeaponsRange * rangemod);
+                if (rangemod > 1)
+                    rangemod = 1;
+                
+                this.Owner.Velocity = Owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum*rangemod));
             }
             if (angleDiff <= 0.02f)
             {
@@ -7806,9 +7816,7 @@ namespace Ship_Game.Gameplay
             TriggerDelay -= elapsedTime;
             if (this.Owner.InCombat && this.BadGuysNear && !this.IgnoreCombat)
             {
-                if (this.TriggerDelay < 0)
-                {
-                    TriggerDelay = elapsedTime * 2;
+              
                     bool docombat = false;
                     LinkedListNode<ArtificialIntelligence.ShipGoal> tempShipGoal = this.OrderQueue.First;
                     ShipGoal firstgoal = tempShipGoal != null ? tempShipGoal.Value : null;  //.FirstOrDefault<ArtificialIntelligence.ShipGoal>();
@@ -7830,9 +7838,12 @@ namespace Ship_Game.Gameplay
 
 
                         //this.fireTask = Task.Factory.StartNew(this.FireOnTarget);//,TaskCreationOptions.LongRunning);
-                        //fireTask = new Task(this.FireOnTarget);                    
-                        this.FireOnTarget();
-
+                        //fireTask = new Task(this.FireOnTarget);    
+                        if (this.TriggerDelay < 0)
+                        {
+                            TriggerDelay = elapsedTime * 2;
+                            this.FireOnTarget();
+                        }
 
                     }
 
@@ -7842,7 +7853,7 @@ namespace Ship_Game.Gameplay
                         }
                 
 #endif
-                }
+                
             }
             else
             {

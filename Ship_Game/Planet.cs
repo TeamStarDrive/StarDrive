@@ -2679,8 +2679,12 @@ namespace Ship_Game
             {
                 if (eventLocation.x == start.x + changex && eventLocation.y == start.y + changey)
                 {
+                    eventLocation.TroopsHere.thisLock.EnterWriteLock();
                     if (eventLocation.building != null && eventLocation.building.CombatStrength > 0 || eventLocation.TroopsHere.Count > 0)
+                    {
+                        eventLocation.TroopsHere.thisLock.ExitWriteLock();
                         return false;
+                    }
                     if (changex > 0)
                         start.TroopsHere[0].facingRight = true;
                     else if (changex < 0)
@@ -2692,8 +2696,12 @@ namespace Ship_Game
                     eventLocation.TroopsHere.Add(start.TroopsHere[0]);
                     start.TroopsHere.Clear();
                     if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
+                    {
+                        eventLocation.TroopsHere.thisLock.ExitWriteLock();
                         return true;
+                    }
                     ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), Planet.universeScreen);
+                    eventLocation.TroopsHere.thisLock.ExitWriteLock();
                 }
             }
             return false;
@@ -2787,6 +2795,13 @@ namespace Ship_Game
         private void AffectNearbyShips()
         {
             float RepairPool = this.developmentLevel * this.RepairPerTurn * 20;
+            if(this.HasShipyard)
+            {
+                foreach(Ship ship in this.Shipyards.Values)
+                {                    
+                        RepairPool += ship.RepairRate;                    
+                }
+            }
             for (int i = 0; i < this.system.ShipList.Count; i++)
             {
                 Ship ship = this.system.ShipList[i];
@@ -2832,13 +2847,15 @@ namespace Ship_Game
                         }
                     }
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
-                    if (!ship.InCombat && RepairPool > 0 && ship.Health < ship.HealthMax)
+                    if (!ship.InCombat && RepairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent <90))
                     {
+                        
                         foreach (ModuleSlot slot in ship.ModuleSlotList.Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax))
                         {
                             if (slot.module.HealthMax - slot.module.Health > RepairPool)
                             {
                                 slot.module.Repair(RepairPool);
+                                RepairPool = 0;
                                 break;
                             }
                             else
@@ -2847,6 +2864,27 @@ namespace Ship_Game
                                 slot.module.Repair(slot.module.HealthMax);
                             }
                         }
+                        if (RepairPool > 0)
+                        {
+                            float shieldrepair = .2f * RepairPool;
+                            if (ship.shield_max - ship.shield_power > shieldrepair)
+                                ship.shield_power += shieldrepair;
+                            else
+                            {
+                                shieldrepair = ship.shield_max - ship.shield_power;
+                                ship.shield_power = ship.shield_max;
+                                
+                            }
+                            RepairPool = -shieldrepair;
+                        }
+                    }
+                    else if(ship.GetAI().State == AIState.Resupply)
+                    {
+                        ship.GetAI().ClearOrdersNext =true;                        
+                        ship.GetAI().Target = null;
+                        ship.GetAI().PotentialTargets.Clear();
+                        ship.GetAI().HasPriorityOrder = false;
+
                     }
                     //auto load troop:
                     if ((this.ParentSystem.combatTimer <= 0 || !ship.InCombat) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
@@ -2855,13 +2893,15 @@ namespace Ship_Game
                         {
                             if (ship.TroopCapacity ==0 || ship.TroopList.Count >= ship.TroopCapacity) 
                                 break;
+                            pgs.TroopsHere.thisLock.EnterWriteLock();
                             if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
-                            {
+                            {                                
                                 Troop troop = pgs.TroopsHere[0];
                                 ship.TroopList.Add(troop);
                                 pgs.TroopsHere.Clear();
                                 this.TroopsHere.Remove(troop);
                             }
+                            pgs.TroopsHere.thisLock.ExitWriteLock();
                         }
                     }
                 }
