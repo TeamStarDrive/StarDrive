@@ -2825,9 +2825,14 @@ namespace Ship_Game.Gameplay
             //    return;
 
             //}
+
+            float distance = Vector2.Distance(weapon.Center, target.Center);// +target.Velocity.Length() == 0 ? 0 : 500;
+            Vector2 dir =Vector2.Zero;
+            if(this.Owner.Velocity.Length() >0 && weapon.ProjectileSpeed >0 )
+             dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
+            else 
+                dir = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)); 
             
-            float distance = Vector2.Distance(weapon.Center, target.Center) + target.Velocity.Length()==0?0: 500;
-            Vector2 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
             float timeToTarget = distance / dir.Length();
             Vector2 projectedPosition = target.Center;
             //this.moduleTarget = target as ShipModule;
