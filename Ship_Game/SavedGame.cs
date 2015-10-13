@@ -108,7 +108,8 @@ namespace Ship_Game
 							prodHere = ring.planet.ProductionHere,
 							GovernorOn = ring.planet.GovernorOn,
 							ColonyType = ring.planet.colonyType,
-							StationsList = new List<Guid>()
+							StationsList = new List<Guid>(),
+                            SpecialDescription = ring.planet.SpecialDescription
 						};
 						foreach (KeyValuePair<Guid, Ship> station in ring.planet.Shipyards)
 						{
@@ -720,6 +721,7 @@ namespace Ship_Game
 		public struct PlanetSaveData
 		{
 			public Guid guid;
+            public string SpecialDescription;
 
 			public string Name;
 
