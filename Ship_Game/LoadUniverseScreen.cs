@@ -641,7 +641,7 @@ namespace Ship_Game
 					Ship ship = Ship.LoadSavedShip(shipData.data);
 					ship.guid = shipData.guid;
 					ship.Name = shipData.Name;
-                    if (!string.IsNullOrEmpty(shipData.VanityName))
+                    if (shipData.Name != shipData.VanityName)//  !string.IsNullOrEmpty(shipData.VanityName))
                         ship.VanityName = shipData.VanityName;
                     else
                     {
